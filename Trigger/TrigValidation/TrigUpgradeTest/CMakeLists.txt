@@ -180,6 +180,14 @@ atlas_add_test( NewJO
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
    )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest )
+atlas_add_test( pebTest
+   SCRIPT test/test_peb.sh
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest
+   EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_"
+   )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
 atlas_add_test( l1sim
    SCRIPT test/test_l1sim.sh

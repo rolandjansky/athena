@@ -19,7 +19,7 @@
 
 // Athena
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 

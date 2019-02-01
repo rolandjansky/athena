@@ -56,12 +56,15 @@ public:
 
   /// List of bad strip Identifiers
   virtual void badStrips(std::set<Identifier>& strips) const override;
+  virtual void badStrips(std::set<Identifier>& strips, const EventContext& ctx) const override;
   
   /// List of bad strip Identifiers for a given module
   virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const override;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx) const override;
 
   /// String of bad strip numbers for a given module
   virtual std::string badStripsAsString(const Identifier& moduleId) const override;
+  virtual std::string badStripsAsString(const Identifier& moduleId, const EventContext& ctx) const override;
 
 private:
   // ------------------------------------------------------------------------------------

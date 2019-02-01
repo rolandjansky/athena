@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_UNASSOCIATEDHITSGETTERTOOL_H
@@ -14,6 +14,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 #include <string>
 
 class MinBiasPRDAssociation;
@@ -38,12 +39,12 @@ public:
       compute the number of unassociated his
       wrap the info in a MinBiasPRDAssociation object
   */
-  virtual const MinBiasPRDAssociation* get (bool allowMissing = false);
+  virtual const MinBiasPRDAssociation* get (bool allowMissing = false) const;
 
   /**
      delete the pointer created by get
    */
-  virtual void releaseObject (const MinBiasPRDAssociation* p);
+  virtual void releaseObject (const MinBiasPRDAssociation* p) const;
 
 private:
 
@@ -63,8 +64,8 @@ private:
   /* PRD association tool **/
   ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
 
-  bool m_firstTime;
-  bool m_disabled;
+  mutable std::atomic_bool m_firstTime;
+  mutable std::atomic_bool m_disabled;
 
 }; // class UnassociatedHitsGetterTool
 

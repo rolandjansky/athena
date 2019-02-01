@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_SVTRACKINFO
@@ -20,7 +20,6 @@ namespace Analysis {
       inline SVTrackInfo(const Rec::TrackParticleContainer* coll, 
 			 const Rec::TrackParticle* trk);
       inline SVTrackInfo(const ElementLink<Rec::TrackParticleContainer>& track);
-      inline virtual ~SVTrackInfo() {}
       inline const Rec::TrackParticle* track() const;
       inline const ElementLink<Rec::TrackParticleContainer>& trackLink() const;
     private:

@@ -37,6 +37,12 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+// Event Incident to get EventInfo
+#include "GaudiKernel/IIncidentSvc.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventIncident.h"
+
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
 StatusCode TrigDataAccessATLFAST::initialize()
@@ -609,16 +615,14 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 
 // handle events (beginEvent only) to prepare containers
 void TrigDataAccessATLFAST::handle(const Incident & inc ) {
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-         if(!eventInc) {
-             std::cout << " Unable to get EventInfo from either EventStore or BeginRun incident" << std::endl;
-             return;
-         }
-         else {
-             const EventInfo* evt;
-             evt = &eventInc->eventInfo();
-             m_larcell->eventNumber(evt->event_ID()->event_number());
-         }
+  const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
+  if(!eventInc) {
+    ATH_MSG_ERROR(" Unable to get EventInfo from either EventStore or BeginRun incident");
+    return;
+  }
+  else {
+    m_larcell->eventNumber(inc.context().eventID().event_number());
+  }
 }
 
 template<class T>

@@ -735,7 +735,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
       // Fire EndRun incident unless this is the first run
       if (!m_firstRun)
         {
-           m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::EndRun));
+          m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::EndRun));
           CHECK(this->endRunAlgorithms());
         }
       m_firstRun=false;
@@ -744,12 +744,12 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
       ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
 
       // Fire BeginRun "Incident"
-      m_incidentSvc->fireIncident(EventIncident(ei, this->name(), IncidentType::BeginRun));
+      m_incidentSvc->fireIncident(EventIncident(this->name(),IncidentType::BeginRun,*m_eventContext));
       CHECK(this->beginRunAlgorithms());
     }
 
   // Fire BeginEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(ei, this->name(),IncidentType::BeginEvent));
+  //m_incidentSvc->fireIncident(EventIncident(ei, this->name(),IncidentType::BeginEvent));
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
@@ -801,7 +801,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
 
   // Fire EndEvent "Incident"
-  m_incidentSvc->fireIncident( EventIncident(ei, this->name(), IncidentType::EndEvent) );
+  //m_incidentSvc->fireIncident( EventIncident(ei, this->name(), IncidentType::EndEvent) );
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event

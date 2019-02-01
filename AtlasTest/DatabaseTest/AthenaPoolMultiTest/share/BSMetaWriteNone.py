@@ -25,7 +25,6 @@ theApp.EvtMax = 200000
 # Load ByteStream support
 #--------------------------------------------------------------
 from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
-#from TagCollectionTest.TagCollectionTestConf import EventTagWriter
 
 PassNoneFilter      = PassNoneFilter("PassNoneFilter")
 topSequence += PassNoneFilter

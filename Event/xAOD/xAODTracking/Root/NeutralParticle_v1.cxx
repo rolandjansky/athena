@@ -17,18 +17,12 @@
 namespace xAOD {
 
   NeutralParticle_v1::NeutralParticle_v1()
-  : IParticle(), m_perigeeCached(false) {
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters=0;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+  : IParticle(){
   }
   
   NeutralParticle_v1::NeutralParticle_v1(const NeutralParticle_v1& tp ) 
-  : IParticle( tp ), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ) {
     makePrivateStore( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   
   NeutralParticle_v1& NeutralParticle_v1::operator=(const NeutralParticle_v1& tp ){
@@ -37,15 +31,12 @@ namespace xAOD {
     if(!hasStore() ) makePrivateStore();
     this->IParticle::operator=( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
+    m_perigeeParameters.reset();
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     return *this;
   }
 
   NeutralParticle_v1::~NeutralParticle_v1(){
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   
   double NeutralParticle_v1::pt() const {
@@ -116,10 +107,10 @@ namespace xAOD {
   }
 
   void NeutralParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float oneOverP) {
-    m_perigeeCached=false;
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
@@ -140,10 +131,10 @@ namespace xAOD {
   }
 
   void NeutralParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
-    m_perigeeCached=false;
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+   if(m_perigeeParameters.isValid()) {
+     m_perigeeParameters.reset();
+   }
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     
     static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
@@ -160,9 +151,11 @@ namespace xAOD {
     std::vector<float>::const_iterator it = v.begin();
     xAOD::ParametersCovMatrix_t cov; 
     cov.setZero();
-    for (size_t irow = 0; irow<5; ++irow)
-        for (size_t icol =0; icol<=irow; ++icol)
+    for (size_t irow = 0; irow<5; ++irow){
+        for (size_t icol =0; icol<=irow; ++icol){
             cov.fillSymmetric(icol,irow, *it++);
+        }
+    }
     return cov;
   }
 
@@ -193,7 +186,11 @@ namespace xAOD {
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   const Trk::NeutralPerigee& NeutralParticle_v1::perigeeParameters() const {
-    
+   
+    // Require the cache to be valid and check if the cached pointer has been set
+    if(m_perigeeParameters.isValid()){
+          return *(m_perigeeParameters.ptr());
+    }
     static const Accessor< float > acc1( "d0" );
     static const Accessor< float > acc2( "z0" );
     static const Accessor< float > acc3( "phi" );
@@ -203,12 +200,15 @@ namespace xAOD {
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t;
     cov->setZero();
     auto it= acc6(*this).begin();
-    for (size_t irow = 0; irow<5; ++irow)
-      for (size_t icol =0; icol<=irow; ++icol)
+    for (size_t irow = 0; irow<5; ++irow){
+      for (size_t icol =0; icol<=irow; ++icol){
           cov->fillSymmetric(irow,icol,*it++) ;
-    m_perigeeParameters = new Trk::NeutralPerigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);    
-    return *m_perigeeParameters;
-    
+      }
+    }
+    Trk::NeutralPerigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),
+                                             Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov); 
+    m_perigeeParameters.set(tmpPerigeeParameters);
+    return *(m_perigeeParameters.ptr());
   }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 

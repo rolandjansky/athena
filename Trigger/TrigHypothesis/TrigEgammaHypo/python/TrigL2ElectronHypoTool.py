@@ -2,8 +2,8 @@
 
 def TrigL2ElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
-
-    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Electron']
+    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
 
     name = chainDict['chainName']

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -19,12 +19,13 @@
 
 // Tile includes
 #include "TileSimAlgs/TileDigitsMaker.h"
+#include "TileEvent/TileMutableDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileEvent/TileRawChannelContainer.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -431,16 +432,26 @@ StatusCode TileDigitsMaker::execute() {
 
   /* step2: Set up  Digits container */
 
-  SG::WriteHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
-  ATH_CHECK( digitsContainer.record(std::make_unique<TileDigitsContainer>(true)) );
-  std::unique_ptr<TileDigitsContainer> digitsContainer_DigiHSTruth;
+  auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                      TileFragHash::Digitizer,
+                                                                      TileRawChannelUnit::ADCcounts);
+  ATH_CHECK( digitsContainer->status() );
+
+  std::unique_ptr<TileMutableDigitsContainer> digitsContainer_DigiHSTruth;
   if(m_doDigiTruth){
-    digitsContainer_DigiHSTruth = std::make_unique<TileDigitsContainer>(true, SG::VIEW_ELEMENTS);
+    digitsContainer_DigiHSTruth = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                               TileFragHash::Digitizer,
+                                                                               TileRawChannelUnit::ADCcounts);
+    ATH_CHECK( digitsContainer_DigiHSTruth->status() );
   }
 
-  std::unique_ptr<TileDigitsContainer> filteredContainer;
+  std::unique_ptr<TileMutableDigitsContainer> filteredContainer;
   if (!m_filteredDigitsContainerKey.key().empty()) {
-    filteredContainer = std::make_unique<TileDigitsContainer>(true, SG::VIEW_ELEMENTS);
+    filteredContainer = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                     TileFragHash::Digitizer,
+                                                                     TileRawChannelUnit::ADCcounts,
+                                                                     SG::VIEW_ELEMENTS);
+    ATH_CHECK( filteredContainer->status() );
   }
 
   /* Set up buffers for handling information in a single collection. */
@@ -1063,11 +1074,13 @@ StatusCode TileDigitsMaker::execute() {
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG" );
         }
-        TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
-        digitsContainer->push_back(pDigits);
+
+        auto pDigits = std::make_unique<TileDigits>(adc_id, digitsBuffer);
+        ATH_CHECK( digitsContainer->push_back(std::move(pDigits)) );
+
         if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
-          TileDigits* digits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
-          digitsContainer_DigiHSTruth->push_back(digits_DigiHSTruth);
+          auto digits_DigiHSTruth = std::make_unique<TileDigits>(adc_id, digitsBuffer_DigiHSTruth);
+          ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(digits_DigiHSTruth)) );
         }
 
         if (chanLoIsBad) {
@@ -1077,12 +1090,13 @@ StatusCode TileDigitsMaker::execute() {
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
         }
-        TileDigits* pDigitsLo = new TileDigits(adc_id_lo, digitsBufferLo);
 
-        digitsContainer->push_back(pDigitsLo);
+        auto pDigitsLo = std::make_unique<TileDigits>(adc_id_lo, digitsBufferLo);
+        ATH_CHECK( digitsContainer->push_back(std::move(pDigitsLo)) );
+
         if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
-          TileDigits* pDigitsLo_DigiHSTruth = new TileDigits(adc_id_lo, digitsBufferLo_DigiHSTruth);
-          digitsContainer_DigiHSTruth->push_back(pDigitsLo_DigiHSTruth);
+          auto pDigitsLo_DigiHSTruth = std::make_unique<TileDigits>(adc_id_lo, digitsBufferLo_DigiHSTruth);
+          ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(pDigitsLo_DigiHSTruth)) );
         }
       } else { //normal run
 
@@ -1158,20 +1172,21 @@ StatusCode TileDigitsMaker::execute() {
             }
           }
 
-          TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
-          digitsContainer->push_back(pDigits);
-          if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
-            TileDigits* pDigits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
-            digitsContainer_DigiHSTruth->push_back(pDigits_DigiHSTruth);
-          }
+          auto pDigits = std::make_unique<TileDigits>(adc_id, digitsBuffer);
 
           if (ech_int[ich] > m_filterThreshold || ech_int[ich] < -m_filterThresholdMBTS) {
-            if (filteredContainer) filteredContainer->push_back(pDigits);
+            if (filteredContainer) ATH_CHECK( filteredContainer->push_back(pDigits.get()) );
             if (hiGain) {
               ++nChHiFlt;
             } else {
               ++nChLoFlt;
             }
+          }
+
+          ATH_CHECK( digitsContainer->push_back(std::move(pDigits)) );
+          if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
+            auto pDigits_DigiHSTruth = std::make_unique<TileDigits>(adc_id, digitsBuffer_DigiHSTruth);
+            ATH_CHECK( digitsContainer_DigiHSTruth->push_back(std::move(pDigits_DigiHSTruth)) );
           }
 
           if (msgLvl(MSG::VERBOSE)) {
@@ -1248,7 +1263,11 @@ StatusCode TileDigitsMaker::execute() {
     }
   }
 
+
   // step3: register the Digit container in the TES
+  SG::WriteHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey);
+  ATH_CHECK( digitsCnt.record(std::move(digitsContainer)) );
+
   if(m_doDigiTruth && digitsContainer_DigiHSTruth){
     SG::WriteHandle<TileDigitsContainer> digits_DigiHSTruth(m_digitsContainer_DigiHSTruthKey);
     ATH_CHECK( digits_DigiHSTruth.record(std::move(digitsContainer_DigiHSTruth)) );

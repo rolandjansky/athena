@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -41,14 +41,18 @@ class ISCT_FlaggedConditionTool: virtual public ISCT_ConditionsTool {
 
   /**Get the reason why the wafer is bad (by Identifier)*/ 
   virtual const std::string& details(const Identifier& id) const =0;
+  virtual const std::string& details(const Identifier& id, const EventContext& ctx) const =0;
   /**Get the reason why the wafer is bad (by IdentifierHash)*/ 
   virtual const std::string& details(const IdentifierHash& id) const =0;
+  virtual const std::string& details(const IdentifierHash& id, const EventContext& ctx) const =0;
 
   /**Get number flagged as bad (per event)*/
   virtual int numBadIds() const =0;
+  virtual int numBadIds(const EventContext& ctx) const =0;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
   virtual const SCT_FlaggedCondData* getBadIds() const =0;
+  virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const =0;
 
  private:
 };

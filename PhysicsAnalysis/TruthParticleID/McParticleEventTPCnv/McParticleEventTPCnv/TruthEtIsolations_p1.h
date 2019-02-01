@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthEtIsolations_p1.h 
@@ -59,7 +59,7 @@ public:
 
   /** Destructor: 
    */
-  ~TruthEtIsolations_p1();
+  ~TruthEtIsolations_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -92,10 +92,6 @@ inline
 TruthEtIsolations_p1::TruthEtIsolations_p1() :
   m_genEvent    ( ),
   m_etIsolations( )
-{}
-
-inline 
-TruthEtIsolations_p1::~TruthEtIsolations_p1()
 {}
 
 #endif //> MCPARTICLEEVENTTPCNV_TRUTHETISOLATIONS_P1_H

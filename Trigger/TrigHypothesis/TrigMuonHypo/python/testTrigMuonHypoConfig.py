@@ -397,7 +397,8 @@ def addMonitoring(tool, monClass, name, thresholdHLT ):
 
 
 def getThresholdsFromDict( chainDict ):    
-    return sum( [ [part['threshold']]*int(part['multiplicity']) for part in chainDict['chainParts']], [])
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    return sum( [ [part['threshold']]*int(part['multiplicity']) for part in cparts ], [])
 
 
 def TrigMufastHypoToolFromDict( chainDict ):	

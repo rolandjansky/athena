@@ -13,7 +13,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"

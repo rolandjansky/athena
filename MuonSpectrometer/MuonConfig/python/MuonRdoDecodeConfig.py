@@ -175,12 +175,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
-    # Setup IdentifiableCaches before anything else
-    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-    muoncacheacc, muoncachealg = MuonCacheCfg()
-    cfg.merge( muoncacheacc )
-    cfg.addEventAlgo( muoncachealg )
-
     # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 

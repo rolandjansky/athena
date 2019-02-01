@@ -18,7 +18,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
 
 #include "EventInfoUtils/EventIDFromStore.h"
@@ -661,11 +660,11 @@ TagInfoMgr::handle(const Incident& inc) {
     }
 
     // Return quickly for BeginEvent if not needed
-    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") return;
+    if (!m_newFileIncidentSeen && inc.type() ==  IncidentType::BeginEvent) return;
 
     // At first BeginRun we retrieve TagInfo and trigger IOVDbSvc to
     // use it
-    if (inc.type() == "BeginRun" && m_isFirstBeginRun) {
+    if (inc.type() == IncidentType::BeginRun && m_isFirstBeginRun) {
 
         // No longer first BeginRun 
         m_isFirstBeginRun = false; 
@@ -674,39 +673,29 @@ TagInfoMgr::handle(const Incident& inc) {
         m_newFileIncidentSeen = false;
 
         // Print out EventInfo
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-        if(!eventInc) {
-            m_log << MSG::ERROR << "handle:  Unable to get EventInfo from BeginRun incident" << endmsg;
-            throw GaudiException( "Unable to get EventInfo from BeginRun incident", "TagInfoMgr::handle", StatusCode::FAILURE );
-        }
-        const EventInfo* evt = &eventInc->eventInfo();
+        const EventIDBase& eventID =  inc.context().eventID();
+
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "handle: BeginRun incident - Event info: " << endmsg;
             m_log << MSG::DEBUG << "handle: Event ID: ["
-                  << evt->event_ID()->run_number()   << ","
-                  << evt->event_ID()->event_number() << ":"
-                  << evt->event_ID()->time_stamp() << "] "
+                  << eventID.run_number()   << ","
+                  << eventID.event_number() << ":"
+                  << eventID.time_stamp() << "] "
                   << endmsg;
-            if (evt->event_type()) {
-                m_log << MSG::DEBUG << evt->event_type()->typeToString() << endmsg;
-                m_log << MSG::DEBUG << "handle: Event type: user type "
-                      << evt->event_type()->user_type()
-                      << endmsg;
-            }
         }
         
         // For the moment, we must set IOVDbSvc into the BeginRun
         // state to be able to access TagInfo from the file meta data
 
         // create IOV time from current event coming in with BeginRun incident
-        unsigned int run = evt->event_ID()->run_number();
-        unsigned int lb  = evt->event_ID()->lumi_block();
+        unsigned int run = eventID.run_number();
+        unsigned int lb  = eventID.lumi_block();
         IOVTime curTime;
         curTime.setRunEvent(run, lb);
 
         // save both seconds and ns offset for timestamp
-        uint64_t nsTime = evt->event_ID()->time_stamp()*1000000000LL;
-        nsTime         += evt->event_ID()->time_stamp_ns_offset();
+        uint64_t nsTime = eventID.time_stamp()*1000000000LL;
+        nsTime         += eventID.time_stamp_ns_offset();
         curTime.setTimestamp(nsTime);
 
         if (StatusCode::SUCCESS != m_iovDbSvc->signalBeginRun(curTime,

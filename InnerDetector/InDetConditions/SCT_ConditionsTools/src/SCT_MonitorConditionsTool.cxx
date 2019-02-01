@@ -133,24 +133,28 @@ SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void 
-SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) const {
+void
+SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips, const EventContext& ctx) const {
   // Set of bad strip Identifers for all modules
   SCT_ID::const_id_iterator waferItr{m_pHelper->wafer_begin()}, waferEnd{m_pHelper->wafer_end()};
   // Loop over modules (side-0 of wafers)
   for (; waferItr != waferEnd; ++waferItr) {
     if (m_pHelper->side(*waferItr) != 0) continue;
     Identifier moduleId{m_pHelper->module_id(*waferItr)};
-    badStrips(moduleId, strips);
+    badStrips(moduleId, strips, ctx);
   }
+}
+
+void
+SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  badStrips(strips, ctx);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-
+SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx) const {
   // Set of bad strip Identifers for a given module
   // Get defect string and check it is sensible, i.e. non-empty and contains numbers
   std::string defectStr{getList(moduleId, ctx)};
@@ -178,13 +182,23 @@ SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identi
   }
 }
 
+void
+SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badStrips(moduleId, strips, ctx);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::string 
+SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId, const EventContext& ctx) const {
+  return getList(moduleId, ctx);
+}
+
+std::string
 SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-
-  return getList(moduleId, ctx);
+  return badStripsAsString(moduleId, ctx);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

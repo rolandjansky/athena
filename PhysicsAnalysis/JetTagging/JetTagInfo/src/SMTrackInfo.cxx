@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SMTrackInfo.h"
@@ -38,9 +38,6 @@ SMTrackInfo::SMTrackInfo(const ElementLink<MuonContainer>& muonLink,
     m_pTrel (pTrel),
     m_tagLikelihood (std::move (tagLikelihood))
 {
-}
-
-SMTrackInfo::~SMTrackInfo() {
 }
 
 const Muon* SMTrackInfo::muon() const {

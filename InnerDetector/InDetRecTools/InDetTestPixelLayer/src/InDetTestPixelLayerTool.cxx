@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h" 
@@ -19,7 +19,6 @@
 #include "TrkGeometry/Layer.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"

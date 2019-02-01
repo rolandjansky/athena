@@ -69,7 +69,6 @@
 #define HLT_DRAINSCHED_CHECK(scexpr,errmsg,errcode,evctx) \
   HLT_LOOP_CHECK(scexpr,errmsg,errcode,evctx,DrainSchedulerStatusCode::FAILURE)
 using namespace boost::property_tree;
-using SOR = TrigSORFromPtreeHelper::SOR;
 
 // =============================================================================
 // Standard constructor
@@ -122,6 +121,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("AlgErrorDebugStreamName",  m_algErrorDebugStreamName="HLTError");
   declareProperty("EventContextWHKey",        m_eventContextWHKey="EventContext");
   declareProperty("EventInfoRHKey",           m_eventInfoRHKey="ByteStreamEventInfo");
+  declareProperty("SORPath",                  m_sorPath="/TDAQ/RunCtrl/SOR_Params",
+                  "Path to StartOfRun parameters in detector store");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
@@ -307,30 +308,18 @@ StatusCode HltEventLoopMgr::initialize()
   return StatusCode::SUCCESS;
 }
 
-// =============================================================================
-// Reimplementation of AthService::start (IStateful interface)
-// =============================================================================
-StatusCode HltEventLoopMgr::start()
-{
-  ATH_CHECK(AthService::start());
 
-  // start top level algorithms
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysStart());
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 // =============================================================================
 // Reimplementation of AthService::stop (IStateful interface)
 // =============================================================================
 StatusCode HltEventLoopMgr::stop()
 {
+  // temporary: endRun will eventually be deprecated
+  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysEndRun());
+
   // Stop top level algorithms
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysStop());
-  }
+  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysStop());
 
   return AthService::stop();
 }
@@ -468,42 +457,49 @@ StatusCode HltEventLoopMgr::restart()
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
   try
   {
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
     // do the necessary resets
-    // internalPrepareResets() was here
     ATH_CHECK(clearTemporaryStores());
 
-    const SOR* sor;
-    // update SOR in det store and get it back
-    if(!(sor = processRunParams(pt)))
-      return StatusCode::FAILURE;
+    // update SOR in det store
+    ATH_CHECK( processRunParams(pt) );
 
-    auto& soral = getSorAttrList(sor);
+    auto& soral = getSorAttrList();
 
-    updateInternal(soral);     // update internally kept info
+    updateInternal(soral);       // update internally kept info
     updateMetadataStore(soral);  // update metadata store
 
-    /*
+    /* Old code: kept for reference for the moment
     const EventInfo * evinfo;
     if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
-       resetCoolValidity().isFailure() || // reset selected proxies/IOV folders
        prepXAODEventInfo().isFailure() || // update xAOD event data in SG
        !(evinfo = prepEventInfo()))       // update old event data in SG
       return StatusCode::FAILURE;
 
     bookAllHistograms();
-
-    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-    if(prepareAlgs(*evinfo).isSuccess())
-      return StatusCode::SUCCESS;
     */
 
-    ATH_CHECK(m_ioCompMgr->io_finalize());  // close any open files (e.g. THistSvc)
+    // start top level algorithms
+    for (auto& ita : m_topAlgList) {
+      ATH_CHECK(ita->sysStart());
+    }
+
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
+
+    for (auto& ita : m_topAlgList) {
+      ATH_CHECK(ita->sysBeginRun());   // TEMPORARY: beginRun is deprecated
+    }
+    // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
+    m_coolHelper->readFolderInfo();
+
+    // close any open files (e.g. THistSvc)
+    ATH_CHECK(m_ioCompMgr->io_finalize());
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
@@ -628,6 +624,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   ATH_MSG_INFO("Starting loop on events");
+
+  EventID::number_type maxLB = 0;  // Max lumiblock number we have seen
   bool loop_ended = false;
   bool events_available = true; // DataCollector has more events
 
@@ -665,7 +663,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // for the EventContext using the EventContext itself. The handle will use the linked hiveProxyDict to record
       // the context in the current store.
       auto eventContextPtr = std::make_unique<EventContext>(m_localEventNumber, slot);
-      eventContextPtr->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun) );
+      eventContextPtr->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                                 m_currentRunCtx.eventID().run_number()) );
       auto eventContext = SG::makeHandle(m_eventContextWHKey,*eventContextPtr);
       HLT_EVTLOOP_CHECK(eventContext.record(std::move(eventContextPtr)),
                         "Failed to record new EventContext in the event store",
@@ -747,6 +746,20 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);
+
+      //-----------------------------------------------------------------------
+      // COOL updates for LB changes
+      //-----------------------------------------------------------------------
+      // Schedule COOL folder updates based on CTP fragment
+      HLT_EVTLOOP_CHECK(m_coolHelper->scheduleFolderUpdates(*eventContext), "Failure reading CTP extra payload",
+                        hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+
+      // Do an update if this is a new LB
+      if ( maxLB < eventContext->eventID().lumi_block() ) {
+        maxLB = eventContext->eventID().lumi_block();
+        HLT_EVTLOOP_CHECK(m_coolHelper->hltCoolUpdate(*eventContext), "Failure during COOL update",
+                          hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+      }
 
       //------------------------------------------------------------------------
       // Process the event
@@ -881,25 +894,23 @@ void HltEventLoopMgr::updateDFProps()
 }
 
 // =============================================================================
-const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
+StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  // update the run number
-  m_currentRun = pt.get<uint32_t>("RunParams.run_number");
 
-  // need to provide an event context extended with a run number, down the line passed to IOVDBSvc::signalBeginRun
-  EventContext runStartEventContext = {}; // with invalid evt number and slot number
-  runStartEventContext.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun));
+  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath);
+  const auto& rparams = pt.get_child("RunParams");
 
-  // Fill SOR parameters from the ptree
-  TrigSORFromPtreeHelper sorhelp{msgStream()};
-  const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"),runStartEventContext);
-  if(!sor) {
-    ATH_REPORT_MESSAGE(MSG::ERROR) << "setup of SOR from ptree failed";
-  }
+  // Set our "run context" (invalid event/slot)
+  m_currentRunCtx.setEventID( sorhelp.eventID(rparams) );
+  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                           m_currentRunCtx.eventID().run_number()));
+
+  // Fill SOR parameters from ptree and inform IOVDbSvc
+  ATH_CHECK( sorhelp.fillSOR(rparams, m_currentRunCtx) );
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return sor;
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -993,15 +1004,18 @@ void HltEventLoopMgr::updateDetMask(const std::pair<uint64_t, uint64_t>& dm)
 }
 
 // =============================================================================
-const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) const
+const coral::AttributeList& HltEventLoopMgr::getSorAttrList() const
 {
+  auto sor = m_detectorStore->retrieve<const TrigSORFromPtreeHelper::SOR>(m_sorPath);
+  if (sor==nullptr) {
+    throw std::runtime_error("Cannot retrieve " + m_sorPath);
+  }
   if(sor->size() != 1)
   {
     // This branch should never be entered (the CondAttrListCollection
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    ATH_REPORT_MESSAGE(MSG::ERROR) << "Wrong SOR: size = " << sor->size();
     throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
   }
 

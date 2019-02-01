@@ -12,9 +12,9 @@
  * $Id: EventTagWriter.h,v 1.1 2009-02-19 22:04:49 cranshaw Exp $
  */
 
-//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
+#include "StoreGate/ReadHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <string>
 
 namespace coral
@@ -65,6 +65,8 @@ class EventTagWriter : public AthAlgorithm
     virtual StatusCode finalize();
 
   private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt;
+
     /// Specification of event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;
 
