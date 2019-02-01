@@ -36,7 +36,7 @@ using namespace testing;
 namespace asg
 {
   template<typename T,typename T2>
-  void checkTypeSingle (const T2& scSuccess, const T2& scTest, bool expectedSuccess,
+  void checkTypeSingle (T2 scSuccess, T2 scTest, bool expectedSuccess,
                         std::function<bool(const T&)> successTest)
   {
     using namespace asg::msgUserCode;
@@ -53,7 +53,7 @@ namespace asg
   }
 
   template<typename T,typename T2>
-  void checkType (const T2& scSuccess, const T2& scFailure1, const T2& scFailure2,
+  void checkType (T2 scSuccess, T2 scFailure1, T2 scFailure2,
                   std::function<bool(const T&)> successTest)
   {
     checkTypeSingle<T> (scSuccess, scSuccess, true, successTest);

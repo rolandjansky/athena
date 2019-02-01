@@ -105,6 +105,6 @@ endif()
 atlas_add_test( gt_AnaCheck
    SOURCES test/gt_AnaCheck.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib GaudiKernel
+   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib 
    EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 set_tests_properties (AsgExampleTools_gt_AnaCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
