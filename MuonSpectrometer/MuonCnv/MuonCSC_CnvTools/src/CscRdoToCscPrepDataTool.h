@@ -93,7 +93,6 @@ namespace Muon {
     int m_cscOffset;
     
     bool m_decodeData; //!< toggle on/off the decoding of CSC RDO into CscStripPrepData
-    bool m_useBStoRdoTool;
     bool m_fullEventDone;
   };
 }

@@ -114,8 +114,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
 
     # Get the RDO -> PRD tool
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name           = "CscRdoToCscPrepDataTool",
-                                                            useBStoRdoTool = True )
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name           = "CscRdoToCscPrepDataTool")
+                                                            #useBStoRdoTool = True )
     acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm

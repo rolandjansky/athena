@@ -3,7 +3,6 @@
 */
 
 #include <algorithm>  // for find
-
 #include "TrigMuonEFStandaloneTrackTool.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
@@ -91,6 +90,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
     m_rpcRawDataProvider("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
     m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
+    m_cscRawDataProvider("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
     m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
     m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
     m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
@@ -164,6 +164,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty ("MdtRawDataProvider",m_mdtRawDataProvider);
   declareProperty ("RpcRawDataProvider",m_rpcRawDataProvider);
   declareProperty ("TgcRawDataProvider",m_tgcRawDataProvider);
+  declareProperty ("CscRawDataProvider",m_cscRawDataProvider);
 
   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
@@ -239,6 +240,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "MdtRawDataProvider             " << m_mdtRawDataProvider << endmsg;
     msg() << MSG::DEBUG
+	  << "MdtRawDataProvider             " << m_mdtRawDataProvider << endmsg;
+    msg() << MSG::DEBUG
 	  << "RpcRawDataProvider             " << m_rpcRawDataProvider << endmsg;
     msg() << MSG::DEBUG
 	  << "TgcRawDataProvider             " << m_tgcRawDataProvider << endmsg;
@@ -281,9 +284,10 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
           << m_decodeMdtBS.name() << "       " << m_decodeMdtBS << endmsg;
     msg() << MSG::DEBUG
           << m_decodeRpcBS.name() << "       " << m_decodeRpcBS << endmsg;
-
     msg() << MSG::DEBUG
           << m_decodeTgcBS.name() << "       " << m_decodeTgcBS << endmsg;
+    msg() << MSG::DEBUG
+	  << m_decodeCscBS.name() << "       " << m_decodeCscBS << endmsg;
     msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
@@ -340,6 +344,15 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   }
   else {
     msg (MSG::FATAL) << "Could not get " << m_tgcRawDataProvider << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  // Retrieve CSC raw data provider tool if needed
+  if (m_cscRawDataProvider.retrieve(DisableTool{ !m_decodeCscBS }).isSuccess()) {
+    msg (MSG::INFO) << "Retrieved " << m_cscRawDataProvider << endmsg;
+  }
+  else {
+    msg (MSG::FATAL) << "Could not get " << m_cscRawDataProvider << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -1037,7 +1050,13 @@ if (m_useMdtData>0) {
       if (m_useCscRobDecoding) {// ROB-based seeded decoding of CSC is not available
         ATH_MSG_DEBUG("ROB-based seeded decoding of CSC requested, which is not available. Calling the PRD-based seeded decoding.");
       }
-      
+      if (m_decodeCscBS) {// bytesream conversion
+ 	if (m_cscRawDataProvider->convert( csc_hash_ids ).isSuccess()) {
+	  ATH_MSG_DEBUG("CSC BS conversion for ROB-based seeded PRD decoding done successfully");
+	} else {
+	  ATH_MSG_WARNING("CSC BS conversion for ROB-based seeded PRD decoding failed");
+	}
+      }      
       // get PRD
       if (m_cscPrepDataProvider->decode(csc_hash_ids, hash_ids_withData).isSuccess()) {
         ATH_MSG_DEBUG("PRD-based seeded decoding of CSC done successfully");
@@ -1071,6 +1090,11 @@ if (m_useMdtData>0) {
       std::vector<IdentifierHash> input_hash_ids;
       input_hash_ids.reserve(0);
       //get PRD
+      if (m_cscRawDataProvider->convert().isSuccess()) {
+        ATH_MSG_DEBUG("CSC BS conversion for full decoding done successfully");
+      } else {
+        ATH_MSG_WARNING("CSC BS conversion for full decoding failed");
+      }
       if(m_cscPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {
         ATH_MSG_DEBUG("PRD-based full decoding of CSC done successfully");
 #if DEBUG_ROI_VS_FULL
