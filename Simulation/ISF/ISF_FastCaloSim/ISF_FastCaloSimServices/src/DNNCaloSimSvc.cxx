@@ -41,6 +41,7 @@
 #include "TFile.h"
 #include <fstream>
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
 
 using std::abs;
 using std::atan2;
@@ -76,10 +77,10 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
   ATH_CHECK(m_rndGenSvc.retrieve());
   m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
   if(!m_randomEngine)
-  {
-   ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
-   return StatusCode::FAILURE;
-  }
+    {
+      ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
+      return StatusCode::FAILURE;
+    }
   
   m_caloDetDescrManager  = CaloDetDescrManager::instance();
   const FCALDetectorManager * fcalManager=NULL;
@@ -104,13 +105,15 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
   
   // Get FastCaloSimCaloExtrapolation
   if(m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
-  {
-   ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
-   return StatusCode::FAILURE;
-  }
+    {
+      ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
+      return StatusCode::FAILURE;
+    }
 
   m_windowCells.reserve(m_numberOfCellsForDNN);
   
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -172,37 +175,63 @@ StatusCode ISF::DNNCaloSimSvc::finalize()
 
 StatusCode ISF::DNNCaloSimSvc::setupEvent()
 {
-  ATH_MSG_INFO(m_screenOutputPrefix << "setupEvent NEW EVENT! DRDR");
+  ATH_MSG_INFO(m_screenOutputPrefix << "setupEvent NEW EVENT! ");
   
   m_theContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
 
   StatusCode sc = evtStore()->record(m_theContainer, m_caloCellsOutputName);
   if (sc.isFailure())
-  {
-    ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
-    return StatusCode::FAILURE;
-  }
+    {
+      ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
+      return StatusCode::FAILURE;
+    }
 
+  //FIXME why retrieve every event ?
   CHECK( m_caloCellMakerToolsSetup.retrieve() );
   ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerToolsSetup );
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerToolsSetup.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsSetup.end();
   for (; itrTool != endTool; ++itrTool)
-  {
-    std::string chronoName=this->name()+"_"+ itrTool->name();
-    if (m_chrono) m_chrono->chronoStart(chronoName);
-    StatusCode sc = (*itrTool)->process(m_theContainer);
-    if (m_chrono) {
-      m_chrono->chronoStop(chronoName);
-      ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
+    {
+      std::string chronoName=this->name()+"_"+ itrTool->name();
+      if (m_chrono) m_chrono->chronoStart(chronoName);
+      StatusCode sc = (*itrTool)->process(m_theContainer);
+      if (m_chrono) {
+	m_chrono->chronoStop(chronoName);
+	ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
+      }
+
+      if (sc.isFailure())
+	{
+	  ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
+	  return StatusCode::FAILURE;
+	}
     }
 
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
-      return StatusCode::FAILURE;
+
+  // FIXME just for debugging
+  // exercise window building 
+  // should be false by default 
+  // careful:if enabled change the random number sequence !
+  if (false){
+    TFCSSimulationState testsimulstate(m_randomEngine);
+    const CaloDetDescrElement * testImpactCellDDE;
+    const int ntrial=100;
+    ATH_MSG_INFO ("Trial window building on " << ntrial << " dummy eta phi " );
+    for (int i=0 ; i< ntrial ; i++){
+      const double eta = CLHEP::RandFlat::shoot(testsimulstate.randomEngine(), 0.2, 0.25);
+      const double phi = CLHEP::RandFlat::shoot(testsimulstate.randomEngine(), -CLHEP::pi , CLHEP::pi);
+      //randomise eta, phi
+      if (fillWindowCells(eta,phi,testImpactCellDDE).isFailure()){
+	  ATH_MSG_WARNING("Could not build trial window cells vector with eta " << eta << " phi " << phi);
+      }
     }
+    ATH_MSG_INFO ("End of trial window building on " << ntrial << " dummy eta phi " );
+    
   }
+
+
+
 
   return StatusCode::SUCCESS;
 }
@@ -210,80 +239,80 @@ StatusCode ISF::DNNCaloSimSvc::setupEvent()
 StatusCode ISF::DNNCaloSimSvc::releaseEvent()
 {
  
- ATH_MSG_VERBOSE(m_screenOutputPrefix << "release Event");
+  ATH_MSG_VERBOSE(m_screenOutputPrefix << "release Event");
  
- CHECK( m_caloCellMakerToolsRelease.retrieve() );
+  CHECK( m_caloCellMakerToolsRelease.retrieve() );
  
- //run release tools in a loop
- ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerToolsRelease.begin();
- ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsRelease.end();
- for (; itrTool != endTool; ++itrTool)
- {
-  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
+  //run release tools in a loop
+  ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerToolsRelease.begin();
+  ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsRelease.end();
+  for (; itrTool != endTool; ++itrTool)
+    {
+      ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
   
-  StatusCode sc = (*itrTool)->process(m_theContainer);
+      StatusCode sc = (*itrTool)->process(m_theContainer);
   
-  if (sc.isFailure())
-  {
-   ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
-  }
- }
+      if (sc.isFailure())
+	{
+	  ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
+	}
+    }
  
- return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
  
 }
 bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
 {
-    if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
-        return true;
-    else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
-        return false;
-      // reverse sort in eta for left half of detector
-    if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
-        return false;
-    else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
-        return true;
+  if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
+    return true;
+  else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
+    return false;
+  // reverse sort in eta for left half of detector
+  if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
+    return false;
+  else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
+    return true;
 
-    if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw()))){
-    	// check for pi -pi discontinuity
-    	if ((((a->caloDDE()->phi_raw()) - (b->caloDDE()->phi_raw()))) > CLHEP::pi )
-    		return true;
-    	else
-        	return false;
-    }
+  if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw()))){
     // check for pi -pi discontinuity
-    else if ((((b->caloDDE()->phi_raw()) - (a->caloDDE()->phi_raw()))) > CLHEP::pi )
-    	return false;
+    if ((((a->caloDDE()->phi_raw()) - (b->caloDDE()->phi_raw()))) > CLHEP::pi )
+      return true;
+    else
+      return false;
+  }
+  // check for pi -pi discontinuity
+  else if ((((b->caloDDE()->phi_raw()) - (a->caloDDE()->phi_raw()))) > CLHEP::pi )
+    return false;
         
 
-    return true;
+  return true;
 }
 
 bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
 {
-    if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
-        return true;
-    else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
-        return false;
+  if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
+    return true;
+  else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
+    return false;
 
-    if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
-        return true;
-    else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
-        return false;
+  if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
+    return true;
+  else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
+    return false;
 
-    if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw()))){
-    	// check for pi -pi discontinuity
-    	if ((((a->caloDDE()->phi_raw()) - (b->caloDDE()->phi_raw()))) > CLHEP::pi )
-    		return true;
-    	else
-        	return false;
-    }
+  if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw()))){
     // check for pi -pi discontinuity
-    else if ((((b->caloDDE()->phi_raw()) - (a->caloDDE()->phi_raw()))) > CLHEP::pi )
-    	return false;
+    if ((((a->caloDDE()->phi_raw()) - (b->caloDDE()->phi_raw()))) > CLHEP::pi )
+      return true;
+    else
+      return false;
+  }
+  // check for pi -pi discontinuity
+  else if ((((b->caloDDE()->phi_raw()) - (a->caloDDE()->phi_raw()))) > CLHEP::pi )
+    return false;
         
 
-    return true;
+  return true;
 }
 
 /** Simulation Call */
@@ -303,11 +332,11 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   //Compute all inputs to the network
   NetworkInputs inputs;
   double trueEnergy;
-  if (fillNetworkInputs(isfp,inputs,trueEnergy).isFailure())
-    {
-      ATH_MSG_WARNING("Could not initialize network ");
-      return StatusCode::SUCCESS;
-    }
+  if (fillNetworkInputs(isfp,inputs,trueEnergy).isFailure()) {
+    ATH_MSG_WARNING("Could not initialize network ");
+    // bail out but do not stop the job
+    return StatusCode::SUCCESS;
+  }
  
 
   // compute the network output values
@@ -347,12 +376,15 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   Amg::Vector3D particle_position =  isfp.position();  
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
   
-   //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
+  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();  
   // float phi_isfp = particle_position.phi(); 
 
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
+
+  trueEnergy = isfp.ekin();
+
 
   TFCSExtrapolationState extrapol;
   //FIXME this is extrapolating to many layers, when we only need middle layer middle surface
@@ -369,11 +401,11 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
 	for (int isubpos=0; isubpos< 3 ; isubpos++){
       
 	  ATH_MSG_VERBOSE("EXTRAPO isam=" << isam <<
-			" isubpos=" << isubpos <<
-			" OK="    << extrapol.OK(isam,isubpos) <<
-			" eta="  << extrapol.eta(isam,isubpos) <<
-			" phi="  << extrapol.phi(isam,isubpos) <<
-			" r="  << extrapol.r(isam,isubpos) );
+			  " isubpos=" << isubpos <<
+			  " OK="    << extrapol.OK(isam,isubpos) <<
+			  " eta="  << extrapol.eta(isam,isubpos) <<
+			  " phi="  << extrapol.phi(isam,isubpos) <<
+			  " r="  << extrapol.r(isam,isubpos) );
 
 	}
       }
@@ -390,49 +422,124 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   }
 
   ATH_MSG_VERBOSE("Will use isam=" << isam <<
-		" isubpos=" << isubpos <<
-		" eta="  << etaExtrap << 
-		" phi="  << phiExtrap );
-
-  //now find the cell it corresponds to  
-  //FIXME this is barrel should also look in endcap 
-  // (note that is really looking up eta, phi, not raw eta phi
-  const CaloDetDescrElement* impactCellDDE=m_caloDetDescrManager->get_element(CaloCell_ID::EMB2,etaExtrap,phiExtrap);
-  double caloHashImpactCell=-999;
-  double etaImpactCell=-999;
-  double phiImpactCell=-999;
-  double etaRawImpactCell=-999;
-  double phiRawImpactCell=-999;
+		  " isubpos=" << isubpos <<
+		  " eta="  << etaExtrap << 
+		  " phi="  << phiExtrap );
 
 
-  trueEnergy = isfp.ekin();
 
-  if (impactCellDDE!=nullptr){
-    caloHashImpactCell=impactCellDDE->calo_hash();
-    etaImpactCell=impactCellDDE->eta();
-    phiImpactCell=impactCellDDE->phi();
-    etaRawImpactCell=impactCellDDE->eta_raw();
-    phiRawImpactCell=impactCellDDE->phi_raw();
-
+  // fill vector of cells, and DDE of middle cell
+  const CaloDetDescrElement * impactCellDDE;
+  if (fillWindowCells(etaExtrap,phiExtrap,impactCellDDE).isFailure()){
+    ATH_MSG_WARNING("Could not build window cells vector ");
+    return StatusCode::FAILURE;
   }
 
-  ATH_MSG_VERBOSE("impact cell calohash=" << caloHashImpactCell <<
-		" eta="  << etaImpactCell << 
-		" phi="  << phiImpactCell <<
-		" eta raw="  << etaRawImpactCell << 
-		" phi raw="  << phiRawImpactCell <<
-    " true energy=" << trueEnergy  );
+
+  // start neural network part
+  // fill a map of input nodes
+  // this is for GAN
+  // most likely it should be specialised as a function of m_ParamsInputArchitecture
+
+  double randGaussz = 0.;
+
 
   int impactEtaIndex = m_emID->eta(impactCellDDE->identify());
   int impactPhiIndex = m_emID->phi(impactCellDDE->identify());
+  double etaRawImpactCell=impactCellDDE->eta_raw();
+  double phiRawImpactCell=impactCellDDE->phi_raw();
 
-  ATH_MSG_VERBOSE("impact eta_index " << m_emID->eta(impactCellDDE->identify()) 
-		  << " phi_index " << m_emID->phi(impactCellDDE->identify()) 
+  ATH_MSG_VERBOSE("impact eta_index " << impactEtaIndex 
+		  << " phi_index " <<  impactPhiIndex  
 		  << " sampling " << m_emID->sampling(impactCellDDE->identify()));
 
+  int pconf = impactPhiIndex % 4 ;
+  int econf = (impactEtaIndex + 1) % 2 ; // ofset corresponds to difference in index calculated for neural net preprocessing
+    
+  double riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean)/m_riImpactEtaScale; // ??? or imact - extrap?
+  double riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean);
+  // keep phi in -pi to pi
+  if (riImpactPhi > CLHEP::pi){
+    riImpactPhi -= 2 * CLHEP::pi;
+  }
+  else if (riImpactPhi < - CLHEP::pi){
+    riImpactPhi += 2 * CLHEP::pi;
+  }
+  riImpactPhi = riImpactPhi/m_riImpactPhiScale;
 
+
+  // fill randomize latent space
   //FIXME move to initialize?
   TFCSSimulationState simulstate(m_randomEngine);
+
+  //FIXME generate in one go
+  for (int i = 0; i< m_GANLatentSize; i ++)
+    {
+      randGaussz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), 0., 1.);
+      inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(i), randGaussz) );
+
+    }
+
+  // fill preprocessed true energy
+  //FIXME this is a loop of 1
+  for (int i = 0; i< 1; i ++)
+    {
+      inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(i), (std::log(trueEnergy) - m_logTrueEnergyMean)/m_logTrueEnergyScale) );
+    }
+  // fill p,e configurations multi-hot vector
+  for (int i = 0; i< 4; i ++)
+    {
+      if (i == pconf){
+	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(i),1.) );
+      }
+      else{
+	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(i),0.) );
+      }
+    }
+  for (int i = 0; i< 2; i ++){
+    if (i == econf){
+      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(i),1.) );
+    }
+    else{
+      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(i),0.) );
+    }
+  }
+  // fill position of extrap particle in impact cell
+  inputs["ripos"].insert ( std::pair<std::string,double>("0", riImpactEta) ); 
+  inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const double phiExtrap,const CaloDetDescrElement* & impactCellDDE) {
+  
+  //now find the cell it corresponds to  
+  //FIXME this is barrel should also look in endcap 
+  // (note that is really looking up eta, phi, not raw eta phi
+
+  impactCellDDE=m_caloDetDescrManager->get_element(CaloCell_ID::EMB2,etaExtrap,phiExtrap);
+  if (impactCellDDE==nullptr){
+    ATH_MSG_WARNING("No cell found for this eta " << etaExtrap << " phi " << phiExtrap);
+    return StatusCode::FAILURE;
+  }
+
+
+
+
+  const int caloHashImpactCell=impactCellDDE->calo_hash();
+  const double etaImpactCell=impactCellDDE->eta();
+  const double phiImpactCell=impactCellDDE->phi();
+  const double etaRawImpactCell=impactCellDDE->eta_raw();
+  const double phiRawImpactCell=impactCellDDE->phi_raw();
+
+
+  ATH_MSG_VERBOSE("impact cell calohash=" << caloHashImpactCell <<
+		  " eta="  << etaImpactCell << 
+		  " phi="  << phiImpactCell <<
+		  " eta raw="  << etaRawImpactCell << 
+		  " phi raw="  << phiRawImpactCell );
+
 
   int nSqCuts = 0;
 
@@ -484,13 +591,13 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   }
 
   if (nSqCuts != m_numberOfCellsForDNN){
-  	ATH_MSG_WARNING("Total cells passing DNN selection is " << nSqCuts << " but should be " << m_numberOfCellsForDNN );
-  	// bail out, but do not stop the job
-  	return StatusCode::SUCCESS;
+    ATH_MSG_WARNING("Total cells passing DNN selection is " << nSqCuts << " but should be " << m_numberOfCellsForDNN );
+    // bail out, but do not stop the job
+    return StatusCode::FAILURE;
 
   }
 
- // sort cells within the cluster like they are fed to DNN
+  // sort cells within the cluster like they are fed to DNN
   if (etaRawImpactCell < 0){
     std::sort(m_windowCells.begin(), m_windowCells.end(), &compCellsForDNNSortMirror);
   }
@@ -498,66 +605,6 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
     std::sort(m_windowCells.begin(), m_windowCells.end(), &compCellsForDNNSort);
   }
 
+  return StatusCode::SUCCESS;
 
-  // start neural network part
-  // fill a map of input nodes
-  // this is for GAN
-  // most likely it should be specialised as a function of m_ParamsInputArchitecture
-
-  double riImpactEta;
-  double riImpactPhi;
-  double randGaussz = 0.;
-
-  int pconf = impactPhiIndex % 4 ;
-  int econf = (impactEtaIndex + 1) % 2 ; // ofset corresponds to difference in index calculated for neural net preprocessing
-    
-  riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean)/m_riImpactEtaScale; // ??? or imact - extrap?
-  riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean);
-  // keep phi in -pi to pi
-  if (riImpactPhi > CLHEP::pi){
-    riImpactPhi -= 2 * CLHEP::pi;
-  }
-  else if (riImpactPhi < - CLHEP::pi){
-    riImpactPhi += 2 * CLHEP::pi;
-  }
-  riImpactPhi = riImpactPhi/m_riImpactPhiScale;
-
-  // fill randomize latent space
-  //FIXME generate in one go
-  for (int i = 0; i< m_GANLatentSize; i ++)
-    {
-      randGaussz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), 0., 1.);
-      inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(i), randGaussz) );
-
-    }
-
-  // fill preprocessed true energy
-  //FIXME this is a loop of 1
-  for (int i = 0; i< 1; i ++)
-    {
-      inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(i), (std::log(trueEnergy) - m_logTrueEnergyMean)/m_logTrueEnergyScale) );
-    }
-  // fill p,e configurations multi-hot vector
-  for (int i = 0; i< 4; i ++)
-    {
-      if (i == pconf){
-	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(i),1.) );
-      }
-      else{
-	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(i),0.) );
-      }
-    }
-  for (int i = 0; i< 2; i ++){
-    if (i == econf){
-      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(i),1.) );
-    }
-    else{
-      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(i),0.) );
-    }
-  }
-  // fill position of extrap particle in impact cell
-  inputs["ripos"].insert ( std::pair<std::string,double>("0", riImpactEta) ); 
-  inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
-
-return StatusCode::SUCCESS;
 }

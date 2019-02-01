@@ -73,7 +73,8 @@ namespace ISF {
       typedef std::map<std::string, std::map<std::string, double> >  NetworkInputs ;
       typedef std::map<std::string, double> NetworkOutputs;
       StatusCode fillNetworkInputs(const ISF::ISFParticle& isfp, NetworkInputs  & inputs, double & trueEnergy);
-      
+      StatusCode fillWindowCells(const double etaExtrap,const double phiExtrap,const CaloDetDescrElement* & impactCellDDE);
+
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent();
       
