@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#!/usr/bin/env python
+#
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 athenaMT event modifier to test beamspot update.
@@ -32,13 +34,13 @@ folderList = []    # list of COOL folder updates
 
 def setBeamSpot(run,lb,x,y,z,
                 status=7,
-                dbname='sqlite://;schema=beampos.db;dbname=COMP200',
+                dbname='sqlite://;schema=beampos.db;dbname=CONDBR2',
                 tag='IndetBeamposOnl-HLT-UPD1-001-00'):
 
-   print '============================= Creating new beamspot in COOL ==================================='
+   print('============================= Creating new beamspot in COOL ===================================')
    sys.stdout.flush()
    os.system("beamSpotOnl_set.py --rs=%d --ls=%d '%s' '%s' %d %f %f %f" % (run,lb,dbname,tag,status,x,y,z))
-   print '==============================================================================================='
+   print('===============================================================================================')
    sys.stdout.flush()   
 
 
@@ -93,3 +95,26 @@ def modify(event):
 # Create an open-ended IOV with a default beamspot
 # This happens at the very beginning when athenaMT/PT imports this module
 setBeamSpot(1,0,0.06,1.06,-4.6,4)
+
+# For standalone running and writing a new output file
+if __name__ == '__main__':
+  import argparse
+  from eformat import EventStorage
+
+  parser = argparse.ArgumentParser(description=__doc__)
+
+  parser.add_argument('file', metavar='FILE', nargs=1, help='input file')
+  args = parser.parse_args()
+  dr = EventStorage.pickDataReader(args.file[0])
+  output = eformat.ostream(core_name = 'test',
+                           run_number = dr.runNumber(),
+                           trigger_type = dr.triggerType(),
+                           detector_mask = dr.detectorMask(),
+                           beam_type = dr.beamType(),
+                           beam_energy = dr.beamEnergy(),
+                           meta_data_strings=dr.freeMetaDataStrings(),
+                           compression=dr.compression())
+
+  for event in eformat.istream(args.file[0]):
+    newevt = modify(event)
+    output.write(newevt)

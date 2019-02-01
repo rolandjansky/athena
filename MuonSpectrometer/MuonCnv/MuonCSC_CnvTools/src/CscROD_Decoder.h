@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOL_CSCROD_DECODER_H
@@ -16,9 +16,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/Identifier.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 
 #include "ByteStreamData/RawEvent.h" 
 #include "eformat/SourceIdentifier.h"
@@ -39,7 +36,7 @@ namespace Muon {
    * BNL December 27 2003
    */
 
-class CscROD_Decoder : virtual public ICSC_ROD_Decoder, public AthAlgTool  {
+class CscROD_Decoder : public extends<AthAlgTool, ICSC_ROD_Decoder>  {
 
 public: 
   
@@ -50,38 +47,33 @@ public:
 
   /** destructor 
    */
-  ~CscROD_Decoder(); 
+  virtual ~CscROD_Decoder(); 
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize() { return StatusCode::SUCCESS; }
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   
-  void setRobFragment(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag);
-  void setEventInfo(const EventInfo* eventInfo);
-  void setGeoVersion(const std::string geoVersion);
+  virtual void fillCollection(const xAOD::EventInfo& eventInfo,
+                              const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const override;
 
-  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog) ; 
-
-  Identifier getChannelId(const uint32_t word, std::string detdesription);
-  uint32_t getHashId(const uint32_t word, std::string detdesription);
-  void getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples );
+  virtual Identifier getChannelId(const uint32_t word, std::string detdesription) const override;
+  virtual uint32_t getHashId(const uint32_t word, std::string detdesription) const override;
+  virtual void getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples ) const override;
 
   // put this in Interface header file...
   
 private:
 
   /** the ROD version */
-  void rodVersion0(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion0(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const;
 
-  void rodVersion1(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion1(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const;
 
-  void rodVersion2(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion2(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const;
 
 private:
 
   CSC_Hid2RESrcID                   m_hid2re;
-  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *               m_robFragment;
   const EventInfo   *               m_eventInfo;
-  std::string                       m_geoVersion;
   const CscIdHelper *               m_cscHelper;
   ServiceHandle<CSCcablingSvc>      m_cabling;
 
@@ -89,15 +81,6 @@ private:
   bool                              m_isOldCosmic;
 
 }; 
-
-/// set the ROD header
-inline void CscROD_Decoder::setRobFragment(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob) {
-   m_robFragment=rob;
-}
-
-inline void CscROD_Decoder::setEventInfo(const EventInfo* eventInfo) { m_eventInfo = eventInfo; }
-
-inline void CscROD_Decoder::setGeoVersion(const std::string geoVersion) { m_geoVersion = geoVersion; }
 
 }
 

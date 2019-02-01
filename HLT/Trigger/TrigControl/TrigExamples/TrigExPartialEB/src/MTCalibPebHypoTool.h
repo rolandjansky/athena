@@ -16,9 +16,6 @@
 // Gaudi includes
 #include "Gaudi/Parsers/Factory.h" // needed to declare less common Property types
 
-// TDAQ includes
-#include "eformat/StreamTag.h"
-
 /** @class MTCalibPebHypoTool
  *  @brief Base class for tools used by MTCalibPebHypoAlg
  **/
@@ -77,6 +74,14 @@ private:
     this, "TimeBetweenROBReqMillisec", 0,
     "Delay in milliseconds between subsequent ROB request operations from ROBAccessDict"
   };
+  Gaudi::Property<std::set<uint32_t> > m_pebRobList {
+    this, "PEBROBList", {},
+    "The list of ROBs to add for partial event building in each passed event"
+  };
+  Gaudi::Property<std::set<uint32_t> > m_pebSubDetList {
+    this, "PEBSubDetList", {},
+    "The list of SubDets to add for partial event building in each passed event"
+  };
 
   // ------------------------- Service or tool handles -------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
@@ -84,8 +89,6 @@ private:
   // ------------------------- Other private members ---------------------------
   /// The decision id of the tool instance
   HLT::Identifier m_decisionId;
-  /// The ConfiguredStreamTags property converted to vector of eformat stream tags
-  std::vector<eformat::helper::StreamTag> m_configuredStreamTags;
 };
 
 #endif // TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H

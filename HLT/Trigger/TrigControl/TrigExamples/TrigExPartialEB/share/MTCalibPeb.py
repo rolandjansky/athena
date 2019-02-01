@@ -57,6 +57,8 @@ hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
 hypoTool1.RandomAcceptRate = 0.75
 hypoTool1.BurnTimePerCycleMillisec = 100
 hypoTool1.NumBurnCycles = 3
+hypoTool1.PEBROBList = [0x42002a, 0x42002b] # example LAr EMBC ROBs
+hypoTool1.PEBSubDetList = [0x65, 0x66] # RPC A and C side
 
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
 hypoTool2.RandomAcceptRate = 0.25
@@ -88,16 +90,17 @@ serialiser = TriggerEDMSerialiserTool()
 serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPebDecisions",
                                      "xAOD::TrigCompositeAuxContainer_v1#MTCalibPebDecisionsAux."]
 
+# StreamTag definitions
+streamExamplePEB = ['ExamplePEB', 'calibration', "True", "False"]
+streamPhysicsMain = ['Main', 'physics', "True", "True"]
+
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
 stmaker.ChainDecisions = "HLTSummary"
+stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions]
 stmaker.ChainToStream = {}
-stmaker.ChainToStream["HLT_MTCalibPeb1"] = "DataScouting_05_Jets"
-stmaker.ChainToStream["HLT_MTCalibPeb2"] = "Main"
-stmaker.StreamSubDets = {}
-stmaker.StreamSubDets["Main"] = [0x41, 0x42]
-stmaker.StreamRobs = {}
-stmaker.StreamRobs["Main"] = [0x42002e, 0x420060, 0x420064]
+stmaker.ChainToStream["HLT_MTCalibPeb1"] = streamExamplePEB
+stmaker.ChainToStream["HLT_MTCalibPeb2"] = streamPhysicsMain
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()

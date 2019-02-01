@@ -18,7 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigDataAccess/TrigDataAccessMonitoring
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigT1/TrigT1Result
-                          Trigger/TrigSteer/DecisionHandling )
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigAlgorithms/TrigPartialEventBuilding )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -29,7 +30,10 @@ atlas_add_component( TrigExPartialEB
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel TrigROBDataProviderSvcLib AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib TrigDataAccessMonitoringLib TrigSteeringEvent TrigT1Result DecisionHandlingLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel
+                     TrigROBDataProviderSvcLib AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib
+                     TrigDataAccessMonitoringLib TrigSteeringEvent TrigT1Result DecisionHandlingLib
+                     TrigPartialEventBuildingLib )
 
 # Install files from the package:
 atlas_install_headers( TrigExPartialEB )
