@@ -958,6 +958,16 @@ namespace top{
                std::istream_iterator<std::string>(),
                std::back_inserter(m_pileup_reweighting.config_files_AF) );
 
+    std::istringstream actual_mu_FS_ss(settings->value( "PRWActualMu_FS" ));
+    std::copy( std::istream_iterator<std::string>(actual_mu_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.actual_mu_FS) );
+
+    std::istringstream actual_mu_AF_ss(settings->value( "PRWActualMu_AF" ));
+    std::copy( std::istream_iterator<std::string>(actual_mu_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.actual_mu_AF) );
+
     m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
 
     m_pileup_reweighting.mu_dependent = (settings->value("PRWMuDependent") == "True");
