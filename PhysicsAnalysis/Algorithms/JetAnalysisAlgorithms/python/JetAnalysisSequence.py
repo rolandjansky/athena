@@ -190,21 +190,9 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         affectingSystematics = smallRSysts
       else:
         # Large-R version
-
-        # Large-R jets have a limited region of validity so have to be
-        # preselected
-        presel_alg = createAlgorithm( 'CP::AsgSelectionAlg',
-            'JetPreselectionAlg'+postfix )
-        presel_alg.selectionDecoration = 'fatjetpreselection,as_char'
-        addPrivateTool( presel_alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-        presel_alg.selectionTool.minPt = 150e3
-        presel_alg.selectionTool.maxEta = 2
-        seq.append( presel_alg, inputPropName = 'particles', outputPropName = 'particlesOut')
         configFile = "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
         mcType = "MC16a"
         affectingSystematics = largeRSysts
-        cutlist.append('fatjetpreselection,as_char')
-        cutlength.append(1)
        
       # Set up the jet uncertainty calculation algorithm:
       alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 
