@@ -1118,7 +1118,7 @@ StatusCode HLTXAODBphysMonTool::bookJpsiFinderEfficiency() {
     int nBins(40);
 
     for (const auto& effpair: m_efficiency_chains) {
-         TString prefix = m_prefix + "_noVtx_noOS_" + effpair.first;
+         TString prefix = m_prefix + "_Jpsi_noVtx_noOS_" + effpair.first;
          addMonGroup(new MonGroup(this,m_base_path_shifter+"/JpsiFinder/Efficiency/"+"noVtx_noOS_"+effpair.first,run));
              
          addProfile  ( new TProfile(prefix+"_eta", prefix+"_eta"   ,nBins,-3.,3.) );
@@ -1197,7 +1197,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiency() {
 
 StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string & groupName, const std::string & chainName) {
 
-    TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString          
+    TString prefix = m_prefix + "_Jpsi_" + groupName; // convert from std::string to TString          
     const auto cg   = getTDT()->getChainGroup(chainName);
     bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
     
@@ -1236,22 +1236,23 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
            double etaTrk2 = refTrk2.Eta();
            double ptTrk2  = refTrk2.Pt();
       
-           int It_number=0;
+           unsigned int it_number=0;
       
-           for(auto It=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.begin();It!=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.end();It++) {
+           for(auto it=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.begin();it!=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.end();it++) {
              
-             auto cur_pair_Noos=*It;
+             auto cur_pair_Noos=*it;
              // refitted track parameters 
-             TLorentzVector NoosTrk1 = cur_pair_Noos.first ->p4();
-             TLorentzVector NoosTrk2 = cur_pair_Noos.second->p4();
-             It_number=It_number+1;         
-             double phiNoosTrk1 = NoosTrk1.Phi();
-             double etaNoosTrk1 = NoosTrk1.Eta();
-             double ptNoosTrk1  = NoosTrk1.Pt();
+             TLorentzVector noosTrk1 = cur_pair_Noos.first ->p4();
+             TLorentzVector noosTrk2 = cur_pair_Noos.second->p4();
+             it_number=it_number+1;         
+             double phiNoosTrk1 = noosTrk1.Phi();
+             double etaNoosTrk1 = noosTrk1.Eta();
+             double ptNoosTrk1  = noosTrk1.Pt();
       
-             double phiNoosTrk2 = NoosTrk2.Phi();
-             double etaNoosTrk2 = NoosTrk2.Eta();
-             double ptNoosTrk2  = NoosTrk2.Pt();
+             double phiNoosTrk2 = noosTrk2.Phi();
+             double etaNoosTrk2 = noosTrk2.Eta();
+             double ptNoosTrk2  = noosTrk2.Pt();
+             
              if(   ((abs(phiNoosTrk1-phiTrk1)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk1-etaTrk1)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk1-ptTrk1))/ptNoosTrk1)<=m_EffMatchThresh_pT) && (abs(phiNoosTrk2-phiTrk2)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk2-etaTrk2)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk2-ptTrk2))/ptNoosTrk2)<=m_EffMatchThresh_pT))
                ||  ((abs(phiNoosTrk2-phiTrk1)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk2-etaTrk1)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk2-ptTrk1))/ptNoosTrk2)<=m_EffMatchThresh_pT) && (abs(phiNoosTrk1-phiTrk2)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk1-etaTrk2)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk1-ptTrk2))/ptNoosTrk1)<=m_EffMatchThresh_pT)) ) {
             // ******** SHIFTER ********* //               
@@ -1269,7 +1270,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
              profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,1.0,1.0);
              continue;}
            }
-           if (It_number==m_JpsiFinderEfficiency_denomnoVtxOS_pairs.size()) {
+           if (it_number==m_JpsiFinderEfficiency_denomnoVtxOS_pairs.size()) {
                
                
              setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder/Efficiency/"+groupName); 
