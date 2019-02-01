@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
@@ -10,6 +10,12 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
 
    def __init__(self, name='TrigCOOLUpdateHelper'):
       super(TrigCOOLUpdateHelper, self).__init__(name)
+
+      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
+                                   title='Time for conditions update;time [ms]',
+                                   xbins=100, xmin=0, xmax=200)
       return
 
    def enable(self, folder='/TRIGGER/HLT/COOLUPDATE', tag=None):
@@ -20,7 +26,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       
       self.coolFolder = folder
       from IOVDbSvc.CondDB import conddb
-      if tag==None:
+      if tag is None:
          conddb.addFolder('TRIGGER',self.coolFolder)
       else:
          conddb.addFolderWithTag('TRIGGER',self.coolFolder,tag)
