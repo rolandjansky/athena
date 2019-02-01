@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ITPConverter_H
@@ -33,7 +33,7 @@ class ITPConverter  : public ITPCnvBase
 protected:
   ITPConverter() {} 
 public:
-  virtual ~ITPConverter() {}
+  virtual ~ITPConverter() = default;
 
   /** Set which top-level converter owns this elemental converter, and
       what TPtypeID was assigned to the persistent objects it produces.
