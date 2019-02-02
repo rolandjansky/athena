@@ -63,13 +63,13 @@ if( XAOD_STANDALONE )
      PROPERTIES TIMEOUT 300 )
   atlas_add_test( OverlapRemovalTestJobData
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type data --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 400 )
   atlas_add_test( OverlapRemovalTestJobFullSim
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 400 )
   atlas_add_test( OverlapRemovalTestJobFastSim
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 400 )
 else()
    atlas_add_test( EventAlgsTestJob
       SCRIPT athena.py
@@ -78,5 +78,5 @@ else()
    atlas_add_test( OverlapRemovalTestJob
       SCRIPT athena.py
              AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 400 )
 endif()
