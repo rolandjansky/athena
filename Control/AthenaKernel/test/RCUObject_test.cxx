@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -128,6 +128,8 @@ void test1()
       optr = &rcuo;
       assert (svc.m_removed == nullptr);
     }
+    // cppcheck-suppress invalidLifetime
+    // cppcheck-suppress deadpointer
     assert (svc.m_removed == optr);
   }
   Payload::getlog();
