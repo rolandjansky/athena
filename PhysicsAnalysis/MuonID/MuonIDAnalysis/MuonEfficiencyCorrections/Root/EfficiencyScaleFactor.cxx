@@ -197,7 +197,7 @@ namespace CP {
             if (!histo) return true;
             for ( int i = 1; i <= histo->NBins(); ++i){
                 if (std::isnan(histo->GetBinContent(i)) || std::isinf(histo->GetBinContent(i))){
-                    Error("EfficiencyScaleFactor()", "The bin %s has not a number.", histo->GetBinName(i).c_str());
+                    Error("EfficiencyScaleFactor()", "The %d-th bin %s has not a number (%f)",i, histo->GetBinName(i).c_str(), histo->GetBinContent(i));
                     return false;
                 }
             }

@@ -23,13 +23,13 @@ alg.ValidationRelease="cMoriond2019"
 
 WPs = [
          # reconstruction WPs
-       # "LowPt",
-       #  "Loose", 
-       # "Medium", 
-       #  "Tight", 
-         "HighPt",
+        "LowPt",
+        "Loose", 
+        "Medium", 
+        "Tight", 
+        "HighPt",
          # track-to-vertex-association WPs
-       #  "TTVA",
+         "TTVA",
          # BadMuon veto SFs
         # "BadMuonVeto_HighPt",
          # isolation WPs
@@ -39,7 +39,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID/")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
 
 theJob += alg
 
