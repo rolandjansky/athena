@@ -44,7 +44,6 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : AthAlgTool(type, name, parent),
     m_muonMgr(0),
     m_cscHelper(0),
-    m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool", this),
     m_cscCalibTool( "CscCalibTool/CscCalibTool", this),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder", this),
     m_cabling( "CSCcablingSvc" ,name),
@@ -54,7 +53,6 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
   declareProperty("DecodeData",          m_decodeData = true ); 
   // tools 
-  declareProperty("RawDataProviderTool", m_rawDataProviderTool);
   declareProperty("CscCalibTool",        m_cscCalibTool );
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
   // DataHandle

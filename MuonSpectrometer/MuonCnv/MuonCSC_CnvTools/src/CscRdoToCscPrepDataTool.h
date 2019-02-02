@@ -84,7 +84,6 @@ namespace Muon {
     SG::ReadHandleKey<CscRawDataContainer> m_rdoContainerKey;
     
     /// CSC Calibration tools
-    ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool; 
     ToolHandle<ICscCalibTool> m_cscCalibTool;
     ToolHandle<ICSC_RDO_Decoder> m_cscRdoDecoderTool;
 
