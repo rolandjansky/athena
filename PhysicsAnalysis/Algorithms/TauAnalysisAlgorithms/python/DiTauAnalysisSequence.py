@@ -4,6 +4,7 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
+import ROOT
 
 def makeDiTauAnalysisSequence( dataType, workingPoint,
                              deepCopyOutput = False, postfix = '' ):
@@ -33,12 +34,13 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
 
     sfWorkingPoint = splitWP[0]
     if splitWP[0] == 'Tight' :
+        IDLevel = ROOT.TauAnalysisTools.JETIDBDTTIGHT
         pass
     elif splitWP[0] == 'Medium' :
+        IDLevel = ROOT.TauAnalysisTools.JETIDBDTMEDIUM
         pass
     elif splitWP[0] == 'Loose' :
-        pass
-    elif splitWP[0] == 'VeryLoose' :
+        IDLevel = ROOT.TauAnalysisTools.JETIDBDTLOOSE
         pass
     else :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
@@ -67,6 +69,7 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
                            'DiTauEfficiencyCorrectionsAlg' + postfix )
     addPrivateTool( alg, 'efficiencyCorrectionsTool',
                     'TauAnalysisTools::DiTauEfficiencyCorrectionsTool' )
+    alg.efficiencyCorrectionsTool.IDLevel = IDLevel
     alg.efficiencyDecoration = 'tau_eff' + postfix
     # alg.outOfValidity = 2 #silent
     # alg.outOfValidityDeco = "bad_eff"
@@ -80,7 +83,6 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
                                'DiTauTruthMatchingAlg' + postfix )
         addPrivateTool( alg, 'matchingTool',
                         'TauAnalysisTools::DiTauTruthMatchingTool' )
-        alg.matchingTool.WriteTruthTaus = 1
         seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
                     stageName = 'selection' )
         pass
