@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -8,8 +8,8 @@
 #ifndef SELECTION_HELPERS__I_SELECTION_ACCESSOR_H
 #define SELECTION_HELPERS__I_SELECTION_ACCESSOR_H
 
+#include <AthContainers/AuxElement.h>
 #include <SelectionHelpers/SelectionHelpers.h>
-#include <xAODBase/IParticle.h>
 #include <memory>
 
 class StatusCode;
@@ -43,20 +43,20 @@ namespace CP
     /// \brief get the selection decoration
   public:
     virtual SelectionType
-    getBits (const xAOD::IParticle& particle) const = 0;
+    getBits (const SG::AuxElement& element) const = 0;
 
     /// \brief set the selection decoration
   public:
-    virtual void setBits (xAOD::IParticle& particle,
+    virtual void setBits (SG::AuxElement& element,
                           SelectionType selection) const = 0;
 
     /// \brief get the selection decoration
   public:
-    virtual bool getBool (const xAOD::IParticle& particle) const = 0;
+    virtual bool getBool (const SG::AuxElement& element) const = 0;
 
     /// \brief set the selection decoration
   public:
-    virtual void setBool (xAOD::IParticle& particle,
+    virtual void setBool (SG::AuxElement& element,
                           bool selection) const = 0;
   };
 
