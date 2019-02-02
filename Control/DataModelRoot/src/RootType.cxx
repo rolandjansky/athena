@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,7 +41,7 @@ static const std::string ResolveTypedef( const std::string& tname )
    return TClassEdit::ResolveTypedef( tclean.c_str(), true );
 }
 
-static inline const std::string UnqualifiedTypeName( const std::string name )
+static inline const std::string UnqualifiedTypeName( const std::string& name )
 {
     return TClassEdit::ShortType(
          TClassEdit::CleanType( name.c_str(), 1 ).c_str(), 5 );
@@ -524,9 +524,9 @@ TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet
 
 
 //____________________________________________________________________________
-TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )      
+TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )
+  : fClass (TClassRef( TClass::GetClass(typeinfo) ) )   // MN: is that right?
 {
-   fClass = TClassRef( TClass::GetClass(typeinfo) );   // MN: is that right?
    if( fClass.GetClass() ) {
       fName = fClass->GetName();
    } else  {
