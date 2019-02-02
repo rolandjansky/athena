@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -36,8 +36,6 @@
 //
 // ........ Event Header Files:
 //
-//#include "EventInfo/EventID.h"
-//#include "EventInfo/EventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
 //
 // ........ Gaudi needed includes
