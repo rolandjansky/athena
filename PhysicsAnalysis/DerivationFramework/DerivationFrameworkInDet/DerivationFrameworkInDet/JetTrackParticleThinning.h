@@ -65,6 +65,8 @@ namespace DerivationFramework {
       std::string m_inDetSGKey = "InDetTrackParticles";
       /// Selection string to use with the expression evaluation
       std::string m_selectionString;
+      /// DR matching criteria for use in addition to ghost-association
+      float m_dRMatch = 0.0;
       /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
       bool m_and = false;
 
