@@ -32,7 +32,9 @@ namespace DerivationFramework {
       declareProperty( "InDetTrackParticlesKey", m_inDetSGKey,
                        "StoreGate key of the track particle container" );
       declareProperty( "SelectionString", m_selectionString,
-                       "Selection string for the e/gamma objects" );
+                       "Selection string for the jet objects" );
+      declareProperty( "DeltaRMatch", m_dRMatch,
+                       "DeltaR matching criteria in addition to ghost-association" );
       declareProperty( "ApplyAnd", m_and,
                        "Use IThinningSvc::Operator::And instead of "
                        "IThinningSvc::Operator::Or" );
@@ -158,6 +160,27 @@ namespace DerivationFramework {
             // If it is, update the mask:
             mask.at( tp->index() ) = true;
          }
+      }
+
+      // Set elements in the mask to true if they lie within dR of a 
+      // reconstructed jet object if configured to do so
+      if(m_dRMatch > 0.0) {
+        for ( const xAOD::TrackParticle* tp : *importedTrackParticles ) {
+
+          // If mask is already set to true, skip track
+          if( mask.at( tp->index() ) ) continue;
+
+          for( const xAOD::Jet* jet : jetToCheck ) {
+            // Check if a jet lies within dR of track
+
+            if(tp->p4().DeltaR(jet->p4()) <= m_dRMatch) {
+              // If so, update the mask
+              mask.at( tp->index() ) = true;
+              // and skip the rest of the jets
+              break;
+            }
+          }
+        }
       }
 
       // Count up the mask contents
