@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -40,9 +40,6 @@
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "InDetPerformanceMonitoring/IDPerfMonKshort.h"
 
