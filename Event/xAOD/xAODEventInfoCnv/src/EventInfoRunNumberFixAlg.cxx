@@ -20,8 +20,8 @@ namespace xAOD {
     : AthAlgorithm( name, svcLoc )
   {
 
-    declareProperty( "RunNumber"    , m_runNumber     = 0           );
-    declareProperty( "ContainerName", m_containerName = "EventInfo" );
+    declareProperty( "McChannelNumber" , m_mcChannelNumber = 0         );
+    declareProperty( "ContainerName"   , m_containerName = "EventInfo" );
   }
 
   StatusCode EventInfoRunNumberFixAlg::initialize() {
@@ -37,7 +37,7 @@ namespace xAOD {
                                      m_containerName) );
 
     // Only run if a difference is found
-    if( originalEventInfo->runNumber()==m_runNumber ){
+    if( originalEventInfo->mcChannelNumber()==m_mcChannelNumber ){
       return StatusCode::SUCCESS;
     }
 
@@ -57,8 +57,7 @@ namespace xAOD {
       *eventInfo = *originalEventInfo;
       auto store = CxxUtils::make_unique<xAOD::EventAuxInfo>();
       eventInfo->setStore (store.get());
-      eventInfo->setRunNumber(m_runNumber);
-        
+      eventInfo->setMCChannelNumber(m_mcChannelNumber);
       ATH_CHECK( evtStore()->overwrite (eventInfo,
                                     m_containerName,
                                     true, false) );
@@ -68,11 +67,9 @@ namespace xAOD {
     } else {
       ATH_CHECK( evtStore()->retrieve (eventInfo,
                                        m_containerName) );
-      eventInfo->setRunNumber(m_runNumber);
-
+      eventInfo->setMCChannelNumber(m_mcChannelNumber);
     }
     return StatusCode::SUCCESS;
-
   }
 
 } // xAOD namespace
