@@ -8,6 +8,8 @@ import PyJobTransforms.trfJobOptions
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
 from AODFix_base import AODFix_base
+
+from RecExConfig.InputFilePeeker import inputFileSummary
 import os
 
 class AODFix_r210(AODFix_base):
@@ -95,20 +97,39 @@ class AODFix_r210(AODFix_base):
 
     def evtRunNum_postSystemRec(self, topSequence): 
 
-        """ This fixes the wrong run number arising from buggy EVNT-to-EVNT transform
-             workflows. JIRA: https://its.cern.ch/jira/browse/AGENE-1655"""
-        
-        variables = {}
-        runNumber = None
-        if os.access('runargs.AODtoDAOD.py',os.R_OK):
-          execfile('runargs.AODtoDAOD.py',variables)
+        """ This fixes the wrong run number arising from buggy EVNT-to-EVNT transform workflows. 
+          --- > JIRA: https://its.cern.ch/jira/browse/AGENE-1655
 
-        if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
-          runNumber = variables['runArgs'].runNumber
+          Only schedule this AODFix for samples whose 
+          mc_channel_number orginates from these samples
 
-        if runNumber is not None:
+          MC15.366000.Sherpa_221_NNPDF30NNLO_Znunu_PTV0_70.py
+          MC15.366001.Sherpa_221_NNPDF30NNLO_Znunu_PTV70_100.py
+          MC15.366002.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ0_500.py
+          MC15.366003.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ500_1000.py
+          MC15.366004.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ1000_E_CMS.py
+          MC15.366005.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ0_500.py
+          MC15.366006.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ500_1000.py
+          MC15.366007.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ1000_E_CMS.py
+          MC15.366008.Sherpa_221_NNPDF30NNLO_Znunu_PTV280_500.py
+
+        """
+        schedule_evtRunNum = False
+        if 'mc_channel_number' in inputFileSummary:
+          input_mcChanNb = inputFileSummary['mc_channel_number'][0]
+          if input_mcChanNb>= 366000 and input_mcChanNb<=366008: 
+            schedule_evtRunNum = True
+
+        if schedule_evtRunNum:
+          variables = {}
+          runNumber = None
+          if os.access('runargs.AODtoDAOD.py',os.R_OK):
+            execfile('runargs.AODtoDAOD.py',variables)
+          if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
+            runNumber = variables['runArgs'].runNumber
+          # 
           from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
-          EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( RunNumber = int(runNumber) )
+          EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
           topSequence+=EventInfoRunNumberFixAlg
 
     def trklinks_postSystemRec(self, topSequence):
