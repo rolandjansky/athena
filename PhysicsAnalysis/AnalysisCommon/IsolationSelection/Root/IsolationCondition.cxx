@@ -11,7 +11,7 @@ namespace CP{
                 m_isolationType(isoTypes),             
                 m_cutValue(-999.) {
         for (auto iso_type : m_isolationType){
-            m_acc.push_back(xAOD::getIsolationAccessor(iso_type));
+            m_acc.push_back(std::make_unique< SG::AuxElement::Accessor< float > >( toString(iso_type)));
         }        
     }
     IsolationCondition::IsolationCondition(const std::string& name, const std::vector<std::string> &isoTypes) :
