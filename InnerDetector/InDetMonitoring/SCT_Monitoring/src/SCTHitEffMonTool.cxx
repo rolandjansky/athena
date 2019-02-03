@@ -1760,7 +1760,7 @@ SCTHitEffMonTool::fillHistograms() {
       const int iphi(m_sctId->phi_module(surfaceID));
       m_effMap[histnumber][side]->Fill(ieta, iphi, eff);
       if( BCIDpos <= 0 ){
-        m_effMapFirstBCID[histnumber][side]->Fill(ieta, iphi, m_eff);
+        m_effMapFirstBCID[histnumber][side]->Fill(ieta, iphi, eff);
       }
       m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), eff);// 23.01.2015
 
