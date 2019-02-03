@@ -14,7 +14,7 @@ class DiagnosticHisto(object):
                        axis_title = "",
                        bins = -1,
                        bmin = 0.,
-                       bmax = 0.,
+                       bmax = -1.e9,
                        bin_width = -1,
                        bdir = None):
         self.__name = name
@@ -26,6 +26,7 @@ class DiagnosticHisto(object):
         self.__error = {}
         self.__TH1 = None
         self.__TDir = bdir
+        
         if bins > 0:
             self.__width = (bmax-bmin)/ bins 
             self.__TH1 = ROOT.TH1D(name, "Diagnostic histogram", bins, bmin, bmax)
@@ -49,8 +50,10 @@ class DiagnosticHisto(object):
         self.fixHisto()
         if not self.__TH1: return            
         self.__TH1.GetXaxis().SetTitle(self.__xTitle)
-        self.__TH1.Scale(1./ (self.__TH1.Integral()if self.__entries > 0 else 1.))
-        self.__TH1.GetYaxis().SetTitle("Normalized unit area (%.2f)"%(self.__width))
+        ### Pull back the overflow
+        self.TH1().SetBinContent(self.TH1().GetNbinsX(),H.TH1().GetBinContent(self.TH1().GetNbinsX()+1) + H.TH1().GetBinContent(self.TH1().GetNbinsX()))
+        self.TH1().SetBinError(self.TH1().GetNbinsX(), math.sqrt( (H.TH1().GetBinError(self.TH1().GetNbinsX()+1) + H.TH1().GetBinError(self.TH1().GetNbinsX()))**2))
+       
         self.__TH1.SetEntries(self.__entries)
         if self.__TDir: self.__TDir.WriteObject(self.__TH1, self.__name)
     def max(self):
@@ -63,9 +66,11 @@ class DiagnosticHisto(object):
     def setMaximum(self, maximum): self.__max = maximum
     def fixHisto(self):
         if self.__TH1: return
-        bins = int((self.__max - self.__min) / self.__width)
+        bins = min (int((self.__max - self.__min) / self.__width), 10000)
+        print self.name(), bins, self.__max, self.__min
         self.__TH1 = ROOT.TH1D(self.name(), "Diagnostic histogram", bins, self.__min, self.__max)
         self.__TH1.SetDirectory(self.__TDir) 
+        
         for rng in self.__content.iterkeys():
             bin = self.__TH1.FindBin((rng[1] + rng[0])/2.)
             self.__TH1.SetBinContent(bin, self.__content[rng])
@@ -127,11 +132,7 @@ class ReleaseComparer(object):
         for H in [ self.get_old_histo(), self.get_new_histo()]:
             H.setMinimum(minimum)
             H.setMaximum(maximum)
-            H.fixHisto()
-            ### Pull the over flow
-            n_bins = H.TH1().GetNbinsX()
-            H.TH1().SetBinContent(n_bins,H.TH1().GetBinContent(n_bins+1) + H.TH1().GetBinContent(n_bins))
-            H.TH1().SetBinError(n_bins, math.sqrt( (H.TH1().GetBinError(n_bins+1) + H.TH1().GetBinError(n_bins))**2))
+            H.write()
                
     def name(self):
         return self.__var_name
@@ -337,7 +338,7 @@ if __name__ == "__main__":
                             bins = 16, bmin = -3.15, bmax = 3.15,
                             name_old_rel =calibReleases[0], name_new_rel = calibReleases[1],
                             test_tree = tree,
-                            branch_old = "Muon_pt",   branch_new = "Muon_pt",
+                            branch_old = "Muon_phi",   branch_new = "Muon_phi",
                             weight_old = "c%s_%s_SF"%(calibReleases[0],wp),   
                             weight_new = "c%s_%s_SF"%(calibReleases[1],wp)),
                 
@@ -345,7 +346,7 @@ if __name__ == "__main__":
     
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if i % 1000 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
+        if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
         if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
         for H in Histos: H.fill()
         
