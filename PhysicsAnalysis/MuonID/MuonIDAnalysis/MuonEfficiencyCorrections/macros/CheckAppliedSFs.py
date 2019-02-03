@@ -85,12 +85,12 @@ class ReleaseComparer(object):
                  weight_old = None, weight_new = None
                  ):
         ### Direct access to the branch which are going to be compared
-        self.__old_branch = getattr(test_tree, branch_old)
-        self.__new_branch = getattr(test_tree, branch_new)
+        self.__old_branch = test_tree.GetLeaf(branch_old)
+        self.__new_branch = test_tree.GetLeaf(branch_new)
         
         ### Weights as a function of the muon kinematics
-        self.__old_weight = 1. if not weight_old else getattr(test_tree,weight_old)
-        self.__new_weight = 1. if not weight_new else getattr(test_tree,weight_new)
+        self.__old_weight = 1. if not weight_old else test_tree.GetLeaf(weight_old)
+        self.__new_weight = 1. if not weight_new else test_tree.GetLeaf(weight_new)
         
         self.__var_name = var_name
         self.__old_histo = DiagnosticHisto(
@@ -105,8 +105,8 @@ class ReleaseComparer(object):
                                     bin_width = bin_width, bdir = bdir)
                 
     def fill(self):
-        self.__old_histo.fill(value = self.__old_branch, weight= self.__old_weight)
-        self.__new_histo.fill(value = self.__new_branch, weight= self.__new_weight)
+        self.__old_histo.fill(value = self.__old_branch.GetValue(), weight= self.get_old_weight())
+        self.__new_histo.fill(value = self.__new_branch.GetValue(), weight= self.get_new_weight())
     def get_old_histo(self): 
         return self.__old_histo
     def get_new_histo(self): 
@@ -115,10 +115,12 @@ class ReleaseComparer(object):
         return self.__old_branch
     def get_new_var(self): 
         return self.__new_branch
-    def get_old_weight(self): 
-        return self.__old_weight
+    def get_old_weight(self):
+        if isinstance(self.__old_weight, float): return self.__old_weight
+        return self.__old_weight.GetValue()
     def get_new_weight(self): 
-        return self.__new_weight
+        if isinstance(self.__new_weight, float): return self.__new_weight
+        return self.__new_weight.GetValue()
     def finalize(self):
         minimum = min(self.get_old_histo().min(), self.get_new_histo().min()) - 0.01
         maximum = max(self.get_old_histo().max(), self.get_new_histo().max()) + 0.01
@@ -162,12 +164,13 @@ class SystematicComparer(ReleaseComparer):
                                  branch_new = branch_new,
                                  weight_old = weight_old,
                                  weight_new = weight_new)
-        self.__sys_old = getattr(test_tree, branch_sys_old)
-        self.__sys_new = getattr(test_tree, branch_sys_new)
+        self.__sys_old = test_tree.GetLeaf(branch_sys_old)
+        self.__sys_new = test_tree.GetLeaf(branch_sys_new)
+        
      def fill(self):
-        self.get_old_histo().fill(value = math.fabs(self.get_old_var() - self.__sys_old) / (self.get_old_var() if self.get_old_var() != 0. else 1.) , 
+        self.get_old_histo().fill(value = math.fabs(self.get_old_var().GetValue() - self.__sys_old.GetValue()) / (self.get_old_var().GetValue() if self.get_old_var().GetValue() != 0. else 1.) , 
                                   weight= self.get_old_weight())
-        self.get_new_histo().fill(value = math.fabs(self.get_new_var() - self.__sys_new) / (self.get_new_var() if self.get_new_var() != 0. else 1.), 
+        self.get_new_histo().fill(value = math.fabs(self.get_new_var().GetValue() - self.__sys_new.GetValue()) / (self.get_new_var().GetValue() if self.get_new_var().GetValue() != 0. else 1.), 
                                   weight= self.get_new_weight())
         
         
@@ -223,7 +226,7 @@ def GetTypeAndWP(options,histo):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="Applied_SFs.root")
+    parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="SFTest.root")
     parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
     parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
@@ -241,10 +244,7 @@ if __name__ == "__main__":
     infile  = ROOT.TFile(Options.InputFile)
     
     tree = infile.Get("MuonEfficiencyTest")
-
-    branchesInFile = []
-    for key in tree.GetListOfBranches():
-        branchesInFile.append(key.GetName())
+    branchesInFile = [key.GetName() for key in tree.GetListOfBranches()]
     calibReleases = []
     allWPs = []
     for wp in KnownWPs.iterkeys():
@@ -317,10 +317,36 @@ if __name__ == "__main__":
                             branch_sys_new = "c%s_%s_%s__%s"%(calibReleases[1],wp,t,var.replace("RECO",KnownWPs[wp])),
                         )] 
   
+            Histos +=[
+                ReleaseComparer(var_name = "pt_%s"%(wp), axis_title ="p_{T} #mu(%s) [MeV]"%(wp),
+                            bins = 15, bmin = 15.e3, bmax = 200.e3,
+                            name_old_rel =calibReleases[0], name_new_rel = calibReleases[1],
+                            test_tree = tree,
+                            branch_old = "Muon_pt",   branch_new = "Muon_pt",
+                            weight_old = "c%s_%s_SF"%(calibReleases[0],wp),   
+                            weight_new = "c%s_%s_SF"%(calibReleases[1],wp)),
+                            
+                ReleaseComparer(var_name = "eta_%s"%(wp), axis_title ="#eta #mu(%s) [MeV]"%(wp),
+                            bins = 20, bmin = -2.5, bmax = 2.5,
+                            name_old_rel =calibReleases[0], name_new_rel = calibReleases[1],
+                            test_tree = tree,
+                            branch_old = "Muon_eta",   branch_new = "Muon_eta",
+                            weight_old = "c%s_%s_SF"%(calibReleases[0],wp),   
+                            weight_new = "c%s_%s_SF"%(calibReleases[1],wp)),
+                ReleaseComparer(var_name = "phi_%s"%(wp), axis_title ="#phi #mu(%s) [MeV]"%(wp),
+                            bins = 16, bmin = -3.15, bmax = 3.15,
+                            name_old_rel =calibReleases[0], name_new_rel = calibReleases[1],
+                            test_tree = tree,
+                            branch_old = "Muon_pt",   branch_new = "Muon_pt",
+                            weight_old = "c%s_%s_SF"%(calibReleases[0],wp),   
+                            weight_new = "c%s_%s_SF"%(calibReleases[1],wp)),
+                
+            ]
     
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if math.fabs(tree.Muon_eta) > 2.5 or tree.Muon_pt < 15.e3: continue
+        if i % 1000 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
+        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
         for H in Histos: H.fill()
         
     print "INFO: Histograms filled"
@@ -353,12 +379,12 @@ if __name__ == "__main__":
             histoCR2.Draw("sameHIST")
             pu.DrawLegend([(histoCR1,'L'),(histoCR2,'L')], 0.3, 0.75, 0.9, 0.9)
             variationDrawn = "Nominal"
-            if "STAT" in comp.var_name(): variationDrawn = "|Stat-Nominal|/Nominal"
-            elif "SYS" in comp.var_name(): variationDrawn = "|Sys-Nominal|/Nominal"
+            if "STAT" in comp.name(): variationDrawn = "|Stat-Nominal|/Nominal"
+            elif "SYS" in comp.name(): variationDrawn = "|Sys-Nominal|/Nominal"
             pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
-            pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.var_name().split("_")[0],variationDrawn))
-            pu.DrawTLatex(0.55, 0.6, comp.var_name().split("_")[1])
-            can.SaveAs("%s/AppliedSFCheck_%s%s.pdf"%(Options.outDir, comp.var_name(),var,bonusname))
+            pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
+            pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
+            can.SaveAs("%s/AppliedSFCheck_%s%s.pdf"%(Options.outDir, comp.name(),bonusname))
             can.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf" % (Options.outDir, bonusname))
 
         dummy.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf]" % (Options.outDir, bonusname))
