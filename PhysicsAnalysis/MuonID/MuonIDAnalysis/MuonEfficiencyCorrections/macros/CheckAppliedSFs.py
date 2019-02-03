@@ -51,9 +51,12 @@ class DiagnosticHisto(object):
         if not self.__TH1: return            
         self.__TH1.GetXaxis().SetTitle(self.__xTitle)
         ### Pull back the overflow
-        self.TH1().SetBinContent(self.TH1().GetNbinsX(),H.TH1().GetBinContent(self.TH1().GetNbinsX()+1) + H.TH1().GetBinContent(self.TH1().GetNbinsX()))
-        self.TH1().SetBinError(self.TH1().GetNbinsX(), math.sqrt( (H.TH1().GetBinError(self.TH1().GetNbinsX()+1) + H.TH1().GetBinError(self.TH1().GetNbinsX()))**2))
-       
+        self.TH1().SetBinContent(self.TH1().GetNbinsX(),self.TH1().GetBinContent(self.TH1().GetNbinsX()+1) + self.TH1().GetBinContent(self.TH1().GetNbinsX()))
+        self.TH1().SetBinError(self.TH1().GetNbinsX(), math.sqrt( (self.TH1().GetBinError(self.TH1().GetNbinsX()+1) + self.TH1().GetBinError(self.TH1().GetNbinsX()))**2))
+        ### Pull back the underflow
+        self.TH1().SetBinContent(1,self.TH1().GetBinContent(0) + self.TH1().GetBinContent(1))
+        self.TH1().SetBinError(1, math.sqrt( (self.TH1().GetBinError(0) + self.TH1().GetBinError(1))**2))
+        
         self.__TH1.SetEntries(self.__entries)
         if self.__TDir: self.__TDir.WriteObject(self.__TH1, self.__name)
     def max(self):
