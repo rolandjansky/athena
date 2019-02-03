@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -52,6 +52,18 @@ namespace CP
     /// \brief the truth jet collection to use
   private:
     std::string m_truthJetsName;
+
+    /// \brief differenciate between JVT and fJVT
+  private:
+    bool  m_dofJVT = false;
+
+    /// \brief the decoration for the fJVT selection
+  private:
+    std::string m_fJVTStatus;
+
+    /// \brief the accessor for \ref m_fJVTStatus
+  private:
+    std::unique_ptr<ISelectionAccessor> m_fJVTStatusAccessor;
 
     /// \brief the decoration for the JVT selection
   private:
