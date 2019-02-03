@@ -131,7 +131,7 @@ namespace CP {
             if (object->type() == xAOD::Type::ObjectType::Muon){
                 const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*> (object);
                 assoc_track = mu->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
-       //         assoc_cluster = mu->cluster();
+                assoc_cluster = mu->cluster();
             } else {
                 const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(object);
                 assoc_track = xAOD::EgammaHelpers::getOriginalTrackParticle(el);  
