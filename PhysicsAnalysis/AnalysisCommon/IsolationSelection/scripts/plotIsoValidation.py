@@ -35,7 +35,7 @@ def saveHisto(plot_options, histo):
     
     return True
 if __name__ == '__main__':
-
+    ROOT.gStyle.SetPalette(ROOT.kViridis)
     parser = argparse.ArgumentParser(description='This script generates validation plots of the isolation correction tool. For more help type \"python plotIsoValidation.py -h\"',
                                      prog='plotIsoValidation',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -165,16 +165,25 @@ if __name__ == '__main__':
     while treeReader.Next():
         muon_t_vec = []
         elec_t_vec = []
+        
+        elec_t_calo_vec = []
+        muon_t_calo_vec = []
+        
         for m in range(mu_pt.GetSize()):
             mu = ROOT.TLorentzVector()
             mu.SetPtEtaPhiM( mu_pt[m], mu_eta[m], mu_phi[m], 0)
             muon_t_vec += [mu]
+            calo_mu = ROOT.TLorentzVector()
+            calo_mu.SetPtEtaPhiM( mu_clu[m], mu_clu_eta[m], mu_clu_phi[m], 0)
+            muon_t_calo_vec += [calo_mu]
     
         for e in range(el_pt.GetSize()):
             el = ROOT.TLorentzVector()
             el.SetPtEtaPhiM( el_pt[e], el_eta[e], el_phi[e], 0)
             elec_t_vec += [el]
- 
+            calo_el = ROOT.TLorentzVector()
+            calo_el.SetPtEtaPhiM( el_clu[e], el_clu_eta[e], el_clu_phi[e], 0)
+            elec_t_calo_vec += [calo_el]
         ### Fill the muon histogram
         for m, mu in enumerate(muon_t_vec):
             if mu_trk_iso:
@@ -186,10 +195,12 @@ if __name__ == '__main__':
                 
             for m1 in range(m):
                 if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(muon_t_vec[m1]), mu_trk_iso[m] / mu_trk[m1] )
+                if mu_calo_iso: Muon_Topo_polution_dR.Fill( mu.DeltaR(muon_t_calo_vec[m1]), mu_calo_iso[m] / (mu_clu[m1] if mu_clu[m1]!= 0. else 1.) )
                     
             for e, el  in enumerate(elec_t_vec):
                 if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(el), mu_trk_iso[m] / el_trk[e]  )
-                if mu_calo_iso: Muon_Topo_polution_dR.Fill( mu.DeltaR(el), mu_calo_iso[m] / el_clu[e] )
+                if mu_calo_iso: Muon_Topo_polution_dR.Fill( mu.DeltaR(elec_t_calo_vec[e]), mu_calo_iso[m] / el_clu[e] )
+        
         ### Fill the muon histogram
         for e, el in enumerate(elec_t_vec):
             if el_trk_iso:
@@ -201,6 +212,7 @@ if __name__ == '__main__':
        
             for m, mu  in enumerate(muon_t_vec):
                 if el_trk_iso: Elec_Track_polution_dR.Fill( mu.DeltaR(el), el_trk_iso[e] / mu_trk[m])
+                if el_calo_iso: Elec_Topo_polution_dR.Fill( mu.DeltaR(muon_t_calo_vec[m]), el_calo_iso[e] / (mu_clu[m] if mu_clu[m]!= 0. else 1.))
                 
 
     # do this here, since before it destroys the argparse

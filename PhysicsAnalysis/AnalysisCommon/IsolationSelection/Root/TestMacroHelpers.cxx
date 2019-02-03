@@ -13,7 +13,7 @@
 #include <xAODEgamma/EgammaxAODHelpers.h>
 #include <xAODMuon/Muon.h>
 #include <xAODEgamma/Electron.h>
-
+#include <FourMomUtils/xAODP4Helpers.h>
 namespace CP {
 
     std::string EraseWhiteSpaces(std::string str) {
@@ -22,6 +22,9 @@ namespace CP {
         if (str.size() > 0 && str.find(" ") == str.size() - 1) return EraseWhiteSpaces(str.substr(0, str.size() - 1));
         return str;
     }
+    static FloatAccessor  acc_assocEta("IsoCloseByCorrTool_assocEta");
+    static FloatAccessor  acc_assocPhi("IsoCloseByCorrTool_assocPhi");  
+    static BoolAccessor   acc_assocEtaPhi("IsoCloseByCorrTool_hasAssocEtaPhi");
     //############################################################################
     //                      IsoCorrectionTestHelper
     //############################################################################
@@ -42,7 +45,8 @@ namespace CP {
                 m_iso_branches(),
                 m_acc_used_for_corr(SelectionAccessor(new CharAccessor("considerInCorrection"))),
                 m_acc_passDefault(SelectionAccessor(new CharAccessor("defaultIso"))),
-                m_acc_passCorrected(SelectionAccessor(new CharAccessor("correctedIsol"))) {
+                m_acc_passCorrected(SelectionAccessor(new CharAccessor("correctedIsol"))),
+                m_clusters() {
 
         if (!AddBranch(ContainerName + "_pt", m_pt)) m_init = false;
         if (!AddBranch(ContainerName + "_eta", m_eta)) m_init = false;
@@ -77,6 +81,9 @@ namespace CP {
         
         if (!AddBranch(ContainerName + "_OrigPassIso", m_orig_passIso)) m_init = false;
         if (!AddBranch(ContainerName + "_CorrPassIso", m_corr_passIso)) m_init = false;
+    }
+    void IsoCorrectionTestHelper::SetClusters(const ClusterCollection& clusters) {
+        m_clusters = clusters;
     }
     StatusCode IsoCorrectionTestHelper::Fill(xAOD::IParticleContainer* Particles) {
         if (!Particles) {
@@ -136,7 +143,13 @@ namespace CP {
             if (object->type() == xAOD::Type::ObjectType::Muon){
                 const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*> (object);
                 assoc_track = mu->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
-                assoc_cluster = mu->cluster();
+                if (m_clusters.empty()) assoc_cluster = mu->cluster();
+                else {
+                    std::sort(m_clusters.begin(), m_clusters.end(),[mu](const xAOD::CaloCluster* a, const xAOD::CaloCluster* b){
+                        return xAOD::P4Helpers::deltaR2(a, mu) < xAOD::P4Helpers::deltaR2(b, mu);
+                    });
+                    assoc_cluster = m_clusters.at(0);                    
+                }
             } else {
                 const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(object);
                 assoc_track = xAOD::EgammaHelpers::getOriginalTrackParticle(el);  
@@ -148,8 +161,19 @@ namespace CP {
                                                          assoc_cluster->eSample(xAOD::CaloCluster::CaloSample::TileGap3) / 
                                                          TMath::CosH(assoc_cluster->p4(xAOD::CaloCluster::State::UNCALIBRATED).Eta()) : FLT_MAX);
             } catch (...){
-                m_assoc_cluster_et.push_back( assoc_cluster ? assoc_cluster->pt() : FLT_MAX);
+                try{
+                    m_assoc_cluster_et.push_back( assoc_cluster ? assoc_cluster->pt() : FLT_MAX);
+                } catch(...){
+                    m_assoc_cluster_et.push_back(FLT_MAX);
+                }
             }
+            if (object->type() == xAOD::Type::ObjectType::Muon && m_clusters.empty()){
+                m_assoc_cluster_eta.push_back( acc_assocEtaPhi.isAvailable(*object) && acc_assocEtaPhi(*object) ?acc_assocEta(*object) : FLT_MAX);
+                m_assoc_cluster_phi.push_back( acc_assocEtaPhi.isAvailable(*object) && acc_assocEtaPhi(*object) ?acc_assocPhi(*object) : 0);
+            } else{
+                m_assoc_cluster_eta.push_back( assoc_cluster ?  assoc_cluster->eta() : FLT_MAX);
+                m_assoc_cluster_phi.push_back( assoc_cluster ?  assoc_cluster->phi() : 0);
+           } 
         }
         return StatusCode::SUCCESS;
     }
