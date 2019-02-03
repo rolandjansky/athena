@@ -141,6 +141,11 @@ if __name__ == '__main__':
     mu_phi = ROOT.TTreeReaderArray(float)(treeReader, "Muons_phi")
     mu_trk = ROOT.TTreeReaderArray(float)(treeReader, "Muons_trackPt")
     
+    mu_clu = ROOT.TTreeReaderArray(float)(treeReader, "Muons_clusterEt")
+    mu_clu_eta = ROOT.TTreeReaderArray(float)(treeReader, "Muons_clusterEta")
+    mu_clu_phi = ROOT.TTreeReaderArray(float)(treeReader, "Muons_clusterPhi")
+    
+    
     mu_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader,  "Muons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig", mu_trk_cone_names[0])) if len(mu_trk_cone_names) > 0 else None
     mu_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, "Muons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig",mu_calo_cone_names[0])) if len (mu_calo_cone_names) > 0 else None
             
@@ -149,6 +154,8 @@ if __name__ == '__main__':
     el_phi = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_phi")
     el_trk = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_trackPt")
     el_clu = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_clusterEt")
+    el_clu_eta = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_clusterEta")
+    el_clu_phi = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_clusterPhi")
     
     el_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader,  "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig", el_trk_cone_names[0])) if len(el_trk_cone_names) > 0 else None
     el_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig",el_calo_cone_names[0])) if len(el_calo_cone_names) > 0 else None

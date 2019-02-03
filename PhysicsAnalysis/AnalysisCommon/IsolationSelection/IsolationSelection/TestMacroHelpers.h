@@ -51,7 +51,11 @@ namespace CP {
             std::vector<bool> m_corr_passIso;
             
             std::vector<float> m_assoc_track_pt;
+            
             std::vector<float> m_assoc_cluster_et;
+            std::vector<float> m_assoc_cluster_eta;
+            std::vector<float> m_assoc_cluster_phi;
+            
             
             struct IsolationBranches {
                 std::vector<float> original_cones;

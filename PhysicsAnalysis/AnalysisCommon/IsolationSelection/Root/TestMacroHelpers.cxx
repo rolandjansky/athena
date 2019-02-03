@@ -37,6 +37,8 @@ namespace CP {
                 m_corr_passIso(),
                 m_assoc_track_pt(),
                 m_assoc_cluster_et(), 
+                m_assoc_cluster_eta(),
+                m_assoc_cluster_phi(),
                 m_iso_branches(),
                 m_acc_used_for_corr(SelectionAccessor(new CharAccessor("considerInCorrection"))),
                 m_acc_passDefault(SelectionAccessor(new CharAccessor("defaultIso"))),
@@ -50,7 +52,8 @@ namespace CP {
         if (part_type == xAOD::Type::ObjectType::Electron ||  part_type == xAOD::Type::ObjectType::Muon){
             if(!AddBranch(ContainerName+"_trackPt", m_assoc_track_pt)) m_init = false;
             if(!AddBranch(ContainerName+"_clusterEt", m_assoc_cluster_et)) m_init = false;
-            
+            if(!AddBranch(ContainerName+"_clusterEta", m_assoc_cluster_eta)) m_init = false;
+            if(!AddBranch(ContainerName+"_clusterPhi", m_assoc_cluster_phi)) m_init = false;
         }        
         //Retrieve the isolaiton accessors directly from the WP
         for (const auto& W : WPs) {
@@ -92,6 +95,8 @@ namespace CP {
         m_Q.clear();
         m_assoc_track_pt.clear();
         m_assoc_cluster_et.clear();
+        m_assoc_cluster_eta.clear();
+        m_assoc_cluster_phi.clear();        
         for (auto& branch: m_iso_branches){
             branch.original_cones.clear();
             branch.corrected_cones.clear();            
