@@ -23,7 +23,7 @@ namespace CP{
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
     
     typedef SG::AuxElement::Decorator<bool> BoolDecorator;
-    typedef SG::AuxElement::Decorator<bool> BoolAccessor;
+    typedef SG::AuxElement::ConstAccessor<bool> BoolAccessor;
     
     
     typedef xAOD::Iso::IsolationType IsoType;
