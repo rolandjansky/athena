@@ -117,6 +117,7 @@ namespace ana
       }
     }
     muon.auxdata<double>("d0Sig") = d0sig;
+    muon.auxdata<double>("z0sintheta") = z0sin;
 
     if(m_wp != WPType::_HZZ4l) {
 
@@ -252,7 +253,10 @@ namespace ana
 
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzz4l", makeHZZMuonTool (args))
   QUICK_ANA_MUON_DEFINITION_MAKER ("smzz4l", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_SMZZ4l))
-  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "Loose"))
-  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_ZHinv, "Loose"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FCLoose_FixedRad"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_ZHinv, "FCLoose_FixedRad"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FixedCutPflowLoose"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FixedCutPflowLoose"))
   QUICK_ANA_MUON_DEFINITION_MAKER ("hmumu", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_Hmumu, "LooseTrackOnly"))
+
 }

@@ -215,7 +215,7 @@ namespace ana
 
     // Thanks to Moritz (SUSY trigger contact): using same SFs for AF2 and full sim for the time being
     // Pre-built keys for the trigger tool -- will come in handy later
-    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt";
+    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt";
     const std::string id_key = TString(m_ele_wp).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
     std::string trig_key = "";
 
@@ -227,15 +227,15 @@ namespace ana
         m_trigList.find("e26_lhtight_nod0_ivarloose") != std::string::npos ||
         m_trigList.find("e140_lhloose_nod0") != std::string::npos )
       //trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
-      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
     else if (m_trigList.find("e12_lhloose_L1EM10VH") != std::string::npos ||
              m_trigList.find("e17_lhvloose_nod0") != std::string::npos ||
              m_trigList.find("e24_lhvloose_nod0_L1EM20VH") != std::string::npos )
-      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH";
+      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH";
     else if (m_trigList.find("e15_lhvloose_nod0_L1EM13VH") != std::string::npos)
       trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e15_lhvloose_nod0_L1EM13VH";
     else 
-      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
       //trig_key = "DI_E_2015_e17_lhloose_2016_e17_lhloose";
     // QA only has single- and di-electron trigger tools, so only supporting those for the time being
     /* For the very brave, these are also available:

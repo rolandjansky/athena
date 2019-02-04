@@ -85,12 +85,20 @@ namespace ana
        run = eventInfo->runNumber();
 
     // Apply the CP calibration
-    if(run>320000) 
+    double exp_smear = 0.;
+    double exp_nosmear = 0.;
+    if(run>320000){ 
       QA_CHECK_CUT (cut_calib_tool, m_calib_smear_17->applyCorrection (muon));
-    
-    if(run<320000)
+      exp_nosmear = m_calib_smear_17->expectedResolution("CB", muon, true);
+      exp_smear = m_calib_smear_17->expectedResolution("CB", muon, false);
+    }
+    if(run<320000){
       QA_CHECK_CUT (cut_calib_tool, m_calib_smear_16->applyCorrection (muon));
-
+      exp_nosmear = m_calib_smear_16->expectedResolution("CB", muon, true);
+      exp_smear = m_calib_smear_16->expectedResolution("CB", muon, false);
+    }
+    muon.auxdata<float>("MCPExpReso_Smear") = exp_smear;
+    muon.auxdata<float>("MCPExpReso_NoSmear") = exp_nosmear; 
     return StatusCode::SUCCESS;
   }
 
@@ -101,6 +109,7 @@ namespace ana
     : AsgTool (name), AnaToolSelect<xAOD::MuonContainer> (name),
       m_quality (xAOD::Muon::Medium),
       m_selection ("MuonSelectionTool", this),
+      m_selectionHPT ("MuonSelectionToolHRT", this),
       m_isolationTool ("IsolationSelectionTool", this)
   {
     // declareProperty("Quality", m_quality);

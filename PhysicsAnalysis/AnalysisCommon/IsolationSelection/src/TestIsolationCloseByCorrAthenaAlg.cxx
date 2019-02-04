@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 //// Developed by Johannes Josef Junggeburth (jojungge@cern.ch)
@@ -119,11 +119,19 @@ namespace CP {
         // If you define  the 'BackupPrefix' property then the original values are stored before correction <Prefix>_<IsolationCone>
         // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
 
+        // parse the associated muon clusters to the tool
+        ClusterCollection muon_clusters;
+        correction_tool()->getClusterCandidates(Muons, muon_clusters);       
+        m_muo_helper->SetClusters(muon_clusters);
+        
         //Store everything in the final ntuples
         ATH_CHECK(m_ele_helper->Fill(Electrons));
         ATH_CHECK(m_muo_helper->Fill(Muons));
         ATH_CHECK(m_pho_helper->Fill(Photons));
         m_tree->Fill();
         return StatusCode::SUCCESS;
+    }
+    const CP::IsolationCloseByCorrectionTool* TestIsolationCloseByCorrAthenaAlg::correction_tool() const {
+        return dynamic_cast<const  CP::IsolationCloseByCorrectionTool*> (m_isoCloseByCorrTool.get());
     }
 }
