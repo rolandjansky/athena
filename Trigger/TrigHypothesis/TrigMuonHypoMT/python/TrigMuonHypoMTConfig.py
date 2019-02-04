@@ -1,16 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoTool
-from TrigMuonHypo.TrigMuonHypoMonitoringMT import *
+from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool
+from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
-ToolSvc += MuonBackExtrapolatorForAlignedDet()
-ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
@@ -47,37 +43,6 @@ trigMuonEFSAThresholds = {
 
 
 efCombinerThresholds = {
-    '2GeV'             : [ [0,9.9], [2.000] ],
-    '3GeV'             : [ [0,9.9], [3.000] ],
-    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.93,  3.91,  3.88,  3.88] ],
-    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.91,  4.86,  4.84,  4.83] ],
-    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [  5.88,  5.81,  5.78,  5.76] ],
-    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [  6.85,  6.77,  6.74,  6.74] ],
-    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [  7.82,  7.74,  7.70,  7.72] ],
-    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [  9.77,  9.67,  9.62,  9.57] ],
-    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.74, 10.64, 10.58, 10.53] ],
-    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.70, 11.59, 11.53, 11.49] ], 
-    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.67, 12.55, 12.49, 12.46] ],
-    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.65, 13.52, 13.46, 13.42] ],
-    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 14.63, 14.49, 14.42, 14.38] ],
-    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 17.53, 17.39, 17.34, 17.28] ],
-    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 19.47, 19.33, 19.30, 19.22] ],
-    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 21.40, 21.27, 21.25, 21.16] ],
-    '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 23.34, 23.19, 23.14, 23.06] ],
-    '26GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.29, 25.15, 25.14, 25.05] ],
-    '27GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 26.26, 26.12, 26.11, 26.02] ],
-    '28GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 27.23, 27.09, 27.07, 26.99] ],
-    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 29.17, 29.03, 29.00, 28.92] ],
-    '32GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 31.10, 30.96, 30.91, 30.84] ],
-    '34GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 33.04, 32.88, 32.81, 32.74] ],
-    '36GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 34.96, 34.78, 34.69, 34.63] ],
-    '38GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 36.87, 36.67, 36.55, 36.48] ],
-    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 38.76, 38.54, 38.38, 38.31] ],
-    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 45.00, 45.00, 45.00, 45.00] ],
-    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 54.00, 54.00, 54.00, 54.00] ],
-    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 63.00, 63.00, 63.00, 63.00] ],
-    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 72.00, 72.00, 72.00, 72.00] ],
-    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
     # original + 2015 tuning
     '2GeV_v15a'             : [ [0,9.9], [2.000] ],
     '3GeV_v15a'             : [ [0,9.9], [3.000] ],
@@ -114,70 +79,8 @@ efCombinerThresholds = {
     '100GeV_v15a'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
     }
 
-efCaloTagThresholds = {
-    '0GeV'             : [ [0,9.9],              [ 0.1,  0.1,  0.1,  0.1   ] ],
-    '2GeV'             : [ [0,9.9],              [ 2.0,  2.0,  2.0,  2.0   ] ],
-    '3GeV'             : [ [0,9.9],              [ 3.0,  3.0,  3.0,  3.0   ] ],
-    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 4.0,  4.0,  4.0,  4.0   ] ],
-    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 5.0,  5.0,  5.0,  5.0   ] ],
-    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 6.0,  6.0,  6.0,  6.0   ] ],
-    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 7.0,  7.0,  7.0,  7.0   ] ],
-    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 8.0,  8.0,  8.0,  8.0   ] ],
-    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.0, 10.0, 10.0, 10.0  ] ],
-    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.0, 11.0, 11.0, 11.0  ] ],
-    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.0, 12.0, 12.0, 12.0  ] ], 
-    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 13.0, 13.0, 13.0  ] ],
-    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 14.0, 14.0, 14.0, 14.0  ] ],
-    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 15.0, 15.0, 15.0, 15.0  ] ],
-    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 18.0, 18.0, 18.0, 18.0  ] ],
-    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 20.0, 20.0, 20.0, 20.0  ] ],
-    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 22.0, 22.0, 22.0, 22.0  ] ],
-    '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 24.0, 24.0, 24.0, 24.0  ] ],
-    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 30.0, 30.0, 30.0, 30.0  ] ],
-    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0  ] ], 
-    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 50.0, 50.0, 50.0, 50.0  ] ], 
-    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 60.0, 60.0, 60.0, 60.0  ] ], 
-    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0  ] ], 
-    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 80.0, 80.0, 80.0, 80.0  ] ],
-    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 100.0,100.0,100.0,100.0 ] ]
-}
-
 
 muCombThresholds = {
-    '2GeV'             : [ [0,9.9],              [ 2.000] ],
-    '3GeV'             : [ [0,9.9],              [ 3.000] ],
-    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.0,  2.5,  2.5,  2.5] ],  
-    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.9,  4.8,  4.8,  4.8] ], 
-    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [  5.8,  5.8,  5.8,  5.6] ], 
-    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [  6.8,  6.7,  6.7,  6.6] ], 
-    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [  7.8,  7.7,  7.7,  7.7] ], 
-    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [  9.8,  9.5,  9.6,  9.7] ], 
-    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.8, 10.4, 10.6, 10.6] ], 
-    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.7, 11.3, 11.4, 11.5] ],  
-    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.6, 12.2, 12.2, 12.4] ], 
-    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.6, 13.1, 13.1, 13.5] ], 
-    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 14.5, 14.0, 14.0, 14.5] ], 
-    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 17.5, 16.6, 16.6, 16.8] ], 
-    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 19.5, 18.5, 18.5, 18.5] ], 
-    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 21.4, 20.3, 20.3, 20.1] ],
-    '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 23.2, 22.2, 22.2, 21.8] ], 
-    '25GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 24.2, 23.2, 23.2, 22.6] ], 
-    '26GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.3, 24.1, 24.1, 23.5] ], 
-    '27GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 26.2, 25.1, 25.1, 24.4] ], 
-    '28GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 27.1, 26.0, 26.0, 25.2] ], 
-    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 29.0, 28.0, 28.0, 27.0] ], 
-    '32GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 30.7, 29.9, 29.9, 28.7] ], 
-    '34GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 32.5, 31.8, 31.8, 30.4] ], 
-    '36GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 34.2, 33.6, 33.6, 32.1] ], 
-    '38GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 35.8, 35.4, 35.4, 33.6] ], 
-    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 37.5, 37.0, 37.0, 35.0] ], 
-    '40GeV_slow'      : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0] ], 
-    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0] ], 
-    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 45.0, 45.0, 45.0, 45.0] ], 
-    '60GeV_slow'      : [ [0,1.05,1.5,2.0,9.9], [ 47.0, 47.0, 47.0, 47.0] ], 
-    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 49.0, 49.0, 49.0, 49.0] ], 
-    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 56.0, 56.0, 56.0, 56.0] ], 
-    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0] ],
     # original + 2015 tuning
     '2GeV_v15a'             : [ [0,9.9],              [ 2.000] ],
     '3GeV_v15a'             : [ [0,9.9],              [ 3.000] ],
@@ -218,63 +121,6 @@ muCombThresholds = {
 
 
 muFastThresholds = {
-    #
-    # original + 2010 tuning
-    '2GeV'             : [ [0,9.9],              [ 2.000] ],               
-    '3GeV'             : [ [0,9.9],              [ 3.000] ],               
-    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [  3.0,  2.5,  2.5,  2.5] ], 
-    '4GeV_V2'          : [ [0,1.05,1.5,2.0,9.9], [  3.0,  1.8,  2.0,  2.5] ], 
-    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [  4.6,  3.3,  4.0,  4.5] ], 
-    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [  5.4,  4.5,  4.9,  5.3] ], 
-    '6GeV_V2'          : [ [0,1.05,1.5,2.0,9.9], [  5.2,  4.0,  4.0,  4.5] ], 
-    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [  6.3,  5.6,  5.6,  6.3] ], 
-    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [  7.2,  6.7,  6.4,  7.3] ], 
-    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [  8.9,  9.0,  8.4,  9.2] ],
-    '10GeV_V2'         : [ [0,1.05,1.5,2.0,9.9], [  8.5,  7.0,  7.0,  8.0] ],
-    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [  9.8, 10.1,  9.3, 10.1] ],
-    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.6, 11.0, 10.2, 11.0] ], 
-    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.4, 12.0, 11.1, 12.0] ],
-    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.2, 13.0, 12.1, 13.0] ],
-    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 14.0, 13.0, 14.0] ],
-    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 15.7, 16.6, 15.4, 16.3] ],
-    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 17.5, 18.5, 17.0, 18.0] ],
-    '20GeV_V2'         : [ [0,1.05,1.5,2.0,9.9], [ 16.2, 12.9, 13.2, 15.5] ],
-    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 19.1, 20.0, 18.4, 19.6] ],
-    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.0, 24.5, 23.0, 26.0] ],
-    '30GeV_V2'         : [ [0,1.05,1.5,2.0,9.9], [ 22.3, 17.1, 18.6, 22.2] ],
-    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ],
-    '40GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 31.5,1000.0,1000.0,1000.0] ],
-    '40GeV_uptoEC2'    : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5,  1000.0] ],
-    '40GeV_V2'         : [ [0,1.05,1.5,2.0,9.9], [ 27.1, 23.6, 24.2, 26.4] ],
-    '40GeV_slow'      : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0] ],
-    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ],
-    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 37.8, 36., 34.2, 39.] ],
-    '60GeV_slow'      : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 45.0, 40.0] ],
-    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 37.8, 36.0, 34.2, 39.0] ],
-    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 37.8, 36.0, 34.2, 39.0] ],
-    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 37.8, 36.0, 34.2, 39.0] ],
-    #
-    # 2011a tuning (95%, based on 2010 repro data)
-    '4GeV_v11a'              : [ [0,1.05,1.5,2.0,9.9], [  3.41,  3.21,  3.39,  3.53] ], 
-    '4GeV_barrelOnly_v11a'   : [ [0,1.05,1.5,2.0,9.9], [  3.41, 1000., 1000., 1000.] ],
-    '6GeV_v11a'              : [ [0,1.05,1.5,2.0,9.9], [  5.04,  4.81,  5.01,  5.25] ], 
-    '10GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [  8.08,  7.68,  8.28,  8.90] ],
-    '13GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 10.00,  9.33, 10.28, 11.42] ],
-    '15GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 11.31, 10.52, 12.00, 13.24] ],
-    '18GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 12.95, 12.32, 13.92, 15.51] ],
-    '20GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 13.94, 13.50, 15.28, 16.79] ],
-    '22GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 14.85, 14.48, 16.36, 18.45] ],
-    '24GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 15.68, 15.51, 17.49, 19.82] ],
-    '30GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.83, 18.32, 20.46, 23.73] ],
-    '40GeV_v11a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
-    '40GeV_uptoEC2_v11a'     : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 1000.] ],
-    '40GeV_barrelOnly_v11a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
-    '50GeV_barrelOnly_v11a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
-    '60GeV_barrelOnly_v11a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
-     # 2011b tuning (90%, based on 2010 repro data) 
-    '40GeV_v11b'             : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 32.18] ],
-    '40GeV_uptoEC2_v11b'     : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 1000.] ],
-    '40GeV_barrelOnly_v11b'  : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 1000., 1000., 1000.] ],
     # 2011a tuning + 2015 tuning
     '4GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  3.38,  1.25,  3.17,  3.41] ],
     '4GeV_barrelOnly_v15a'   : [ [0,1.05,1.5,2.0,9.9], [  3.38, 1000., 1000., 1000.] ],
@@ -303,64 +149,6 @@ muFastThresholds = {
 
 muFastThresholdsForECWeakBRegion = {
     #
-    # original + 2010 tuning
-    '2GeV'             : [  2.0,  2.0 ],   
-    '3GeV'             : [  3.0,  3.0 ],   
-    '4GeV'             : [  2.5,  2.5 ],
-    '4GeV_V2'          : [  1.8,  2.0 ],
-    '5GeV'             : [  3.3,  4.0 ],
-    '6GeV'             : [  4.5,  4.9 ],
-    '6GeV_V2'          : [  4.0,  4.0 ],
-    '7GeV'             : [  5.6,  5.6 ],
-    '8GeV'             : [  6.7,  6.4 ],
-    '10GeV'            : [  9.0,  8.4 ],
-    '10GeV_V2'         : [  7.0,  7.0 ],
-    '11GeV'            : [ 10.1,  9.3 ],
-    '12GeV'            : [ 11.0, 10.2 ], 
-    '13GeV'            : [ 12.0, 11.1 ],
-    '14GeV'            : [ 13.0, 12.1 ],
-    '15GeV'            : [ 14.0, 13.0 ],
-    '18GeV'            : [ 16.6, 15.4 ],
-    '20GeV'            : [ 18.5, 17.0 ],
-    '20GeV_V2'         : [ 12.9, 13.2 ],
-    '22GeV'            : [ 20.0, 18.4 ],
-    '30GeV'            : [ 24.5, 23.0 ],
-    '30GeV_V2'         : [ 17.1, 18.6 ],
-    '40GeV'            : [ 30.0, 28.5 ],
-    '40GeV_barrelOnly' : [ 1000.0, 1000.0 ],
-    '40GeV_uptoEC2'    : [   30.0,   28.5 ],
-    '40GeV_V2'         : [ 23.6, 24.2 ],
-    '40GeV_slow'      : [ 40.0, 40.0 ],
-    '50GeV'            : [ 30.0, 28.5 ],
-    '60GeV'            : [ 30.0, 28.5 ],
-    '60GeV_slow'      : [ 60.0, 60.0 ],
-    '70GeV'            : [ 30.0, 28.5 ],
-    '80GeV'            : [ 30.0, 28.5 ],
-    '100GeV'           : [ 30.0, 28.5 ],
-    #
-    # 2011a tuning (95%, based on 2010 repro data)
-    '4GeV_v11a'             : [  2.11,  2.97 ],
-    '4GeV_barrelOnly_v11a'  : [ 1000., 1000. ],
-    '6GeV_v11a'             : [  4.37,  3.77 ],
-    '10GeV_v11a'            : [  6.61,  5.34 ],
-    '13GeV_v11a'            : [  6.81,  6.97 ],
-    '15GeV_v11a'            : [  7.61,  7.81 ],
-    '18GeV_v11a'            : [  9.01,  9.83 ],
-    '20GeV_v11a'            : [ 10.15, 11.88 ],
-    '22GeV_v11a'            : [ 10.72, 12.54 ],
-    '24GeV_v11a'            : [ 11.66, 13.97 ],
-    '30GeV_v11a'            : [ 14.41, 17.43 ],
-    '40GeV_v11a'            : [ 15.07, 18.02 ],
-    '40GeV_uptoEC2_v11a'    : [ 15.07, 18.02 ],
-    '40GeV_barrelOnly_v11a' : [ 1000., 1000. ],
-    '50GeV_barrelOnly_v11a' : [ 1000., 1000. ],
-    '60GeV_barrelOnly_v11a' : [ 1000., 1000. ],
-    # 2011b tuning (90%, based on 2010 repro data)
-    '40GeV_v11b'            : [ 26.54, 29.22 ],
-    '40GeV_uptoEC2_v11b'    : [ 26.54, 29.22 ],
-    '40GeV_barrelOnly_v11b' : [ 1000., 1000. ],
-    '50GeV_barrelOnly_v11b' : [ 1000., 1000. ],
-    '60GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     # 2011a tuning + 2015 tuning
     '4GeV_v15a'             : [  2.72,  1.58],
     '4GeV_barrelOnly_v15a'  : [ 1000., 1000. ],
@@ -437,10 +225,7 @@ class TrigMufastHypoConfig():
         tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if datayear == '2015'or datayear == '2016' or datayear == '2017':
-                thvaluename = thvalue + 'GeV_v15a'
-            else:
-                thvaluename = thvalue + 'GeV'
+            thvaluename = thvalue + 'GeV_v15a'
             print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
 
             try:
@@ -498,25 +283,9 @@ def TrigmuCombHypoToolFromName( name, thresholdsHLT ):
         
 class TrigmuCombHypoConfig():
 
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-    
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
-    
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
- 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
 
         tool = TrigmuCombHypoTool( thresholdHLT )
-
-        datayear = "2017"
 
         nt = len(thresholds)
         print "TrigMufastHypoConfig: Set ", nt, " thresholds" 
@@ -524,10 +293,7 @@ class TrigmuCombHypoConfig():
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if datayear == '2015'or datayear == '2016' or datayear == '2017':
-                thvaluename = thvalue + 'GeV_v15a'
-            else:
-                thvaluename = thvalue + 'GeV'
+            thvaluename = thvalue + 'GeV_v15a'
             print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
 
             try:
@@ -618,19 +384,6 @@ def TrigMuonEFMSonlyHypoToolFromName( name, thresholdHLT ) :
 class TrigMuonEFMSonlyHypoConfig(): 
         
 
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
-    
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
-
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
 
         tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
@@ -681,19 +434,6 @@ def TrigMuonEFCombinerHypoToolFromName( name, thresholdHLT ) :
 class TrigMuonEFCombinerHypoConfig(): 
         
 
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
-    
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
-
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
 
         tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
@@ -705,7 +445,7 @@ class TrigMuonEFCombinerHypoConfig():
 
  
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV'
+            thvaluename = thvalue + 'GeV_v15a'
             print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
 
             try:

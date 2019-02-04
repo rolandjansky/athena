@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUFASTHYPO_TRIGMUFASTHYPOALG_H 
@@ -14,7 +14,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include "TrigMuonHypo/TrigMufastHypoTool.h"
+#include "TrigMufastHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
 class StoreGateSvc;

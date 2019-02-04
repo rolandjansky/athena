@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonHypo/TrigMuonEFCombinerHypoAlg.h"
+#include "TrigMuonEFMSonlyHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils; 
@@ -15,7 +15,7 @@ using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
+TrigMuonEFMSonlyHypoAlg::TrigMuonEFMSonlyHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
 //  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
@@ -23,13 +23,13 @@ TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
 
 } 
 
-TrigMuonEFCombinerHypoAlg::~TrigMuonEFCombinerHypoAlg() 
+TrigMuonEFMSonlyHypoAlg::~TrigMuonEFMSonlyHypoAlg() 
 {}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::initialize()
+StatusCode TrigMuonEFMSonlyHypoAlg::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
@@ -44,7 +44,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::finalize() 
+StatusCode TrigMuonEFMSonlyHypoAlg::finalize() 
 {   
   ATH_MSG_INFO( "Finalizing " << name() << "..." );
   ATH_MSG_INFO( "Finalization completed successfully" );
@@ -54,9 +54,9 @@ StatusCode TrigMuonEFCombinerHypoAlg::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) const
+StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
 {
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute start");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute start");
 
   // common for all hypos, to move in the base class
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
@@ -71,7 +71,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
   auto decisions = outputHandle.ptr();
   // end of common
   
-  std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo> toolInput;
+  std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo> toolInput;
   size_t counter = 0;  // view counter
 
   // loop over previous decisions
@@ -79,7 +79,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
      // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
@@ -123,7 +123,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
 
   ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");
 
-  // to TrigMuonEFCombinerHypoTool
+  // to TrigMuonEFMSonlyHypoTool
   StatusCode sc = StatusCode::SUCCESS;
   for ( auto& tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool );
@@ -148,7 +148,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
     } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
   }
 
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOALG_H 
-#define TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOALG_H 1 
+#ifndef TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOALG_H 
+#define TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOALG_H 1 
 
 #include <string>
 
@@ -14,7 +14,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include "TrigMuonHypo/TrigMuonEFCombinerHypoTool.h"
+#include "TrigMuonEFMSonlyHypoTool.h"
 
 #include "DecisionHandling/HypoBase.h"
 
@@ -24,14 +24,14 @@ class TriggerElement;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class TrigMuonEFCombinerHypoAlg
+class TrigMuonEFMSonlyHypoAlg
    : public ::HypoBase
 {
   public:
 
-   TrigMuonEFCombinerHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );   
+   TrigMuonEFMSonlyHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );   
 
-   virtual ~TrigMuonEFCombinerHypoAlg();
+   virtual ~TrigMuonEFMSonlyHypoAlg();
 
    virtual StatusCode  initialize() override;
    virtual StatusCode  execute( const EventContext& context ) const override;
@@ -39,11 +39,11 @@ class TrigMuonEFCombinerHypoAlg
     
   private:
  
-    TrigMuonEFCombinerHypoAlg(); 
-    ToolHandleArray<TrigMuonEFCombinerHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
+    TrigMuonEFMSonlyHypoAlg(); 
+    ToolHandleArray<TrigMuonEFMSonlyHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{
-	this, "MuonDecisions", "MuonEFCombiner_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
+	this, "MuonDecisions", "MuonEFMSonly_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
 
 };
 

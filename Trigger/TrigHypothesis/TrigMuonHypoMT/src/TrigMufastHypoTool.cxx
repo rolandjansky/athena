@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -13,7 +13,7 @@
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "TrigMuonHypo/TrigMufastHypoTool.h"
+#include "TrigMufastHypoTool.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 

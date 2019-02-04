@@ -160,13 +160,15 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name()
 
     ### set up MuFastHypo ###
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMufastHypoConfig
-    trigMufastHypo = TrigMufastHypoConfig("TrigL2MufastHypoAlg")
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
+    trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastSequenceOut
     trigMufastHypo.HypoOutputDecisions = "L2MuonFastDecisions"
     trigMufastHypo.HypoInputDecisions = l2MuViewsMaker.InputMakerOutputDecisions[0]
-    trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "TrigL2MufastHypoTool", c ) for c in testChains ] 
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
+    trigMufastHypo.HypoTools = [ TrigMufastHypoToolFromName( c, c ) for c in testChains ] 
 
     ### set the dumper ###
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.HypoOutputDecisions )
@@ -205,13 +207,15 @@ if TriggerFlags.doMuon:
     l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigmuCombHypoConfig
-    trigmuCombHypo = TrigmuCombHypoConfig("TrigL2muCombHypoAlg")
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    trigmuCombHypo = TrigmuCombHypoAlg("TrigL2muCombHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG 
     trigmuCombHypo.HypoOutputDecisions = "MuonL2CBDecisions"
     trigmuCombHypo.HypoInputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions[0]
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombSequenceOut
-    trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( "TrigL2muCombHypoTool", c ) for c in testChains ] 
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromName
+    trigmuCombHypo.HypoTools = [ TrigmuCombHypoToolFromName( c, c ) for c in testChains ] 
   
     ### set the dumper ###
     muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.HypoOutputDecisions )
@@ -260,14 +264,15 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
 
     #Setup MS-only hypo
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFMSonlyHypoConfig
-    trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("TrigMuonEFSAHypoAlg")
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
+    trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg("TrigMuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
     trigMuonEFSAHypo.MuonDecisions = muEFSASequenceOut
     trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
     trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
-    trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    trigMuonEFSAHypo.HypoTools = [ TrigMuonEFMSonlyHypoToolFromName( c, c ) for c in testChains ] 
 
     ### set the dumper ###
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
@@ -304,14 +309,15 @@ if TriggerFlags.doMuon:
     efCBMuViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
 
     #Setup EF CB hypo
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
-    trigMuonEFCBHypo = TrigMuonEFCombinerHypoConfig("TrigMuonEFCBHypoAlg")
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
+    trigMuonEFCBHypo = TrigMuonEFCombinerHypoAlg("TrigMuonEFCBHypoAlg")
     trigMuonEFCBHypo.OutputLevel = DEBUG
     trigMuonEFCBHypo.MuonDecisions = muEFCBSequenceOut
     trigMuonEFCBHypo.HypoOutputDecisions = "EFMuonCBDecisions"
     trigMuonEFCBHypo.HypoInputDecisions = efCBMuViewsMaker.InputMakerOutputDecisions[0]
 
-    trigMuonEFCBHypo.HypoTools = [ trigMuonEFCBHypo.TrigMuonEFCombinerHypoToolFromName( "TrigMuonEFCombinerHypoTool", c ) for c in testChains ] 
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
+    trigMuonEFCBHypo.HypoTools = [ TrigMuonEFCombinerHypoToolFromName( c, c ) for c in testChains ] 
 
     ### set the dumper ###
     muonEFCBDecisionsDumper = DumpDecisions("muonEFCBDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFCBHypo.HypoOutputDecisions )
@@ -347,13 +353,15 @@ if TriggerFlags.doMuon:
 
     l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
 
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuisoHypoConfig
-    trigmuIsoHypo = TrigMuisoHypoConfig("TrigL2MuisoHypoAlg")
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoAlg
+    trigmuIsoHypo = TrigMuisoHypoAlg("TrigL2MuisoHypoAlg")
     trigmuIsoHypo.OutputLevel = DEBUG
     trigmuIsoHypo.MuonL2ISInfoName = l2muIsoSequenceOut
     trigmuIsoHypo.HypoOutputDecisions = "MuonL2IsoDecisions"
     trigmuIsoHypo.HypoInputDecisions = l2muIsoViewsMaker.InputMakerOutputDecisions[0]
-    trigmuIsoHypo.HypoTools = [ trigmuIsoHypo.TrigMuisoHypoToolFromName( "TrigL2MuisoHypoTool", c ) for c in testChains ] 
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromName
+    trigmuIsoHypo.HypoTools = [TrigMuisoHypoToolFromName( c, c ) for c in testChains ] 
 
     ### set the dumper ###
     muIsoDecisionsDumper = DumpDecisions("muIsoDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuIsoHypo.HypoOutputDecisions )
