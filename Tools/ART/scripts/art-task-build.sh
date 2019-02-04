@@ -1,13 +1,14 @@
 #!/bin/bash
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # arguments: RELEASE_BASE, PROJECT, PLATFORM
+# NOTE: options have to be in order
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
 echo "INFO: Script executed by $(whoami) on $(date)"
 
 RELEASE_BASE=$1
-PROJECT=$2
-PLATFORM=$3
+ART_PROJECT=$2
+ART_PLATFORM=$3
 
 BRANCH="$(echo "${RELEASE_BASE}" | tr '/' ' ' | awk '{print $5}')"
 echo BRANCH "${BRANCH}"
@@ -21,7 +22,7 @@ else
 fi
 
 export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
-# shellcheck source=/dev/null 
+# shellcheck source=/dev/null
 source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 if [ "${BRANCH}" == "master" ]; then
    lsetup -a testing asetup
@@ -30,8 +31,7 @@ else
    lsetup -a current asetup
    echo "INFO: setting up for ${BRANCH}"
 fi
-asetup "${PROJECT}" --platform "${PLATFORM}" --releasebase "${RELEASE_BASE}"/build/install --noLcgReleaseBase
-
+asetup "${ART_PROJECT}" --platform "${ART_PLATFORM}" --releasebase "${RELEASE_BASE}"/build/install --noLcgReleaseBase
 
 # setup AtlasBuildBranch since that is not set bu the above asetup for the local build setup
 export AtlasBuildBranch=${BRANCH}
@@ -49,7 +49,7 @@ ART_VERSION=$(art.py --version)
 echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 
 # automatic clean-up build-output EOS area
-art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${PLATFORM}" || true &
+art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${ART_PLATFORM}" || true &
 
 # configure EOS_MGM_URL
 if [ -z "${EOS_MGM_URL}" ]; then
@@ -60,17 +60,23 @@ else
 fi
 
 # run build tests
-SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
-OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
+SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${ART_PLATFORM}
+OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}/${AtlasBuildStamp}"
+echo "INFO: Source directory ${OUTDIR}"
+CMD="art.py run ${RUN_ALL_TESTS} ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${ART_PLATFORM}/src ${OUTDIR}"
 echo "${CMD}"
 RESULT=$(eval "${CMD}")
 echo "${RESULT}"
 
+# resetting the LD_LIBRARY_PATH, to be able to use xrdcp from /usr/bin/xrdcp
+echo "INFO: Resetting LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH=""
+
 # copy the test results to EOS area
 TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
-if [[ ! -e ${TARGETDIR} ]]; then
-  echo Target directory "${TARGETDIR}"
-  eos mkdir -p "${TARGETDIR}"
-  xrdcp -vr "${OUTDIR}" "${TARGETDIR}"
+echo "INFO: Target directory ${TARGETDIR}"
+if [[ ! -e ${TARGETDIR}/${AtlasBuildStamp} ]]; then
+  echo "INFO: Target directory does not exist, creating ${TARGETDIR}/${AtlasBuildStamp}"
+  mkdir -p "${TARGETDIR}/${AtlasBuildStamp}"
+  /usr/bin/xrdcp -vr "${OUTDIR}" "${TARGETDIR}"
 fi
