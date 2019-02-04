@@ -83,6 +83,7 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
                                'DiTauTruthMatchingAlg' + postfix )
         addPrivateTool( alg, 'matchingTool',
                         'TauAnalysisTools::DiTauTruthMatchingTool' )
+        alg.matchingTool.WriteTruthTaus = 1
         seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
                     stageName = 'selection' )
         pass
