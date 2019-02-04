@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUCOMBHYPO_TRIGMUCOMBHYPOALG_H 
@@ -15,7 +15,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthViews/View.h"
 
-#include "TrigMuonHypo/TrigmuCombHypoTool.h"
+#include "TrigmuCombHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
 class StoreGateSvc;

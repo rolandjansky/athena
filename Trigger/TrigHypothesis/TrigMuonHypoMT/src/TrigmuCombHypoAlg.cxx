@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -11,7 +11,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
 
-#include "TrigMuonHypo/TrigmuCombHypoAlg.h"
+#include "TrigmuCombHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils; 

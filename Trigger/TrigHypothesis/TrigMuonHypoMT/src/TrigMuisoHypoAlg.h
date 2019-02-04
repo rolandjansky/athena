@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
 //
 // NAME:     TrigMuisoHypo.h
-// PACKAGE:  Trigger/TrigHypotheis/TrigMuonHypo/TrigMuisoHypo
+// PACKAGE:  Trigger/TrigHypotheis/TrigMuonHypoMT/TrigMuisoHypo
 //
 // PURPOSE:  LVL2 Muon Isolation Hypothesis Algorithm: V4.0 
 //           for athenaMT
@@ -23,7 +23,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 #include "DecisionHandling/HypoBase.h"
-#include "TrigMuonHypo/TrigMuisoHypoTool.h"
+#include "TrigMuisoHypoTool.h"
 
 class StoreGateSvc;
 class TriggerElement;

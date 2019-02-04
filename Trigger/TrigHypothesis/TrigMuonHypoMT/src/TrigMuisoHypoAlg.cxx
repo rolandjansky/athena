@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -7,57 +7,53 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthLinks/ElementLink.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
-#include "TrigMuonHypo/TrigMufastHypoAlg.h"
+#include "TrigMuisoHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
-using namespace TrigCompositeUtils; 
+using namespace TrigCompositeUtils;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
-				      ISvcLocator* pSvcLocator ) :
+TrigMuisoHypoAlg::TrigMuisoHypoAlg( const std::string& name,
+			            ISvcLocator* pSvcLocator ) :
    ::HypoBase( name, pSvcLocator )
 {}
 
 
-TrigMufastHypoAlg::~TrigMufastHypoAlg() 
+TrigMuisoHypoAlg::~TrigMuisoHypoAlg() 
 {}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoAlg::initialize()
+StatusCode TrigMuisoHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
+
   ATH_CHECK(m_hypoTools.retrieve());
 
-  renounce(m_muFastKey);
-  ATH_CHECK(m_muFastKey.initialize());
- 
-  ATH_MSG_INFO( "Initialization completed successfully" );
+  renounce( m_muIsoKey );
+  ATH_CHECK( m_muIsoKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMufastHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
-  return StatusCode::SUCCESS;
-}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
+StatusCode TrigMuisoHypoAlg::finalize()
 {
+  ATH_MSG_INFO( "Finalizing " << name() << "..." );
+  return StatusCode::SUCCESS;
+}
 
+
+StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
+{
   // common for all Hypos, to move in the base class
-  ATH_MSG_DEBUG("StatusCode TrigMufastHypoAlg::execute start");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
@@ -70,54 +66,42 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
   auto decisions = outputHandle.ptr();
   // end of common
  
-
-  std::vector<TrigMufastHypoTool::MuonClusterInfo> toolInput;
-  // loop over previous decisions
-  size_t counter=0;
+  std::vector<TrigMuisoHypoTool::MuisoInfo> toolInput; 
+  size_t counter = 0; // view counter
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    //get RoI
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
-    auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor* roi = *roiEL;
-
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     ATH_CHECK( viewEL.isValid() );
 
-    //// get info of that view
-    auto muFastHandle = ViewHelper::makeHandle( *viewEL, m_muFastKey, context );
-    ATH_CHECK( muFastHandle.isValid() );
-    ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
+    // get info of that view
+    auto muIsoHandle = ViewHelper::makeHandle(*viewEL, m_muIsoKey, context);
+    ATH_CHECK( muIsoHandle.isValid() );
+    ATH_MSG_DEBUG ( "Muinfo handle size: " << muIsoHandle->size() << "..." );
 
-    auto muonEL = ViewHelper::makeLink( *viewEL, muFastHandle, 0 );
+    auto muonEL = ViewHelper::makeLink(*viewEL, muIsoHandle, 0);
     ATH_CHECK( muonEL.isValid() );
-    const xAOD::L2StandAloneMuon* muon = *muonEL;
+    const xAOD::L2IsoMuon* muon = *muonEL;
 
     // create new decision
     auto newd = newDecisionIn( decisions );
 
     // push_back to toolInput
-    toolInput.emplace_back( newd, roi, muon, previousDecision );
+    toolInput.emplace_back( newd, muon, previousDecision );
     
     newd->setObjectLink( "feature", muonEL );  
-    newd->setObjectLink( "roi",     roiEL );
     newd->setObjectLink( "view",    viewEL );
     TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
     
-    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
+    ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+    ATH_MSG_DEBUG("Added view, muIsoInfo, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
     counter++;
   }
 
   ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");
 
-
-  // to TrigMufastHypoTool
+  // to TrigMuisoHypoTool
   StatusCode sc = StatusCode::SUCCESS;
   for ( auto& tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool );
@@ -144,10 +128,8 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
   }
 
 
-  ATH_MSG_DEBUG("StatusCode TrigMufastHypoAlg::execute success");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
