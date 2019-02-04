@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -49,24 +49,33 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     static const InterfaceID& interfaceID();
 
     /** AlgTool initialize method.*/
-    StatusCode initialize();
+    StatusCode initialize() override;
     /** AlgTool finalize method */
-    StatusCode finalize();
+    StatusCode finalize() override;
 
-    /** proceed the coherent noise subtruction algorithm and correct Tile cell energies */
-    virtual StatusCode process(CaloCellContainer *cellcoll);
+    /** proceed the coherent noise subtraction algorithm and correct Tile cell energies */
+    virtual StatusCode process (CaloCellContainer* cellcoll) override;
 
   private:
 
+    static const int s_maxPartition = 4; // LBA,LBC,EBA,EBC
+    static const int s_maxDrawer = 64;   // # of drawers per partition
+    static const int s_maxMOB = 4;       // # of motherboards per drawer
+    static const int s_maxChannel = 12;  // # of channels per motherboard
+
+    typedef float cmdata_t[s_maxPartition][s_maxDrawer][s_maxMOB];
+
     // set common-mode subtructed energy
-    void setCMSEnergy(TileCell *cell);
+    void setCMSEnergy(const cmdata_t& commonMode, TileCell *cell) const;
 
     // calculate common-mode for all the motherboards
-    int calcCM(const CaloCellContainer *cellcoll);
+    int calcCM(const CaloCellContainer *cellcoll, cmdata_t& commonMode) const;
 
     // derive a value of common-mode shift
-    float getCMShift(int partition, int drawer, int channel) {
-      return m_commonMode[partition][drawer][channel / s_maxChannel];
+    float getCMShift(const cmdata_t& commonMode,
+                     int partition, int drawer, int channel) const
+    {
+      return commonMode[partition][drawer][channel / s_maxChannel];
     }
 
     const TileID* m_tileID;   //!< Pointer to TileID
@@ -90,15 +99,6 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     bool m_useTileNoiseDB;
 
     static const CaloCell_ID::SUBCALO s_caloIndex = CaloCell_ID::TILE;
-
-    static const int s_maxPartition = 4; // LBA,LBC,EBA,EBC
-    static const int s_maxDrawer = 64;   // # of drawers per partition
-    static const int s_maxMOB = 4;       // # of motherboards per drawer
-    static const int s_maxChannel = 12;  // # of channels per motherboard
-
-    float m_commonMode[s_maxPartition][s_maxDrawer][s_maxMOB];
-    int m_nEmptyChan[s_maxPartition][s_maxDrawer][s_maxMOB];
-    int m_nGoodChan[s_maxPartition][s_maxDrawer][s_maxMOB];
 
     float m_maxNoiseSigma;
 

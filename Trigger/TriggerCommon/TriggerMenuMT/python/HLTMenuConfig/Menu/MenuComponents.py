@@ -557,8 +557,13 @@ class InViewReco( ComponentAccumulator ):
         self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
         self.viewMakerAlg.InputMakerOutputDecisions += [ outKey ]
 
+    def mergeReco( self, ca ):
+        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        return self.merge( ca, sequenceName=self.viewsSeq.getName() )
+
     def addRecoAlg( self, alg ):
         """Reconstruction alg to be run per view"""
+        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
         self.addEventAlgo( alg, self.viewsSeq.name() )
 
     def sequence( self ):

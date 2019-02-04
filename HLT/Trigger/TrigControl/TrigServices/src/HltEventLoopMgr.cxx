@@ -457,6 +457,7 @@ StatusCode HltEventLoopMgr::restart()
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
   try
   {
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
@@ -494,6 +495,8 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     for (auto& ita : m_topAlgList) {
       ATH_CHECK(ita->sysBeginRun());   // TEMPORARY: beginRun is deprecated
     }
+    // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
+    m_coolHelper->readFolderInfo();
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
@@ -621,6 +624,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   ATH_MSG_INFO("Starting loop on events");
+
+  EventID::number_type maxLB = 0;  // Max lumiblock number we have seen
   bool loop_ended = false;
   bool events_available = true; // DataCollector has more events
 
@@ -741,6 +746,20 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);
+
+      //-----------------------------------------------------------------------
+      // COOL updates for LB changes
+      //-----------------------------------------------------------------------
+      // Schedule COOL folder updates based on CTP fragment
+      HLT_EVTLOOP_CHECK(m_coolHelper->scheduleFolderUpdates(*eventContext), "Failure reading CTP extra payload",
+                        hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+
+      // Do an update if this is a new LB
+      if ( maxLB < eventContext->eventID().lumi_block() ) {
+        maxLB = eventContext->eventID().lumi_block();
+        HLT_EVTLOOP_CHECK(m_coolHelper->hltCoolUpdate(*eventContext), "Failure during COOL update",
+                          hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+      }
 
       //------------------------------------------------------------------------
       // Process the event
@@ -886,6 +905,7 @@ StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
   m_currentRunCtx.setEventID( sorhelp.eventID(rparams) );
   m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
                                                            m_currentRunCtx.eventID().run_number()));
+
   // Fill SOR parameters from ptree and inform IOVDbSvc
   ATH_CHECK( sorhelp.fillSOR(rparams, m_currentRunCtx) );
 

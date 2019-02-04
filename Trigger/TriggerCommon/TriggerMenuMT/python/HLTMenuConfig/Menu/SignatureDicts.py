@@ -674,6 +674,8 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'l1satmon',
                                 'zdcpeb',
                                 'calibAFP',
+                                'pebtestone',
+                                'pebtesttwo',
                                 ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----
