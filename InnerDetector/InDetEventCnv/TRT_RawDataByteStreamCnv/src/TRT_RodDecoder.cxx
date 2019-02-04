@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,13 +28,6 @@
  * TRT Specific detector manager to get layout information
  */
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"  
-
-/*
- * Event info to check if ByteStream is Simulation
- */
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 #include "PathResolver/PathResolver.h"
 #include <fstream>
