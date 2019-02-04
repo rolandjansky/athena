@@ -185,7 +185,7 @@ StatusCode MetaDataSvc::finalize() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
-   ATH_MSG_INFO("MetaDataSvc::stop()");
+   ATH_MSG_DEBUG("MetaDataSvc::stop()");
    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
