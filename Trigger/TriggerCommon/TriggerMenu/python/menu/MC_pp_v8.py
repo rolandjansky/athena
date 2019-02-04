@@ -1150,10 +1150,20 @@ ps_beamspot_list=[]
 ps_fwdphys_list=[]
 ps_minb_list=[]
 
-ps_rerun_list = []
+ps_rerun_list = [
+      'xe0noL1_l2fsperf',
+      'xe0noL1_l2fsperf_mht',
+      'xe0noL1_l2fsperf_mht_em',
+      'xe0noL1_l2fsperf_pufit',
+      'xe0noL1_l2fsperf_tc_em',
+      'xe0noL1_l2fsperf_tc_lcw',
+      ]
 
 if TriggerFlags.doFTK():
-    ps_rerun_list = []
+    ps_rerun_list = [
+      'xe0noL1_l2fsperf_trkmht_FTK',
+      'xe0noL1_l2fsperf_trktc_lcw_FTK',
+          ]
 
 ps_larnoiseburst_rerun_list = []
 
