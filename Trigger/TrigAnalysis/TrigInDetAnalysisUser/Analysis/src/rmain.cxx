@@ -1,6 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ **     @file    rmain.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include <cstdio>
 
@@ -32,6 +38,7 @@
 #include "TrigInDetAnalysis/Efficiency.h"
 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
 
 
 #include "ReadCards.h"
@@ -43,6 +50,7 @@
 #include "PurityAnalysis.h"
 
 #include "ConfVtxAnalysis.h"
+
 
 #include "lumiList.h"
 #include "lumiParser.h"
@@ -336,6 +344,11 @@ std::vector<T*> pointers( std::vector<T>& v ) {
 }
 
 
+double ETmin = 0;
+
+bool SelectObjectET(const TrackTrigObject& t) { return std::fabs(t.pt())>ETmin; }
+
+
 int main(int argc, char** argv) 
 {
 
@@ -356,6 +369,7 @@ int main(int argc, char** argv)
   ///        the config file, and then override them with command 
   ///        line arguments later? Theres only one way to find out...
   
+  std::cout << "$0 :: compiled " << __DATE__ << " " << __TIME__ << std::endl; 
 
   /// get a filename from the command line if present
 
@@ -519,7 +533,8 @@ int main(int argc, char** argv)
     }
   }
 
-  if ( inputdata.isTagDefined("pT") )      pT   = inputdata.GetValue("pT");
+  if ( inputdata.isTagDefined("pT") )      pT    = inputdata.GetValue("pT");
+  if ( inputdata.isTagDefined("ET") )      ETmin = inputdata.GetValue("ET");
 
   /// here we set a pTMax value less than pT, then only set the max pT in the 
   /// filter if we read a pTMax value *greater* than pT
@@ -582,7 +597,7 @@ int main(int argc, char** argv)
 
   std::vector<ChainString> chainConfig;
 
-  for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
+  for ( size_t ic=0 ; ic<testChains.size() ; ic++ ) { 
     chainConfig.push_back( ChainString( testChains[ic] ) );
     testChains[ic] =  chainConfig.back().pre(); 
   }
@@ -623,22 +638,24 @@ int main(int argc, char** argv)
     }
   }
 
-  // Clean this up, it's a right mess and could surely be automated
   if ( use_custom_ref_roi ) {
     std::cout << "****                                              \t****" << std::endl;
     std::cout << "**** Custom RoI will be used to filter ref. tracks\t****" << std::endl;
+
+    if ( custRefRoi_params[0] != -999. ) std::cout << "****    etaHalfWidth = " << custRefRoi_params[0] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    etaHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+    if ( custRefRoi_params[1] != -999. ) std::cout << "****    phiHalfWidth = " << custRefRoi_params[1] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    phiHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+    if ( custRefRoi_params[2] != -999. ) std::cout << "****    zedHalfWidth = " << custRefRoi_params[2] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    zedHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
     if ( !custRefRoi_chainList.empty()  ) {
+      std::cout << "****                                                \t****" << std::endl;
       std::cout << "****    Applying custom RoI only to specified chains\t****" << std::endl;
- 
-      if ( custRefRoi_params[0] != -999. ) std::cout << "****    etaHalfWidth = " << custRefRoi_params[0] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    etaHalfWidth = value used in trigger RoI\t****" << std::endl;
-      
-      if ( custRefRoi_params[1] != -999. ) std::cout << "****    phiHalfWidth = " << custRefRoi_params[1] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    phiHalfWidth = value used in trigger RoI\t****" << std::endl;
-      
-      if ( custRefRoi_params[2] != -999. ) std::cout << "****    zedHalfWidth = " << custRefRoi_params[2] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    zedHalfWidth = value used in trigger RoI\t****" << std::endl;
     }
+    std::cout << "****                                              \t****" << std::endl;
   }
   
   // Checking for SelectRoi after any other options that will set select_roi, to ensure that the value set
@@ -1588,17 +1605,30 @@ int main(int argc, char** argv)
 
     const TIDA::Chain* refchain = 0;
 
+    TrigObjectMatcher tom;
+
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) { 
       if ( chains[ic].name()==refChain ) { 
+
 	refchain = &chains[ic];
      	foundReference = true;
+
 	//Get tracks from within reference roi
         //        ibl_filter( chains[ic].rois()[0].tracks() ); 
+
 	refTracks.selectTracks( chains[ic].rois()[0].tracks() );
+
+	/// get objects if requested
+
+	if ( chains[ic].rois()[0].objects().size()>0 ) { 
+	  tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectET );
+	}
+
 	break;
+
       }
     }
-
+    
     if ( !foundReference ) continue;
     
     if ( debugPrintout ) { 
@@ -1606,10 +1636,7 @@ int main(int argc, char** argv)
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
     
-
-    //    std::cout << " chains size " << track_ev->chains().size() << std::endl;
-
-    for (unsigned int ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
+    for ( unsigned ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
 
       TIDA::Chain& chain = track_ev->chains()[ic];
 
@@ -1618,29 +1645,19 @@ int main(int argc, char** argv)
       /// find the analysis for this chain - is there a matching analysis?
       std::map<std::string,TrackAnalysis*>::iterator analitr = analysis.find(chain.name());
 
-      /// no matching analysis so continue 
+      /// if no matching analysis then continue 
+
       if ( analitr==analysis.end() ) continue;
-      // std::cout << "\t" << ic << " chain " << chain.name() << " size " << chain.size() << "\t: processing" << std::endl;
-      // cout << "\tNumber of rois for " << chain.name() << " " << chain.size() << endl;
+
 
       if ( debugPrintout ) { 
 	std::cout << "test chain:\n" << chain << std::endl;
       }
-
-
-
-
-
-
-
-
+      
       
       for (unsigned int ir=0 ; ir<chain.size() ; ir++ ) { 
-	
 
 	/// get the rois and filter on them if required 
-
-	//	std::cout << "\troi " << ir << std::endl;
 
 	TIDA::Roi& troi = chain.rois()[ir]; 
         TIDARoiDescriptor roi( troi.roi() );
@@ -1650,12 +1667,8 @@ int main(int argc, char** argv)
 
 	if ( filterRoi && !roiFilter.filter( roi ) ) continue; 
 	
-	
 	/// select the test sample (trigger) vertices
 	const std::vector<TIDA::Vertex>& mvt = troi.vertices();
-
-
-
 
 
 	std::vector<TIDA::Vertex> vertices_test;
@@ -1702,7 +1715,7 @@ int main(int argc, char** argv)
 	//	std::cout << "beamline: " << chain.name() << "  " << beamline_test << std::endl; 
 
 	//set values of track analysis to these so can access elsewhere
-	for ( int i=analyses.size() ; i-- ; ) {
+	for ( size_t i=analyses.size() ; i-- ; ) {
 
           TrackAnalysis* analy_track = analyses[i];
 	  
@@ -1772,6 +1785,7 @@ int main(int argc, char** argv)
 
 	std::vector<TIDA::Track*>  refp_vec = refTracks.tracks( refFilter );
 	
+
 	// Selecting only truth matched reference tracks
 	if ( truthMatch ) { 	  
 	  /// get the truth particles ...
@@ -1840,10 +1854,37 @@ int main(int argc, char** argv)
 	      refp_vec = reft;
 	    }
  	  }
+	}    
+	
+	/// if requesting an object match, remove any tracks which correspond to an object
+	/// below the object PT threshold 
+
+	/// only bother is objects actual exists
+
+	if ( tom.status() ) {  
+	
+	  std::string objectET = cf->config().postvalue("ET");
+
+	  if ( objectET != "" ) {  
+	    
+	    double ETconfig = std::atof( objectET.c_str() );
+	    
+	    if ( ETconfig>0 ) {
+
+	      std::vector<TIDA::Track*>::iterator itr=refp_vec.begin() ; 
+
+	      while (  itr!=refp_vec.end() ) { 
+		const TrackTrigObject* tobj = tom.object( (*itr)->id() );
+
+		if ( tobj==0 || tobj->pt()<ETconfig ) refp_vec.erase( itr );
+		else itr++;
+	      }
+	    }
+	  }
 	}
 
-	
 	const std::vector<TIDA::Track*>&  refp  =  refp_vec;
+
 	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
@@ -1921,7 +1962,8 @@ int main(int argc, char** argv)
 
 	_matcher->match( refp, testp);
 	
-	analitr->second->execute( refp, testp, _matcher );
+	if ( tom.status() ) analitr->second->execute( refp, testp, _matcher, &tom );
+	else                analitr->second->execute( refp, testp, _matcher );
 
 	ConfVtxAnalysis* vtxanal = 0;
 	analitr->second->store().find( vtxanal, "rvtx" );

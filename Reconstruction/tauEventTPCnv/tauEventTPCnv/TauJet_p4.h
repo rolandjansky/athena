@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauJet_p4.h
@@ -45,7 +45,7 @@ public:
 	    
 	}
 
-    ~TauJet_p4() {}
+    ~TauJet_p4() = default;
 
 private:
     P4EEtaPhiMFloat_p2  m_momentum;

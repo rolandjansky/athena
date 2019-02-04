@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dqm_algorithms/SCTTrackTiming.h"
@@ -47,12 +47,6 @@ namespace dqm_algorithms {
     , m_NbinsX(8)
 	{
 		dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
-	}
-	
-	
-	SCTTrackTiming::
-	~SCTTrackTiming()
-	{
 	}
 	
 	

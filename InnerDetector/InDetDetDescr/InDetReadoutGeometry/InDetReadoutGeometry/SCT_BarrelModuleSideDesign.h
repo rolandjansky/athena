@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ namespace InDetDD {
 			     int readoutSide = -1);
 
       /** Destructor: */
-      ~SCT_BarrelModuleSideDesign();
+      virtual ~SCT_BarrelModuleSideDesign();
 
       /** Assignment operator: */
       SCT_BarrelModuleSideDesign &operator=(const SCT_BarrelModuleSideDesign &design);

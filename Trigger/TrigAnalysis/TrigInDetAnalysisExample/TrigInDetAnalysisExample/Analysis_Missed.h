@@ -1,7 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file Analysis_Missed.h */
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Analysis_Missed.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TrigInDetAnalysisExample_Analysis_Missed_H
 #define TrigInDetAnalysisExample_Analysis_Missed_H
@@ -17,6 +23,10 @@
 
 class Analysis_Missed : public TrackAnalysis { 
   
+ public:
+
+  using TrackAnalysis::execute;
+
  public:
   
   Analysis_Missed(const std::string& name);  

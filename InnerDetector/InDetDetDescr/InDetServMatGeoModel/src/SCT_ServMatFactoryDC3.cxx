@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC3.h"
@@ -38,14 +38,6 @@ SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(const InDetDD::AthenaComps * athena
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
 }
-
-
-SCT_ServMatFactoryDC3::~SCT_ServMatFactoryDC3()
-{
-
-}
-
-
 
 //## Other Operations (implementation)
 void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)

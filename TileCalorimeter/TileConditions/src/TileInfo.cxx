@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -106,10 +106,6 @@ TileInfo::TileInfo(ISvcLocator *svcLocator)
   , m_OptFilterWeights(0)
   , m_OptFilterCorrelation(0)
   , m_tileCablingSvc("TileCablingSvc","TileInfo")
-  , m_tileIdTrans("TileCondIdTransforms")
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileToolNoiseSample("TileCondToolNoiseSample")
-  , m_tileToolTiming("TileCondToolTiming")
   , m_nPhElec(0)
   , m_nPhElecVec()
 {
@@ -196,38 +192,6 @@ TileInfo::initialize()
   m_tileTBID = m_cabling->getTileTBID();
   m_tileHWID = m_cabling->getTileHWID();
 
-  //=== get TileIdTrans Tool
-  sc = m_tileIdTrans.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR
-        << "Unable to retrieve " << m_tileIdTrans << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  //=== get TileCondToolEmscale
-  sc = m_tileToolEmscale.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolEmscale << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  //=== get TileCondToolNoiseSample
-  sc = m_tileToolNoiseSample.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolNoiseSample << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  //=== get TileCondToolTiming
-  sc = m_tileToolTiming.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolTiming << endmsg;
-    return StatusCode::FAILURE;
-  }
-
 
   //=== initialize channel context
   m_channel_context = new IdContext(m_tileHWID->channel_context());
@@ -287,184 +251,6 @@ TileInfo::HitCalib(const Identifier& pmt_id) const {
   return calib;
 }
 
-//
-//_____________________________________________________________________________
-double
-TileInfo::EmsCalib(const HWIdentifier& channel_id, double amplitude) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(channel_id, drawerIdx, channel, adc);
-  return m_tileToolEmscale->doCalibEms(drawerIdx, channel, amplitude);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::CesiumCalib(const HWIdentifier& channel_id, double amplitude, 
-		      bool applyLasCorr) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(channel_id, drawerIdx, channel, adc); 
-  return m_tileToolEmscale->doCalibCes(drawerIdx,channel,amplitude,applyLasCorr);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::LaserCalib(const HWIdentifier& channel_id, double amplitude) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(channel_id, drawerIdx, channel, adc); 
-  return m_tileToolEmscale->doCalibLas(drawerIdx,channel,amplitude);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::CisCalib(const HWIdentifier& adc_id, double amplitude,
-		   const TileFragHash::TYPE /*filterType*/) const
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, channel, adc); 
-  return m_tileToolEmscale->doCalibCis(drawerIdx,channel,adc,amplitude);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::ChannelCalib(const HWIdentifier& adc_id, double amplitude,
-		       const TileRawChannelUnit::UNIT rawDataUnitIn,
-		       const TileRawChannelUnit::UNIT rawDataUnitOut,
-		       const TileFragHash::TYPE /*filterType*/) const
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, channel, adc); 
-  return m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, amplitude, rawDataUnitIn, rawDataUnitOut);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::DigitsPedSigma(const HWIdentifier& adc_id) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, channel, adc); 
-  return m_tileToolNoiseSample->getHfn(drawerIdx,channel,adc);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::DigitsPedLevel(const HWIdentifier& adc_id) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, channel, adc); 
-  return m_tileToolNoiseSample->getPed(drawerIdx,channel,adc);
-}
-
-//
-//_____________________________________________________________________________
-double
-TileInfo::TimeCalib(const HWIdentifier& adc_id, double time) const 
-{
-  unsigned int drawerIdx(0), channel(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, channel, adc); 
-  time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
-  return time;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// Return the sigma of the cell noise for different low/high gain combinations
-// in units of MeV
-
-// NGO what we really want here is the noise per cell for a given reco method
-// NGO can we compute this somehow from the sample noise??
-//
-// NGO we need also some function that returns pileup noise per channel, need 
-// NGO new DB channels, can store together with cell noise (might depend on reco method)
-//
-//_____________________________________________________________________________
-double 
-TileInfo::CellNoiseSigma(const Identifier& cell_id, CaloGain::CaloGain oldgain,
-			 const TileFragHash::TYPE filterType) const
-{
-  CaloGain::CaloGain gain(oldgain);
-  int nchan = NchannelsPerCell(cell_id);
-  
-  // positive values are LAr gains
-  // convert them to appropriate Tile gains
-  if (gain > CaloGain::INVALIDGAIN) {
-
-    switch (nchan) {
-    case 2:
-      switch (oldgain) {
-        case CaloGain::LARHIGHGAIN:   gain = CaloGain::TILEHIGHHIGH; break;
-        case CaloGain::LARMEDIUMGAIN: gain = CaloGain::TILEHIGHLOW;  break;
-        case CaloGain::LARLOWGAIN:    gain = CaloGain::TILELOWLOW;   break;
-        default:                      gain = CaloGain::INVALIDGAIN;
-      }
-      break;
-    case 1:
-      switch (oldgain) {
-        case CaloGain::LARHIGHGAIN:   gain = CaloGain::TILEONEHIGH; break;
-        case CaloGain::LARLOWGAIN:    gain = CaloGain::TILEONELOW;  break;
-      default:                        gain = CaloGain::INVALIDGAIN; // medium gain is invalid as well
-      }
-      break;
-    default:
-      gain = CaloGain::INVALIDGAIN;
-    }
-  }
-
-  double noise(-9999.);
-
-  if (gain != CaloGain::INVALIDGAIN) {
-    
-    unsigned int gain1 = gain & 3; // gain for first PMT
-    unsigned int gain2 = (gain >> 2) & 3; // gain for second PMT 
-  
-    double noise1(0.), noise2(0.), noise12(0.), noise21(0.);
-
-    if (gain1 < 2) { // valid gain
-      Identifier pmt_id = m_tileID->pmt_id(cell_id,0); // first pmt offline ID
-      HWIdentifier hwid = m_tileHWID->adc_id(m_cabling->s2h_channel_id(pmt_id),gain1); // ADC HWID ch1,gain1
-      // get noise for ch1, gain1 in MeV
-      noise1 = ChannelCalib(hwid,DigitsPedSigma(hwid),TileRawChannelUnit::ADCcounts,
-                            TileRawChannelUnit::MegaElectronVolts,filterType);
-
-      if (CaloGain::LARMEDIUMGAIN == oldgain) { // swap gains to take max noise later
-        HWIdentifier hwid = m_tileHWID->adc_id(m_cabling->s2h_channel_id(pmt_id),1-gain1); // ADC HWID other gain
-        // get noise for ch1, other gain in MeV
-        noise12 = ChannelCalib(hwid,DigitsPedSigma(hwid),TileRawChannelUnit::ADCcounts,
-                               TileRawChannelUnit::MegaElectronVolts,filterType);
-      }
-    }
-
-    if (gain2 < 2 && nchan > 1) { // valid gain and second PMT exists
-      Identifier pmt_id = m_tileID->pmt_id(cell_id,1); // second pmt offline ID
-      HWIdentifier hwid = m_tileHWID->adc_id(m_cabling->s2h_channel_id(pmt_id),gain2); // ADC HWID ch2,gain2
-      // get noise for ch2, gain2 in MeV
-      noise2 = ChannelCalib(hwid,DigitsPedSigma(hwid),TileRawChannelUnit::ADCcounts,
-                            TileRawChannelUnit::MegaElectronVolts,filterType);
-
-      if (CaloGain::LARMEDIUMGAIN == oldgain) { // swap gains to take max noise later
-        HWIdentifier hwid = m_tileHWID->adc_id(m_cabling->s2h_channel_id(pmt_id),1-gain2); // ADC HWID other gain
-        // get noise for ch2, other gain in MeV
-        noise21 = ChannelCalib(hwid,DigitsPedSigma(hwid),TileRawChannelUnit::ADCcounts,
-                               TileRawChannelUnit::MegaElectronVolts,filterType);
-      }
-    }
-
-    // calculating noise of 2 channels
-    noise = hypot(noise1,noise2);
-    if (CaloGain::LARMEDIUMGAIN == oldgain) { // choosing maximum among 2 (high,low) combinations
-      noise = std::max(noise,hypot(noise12,noise21));
-    }
-  }
-  
- // conversion from ADC sigma noise to OF sigma noise
-  return noise*m_noiseScaleFactor[m_noiseScaleIndex];
-}
 
 //_____________________________________________________________________________
 const TMatrixD*

@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackTrigObject.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: TrackTrigObject.cxx, v0.0   Mon  5 Nov 2012 12:13:48 GMT sutt $
+/**
+ **     @file    TrackTrigObject.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Mon  5 Nov 2012 12:13:48 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysis/TrackTrigObject.h"

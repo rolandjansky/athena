@@ -1,7 +1,7 @@
 // dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TPCONVERTER_H
@@ -43,7 +43,7 @@ public:
         m_wasUsedForReading( false )
   {}
   
-  virtual ~ITPConverterFor() {}
+  virtual ~ITPConverterFor()  = default;
 
   /** Find converter for a given C++ type ID, that is or ihnerits from CNV type.
       @param cnv [IN] parameter specifying the converter type
@@ -312,7 +312,7 @@ public:
 	m_ignoreRecursion(false)
   {}
   
-  virtual ~TPAbstractPolyCnvBase() {}
+  virtual ~TPAbstractPolyCnvBase() = default;
 
 
   // conversion methods - to be implemented in the concrete converter
@@ -514,7 +514,7 @@ class TPPolyCnvBase
 {
 public:
   TPPolyCnvBase() {}
-  virtual ~TPPolyCnvBase() {}
+  virtual ~TPPolyCnvBase() = default;
 
 
   // Default implementations (usually no need to overwrite)
@@ -554,7 +554,7 @@ class TPConverterBase
 {
 public:
   TPConverterBase() {}
-  virtual ~TPConverterBase() {}
+  virtual ~TPConverterBase() = default;
 
 
   // implement these methods without dynamic cast to TRANS

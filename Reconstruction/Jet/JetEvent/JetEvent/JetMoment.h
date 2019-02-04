@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETMOMENT_H
@@ -32,7 +32,7 @@ struct JetMoment
       this->setTag(tag);
     }
 
-    virtual ~MomentData() { };
+    ~MomentData() = default;
 
     void setMoment(float_t moment) { this->get<0>() = moment; }
     void setTag(tag_t tag)         { this->get<1>() = tag; }

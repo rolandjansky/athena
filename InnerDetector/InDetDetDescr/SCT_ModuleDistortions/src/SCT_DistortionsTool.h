@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DistortionsTool_H
@@ -16,8 +16,8 @@ class SCT_ID;
 // SCT class to correct for module distortions
 class SCT_DistortionsTool : public AthAlgTool, virtual public ISCT_ModuleDistortionsTool {
     public:
-  //virtual ~SCT_DistortionsTool();
     SCT_DistortionsTool (const std::string&, const std::string&, const IInterface*);
+    virtual ~SCT_DistortionsTool() = default;
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
