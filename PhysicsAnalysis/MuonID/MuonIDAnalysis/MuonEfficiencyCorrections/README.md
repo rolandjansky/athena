@@ -1,6 +1,5 @@
 
 This package provides Reconstruction/TTVA/Isolation/Trigger Efficiency values and Scale Factors for Muons.
-It is intended for use with CMT/Athena/AthAnalysis or RootCore within the xAOD framework. 
 
 Contents of this Readme:
    -- Reconstruction efficiencies - MuonEfficiencyScaleFactors
@@ -32,14 +31,14 @@ Reconstruction efficiencies - MuonEfficiencyScaleFactors
 - share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
 
 2) Supported working points:
-There is support for the official MCP working points -  "Loose","Medium","Tight","HighPt".
+There is support for the official MCP working points -  "Loose","Medium","Tight","HighPt", "LowPt".
 
 3) Supported data periods:
 Several data periods are supported, the LastRun of the latest data period is set to 999999 meaning, for new runs always the most recent SFs are provided.
    
 4) Detailed Instructions
 - include the headers: 
-    #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+    #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
     
 - create your tool 
     *  with ROOTCore:
