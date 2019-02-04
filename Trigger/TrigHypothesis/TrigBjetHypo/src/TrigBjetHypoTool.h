@@ -113,7 +113,7 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
-  PublicToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool" };
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
