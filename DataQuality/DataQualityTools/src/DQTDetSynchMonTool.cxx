@@ -18,15 +18,9 @@
 
 #include "DataQualityTools/DQTDetSynchMonTool.h"
 #include "TrigT1Result/CTP_RIO.h"
-#include "InDetRawData/InDetTimeCollection.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-#include "MuonRDO/RpcPadContainer.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
-
-#include "xAODEventInfo/EventInfo.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -205,6 +199,18 @@ DQTDetSynchMonTool::~DQTDetSynchMonTool()
 //----------------------------------------------------------------------------------
 {
 }
+
+//----------------------------------------------------------------------------------
+StatusCode DQTDetSynchMonTool::initialize() {
+//----------------------------------------------------------------------------------
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_InDetTimeCollectionKeys.initialize() );
+  ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
+  ATH_CHECK( m_TileDigitsContainerKey.initialize() );
+  ATH_CHECK( m_RpcPadContainerKey.initialize() );
+  return DataQualityFatherMonTool::initialize();
+}
+
 
 //----------------------------------------------------------------------------------
 StatusCode DQTDetSynchMonTool::bookHistograms( )
@@ -608,7 +614,6 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    MsgStream log(msgSvc(), name());
 
    //  log << MSG::DEBUG << "in fillHists()" << endmsg;
-   StatusCode sc;  
 
    clearMultisets(); // clear previous event entries
 
@@ -623,12 +628,10 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    uint32_t lumi(0), evtNum(0);
    
    //Retrieve CTP, other things from EventInfo
-   const xAOD::EventInfo* thisEventInfo;
-   sc = evtStore()->retrieve(thisEventInfo);
-   if(sc.isFailure())  
+   SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_EventInfoKey);
+   if(! thisEventInfo.isValid())
    {
-      if (!m_printedErrorCTP_RIO) log << MSG::WARNING << "Could not find EventInfo in evtStore" << endmsg;
-      m_printedErrorCTP_RIO = true;
+     ATH_MSG_WARNING( "Could not find EventInfo in evtStore" );
    }
    else
    {
@@ -637,137 +640,109 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
      evtNum  = thisEventInfo->eventNumber();
      ctpl1id = thisEventInfo->extendedLevel1ID();
    }
-  
-   const InDetTimeCollection *TRT_BCIDColl = 0;  
-  
-   if ( evtStore()->contains<InDetTimeCollection>("TRT_BCID") )
-      sc = evtStore()->retrieve(TRT_BCIDColl, "TRT_BCID");
-  
-   if ( !sc.isFailure() && TRT_BCIDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator itrt_bcid 
-               = TRT_BCIDColl->begin();
-            itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
-         //log << MSG::DEBUG << "TRT BCID pointer found! " << endmsg;
-         if (!(*itrt_bcid)) continue;
-         //Current bcid
-         m_trtbcidset.insert((uint16_t)(*itrt_bcid)->second);
-         //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;      
-        
-      } // End for loop
+
+   auto inDetTimeCollections = m_InDetTimeCollectionKeys.makeHandles();
+
+   if (inDetTimeCollections[0].isValid()) {
+     auto& TRT_BCIDColl(inDetTimeCollections[0]);
+     for ( InDetTimeCollection::const_iterator itrt_bcid 
+	     = TRT_BCIDColl->begin();
+	   itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
+       //log << MSG::DEBUG << "TRT BCID pointer found! " << endmsg;
+       if (!(*itrt_bcid)) continue;
+       //Current bcid
+       m_trtbcidset.insert((uint16_t)(*itrt_bcid)->second);
+       //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;      
+       
+     } // End for loop
    }
    else {
-      if (!m_printedErrorTRT_BCID) log << MSG::WARNING << "Could not get any TRT_BCID containers " << endmsg;
-      m_printedErrorTRT_BCID = true;
+     ATH_MSG_WARNING( "Could not get any TRT_BCID containers " );
    }
 
-  
-   const InDetTimeCollection *SCT_BCIDColl = 0;  
-
-   if ( evtStore()->contains<InDetTimeCollection>("SCT_BCID") )
-      sc = evtStore()->retrieve(SCT_BCIDColl, "SCT_BCID");
-  
-   if ( !sc.isFailure() && SCT_BCIDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator isct_bcid 
-               = SCT_BCIDColl->begin();
-            isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
-         //log << MSG::DEBUG << "SCT BCID pointer found! " << endmsg;
-         if (!(*isct_bcid)) continue;
-         //Current bcid
-         m_sctbcidset.insert((uint16_t)(*isct_bcid)->second);
-         //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;            
-      } // End for loop
+   
+   if (inDetTimeCollections[1].isValid()) {
+     auto& SCT_BCIDColl(inDetTimeCollections[1]);
+     for ( InDetTimeCollection::const_iterator isct_bcid 
+	     = SCT_BCIDColl->begin();
+	   isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
+       //log << MSG::DEBUG << "SCT BCID pointer found! " << endmsg;
+       if (!(*isct_bcid)) continue;
+       //Current bcid
+       m_sctbcidset.insert((uint16_t)(*isct_bcid)->second);
+       //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;            
+     } // End for loop
    }
    else {
-      if (!m_printedErrorSCT_BCID) log << MSG::WARNING << "Could not get any SCT_BCID containers " << endmsg;
-      m_printedErrorSCT_BCID = true;
+     ATH_MSG_WARNING( "Could not get any SCT_BCID containers " );
    }
      
 
-   const InDetTimeCollection *Pixel_BCIDColl = 0;  
-
-   if ( evtStore()->contains<InDetTimeCollection>("PixelBCID") )
-      sc = evtStore()->retrieve(Pixel_BCIDColl, "PixelBCID");
-  
-   if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator ipixel_bcid 
-               = Pixel_BCIDColl->begin();
-            ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
-         //log << MSG::DEBUG << "Pixel BCID pointer found! " << endmsg;
-         if (!(*ipixel_bcid)) continue;
-         //Current bcid
-         m_pixelbcidset.insert((uint16_t)(*ipixel_bcid)->second);
-         //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;            
-      } // End for loop
+   if (inDetTimeCollections[2].isValid()) {
+     auto& Pixel_BCIDColl(inDetTimeCollections[2]);
+     for ( InDetTimeCollection::const_iterator ipixel_bcid 
+	     = Pixel_BCIDColl->begin();
+	   ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
+       //log << MSG::DEBUG << "Pixel BCID pointer found! " << endmsg;
+       if (!(*ipixel_bcid)) continue;
+       //Current bcid
+       m_pixelbcidset.insert((uint16_t)(*ipixel_bcid)->second);
+       //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;            
+     } // End for loop
    }
    else {
-      if (!m_printedErrorPixel_BCID)  log << MSG::WARNING << "Could not get any Pixel_BCID containers " << endmsg;
-      m_printedErrorPixel_BCID = true;
+     ATH_MSG_WARNING( "Could not get any Pixel_BCID containers " );
    }
 
-  
-   const InDetTimeCollection *TRT_LVL1IDColl = 0;  
 
-   if ( evtStore()->contains<InDetTimeCollection>("TRT_LVL1ID") )
-      sc = evtStore()->retrieve(TRT_LVL1IDColl, "TRT_LVL1ID");
-  
-   if ( !sc.isFailure() && TRT_LVL1IDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator itrt_lvl1id 
-               = TRT_LVL1IDColl->begin();
-            itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
-         //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endmsg;
-         if (!(*itrt_lvl1id)) continue;
-         //Current lvl1id
-         m_trtl1idset.insert((uint16_t)(*itrt_lvl1id)->second);
-         //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;      
-      } // End for loop
+   if (inDetTimeCollections[3].isValid()) {
+     auto& TRT_LVL1IDColl(inDetTimeCollections[3]);
+     for ( InDetTimeCollection::const_iterator itrt_lvl1id 
+	     = TRT_LVL1IDColl->begin();
+	   itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
+       //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endmsg;
+       if (!(*itrt_lvl1id)) continue;
+       //Current lvl1id
+       m_trtl1idset.insert((uint16_t)(*itrt_lvl1id)->second);
+       //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;      
+     } // End for loop
    }
    else {
-      if (!m_printedErrorTRT_LVL1ID) log << MSG::WARNING << "Could not get TRT_LVL1ID container " << endmsg;
-      m_printedErrorTRT_LVL1ID = true;
+     ATH_MSG_WARNING( "Could not get TRT_LVL1ID container " );
    }
 
 
-   const InDetTimeCollection *SCT_LVL1IDColl = 0;  
-
-   if ( evtStore()->contains<InDetTimeCollection>("SCT_LVL1ID") )
-      sc = evtStore()->retrieve(SCT_LVL1IDColl, "SCT_LVL1ID");
-  
-   if ( !sc.isFailure() && SCT_LVL1IDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator isct_lvl1id 
-               = SCT_LVL1IDColl->begin();
-            isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
-         //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endmsg;
-         if (!(*isct_lvl1id)) continue;
-         //Current lvl1id
-         m_sctl1idset.insert((uint16_t)(*isct_lvl1id)->second);
-         //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;            
-      } // End for loop
+   if (inDetTimeCollections[4].isValid()) {
+     auto& SCT_LVL1IDColl(inDetTimeCollections[4]);
+     for ( InDetTimeCollection::const_iterator isct_lvl1id 
+	     = SCT_LVL1IDColl->begin();
+	   isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
+       //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endmsg;
+       if (!(*isct_lvl1id)) continue;
+       //Current lvl1id
+       m_sctl1idset.insert((uint16_t)(*isct_lvl1id)->second);
+       //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;            
+     } // End for loop
    }
    else {
-      if (!m_printedErrorSCT_LVL1ID)  log << MSG::WARNING << "Could not get SCT_LVL1ID container " << endmsg;
-      m_printedErrorSCT_LVL1ID = true;
+     ATH_MSG_WARNING( "Could not get SCT_LVL1ID container " );
    }
   
 
-   const InDetTimeCollection *Pixel_LVL1IDColl = 0;  
-
-   if ( evtStore()->contains<InDetTimeCollection>("PixelLVL1ID") )
-      sc = evtStore()->retrieve(Pixel_LVL1IDColl, "PixelLVL1ID");
-  
-   if ( !sc.isFailure() && Pixel_LVL1IDColl!=0 ) {
-      for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
-               = Pixel_LVL1IDColl->begin();
-            ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
-         //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endmsg;
-         if (!(*ipixel_lvl1id)) continue;
-         //Current lvl1id
-         m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id)->second);
-         //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;            
-      } // End for loop
+   if (inDetTimeCollections[5].isValid()) {
+     auto& Pixel_LVL1IDColl(inDetTimeCollections[5]);
+     for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
+	     = Pixel_LVL1IDColl->begin();
+	   ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
+       //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endmsg;
+       if (!(*ipixel_lvl1id)) continue;
+       //Current lvl1id
+       m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id)->second);
+       //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;            
+     } // End for loop
    }
    else {
-      if (!m_printedErrorPixel_LVL1ID)  log << MSG::WARNING << "Could not get Pixel_LVL1ID container " << endmsg;
-      m_printedErrorPixel_LVL1ID = true;
+     ATH_MSG_WARNING( "Could not get Pixel_LVL1ID container " );
    }
 
 
@@ -781,14 +756,9 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    pixelbcid=findid(m_pixelbcidset);
    pixelfrac=findfrac(m_pixelbcidset,ctpbcid);
    
-   const LArFebHeaderContainer* hdrCont;
-   
-   sc = evtStore()->retrieve(hdrCont);
-   if (sc.isFailure() || !hdrCont) {
-      if (!m_printedErrorLAr) log << MSG::WARNING
-                                << "No LArFEB container found in TDS"
-                                << endmsg; 
-      m_printedErrorLAr = true;
+   SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_LArFebHeaderContainerKey);
+   if (! hdrCont.isValid()) {
+      ATH_MSG_WARNING( "No LArFEB container found in TDS" );
    }
    else {
       //log << MSG::DEBUG << "LArFEB container found" <<endmsg; 
@@ -807,51 +777,27 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    larfrac=findfrac(m_larbcidset,larbcid);
    larl1id=findid(m_larl1idset);
    
-   const TileDigitsContainer* DigitsCnt;
-//   if ( evtStore()->contains<TileDigitsContainer>("TileDigitsCnt") ) {      
-//      sc = evtStore()->retrieve(DigitsCnt, "TileDigitsCnt");
-   if ( evtStore()->contains<TileDigitsContainer>("TileDigitsFlt") ) {      
-      sc = evtStore()->retrieve(DigitsCnt, "TileDigitsFlt");
-      if (sc.isFailure() || !DigitsCnt)  { 
-         if (!m_printedErrorTile) log << MSG::WARNING
-                                    << "No Tile Digits container found in TDS"
-                                    << endmsg; 
-         m_printedErrorTile = true;
-      } 
-      else {
-         TileDigitsContainer::const_iterator collItr=DigitsCnt->begin();
-         TileDigitsContainer::const_iterator lastColl=DigitsCnt->end();
-         
-         if (sc.isFailure() || collItr==lastColl) {
-            if (!m_printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endmsg ;
-            m_printedErrorTileCtr = true;
-         }
-         else {
-            //log << MSG::DEBUG << "Tile Digits found" <<endmsg; 
-            for (;collItr!=lastColl;++collItr){
-               m_tilebcidset.insert( (*collItr)->getRODBCID() );
-               m_tilel1idset.insert( (*collItr)->getLvl1Id() );
-            }
-         }
-      }
-      tilebcid=findid(m_tilebcidset);
-      tilefrac=findfrac(m_tilebcidset,tilebcid);
-      tilel1id=findid(m_tilel1idset);
-   }
+   SG::ReadHandle<TileDigitsContainer> DigitsCnt(m_TileDigitsContainerKey);
+   if (! DigitsCnt.isValid()) {
+     ATH_MSG_WARNING( "No Tile Digits container found in TDS" );
+   } 
    else {
-      if (!m_printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endmsg ;
-      m_printedErrorTileCtr = true;
+     TileDigitsContainer::const_iterator collItr=DigitsCnt->begin();
+     TileDigitsContainer::const_iterator lastColl=DigitsCnt->end();
+     for (;collItr!=lastColl;++collItr){
+       m_tilebcidset.insert( (*collItr)->getRODBCID() );
+       m_tilel1idset.insert( (*collItr)->getLvl1Id() );
+     }
    }
+   tilebcid=findid(m_tilebcidset);
+   tilefrac=findfrac(m_tilebcidset,tilebcid);
+   tilel1id=findid(m_tilel1idset);
 
-   const DataHandle<RpcPadContainer> rpcRDO;
-   //RpcPadContainer* rpcRDO;
-   sc= evtStore()->retrieve(rpcRDO,"RPCPAD");
-   if (sc.isFailure() || !rpcRDO)  
+
+   SG::ReadHandle<RpcPadContainer> rpcRDO(m_RpcPadContainerKey);
+   if (! rpcRDO.isValid())
    { 
-      if (!m_printedErrorRPC) log << MSG::WARNING
-                                << "No RPC Pad container found in TDS"
-                                << endmsg; 
-      m_printedErrorRPC = true;
+     ATH_MSG_WARNING( "No RPC Pad container found in TDS" );
    }
    else 
    {

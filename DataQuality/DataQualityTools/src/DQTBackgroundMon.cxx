@@ -15,12 +15,6 @@
 
 #include "DataQualityTools/DQTBackgroundMon.h"
 
-#include "TagEvent/RawInfoSummaryForTag.h"
-#include "LArRecEvent/LArCollisionTime.h"
-#include "TileEvent/TileContainer.h"
-#include "TileEvent/MBTSCollisionTime.h"
-#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
-#include "xAODMuon/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -31,11 +25,7 @@
 //#include "xAODCaloEvent/CaloCellContainer.h"
 #include "xAODJet/Jet.h"
 //#include "JetUtils/JetCaloQualityUtils.h"
-#include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-
-#include "xAODEventInfo/EventInfo.h"
 
 using xAOD::Jet;
 using xAOD::JetContainer;
@@ -48,7 +38,7 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
 					   const std::string & name,
 					   const IInterface* parent) :
   DataQualityFatherMonTool(type, name, parent),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigDec("TrigDecisionTool"),
   m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_idHelperTool("Muon::MuonIdHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
@@ -75,11 +65,7 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
   m_Low_TimeDiff(-50.0),
   m_Up_TimeDiff(50.0),
   m_nBkgWords(32)
-
 {
-  declareInterface<IMonitorToolBase> (this);
-  //declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
-
   declareProperty("histoPath",        m_path           = "GLOBAL/DQTBackgroundMon");
   //declareProperty("doRunCosmics",     m_doRunCosmics   = 1);
   //declareProperty("doRunBeam",        m_doRunBeam      = 1);
@@ -97,7 +83,6 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
   declareProperty("MBTS_SideCut",     m_MBTS_SideCut  = 2  );
   declareProperty("MBTS_TimeCut",     m_MBTS_TimeCut  = 15.);
   declareProperty("MBTS_ThresholdCut",m_MBTS_ThresholdCut = 40.0/222.0); //Value in pC
-  declareProperty("MBTSContainerName",m_mbtsContainerName);
 
   declareProperty("nBins_PixSP",   m_nBins_PixSP    = 200);
   declareProperty("nBins_SctSP",   m_nBins_SctSP    = 200);
@@ -110,13 +95,30 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
   declareProperty("Low_TimeDiff",  m_Low_TimeDiff =-50.0);
   declareProperty("Up_TimeDiff",   m_Up_TimeDiff  = 50.0);
   declareProperty("nBkgWords",     m_nBkgWords    = 32);
-
+  
+  declareProperty("LocalTrigDecTool", m_trigDec);
 }
 
 //----------------------------------------------------------------------------------
 DQTBackgroundMon::~DQTBackgroundMon()
 //----------------------------------------------------------------------------------
 {
+}
+
+StatusCode DQTBackgroundMon::initialize()
+{
+  
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_RawInfoSummaryForTagKey.initialize() );
+  ATH_CHECK( m_LArCollisionTimeKey.initialize() );
+  ATH_CHECK( m_MBTSCollisionTimeKey.initialize() );
+  ATH_CHECK( m_TileCellContainerKey.initialize() );
+  ATH_CHECK( m_LUCID_RawDataContainerKey.initialize() );
+  ATH_CHECK( m_SegmentCollectionKey.initialize() );
+  ATH_CHECK( m_BeamBackgroundDataKey.initialize() );
+  ATH_CHECK( m_VertexContainerKey.initialize() );
+
+  return DataQualityFatherMonTool::initialize();
 }
 
 //----------------------------------------------------------------------------------
@@ -126,17 +128,10 @@ StatusCode DQTBackgroundMon::bookHistograms()
 {
   bool failure(false);
 
-  MsgStream log(msgSvc(), name());
-
-  //if (newRun) {
-    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << "; m_doMuons = "<< m_doMuons << endmsg;
+  ATH_MSG_INFO( "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << "; m_doMuons = "<< m_doMuons );
     //This will do the real booking
     failure = bookDQTBackgroundMon();
-  //}
 
-  //else if (newEventsBlock || newLumiBlock)    {
-  //  return StatusCode::SUCCESS;
-  //}
   if (failure)    {
     return StatusCode::FAILURE;
   }
@@ -151,7 +146,6 @@ bool DQTBackgroundMon::bookDQTBackgroundMon()
 //----------------------------------------------------------------------------------
 {
   bool failure(false);
-  MsgStream log(msgSvc(), name());
 
   std::string  fullPath = m_path+"/BackgroundMon";
   std::string labels[32]={"MBTSTimeDiffHalo", "MBTSTimeDiffCol",
@@ -371,14 +365,14 @@ if (m_doMuons==true){
 
 
   if (failure) {
-    log << MSG::ERROR << "Error Booking histograms " << endmsg;
+    ATH_MSG_ERROR( "Error Booking histograms " );
     return failure;
   }
 
   if(!m_HistBitSet->GetXaxis()||!m_HistBitSet_UnpairIso->GetXaxis()||!m_HistBitSet_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << " At least one background word histogram returned NULL pointer to X axis, labels will not be set!" << endmsg;
+    ATH_MSG_WARNING( " At least one background word histogram returned NULL pointer to X axis, labels will not be set!" );
   else{
-    log << MSG::DEBUG << "Setting bin labels for background word histograms" << endmsg;
+    ATH_MSG_DEBUG( "Setting bin labels for background word histograms" );
     for(int i=0; i<EventInfo::NBackgroundWords; ++i){
       m_HistBitSet->GetXaxis()->SetBinLabel(i+1,labels[i].c_str());
       m_HistBitSet_UnpairIso->GetXaxis()->SetBinLabel(i+1,labels[i].c_str());
@@ -390,7 +384,7 @@ if (m_doMuons==true){
 //     !m_HistPixSPHuge->GetXaxis()||!m_HistPixSPHuge_Filled->GetXaxis()||!m_HistPixSPHuge_Empty->GetXaxis()||!m_HistPixSPHuge_UnpairIso->GetXaxis()||!m_HistPixSPHuge_UnpairNonIso->GetXaxis())
   if(!m_HistPixSP->GetXaxis()||!m_HistPixSP_UnpairIso->GetXaxis()||!m_HistPixSP_UnpairNonIso->GetXaxis()||
      !m_HistPixSPHuge->GetXaxis()||!m_HistPixSPHuge_UnpairIso->GetXaxis()||!m_HistPixSPHuge_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << "At least one Pixel SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one Pixel SP histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistPixSP->GetXaxis()->SetTitle("Number of Pixel SPs");
 //    m_HistPixSP_Filled->GetXaxis()->SetTitle("Number of Pixel SPs");
@@ -404,7 +398,7 @@ if (m_doMuons==true){
 
   if(!m_HistSctSP->GetXaxis()||!m_HistSctSP_UnpairIso->GetXaxis()||!m_HistSctSP_UnpairNonIso->GetXaxis()||
      !m_HistSctSPHuge->GetXaxis()||!m_HistSctSPHuge_UnpairIso->GetXaxis()||!m_HistSctSPHuge_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << "At least one SCT SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one SCT SP histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistSctSP->GetXaxis()->SetTitle("Number of SCT SPs");
     m_HistSctSP_UnpairIso->GetXaxis()->SetTitle("Number of SCT SPs");
@@ -416,43 +410,28 @@ if (m_doMuons==true){
 
   //if(!m_HistLArTimeDiff->GetXaxis()||!m_HistLArTimeDiff_Filled->GetXaxis()||!m_HistLArTimeDiff_Empty->GetXaxis()||!m_HistLArTimeDiff_UnpairIso->GetXaxis()||!m_HistLArTimeDiff_UnpairNonIso->GetXaxis())
   if(!m_HistLArTimeDiff->GetXaxis())
-    log << MSG::WARNING << "At least one LAr time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one LAr time difference histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistLArTimeDiff->GetXaxis()->SetTitle("<t_{A}>-<t_{C}> [ns]");
   }
 
   if(!m_HistMBTSTimeDiff->GetXaxis())
-    log << MSG::WARNING << "At least one MBTS time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one MBTS time difference histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistMBTSTimeDiff->GetXaxis()->SetTitle("<t_{A}>-<t_{C}> [ns]");
   }
 
   if(!m_HistMBTSVetoHits->GetXaxis())
-    log << MSG::WARNING << "At least one MBTS hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one MBTS hit histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistMBTSVetoHits->GetXaxis()->SetTitle("Number of MBTS 'veto' hits");
   }
 
   if(!m_HistLucidHits->GetXaxis())
-    log << MSG::WARNING << "At least one LUCID hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
+    ATH_MSG_WARNING( "At least one LUCID hit histogram returned NULL pointer to X axis, axis titles will not be set!" );
   else{
     m_HistLucidHits->GetXaxis()->SetTitle("Number of LUCID 'veto' hits");
   }
-
- // retrieve trigger decision tool
- // needs to be done before the first run/event since a number of
- // BeginRun/BeginEvents are registered by dependent services
-
-  if(m_doTrigger ) {
-    StatusCode sctdt = StatusCode::SUCCESS;
-    sctdt = m_trigDec.retrieve();
-    if ( sctdt.isFailure() ){
-    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endmsg;
-    } else {
-    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endmsg;
-    }
-  }  
-
 
   return failure;
 }
@@ -461,65 +440,51 @@ if (m_doMuons==true){
 StatusCode DQTBackgroundMon::fillHistograms()
 //----------------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc;// = service("StoreGateSvc", m_eventStore);
-  //if (sc.isFailure()) {
-  //  log<< MSG::FATAL << "Unable to locate Service StoreGateSvc" << endmsg;
-  //  return sc;
-  //}
-
   m_bg=999;
   m_filled=false;
   m_empty=false;
   m_unpairiso=false;
   m_unpairnoniso=false;
 
-// retrieve the TrigDecisionTool
-//  if ( m_trigDec.retrieve().isFailure() ) {
-//    log <<MSG::WARNING << "Could not retrieve TrigDecisionTool, BG specific histograms will not be filled for this event!" << endmsg;
-//  }
-//  else{
   if(m_doTrigger){
-    log << MSG::DEBUG << " doTrigger = true" << endmsg;
-    m_bg = (unsigned char)m_trigDec->getBGCode();
-    log << MSG::DEBUG << "BG code is " << m_bg <<endmsg;
+    ATH_MSG_DEBUG( " doTrigger = true" );
+    m_bg = (unsigned char)(m_trigDec->getBGCode());
+    ATH_MSG_DEBUG( "BG code is " << m_bg );
     if( m_bg & (0x1<<m_FilledBG)){
-      log << MSG::DEBUG << "Filled Bunch Group" << endmsg;
+      ATH_MSG_DEBUG( "Filled Bunch Group" );
       m_filled=true;
     }
     if( m_bg & (0x1<<m_EmptyBG)){
-      log << MSG::DEBUG << "Emtpy Bunch Group" << endmsg;
+      ATH_MSG_DEBUG( "Emtpy Bunch Group" );
       m_empty=true;
     }
     if( m_bg & (0x1<<m_UnpairIsoBG)){
-      log << MSG::DEBUG << "Unpair Isolated Bunch Group" << endmsg;
+      ATH_MSG_DEBUG( "Unpair Isolated Bunch Group" );
       m_unpairiso=true;
     }
     if( m_bg & (0x1<<m_UnpairNonIsoBG)){
-      log << MSG::DEBUG << "Unpair Non-Isolated Bunch Group" << endmsg;
+      ATH_MSG_DEBUG("Unpair Non-Isolated Bunch Group" );
       m_unpairnoniso=true;
     }
   } else {
-    log << MSG::WARNING << " doTrigger = false" << endmsg;
+    ATH_MSG_WARNING( " doTrigger = false" );
   }
   //}
 
 
   unsigned bunch_crossing_id = 0;
   // this events background word
-  const EventInfo * eventInfo_c = 0;
-  if (evtStore()->retrieve( eventInfo_c ).isFailure() ) {
-    log << MSG::WARNING << "  Could not retrieve non-const EventInfo object, background word histograms will not be filled for this event!" << endmsg;
+  SG::ReadHandle<EventInfo> eventInfo(m_EventInfoKey);
+  if (!eventInfo.isValid()) {
+    ATH_MSG_WARNING( "  Could not retrieve EventInfo object, background word histograms will not be filled for this event!" );
   }
   else{
-    EventInfo* eventInfo = const_cast<EventInfo*>(eventInfo_c);
     bunch_crossing_id = eventInfo->bcid();
     for(int bkg_i=0;bkg_i<m_nBkgWords;++bkg_i){
       if(! (eventInfo->eventFlags(EventInfo::Background) & 0x1<<bkg_i)){
         continue;
       }
-      log << MSG::DEBUG<< " Background word is " << eventInfo->eventFlags(EventInfo::Background) << endmsg;
+      ATH_MSG_DEBUG( " Background word is " << eventInfo->eventFlags(EventInfo::Background) );
       m_HistBitSet->Fill(bkg_i);
       if(m_filled)
         m_HistBitSet_Filled->Fill(bkg_i);
@@ -533,13 +498,9 @@ StatusCode DQTBackgroundMon::fillHistograms()
   }
 
 
-  if( evtStore()->contains<RawInfoSummaryForTag>("RawInfoSummaryForTag") ){
+  SG::ReadHandle<RawInfoSummaryForTag> rawinfo(m_RawInfoSummaryForTagKey);
+  if (rawinfo.isValid()) {
   //this events spacepoints
-    const RawInfoSummaryForTag* rawinfo=0;
-    sc = evtStore()->retrieve( rawinfo );
-    if (sc.isFailure()) {
-      log << MSG::WARNING << "Cannot get raw summary info from storegate, SP histograms will not be filled for this event!" << endmsg;
-    } else {
       float pixSPs=(float)rawinfo->getNpixSPs();
       float sctSPs=(float)rawinfo->getNsctSPs();
 
@@ -570,77 +531,67 @@ StatusCode DQTBackgroundMon::fillHistograms()
       else if(m_unpairnoniso)
         m_HistPixSP_UnpairNonIso->Fill(pixSPs);
       }
-    }
   } // SG RawInfo veto
 
 
-  if( evtStore()->contains<LArCollisionTime>("LArCollisionTime") ){
+  SG::ReadHandle<LArCollisionTime> tps(m_LArCollisionTimeKey);
+  if (tps.isValid()) {
     //this events LAr collision time
-    const  LArCollisionTime* tps;
-    if (!evtStore()->retrieve(tps,"LArCollisionTime").isFailure()) {
       if (tps->ncellA() > m_LArEC_SideCut && tps->ncellC() > m_LArEC_SideCut) {
         float LArECtimeDiff = tps->timeA()-tps->timeC();
         m_HistLArTimeDiff->Fill(LArECtimeDiff);
       } // enough hits per side
-    } else {
-      log << MSG::WARNING << "Failed to retrieve LArCollisionTime object, LAr EC time difference histograms will not be filled for this event!" << endmsg;
-    }
+  } else {
+    ATH_MSG_WARNING("Failed to retrieve LArCollisionTime object, LAr EC time difference histograms will not be filled for this event!");
   }// LAr time SG veto
 
 
-  if( evtStore()->contains<MBTSCollisionTime>("MBTSCollisionTime") ){
+  SG::ReadHandle<MBTSCollisionTime> mbtsTime(m_MBTSCollisionTimeKey);
+  if (mbtsTime.isValid()) {
     // this events MBTS time difference
-    const MBTSCollisionTime * mbtsTime;
-    if (!evtStore()->retrieve(mbtsTime,"MBTSCollisionTime").isFailure()) {
       if(mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut){
         float MBTStimeDiff = mbtsTime->time();
         m_HistMBTSTimeDiff->Fill(MBTStimeDiff);
       } //enough hits per side
-    } else {
-      log << MSG::WARNING << "Failed to retrieve MBTSCollisionTime object, MBTS time difference histograms will not be filled for this event!" << endmsg;
-    }
+  } else {
+    ATH_MSG_WARNING("Failed to retrieve MBTSCollisionTime object, MBTS time difference histograms will not be filled for this event!");
   } //MBTS time SG veto
 
 
-  if( evtStore()->contains<TileCellContainer>(m_mbtsContainerName) ){
+  SG::ReadHandle<TileCellContainer> tileCellCnt(m_TileCellContainerKey);
+  if (tileCellCnt.isValid()) {
     // this events MBTS veto count
-    const TileCellContainer *tileCellCnt = 0;
     int MBTScount(0);
-    if (evtStore()->retrieve(tileCellCnt, m_mbtsContainerName).isFailure()) {
-      log << MSG::WARNING << "Error retrieving " << m_mbtsContainerName  << ", MBTS hit histogram will not be filled for this event!"<< endmsg;
-    } else {
-      TileCellContainer::const_iterator itr = tileCellCnt->begin();
-      TileCellContainer::const_iterator itr_end = tileCellCnt->end();
-      for(; itr != itr_end; ++itr) {
-        if ((*itr)->energy()<m_MBTS_ThresholdCut) continue;
-        const uint8_t qbit1=(*itr)->qbit1();
-        if ((qbit1 & m_MBTS_mask) != m_MBTS_pattern) {
-          log<<MSG::DEBUG << "Rejected based on quality bits" << endmsg;
-          continue;
-        }
-        if (fabs((*itr)->time())<m_MBTS_TimeCut) MBTScount++;
+    TileCellContainer::const_iterator itr = tileCellCnt->begin();
+    TileCellContainer::const_iterator itr_end = tileCellCnt->end();
+    for(; itr != itr_end; ++itr) {
+      if ((*itr)->energy()<m_MBTS_ThresholdCut) continue;
+      const uint8_t qbit1=(*itr)->qbit1();
+      if ((qbit1 & m_MBTS_mask) != m_MBTS_pattern) {
+	ATH_MSG_DEBUG("Rejected based on quality bits");
+	continue;
       }
-      m_HistMBTSVetoHits->Fill((float)MBTScount);
-    } // retrieved MBTS info
+      if (fabs((*itr)->time())<m_MBTS_TimeCut) MBTScount++;
+    }
+    m_HistMBTSVetoHits->Fill((float)MBTScount);
+  } else {
+    ATH_MSG_WARNING("Error retrieving " << m_mbtsContainerName  << ", MBTS hit histogram will not be filled for this event!");
   } // MBTS tile SG veto
 
 
-  if( evtStore()->contains<LUCID_RawDataContainer>("Lucid_RawData") ){ 
+  SG::ReadHandle<LUCID_RawDataContainer> LUCID_RawDataContainer(m_LUCID_RawDataContainerKey);
+  if (LUCID_RawDataContainer.isValid()) {
     // this events Lucid hit count
-    const LUCID_RawDataContainer* LUCID_RawDataContainer;
-    if (evtStore()->retrieve(LUCID_RawDataContainer, "Lucid_RawData").isFailure() ) {
-      log << MSG::WARNING << "  Could not retrieve Lucid_RawData, LUCID hit histograms will not be filled for this event!" << endmsg;
+    LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = LUCID_RawDataContainer->begin();
+    LUCID_RawDataContainer::const_iterator LUCID_RawData_end = LUCID_RawDataContainer->end();
+    int LUCIDcounter(0);
+    for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
+      LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideA();
+      LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideC();
     }
-    else {
-      LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = LUCID_RawDataContainer->begin();
-      LUCID_RawDataContainer::const_iterator LUCID_RawData_end = LUCID_RawDataContainer->end();
-      int LUCIDcounter(0);
-      for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
-        LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideA();
-        LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideC();
-      }
-      m_HistLucidHits->Fill(LUCIDcounter);
-    }
+    m_HistLucidHits->Fill(LUCIDcounter);
+  } else {
+    ATH_MSG_WARNING("  Could not retrieve Lucid_RawData, LUCID hit histograms will not be filled for this event!");
   } // LUCID SG veto
 
 
@@ -650,161 +601,145 @@ StatusCode DQTBackgroundMon::fillHistograms()
     CHECK( m_idHelperTool.retrieve() );
     CHECK( m_idToFixedIdTool.retrieve() );
 
-    if( evtStore()->contains<Trk::SegmentCollection>("ConvertedMBoySegments") ){
-      const Trk::SegmentCollection* segmentContainer;
-      if (evtStore()->retrieve(segmentContainer, "ConvertedMBoySegments").isFailure() ) {
-        log << MSG::WARNING << "  Could not retrieve ConvertedMBoySegments, histograms will not be filled for this event!" << endmsg;
-      } else {
-        for(unsigned int i=0; i<segmentContainer->size(); i++) {
-          const xAOD::MuonSegment* seg = dynamic_cast<const xAOD::MuonSegment*>(segmentContainer->at(i));
-          if ( seg == 0 ) continue ;
-          // The tool MuonEDMHelperTool (m_helperTool)
-          // has not been migrated to xAOD yet
-          // one could use the converter:
-          // https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools/trunk/src/MuonSegmentConverterTool.h
-          // but, hoping that migration will happen soon, we temporarily disable this part.
-          /*
+    SG::ReadHandle<Trk::SegmentCollection> segmentContainer(m_SegmentCollectionKey);
+    if (segmentContainer.isValid()) {
+      for(unsigned int i=0; i<segmentContainer->size(); i++) {
+	const xAOD::MuonSegment* seg = dynamic_cast<const xAOD::MuonSegment*>(segmentContainer->at(i));
+	if ( seg == 0 ) continue ;
+	// The tool MuonEDMHelperTool (m_helperTool)
+	// has not been migrated to xAOD yet
+	// one could use the converter:
+	// https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools/trunk/src/MuonSegmentConverterTool.h
+	// but, hoping that migration will happen soon, we temporarily disable this part.
+	/*
           Identifier id = m_helperTool->chamberId(*seg);
           if ( !id.is_valid() ) continue;
           if ( !m_idHelperTool->isMuon(id) ) continue;
-
+	  
           MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id );
           int stationName = fid.stationName();
           int stationEta = fid.eta();
-
+	  
           // station names: CSC=33,34; MDT=15,24
           if( !(stationName==33 || stationName==34 || stationName==15 || stationName==24 )) continue;
-
+	  
           const  Amg::Vector3D&  globalPos = seg->globalPosition(); // changed to ->x() , y() , z()
           const Amg::Vector3D& globalDir = seg->globalDirection();  // changed to ->px(), py(), pz()
           double thetaPos = globalPos.theta();
           double thetaDir = globalDir.theta();
           double theta = TMath::Cos(2.*(thetaPos-thetaDir));
-
+	  
           if(stationName==15 || stationName==24) m_HistThetaMdt->Fill(theta);
           if(stationName==33 || stationName==34){
-            m_HistThetaCsc->Fill(theta);
-            if(stationEta==1) m_HistThetaCscA->Fill(theta);
-            if(stationEta==-1) m_HistThetaCscC->Fill(theta);
+	  m_HistThetaCsc->Fill(theta);
+	  if(stationEta==1) m_HistThetaCscA->Fill(theta);
+	  if(stationEta==-1) m_HistThetaCscC->Fill(theta);
           }
-          */
-        }
+	*/
       }
+    } else {
+      ATH_MSG_WARNING("  Could not retrieve ConvertedMBoySegments, histograms will not be filled for this event!");
     }//MBoy segments theta
 
 
-    if( evtStore()->contains<BeamBackgroundData>("BeamBackgroundData") ){
-      const BeamBackgroundData* beamBackgroundData;
-      if (evtStore()->retrieve(beamBackgroundData, "BeamBackgroundData").isFailure() ) {
-        log << MSG::WARNING << "  Could not retrieve BeamBackgroundData, histograms will not be filled for this event!" << endmsg;
-      }
-      else {
-        for(int i=0; i<beamBackgroundData->GetNumSegment(); i++) {
-          const Trk::Segment* tSeg = beamBackgroundData->GetIndexSeg(i);
-          const xAOD::MuonSegment* mSeg = dynamic_cast<const xAOD::MuonSegment*>(tSeg);
-          if ( mSeg == 0 ) continue ;
-          // As above, comment out while waiting for the tool migration
-          /*
+    SG::ReadHandle<BeamBackgroundData> beamBackgroundData(m_BeamBackgroundDataKey);
+    if (beamBackgroundData.isValid()) {
+      for(int i=0; i<beamBackgroundData->GetNumSegment(); i++) {
+	const Trk::Segment* tSeg = beamBackgroundData->GetIndexSeg(i);
+	const xAOD::MuonSegment* mSeg = dynamic_cast<const xAOD::MuonSegment*>(tSeg);
+	if ( mSeg == 0 ) continue ;
+	// As above, comment out while waiting for the tool migration
+	/*
           Identifier id = m_helperTool->chamberId(*mSeg);
           if ( !id.is_valid() ) continue;
           if ( !m_idHelperTool->isMuon(id) ) continue;
-
+	  
           MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id );
           int stationName = fid.stationName();
-
+	  
           if( !(stationName==33 || stationName==34 || stationName==15 || stationName==24 )) continue;
-          */
-          double x = mSeg->x();
-          double y = mSeg->y();
-          //double time = mSeg->t0();
-
-          /*if(stationName==33 || stationName==34) m_HistTimeSeg0Csc->Fill(time);
+	*/
+	double x = mSeg->x();
+	double y = mSeg->y();
+	//double time = mSeg->t0();
+	
+	/*if(stationName==33 || stationName==34) m_HistTimeSeg0Csc->Fill(time);
           if(stationName==15 || stationName==24) m_HistTimeSeg0Mdt->Fill(time);
-          */
-          m_HistXYSeg0->Fill(x/1000., y/1000.);
-        }
-
-        for(int i=0; i<beamBackgroundData->GetNumMatched(); i++) {
-          const xAOD::CaloCluster* clus = beamBackgroundData->GetIndexClus(i);
-
-          double energy = clus->e();
-          double eta = clus->eta();
-          double phi = clus->phi();
-          //double time = clus->getTime();
-          double time = clus->time();
-
-          m_HistClusterEnergy->Fill(energy/1000.);
-          m_HistClusterEtaPhi->Fill(eta, phi);
-          m_HistClusterEtaTime->Fill(eta, time);
-        }
-
-        if( beamBackgroundData->GetNumNoTimeTight() ) {       // GetNumTwoSided, GetNumTwoSidedNoTime or GetNumNoTimeTight
-          for(int i=0; i<beamBackgroundData->GetNumJet(); i++) {
-            const xAOD::Jet* jet = beamBackgroundData->GetIndexJet(i);
-            int index = beamBackgroundData->GetIndexJet(jet);
-
-            m_HistFakeJetIndex->Fill(index);
-
-            if( index == 0 ) {  // leading jet
-              double pt = jet->pt();
-              double eta = jet->eta();
-              double phi = jet->phi();
-
-              //double sumPtTrk = jet->getAttribute<std::vector<float>>(JetAttribute::SumPtTrkPt1000)[0];
-              // Suggested fix for the above line
-              std::vector<float> sumPt_v;
-              double sumPtTrk = 0;
-              bool hasSumPt = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::SumPtTrkPt1000, sumPt_v); 
-              if (hasSumPt) sumPtTrk = sumPt_v[0];
-
-              double chf = sumPtTrk / pt;
-              double time = jet->getAttribute<float>(JetAttribute::Timing);
-              double emf = jet->getAttribute<float>(JetAttribute::EMFrac);
-
-              m_HistFakeJet1Pt->Fill(pt/1000.);
-              m_HistFakeJet1Eta->Fill(eta);
-              m_HistFakeJet1Phi->Fill(phi);
-              m_HistFakeJet1Time->Fill(time);
-              m_HistFakeJet1Chf->Fill(chf);
-              m_HistFakeJet1EtaTime->Fill(eta, time);
-              m_HistFakeJet1EmfChf->Fill(emf, chf);
-            }
-          }  // end of loop through jets
-
-          if( beamBackgroundData->GetDirection() > 0 ) {
-            m_HistRateBcidACTwoSided->Fill(bunch_crossing_id);
-            if( beamBackgroundData->GetNumOneSidedLoose() ) m_HistRateBcidACTwoSidedOneSided->Fill(bunch_crossing_id);
-          }
-          else if( beamBackgroundData->GetDirection() < 0 ) {
-            m_HistRateBcidCATwoSided->Fill(bunch_crossing_id);
-            if( beamBackgroundData->GetNumOneSidedLoose() ) m_HistRateBcidCATwoSidedOneSided->Fill(bunch_crossing_id);
-          }
-        }
+	*/
+	m_HistXYSeg0->Fill(x/1000., y/1000.);
       }
-    } // end fake jets
+      
+      for(int i=0; i<beamBackgroundData->GetNumMatched(); i++) {
+	const xAOD::CaloCluster* clus = beamBackgroundData->GetIndexClus(i);
+	
+	double energy = clus->e();
+	double eta = clus->eta();
+	double phi = clus->phi();
+	//double time = clus->getTime();
+	double time = clus->time();
+	
+	m_HistClusterEnergy->Fill(energy/1000.);
+	m_HistClusterEtaPhi->Fill(eta, phi);
+	m_HistClusterEtaTime->Fill(eta, time);
+      }
+      
+      if( beamBackgroundData->GetNumNoTimeTight() ) {       // GetNumTwoSided, GetNumTwoSidedNoTime or GetNumNoTimeTight
+	for(int i=0; i<beamBackgroundData->GetNumJet(); i++) {
+	  const xAOD::Jet* jet = beamBackgroundData->GetIndexJet(i);
+	  int index = beamBackgroundData->GetIndexJet(jet);
+	  
+	  m_HistFakeJetIndex->Fill(index);
+	  
+	  if( index == 0 ) {  // leading jet
+	    double pt = jet->pt();
+	    double eta = jet->eta();
+	    double phi = jet->phi();
+	    
+	    //double sumPtTrk = jet->getAttribute<std::vector<float>>(JetAttribute::SumPtTrkPt1000)[0];
+	    // Suggested fix for the above line
+	    std::vector<float> sumPt_v;
+	    double sumPtTrk = 0;
+	    bool hasSumPt = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::SumPtTrkPt1000, sumPt_v); 
+	    if (hasSumPt) sumPtTrk = sumPt_v[0];
+	    
+	    double chf = sumPtTrk / pt;
+	    double time = jet->getAttribute<float>(JetAttribute::Timing);
+	    double emf = jet->getAttribute<float>(JetAttribute::EMFrac);
+	    
+	    m_HistFakeJet1Pt->Fill(pt/1000.);
+	    m_HistFakeJet1Eta->Fill(eta);
+	    m_HistFakeJet1Phi->Fill(phi);
+	    m_HistFakeJet1Time->Fill(time);
+	    m_HistFakeJet1Chf->Fill(chf);
+	    m_HistFakeJet1EtaTime->Fill(eta, time);
+	    m_HistFakeJet1EmfChf->Fill(emf, chf);
+	  }
+	}  // end of loop through jets
+	
+	if( beamBackgroundData->GetDirection() > 0 ) {
+	  m_HistRateBcidACTwoSided->Fill(bunch_crossing_id);
+	  if( beamBackgroundData->GetNumOneSidedLoose() ) m_HistRateBcidACTwoSidedOneSided->Fill(bunch_crossing_id);
+	}
+	else if( beamBackgroundData->GetDirection() < 0 ) {
+	  m_HistRateBcidCATwoSided->Fill(bunch_crossing_id);
+	  if( beamBackgroundData->GetNumOneSidedLoose() ) m_HistRateBcidCATwoSidedOneSided->Fill(bunch_crossing_id);
+	}
+      } // end fake jets
+    } else {
+      ATH_MSG_WARNING("  Could not retrieve BeamBackgroundData, histograms will not be filled for this event!");
+    }
   } // end of m_doMuons==true
 
-  //  if( evtStore()->contains<VxContainer>("VxPrimaryCandidate")) {
-  if( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices")) {
-    
- //    const xAOD::VertexContainer* m_vertices(0);
-     
-//      if ( evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)) {
-//        sc = evtStore()->retrieve(m_vertices,m_VxPrimContainerName);
-
-    const xAOD::VertexContainer* vxContainer(0);
-    if (evtStore()->retrieve(vxContainer, "PrimaryVertices").isFailure() ) {
-      ATH_MSG_DEBUG ("Could not retrieve xAOD::VertexContainer 'PrimaryVertices', histograms will not be filled for this event!");
-      return StatusCode::SUCCESS;
-    }
-    else {
-      int numVertex = vxContainer->size() - 1;  // exclude dummy vertex
-      m_HistNumVertex->Fill(numVertex);
-      if(m_unpairiso)
-        m_HistNumVertex_UnpairIso->Fill(numVertex);
-      else if(m_unpairnoniso)
-        m_HistNumVertex_UnpairNonIso->Fill(numVertex);
-    }
+  SG::ReadHandle<xAOD::VertexContainer> vxContainer(m_VertexContainerKey);
+  if (vxContainer.isValid()) {
+    int numVertex = vxContainer->size() - 1;  // exclude dummy vertex
+    m_HistNumVertex->Fill(numVertex);
+    if(m_unpairiso)
+      m_HistNumVertex_UnpairIso->Fill(numVertex);
+    else if(m_unpairnoniso)
+      m_HistNumVertex_UnpairNonIso->Fill(numVertex);
+  } else {
+    ATH_MSG_DEBUG ("Could not retrieve xAOD::VertexContainer 'PrimaryVertices', histograms will not be filled for this event!");
   }
 
 
@@ -813,7 +748,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
 
     const JetContainer* jettContainer;
     if (evtStore()->retrieve(jetContainer, "AntiKt4TopoEMJets").isFailure() ) {
-      log << MSG::WARNING << "  Could not retrieve AntiKt4TopoEMJets, histograms will not be filled for this event!" << endmsg;
+      ATH_MSG_WARNING( "  Could not retrieve AntiKt4TopoEMJets, histograms will not be filled for this event!" );
     }
     else {
 
@@ -834,8 +769,7 @@ StatusCode DQTBackgroundMon::procHistograms( )
 //StatusCode DQTBackgroundMon::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 //----------------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In procHists()" << endmsg;
+  ATH_MSG_DEBUG( "In procHists()" );
   //if ( isEndOfEventsBlock || isEndOfLumiBlock || isEndOfRun ) {
 
   //}
@@ -847,7 +781,6 @@ StatusCode DQTBackgroundMon::procHistograms( )
 StatusCode DQTBackgroundMon::checkHists(bool /* fromFinalize */)
 //----------------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In checkHists()" << endmsg;
+  ATH_MSG_DEBUG( "In checkHists()" );
   return StatusCode::SUCCESS;
 }
