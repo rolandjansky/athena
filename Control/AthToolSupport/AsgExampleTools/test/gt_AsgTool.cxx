@@ -1,14 +1,9 @@
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
+
 
 
 //
@@ -20,7 +15,7 @@
 #include <AsgTools/IMessagePrinter.h>
 #include <AsgTools/MessagePrinterMock.h>
 #include <AsgTools/MessagePrinterOverlay.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>
@@ -77,6 +72,13 @@ namespace asg
   {
     MessageTool mytool ("my_tool");
     ASSERT_SUCCESS (mytool.setProperty ("OutputLevel", MSG::ERROR));
+    EXPECT_EQ (MSG::ERROR, mytool.msg().level());
+  }
+
+  TEST (AsgTool, message_outputLevel_int)
+  {
+    MessageTool mytool ("my_tool");
+    ASSERT_SUCCESS (mytool.setProperty ("OutputLevel", 5));
     EXPECT_EQ (MSG::ERROR, mytool.msg().level());
   }
 

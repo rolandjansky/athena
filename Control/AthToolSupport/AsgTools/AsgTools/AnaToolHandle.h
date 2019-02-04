@@ -1,19 +1,13 @@
-// Dear emacs, this is -*- c++ -*-
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 #ifndef ASG_TOOLS__ANA_TOOL_HANDLE_H
 #define ASG_TOOLS__ANA_TOOL_HANDLE_H
-
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 // Author: Will Buttinger
 
@@ -888,10 +882,6 @@ namespace asg
     /// \brief the value of \ref name
   private:
     std::string m_name;
-
-    /// \brief the name of the parent
-  private:
-    std::string m_parentName;
 
     /// \brief the pointer to the parent
   private:

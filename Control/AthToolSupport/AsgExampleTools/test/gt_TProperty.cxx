@@ -1,14 +1,9 @@
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
+
 
 
 //
@@ -17,7 +12,7 @@
 
 #include <AsgTools/AnaToolHandle.h>
 #include <AsgTools/MessageCheck.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>
@@ -118,6 +113,13 @@ namespace asg
       std::string str;
       ASSERT_SUCCESS (GetStringHelper<int>::get (0, str));
       ASSERT_EQ ("0", str);
+    }
+
+    TEST (GetStringHelperTest, get_enum)
+    {
+      std::string str;
+      ASSERT_SUCCESS (GetStringHelper<MSG::Level>::get (MSG::Level::WARNING, str));
+      ASSERT_EQ ("4", str);
     }
 
     TEST (GetStringHelperTest, get_string_regular)
@@ -225,6 +227,13 @@ namespace asg
       int value = 7;
       ASSERT_SUCCESS (SetStringHelper<int>::set ("0", value));
       ASSERT_EQ (0, value);
+    }
+
+    TEST (SetStringHelperTest, set_enum)
+    {
+      MSG::Level value = MSG::Level::INFO;
+      ASSERT_SUCCESS (SetStringHelper<MSG::Level>::set ("2", value));
+      ASSERT_EQ (MSG::Level::DEBUG, value);
     }
 
     TEST (SetStringHelperTest, set_string_raw)
