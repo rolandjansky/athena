@@ -673,7 +673,8 @@ TagInfoMgr::handle(const Incident& inc) {
         m_newFileIncidentSeen = false;
 
         // Print out EventInfo
-        const EventIDBase& eventID =  inc.context().eventID();
+        // can't use a ref here!
+        const EventIDBase eventID =  inc.context().eventID();
 
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "handle: BeginRun incident - Event info: " << endmsg;
