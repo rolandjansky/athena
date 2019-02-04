@@ -117,11 +117,7 @@ namespace EL
   Worker ::
   ~Worker ()
   {
-    using namespace msgEventLoop;
-
     RCU_DESTROY_INVARIANT (this);
-
-    ANA_MSG_INFO ("worker finished");
   }
 
 
@@ -519,6 +515,7 @@ namespace EL
     m_histOutput->saveOutput ();
     for (auto& module : m_modules)
       ANA_CHECK (module->onWorkerEnd (*this));
+    ANA_MSG_INFO ("worker finished successfully");
     return ::StatusCode::SUCCESS;
   }
 
