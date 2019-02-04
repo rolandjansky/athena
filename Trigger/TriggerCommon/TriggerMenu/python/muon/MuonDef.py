@@ -416,8 +416,8 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_mu_step3']]
     if '20invm60' in self.chainPart['addInfo'] or '20invm60' in self.chainPart['extra']:
       theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon","0")
-      theTrigMuonEFCombinerDiMuonMassPtImpactsHiggsinoHypoConfig.massThresLow = 20.0
-      theTrigMuonEFCombinerDiMuonMassPtImpactsHiggsinoHypoConfig.massThresHigh = 60.0
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = 20.0
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = 60.0
       self.EFsequenceList += [[['EF_mu_step2'],
                                [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
                                'EF_mu_step3']]
