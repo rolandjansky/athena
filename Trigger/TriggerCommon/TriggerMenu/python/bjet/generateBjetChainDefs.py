@@ -131,6 +131,16 @@ def generateChainDefs(chainDict):
     isIsoLep     = (not chainDict['chainName'].find("ivarmedium") == -1 or not chainDict['chainName'].find("ivarloose") == -1)
     isSingleJet  = ( (len(chainDict['chainParts']) == 1) and (int(chainDict['chainParts'][0]['multiplicity']) == 1))
 
+    # Tmp change due to HH4b triggers
+    isHH4bChain  = False
+    if (not chainDict['chainName'].find("b40") == -1  or 
+        not chainDict['chainName'].find("b50") == -1  or
+        not chainDict['chainName'].find("b60") == -1  or
+        not chainDict['chainName'].find("b70") == -1  or
+        not chainDict['chainName'].find("b77") == -1  or
+        not chainDict['chainName'].find("b85") == -1 ):
+        isHH4bChain = True
+
     #
     # Only run the All TE on split chains
     #
@@ -145,6 +155,15 @@ def generateChainDefs(chainDict):
     #  New AllTE config currently supported on new mv2c10 taggers
     #
     if isRunITagger or is2015Tagger: doAllTEConfig = False
+
+    #
+    # Do not use ALLTE if we are imposing a HH4b trigger (jthreshold is too low, no split->gsc matching is performed in AllTE)
+    # Also impose split configuration even though it is not in the chain name
+    #
+
+    if isHH4bChain: 
+        isSplitChain = True
+        doAllTEConfig = False
 
     #
     # Need all the ouput bjet TEs to properly match to muons
@@ -411,11 +430,26 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
         btagCut = bjetchain['chainParts']['bTag']
         mult    = bjetchain['chainParts']['multiplicity']
 
+        ### HH4b triggers (bXX instead of bmv2c10XX)
+        if btagCut == "b40":
+            btagCut = "bmv2c1040"
+        elif btagCut == "b50":
+            btagCut = "bmv2c1050"
+        elif btagCut == "b60":
+            btagCut = "bmv2c1060"
+        elif btagCut == "b70":
+            btagCut = "bmv2c1070"
+        elif btagCut == "b77":
+            btagCut = "bmv2c1077"
+        elif btagCut == "b85":
+            btagCut = "bmv2c1085"
+
         threshold = bjetchain['chainParts']['threshold']
         if 'gscThreshold' in bjetchain['chainParts']:
             threshold = bjetchain['chainParts']['gscThreshold'].replace("gsc","")
 
         btagReqs.append([threshold,btagCut,mult])
+    
     
     log.debug("Config the ALLTE Hypo")
     name = bjetdict[0]['chainName']
@@ -440,8 +474,18 @@ def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
     bjetparts = bjetdict['chainParts']
+    
+    # Check if it is a HH4b chain (bXX instead of bmv2c10XX)
+    isHH4bChain = False
+    if ( 'b40' in bjetparts['bTag'] or 
+         'b50' in bjetparts['bTag'] or 
+         'b60' in bjetparts['bTag'] or 
+         'b70' in bjetparts['bTag'] or 
+         'b77' in bjetparts['bTag'] or 
+         'b85' in bjetparts['bTag'] ):
+        isHH4bChain = True
 
-    if ( 'split' in bjetparts['bConfig'] ):
+    if ( 'split' in bjetparts['bConfig'] or isHH4bChain == True ):
         theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
     else:
@@ -469,6 +513,12 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     btagmult = chainParts['multiplicity']
     btagcut = chainParts['bTag']
     btagcut = btagcut[1:]
+
+    ### changes for HH4b (bXX instead of bmv2c10XX)
+    if ( btagcut == '40' or btagcut == '50' or
+         btagcut == '60' or btagcut == '70' or
+         btagcut == '77' or btagcut == '85' ):
+        btagcut = 'mv2c10' + btagcut
 
     ftk=""
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:
@@ -604,6 +654,10 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2015", btagcut)
     elif ('bmv2c10' in chainParts['bTag']  ):
         # MV2c10 tagger series
+        theBtagReq = getBjetHypoSplitInstance(algoInstance,"2017", btagcut)
+    elif ('b40' in chainParts['bTag'] or 'b50' in chainParts['bTag'] or 
+          'b60' in chainParts['bTag'] or 'b70' in chainParts['bTag'] or
+          'b77' in chainParts['bTag'] or 'b85' in chainParts['bTag'] ):
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2017", btagcut)
     elif ('bhmv2c10' in chainParts['bTag']) :
         # MV2c10hybrid tagger series 
@@ -748,6 +802,13 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     btagmult = chainParts['multiplicity']
     btagcut = chainParts['bTag']
     btagcut = btagcut[1:]
+
+    ### changes for HH4b (bXX instead of bmv2c10XX)
+    ### Should not happen since non-split chains are disabled now
+    if ( btagcut == '40' or btagcut == '50' or
+         btagcut == '60' or btagcut == '70' or
+         btagcut == '77' or btagcut == '85' ):
+        btagcut = 'mv2c10' + btagcut
 
     #import fexes/hypos
     ef_bjetSequence=getEFBjetAllTEInstance()

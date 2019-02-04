@@ -1,4 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+def print_available():
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    defineMenu()
+    available = []
+    for i in range(512):
+      if i==463: continue #reserved for L1_RD2_BGRP14, L1_RD3_BGRP15 now assigned to 510 for partition 3 ATR-17737
+      if i>=509 and i<=511: continue #reserved for CALREQ
+      if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
+    available.sort()
+    print "There are %d available CTP IDs:"%len(available),",".join(available)
+    print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
 
 
 
@@ -1347,8 +1359,33 @@ def defineMenu():
 	
 	#CTPID 494 occupied by L1_J30.31ETA49_BGRP12
 	'L1_CALREQ2' : 511,
-
+  'L1_3MU6' : 100,
+  'L1_J75' : 101,
+  'L1_J175' : 103,
+  'L1_2J15' : 110,
+  'L1_TE5_NZ' : 111,
+  'L1_BCM_Wide' : 112,
+  'L1_J15_NZ' : 118,
+  'L1_2J15_NZ' : 119,
+  'L1_J15_NL' : 121,
+  'L1_2J15_NL' : 123,
+  'L1_ZDC_A_C_BGRP7' : 129,
+  'L1_TAU12_UNPAIRED_ISO' : 158,
+  'L1_TAU12_UNPAIRED_NONISO' : 159,
+  'L1_TAU12_EMPTY' : 160,
+  'L1_TAU12_FIRSTEMPTY' : 162,
+  'L1_ZDC_A_EMPTY' : 169,
+  'L1_ZDC_C_EMPTY' : 170,
+  'L1_ZDC_AND_EMPTY' : 171,
+  'L1_ZDC_AND_UNPAIRED_ISO' : 175,
+  'L1_ZDC_AND_UNPAIRED_NONISO' : 181,
+  'L1_MLZ_A' : 207,
+  'L1_MLZ_C' : 233,
+  'L1_MBLZ' : 239,
+  'L1_LHCF_EMPTY' : 252,
+  'L1_LHCF_UNPAIRED_ISO' : 284,
 	}
 
     Lvl1Flags.prescales = {}
-    
+
+if __name__ == "__main__": print_available()    
