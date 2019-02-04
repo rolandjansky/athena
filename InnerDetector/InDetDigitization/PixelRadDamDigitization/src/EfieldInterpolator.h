@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
  *  Author Lennart Adam <lennart.adam@cern.ch> July 2018
  *  
