@@ -22,7 +22,7 @@
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Propagator/detail/StandardAbortConditions.hpp"
+#include "Acts/Propagator/detail/StandardAborters.hpp"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
 
