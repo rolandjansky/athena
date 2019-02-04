@@ -23,10 +23,15 @@ def saveHisto(plot_options, histo):
     c1 = ROOT.TCanvas(Canvas_Name, "canvas", 800 , 600)
     
     c1.cd()
-    c1.SetTopMargin(0.15)
-    c1.SetRightMargin(0.18)
-    c1.SetLeftMargin(0.12)
-    if histo.GetDimension() == 1: histo.Draw()
+    c1.SetTopMargin(0.13)
+    if histo.GetDimension() == 2:
+        c1.SetRightMargin(0.15)
+        c1.SetLeftMargin(0.12)
+    if histo.GetDimension() == 1: 
+        histo.SetLineColor(ROOT.kRed)
+        histo.SetLineWidth(2)
+        
+        histo.Draw()
     else: histo.Draw("colz")
     DrawTLatex(c1.GetLeftMargin(), 0.92,"%s (%s)" %(histo.GetTitle(), "corrected" if plot_options.useCorrectedCones else "vanilla") )
     
@@ -35,7 +40,6 @@ def saveHisto(plot_options, histo):
     
     return True
 if __name__ == '__main__':
-    ROOT.gStyle.SetPalette(ROOT.kViridis)
     parser = argparse.ArgumentParser(description='This script generates validation plots of the isolation correction tool. For more help type \"python plotIsoValidation.py -h\"',
                                      prog='plotIsoValidation',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -100,6 +104,12 @@ if __name__ == '__main__':
     Muon_Topo_polution_dR.GetXaxis().SetTitle("#Delta R (#mu, #it{l})")
     Muon_Topo_polution_dR.GetYaxis().SetTitle("E_{T}^{CaloIsolation} (muons) / E_{T}( Associated close-by cluster)")
     
+    N_Isolated_Muon = ROOT.TH1D("N_muons", "Isolated #mu", 6, 0, 6);
+    N_Isolated_Muon.GetXaxis().SetTitle("N(#mu) - passing iso WP" );
+    
+    N_Isolated_Elec = ROOT.TH1D("N_elec", "Elec #mu", 6, 0, 6);
+    N_Isolated_Elec.GetXaxis().SetTitle("N(e) - passing iso WP");
+    
     AllHistos = [Elec_Track_Iso, 
                  Elec_Calo_Iso ,  
                  Muon_Track_Iso, 
@@ -112,6 +122,8 @@ if __name__ == '__main__':
                  Elec_Topo_polution_dR,
                  Muon_Track_polution_dR,
                  Muon_Topo_polution_dR ,
+                 N_Isolated_Muon,
+                 N_Isolated_Elec,
                  ]
     treeReader = ROOT.TTreeReader("IsoCorrTest", inFile)
     branch_names = [ B.GetName() for B in anaTree.GetListOfBranches() ]
@@ -160,6 +172,8 @@ if __name__ == '__main__':
     el_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader,  "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig", el_trk_cone_names[0])) if len(el_trk_cone_names) > 0 else None
     el_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig",el_calo_cone_names[0])) if len(el_calo_cone_names) > 0 else None
     
+    el_pass_iso =  ROOT.TTreeReaderArray(bool)(treeReader,  "Muons_%sPassIso"%("Corr" if options.useCorrectedCones else "Orig"))
+    mu_pass_iso =  ROOT.TTreeReaderArray(bool)(treeReader, "Electrons_%sPassIso"%("Corr" if options.useCorrectedCones else "Orig"))
         
     
     while treeReader.Next():
@@ -168,6 +182,9 @@ if __name__ == '__main__':
         
         elec_t_calo_vec = []
         muon_t_calo_vec = []
+       
+        N_Isolated_Elec.Fill(len([i for i in range(el_pass_iso.GetSize()) if el_pass_iso[i] == True]))
+        N_Isolated_Muon.Fill(len([i for i in range(mu_pass_iso.GetSize()) if mu_pass_iso[i] == True]))
         
         for m in range(mu_pt.GetSize()):
             mu = ROOT.TLorentzVector()
@@ -219,7 +236,7 @@ if __name__ == '__main__':
     ROOT.gROOT.Macro("rootlogon.C")
     ROOT.gROOT.SetStyle("ATLAS")
     ROOT.gROOT.SetBatch(1)
-    #gc.disable()
+    ROOT.gStyle.SetPalette(ROOT.kViridis)
     if not os.path.exists(options.outDir):
         print "INFO: Create directory %s"%(options.outDir)
         os.system("mkdir -p %s"%(options.outDir))
