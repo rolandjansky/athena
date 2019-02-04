@@ -92,7 +92,7 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
   const CaloIdManager* caloId_mgr = m_caloDetDescrManager->getCalo_Mgr();
   m_emID = caloId_mgr->getEM_ID();
   
-  m_caloGeo = new CaloGeometryFromCaloDDM();
+  m_caloGeo = std::make_unique<CaloGeometryFromCaloDDM>();
   m_caloGeo->LoadGeometryFromCaloDDM(m_caloDetDescrManager);
   if(!m_caloGeo->LoadFCalChannelMapFromFCalDDM(fcalManager) )ATH_MSG_FATAL("Found inconsistency between FCal_Channel map and GEO file. Please, check if they are configured properly.");
 
@@ -128,7 +128,7 @@ StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
 
   // get neural net JSON file as an std::istream object
   std::string inputFile=PathResolverFindCalibFile(m_paramsFilename);
-  if (inputFile==""){
+  if (inputFile.empty()){
     ATH_MSG_ERROR("Could not find json file " << m_paramsFilename );
     return StatusCode::FAILURE;
   } 
@@ -138,7 +138,7 @@ StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
   ATH_MSG_INFO("Using json file " << inputFile );
   std::ifstream input(inputFile);
   // build the graph
-  m_graph=new lwt::LightweightGraph(lwt::parse_json_graph(input));
+  m_graph=std::make_unique<lwt::LightweightGraph>(lwt::parse_json_graph(input) );
   if (m_graph==nullptr){
     ATH_MSG_ERROR("Could not create LightWeightGraph from  " << m_paramsFilename );
     return StatusCode::FAILURE;
@@ -354,11 +354,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
 
   // add network output energy in the right place in the calorimeter
-  //NOT NEEDED std::vector<CaloCell*>::iterator windowCell;
   int itr = 0;
-
-  // switch to cpp 11 style
-  //  for ( windowCell = m_windowCells.begin(); windowCell != m_windowCells.end(); ++windowCell ) {
   for ( auto & windowCell : m_windowCells) {
     windowCell->addEnergy(trueEnergy * outputs[std::to_string(itr)]);
     itr++;

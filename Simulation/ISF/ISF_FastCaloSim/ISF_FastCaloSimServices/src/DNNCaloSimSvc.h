@@ -84,7 +84,7 @@ namespace ISF {
       std::string m_paramsFilename;
       std::string m_paramsInputArchitecture;
 
-      lwt::LightweightGraph * m_graph ;
+      std::unique_ptr<lwt::LightweightGraph> m_graph;
       
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease ;
@@ -100,7 +100,7 @@ namespace ISF {
       
 
       const CaloDetDescrManager* m_caloDetDescrManager;
-      CaloGeometryFromCaloDDM* m_caloGeo;
+      std::unique_ptr<CaloGeometryFromCaloDDM> m_caloGeo;
       const LArEM_ID* m_emID;
       std::vector<CaloCell*> m_windowCells;
 
