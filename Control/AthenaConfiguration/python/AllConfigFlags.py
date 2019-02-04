@@ -75,13 +75,13 @@ def _createCfgFlags():
 
 #LAr Flags:
     try:
-        import LArCellRec # Suppress flake8 unused import warning: # noqa: F401
-        haveLArCellRec = True
+        import LArConfiguration # Suppress flake8 unused import warning: # noqa: F401
+        haveLArConfiguration = True
     except ImportError:
-        haveLArCellRec = False
+        haveLArConfiguration = False
 
-    if haveLArCellRec:
-        from LArCellRec.LArConfigFlags import createLArConfigFlags
+    if haveLArConfiguration:
+        from LArConfiguration.LArConfigFlags import createLArConfigFlags
         lcf=createLArConfigFlags()
         acf.join(lcf)
 

@@ -202,6 +202,7 @@
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArSimEventAthenaPool
 + LArCalorimeter/LArCnv/LArSimEventTPCnv
++ LArCalorimeter/LArConfiguration
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
 + LArCalorimeter/LArExample/LArConditionsCommon
