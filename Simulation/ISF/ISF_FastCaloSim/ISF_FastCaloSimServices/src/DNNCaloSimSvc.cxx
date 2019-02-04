@@ -267,6 +267,7 @@ StatusCode ISF::DNNCaloSimSvc::releaseEvent()
 }
 bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
 {
+  static CaloPhiRange range;
   CaloCell_ID::CaloSample aSampling = a->caloDDE()->getSampling();
   CaloCell_ID::CaloSample bSampling = b->caloDDE()->getSampling();
 
@@ -286,26 +287,16 @@ bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
   else if ((aEtaRaw) > (bEtaRaw))
     return true;
 
-  if (((aPhiRaw) > (bPhiRaw))){
-    // check for pi -pi discontinuity
-    // FIXME use range;diff instead
-    if ((((aPhiRaw) - (bPhiRaw))) > CLHEP::pi ){
-      return true;
-    }
-    else
-      return false;
-  }
-  // check for pi -pi discontinuity
-  else if ((((bPhiRaw) - (aPhiRaw))) > CLHEP::pi ){
+  if (range.diff(aPhiRaw, bPhiRaw) > 0){
     return false;
   }
-        
 
   return true;
 }
 
 bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
 {
+  static CaloPhiRange range;
   CaloCell_ID::CaloSample aSampling = a->caloDDE()->getSampling();
   CaloCell_ID::CaloSample bSampling = b->caloDDE()->getSampling();
 
@@ -325,20 +316,10 @@ bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
   else if ((aEtaRaw) > (bEtaRaw))
     return false;
 
-  if (((aPhiRaw) > (bPhiRaw))){
-    // check for pi -pi discontinuity
-    if ((((aPhiRaw) - (bPhiRaw))) > CLHEP::pi ){
-      return true;
-    }
-    else
-      return false;
-  }
-  // check for pi -pi discontinuity
-  else if ((((bPhiRaw) - (aPhiRaw))) > CLHEP::pi ){
+if (range.diff(aPhiRaw, bPhiRaw) > 0){
     return false;
   }
-        
-
+  
   return true;
 }
 
