@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHeapSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
@@ -68,6 +68,7 @@ ArenaAllocatorBase::Params ArenaHeapSTLAllocator_initParams<T>::params() const
  *               allocator name.
  */
 template <class T, class VETO>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
    : m_pool (ArenaHeapSTLAllocator_initParams<T> (nblock, name))
@@ -81,6 +82,7 @@ ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
  * The @c name and @c nblock parameters are copied, but the data are not.
  */
 template <class T, class VETO>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
   (const ArenaHeapSTLAllocator& a)
     : m_pool (ArenaHeapSTLAllocator_initParams<T> (a.nblock(), a.name()))
@@ -95,6 +97,7 @@ ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
  */
 template <class T, class VETO>
 template <class U, class V>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
   (const ArenaHeapSTLAllocator<U, V>& a)
     : m_pool (ArenaHeapSTLAllocator_initParams<T> (a.nblock(), a.name()))
@@ -399,6 +402,7 @@ const ArenaAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
  *               allocator name.
  */
 template <class T>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaHeapSTLAllocator<T, T>::ArenaHeapSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
     : m_nblock (nblock),
@@ -415,6 +419,7 @@ ArenaHeapSTLAllocator<T, T>::ArenaHeapSTLAllocator
  */
 template <class T>
 template <class U, class V>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaHeapSTLAllocator<T, T>::ArenaHeapSTLAllocator
   (const ArenaHeapSTLAllocator<U, V>& a)
     : m_nblock (a.nblock()),
