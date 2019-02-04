@@ -18,7 +18,7 @@ def TrigIDPhysValMonitoringTool():
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
-    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False ):
+    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False, doFS=False ):
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
@@ -40,6 +40,11 @@ def TrigIDPhysValMonitoringTool():
 #       use default values ? 
 #       TestIDPhysValMon.sctHitsOffline = 1
 #       TestIDPhysValMon.pixHitsOffline = 1
+        if (doFS == True):
+          TestIDPhysValMon.sctHitsOffline = 6
+          TestIDPhysValMon.pixHitsOffline = 4
+          TestIDPhysValMon.blayerHitsOffline = 1
+          TestIDPhysValMon.pixHolesOffline = 1
       elif (rec.doTruth == True):        
         TestIDPhysValMon.mcTruth = True
         TestIDPhysValMon.ntupleChainNames = ['Truth']
@@ -72,6 +77,17 @@ def TrigIDPhysValMonitoringTool():
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
+    name = "Electron_offline"
+    pdgid = 11
+    useHighestPT = True
+    cosmic=False
+    useOffline=True
+    chainnames = [
+      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
+
     ############### Muons ###############
     name = "Muon"
     pdgid = 13
@@ -81,6 +97,18 @@ def TrigIDPhysValMonitoringTool():
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
+    ############### Muons ###############
+    name = "Muon_offline"
+    pdgid = 13
+    useHighestPT = True
+    cosmic=False
+    useOffline=True
+    chainnames = [
+      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
 
     ############### Taus ###############
     name = "Tau"
@@ -93,6 +121,20 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
+    ############### Taus ###############
+    name = "Tau_offline"
+    pdgid = 15
+    useHighestPT = True
+    cosmic=False
+    useOffline=True
+    chainnames = [
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
 
     ############### Bjets ###############
     name = "Bjet"
@@ -108,6 +150,22 @@ def TrigIDPhysValMonitoringTool():
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
+    ############### Bjets ###############
+    name = "Bjet_offline"
+    pdgid = 5
+    useHighestPT = False
+    cosmic=False
+    useOffline=True
+    chainnames = [
+      "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+      "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+      "HLT_mu.*b.*perf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+      "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
+
     ############### Bphys ###############
     name = "Bphys"
     pdgid = 0 # Doesn't make sense
@@ -117,6 +175,18 @@ def TrigIDPhysValMonitoringTool():
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
+    ############### Bphys ###############
+    name = "Bphys_offline"
+    pdgid = 0 # Doesn't make sense
+    useHighestPT = False
+    cosmic=False
+    useOffline=True
+    chainnames = [
+      "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+      "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
 
     ############### Cosmics ###############
     name = "Cosmic"
@@ -207,6 +277,26 @@ def TrigIDPhysValMonitoringTool():
     ]
     
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
+
+
+    ################################################
+    # FTK fullscan monitoring              
+    ################################################
+
+    name = "FTKFS_offline"
+    pdgid = 0
+    useHighestPT = False
+    useOffline = True
+    cosmic = False
+    doFS=True
+
+    chainnames = [
+      # full scan analysis
+      ":key=FTK_TrackParticleContainer",
+      ":key=FTK_TrackParticleContainerRefit"
+    ]
+    
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline, doFS)]
 
 
     # # purity analysis
