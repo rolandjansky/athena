@@ -46,21 +46,14 @@ def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **
     if readVtxPosFromFile:
         kwargs.setdefault("VertexShifters"          , [ Simulation__VertexPositionFromFile("VertexPositionFromFile") ])
     elif ConfigFlags.Vertex.Source == "CondDB" :
+        acc, tool = makeVertexBeamCondPositioner(ConfigFlags) 
+        result.merge(acc)
         kwargs.setdefault("VertexShifters"          , [ Simulation__VertexBeamCondPositioner('VertexBeamCondPositioner') ])
     elif ConfigFlags.Vertex.Source == "LongBeamspotVertexPositioner":
         kwargs.setdefault("VertexShifters"          , [ Simulation__LongBeamspotVertexPositioner('LongBeamspotVertexPositioner') ])
 
-    #for debugging
-    print(ConfigFlags.Vertex.Source)
-    print(ConfigFlags.Vertex.Source == "VertexOverrideFile.txt")
-    print(readVtxPosFromFile)
-    print(kwargs)
     
-
-    acc, alg = makeVertexBeamCondPositioner(ConfigFlags) #pass in config flags here?
-
-    result.merge(acc)
-    return result, Simulation__GenEventVertexPositioner(name, **kwargs) #return acc, alg
+    return result, Simulation__GenEventVertexPositioner(name, **kwargs)
 
 #--------------------------------------------------------------------------------------------------
 ## LorentzVectorGenerators
@@ -72,14 +65,14 @@ def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **
     from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
     from RngComps.RandomServices import RNG, AthEngines
 
-    from AthenaCommon.Constants import VERBOSE
     result = ComponentAccumulator()
     
     Engine = ConfigFlags.Random.Engine
     kwargs.setdefault('RandomSvc', AthEngines[Engine])
     
     
-    kwargs.setdefault('OutputLevel', VERBOSE) #Add verbose output to the tool
+    #from AthenaCommon.Constants import VERBOSE
+    #kwargs.setdefault('OutputLevel', VERBOSE) #if we wish to add verbose output to the tool
     
     result.merge(addFoldersSplitOnline(ConfigFlags,"INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList'))
     result.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg"))
@@ -110,18 +103,18 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     acc = ComponentAccumulator()
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
 
-    # Set default properties (todo - check if we can remove ISFRun and InputMCEventCollection?)
-    alg.ISFRun = False # or True?! seems to have no difference
+    # Set default properties
+    alg.ISFRun = False 
     alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
-    accVertexPositioner, algVertexPositioner = makeGenEventVertexPositioner(ConfigFlags)
+    accVertexPositioner, toolVertexPositioner = makeGenEventVertexPositioner(ConfigFlags)
 
      # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
     manipulators.append(makeGenEventRotator())
-    manipulators.append(algVertexPositioner) 
+    manipulators.append(toolVertexPositioner) 
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
     # manipulators.append(makeVertexPositionFromFile()) # todo
     # manipulators.append(makeCrabKissingVertexPositioner()) # todo Callback registration failed
