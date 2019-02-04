@@ -349,6 +349,17 @@ double ETmin = 0;
 bool SelectObjectET(const TrackTrigObject& t) { return std::fabs(t.pt())>ETmin; }
 
 
+double ETovPTmin = 0;
+
+bool SelectObjectETovPT(const TrackTrigObject& tobj, TIDA::Track* t=0) {
+  bool ETselection = std::fabs(tobj.pt())>=ETmin;
+  bool ETovPTselection = true;
+  if ( t ) ETovPTselection = std::fabs(tobj.pt()/t->pT())>=ETovPTmin;
+  return ETselection&ETovPTselection;
+}
+
+
+
 int main(int argc, char** argv) 
 {
 
@@ -535,6 +546,7 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("pT") )      pT    = inputdata.GetValue("pT");
   if ( inputdata.isTagDefined("ET") )      ETmin = inputdata.GetValue("ET");
+  if ( inputdata.isTagDefined("ETovPT") )  ETovPTmin = inputdata.GetValue("ETovPT");
 
   /// here we set a pTMax value less than pT, then only set the max pT in the 
   /// filter if we read a pTMax value *greater* than pT
@@ -1620,8 +1632,12 @@ int main(int argc, char** argv)
 
 	/// get objects if requested
 
+	//	tom = true;
+
+	ETovPTmin = ETmin;
+
 	if ( chains[ic].rois()[0].objects().size()>0 ) { 
-	  tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectET );
+	  tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectETovPT );
 	}
 
 	break;
