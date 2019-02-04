@@ -6,6 +6,17 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 import re
 
+# These algorithms set up the jet recommendations as-of 04/02/2019.
+# Jet calibration recommendations
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
+# Jet uncertainties recommendations
+# Small-R
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
+# Large-R
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
+# JVT recommendations
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JVTCalibrationRel21
+
 # Keep the different possible sets of systematics here.
 # All possible large-R jet systematics
 largeRSysts = "|".join([
@@ -326,8 +337,6 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
     alg.uncertaintiesTool.MCType = "MC16a"
     alg.uncertaintiesTool.IsData = (dataType == "data")
-    from __main__ import VERBOSE
-    alg.OutputLevel = VERBOSE
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
                 affectingSystematics = largeRSysts )
 
