@@ -72,8 +72,8 @@ namespace EL
 	   end = job.outputEnd(); out != end; ++ out)
     {
       Detail::OutputStreamData data;
-      data.m_writer.reset
-        (out->output()->makeWriter (sample->name(), "", -1, ".root"));
+      data.m_writer =
+        out->output()->makeWriter (sample->name(), "", ".root");
       ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
     }
 

@@ -82,8 +82,8 @@ namespace EL
 	   end = m_job->job.outputEnd(); out != end; ++ out)
     {
       Detail::OutputStreamData data;
-      data.m_writer.reset
-        (out->output()->makeWriter ("", m_segment->name, -1, ".root"));
+      data.m_writer =
+        out->output()->makeWriter (m_segment->sampleName, m_segment->segmentName, ".root");
       ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
     }
  
@@ -116,9 +116,9 @@ namespace EL
   {
     try
     {
-      std::auto_ptr<TFile> file (TFile::Open (confFile, "READ"));
+      std::unique_ptr<TFile> file (TFile::Open (confFile, "READ"));
       RCU_ASSERT_SOFT (file.get() != 0);
-      std::auto_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
+      std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
       RCU_ASSERT_SOFT (job.get() != 0);
       RCU_ASSERT_SOFT (job_id < job->segments.size());
       BatchSegment *segment = &job->segments[job_id];
@@ -132,7 +132,7 @@ namespace EL
       BatchWorker worker (job.get(), sample, segment);
       worker.setMetaData (&sample->meta);
       worker.setOutputHist (job->location + "/fetch");
-      worker.setSegmentName (segment->name);
+      worker.setSegmentName (segment->fullName);
       worker.run (job.get());
 
       std::ostringstream job_name;
