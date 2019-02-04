@@ -46,7 +46,7 @@ public:
 
   //! AlgTool constructor 
   SCT_ClusterOnTrackTool(const std::string&,const std::string&,const IInterface*);
-  virtual ~SCT_ClusterOnTrackTool ();
+  virtual ~SCT_ClusterOnTrackTool () = default;
   //! AlgTool initialisation
   virtual StatusCode initialize();
   //! AlgTool termination

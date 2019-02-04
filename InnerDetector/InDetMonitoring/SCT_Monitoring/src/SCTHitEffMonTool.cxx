@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Tool to measure the intrinsic single hit efficiency in the SCT
@@ -313,10 +313,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   for (unsigned int i(0); i != m_xlResidualUnasHisto.size(); ++i) {
     m_xlResidualUnasHisto[i].fill(0);
   }
-}
-
-/*---------------------------------------------------------*/
-SCTHitEffMonTool::~SCTHitEffMonTool() {
 }
 
 /*---------------------------------------------------------*/

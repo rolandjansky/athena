@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DetectorTool.h"
@@ -13,11 +13,8 @@
 #include "DetDescrConditions/AlignableTransformContainer.h"
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "StoreGate/DataHandle.h"
-#include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
@@ -44,13 +41,6 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
   declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-}
-
-//
-// Destructor
-//
-SCT_DetectorTool::~SCT_DetectorTool()
-{
 }
 
 //

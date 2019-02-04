@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,12 +43,6 @@ SCT_TB03_RawData::SCT_TB03_RawData(const Identifier rdoId, const unsigned int wo
   m_tbin = tbin;
   m_stream = stream;  
 }
-
-// Destructor:
-//should I be destructing something here?
-SCT_TB03_RawData::~SCT_TB03_RawData()
-{}
-
 
 //SCT_TB03_RawData *SCT_TB03_RawData::newObject(const Identifier rdoId, const unsigned int word)
 //{

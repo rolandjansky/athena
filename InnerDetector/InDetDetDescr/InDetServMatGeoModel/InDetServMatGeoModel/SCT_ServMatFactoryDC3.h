@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC3_H
@@ -24,7 +24,7 @@ class SCT_ServMatFactoryDC3 : public InDetDD::SubDetectorFactoryBase  {
 			InDetMaterialManager * matManager);
   
   // Destructor:
-  ~SCT_ServMatFactoryDC3();
+  virtual ~SCT_ServMatFactoryDC3() = default;
   
   // Creation of geometry:
   void create(GeoPhysVol *mother);
