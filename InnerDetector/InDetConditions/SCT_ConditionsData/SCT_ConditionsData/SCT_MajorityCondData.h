@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,7 @@ public:
   // Constructor
   SCT_MajorityCondData();
   // Destructor
-  virtual ~SCT_MajorityCondData();
+  virtual ~SCT_MajorityCondData() = default;
 
   // Set majority state for a region
   void setMajorityState(const int& region, const bool& majorityState);

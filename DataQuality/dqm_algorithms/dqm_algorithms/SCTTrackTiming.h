@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_SCTTRACKTIMING_H
@@ -17,7 +17,7 @@ public:
 
   SCTTrackTiming();
   
-  virtual ~SCTTrackTiming();
+  virtual ~SCTTrackTiming() = default;
   virtual dqm_core::Algorithm*  clone();
   virtual dqm_core::Result*     execute( const std::string& name, 
 					 const TObject& data,

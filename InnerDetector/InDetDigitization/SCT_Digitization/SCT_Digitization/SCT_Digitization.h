@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_Digitization.h  Header file for SCT_Digitization class.
@@ -29,7 +29,7 @@ class SCT_Digitization : public AthAlgorithm {
   SCT_Digitization(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** Destructor */
-  ~SCT_Digitization();
+  virtual ~SCT_Digitization() = default;
     
   /** Basic algorithm methods */
   virtual StatusCode initialize();

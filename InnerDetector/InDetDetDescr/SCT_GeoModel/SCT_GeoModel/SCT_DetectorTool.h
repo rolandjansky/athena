@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_DETECTORTOOL_H
@@ -8,13 +8,13 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "SCT_GeoModel/SCT_GeoModelAthenaComps.h" 
 
+#include "GeometryDBSvc/IGeometryDBSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
-
-class IGeoDbTagSvc;
-class IRDBAccessSvc;
-class IGeometryDBSvc;
 
 namespace InDetDD {
   class SCT_DetectorManager;
@@ -25,9 +25,6 @@ class SCT_DetectorTool : public GeoModelTool {
 public:
   // Standard Constructor
   SCT_DetectorTool(const std::string& type, const std::string& name, const IInterface* parent);
-
-  // Standard Destructor
-  virtual ~SCT_DetectorTool() override final;
 
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
