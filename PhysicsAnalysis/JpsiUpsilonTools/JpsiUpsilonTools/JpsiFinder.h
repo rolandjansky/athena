@@ -74,12 +74,12 @@ namespace Analysis {
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
         StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer);
-        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::TrackParticle*>);
-        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::Muon*>);
-        std::vector<JpsiCandidate> getPairs2Colls(std::vector<const xAOD::TrackParticle*>,std::vector<const xAOD::Muon*>, bool);
-        double getInvariantMass(JpsiCandidate,std::vector<double> );
-        std::vector<JpsiCandidate> selectCharges(std::vector<JpsiCandidate> , std::string);
-        xAOD::Vertex* fit(std::vector<const xAOD::TrackParticle*>,const xAOD::TrackParticleContainer* importedTrackCollection);
+        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&);
+        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::Muon*>&);
+        std::vector<JpsiCandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Muon*>&, bool);
+        double getInvariantMass(const JpsiCandidate&, const std::vector<double>& );
+        std::vector<JpsiCandidate> selectCharges(const std::vector<JpsiCandidate>& , const std::string&);
+        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection);
         bool passesMCPCuts(const xAOD::Muon*);
         bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*);
         TVector3 trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
@@ -116,7 +116,7 @@ namespace Analysis {
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
-        ToolHandle < InDet::ConversionFinderUtils > m_helpertool;
+        ToolHandle < InDet::ConversionFinderUtils > m_helpertool;//unused remove later
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
         bool m_mcpCuts;
         bool m_doTagAndProbe;

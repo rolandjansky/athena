@@ -114,10 +114,7 @@ namespace ana
 
     cut_Eta.setPassedIf (std::fabs(electron.caloCluster()->etaBE(2)) < 2.47);
 
-    if(m_wp == WPType::_Hmumu){
-      cut_Pt.setPassedIf (electron.pt() > 15.e3);
-    }else 
-      cut_Pt.setPassedIf (electron.pt() > 7.e3);
+    cut_Pt.setPassedIf (electron.pt() > 7.e3);
 
     if(m_selection == "VLooseLLH") {
       bool passID = electron.isAvailable<char>("DFCommonElectronsLHVeryLoose") ?
@@ -256,7 +253,7 @@ namespace ana
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzz4l", makeHZZElectronTool (args))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l", makeHZZElectronTool (args, "LooseAndBLayerLLH", WPType::_SMZZ4l))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l_veryloose", makeHZZElectronTool (args, "VLooseLLH", WPType::_SMZZ4l))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "Loose"))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "Loose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FCLoose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FCLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "Loose"))
 }

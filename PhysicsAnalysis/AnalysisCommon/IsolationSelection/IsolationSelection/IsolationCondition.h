@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_ISOLATIONCONDITION_H
@@ -50,9 +48,7 @@ namespace CP {
         private:
             std::string m_name;
             std::vector<xAOD::Iso::IsolationType> m_isolationType;
-            std::vector<SG::AuxElement::Accessor<float>*> m_acc;
-            //Flag to indicate use of custom vs. predefined accessor, to know if it should be deleted in the destructor.
-            bool m_customAcc;
+            std::vector< std::unique_ptr<SG::AuxElement::Accessor<float>>> m_acc;           
         protected:
             float m_cutValue;
     };

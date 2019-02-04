@@ -86,14 +86,6 @@ namespace DerivationFramework {
              ATH_MSG_INFO("Retrieved service " << m_beamSpotSvc);
         }        
 
-        // Get the helpertool from ToolSvc
-        if ( m_helpertool.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_helpertool);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_helpertool);
-        }
-        
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -116,7 +108,6 @@ namespace DerivationFramework {
     m_iV0VertexFitter("Trk::V0VertexFitter"),
     m_V0Tools("Trk::V0Tools"),
     m_trkSelector("InDet::TrackSelectorTool"),
-    m_helpertool("InDet::ConversionFinderUtils"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_beamSpotSvc("BeamCondSvc",n) 
     {
@@ -130,7 +121,6 @@ namespace DerivationFramework {
         declareProperty("V0VertexFitterTool",m_iV0VertexFitter);
         declareProperty("V0Tools",m_V0Tools);
         declareProperty("TrackSelectorTool",m_trkSelector);
-        declareProperty("ConversionFinderHelperTool",m_helpertool);
         declareProperty("VertexPointEstimator",m_vertexEstimator);
     }
     

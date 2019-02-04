@@ -53,10 +53,14 @@ atlas_add_component(ThinningUtils
   src/ThinNegativeEnergyNeutralPFOsAlg.h   src/ThinNegativeEnergyNeutralPFOsAlg.cxx
   src/ThinTrackParticlesAlg.h              src/ThinTrackParticlesAlg.cxx
   src/ThinTrackParticlesTool.cxx           src/ThinTrackParticlesTool.h
+  src/ThinAssociatedObjectsTool.cxx        src/ThinAssociatedObjectsTool.h
+  src/EleLinkThinningTool.cxx              src/EleLinkThinningTool.h
+  src/DeltaRThinningTool.cxx               src/DeltaRThinningTool.h
   src/components/*.cxx ${extra_src}
   LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
   xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
-  xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib ${extra_libs})
+  xAODTracking xAODTruth xAODBTagging GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib ${extra_libs})
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
