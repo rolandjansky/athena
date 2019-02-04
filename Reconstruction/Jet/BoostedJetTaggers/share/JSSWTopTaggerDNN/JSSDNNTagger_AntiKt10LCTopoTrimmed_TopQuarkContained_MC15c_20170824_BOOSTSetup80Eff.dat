@@ -17,8 +17,8 @@ TaggerType: TopQuark
 
 DecorationName: DNNTaggerTopQuark80
 
-CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
-#CalibArea: Local
+#CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
+CalibArea: Local
 
 KerasConfigFile: 6JuneTopTaggingContained.json
 
@@ -29,3 +29,10 @@ MassCutLow: 40.0
 MassCutHigh: 999999999.0
 
 ScoreCut: (1.18707)*pow(x,0)+(-0.00148469)*pow(x,1)+(1.58731e-06)*pow(x,2)+(-7.476e-10)*pow(x,3)+(1.29849e-13)*pow(x,4)
+
+CalcSF: true
+WeightFile: test2.root
+WeightDecorationName: SF
+WeightHistogramName: weightHistogram
+WeightFlavors: t_qqb,W_qq,q
+TruthLabelDecorationName: WTopContainmentTruthLabel

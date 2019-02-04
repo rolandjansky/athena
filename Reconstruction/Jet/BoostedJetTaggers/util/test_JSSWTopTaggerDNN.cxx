@@ -23,6 +23,7 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include <xAODJet/JetContainer.h>
+#include <xAODTruth/TruthParticleContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
@@ -33,7 +34,8 @@
 
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
-#include "JetInterface/IJetSelector.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "BoostedJetTaggers/IJetTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 using namespace std;
@@ -108,7 +110,6 @@ int main( int argc, char* argv[] ) {
     Info( APP_NAME, "Argument (-v) : Setting verbose");
   }
 
-
   ////////////////////////////////////////////////////
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
@@ -133,10 +134,17 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  TFile* outputFile = TFile::Open( "output_BoostedXbbTagger.root", "recreate" );
-  int pass;
+  TFile* outputFile = TFile::Open( "output_JSSWTopTaggerDNN.root", "recreate" );
+  int pass,truthLabel,isMatchTophad;
+  float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
+  Tree->Branch( "sf", &sf, "sf/F" );
+  Tree->Branch( "pt", &pt, "pt/F" );
+  Tree->Branch( "m", &m, "m/F" );
+  Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "isMatchTophad", &isMatchTophad, "isMatchTophad/I" );
+  Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -148,9 +156,11 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing JSSWTopTaggerDNN Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
-  ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
+  asg::AnaToolHandle<CP::IJetTagger> m_Tagger; //!
+  ASG_SET_ANA_TOOL_TYPE( m_Tagger, CP::JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
+  m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
+
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat");
   m_Tagger.retrieve();
@@ -179,21 +189,86 @@ int main( int argc, char* argv[] ) {
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
+      continue;
+    const xAOD::JetContainer* myTruthJets = 0;
+    if( event.retrieve( myTruthJets, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
       continue ;
+    const xAOD::TruthParticleContainer* myTruthParts = 0;
+    if( event.retrieve( myTruthParts, "TruthParticles" ) != StatusCode::SUCCESS ) continue;
 
+    const xAOD::TruthParticleContainer* myTruthPartsW = 0;
+    if( event.retrieve( myTruthPartsW, "TruthParticles" ) != StatusCode::SUCCESS) {
+      if ( event.retrieve( myTruthPartsW, "TruthWBosons" ) != StatusCode::SUCCESS )
+	continue ;
+    }
+    const xAOD::TruthParticleContainer* myTruthPartsZ = 0;
+    if( event.retrieve( myTruthPartsZ, "TruthParticles" ) != StatusCode::SUCCESS) {
+      if ( event.retrieve( myTruthPartsZ, "TruthZBosons" ) != StatusCode::SUCCESS )
+	continue ;
+    }
+    const xAOD::TruthParticleContainer* myTruthPartsTop = 0;
+    if( event.retrieve( myTruthPartsTop, "TruthParticles" ) != StatusCode::SUCCESS) {
+      if ( event.retrieve(myTruthPartsTop, "TruthTopQuarksFinal" ) != StatusCode::SUCCESS ) 
+      continue ;
+    }
     // Loop over jet container
     for(const xAOD::Jet* jet : * myJets ){
-
+      
+      isMatchTophad=false;
+      for( auto part : *myTruthPartsTop ){
+	if ( fabs(part->pdgId()) != 6 ) continue; // top
+	if ( part->nChildren() < 2 ) continue; // skip self-decay	
+	if( part->p4().DeltaR(jet->p4()) < 1. ) {
+	  for ( unsigned int iChild=0; iChild<part->nChildren(); iChild++ ){
+	    const xAOD::TruthParticle* child=part->child(iChild);
+	    if ( child->pdgId() == 24 ) {
+	      while ( child->nChildren() == 1 ){
+		child = child->child(0); // skip W self-decay	      
+	      }
+	      for ( unsigned int iWchild=0; iWchild<child->nChildren(); iWchild++ ){
+		const xAOD::TruthParticle* Wchild=child->child(iWchild);
+		if ( 1 <= fabs(Wchild->pdgId()) && fabs(Wchild->pdgId()) <=5 ) {
+		  isMatchTophad=true;
+		}		
+	      }
+	    }
+	  }
+	  break;
+	}
+      }
+      
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
-      const Root::TAccept& res = m_Tagger->tag( *jet );
-      std::cout<<"RunningTag : "<<res<<std::endl;
-      std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
-      std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
-      std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
+      //m_Tagger->decorateTruthLabel( *jet,  myTruthJets, myTruthPartsW, myTruthPartsZ, myTruthPartsTop );//,  evtInfo->mcChannelNumber() );
+      m_Tagger->decorateTruthLabel( *jet,  myTruthParts, myTruthJets );
+      truthLabel = (int)jet->auxdata<WTopLabel>("WTopContainmentTruthLabel");
+
+      m_Tagger->applySystematicVariation(CP::SystematicSet("")); // get nominal
+      const Root::TAccept& res = m_Tagger->tag( *jet ); 
+      if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
 
       pass = res;
+      sf = jet->auxdata<float>("DNNTaggerTopQuark80_SF");
+      pt = jet->pt();
+      m  = jet->m();
+      eta = jet->eta();
 
       Tree->Fill();
+
+      if ( jet->pt() > 200e3 && fabs(jet->eta()) < 2.0 && pass ) {
+	std::cout << "Nominal SF : " << jet->auxdata<float>("DNNTaggerTopQuark80_SF") << std::endl;
+	CP::SystematicSet sysSet=m_Tagger->recommendedSystematics();
+	const std::set<std::string> sysNames=sysSet.getBaseNames();
+	for ( auto sysName : sysNames ){
+	  std::cout << sysName << std::endl;
+	  m_Tagger->applySystematicVariation(CP::SystematicSet(sysName+"__1up"));
+	  m_Tagger->tag(*jet);
+	  std::cout << "     up   : " << jet->auxdata<float>("DNNTaggerTopQuark80_SF") << std::endl;
+	  m_Tagger->applySystematicVariation(CP::SystematicSet(sysName+"__1down"));
+	  m_Tagger->tag(*jet);
+	  std::cout << "     down : " << jet->auxdata<float>("DNNTaggerTopQuark80_SF") << std::endl;
+	}
+      }
+      //continue ;    
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );

@@ -12,15 +12,19 @@
 
 #define APP_NAME "JSSWTopTaggerDNN"
 
+namespace CP {
 JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   JSSTaggerBase( name ),
+  m_appliedSystEnum(JSSWTopTaggerDNN_NONE),
   m_name(name),
   m_APP_NAME(APP_NAME),
   m_lwnn(nullptr),
   m_dec_mcutL("mcutL"),
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
-  m_dec_scoreValue("scoreValue")
+  m_dec_scoreValue("scoreValue"),
+  m_dec_weight("weightdec"),
+  m_DSID(-1)
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -37,6 +41,18 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
     declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
 
+    // tagging scale factors
+    declareProperty( "CalcSF",                    m_calcSF = false);
+    declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
+    declareProperty( "WeightFile",                m_weightFileName = "");
+    declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
+    declareProperty( "WeightFlavors",             m_weightFlavors = "");
+    declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "WTopContainmentTruthLabel");
+
+
+    declareProperty( "DSID",             m_DSID = -1);
+
+    //applySystematicVariation(SystematicSet()).ignore();
 }
 
 JSSWTopTaggerDNN::~JSSWTopTaggerDNN() {}
@@ -92,6 +108,16 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // get the decoration name
     m_decorationName = configReader.GetValue("DecorationName" ,"");
 
+    // get the scale factor configuration
+    m_calcSF = configReader.GetValue("CalcSF", false);
+    if(m_calcSF){
+      m_weightdecorationName = configReader.GetValue("WeightDecorationName", "");
+      m_weightFileName = configReader.GetValue("WeightFile", "");
+      m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
+      m_weightFlavors = configReader.GetValue("WeightFlavors", "");
+      m_truthLabelDecorationName = configReader.GetValue("TruthLabelDecorationName", "");
+    }
+
     // print out the configuration parameters for viewing
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
@@ -102,17 +128,27 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
     ATH_MSG_INFO( "strScoreCut            : "<<m_strScoreCut );
     ATH_MSG_INFO( "decorationName         : "<<m_decorationName );
-
+    if(m_calcSF){
+      ATH_MSG_INFO( "weightdecorationName    : "<<m_weightdecorationName );
+      ATH_MSG_INFO( "weightFile              : "<<m_weightFileName );
+      ATH_MSG_INFO( "weightHistogramName     : "<<m_weightHistogramName );
+      ATH_MSG_INFO( "weightFlavors           : "<<m_weightFlavors );
+      ATH_MSG_INFO( "truthLabelDecorationName: "<<m_truthLabelDecorationName );
+    }
   }
   else { // no config file
     // Assume the cut functions have been set through properties.
     // check they are non empty
-    if( m_kerasConfigFileName.empty() ||
+    if((m_kerasConfigFileName.empty() ||
         m_kerasConfigOutputName.empty() ||
         m_strScoreCut.empty() ||
         m_strMassCutLow.empty() ||
         m_strMassCutHigh.empty() ||
-        m_decorationName.empty()) {
+        m_decorationName.empty() || 
+	m_weightFileName.empty()) ||
+       ((m_weightdecorationName.empty() ||
+	 m_weightHistogramName.empty() ||
+	 m_weightFlavors.empty()) && m_calcSF) ) {
       ATH_MSG_ERROR( "No config file provided OR you haven't manually specified all needed parameters" ) ;
       ATH_MSG_ERROR( "Please read the TWiki for this tool" );
       return StatusCode::FAILURE;
@@ -136,6 +172,11 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   dec_name = m_decorationName+"_Score";
   ATH_MSG_INFO( "  "<<dec_name<<" : evaluated MVA score" );
   m_dec_scoreValue = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  if(m_calcSF){
+    dec_name = m_decorationName+"_"+m_weightdecorationName;
+    ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
+    m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  }
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -153,16 +194,20 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     return StatusCode::FAILURE;
   }
   else if(m_calibarea.compare("Local")==0){
-    std::string localCalibArea = "BoostedJetTaggers/share/JSSWTopTaggerDNN/";
+    std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
     m_kerasConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_kerasConfigFileName);
+    if(m_calcSF)
+      m_weightConfigPath = PathResolverFindCalibFile(localCalibArea+m_weightFileName);
   }
   else{
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
     m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_kerasConfigFileName).c_str() );
+    if(m_calcSF)
+      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea+m_weightFileName).c_str());
   }
 
   // read json file for DNN weights
@@ -224,6 +269,42 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
   showCuts();
 
+  // setup scale factors
+  if(m_calcSF){
+    TFile* weightConfig=new TFile( m_weightConfigPath.c_str(), "OPEN" );
+    if( !weightConfig ) {
+      ATH_MSG_INFO( (m_APP_NAME+": Error openning config file : "+m_weightConfigPath.c_str()) );
+      return StatusCode::FAILURE;
+    }
+
+    /*
+    // specify systematic variations relevant for this tool
+    if ( !addAffectingSystematic(JSSWTopTaggerSyst::BkgModelling__1up, true) ||
+	 !addAffectingSystematic(JSSWTopTaggerSyst::BkgModelling__1down, true) ||
+         !addAffectingSystematic(JSSWTopTaggerSyst::stat__1up, true) ||
+	 !addAffectingSystematic(JSSWTopTaggerSyst::stat__1down, true) ||
+	 !addAffectingSystematic(JSSWTopTaggerSyst::syst1__1up, true) ||
+	 !addAffectingSystematic(JSSWTopTaggerSyst::syst1__1down, true)) {
+      ATH_MSG_ERROR("failed to set up JSSWTopTagger systematics");
+      return StatusCode::FAILURE;
+    }
+    */
+
+    // install histograms for tagging SF
+    std::stringstream ss{m_weightFlavors};
+    std::string flavor;
+    while(std::getline(ss, flavor, ',')){
+      m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      //m_weightHistograms_stat__1up.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_stat__1up").c_str()) ) );
+      //m_weightHistograms_stat__1down.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_stat__1down").c_str()) ) );
+      //m_weightHistograms_syst1__1up.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_syst1__1up").c_str()) ) );
+      //m_weightHistograms_syst1__1down.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_syst1__1down").c_str()) ) );
+      std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
+    }
+    m_weightHistograms_syst1__1up.insert( std::make_pair( "q", (TH2D*)weightConfig->Get((m_weightHistogramName+"_q_BkgModelling").c_str()) ) );
+    m_weightHistograms = m_weightHistograms_nominal;
+  }
+
   ATH_MSG_INFO( (m_APP_NAME+": DNN Tagger tool initialized").c_str() );
 
   return StatusCode::SUCCESS;
@@ -247,19 +328,19 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
     if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
+      decorateJet(jet, -1., -1., -1., -666., 1.0);
   }
   if (jet.pt() < m_jetPtMin) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeLow", false);
     if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
+      decorateJet(jet, -1., -1., -1., -666., 1.0);
   }
   if (jet.pt() > m_jetPtMax) {
     ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeHigh", false);
     if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
+      decorateJet(jet, -1., -1., -1., -666., 1.0);
   }
 
   // get the relevant attributes of the jet
@@ -275,15 +356,26 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   float cut_mass_high = m_funcMassCutHigh->Eval(jet_pt);
   float cut_score     = m_funcScoreCut   ->Eval(jet_pt);
 
+  float jet_weight=1.0;
+  if( (jet_score > cut_score) && m_calcSF) {
+    SG::AuxElement::ConstAccessor<WTopLabel> WTopContainmentTruthLabel(m_truthLabelDecorationName);
+    try{
+      WTopContainmentTruthLabel(jet);
+      jet_weight = getWeight(jet);
+    } catch (...) {
+      ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"WTopContainmentTruthLabel\" to your jet before calling tag(..)");
+    }
+  }
+
   // decorate the cut value if needed;
   if(m_decorate){
     ATH_MSG_DEBUG("Decorating with score");
-    decorateJet(jet, cut_mass_high, cut_mass_low, cut_score, jet_score);
+    decorateJet(jet, cut_mass_high, cut_mass_low, cut_score, jet_score, jet_weight);
   }
 
   // evaluate the cut criteria on mass and score
   ATH_MSG_VERBOSE(": CutsValues : MassWindow=["<<std::to_string(cut_mass_low)<<","<<std::to_string(cut_mass_high)<<"]  ,  scoreCut="<<std::to_string(cut_score) );
-  ATH_MSG_VERBOSE(": JetValues  : JetMass="<<std::to_string(jet_mass)<<"  ,  score="<<std::to_string(jet_score) );
+  ATH_MSG_VERBOSE(": JetValues  : JetMass="<<std::to_string(jet_mass)<<"  ,  score="<<std::to_string(jet_score)<<"  ,  SF="<<std::to_string(jet_weight) );
 
 
   //set the TAccept depending on whether it is a W/Z or a top tag
@@ -310,32 +402,55 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
 double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
 
-  // create input dictionary map<string,double> for argument to lwtnn
-  std::map<std::string,double> DNN_inputValues = getJetProperties(jet);
+    // create input dictionary map<string,double> for argument to lwtnn
+    std::map<std::string,double> DNN_inputValues = getJetProperties(jet);
 
-  // evaluate the network
-  lwt::ValueMap discriminant = m_lwnn->compute(DNN_inputValues);
+    // evaluate the network
+    lwt::ValueMap discriminant = m_lwnn->compute(DNN_inputValues);
 
-  // obtain the output associated with the single output node
-  double DNNscore(-666.);
+    // obtain the output associated with the single output node
+    double DNNscore(-666.);
 
-  if(m_undefInput){
-    ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");
+    if(m_undefInput){
+      ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");      
+      return DNNscore;
+    }
+
+    DNNscore = discriminant[m_kerasConfigOutputName];
+
     return DNNscore;
-  }
-
-  DNNscore = discriminant[m_kerasConfigOutputName];
-
-  return DNNscore;
 }
 
-void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
-  /* decorate jet with attributes */
+double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
+    if ( jet.pt() < 200e3 || fabs(jet.eta())>2.0 ) return 1.0;
 
-  m_dec_mcutH(jet)      = mcutH;
-  m_dec_mcutL(jet)      = mcutL;
-  m_dec_scoreCut(jet)   = scoreCut;
-  m_dec_scoreValue(jet) = scoreValue;
+    std::string truthLabelStr;
+    WTopLabel jetContainment=jet.auxdata<WTopLabel>(m_truthLabelDecorationName);
+    if( jetContainment==WTopLabel::t ){
+      truthLabelStr="t_qqb";
+    }else if( jetContainment==WTopLabel::W || jetContainment==WTopLabel::Z){
+      truthLabelStr="W_qq";
+    }else{
+      truthLabelStr="q";
+    }
+
+    double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
+    //std::cout << "debug " << truthLabelStr << " " << jet.pt()*0.001 << " " << log10(jet.m()/jet.pt()) << std::endl;
+    int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log10(jet.m()/jet.pt()));
+    double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+
+    if ( SF < 1e-3 ) return 1.0;
+    else return SF;
+}
+
+void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const{
+    /* decorate jet with attributes */
+
+    m_dec_mcutH(jet)      = mcutH;
+    m_dec_mcutL(jet)      = mcutL;
+    m_dec_scoreCut(jet)   = scoreCut;
+    m_dec_scoreValue(jet) = scoreValue;
+    m_dec_weight(jet)     = weightValue;
 }
 
 std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet& jet) const{
@@ -390,13 +505,13 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
     }
 
     // Qw observable for top tagging
+
     DNN_inputValues["FoxWolfram20"] = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
     DNN_inputValues["PlanarFlow"] = jet.getAttribute<float>("PlanarFlow");
     DNN_inputValues["Angularity"] = jet.getAttribute<float>("Angularity");
     DNN_inputValues["Aplanarity"] = jet.getAttribute<float>("Aplanarity");
     DNN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
     DNN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
-
   }
   else if(m_TagClass == TAGCLASS::TopQuark){
     ATH_MSG_DEBUG("Loading variables for top quark tagger");
@@ -473,7 +588,71 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
   return DNN_inputValues;
 }
 
-StatusCode JSSWTopTaggerDNN::finalize(){
-  // Delete or clear anything
+  
+StatusCode JSSWTopTaggerDNN::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ ) const {
+  DecorateMatchedTruthJet(jet, truthJets, /*dR*/dRmax_truthJet, "dRMatchedTruthJet");
+  const xAOD::Jet* truthjet=jet.auxdata<const xAOD::Jet*>("dRMatchedTruthJet");
+  WTopLabel jetContainment=WTopLabel::notruth;
+  bool isSherpa=getIsSherpa(m_DSID);
+  if ( truthjet ) {
+    jetContainment=getWTopContainment(*truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+  }
+  jet.auxdecor<WTopLabel>(decorName) = jetContainment;
+
   return StatusCode::SUCCESS;
 }
+
+StatusCode JSSWTopTaggerDNN::finalize(){
+    // Delete or clear anything
+    return StatusCode::SUCCESS;
+}
+
+SystematicCode JSSWTopTaggerDNN::sysApplySystematicVariation(const SystematicSet& systSet){
+    ATH_MSG_DEBUG( "Applying systematic variation by weight" );
+
+    // by default no systematics are applied
+    m_appliedSystEnum = JSSWTopTaggerDNN_NONE;
+    m_weightHistograms=m_weightHistograms_nominal;
+
+    if (systSet.size()==0) {
+      ATH_MSG_DEBUG("No affecting systematics received.");
+      return SystematicCode::Ok;
+    }
+    else if (systSet.size()>1) {
+      ATH_MSG_WARNING("Tool does not support multiple systematics, returning unsupported" );
+      return CP::SystematicCode::Unsupported;
+    }
+    SystematicVariation systVar = *systSet.begin();
+    if (systVar == SystematicVariation("")){
+      m_appliedSystEnum = JSSWTopTaggerDNN_NONE;
+      m_weightHistograms=m_weightHistograms_nominal;
+    }
+    /*
+    else if ( systVar == JSSWTopTaggerSyst::stat__1up ){
+      m_appliedSystEnum = JSSWTopTaggerDNN_STAT__1UP;
+      m_weightHistograms=m_weightHistograms_stat__1up;
+    }
+    else if ( systVar == JSSWTopTaggerSyst::stat__1down ){
+      m_appliedSystEnum = JSSWTopTaggerDNN_STAT__1DOWN;
+      m_weightHistograms=m_weightHistograms_stat__1down;
+    }
+    else if ( systVar == JSSWTopTaggerSyst::syst1__1up ){
+      m_appliedSystEnum = JSSWTopTaggerDNN_SYST1__1UP;
+      m_weightHistograms=m_weightHistograms_syst1__1up;
+    }
+    else if ( systVar == JSSWTopTaggerSyst::syst1__1down ){
+      m_appliedSystEnum = JSSWTopTaggerDNN_SYST1__1DOWN;
+      m_weightHistograms=m_weightHistograms_syst1__1down;
+    }
+    */
+    else {
+      ATH_MSG_WARNING("unsupported systematic applied");
+      return SystematicCode::Unsupported;
+    }
+
+    ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum);
+    return SystematicCode::Ok;
+}
+
+}/*namespace CP*/
+
