@@ -19,7 +19,7 @@
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 //calculators
-//#include "CaloGeoHelpers/CaloPhiRange.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
 
 //!
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -216,8 +216,7 @@ StatusCode ISF::DNNCaloSimSvc::setupEvent()
   // exercise window building 
   // should be false by default 
   // careful:if enabled change the random number sequence !
-  //if (false){
-    if (true){
+  if (false){
     TFCSSimulationState testsimulstate(m_randomEngine);
     const CaloDetDescrElement * testImpactCellDDE;
     const int ntrial=100;
@@ -343,23 +342,6 @@ bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
   return true;
 }
 
-float range_fix(float phi){
-  if (phi < - CLHEP::pi)
-    phi += 2 * CLHEP::pi;
-  else if (phi > CLHEP::pi)
-    phi-= 2 * CLHEP::pi;
-  if ((phi < CLHEP::pi) && (phi > - CLHEP::pi))
-    return phi;
-  else
-    return range_fix(phi);
-}
-
-float range_diff(float phi1, float phi2){
-  return range_fix(phi1 - phi2);
-}
-
-
-
 /** Simulation Call */
 StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 {
@@ -418,7 +400,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 // compute all the necessary inputs to the network
 StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, NetworkInputs & inputs, double & trueEnergy)
 {
-  //static CaloPhiRange range;
+  static CaloPhiRange range;
   Amg::Vector3D particle_position =  isfp.position();  
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
   
@@ -510,7 +492,7 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   }
   // scale & centre
   riImpactEta = (riImpactEta - m_riImpactEtaMean)/m_riImpactEtaScale;
-  double riImpactPhi = (range_diff(phiExtrap, phiRawImpactCell) - m_riImpactPhiMean)/m_riImpactPhiScale;
+  double riImpactPhi = (range.diff(phiExtrap, phiRawImpactCell) - m_riImpactPhiMean)/m_riImpactPhiScale;
 
 
   // fill randomize latent space
@@ -557,7 +539,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
   //now find the cell it corresponds to  
   //FIXME this is barrel should also look in endcap 
   // (note that is really looking up eta, phi, not raw eta phi
-  //static CaloPhiRange range;
+  static CaloPhiRange range;
 
   impactCellDDE=m_caloDetDescrManager->get_element(CaloCell_ID::EMB2,etaExtrap,phiExtrap);
   if (impactCellDDE==nullptr){
@@ -598,7 +580,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
     eta_raw = theCell->caloDDE()->eta_raw();
     phi_raw = theCell->caloDDE()->phi_raw();
     if (( eta_raw < etaRawImpactCell + m_etaRawBackCut) && (eta_raw > etaRawImpactCell - m_etaRawBackCut)) {
-      if (range_diff(phi_raw, range_fix(phiRawImpactCell + m_phiRawStripCut) < 0 ) && ((range_diff(phi_raw, range_diff(phiRawImpactCell, m_phiRawStripCut) ) > 0 ) )) {
+      if ((range.diff(phi_raw, phiRawImpactCell) < m_phiRawStripCut ) && (range.diff(phi_raw, phiRawImpactCell) > - m_phiRawStripCut) ) {
 
       }
       else{
@@ -618,7 +600,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
       }
     }
     else if((sampling == 2)) {
-      if ((range_diff(phi_raw , range_fix(phiRawImpactCell + m_phiRawMiddleCut)) < 0) && (range_diff(phi_raw, range_diff(phiRawImpactCell, m_phiRawMiddleCut)) > 0 )) {
+      if ((range.diff(phi_raw , phiRawImpactCell) < m_phiRawMiddleCut) && (range.diff(phi_raw, phiRawImpactCell) > - m_phiRawMiddleCut)) {
 	       if ((eta_raw < etaRawImpactCell + m_etaRawMiddleCut) && (eta_raw > etaRawImpactCell - m_etaRawMiddleCut)) {
 	         nSqCuts ++;
 	         m_windowCells.push_back(theCell);
@@ -627,7 +609,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
     }
 
     else if(sampling == 3){
-      if ((range_diff(phi_raw, range_fix(phiRawImpactCell + m_phiRawMiddleCut)) < 0) && (range_diff(phi_raw , range_diff(phiRawImpactCell , m_phiRawMiddleCut)) > 0 )) {
+      if ((range.diff(phi_raw, phiRawImpactCell) <  m_phiRawMiddleCut) && (range.diff(phi_raw , phiRawImpactCell) > - m_phiRawMiddleCut )) {
       	nSqCuts ++;
       	m_windowCells.push_back(theCell);
       }
