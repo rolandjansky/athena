@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArROD includes
@@ -18,9 +18,6 @@
 
 #include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //needed for linker ...
 //constexpr double SuperCellVsCaloCellTestAlg::eBins[SuperCellVsCaloCellTestAlg::nBinsE+1];
@@ -167,8 +164,7 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
 
          //detect suspicious supercells .. where truth energy is greater than 1GeV and we measure less than 25% of it, or super cell ET is greater than 1GeV and truth ET < 25% of that
          if( (tscellEt>1. && scellEt/tscellEt<0.25) || (scellEt>1. && tscellEt/scellEt<0.25) ) {
-            const EventInfo* evt = 0; CHECK( evtStore()->retrieve(evt) );
-            m_eventNumber = evt->event_ID()->event_number();
+	    m_eventNumber = getContext().eventID().event_number();
 
             ToolHandle<LArSuperCellCablingTool> larCablingTool;
             HWIdentifier hwid = larCablingTool->createSignalChannelID(scell->ID());

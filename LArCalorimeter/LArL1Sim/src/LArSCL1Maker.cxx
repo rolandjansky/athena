@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -40,12 +40,6 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
-//
-// ........ Event Header Files:
-//
-//#include "EventInfo/EventID.h"
-//#include "EventInfo/EventInfo.h"
-#include "EventInfo/PileUpTimeEventIndex.h"
 //
 // ........ Gaudi needed includes
 //
