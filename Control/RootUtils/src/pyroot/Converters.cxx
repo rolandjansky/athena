@@ -1344,7 +1344,7 @@ RootUtils::TConverter* RootUtils::CreateConverter( const std::string& fullType, 
    TConverter* result = 0;
    if ( TClass* klass = TClass::GetClass( realType.c_str() ) ) {
    // CLING WORKAROUND -- special case for STL iterators
-      if ( realType.find( "__gnu_cxx::__normal_iterator", 0 ) /* vector */ == 0 )
+     if ( realType.compare ( 0, 28, "__gnu_cxx::__normal_iterator" ) /* vector */ == 0 )
          result = new TSTLIteratorConverter();
       else
    // -- CLING WORKAROUND
