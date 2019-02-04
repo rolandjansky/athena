@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -25,37 +25,37 @@ namespace CP
 
 
   SelectionType SelectionAccessorBits ::
-  getBits (const xAOD::IParticle& particle) const
+  getBits (const SG::AuxElement& element) const
   {
-    return m_accessor (particle);
+    return m_accessor (element);
   }
 
 
 
   void SelectionAccessorBits ::
-  setBits (xAOD::IParticle& particle,
+  setBits (SG::AuxElement& element,
            SelectionType selection) const
   {
-    m_accessor (particle) = selection;
+    m_accessor (element) = selection;
   }
 
 
 
   bool SelectionAccessorBits ::
-  getBool (const xAOD::IParticle& particle) const
+  getBool (const SG::AuxElement& element) const
   {
-    return m_accessor (particle) == selectionAccept();
+    return m_accessor (element) == selectionAccept();
   }
 
 
 
   void SelectionAccessorBits ::
-  setBool (xAOD::IParticle& particle,
+  setBool (SG::AuxElement& element,
            bool selection) const
   {
     if (selection)
-      m_accessor (particle) = selectionAccept();
+      m_accessor (element) = selectionAccept();
     else
-      m_accessor (particle) = selectionAccept() ^ 0x1;
+      m_accessor (element) = selectionAccept() ^ 0x1;
   }
 }
