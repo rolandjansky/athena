@@ -220,7 +220,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     unsigned int m_sgItersID;
     unsigned int m_sgItersCB;
     unsigned int m_sgItersME;
-    bool m_sgIetrsMamual;
+    bool m_sgIetrsManual;
     double m_fixedRho;
     bool m_useFixedRho;
 
