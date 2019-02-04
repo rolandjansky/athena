@@ -1,6 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ **     @file    OfflineObjectSelection.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Thu 10 Jan 2019 20:12:10 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"

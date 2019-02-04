@@ -1,10 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    NtupleTrackSelector.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __NTUPLETRACKSELECTOR_H
-#define __NTUPLETRACKSELECTOR_H
+
+#ifndef TIDAEXAMPLE_NTUPLETRACKSELECTOR_H
+#define TIDAEXAMPLE_NTUPLETRACKSELECTOR_H
 
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TrackSelector.h"
@@ -60,10 +66,10 @@ public:
   }
 
   /// the ntple selector manages the tracks itself, so we have to do an explicit 
-  /// delete or each one to prevent memory leaking
+  /// delete for each one to prevent memory leaking
   virtual void clear() {  
-    for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; 
-    mtracks.clear(); 
+    for ( int i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; 
+    m_tracks.clear(); 
   }
 
 };
@@ -71,4 +77,4 @@ public:
 
 
 
-#endif // __NTUPLETRACKSELECTOR_H
+#endif // TIDAEXAMPLE_NTUPLETRACKSELECTOR_H

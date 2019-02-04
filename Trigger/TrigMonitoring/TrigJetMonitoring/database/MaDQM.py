@@ -137,14 +137,16 @@ if HLTMonFlags.doMinBias:
         for confattr,confvalue in toolconfig.items():
             tool.__setattr__(confattr, confvalue)
 
-if HLTMonFlags.doIDJpsiMon:
-  # here we check which entry there is in the DB for this slice
-  config_idjpsi = readSliceConfigFromDB('oracle','ACTIVE_KEY','Physics', 'IDJPSI' , 'ESD') 
-  # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
-  if config_idjpsi != None:
-    for (toolname, toolconfig) in config_idjpsi['Config']:
-        # modify defaults according to config dictionary
-        tool = getattr(ToolSvc,toolname)
-        for confattr,confvalue in toolconfig.items():
-            tool.__setattr__(confattr, confvalue)
+# remove in anticipation of the removal of the obsolete IDJpsiMonitoring code
+#
+# if HLTMonFlags.doIDJpsiMon:
+#  # here we check which entry there is in the DB for this slice
+#  config_idjpsi = readSliceConfigFromDB('oracle','ACTIVE_KEY','Physics', 'IDJPSI' , 'ESD') 
+#  # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
+#  if config_idjpsi != None:
+#    for (toolname, toolconfig) in config_idjpsi['Config']:
+#        # modify defaults according to config dictionary
+#        tool = getattr(ToolSvc,toolname)
+#        for confattr,confvalue in toolconfig.items():
+#            tool.__setattr__(confattr, confvalue)
 

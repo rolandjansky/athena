@@ -1,27 +1,21 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
+ **   @file         TIDDirectory.h  
  **
- **   File:         TIDDirectory.h  
- **
- **   Description:  class to keep a directory for each object 
+ **   @brief        class to keep a directory for each object 
  **                 in a root sort of way, but needed to keep 
  **                 the root objects out of the actual code.   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Wed May  4 17:54:25 BST 2005
- **   Modified:     
- **                   
- **                   
+ **   @date         Wed May  4 17:54:25 BST 2005
  **
- **************************************************************************/ 
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TIDDIRECTORY_H
-#define __TIDDIRECTORY_H
+#ifndef TIDA_TIDDIRECTORY_H
+#define TIDA_TIDDIRECTORY_H
 
 #include "TDirectory.h"
 #include "TH1.h"
@@ -120,6 +114,6 @@ public:
 
 
 
-#endif  /* __TIDDIRECTORY_H */
+#endif  /* TIDA_TIDDIRECTORY_H */
 
 

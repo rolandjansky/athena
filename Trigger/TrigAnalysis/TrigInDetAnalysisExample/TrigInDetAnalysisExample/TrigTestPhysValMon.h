@@ -1,10 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTestPhysValMon.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __TRIGTESTPHYSVALMONTOOL_H
-#define __TRIGTESTPHYSVALMONTOOL_H
+
+#ifndef TIDA_TRIGTESTPHYSVALMONTOOL_H
+#define TIDA_TRIGTESTPHYSVALMONTOOL_H
 
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -76,4 +82,4 @@ public:
 };
 
 
-#endif //  __TRIGTESTPHYSVALMONTOOL_H
+#endif //  TIDA_TRIGTESTPHYSVALMONTOOL_H

@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    RoiFilter.h        
-//
-//                   
-//  
-//
-//   $Id: RoiFilter.h, v0.0   Sun 31 Jul 2016 05:22:41 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    RoiFilter.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 31 Jul 2016 05:22:41 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  ROIFILTER_H

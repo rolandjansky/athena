@@ -1,6 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    OfflineObjectSelection.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:39 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 #ifndef TrigInDetAnalysisExample_OfflineObjectSelection_H
 #define TrigInDetAnalysisExample_OfflineObjectSelection_H
 

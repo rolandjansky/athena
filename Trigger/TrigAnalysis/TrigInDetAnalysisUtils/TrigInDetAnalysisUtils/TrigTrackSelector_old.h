@@ -1,23 +1,78 @@
+/* emacs: this is -*- c++ -*- */
 /**
- **     @file    TrigTrackSelector.cxx
+ **     @file    TrigTrackSelector_old.h
  **
  **     @author  mark sutton
- **     @date    Sun  2 Nov 2014 11:10:06 CET 
+ **     @date    Thu 10 Jan 2019 20:41:57 CET 
  **
  **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **/
 
+#ifndef TRIGTRACKSELECTOR_H
+#define TRIGTRACKSELECTOR_H
 
-#include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
+/// L2 tracks
+#include "TrigInDetEvent/TrigInDetTrackCollection.h"
+///TruthMap
+#include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
+
+/// offline and EF
+#include "Particle/TrackParticle.h"
+#include "Particle/TrackParticleContainer.h"
+
+/// MC truth
+#include "McParticleEvent/TruthParticleContainer.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
+
+///// stuff *merely* to get the particle charge!!!
+/// #include "HepPDT/ParticleData.hh"
+/// #include "HepMC/ParticleDataTable.h"
+/// #include "McParticleEvent/TruthParticle.h"
+/// #include "McParticleUtils/McUtils.h" // for chargeFromPdgId
+///
+///// FrameWork includes
+/// #include "GaudiKernel/ServiceHandle.h"
+/// #include "GaudiKernel/IPartPropSvc.h"
+/// absolutely pathetic!! write my own class
+
+#include "TrigInDetAnalysisUtils/particleType.h"
+
+/// TrigInDetAnalysis classes
+#include "TrigInDetAnalysis/TrackSelector.h"
+#include "TrigInDetAnalysis/Track.h"
+#include "TrigInDetAnalysis/TrackFilter.h"
+
+#include "TrkParameters/TrackParameters.h"
+#include "TrkParameters/Perigee.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrackSummary/InDetTrackSummary.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "GaudiKernel/ToolHandle.h" 
+#include "TrkParameters/Perigee.h"
+#include "TMath.h"
+
+
+
+
+// namspace TrigInDetAnalysis {
+
+// class TrigTrackSelector : public TIDA::TrackSelector<TIDA::Track> { 
+
+class TrigTrackSelector : public TrackSelector { 
+
+public:
 
   //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
-TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) : 
-    TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
-    //m_first(true),
-    m_correctTrkTracks(false) {  } 
+  TrigTrackSelector( TrackFilter* selector ) : TrackSelector(selector), m_id(0) {  } 
+
+  virtual void clear() { for ( unsigned i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
-bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
+  void selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 ) {     
     // do the track extraction stuff here....
     if ( track ) { 
 
@@ -33,9 +88,6 @@ bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	double dpT     = track->param()->epT(); 
 	double dd0     = track->param()->ea0();
 
-	double theta = 2*std::atan( exp( (-1)*eta ) );
-	correctToBeamline( z0, dz0, d0, dd0, theta, phi );
-	
 	int   algoid  = track->algorithmId(); 	      
 
 	int nBlayerHits = (track->HitPattern() & 0x1);
@@ -54,7 +106,6 @@ bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	unsigned multiPattern = 0;
 
 	double chi2    = track->chi2();
-	double dof     = 0; /// not definied ofr TrigInDetTracks
 
 	bool truth = false;
 	int match_barcode = -1;
@@ -68,7 +119,7 @@ bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	}
 	
 	
-	TIDA::Track* t = new TIDA::Track(  eta,  phi,  z0,  d0,  pT, chi2, dof, 
+	TIDA::Track* t = new TIDA::Track(  eta,  phi,  z0,  d0,  pT, chi2, 
 								     deta, dphi, dz0, dd0, dpT, 
 								     nBlayerHits, nPixelHits, nSctHits, nSiHits, 
 								     nStrawHits, nTrHits, 
@@ -78,18 +129,13 @@ bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	
 	//	std::cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << std::endl;
 	
-	if ( !addTrack( t ) ){
-	  delete t;
-	  return false;
-	}	
-	return true;
+	if ( !addTrack( t ) ) delete t;
     }
-    return false;
-}
+  }
 
 
-// extract all the tracks from a TrigInDetTrack collection and associated TruthMap and convert them
-void TrigTrackSelector::selectTracks( const TrigInDetTrackCollection* trigtracks, const TrigInDetTrackTruthMap* truthMap ) {     
+  // extract all the tracks from a TrigInDetTrack collection and associated TruthMap and convert them
+  void selectTracks( const TrigInDetTrackCollection* trigtracks, const TrigInDetTrackTruthMap* truthMap=0 ) {     
     // do the track extraction stuff here....
     TrigInDetTrackCollection::const_iterator  trackitr = trigtracks->begin();
     TrigInDetTrackCollection::const_iterator  trackend = trigtracks->end();
@@ -97,11 +143,11 @@ void TrigTrackSelector::selectTracks( const TrigInDetTrackCollection* trigtracks
       selectTrack( *trackitr, truthMap );
       trackitr++;
     }
-}
+  }
 
 
-// add a TrackParticle 
-bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) { 
+  // add a TrackParticle 
+  void selectTrack( const Rec::TrackParticle* track ) { 
         
     // do the track extraction stuff here....
 
@@ -109,57 +155,44 @@ bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
     if ( track ) { 
 	    
-#ifdef TRKPARAMETERS_MEASUREDPERIGEE_H
       const Trk::MeasuredPerigee* measPer = track->measuredPerigee();
-#else
-      const Trk::Perigee* measPer = track->measuredPerigee();
-#endif
-      //     CLHEP::HepVector perigeeParams = measPer->parameters();
+
+      CLHEP::HepVector perigeeParams = measPer->parameters();
       
       double pT    = measPer->pT(); 
       double eta   = measPer->eta();
-      double phi   = measPer->parameters()[Trk::phi0];
-      double z0    = measPer->parameters()[Trk::z0] + m_zBeam; /// temporarily remove interaction mean z position
-      double d0    = measPer->parameters()[Trk::d0];
+      double phi   = perigeeParams[Trk::phi0];
+      double z0    = perigeeParams[Trk::z0];
+      double d0    = perigeeParams[Trk::d0];
 
-      double theta = measPer->parameters()[Trk::theta];
-      double  p    = 1/measPer->parameters()[Trk::qOverP];
+      double theta = perigeeParams[Trk::theta];
+      double  p    = 1/perigeeParams[Trk::qOverP];
   
       // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 
-      if ( measPer->parameters()[Trk::qOverP]<0 && pT>0 ) pT *= -1;
+      if ( perigeeParams[Trk::qOverP]<0 && pT>0 ) pT *= -1;
 
-#ifdef TRKPARAMETERS_MEASUREDPERIGEE_H
       const Trk::ErrorMatrix err = measPer->localErrorMatrix();
+
       double dtheta = err.error(Trk::theta);
       double dqovp  = err.error(Trk::qOverP); 
-      double covthetaOvP  = err.covValue(Trk::qOverP,Trk::theta);  
-#else
-      double dtheta      = std::sqrt((*measPer->covariance())(Trk::theta,Trk::theta));
-      double dqovp       = std::sqrt((*measPer->covariance())(Trk::qOverP,Trk::qOverP)); 
-      double covthetaOvP = (*measPer->covariance())(Trk::qOverP,Trk::theta);  
-#endif
+      double covthetaOvP  = err.covValue(Trk::qOverP,Trk::theta); 
 
 
-      double deta = 0.5*dtheta/(std::cos(0.5*theta)*std::cos(0.5*theta)*std::tan(0.5*theta));   /// << check this <<--
-
-#ifdef TRKPARAMETERS_MEASUREDPERIGEE_H
+      double deta = 0.5*dtheta/(std::cos(0.5*theta)*std::cos(0.5*theta)*std::tan(0.5*theta));
       double dphi = err.error(Trk::phi0);
       double dz0  = err.error(Trk::z0);
       double dd0  = err.error(Trk::d0);
-#else
-      double dphi = std::sqrt((*measPer->covariance())(Trk::phi0,Trk::phi0));
-      double dz0  = std::sqrt((*measPer->covariance())(Trk::z0,Trk::z0));
-      double dd0  = std::sqrt((*measPer->covariance())(Trk::d0,Trk::d0));
-#endif
-
       double dpT  = 0; 
 
 
       double sintheta = std::sin(theta);
       double costheta = std::cos(theta);
-      double dpt2 = (p*p*sintheta)*(p*p*sintheta)*dqovp*dqovp + (p*costheta)*(p*costheta)*dtheta*dtheta - 2*(p*p*sintheta)*(p*costheta)*covthetaOvP;   /// check this !!!
+      double dpt2 = (p*p*sintheta)*(p*p*sintheta)*dqovp*dqovp + (p*costheta)*(p*costheta)*dtheta*dtheta - 2*(p*p*sintheta)*(p*costheta)*covthetaOvP;
 
       if ( dpt2>0 ) dpT = std::sqrt( dpt2 );
+
+
+
 
       // Check number of hits
       // NB: a spacepoint is two offline "hits", so a pixel spacepoint is really 
@@ -177,10 +210,8 @@ bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
-      double dof  = quality->numberDoF();
-      
-      unsigned bitmap = 0;
 
+      unsigned bitmap = 0;
       
       unsigned long id = (unsigned long)track;
 
@@ -220,28 +251,23 @@ bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
       // Create and save Track
       
-      TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
-                                       deta, dphi, dz0, dd0, dpT,
-                                       nBlayerHits, nPixelHits, nSctHits, nSiHits,
-                                       nStrawHits, nTrHits, bitmap, 0,
-                                       trackAuthor, false, -1, -1,  
-                                       expectBL, id) ;  
+      TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2,
+								 deta, dphi, dz0, dd0, dpT,
+								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
+								 nStrawHits, nTrHits, bitmap, 0,
+								 trackAuthor,
+								 expectBL, id) ;  
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
-      if ( !addTrack( t ) ){
-	delete t;
-	return false;
-      }
-      return true;
+      if ( !addTrack( t ) ) delete t;
       
     }
-    return false;
-}
+  }
   
 
-// extract all the tracks from a TrackParticle collection and add them
-void TrigTrackSelector::selectTracks( const Rec::TrackParticleContainer* trigtracks ) { 
+  // extract all the tracks from a TrackParticle collection and add them
+  void selectTracks( const Rec::TrackParticleContainer* trigtracks ) { 
     
     //    std::cout << "\t\t\tSUTT \tTrackParticleContainer->size() = " << trigtracks->size() << std::endl;
     
@@ -256,12 +282,12 @@ void TrigTrackSelector::selectTracks( const Rec::TrackParticleContainer* trigtra
 
     } // loop over tracks
     
-}
+  }
 
 
 
-// extract all the tracks from a TrackParticle collection and add them
-void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks ) { 
+  // extract all the tracks from a TrackParticle collection and add them
+  void selectTracks( const TruthParticleContainer* truthtracks ) { 
     
     //    std::cout << "\t\t\tSUTT \tTrackParticleContainer->size() = " << trigtracks->size() << std::endl;
     
@@ -276,60 +302,66 @@ void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks 
 
     } // loop over tracks
     
-}
+  }
 
 
 
-// add a TruthParticle from a GenParticle - easy, bet it doesn't work 
-bool TrigTrackSelector::selectTrack( const HepMC::GenParticle* track ) {
-  
+  // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
+  void selectTrack( const HepMC::GenParticle* track ) {
+
     /// not a "final state" particle
-    if ( track->status() != 1 ) return false;
+    if ( track->status() != 1 ) return;
 
     /// set this so can use it as the identifier - don't forget to reset!!
-    m_id = (unsigned long)track;
-    bool sel;
-    sel = selectTrack( TruthParticle(track) );
+    m_id = (unsigned long)track; 
+    selectTrack( TruthParticle(track) );
     m_id = 0;
-    
-    return sel; 
-    
-}
+  }
 
 
-// add a TruthParticle 
-bool TrigTrackSelector::selectTrack( const TruthParticle& track ) {
-
-  return selectTrack( &track );
-  
-}
+  // add a TruthParticle 
+  void selectTrack( const TruthParticle& track ) { selectTrack( &track ); }
 
 
-// add a TruthParticle 
-bool TrigTrackSelector::selectTrack( const TruthParticle* track ) { 
+  // add a TruthParticle 
+  void selectTrack( const TruthParticle* track ) { 
     TIDA::Track* t = makeTrack( track, m_id );
-    if ( t == 0 ) return false;
-    if ( !addTrack(t) ) {
-      delete t;
-      return false;
-    }
-    return true;
-}
+     if ( t && !addTrack(t) ) delete t;
+  }
 
 
-// make a TIDA::Track from a GenParticle 
-TIDA::Track* TrigTrackSelector::makeTrack( const HepMC::GenParticle* track ) { 
+  // make a TIDA::Track from a GenParticle 
+  static TIDA::Track* makeTrack( const HepMC::GenParticle* track ) { 
     unsigned long id = (unsigned long)track;
     TruthParticle t = TruthParticle(track); 
     return  makeTrack( &t, id );
-}
+  }
 
-// make a TIDA::Track from a TruthParticle 
-TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned long tid ) { 
-  
+  // make a TIDA::Track from a TruthParticle 
+  static TIDA::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 ) { 
+
     if ( track==0 ) return 0; 
-    if ( track->status() != 1 ) return 0;   /// check for final state
 
+
+    //bool proto = true; /// proto final state - Removed 24/06/13
+
+    /// NB: Could replace this with a simple tests on production
+    ///     and decay vertices - ie define some cylindrical plane,  
+    ///     and produced within this plane, and either doesn't 
+    ///     decay, or decays outside this plane then take as stable
+    ///     gets round duplicated, or secondary tracks, brem electrons
+    ///     etc. (actually done this now - see code later) 
+    /// only want final state, charged particles - this is a quick hack
+    //if ( track->nDecay()>0 ) proto = false; /// what if decay is inside the calorimeter? - Removed 24/06/13
+    /// charge information ios not filled in TruthParticle unless build 
+    /// with the TruthParticleCnvTool ! I ask you!!!
+    /// if ( !track->hasCharge() || track->charge()==0 ) return;
+    //smh Hack to get rid of internal MC ids 
+    //smh This one can probably stay: 83 to 100 are reserved for MC
+    //smh Only stable entries from generator
+    //if ( abs(track->pdgId()) > 1000000000) proto = false; /// does this work? - Removed 24/06/13
+    //if ( track->pdgId() >= 83 && track->pdgId() <= 100 ) proto = false; /// shouldn't be needed - Removed 24/06/13 
+    //if ( track->status() != 1 ) proto = false; - Removed 24/06/13
 
     double phi = track->phi();
     double eta = track->eta();
@@ -344,12 +376,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
       xp[0] = track->genParticle()->production_vertex()->point3d().x();
       xp[1] = track->genParticle()->production_vertex()->point3d().y();
       xp[2] = track->genParticle()->production_vertex()->point3d().z();
-    }
-
-    static bool tfirst = true;
-    if ( tfirst ) {
-      std::cout << "TrigTrackSelector::selectTrack(TruthParticle) beamline " << xp[0] << " " << xp[1] << std::endl;
-      tfirst = false;
     }
 
 
@@ -390,8 +416,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     if ( ( track->genParticle()->production_vertex() && rp<=inner_radius ) && 
 	 ( track->genParticle()->end_vertex()==0 || rd>outer_radius ) ) final_state = true; 
       
-    //    if ( track->status() == 3 ) final_state = false;         /// check its not a documentation particle
-    
     if ( !final_state ) return 0; /// keep anything over 10 GeV with the old requirement
     
     //// AAAARGHHH!!!! For some *stupid* reason, when converting from a 
@@ -447,17 +471,8 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
 
 
     // CHANGED BY JK - d0 with respect to (0,0)
-    // d0 = q*rp*std::sin(phi);
+    //d0 = q*rp*std::sin(phi);
     d0  =  xp[1]*std::cos(phi) -  xp[0]*std::sin(phi);
-
-
-    /// correct back to the beamline 
-
-    double dz0 = 0;
-    double dd0 = 0;
-   
-    correctToBeamline( z0, dz0, d0, dd0, theta, phi );
-
 
 
     //// AAAARGHHH!!!! For some *stupid* reason, when converting from a 
@@ -514,22 +529,22 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     
 
 
-    TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, 0, 0,
-                                     0, 0, 0, 0, 0,
-                                     0, 0, 0, 0,
-                                     0, 0, 0, 0,
-                                     author, false, barcode, -1,
-                                     false, 
-                                     id ) ;  
+    TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, 0,
+							       0, 0, 0, 0, 0,
+							       0, 0, 0, 0,
+							       0, 0, 0, 0,
+							       author, false, barcode, -1,
+							       false, 
+							       id ) ;  
 
     return t;
 
-}
+ }
 
 
 
-// add a Trk::Track
-bool TrigTrackSelector::selectTrack( const Trk::Track* track ) { 
+  // add a Trk::Track
+  void selectTrack( const Trk::Track* track ) { 
         
     // do the track extraction stuff here....
 
@@ -539,16 +554,8 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
     if ( track ) { 
 	    
       // const Trk::Perigee* startPerigee = track->perigeeParameters();
-
-#ifdef TRKPARAMETERS_MEASUREDPERIGEE_H
+      // const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>(track->perigeeParameters());
       const Trk::MeasuredPerigee* startPerigee = dynamic_cast<const Trk::MeasuredPerigee*>(track->perigeeParameters());
-      //      const Trk::MeasuredPerigee* measPer = startPerigee; // just out of laziness
-#else
-      const Trk::Perigee* startPerigee = track->perigeeParameters();
-      const Trk::Perigee* measPer = startPerigee; // just out of laziness
-#endif
-
-
       //      CLHEP::HepVector perigeeParams = measPer->parameters();      
       //      double pT    = measPer->pT(); 
       //      double eta   = measPer->eta();
@@ -560,7 +567,8 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
       //      std::cout <<pT1<<" pt1vspT "<<pT<<std::endl;
       
       if (startPerigee){
-     
+      
+
 	double theta   = startPerigee->parameters()[Trk::theta];  
 	double p       = 1/startPerigee->parameters()[Trk::qOverP];
 	double qOverPt = startPerigee->parameters()[Trk::qOverP]/std::sin(theta);
@@ -574,33 +582,18 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 	
 	if ( charge<0 && pT>0 ) pT *= -1;
 	if ( charge<0 && p>0 )  p  *= -1;
-	
 
-
-#ifdef TRKPARAMETERS_MEASUREDPERIGEE_H
 	const Trk::ErrorMatrix err = startPerigee->localErrorMatrix();
+
 	double dtheta = err.error(Trk::theta);
 	double dqovp  = err.error(Trk::qOverP); 
-	double covthetaOvP  = err.covValue(Trk::qOverP,Trk::theta);  
+	double covthetaOvP  = err.covValue(Trk::qOverP,Trk::theta); 
 	
+	
+	double deta = 0.5*dtheta/(std::cos(0.5*theta)*std::cos(0.5*theta)*std::tan(0.5*theta));
 	double dphi = err.error(Trk::phi0);
 	double dz0  = err.error(Trk::z0);
 	double dd0  = err.error(Trk::d0);
-#else
-	double dtheta      = std::sqrt((*measPer->covariance())(Trk::theta,Trk::theta));
-	double dqovp       = std::sqrt((*measPer->covariance())(Trk::qOverP,Trk::qOverP)); 
-	double covthetaOvP = (*measPer->covariance())(Trk::qOverP,Trk::theta);    /// a covariance! 
-
-	double dphi = std::sqrt((*measPer->covariance())(Trk::phi0,Trk::phi0));
-	double dz0  = std::sqrt((*measPer->covariance())(Trk::z0,Trk::z0));
-	double dd0  = std::sqrt((*measPer->covariance())(Trk::d0,Trk::d0));
-#endif	
-	
-	double deta = 0.5*dtheta/(std::cos(0.5*theta)*std::cos(0.5*theta)*std::tan(0.5*theta));  /// check this <<--
-
-
-	if ( m_correctTrkTracks ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
-
 	double dpT  = 0; 
 	
 	
@@ -631,7 +624,7 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 	unsigned bitmap = 0;
 
 	if(summary==0){
-            std::cerr << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
+            std::cout << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
 	}    
 	else{      
             nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
@@ -647,14 +640,12 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 	}
 
 	unsigned long id = (unsigned long)track;
-	double chi2 = 0;
-	double dof  = 0; 
+	double chi2 =  0.;
 	//const Trk::FitQuality *quality   = dynamic_cast<const Trk::FitQuality*>(track->fitQuality());
 	const Trk::FitQuality *quality   = (track->fitQuality());
-	if(quality==0) std::cerr << "Could not create FitQuality  - Track will likely fail hits requirements" << std::endl;
+	if(quality==0) std::cout << "Could not create FitQuality  - Track will likely fail hits requirements" << std::endl;
 	else{
             chi2 = quality->chiSquared();          
-	    dof  = quality->numberDoF();
 	}
 
 	int trackAuthor = -1;
@@ -688,28 +679,22 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 		  << std::endl;
   #endif	
 	// Create and save Track      
-	TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
-                                         deta, dphi, dz0, dd0, dpT,
-                                         nBlayerHits, nPixelHits, nSctHits, nSiHits,
-                                         nStrawHits, nTrHits, bitmap, 0,
-                                         trackAuthor,  false, -1, -1,  
-                                         expectBL, id) ;  
+	TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2,
+								   deta, dphi, dz0, dd0, dpT,
+								   nBlayerHits, nPixelHits, nSctHits, nSiHits,
+								   nStrawHits, nTrHits, bitmap, 0,
+								   trackAuthor,
+								   expectBL, id) ;  
 
-	if ( !addTrack( t ) ){
-	  delete t;
-	  return false;
-	}
-	return true;
-	
-	//std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
+	 if ( !addTrack( t ) ) delete t;
+
+	 //std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       }
     }
-    
-    return false;
-}
-
-// extract all the tracks from a TrackCollection and add them
-void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) { 
+  }
+  
+  // extract all the tracks from a TrackCollection and add them
+  void selectTracks( const TrackCollection* trigtracks ) { 
     
     //    std::cout << "\t\t\tSUTT \tTrackContainer->size() = " << trigtracks->size() << std::endl;
     
@@ -721,236 +706,15 @@ void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) {
       trackitr++;
     } // loop over tracks
     
-}
+  }
 
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
+private:
 
-bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
-     
-    // do the track extraction stuff here....
+  unsigned long m_id;
 
-    //    static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-
-    if ( track ) { 
-	    
-      /// lazy just to avoid a find-replace of measPer to track
-      const xAOD::TrackParticle* measPer = track;
-
-      //     CLHEP::HepVector perigeeParams = measPer->parameters();
-      
-      double pT    = measPer->pt(); 
-      double eta   = measPer->eta();
-      double phi   = measPer->phi0();
-      double z0    = measPer->z0() + measPer->vz();  /// Grrrrr remove interaction mean z position!!!
-      double d0    = measPer->d0();
-
-      double theta = measPer->theta();
-      double  p    = 1/measPer->qOverP();
-  
-      // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 
-      if ( measPer->qOverP()<0 && pT>0 ) pT *= -1;
-
-      double dtheta      = std::sqrt(measPer->definingParametersCovMatrix()(Trk::theta,Trk::theta));
-      double dqovp       = std::sqrt(measPer->definingParametersCovMatrix()(Trk::qOverP,Trk::qOverP)); 
-      double covthetaOvP = measPer->definingParametersCovMatrix()(Trk::qOverP,Trk::theta);  /// a covariance *not* an error
-
-      double deta = 0.5*dtheta/(std::cos(0.5*theta)*std::cos(0.5*theta)*std::tan(0.5*theta));  // ???? CHECK THIS <<--
-
-      double dphi = std::sqrt(measPer->definingParametersCovMatrix()(Trk::phi0,Trk::phi0));
-      double dz0  = std::sqrt(measPer->definingParametersCovMatrix()(Trk::z0,Trk::z0));
-      double dd0  = std::sqrt(measPer->definingParametersCovMatrix()(Trk::d0,Trk::d0));
-
-      double dpT  = 0; 
-
-
-      /// don't correct xaod tracks to the beamline
-      //      if ( m_xBeam!=0 || m_yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
-      
-
-      double sintheta = std::sin(theta);
-      double costheta = std::cos(theta);
-      double dpt2 = (p*p*sintheta)*(p*p*sintheta)*dqovp*dqovp + (p*costheta)*(p*costheta)*dtheta*dtheta - 2*(p*p*sintheta)*(p*costheta)*covthetaOvP;   /// ??? <<-- check this
-
-      if ( dpt2>0 ) dpT = std::sqrt( dpt2 );
-
-      // Check number of hits
-      // NB: a spacepoint is two offline "hits", so a pixel spacepoint is really 
-      // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
-      // stereo clusters making a spacepoint are two "hits"
-      
-      uint8_t sum_nBlayerHits = 0;
-      track->summaryValue( sum_nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
-      int nBlayerHits = 2*sum_nBlayerHits;
-
-      uint8_t  sum_nPixelHits = 0;
-      track->summaryValue( sum_nPixelHits, xAOD::numberOfPixelHits);
-      int nPixelHits = 2*sum_nPixelHits;
-
-      uint8_t  sum_nSctHits = 0;
-      track->summaryValue( sum_nSctHits, xAOD::numberOfSCTHits);
-      int nSctHits = sum_nSctHits;
-
-      uint8_t  sum_nStrawHits = 0;
-      track->summaryValue( sum_nStrawHits, xAOD::numberOfTRTHits);
-      int nStrawHits  = sum_nStrawHits;
-
-      uint8_t  sum_nTrtHits = 0;
-      track->summaryValue( sum_nTrtHits, xAOD::numberOfTRTHighThresholdHits);
-      int nTrtHits  = sum_nTrtHits;
-      
-
-      uint8_t sum_expectBL  = 0;
-      track->summaryValue( sum_expectBL, xAOD::expectInnermostPixelLayerHit);
-      bool expectBL = ( sum_expectBL ? true : false );
-
-      /// holes 
-
-      uint8_t sum_sctholes  = 0;
-      track->summaryValue( sum_sctholes, xAOD::numberOfSCTHoles);
-
-      uint8_t sum_pixholes  = 0;
-      track->summaryValue( sum_pixholes, xAOD::numberOfPixelHoles);
-
-      /// cheat !! pack the holes into the hits
-      /// so that eg int pixelholes() { return npix/1000; } 
-      ///            int  pixelhits() { return npix%1000; }
-
-      nSctHits   += 1000*sum_sctholes;
-      nPixelHits += 1000*sum_pixholes;
-
-      /// get the total number of holes as well
-      int nSiHits     = nPixelHits + nSctHits;
-
-      /// fit quality
-
-      double chi2 = track->chiSquared();
-      double dof  = track->numberDoF();
-      
-      unsigned long id = (unsigned long)track;
-
-      unsigned bitmap = track->hitPattern();
+};
 
 
 
-      double xbeam = track->vx(); 
-      double ybeam = track->vy(); 
-      double zbeam = track->vz(); 
-      
-      if ( xbeam!=getBeamX() || ybeam!=getBeamY() || zbeam!=getBeamZ() ) setBeamline( xbeam, ybeam, zbeam );
-	
-      int trackAuthor = 0;
-
-      int fitter = track->trackFitter();
-      std::bitset<xAOD::NumberOfTrackRecoInfo>  patternrec = track->patternRecoInfo();
-
-      int icount = 0;
-      for ( unsigned ipr=patternrec.size() ; ipr-- ; ) { 
-	if ( patternrec[ipr] ) {
-	  icount++;
-	  trackAuthor |= (ipr >> 16);
-	  static bool first = true;
-	  if ( first && icount>1 ) { 
-	    std::cerr << "more than one pattern rec strategy " << ipr << "\t(suppressing further output)" << std::endl;
-	    first = false;
-	  }
-	}
-      }
-      
-      trackAuthor |= fitter;
-
-      //   if ( fitter>0 && fitter<Trk::TrackInfo::NumberOfTrackFitters ) {
-      //	if      ( dumpinfo.find("TRTStandalone")!=std::string::npos)        trackAuthor = 2;
-      //	else if ( dumpinfo.find("TRTSeededTrackFinder")!=std::string::npos) trackAuthor = 1;
-      //	else                                                                trackAuthor = 0;
-      //   }
-      
-#if 0
-      std::cout << "\t\t\tSUTT TP track" 
-		<< "\teta=" << eta  // << " +- " << (*trackitr)->params()->deta()
-		<< "\tphi=" << phi  // << " +- " << (*trackitr)->params()->dphi()
-		<< "\tz0="  << z0 
-		<< "\tpT="  << pT // << "\t( " << 1/qoverp << ")"
-		<< "\td0="  << d0
-		<< "\tNsi=" << nSiHits 
-	//		<< "\tNtrt=" << nTrtHits 
-	//		<< "\tNstr=" << nStrawHits
-		<< "\tfitter=" << fitter
-		<< "\tauthor=" << trackAuthor
-		<< "\tVTX x " << track->vx() << "\ty " << track->vy() << "\tz " << track->vz() 
-		<< std::endl;
-#endif	
-
-      // Create and save Track
-      
-      TIDA::Track* t = new TIDA::Track( eta,   phi,  z0,  d0,  pT, chi2, dof,
-		 		        deta,  dphi, dz0, dd0, dpT,
-				        nBlayerHits, nPixelHits, nSctHits, nSiHits,
-				        nStrawHits,  nTrtHits,   bitmap, 0,
-				        trackAuthor,  false, -1, -1,  
-				        expectBL, id) ;  
-
-      //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
-      
-      if ( !addTrack( t ) ){
-	delete t;
-	return false;
-      }
-      return true;
-      
-    }
-    return false;
-     
-
-}
-
-
-void TrigTrackSelector::selectTracks( const xAOD::TrackParticleContainer* tracks, void* ) {
-    //    std::cout << "\t\t\tSUTT \tTrackContainer->size() = " << trigtracks->size() << std::endl;
-    xAOD::TrackParticleContainer::const_iterator  trackitr = tracks->begin();
-    xAOD::TrackParticleContainer::const_iterator  trackend = tracks->end();
-    while ( trackitr!=trackend ) { 
-      selectTrack( *trackitr );
-      trackitr++;
-    } // loop over tracks     
-}
-
-
-
-
-#endif
-
-
-
-void TrigTrackSelector::correctToBeamline( double& z0,    double& dz0, 
-					   double& d0,    double& dd0, 
-					   double  theta, double  phi ) {
-    
-    /// make sure that users have set the beamline parameters
-    
-    //   if ( m_first ) { 
-    //     if ( m_xBeam==0 && m_yBeam==0 ) { 
-    //	    std::cerr << "TrigTrackSelector::correctToBeamline() WARNING -- Beamline set to (0,0) -- WARNING" << std::endl;  
-    //     }
-    //     else { 
-    //	   std::cout << "TrigTrackSelector::correctToBeamline() Beamline set to " << m_xBeam << " " << m_yBeam << std::endl;  
-    //     }
-    //     m_first = false;
-    //   }
-    
-    
-    //      double theta = 2*std::atan( exp( (-1)*eta ) );
-    double z0t = z0 + ((std::cos(phi)*m_xBeam + std::sin(phi)*m_yBeam)/std::tan(theta));    
-    double a0t = d0 +   std::sin(phi)*m_xBeam - std::cos(phi)*m_yBeam; 
-    
-    /// error estimates
-    double dz0t = dz0 + ((std::cos(phi)*m_xBeam + std::sin(phi)*m_yBeam)/std::tan(theta));
-    double da0t = dd0 +   std::sin(phi)*m_xBeam - std::cos(phi)*m_yBeam;
-    
-    z0  = z0t;
-    d0  = a0t;
-    
-    dz0 = dz0t;
-    dd0 = da0t;
-}
-
+#endif // TRIGTRACKSELECTOR_H
