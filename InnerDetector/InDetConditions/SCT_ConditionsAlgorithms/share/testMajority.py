@@ -102,7 +102,7 @@ ServiceMgr.EventSelector.RunNumber = 310809
 # run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
 ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
 
-theApp.EvtMax = 1
+theApp.EvtMax = 20
 
 ServiceMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = 3
