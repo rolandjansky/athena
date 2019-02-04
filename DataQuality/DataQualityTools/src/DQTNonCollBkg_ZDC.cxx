@@ -16,13 +16,10 @@
 
 
 #include "ZdcEvent/ZdcDigits.h"
-#include "ZdcEvent/ZdcDigitsCollection.h"
 //#include "ZdcIdentifier/ZdcID.h"
 #include "DataQualityTools/ZdcSignalSinc.h"
 
 #include "DataQualityTools/DQTNonCollBkg_ZDC.h"
-
-#include "xAODEventInfo/EventInfo.h"
 
 using namespace Trig;
 namespace Trig {
@@ -39,23 +36,18 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
 					  m_HistTimeSideA(nullptr),
 					  m_HistTimeSideC(nullptr),
 					  m_HistTimeDeltaSidesAC(nullptr),
-                                          m_digitsContainerName("ZdcDigitsCollection"),
-                                          m_complainContain(1),
-                                          m_complainRetrieve(1),
 					  m_nsamples(0),
 					  m_bcid(nullptr),
                                           m_trigDec("Trig::TrigDecisionTool")
 
 {
-  declareInterface<IMonitorToolBase> (this);
+  //declareInterface<IMonitorToolBase> (this);
 
   declareProperty("histoPath",           m_path           = "GLOBAL/DQTNonCollBkg_ZDC");
   //declareProperty("doRunCosmics",   m_doRunCosmics   = 1);
   //declareProperty("doRunBeam",       m_doRunBeam      = 1);
   //declareProperty("doOfflineHists",    m_doOfflineHists = 1);
   //declareProperty("doOnlineHists",     m_doOnlineHists  = 1);
-  declareProperty("complainContain",m_complainContain   = 1);
-  declareProperty("complainRetrieve",m_complainRetrieve = 1);
 
   m_EnergySideA.resize(4,0);
   m_EnergySideC.resize(4,0);
@@ -89,22 +81,30 @@ DQTNonCollBkg_ZDC::~DQTNonCollBkg_ZDC()
 }
 
 //----------------------------------------------------------------------------------
+StatusCode DQTNonCollBkg_ZDC::initialize()
+//----------------------------------------------------------------------------------
+{
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_digitsContainerName.initialize() );
+  return DataQualityFatherMonTool::initialize();
+}
+
+//----------------------------------------------------------------------------------
 StatusCode DQTNonCollBkg_ZDC::bookHistograms()
 //StatusCode DQTNonCollBkg_ZDC::bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun )
 //----------------------------------------------------------------------------------
 {
   bool failure(false);
   
-  MsgStream log(msgSvc(), name());
   //if (newRun)    {
-    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << endmsg;
+  ATH_MSG_INFO( "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam );
     
-    //This will do the real booking
-    failure = bookDQTNonCollBkg_ZDC();
-    
-    // reset the map                                                                                                                             
-    // do NOT dereg (histo are not written to file)                                                                                              
-    m_map_BCID_DeltaT.clear();
+  //This will do the real booking
+  failure = bookDQTNonCollBkg_ZDC();
+  
+  // reset the map                                                                                                                             
+  // do NOT dereg (histo are not written to file)                                                                                              
+  m_map_BCID_DeltaT.clear();
     
   //}
   //else if (newEventsBlock || newLumiBlock)    {
@@ -117,18 +117,6 @@ StatusCode DQTNonCollBkg_ZDC::bookHistograms()
     return StatusCode::SUCCESS;
   }
 
-  /*
-  StatusCode sc = m_trigDec.retrieve();
-  
-  if ( sc.isFailure() ){
-    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endmsg;
-    return  StatusCode::FAILURE;
-  }
-  else {
-    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  */
 }
 
 //----------------------------------------------------------------------------------
@@ -138,8 +126,6 @@ bool DQTNonCollBkg_ZDC::bookDQTNonCollBkg_ZDC()
 //----------------------------------------------------------------------------------
 {
   bool failure(false);
-
-  MsgStream log(msgSvc(), name());
 
   std::string  fullPath = m_path+"/ZDC";
 
@@ -174,7 +160,7 @@ bool DQTNonCollBkg_ZDC::bookDQTNonCollBkg_ZDC()
 
 
   if (failure) {
-     log << MSG::ERROR << "Error Booking histograms " << endmsg;
+    ATH_MSG_ERROR( "Error Booking histograms " );
   }
 
   return failure;
@@ -189,8 +175,6 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
 {
 
   bool failure(false);
-
-  MsgStream log(msgSvc(), name());
 
   // Do the trigger selection here
   // Trigger selection suggested by D.Berge
@@ -209,14 +193,14 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   }
 
   unsigned bunch_crossing_id=0;
-  const DataHandle<xAOD::EventInfo> event_info;
+  SG::ReadHandle<xAOD::EventInfo> event_info(m_EventInfoKey);
  
-  if (!evtStore()->retrieve( event_info ).isSuccess() || !event_info.isValid() ) {
-    log<< MSG::ERROR << "ERROR cannot get BCID = " <<endmsg;
+  if (! event_info.isValid()) {
+    ATH_MSG_ERROR( "ERROR cannot get BCID = " );
   }
   else {
     bunch_crossing_id = event_info->bcid();
-    log<< MSG::DEBUG << "BCID = " <<  bunch_crossing_id<<endmsg;
+    ATH_MSG_DEBUG( "BCID = " <<  bunch_crossing_id );
     m_bcid->Fill(bunch_crossing_id);
   }
 
@@ -234,48 +218,21 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   Identifier id;
 
 
-  const ZdcDigitsCollection* digitsCollection;
+  SG::ReadHandle<ZdcDigitsCollection> digitsCollection(m_digitsContainerName);
   ZdcDigitsCollection::const_iterator iter;
   const ZdcDigits* digits_p;
 
 
-  //1) Start a set of checks for the container in evtStore
-
-  //Look for the container presence
-  bool dg = evtStore()->contains<ZdcDigitsCollection> (m_digitsContainerName);
-  if (!dg)
-    {
-      if (m_complainContain)
-        log << MSG::WARNING
-            << "--> DQT_ZDC: evtStore does not contain " << m_digitsContainerName << endmsg;
-      m_complainContain = 0;
-      return StatusCode::SUCCESS;
-    }
-
   // Look up the  ZdcDigitsCollection in Storegate
-  StatusCode digitsLookupSC = evtStore()->retrieve(digitsCollection, m_digitsContainerName);
-  if (digitsLookupSC.isFailure())
-    {
-      if (m_complainRetrieve)
-        log << MSG::WARNING
-            << "--> DQT_ZDC: Could not retrieve " << m_digitsContainerName << " from evtStore"
-            << endmsg;
-      m_complainRetrieve = 0;
-      return StatusCode::SUCCESS;
-    }
-
-  // Check if  ZdcDigitsCollection  really exists
-  if (digitsLookupSC.isSuccess() && !digitsCollection)
-    {
-      log << MSG::ERROR <<
-          "--> DQT_ZDC: Storegate returned zero pointer for " << m_digitsContainerName << endmsg;
-      return StatusCode::SUCCESS;
-    }
+  if (! digitsCollection.isValid()) {
+    ATH_MSG_WARNING( "--> DQT_ZDC: Could not retrieve " << m_digitsContainerName << " from evtStore"
+		     );
+    return StatusCode::SUCCESS;
+  }
 
   //2) The container was sucessfully retrieved, go ahead looping over it
   //    and extract the information
-  log << MSG::DEBUG <<
-      "--> DQT_ZDC: SUCCESS retrieving " << m_digitsContainerName << endmsg;
+  ATH_MSG_DEBUG( "--> DQT_ZDC: SUCCESS retrieving " << m_digitsContainerName );
 
   //Loop over the channels
   for (iter = digitsCollection->begin(); iter != digitsCollection->end(); iter++)
@@ -295,16 +252,16 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
       //Sometimes  we get a zero size back. Handle it here
       if (wfm[0].size() == 0)
         {
-          msg(MSG::WARNING) << "ZERO SIZE g0d0 at ID  " << id.getString()
-              << endmsg;
+          ATH_MSG_WARNING( "ZERO SIZE g0d0 at ID  " << id.getString()
+			   );
           wfm[0].resize(m_nsamples);
         }
 
 
       if (wfm[1].size() == 0)
         {
-          msg(MSG::WARNING) << "ZERO SIZE g1d0 at ID  " << id.getString()
-              << endmsg;
+          ATH_MSG_WARNING( "ZERO SIZE g1d0 at ID  " << id.getString()
+			   );
           wfm[1].resize(7);
         }
 
@@ -381,7 +338,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   
   
   if (failure) {
-    log << MSG::ERROR << "Error Booking histograms " << endmsg;
+    ATH_MSG_ERROR( "Error Booking histograms " );
   }
   
   
@@ -394,8 +351,7 @@ StatusCode DQTNonCollBkg_ZDC::procHistograms( )
 //StatusCode DQTNonCollBkg_ZDC::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 //----------------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In procHists()" << endmsg;
+  ATH_MSG_DEBUG( "In procHists()" );
 
   //  std::vector<TH1D*> proj;
   //  if( isEndOfRun ){
@@ -416,8 +372,7 @@ StatusCode DQTNonCollBkg_ZDC::procHistograms( )
 StatusCode DQTNonCollBkg_ZDC::checkHists(bool /* fromFinalize */)
 //----------------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In checkHists()" << endmsg;
+  ATH_MSG_DEBUG( "In checkHists()" );
   return StatusCode::SUCCESS;
 }
 

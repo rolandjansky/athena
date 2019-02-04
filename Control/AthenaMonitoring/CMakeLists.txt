@@ -10,14 +10,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           LumiBlock/LumiBlockComps
-                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
+                          Trigger/TrigEvent/TrigDecisionInterface
                           PRIVATE
                           Control/AthenaKernel
                           Control/SGMon/SGAudCore
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           Tools/LWHists
-                          Trigger/TrigEvent/TrigDecisionInterface
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
 			  AtlasTest/TestTools)
 
 # External dependencies:
