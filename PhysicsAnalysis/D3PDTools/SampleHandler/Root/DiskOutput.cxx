@@ -19,6 +19,7 @@
 #include <SampleHandler/DiskOutput.h>
 
 #include <RootCoreUtils/Assert.h>
+#include <SampleHandler/DiskWriter.h>
 
 //
 // method implementations
@@ -44,25 +45,16 @@ namespace SH
 
 
 
-  DiskWriter *DiskOutput ::
-  makeWriter (const std::string& sample, const std::string& name,
-	      int index, const std::string& suffix) const
+  std::unique_ptr<DiskWriter> DiskOutput ::
+  makeWriter (const std::string& sampleName,
+              const std::string& segmentName,
+              const std::string& suffix) const
   {
     RCU_READ_INVARIANT (this);
-    RCU_REQUIRE (!sample.empty() || !name.empty());
-    RCU_REQUIRE (index >= -1);
-    DiskWriter *const result = doMakeWriter (sample, name, index, suffix);
-    RCU_PROVIDE (result != 0);
+    RCU_REQUIRE (!sampleName.empty());
+    std::unique_ptr<DiskWriter> result
+      = doMakeWriter (sampleName, segmentName, suffix);
+    RCU_PROVIDE (result != nullptr);
     return result;
-  }
-
-
-
-  DiskWriter *DiskOutput ::
-  doMakeWriter (const std::string& /*sample*/, const std::string& /*name*/,
-		int /*index*/, const std::string& /*suffix*/) const
-  {
-    RCU_ASSERT0_NOIMP ((std::string ("DiskOutput::doMakeWriter not overridden for ") + typeid(*this).name()).c_str());
-    return 0; // compiler dummy
   }
 }

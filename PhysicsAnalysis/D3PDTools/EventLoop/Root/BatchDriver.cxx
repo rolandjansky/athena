@@ -98,9 +98,17 @@ namespace EL
       {
 	BatchSegment segment = segments[iter];
 
-	std::ostringstream myname;
-	myname << sample.name << "-" << iter;
-	segment.name = myname.str();
+        segment.sampleName = sample.name;
+        {
+          std::ostringstream myname;
+          myname << sample.name << "-" << iter;
+          segment.fullName = myname.str();
+        }
+        {
+          std::ostringstream myname;
+          myname << iter;
+          segment.segmentName = myname.str();
+        }
 
 	segment.sample = job.samples.size();
 	segment.job_id = job.segments.size();
@@ -356,7 +364,7 @@ namespace EL
       for (std::size_t iter = 0, end = myjob.segments.size();
 	   iter != end; ++ iter)
       {
-	file << iter << " " << myjob.segments[iter].name << "\n";
+	file << iter << " " << myjob.segments[iter].fullName << "\n";
       }
     }
 
@@ -665,7 +673,7 @@ namespace EL
 	  const BatchSegment& mysegment = config.segments[segment];
 
 	  const std::string hist_file =
-	    location + "/fetch/hist-" + mysegment.name + ".root";
+	    location + "/fetch/hist-" + mysegment.fullName + ".root";
 	  std::ostringstream completed_file;
 	  completed_file << location << "/status/completed-" << segment;
 	  std::ostringstream fail_file;
@@ -687,7 +695,7 @@ namespace EL
 	  if (gSystem->AccessPathName (fail_file     .str().c_str()) == 0)
 	  {
 	    std::ostringstream message;
-	    message << "subjob " << segment << "/" << mysegment.name
+	    message << "subjob " << segment << "/" << mysegment.fullName
 		    << " failed";
 	    message << std::endl << "found " << fail_file.str();
 	    RCU_THROW_MSG (message.str());
@@ -719,7 +727,7 @@ namespace EL
 		  const BatchSegment& mysegment = config.segments[segment];
 
 		  const std::string infile =
-		    location + "/fetch/data-" + out->label() + "/" + mysegment.name + ".root";
+		    location + "/fetch/data-" + out->label() + "/" + mysegment.fullName + ".root";
 
 		  input.push_back (infile);
 		}

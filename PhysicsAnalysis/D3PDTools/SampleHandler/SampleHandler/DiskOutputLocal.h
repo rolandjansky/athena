@@ -26,7 +26,7 @@ namespace SH
   ///
   /// Local disks in this case means disks accessed through the file
   /// system.
-  class DiskOutputLocal : public DiskOutput
+  class DiskOutputLocal final : public DiskOutput
   {
     //
     // public interface
@@ -59,7 +59,7 @@ namespace SH
     /// \par Failures
     ///   out of memory II
   public:
-    DiskOutputLocal (const std::string& val_prefix);
+    explicit DiskOutputLocal (const std::string& val_prefix);
 
 
 
@@ -67,11 +67,11 @@ namespace SH
     // inherited interface
     //
 
-    /// \copydoc DiskOutput::doMakeWriter()
   protected:
-    virtual DiskWriter *
-    doMakeWriter (const std::string& sample, const std::string& name,
-		  int index, const std::string& suffix) const;
+    virtual std::unique_ptr<DiskWriter>
+    doMakeWriter (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const;
 
 
 
