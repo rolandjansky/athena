@@ -3,16 +3,12 @@
 */
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <ratio>
 
 #include "AthenaMonitoring/MonitoredTimer.h"
-#include <iostream>
 
 namespace Monitored {
 
   constexpr const char* Timer::TIMER_PREFIX;
-
-  Timer MonitoredTimer::declare(std::string name) { return Monitored::Timer(name); }
 
   Timer::Timer(std::string name) : IMonitoredVariable(std::move(name)) {
     // Enforce some naming convention for timers
