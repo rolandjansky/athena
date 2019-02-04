@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
@@ -264,7 +264,7 @@ namespace CP {
                 ATH_MSG_ERROR("Failed to apply track correction");
                 return CorrectionCode::Error;
             }
-            if (isTopoEtIso(t)) {
+            if (isTopoEtIso(t) || isPFlowIso(t)) {
                 if (!Clusters.empty()) {
                     if (getCloseByCorrectionTopoIso((*Cone), &par, t, Clusters) == CorrectionCode::Error) {
                         ATH_MSG_ERROR("Failed to apply calo correction");
@@ -288,7 +288,7 @@ namespace CP {
 
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
-        } else if (!isTopoEtIso(type)) {
+        } else if (!(isTopoEtIso(type) || isPFlowIso(type))) {
             ATH_MSG_ERROR("Invalid isolation type");
             return CorrectionCode::Error;
         }
@@ -438,10 +438,13 @@ namespace CP {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
             return CorrectionCode::Error;
         } else if (clusters.empty()) {
-            ATH_MSG_VERBOSE("Empty clusters");
-            return CorrectionCode::Ok;
+          ATH_MSG_VERBOSE("Empty clusters");
+          return CorrectionCode::Ok;
         //Disable the correction of already isolated objects
-        } else if (correction <= 0.0) return CorrectionCode::Ok;
+        } else if (correction <= 0.0) {
+            ATH_MSG_DEBUG("Neg corr: " << correction);
+            return CorrectionCode::Ok;
+        }
 
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         const xAOD::IParticle* Ref = topoEtIsoRefPart(par);
