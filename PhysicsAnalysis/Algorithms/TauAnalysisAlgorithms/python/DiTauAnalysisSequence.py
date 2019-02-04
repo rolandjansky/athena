@@ -32,15 +32,17 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
     if len (splitWP) != 1 :
         raise ValueError ('working point should be of format "quality", not ' + workingPoint)
 
+    # using enum value from: https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/TauAnalysisTools/Enums.h
+    # the dictionary is missing in Athena, so hard-coding values here
     sfWorkingPoint = splitWP[0]
     if splitWP[0] == 'Tight' :
-        IDLevel = ROOT.TauAnalysisTools.JETIDBDTTIGHT
+        IDLevel = 4 # ROOT.TauAnalysisTools.JETIDBDTTIGHT
         pass
     elif splitWP[0] == 'Medium' :
-        IDLevel = ROOT.TauAnalysisTools.JETIDBDTMEDIUM
+        IDLevel = 3 # ROOT.TauAnalysisTools.JETIDBDTMEDIUM
         pass
     elif splitWP[0] == 'Loose' :
-        IDLevel = ROOT.TauAnalysisTools.JETIDBDTLOOSE
+        IDLevel = 2 # ROOT.TauAnalysisTools.JETIDBDTLOOSE
         pass
     else :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
