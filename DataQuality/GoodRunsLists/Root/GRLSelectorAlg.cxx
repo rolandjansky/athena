@@ -8,7 +8,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AnaAlgorithm( name, pSvcLocator )
-										    , m_grlTool("GoodRunsListSelectionTool")
+										    , m_grlTool("GoodRunsListSelectionTool", this)
 {
 
   declareProperty( "Tool", m_grlTool , "The GoodRunsListSelectionTool" );
@@ -48,5 +48,3 @@ StatusCode GRLSelectorAlg::execute() {
 
   return StatusCode::SUCCESS;
 }
-
-
