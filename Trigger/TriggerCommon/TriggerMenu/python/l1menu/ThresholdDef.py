@@ -301,7 +301,7 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25)]:
+        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
