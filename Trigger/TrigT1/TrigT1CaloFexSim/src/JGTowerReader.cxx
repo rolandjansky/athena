@@ -713,6 +713,7 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
     if (towerMapSeed_ET.at(i_seed) < m_map_seed_min_ET_MeV) {
       if(isLocalMax)
         ATH_MSG_DEBUG("  below ET threshold");
+      towerMapSeed_ET.at(i_seed) = 0;
       isLocalMax = false;
     }
 
@@ -726,21 +727,27 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
   if(JetAlg::m_JetMap.find(jetname) == JetAlg::m_JetMap.end() )
     JetAlg::m_JetMap[jetname] = js;
 
-  std::vector<std::shared_ptr<JetAlg::L1Jet>> ss;
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> ss, ss_localMax;
   TString seedname = "jSeedsFromMap";
   if(m_saveSeeds) {
     if(JetAlg::m_JetMap.find(seedname) == JetAlg::m_JetMap.end() )
       JetAlg::m_JetMap[seedname] = ss;
+    if(JetAlg::m_JetMap.find(seedname+"_localMax") == JetAlg::m_JetMap.end() )
+      JetAlg::m_JetMap[seedname+"_localMax"] = ss_localMax;
   }
 
   for(int i_jet = 0; i_jet < int(towerMap_jetEta.size()); i_jet++) {
+    if(m_saveSeeds && towerMapSeed_ET.at(i_jet) > 0) {
+      std::shared_ptr<JetAlg::L1Jet> s = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), towerMapSeed_ET.at(i_jet));
+      JetAlg::m_JetMap[seedname].push_back(s);
+    }
+
     if( ! towerMapSeed_isLocalMax.at( towerMap_jetSeed.at(i_jet) ) )
       continue;
 
-    if(m_saveSeeds) {
-      towerMapSeed_ET.at(i_jet);
+    if(m_saveSeeds && towerMapSeed_ET.at(i_jet) > 0) {
       std::shared_ptr<JetAlg::L1Jet> s = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), towerMapSeed_ET.at(i_jet));
-      JetAlg::m_JetMap[seedname].push_back(s);
+      JetAlg::m_JetMap[seedname+"_localMax"].push_back(s);
     }
 
     float jet_ET = 0;

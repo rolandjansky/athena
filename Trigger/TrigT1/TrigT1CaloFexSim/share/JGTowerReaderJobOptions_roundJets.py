@@ -85,7 +85,7 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     saveSeeds = True,
     dumpTowerInfo = True,
 
-    makeSquareJets = True,
+    makeSquareJets = False,
     jJet_seed_size = 0.2,
     jJet_r = 0.4,
     jJet_max_r = 0.4,
@@ -100,8 +100,8 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     jJetRound_seed_size = 0.31, # seed square of side this. 0.3 for 3x3 towers, but floating point fun times
     jJetRound_max_r = 0.39,     # distance within which other seeds will be counted in local max 0.4 but floating point (don't want exactly 0.4)
     jJetRound_r=0.39,           # jet radius. 0.4, but don't want == 0.4
-    jJetRound_seed_tower_noise_multiplier = 1.0,
-    jJetRound_seed_total_noise_multiplier = 1.0,
+    jJetRound_seed_tower_noise_multiplier = 5.0,
+    jJetRound_seed_total_noise_multiplier = 5.0,
     jJetRound_seed_min_ET_MeV = 500,
     jJetRound_jet_tower_noise_multiplier = 1.0,
     jJetRound_jet_total_noise_multiplier = 0.0,
@@ -110,8 +110,8 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     makeJetsFromMap = True,
     # inside share/jetTowerMaps
     towerMap = 'TrigT1CaloFexSim/jetTowerMaps/jFexJet_towerMap_2019-01-29.txt',
-    map_seed_tower_noise_multiplier = 1.0,
-    map_seed_total_noise_multiplier = 1.0,
+    map_seed_tower_noise_multiplier = 5.0,
+    map_seed_total_noise_multiplier = 5.0,
     map_seed_min_ET_MeV = 500,
     map_jet_tower_noise_multiplier = 1.0,
     map_jet_total_noise_multiplier = 0.0,
