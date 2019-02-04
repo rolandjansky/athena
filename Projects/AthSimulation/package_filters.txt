@@ -237,6 +237,7 @@
 + MuonSpectrometer/MuonCnv/MuonIdCnv
 + MuonSpectrometer/MuonCnv/MuonSimEventAthenaPool
 + MuonSpectrometer/MuonCnv/MuonSimEventTPCnv
++ MuonSpectrometer/MuonConfig
 + MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
 + MuonSpectrometer/MuonDetDescr/MuonAGDD
 + MuonSpectrometer/MuonDetDescr/MuonAGDDBase
