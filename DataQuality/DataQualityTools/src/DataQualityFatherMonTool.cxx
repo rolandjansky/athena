@@ -44,7 +44,6 @@ DataQualityFatherMonTool::~DataQualityFatherMonTool()
 StatusCode DataQualityFatherMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
 
   StatusCode sc;
   //m_stem=m_THistSvc_streamname+m_path;
@@ -66,8 +65,7 @@ StatusCode DataQualityFatherMonTool:: initialize()
 
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure())  {
-    log << MSG::ERROR
-        << "Unable to Initialize ManagedMonitoringToolBase::initialize" << endmsg;
+    ATH_MSG_ERROR( "Unable to Initialize ManagedMonitoringToolBase::initialize" );
     return sc;
   }
 
@@ -80,10 +78,9 @@ StatusCode DataQualityFatherMonTool::bookHistogramsRecurrent( )
 { 
 
   if ( newLumiBlockFlag() || newRunFlag() ) {
-    MsgStream log(msgSvc(), name());
 
-    log << MSG::DEBUG << "in bookHists()" << endmsg;
-    log << MSG::DEBUG << "Using base path " << m_path << endmsg;
+    ATH_MSG_DEBUG( "in bookHists()" );
+    ATH_MSG_DEBUG( "Using base path " << m_path );
   }
   return StatusCode::SUCCESS;
 }
@@ -93,10 +90,8 @@ StatusCode DataQualityFatherMonTool::bookHistograms( )
 //----------------------------------------------------------------------------------
 { 
 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "in bookHists()" << endmsg;
-  log << MSG::DEBUG << "Using base path " << m_path << endmsg;
+  ATH_MSG_DEBUG( "in bookHists()" );
+  ATH_MSG_DEBUG( "Using base path " << m_path );
 
   return StatusCode::SUCCESS;
 }
@@ -105,9 +100,8 @@ StatusCode DataQualityFatherMonTool::bookHistograms( )
 StatusCode DataQualityFatherMonTool::fillHistograms()
 //----------------------------------------------------------------------------------
 { 
-  MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in fillHists()" << endmsg;
+  ATH_MSG_DEBUG( "in fillHists()" );
     
   return StatusCode::SUCCESS;
 }
@@ -117,9 +111,7 @@ StatusCode DataQualityFatherMonTool::procHistograms( )
 //----------------------------------------------------------------------------------
 { 
 
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::DEBUG << "in procHistograms()" << endmsg;
+  ATH_MSG_DEBUG( "in procHistograms()" );
   return StatusCode::SUCCESS;
 }
 
@@ -129,9 +121,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //----------------------------------------------------------------------------------
 
 { 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "in checkHists()" << endmsg;
+  ATH_MSG_DEBUG( "in checkHists()" );
     
   return StatusCode::SUCCESS;
 }
@@ -221,9 +211,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH2I_
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -235,9 +224,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1I_
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -250,9 +238,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH2F_
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -264,9 +251,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1F_
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt, "", merge_algo) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -278,9 +264,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1* 
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt, "", merge_algo) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -292,9 +277,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TProf
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -306,9 +290,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TProf
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -319,9 +302,8 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TGrap
 //----------------------------------------------------------------------------------
 {
   if(ManagedMonitorToolBase::regGraph(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+    ATH_MSG_WARNING( "Could not register histogram : " 
+		     << "/"+path+"/"+h1->GetName() );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

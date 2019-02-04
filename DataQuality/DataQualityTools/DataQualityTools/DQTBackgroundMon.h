@@ -32,7 +32,16 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "TagEvent/RawInfoSummaryForTag.h"
+#include "LArRecEvent/LArCollisionTime.h"
+#include "TileEvent/TileContainer.h"
+#include "TileEvent/MBTSCollisionTime.h"
+#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
+#include "RecBackgroundEvent/BeamBackgroundData.h"
+#include "xAODMuon/MuonSegment.h"
+#include "xAODTracking/VertexContainer.h"
 
 
 #include "DataQualityTools/DataQualityFatherMonTool.h"
@@ -58,6 +67,8 @@ class DQTBackgroundMon: public DataQualityFatherMonTool
   DQTBackgroundMon(const std::string & type, const std::string & name, const IInterface* parent);
 
   ~DQTBackgroundMon();
+
+  StatusCode initialize();
 
   StatusCode bookHistograms( );
   //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
@@ -178,6 +189,25 @@ private:
   float m_Up_TimeDiff;
   int m_nBkgWords;
 
+  // StoreGate keys
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { this, "EventInfoKey", "EventInfo", "" };
+  SG::ReadHandleKey<RawInfoSummaryForTag> m_RawInfoSummaryForTagKey
+    { "RawInfoSummaryForTag" };
+  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey
+    { "LArCollisionTime" };
+  SG::ReadHandleKey<MBTSCollisionTime> m_MBTSCollisionTimeKey
+    { "MBTSCollisionTime" };
+  SG::ReadHandleKey<TileCellContainer> m_TileCellContainerKey
+    { this, "MBTSContainerName", "MBTSContainer", "" };
+  SG::ReadHandleKey<LUCID_RawDataContainer> m_LUCID_RawDataContainerKey
+    { "Lucid_RawData" };
+  SG::ReadHandleKey<Trk::SegmentCollection> m_SegmentCollectionKey
+    { "MuonSegments" };
+  SG::ReadHandleKey<BeamBackgroundData> m_BeamBackgroundDataKey
+    { "BeamBackgroundData" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContainerKey
+    { "PrimaryVertices" };
 };
 
 #endif

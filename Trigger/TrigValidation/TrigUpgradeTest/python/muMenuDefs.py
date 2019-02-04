@@ -75,7 +75,7 @@ def muFastStep():
     l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name() 
     
     ### set up MuFastHypo ###
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
@@ -84,7 +84,7 @@ def muFastStep():
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence ])
     
     
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
   
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
@@ -110,7 +110,7 @@ def muCombStep():
     l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
    
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypo.TrigMuonHypoConf import TrigmuCombHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
     #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG
@@ -118,7 +118,7 @@ def muCombStep():
     
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
     
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromName
     
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
@@ -144,14 +144,14 @@ def muEFMSStep():
     efmsViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
     
     # setup MS-only hypo
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
     trigMuonEFMSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFMSHypoAlg" )
     trigMuonEFMSHypo.OutputLevel = DEBUG
     trigMuonEFMSHypo.MuonDecisions = sequenceOut
     
     muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, muEFMSRecoSequence] )
     
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
     
     return MenuSequence( Sequence    = muonEFMSonlySequence,
                          Maker       = efmsViewsMaker,
@@ -174,14 +174,14 @@ def muEFSAStep():
     efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
     
     # setup EFSA hypo
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAHypoAlg" )
     trigMuonEFSAHypo.OutputLevel = DEBUG
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
     
     muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
     
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
     
     return MenuSequence( Sequence    = muonEFSAonlySequence,
                          Maker       = efsaViewsMaker,
@@ -208,18 +208,19 @@ def muEFCBStep():
     
     
     # setup EFCB hypo
-    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
-    trigMuonEFCBHypo = TrigMuonEFCombinerHypoConfig( "TrigMuonEFCombinerHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
+    trigMuonEFCBHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.OutputLevel = DEBUG
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
     
     muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
-    
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
 
     return MenuSequence( Sequence    = muonEFCBSequence,
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBHypo,
-                         HypoToolGen = trigMuonEFCBHypo.TrigMuonEFCombinerHypoToolFromName )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
 
 ### l2Muiso step ###
 def muIsoStep():
@@ -237,7 +238,7 @@ def muIsoStep():
     l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
  
     # set up hypo    
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMuisoHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoAlg
     trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
     trigmuIsoHypo.OutputLevel = DEBUG
     trigmuIsoHypo.MuonL2ISInfoName = sequenceOut
@@ -245,7 +246,7 @@ def muIsoStep():
     ### Define a Sequence to run for muIso ### 
     l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
     
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromName
 
     return MenuSequence( Sequence    = l2muIsoSequence,
                          Maker       = l2muIsoViewsMaker,

@@ -2242,7 +2242,7 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
 					<< v_splits[1] << std::endl;
     try {
       v_ranges.push_back(std::make_pair(*dirit, std::make_pair(boost::lexical_cast<int>(v_splits[0]), boost::lexical_cast<int>(v_splits[1]))));
-    } catch (boost::bad_lexical_cast e) {
+    } catch (boost::bad_lexical_cast& e) {
       std::cerr << "Unable to cast to integers: " << v_splits[0] << " " 
 		<< v_splits[1] << std::endl;
     }

@@ -41,7 +41,6 @@ DQTDataFlowMonTool::DQTDataFlowMonTool(const std::string & type,
     //    m_eventflag_summary_lowStat(0),
     //    m_eventflag_summary_lb(0),
     m_sumweights(0)
-
 //----------------------------------------------------------------------------------
 {
   declareInterface<IMonitorToolBase>(this);
@@ -70,11 +69,12 @@ DQTDataFlowMonTool::~DQTDataFlowMonTool()
 
 //----------------------------------------------------------------------------------
 StatusCode DQTDataFlowMonTool::initialize()
+//----------------------------------------------------------------------------------
 {
-  ATH_CHECK( DataQualityFatherMonTool::initialize() );
   ATH_CHECK( m_eventInfoKey.initialize() );
-  return StatusCode::SUCCESS;
+  return DataQualityFatherMonTool::initialize();
 }
+
 //----------------------------------------------------------------------------------
 StatusCode DQTDataFlowMonTool::bookHistograms(  )
 //----------------------------------------------------------------------------------
@@ -174,10 +174,10 @@ DQTDataFlowMonTool::fillHistograms()
   m_release_stage_lowStat->Fill(m_environment);
 
   if( m_environment != AthenaMonManager::tier0Raw ) {
-    const EventInfo* evtinfo;
-    StatusCode sc(evtStore()->retrieve(evtinfo));
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Could not retrieve EventInfo");
+    SG::ReadHandle<xAOD::EventInfo> evtinfo(m_eventInfoKey);
+    if (! evtinfo.isValid()) {
+      ATH_MSG_ERROR("Could not retrieve EventInfo");
+      return StatusCode::FAILURE;
     } else {
       if (m_sumweights) { 
 	m_sumweights->Fill(evtinfo->lumiBlock(), evtinfo->mcEventWeight()); 

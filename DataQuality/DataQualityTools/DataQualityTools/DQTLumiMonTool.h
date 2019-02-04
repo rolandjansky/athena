@@ -24,11 +24,18 @@
 #include <string>
 #include <vector>
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTracking/VertexContainer.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetIdentifier/PixelID.h"
+#include "xAODEventInfo/EventInfo.h"
+
+
 class DQTLumiMonTool: public DataQualityFatherMonTool{
  public:  
   DQTLumiMonTool(const std::string & type, const std::string & name, const IInterface* parent);
   ~DQTLumiMonTool();
-  //StatusCode initialize();
+  StatusCode initialize();
   // StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
   StatusCode bookHistograms( );
   StatusCode fillHistograms();
@@ -37,11 +44,16 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
  private:
   bool m_failedBooking;
 
-  std::string m_VertexContainerKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { "EventInfo" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContainerKey
+    { this, "VertexContainerKey", "PrimaryVertices", "" };
   int m_MinNtracksForTight;
   float m_MinTrackWeightForTight;
-  std::string m_PixelClustersKey;
-  std::string m_PixelIDKey;
+  SG::ReadHandleKey<InDet::PixelClusterContainer> m_PixelClustersKey
+    { this, "PixelClustersKey", "PixelClusters", "" };
+  Gaudi::Property<std::string> m_PixelIDKey
+    { this, "PixelIDKey", "PixelID", "" };
 
   TProfile* m_aveMu_vs_LB;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_H
@@ -26,6 +26,8 @@
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "LumiBlockComps/ITrigLivefractionTool.h"
 
+#include "TrigDecisionInterface/ITrigDecisionTool.h"
+
 class IInterface;
 class ISvcLocator;//not needed
 class TGraph;
@@ -34,9 +36,6 @@ class TH1;
 class TH2;
 class TTree;
 class ITHistSvc;
-namespace Trig {
-   class ITrigDecisionTool;
-}
 class IDQFilterTool;
 
 #include <cctype>
@@ -63,9 +62,6 @@ class IDQFilterTool;
  * and save histograms, ntuples, and summary data, while allowing a central
  * manager to coordinate and configure many ManagedMonitorToolBase instances.
  *
- * $Id: ManagedMonitorToolBase.h,v 1.21 2009-05-08 09:52:58 sschaetz Exp $
- *
- * @author Michael Wilson, CERN, January 2007
  */
 
 class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBase
