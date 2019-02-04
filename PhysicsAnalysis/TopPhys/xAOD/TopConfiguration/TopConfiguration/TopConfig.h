@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -487,10 +487,12 @@ class TopConfig final {
   inline virtual void jetPtcut(const float pt)       {if(!m_configFixed){m_jetPtcut = pt;}}
   inline virtual void jetEtacut(const float eta)     {if(!m_configFixed){m_jetEtacut = eta;}}
   inline virtual void fwdJetAndMET(const std::string& fwd)  {if(!m_configFixed){m_fwdJetAndMET = fwd;}}
+  inline virtual void jetPtGhostTracks(const float pt)       {if(!m_configFixed){m_jetPtGhostTracks = pt;}}
 
   inline virtual float jetPtcut()  const {return m_jetPtcut;}
   inline virtual float jetEtacut() const {return m_jetEtacut;}
   inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
+  inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
 
   inline virtual void largeRJetPtcut(const float pt)    {if(!m_configFixed){m_largeRJetPtcut = pt;}}
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
@@ -784,6 +786,8 @@ class TopConfig final {
   // Update for R21
   const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
   const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  const std::vector<std::string>& PileupActualMu_FS(){ return m_pileup_reweighting.actual_mu_FS; };
+  const std::vector<std::string>& PileupActualMu_AF(){ return m_pileup_reweighting.actual_mu_AF; };
   inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
@@ -1137,6 +1141,7 @@ class TopConfig final {
   float m_jetPtcut; // jet object selection pT cut
   float m_jetEtacut; // jet object selection (abs) eta cut
   std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
+  float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
   std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
   std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
   std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
@@ -1329,6 +1334,8 @@ class TopConfig final {
     // R21 - Need to allow configuration for FS and AF2
     std::vector<std::string> config_files_FS = {};
     std::vector<std::string> config_files_AF = {};
+    std::vector<std::string> actual_mu_FS = {};
+    std::vector<std::string> actual_mu_AF = {};
     float unrepresented_data_tol = 0.05;
 
     bool apply = false;

@@ -1,8 +1,15 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef ASGTOOLS_ANATOOLHANDLE_ICC
+#define ASGTOOLS_ANATOOLHANDLE_ICC
+
 #include <AsgTools/MessageCheck.h>
 #include <assert.h>
 #include <cstdlib>
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include "GaudiKernel/IJobOptionsSvc.h"
 #endif
 
@@ -11,7 +18,7 @@ namespace asg
 {
   namespace detail
   {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     StatusCode makeToolRootCore (const std::string& type,
 				 const std::string& name,
 				 AsgTool*& tool);
@@ -37,7 +44,7 @@ namespace asg
     {
       using namespace msgUserCode;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       to = ToolHandle<T1> (dynamic_cast<T1*>(&*from));
       if (!from.empty() && &*to == nullptr)
       {
@@ -166,7 +173,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// \brief manage a single property in the job options service
 
     struct PropertyValueManager
@@ -218,7 +225,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief a \ref AnaToolProperty containing a regular value in
     /// RootCore
 
@@ -261,7 +268,7 @@ namespace asg
 	: m_config (val_config)
       {}
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     public:
       virtual StatusCode
       applyPropertyRootCore (AsgTool& tool, const std::string& name,
@@ -278,7 +285,7 @@ namespace asg
       }
 #endif
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     private:
       virtual StatusCode
       applyPropertyAthena (const std::string& toolName,
@@ -310,7 +317,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// \brief a \ref AnaToolProperty copying a tool configuration
     /// from the job options service to a new place
 
@@ -353,7 +360,7 @@ namespace asg
 	: m_name (val_name), m_config (val_config)
       {}
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     public:
       virtual StatusCode
       applyPropertyRootCore (AsgTool& tool, const std::string& name,
@@ -372,7 +379,7 @@ namespace asg
       }
 #endif
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     private:
       virtual StatusCode
       applyPropertyAthena (const std::string& toolName,
@@ -412,7 +419,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     template<typename Type> void AnaToolConfig ::
     registerNew ()
     {
@@ -423,7 +430,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     template<typename Type> StatusCode AnaToolConfig ::
     setProperty (const std::string& val_name, const Type& val_value)
     {
@@ -484,7 +491,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     template<typename Type> StatusCode AnaToolConfig ::
     setProperty (const std::string& val_name,
 		 const ToolHandle<Type>& val_value)
@@ -551,7 +558,7 @@ namespace asg
       ANA_CHECK (makeBaseTool (name, parent, baseTH, baseCleanup));
       ANA_CHECK (toolHandleCast (th, baseTH));
       cleanup.swap (baseCleanup);
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       baseTH->release ();
 #endif
       return StatusCode::SUCCESS;
@@ -577,10 +584,6 @@ namespace asg
     // General requirements
     CHECK_INVARIANT (&*this != nullptr);
     CHECK_INVARIANT (m_handleUser != nullptr);
-    // CHECK_INVARIANT (m_parentPtr == nullptr || m_parentPtr->name() == m_parentName);
-    // #ifndef ROOTCORE
-    // CHECK_INVARIANT (m_parentPtr == m_handleUser->parent());
-    // #endif
 
 #undef CHECK_INVARIANT
   }
@@ -628,7 +631,7 @@ namespace asg
       m_cleanup = that.m_cleanup;
     }
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     if (!m_handleUser->empty())
       (*m_handleUser)->release();
 #endif
@@ -665,7 +668,7 @@ namespace asg
     std::swap (m_parentPtr, that.m_parentPtr);
     {
       ToolHandle<T> tmp = *m_handleUser;
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       if (!tmp.empty())
         tmp->release();
 #endif
@@ -824,7 +827,7 @@ namespace asg
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
       assert (sharedTool != nullptr);
       ANA_CHECK (detail::toolHandleCast (th, sharedTool->th()));
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       if (!th.empty())
         th->release ();
 #endif
@@ -844,7 +847,7 @@ namespace asg
     ANA_CHECK (makeToolRetrieve (toolPtr, th));
 
     *m_handleUser = th;
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     if (!th.empty())
       th->release ();
 #endif
@@ -1021,7 +1024,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   template <class T> template <class T2> void AnaToolHandle<T> ::
   setTypeRegisterNew (std::string val_type)
   {
@@ -1065,7 +1068,7 @@ namespace asg
 #ifndef NDEBUG
     this->testInvariant ();
 #endif
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     return m_handleUser->parentName() + "." + name();
 #else
     std::string toolName;
@@ -1096,7 +1099,7 @@ namespace asg
         m_handleUser->typeAndName() != m_originalTypeAndName)
       return detail::AnaToolHandleMode::USER;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     if (m_parentPtr != nullptr)
     {
       if (m_handleUser->parentName() != m_parentPtr->name())
@@ -1113,14 +1116,14 @@ namespace asg
       if ((sharedTool = detail::AnaToolShareList::singleton()
              .getShare (name())))
 	return detail::AnaToolHandleMode::RETRIEVE_SHARED;
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       /// \todo check whether this is actually what we want to do
       if (ToolStore::contains<T> (m_handleUser->name()))
 	return detail::AnaToolHandleMode::USER;
 #endif
     }
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     //for athena, all we do here is check if the tool already exists
     interfaceType_t *tool = nullptr;
     if( detail::toolExists( fullName(), tool ) )
@@ -1346,3 +1349,5 @@ namespace asg
     m_allowEmpty = val_allowEmpty;
   }
 }
+
+#endif // ASGTOOLS_ANATOOLHANDLE_ICC

@@ -1,9 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopSystematicObjectMaker/GhostTrackSystematicsMaker.h"
@@ -34,11 +30,13 @@ namespace top {
     /* explicit */ GhostTrackSystematicsMaker::GhostTrackSystematicsMaker(const std::string & name)
         : ::asg::AsgTool(name),
         m_config(nullptr),
+	m_jetPtCut(0.),
         m_runPeriods(),
         m_specifiedSystematics(),
         m_recommendedSystematics(),
         m_nominalSystematicSet(),
-        m_tools() {
+        m_tools()
+	 {
 
         declareProperty("config" , m_config);
     }
@@ -81,7 +79,12 @@ namespace top {
 
         // Pass the systematics list back to the top::TopConfig object.
         m_config->systematicsJetGhostTrack(specifiedSystematics());
+	
+	
+	m_jetPtCut=m_config->jetPtGhostTracks();
 
+	ATH_MSG_INFO(" top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut << " MeV.");
+	
         ATH_MSG_INFO(" top::GhostTrackSystematicsMaker completed initialize" );
         return StatusCode::SUCCESS;
     }
@@ -90,6 +93,7 @@ namespace top {
                                                                const CP::SystematicSet & syst) const {
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             // Copy nominal ghost track container into the systematic variation.
             const auto & nominalGhostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
@@ -109,11 +113,19 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		ATH_MSG_WARNING( "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
+		continue;
+	    }
+
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -141,8 +153,16 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
+
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
+		continue;
+	    }
+
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -185,9 +205,16 @@ namespace top {
         newTrackParticles->setStore(newTrackParticlesAux);
 
         for (const auto & jet : * nominal){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
+	    
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
+		continue;
+	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -212,7 +239,8 @@ namespace top {
     StatusCode GhostTrackSystematicsMaker::applyBiasingSystematic(xAOD::JetContainer * nominal,
                                                                    InDet::InDetTrackBiasingTool * tool,
                                                                    const CP::SystematicSet & syst) const {
-        ///-- Inform the tool --///
+        
+	///-- Inform the tool --///
         top::check(tool->applySystematicVariation(syst),
                    "Failed to configure tool for systematic variation");
 
@@ -231,9 +259,17 @@ namespace top {
         newTrackParticles->setStore(newTrackParticlesAux);
 
         for (const auto & jet : * nominal){
+	  
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
+	    	    
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
+		continue;
+	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -276,7 +312,7 @@ namespace top {
 
         ///-- SMEARING --///
         for (const auto & syst : m_systs.smearing){
-            // std::cout << "[A] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[A] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applySmearingSystematic(nominalJets, &(* m_tools.smearing), syst),
                        "Failure to apply GhostTrackSystematic");
         }
@@ -288,7 +324,7 @@ namespace top {
 
             top::check(biasingTool, "Failure to selected biasing tool");
             for (const auto & syst : m_systs.bias){
-                // std::cout << "[B] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                 //std::cout << "[B] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                 top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                            "Failure to apply GhostTrackSystematic");
             }
@@ -303,7 +339,7 @@ namespace top {
 
             if (randomRunNumber == 0){
                 for (const auto & syst : m_systs.bias){
-                    // std::cout << "[B.1] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                     //std::cout << "[B.1] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                     top::check(applyNoOpSystematic(nominalJets, syst),
                                "Failure to apply GhostTrackSystematic");
                 }
@@ -321,7 +357,7 @@ namespace top {
                 }
                 top::check(biasingTool, "Failure to selected biasing tool");
                 for (const auto & syst : m_systs.bias){
-                    // std::cout << "[B.2] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                     //std::cout << "[B.2] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                     top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                                "Failure to apply GhostTrackSystematic");
                 }
@@ -330,14 +366,14 @@ namespace top {
 
         ///-- TRUTH FILTER --///
         for (const auto & syst : m_systs.truthFilter){
-            // std::cout << "[C] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[C] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applyTruthFilterSystematic(nominalJets, &(* m_tools.truthFilter), syst),
                        "Failure to apply GhostTrackSystematic");
         }
 
         ///-- JET TRACK FILTER --///
         for (const auto & syst : m_systs.jetTrackFilter){
-            // std::cout << "[D] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[D] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applyJetTrackFilterSystematic(nominalJets, &(* m_tools.jetTrackFilter), syst),
                        "Failure to apply GhostTrackSystematic");
         }
@@ -347,9 +383,9 @@ namespace top {
     }
 
 
-    void GhostTrackSystematicsMaker::specifiedSystematics(const std::set<std::string> & specifiedSystematics) {
+    void GhostTrackSystematicsMaker::specifiedSystematics(const std::set<std::string> & specSys) {
         // NOTE: For this function -- unlike the "proper" ObjectCollectionMakers in AnalysisTop -- an empty specifiedSystematics input is considered to represent "No Systematics". All GhostTrack systematics can be requested with the string "AllGhostTrack".
-        const bool allGhostTrackSystematics = m_config->contains(specifiedSystematics,
+	const bool allGhostTrackSystematics = m_config->contains(specSys,
                                                                  "AllGhostTrack");
 
         // Acquire the recommended systematics from the various tools and put
@@ -399,7 +435,7 @@ namespace top {
                         continue;
                     }
 
-                    for (const auto & i : specifiedSystematics) {
+                    for (const auto & i : specSys) {
                         if (i == s.name()) {
                             m_specifiedSystematics.push_back(s);
                         }
@@ -505,3 +541,6 @@ namespace top {
     }
 
 }
+
+
+

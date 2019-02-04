@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -23,12 +23,12 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTau/DiTauJetContainer.h"
 #include "xAODTau/DiTauJetAuxContainer.h"
-#include "xAODCore/ShallowCopy.h"
 
 #include "AsgTools/ToolHandle.h"
 
 // Local include(s):
 #include "TauAnalysisTools/DiTauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/DiTauSmearingTool.h"
 #include "TauAnalysisTools/DiTauTruthMatchingTool.h"
 
 #include "tauRecTools/DiTauIDVarCalculator.h"
@@ -135,11 +135,26 @@ int main( int argc, char* argv[] )
   }
 
   // ===========================================================================
+  // DiTauSmearingTool
+  // ===========================================================================
+  TauAnalysisTools::DiTauSmearingTool DiTauSmeTool( "DiTauSmearingTool" );
+  DiTauSmeTool.msg().setLevel( MSG::DEBUG );
+  CHECK(DiTauSmeTool.initialize());
+
+  // restructure all recommended systematic variations for smearing tool
+  std::vector<CP::SystematicSet> vSmearingSystematicSet;
+  for (auto SystematicsVariation : DiTauSmeTool.recommendedSystematics())
+  {
+    vSmearingSystematicSet.push_back(CP::SystematicSet());
+    vSmearingSystematicSet.back().insert(SystematicsVariation);
+  }
+
+  // ===========================================================================
   // DiTauTruthMatchingTool
   // ===========================================================================
   TauAnalysisTools::DiTauTruthMatchingTool DiTauTruthMatchingTool( "TauTruthMatchingTool");
   // DiTauTruthMatchingTool.msg().setLevel( MSG::DEBUG );
-  CHECK(DiTauTruthMatchingTool.setProperty("WriteTruthTaus", true));
+  CHECK(DiTauTruthMatchingTool.setProperty("WriteTruthTaus", false));
   CHECK(DiTauTruthMatchingTool.initialize());
 
   // ===========================================================================
@@ -174,6 +189,8 @@ int main( int argc, char* argv[] )
             static_cast< int >( xEventInfo->runNumber() ),
             static_cast< int >( iEntry ) );
 
+    bool bIsMC = xEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+
     RETRIEVE(xAOD::DiTauJetContainer, xDiTauJetContainer, "DiTauJets");
     std::pair< xAOD::DiTauJetContainer*, xAOD::ShallowAuxContainer* >xDiTauShallowContainer = xAOD::shallowCopyContainer(*xDiTauJetContainer);
 
@@ -183,6 +200,7 @@ int main( int argc, char* argv[] )
 
     // copy taus
     CHECK( xEvent.copy("DiTauJets") );
+    CHECK( xEvent.copy("EventInfo") );
 
     ///////////////////////////////////////////////////////////////////
     for ( auto xDiTau : *xDiTauShallowContainer.first )
@@ -193,7 +211,7 @@ int main( int argc, char* argv[] )
       DiTauTruthMatchingTool.getTruth(*xDiTau);
 
       int truthMatch = 0;
-      if (xDiTau->auxdata<char>("IsTruthHadronic"))
+      if (bIsMC && xDiTau->auxdata<char>("IsTruthHadronic"))
         truthMatch = 1;
       Info( "DiTauAnalysisExample",
             "truthMatch? %i, bdt: %g",
@@ -217,6 +235,16 @@ int main( int argc, char* argv[] )
               xDiTau->auxdata<double>("TruthVisSubleadPt")/1000,
               xDiTau->auxdata<double>("TruthVisDeltaR"));
 
+      for (auto sSystematicSet: vSmearingSystematicSet)
+      {
+        CHECK( DiTauSmeTool.applySystematicVariation(sSystematicSet)) ;
+        CHECK( DiTauSmeTool.applyCorrection(*xDiTau) );
+        Info( "TauAnalysisToolsExample",
+              "Smeared ditau pt: %g for type %s ",
+              xDiTau->pt()*0.001,
+              sSystematicSet.name().c_str());
+      }
+
       for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSet)
       {
         CHECK( DiTauEffCorrTool.applySystematicVariation(sSystematicSet));
@@ -230,8 +258,12 @@ int main( int argc, char* argv[] )
 
     if (xDiTauJetContainer->empty())
     {
-      DiTauTruthMatchingTool.retrieveTruthTaus();
+      CHECK( DiTauTruthMatchingTool.retrieveTruthTaus() );
     }
+
+    CHECK( xEvent.record(xDiTauShallowContainer.first, "_DiTauJets") );
+    CHECK( xEvent.record(xDiTauShallowContainer.second, "_DiTauJetsAux.") );
+
     xEvent.fill();
   }
 

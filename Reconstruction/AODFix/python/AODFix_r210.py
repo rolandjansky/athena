@@ -75,6 +75,10 @@ class AODFix_r210(AODFix_base):
                 self.tauid_postSystemRec(topSequence)
                 pass
 
+            if "tauEleBDT" not in oldMetadataList and not self.isHI:
+                self.tauEleBDT_postSystemRec(topSequence)
+                pass
+
             # Reset all of the ElementLinks. To be safe.
             topSequence += \
                 CfgMgr.xAODMaker__ElementLinkResetAlg( "AODFix_ElementLinkReset" )
@@ -208,6 +212,11 @@ class AODFix_r210(AODFix_base):
         # Calculate RNN-ID and set working points
         from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
         TauRecAODProcessor_RNN_ID()
+
+    def tauEleBDT_postSystemRec(self, topSequence):
+        # Recalculate the tau eleBDT scores and set working points.
+        from tauRec.TauRecAODBuilder import TauRecAODProcessor_EleBDTFix
+        TauRecAODProcessor_EleBDTFix()
 
     def removeMuonDecor_postSystemRec( self, topSequence ):
         """Fix the issue with muon decorations, described in ATLASRECTS-4499.

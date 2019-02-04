@@ -42,6 +42,7 @@ namespace EL
   class SlurmDriver;
   class StatusCode;
   class TorqueDriver;
+  class IWorker;
   class Worker;
 
   namespace Detail

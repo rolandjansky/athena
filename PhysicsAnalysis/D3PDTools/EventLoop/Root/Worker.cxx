@@ -724,6 +724,14 @@ namespace EL
       ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
       return ::StatusCode::FAILURE;
     }
+
+    if (m_firstEvent)
+    {
+      m_firstEvent = false;
+      for (auto& module : m_modules)
+        ANA_CHECK (module->postFirstEvent (*this));
+    }
+
     return ::StatusCode::SUCCESS;
   }
 

@@ -327,16 +327,18 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	    rcjet->auxdecor<float>("L3_clstr") = L3;
 	    rcjet->auxdecor<float>("L4_clstr") = L4;
 	    rcjet->auxdecor<float>("L5_clstr") = L5;
-	    // lets also store the rebuilt jet incase we need it later
+	  }
+	  
+	  // lets also store the rebuilt jet in case we need it later
+	  if (m_useJSS || m_useAdditionalJSS){  
+	    
 	    rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
 	    rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
 	    rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
 	    rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
 	    
-	    
 	  }// end of if useAdditional JSS
-    
-	    
+	  
 	} // end rcjet loop
       } // //m_useJSS || m_useAdditionalJSS
 	

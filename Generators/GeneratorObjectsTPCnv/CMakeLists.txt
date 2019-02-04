@@ -19,15 +19,18 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( HepMC )
+find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( GeneratorObjectsTPCnv
    GeneratorObjectsTPCnv/*.h src/*.cxx
    PUBLIC_HEADERS GeneratorObjectsTPCnv
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${HEPMC_LIBRARIES} SGTools AthenaPoolCnvSvcLib GaudiKernel
    GeneratorObjects
-   PRIVATE_LINK_LIBRARIES AthAllocators AthenaKernel GenInterfacesLib )
+   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel GenInterfacesLib )
 
 atlas_add_dictionary( GeneratorObjectsTPCnvDict
    GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h
