@@ -471,7 +471,7 @@ namespace xAOD {
       /// Get the pointer to the event store associated with this event
       StoreGateSvc* evtStore ATLAS_NOT_CONST_THREAD_SAFE () const;
       /// Set the pointer to the event store associated with this event
-      void setEvtStore( StoreGateSvc* svc ) const;
+      void setEvtStore( StoreGateSvc* svc );
 #endif // not genreflex or rootcint/rootcling
 
       /// @}
@@ -492,7 +492,7 @@ namespace xAOD {
 #ifndef __GCCXML__
       /// Transient pointer to the StoreGateSvc instance associated with the
       /// event (Needed for pile-up digitisation)
-      mutable StoreGateSvc* m_evtStore;
+      StoreGateSvc* m_evtStore;
 #endif // not __GCCXML__
 
    }; // class EventInfo_v1

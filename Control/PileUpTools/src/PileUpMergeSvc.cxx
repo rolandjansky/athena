@@ -138,11 +138,11 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
       ATH_MSG_INFO(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
       if( xAODEventInfo->evtStore() == nullptr ) {
          // SG is 0 only when the xAODEventInfo is first read
-         xAODEventInfo->setEvtStore( sg );
+         const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( sg );
          // the loop below serves 2 purposes: to recreate subevent links cache
          // and set SG pointer in subevents 
          for( auto& subev : xAODEventInfo->subEvents() ) {
-            subev.ptr()->setEvtStore( sg );
+            const_cast<xAOD::EventInfo*>( subev.ptr() )->setEvtStore( sg );
          }
       }
    } else {
