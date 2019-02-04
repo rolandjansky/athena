@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,9 +10,6 @@
 JetAssociationBase::JetAssociationBase()
   : m_keyIndex(0)
   , m_jetKeyDescr(JetKeyDescriptorInstance::instance())
-{ }
-
-JetAssociationBase::~JetAssociationBase()
 { }
 
 void JetAssociationBase::setName(const name_t& name)
