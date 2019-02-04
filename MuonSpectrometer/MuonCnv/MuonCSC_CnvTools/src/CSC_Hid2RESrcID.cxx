@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSC_Hid2RESrcID.h" 
@@ -13,7 +13,7 @@ using eformat::helper::SourceIdentifier;
 #include <cassert>
 
 /** get source ID for a RDO */
-uint32_t CSC_Hid2RESrcID::getRodID(const CscRawDataCollection *rdo)
+uint32_t CSC_Hid2RESrcID::getRodID(const CscRawDataCollection *rdo) const
 {
 
   uint16_t rodId = rdo->rodId();
@@ -23,7 +23,7 @@ uint32_t CSC_Hid2RESrcID::getRodID(const CscRawDataCollection *rdo)
 }
 
 /** get source ID for a RDO */
-uint32_t CSC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId)
+uint32_t CSC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId) const
 {
   // get Source ID
   assert ( subDetectorId == eformat::MUON_CSC_ENDCAP_C_SIDE || 
@@ -37,7 +37,7 @@ uint32_t CSC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId)
 }
 
 /** get source ID for a CscRdoCollection */
-uint32_t CSC_Hid2RESrcID::getRodID(const Identifier& offlineId)
+uint32_t CSC_Hid2RESrcID::getRodID(const Identifier& offlineId) const
 {
 
   int eta                = m_cscIdHelper->stationEta(offlineId);
@@ -53,7 +53,7 @@ uint32_t CSC_Hid2RESrcID::getRodID(const Identifier& offlineId)
 }
 
 /** mapping SrcID from ROD to ROB */ 
-uint32_t CSC_Hid2RESrcID::getRobID (uint32_t rod_id) 
+uint32_t CSC_Hid2RESrcID::getRobID (uint32_t rod_id) const
 {
 
   uint32_t rob_id = rod_id;
@@ -99,7 +99,7 @@ void CSC_Hid2RESrcID::fillAllRobIds()
 }
 
 /** mapping SrcID from ROB to ROS */ 
-uint32_t CSC_Hid2RESrcID::getRosID (uint32_t rob_id) 
+uint32_t CSC_Hid2RESrcID::getRosID (uint32_t rob_id)  const
 {
   //  Change Module Type to ROS, moduleid = 0  
   SourceIdentifier id (rob_id);
@@ -110,7 +110,7 @@ uint32_t CSC_Hid2RESrcID::getRosID (uint32_t rob_id)
 }
 
 /** mapping SrcID from ROS to Det */ 
-uint32_t CSC_Hid2RESrcID::getDetID (uint32_t ros_id) 
+uint32_t CSC_Hid2RESrcID::getDetID (uint32_t ros_id)  const
 {
   //  ROS to DET
   SourceIdentifier id (ros_id);

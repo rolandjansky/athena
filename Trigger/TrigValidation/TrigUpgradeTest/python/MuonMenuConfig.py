@@ -254,7 +254,7 @@ def l2MuFastRecoCfg( flags ):
 
 def l2MuFastHypoCfg( flags, name="UNSPECIFIED", muFastInfo="UNSPECIFIED" ):
 
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg
     muFastHypo = TrigMufastHypoAlg( name )
     muFastHypo.MuonL2SAInfoFromMuFastAlg = muFastInfo 
 
@@ -268,8 +268,8 @@ def generateMuonsCfg( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
     # Set Hypo alg of muFast step
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
     muFastHypo = TrigMufastHypoAlg("TrigL2MuFastHypo")
     muFastHypo.MuonL2SAInfoFromMuFastAlg = muFastInfo
 

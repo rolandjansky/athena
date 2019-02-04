@@ -128,7 +128,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr.EventSelector.EventsPerRun = 5
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.EventSelector.RunNumber = 215643
-theApp.EvtMax                    = 1
+theApp.EvtMax                    = 20
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

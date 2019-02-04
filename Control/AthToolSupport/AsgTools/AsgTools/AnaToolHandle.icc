@@ -592,8 +592,7 @@ namespace asg
 
   template<class T> AnaToolHandle<T> ::
   AnaToolHandle (const std::string& val_name, parentType_t *val_parent)
-    : m_parentName (val_parent ? val_parent->name() : std::string()),
-      m_parentPtr (val_parent),
+    : m_parentPtr (val_parent),
       m_handleUser (new ToolHandle<T> (val_name, val_parent)),
       m_allowEmpty (val_name.empty())
   {
@@ -619,7 +618,6 @@ namespace asg
   AnaToolHandle (const AnaToolHandle<T>& that)
     : m_config (that.m_config),
       m_name (that.m_name),
-      m_parentName (that.m_parentName),
       m_parentPtr (that.m_parentPtr),
       m_handleUser (new ToolHandle<T> (*that.m_handleUser)),
       m_originalTypeAndName (that.m_originalTypeAndName),
@@ -667,7 +665,6 @@ namespace asg
     m_cleanup.swap (that.m_cleanup);
     m_config.swap (that.m_config);
     m_name.swap (that.m_name);
-    m_parentName.swap (that.m_parentName);
     std::swap (m_parentPtr, that.m_parentPtr);
     {
       ToolHandle<T> tmp = *m_handleUser;
@@ -745,7 +742,7 @@ namespace asg
 #ifndef NDEBUG
      this->testInvariant ();
 #endif
-     return m_parentName.empty();
+     return m_parentPtr == nullptr;
   }
 
 
@@ -1075,10 +1072,10 @@ namespace asg
     return m_handleUser->parentName() + "." + name();
 #else
     std::string toolName;
-    if (!isPublic())
-      toolName = m_parentName + "." + name();
+    if (m_parentPtr)
+      toolName = m_parentPtr->name() + "." + name();
     else
-      toolName = name();
+      toolName = "ToolSvc." + name();
     return toolName;
 #endif
   }
@@ -1103,9 +1100,9 @@ namespace asg
       return detail::AnaToolHandleMode::USER;
 
 #ifdef XAOD_STANDALONE
-    if (!m_parentName.empty())
+    if (m_parentPtr != nullptr)
     {
-      if (m_handleUser->parentName() != m_parentName)
+      if (m_handleUser->parentName() != m_parentPtr->name())
 	return detail::AnaToolHandleMode::USER;
     } else
     {
@@ -1117,7 +1114,7 @@ namespace asg
     if (isPublic())
     {
       if ((sharedTool = detail::AnaToolShareList::singleton()
-	     .getShare (fullName())))
+             .getShare (name())))
 	return detail::AnaToolHandleMode::RETRIEVE_SHARED;
 #ifdef XAOD_STANDALONE
       /// \todo check whether this is actually what we want to do

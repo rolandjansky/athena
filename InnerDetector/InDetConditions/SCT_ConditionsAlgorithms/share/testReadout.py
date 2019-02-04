@@ -140,7 +140,7 @@ import time, calendar
 #time in seconds , now
 #ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
 ServiceMgr.EventSelector.InitialTimeStamp  = 1500000000
-theApp.EvtMax                   = 1
+theApp.EvtMax                   = 20
 
 ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = 3

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_TRANSPORTTOOL_H
@@ -17,7 +17,7 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
@@ -123,7 +123,6 @@ namespace iGeant4
     std::string m_libList{""};
     std::string m_physList{""};
     std::string m_fieldMap{""};
-    std::string m_rndmGen{"athena"};
     bool   m_releaseGeoModel{true};
     bool   m_recordFlux{false};
     /// Commands to send to the G4 UI
@@ -131,7 +130,7 @@ namespace iGeant4
     /// Activate multi-threading configuration
     bool m_useMT{false};
     // Random number service
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc{this, "RandomNumberService", "AtDSFMTGenSvc", ""};
+    ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomNumberService", "AthRNGSvc", ""};
     /// G4AtlasSvc
     ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
     /// user action service
