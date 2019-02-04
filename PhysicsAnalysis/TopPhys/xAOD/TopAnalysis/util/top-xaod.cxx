@@ -747,6 +747,7 @@ int main(int argc, char** argv) {
               ///-- Loop over all systematics and make a "top::Event" for each --///
               const xAOD::SystematicEventContainer* allSystematics = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
               for (auto currentSystematic : *allSystematics) {
+		if (!(currentSystematic->hashValue() == topConfig->nominalHashValue() || topConfig->doTightSysts())) continue;
                 ///-- Make a top::Event --///
                 top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///
@@ -768,6 +769,7 @@ int main(int argc, char** argv) {
               ///-- Loop over all Loose systematics and make a "top::Event" for each --///
               const xAOD::SystematicEventContainer* allSystematicsLoose = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEventsLoose() );
               for (auto currentSystematic : *allSystematicsLoose) {
+		if (!(currentSystematic->hashValue() == topConfig->nominalHashValue() || topConfig->doLooseSysts())) continue;
                 ///-- Make a top::Event --///
                 top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///

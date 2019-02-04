@@ -199,6 +199,7 @@ namespace top {
       allSystematics_output->setStore( allSystematics_output_aux );
       if (saveEventObjects) {
         for (auto systematicPtr : *allSystematics) {
+	  if (!(systematicPtr->hashValue() == m_config->nominalHashValue() || m_config->doTightSysts() || m_config->doLooseSysts())) continue;
           xAOD::SystematicEvent* out = new xAOD::SystematicEvent{};
           out->makePrivateStore( *systematicPtr );
           out->setGoodPhotons   ( thinObjectSelection( systematicPtr->hashValue() , systematicPtr->goodPhotons()    , photonThinningMap    ) );

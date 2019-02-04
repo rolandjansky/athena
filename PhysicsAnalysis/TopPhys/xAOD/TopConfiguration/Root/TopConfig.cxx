@@ -84,6 +84,9 @@ namespace top{
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
     m_doLooseEvents(false),
+    // Runs systematics on the given selection
+    m_doTightSysts(true),
+    m_doLooseSysts(true),
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -594,6 +597,8 @@ namespace top{
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
       m_doTightEvents = (settings->value("DoTight") == "MC" || settings->value("DoTight") == "Both");
+      m_doLooseSysts  = (settings->value("DoSysts") == "Loose" || settings->value("DoSysts") == "Both") && m_doLooseEvents;
+      m_doTightSysts  = (settings->value("DoSysts") == "Tight" || settings->value("DoSysts") == "Both") && m_doTightEvents;
     }
     else {
       m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
@@ -1871,14 +1876,18 @@ namespace top{
     unsigned int TTreeIndex(0);
     if (m_doTightEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doTightSysts){
+	  m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
     if (m_doLooseEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doLooseSysts){
+	  m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
 

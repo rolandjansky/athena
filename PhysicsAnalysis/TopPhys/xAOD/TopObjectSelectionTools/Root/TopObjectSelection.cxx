@@ -511,6 +511,9 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
     if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
     if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
 
+    if((!m_config->doTightSysts() && !isLoose) && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+    if((!m_config->doLooseSysts() && isLoose)  && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );
     systEvent->setHashValue( systematicNumber );
