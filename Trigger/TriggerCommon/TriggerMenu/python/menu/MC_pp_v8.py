@@ -117,7 +117,7 @@ def setupMenu():
             ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
             ['mu22_mu8noL1_FTKFS_L1MU20MU21_FTK',    'L1_MU20MU21_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
             ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20MU21_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-]
+        ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ['j0_perf_ds1_L1J50',      'L1_J50',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
@@ -396,6 +396,7 @@ def setupMenu():
         ['j85_cleanL',          'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j85_cleanT',          'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j85_cleanLLP',        'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900j50_dphi20_deta40_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1], #ATR-19377
         ['j70_j50_0eta490_invm1100j70_dphi20_deta45_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         # Large-R jets with jet moment cuts - for testing JetAttrs hypo (Aug. 2018, AS)
         ['j0_a10t_lcw_jes_subj360Iwidth',            'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
@@ -434,6 +435,7 @@ def setupMenu():
         ['j0_gsc0_boffperf_split_FTK_L1RD0_FILLED', 'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j0_gsc0_boffperf_split_FTKRefit_L1RD0_FILLED', 'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ] 
+
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         ['j35_boffperf_split_L1J15',  'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
@@ -656,7 +658,23 @@ def setupMenu():
 			 ]
 
     if TriggerFlags.doFTK():
-            TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + []
+            TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
+                ['tau12_idperf_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf0_FTK',               'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf_FTKNoPrec',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf0_FTKNoPrec',         'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium0_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium1_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium0_FTKNoPrec',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium1_FTKNoPrec',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+
+                # standard single tau chains seeded from L1 FTK tau seeds for monitoring in CPS
+                ['tau25_idperf_tracktwo_L1TAU12IM_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau25_perf_tracktwo_L1TAU12IM_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau25_medium1_tracktwo_L1TAU12IM_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+
+                           ]
 
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
