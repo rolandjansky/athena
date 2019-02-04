@@ -58,17 +58,17 @@ namespace ISF {
       DNNCaloSimSvc(const std::string& name, ISvcLocator* pSvcLocator);
        
       /** Destructor */
-      virtual ~DNNCaloSimSvc();
+      virtual ~DNNCaloSimSvc() final;
       
       /** Athena algorithm's interface methods */
-      StatusCode  initialize();
-      StatusCode  finalize();
+      virtual StatusCode  initialize() override final;
+      virtual StatusCode  finalize() override final;
       
       /** helper for initialize */
       StatusCode initializeNetwork();
 
       /** Simulation Call */
-      StatusCode simulate(const ISFParticle& isp);
+      virtual StatusCode simulate(const ISFParticle& isp) override final;
       // type of input requested by lwtnn
       typedef std::map<std::string, std::map<std::string, double> >  NetworkInputs ;
       typedef std::map<std::string, double> NetworkOutputs;
@@ -76,10 +76,10 @@ namespace ISF {
       StatusCode fillWindowCells(const double etaExtrap,const double phiExtrap,const CaloDetDescrElement* & impactCellDDE);
 
       /** Setup Event chain - in case of a begin-of event action is needed */
-      StatusCode setupEvent();
+      virtual StatusCode setupEvent() override final;
       
       /** Release Event chain - in case of an end-of event action is needed */
-      StatusCode releaseEvent();
+      virtual StatusCode releaseEvent() override final;
       
       std::string m_paramsFilename;
       std::string m_paramsInputArchitecture;
