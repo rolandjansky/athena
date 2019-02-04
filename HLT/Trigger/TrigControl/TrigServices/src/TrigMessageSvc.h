@@ -1,12 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * @file TrigMessageSvc.h
- *
- * $Id: TrigMessageSvc.h 5 2013-05-14 10:33:04Z ricab $
- */
 #ifndef TRIGSERVICES_TRIGMESSAGESVC_H
 #define TRIGSERVICES_TRIGMESSAGESVC_H
 
@@ -50,10 +45,7 @@ class TH2I;
  * @author    Iain Last, Werner Wiedenmann, Frank Winklmeier
  */
 
-class TrigMessageSvc : public Service,
-                       virtual public IMessageSvc,
-                       virtual public ITrigMessageSvc,
-                       virtual public IIncidentListener {
+class TrigMessageSvc : public extends<Service,IMessageSvc,ITrigMessageSvc,IIncidentListener> {
 public:  
   typedef std::pair< std::string, std::ostream* > NamedStream;
   typedef std::multimap< int, NamedStream > StreamMap;
@@ -66,96 +58,93 @@ public:
   virtual ~TrigMessageSvc();
 
   // Implementation of IService::reinitialize()
-  virtual StatusCode reinitialize();
+  virtual StatusCode reinitialize() override;
   // Implementation of IService::initialize()
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   // Implementation of IService::finalize()
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const Message& message );
+  virtual void reportMessage( const Message& message ) override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const Message& message, int outputLevel );
+  virtual void reportMessage( const Message& message, int outputLevel ) override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const StatusCode& code, const std::string& source = "");
+  virtual void reportMessage( const StatusCode& code, const std::string& source = "") override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const char* source, int type, const char* message);
+  virtual void reportMessage( const char* source, int type, const char* message) override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const std::string& source, int type, const std::string& message);
+  virtual void reportMessage( const std::string& source, int type, const std::string& message) override;
   
   // Implementation of IMessageSvc::insertMessage()
-  virtual void insertMessage( const StatusCode& code, const Message& message );
+  virtual void insertMessage( const StatusCode& code, const Message& message ) override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage();
+  virtual void eraseMessage() override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage( const StatusCode& code ) ;
+  virtual void eraseMessage( const StatusCode& code ) override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage( const StatusCode& code, const Message& message );
+  virtual void eraseMessage( const StatusCode& code, const Message& message ) override;
 
   // Implementation of IMessageSvc::insertStream()
-  virtual void insertStream( int message_type, const std::string& name, std::ostream* stream );
+  virtual void insertStream( int message_type, const std::string& name, std::ostream* stream ) override;
   
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream();
+  virtual void eraseStream() override;
   
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( int message_type );
+  virtual void eraseStream( int message_type ) override;
   
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( int message_type, std::ostream* stream );
+  virtual void eraseStream( int message_type, std::ostream* stream ) override;
 
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( std::ostream* stream );
+  virtual void eraseStream( std::ostream* stream ) override;
 
   // Implementation of IMessageSvc::desaultStream()
-  virtual std::ostream* defaultStream() const { 
+  virtual std::ostream* defaultStream() const override {
     return m_defaultStream; 
   }
 
   // Implementation of IMessageSvc::setDefaultStream()
-  virtual void setDefaultStream( std::ostream* stream ) { 
+  virtual void setDefaultStream( std::ostream* stream ) override {
     m_defaultStream = stream;
   }
 
   // Implementation of IMessageSvc::ouputLevel()
-  virtual int outputLevel()   const;
+  virtual int outputLevel()   const override;
 
   // Implementation of IMessageSvc::ouputLevel()
-  virtual int outputLevel(const std::string& source)   const;
+  virtual int outputLevel(const std::string& source)   const override;
 
   // Implementation of IMessageSvc::setOuputLevel()
-  virtual void setOutputLevel(int new_level);
+  virtual void setOutputLevel(int new_level) override;
 
   // Implementation of IMessageSvc::setOuputLevel()
-  virtual void setOutputLevel(const std::string& source, int new_level);
-
-  // Implementation of IInterface::queryInterface()
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvUnknown);
+  virtual void setOutputLevel(const std::string& source, int new_level) override;
 
   // Implementation of IMessageSvc::useColor()
-  virtual bool useColor() const { return m_color; }
+  virtual bool useColor() const override { return m_color; }
 
   // Implementation of IMessageSvc::getLogColor()
-  virtual std::string getLogColor(int logLevel) const;
+  virtual std::string getLogColor(int logLevel) const override;
 
   // Implementation of IMessageSvc::messageCount()
-  virtual int messageCount( MSG::Level logLevel ) const;
+  virtual int messageCount( MSG::Level logLevel ) const override;
  
   /// \name ITrigMessageSvc implementation
   //@{
   /// Reset all individual output levels
-  virtual void resetOutputLevels();
+  virtual void resetOutputLevels() override;
   //@}
 
   // Implemenation of IIncidentListener::handle()
-  virtual void handle(const Incident& inc);
+  virtual void handle(const Incident& inc) override;
 
 private:
   typedef std::map<std::string, MSG::Color> ColorMap;

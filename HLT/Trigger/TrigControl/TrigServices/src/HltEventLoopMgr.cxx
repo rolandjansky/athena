@@ -3,18 +3,15 @@
 */
 
 // Trigger includes
-#include "TrigServices/HltEventLoopMgr.h"
+#include "HltEventLoopMgr.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
-#include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
-#include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
@@ -25,7 +22,6 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgResourcePool.h"
-#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -81,50 +77,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
-  m_evtSelector("EvtSel", name),
-  m_outputCnvSvc("OutputCnvSvc", name),
-  m_ioCompMgr("IoComponentMgr", name),
-  m_coolHelper("TrigCOOLUpdateHelper", this),
-  m_hltResultMaker("HLTResultMTMaker", this),
-  m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
-  m_localEventNumber(0),
-  m_threadPoolSize(-1),
-  m_evtSelContext(nullptr),
-  m_softTimeoutValue(10000),
-  m_runEventTimer(true),
-  m_nFrameworkErrors(0)
+  m_ioCompMgr("IoComponentMgr", name)
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
-  declareProperty("ApplicationName",          m_applicationName="None");
-  declareProperty("PartitionName",            m_partitionName="None");
-  declareProperty("enabledROBs",              m_enabledROBs);
-  declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
-  declareProperty("EvtSel",                   m_evtSelector);
-  declareProperty("OutputCnvSvc",             m_outputCnvSvc);
-  declareProperty("CoolUpdateTool",           m_coolHelper);
-  declareProperty("ResultMaker",              m_hltResultMaker);
-  declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
-                  "Name of the scheduler to be used");
-  declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
-                  "Name of the Whiteboard to be used");
-  declareProperty("TopAlg",                   m_topAlgNames={},
-                  "List of top level algorithms names");
-  declareProperty("HardTimeout",              m_hardTimeout=10*60*1000/*=10min*/,
-                  "Hard event processing timeout in milliseconds");
-  declareProperty("SoftTimeoutFraction",      m_softTimeoutFraction=0.8,
-                  "Fraction of the hard timeout to be set as the soft timeout");
-  declareProperty("MaxFrameworkErrors",       m_maxFrameworkErrors=0,
-                  "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)");
-  declareProperty("FwkErrorDebugStreamName",  m_fwkErrorDebugStreamName="HLTMissingData");
-  declareProperty("AlgErrorDebugStreamName",  m_algErrorDebugStreamName="HLTError");
-  declareProperty("EventContextWHKey",        m_eventContextWHKey="EventContext");
-  declareProperty("EventInfoRHKey",           m_eventInfoRHKey="ByteStreamEventInfo");
-  declareProperty("SORPath",                  m_sorPath="/TDAQ/RunCtrl/SOR_Params",
-                  "Path to StartOfRun parameters in detector store");
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 
 // =============================================================================
