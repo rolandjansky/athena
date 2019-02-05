@@ -51,7 +51,8 @@ RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string&
   m_EfieldInterpolator(nullptr),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0)
+  m_rndmEngine(0),
+  m_saveDebugMaps(false)
 { 
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in RadDamageUtil");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");

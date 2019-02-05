@@ -74,6 +74,9 @@ private:
   double weighting3D(double x, double y, double z, int n, int m, int Nrep, double a, double b);
   double weighting2D(double x, double z, double Lx, double sensorThickness);
 
+public:
+  bool m_saveDebugMaps;
+
 protected:
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
   std::string                  m_rndmEngineName;
