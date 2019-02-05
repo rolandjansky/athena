@@ -1256,34 +1256,35 @@ class L2EFChain_mu(L2EFChainDef):
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
 
-      if '20invm60' in self.chainPart['addInfo']:
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon","0")
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = 20.0
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = 60.0
-        self.EFsequenceList += [[['EF_CB_FS'],
-                                  [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
-                                  'EF_mu_step3']]
-
-      if '10invm60' in self.chainPart['addInfo']:
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon","0")
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = 10.0
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = 60.0
-        self.EFsequenceList += [[['EF_CB_FS'],
-                                  [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
-                                  'EF_mu_step3']]
-
-      if '0invm60' in self.chainPart['addInfo']:
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon","0")
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = 0.0
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = 60.0
-        self.EFsequenceList += [[['EF_CB_FS'],
-                                  [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
-                                  'EF_mu_step3']]
-
-      if '20invm80' in self.chainPart['addInfo']:
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon","0")
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = 20.0
-        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = 80.0
+      if 'invm' in str(self.chainPart['addInfo']) and 'noL1' in self.chainPart['extra']:
+        dimuon_name = '0'
+        muon_name = 'mu'
+        mass_low = 0.
+        mass_high = 0.
+        if '20invm60' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 60.
+        elif '10invm60' in self.chainPart['addInfo']:
+          mass_low = 10.
+          mass_high = 60.
+        elif '0invm60' in self.chainPart['addInfo']:
+          mass_low = 0.
+          mass_high = 60.
+        elif '20invm80' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 80.
+        if 'mu8noL1' in self.chainName:
+          muon_name = 'mu8noL1' 
+        elif 'mu6noL1' in self.chainName:
+          muon_name = 'mu6noL1' 
+        elif 'mu4noL1' in self.chainName:
+          muon_name = 'mu4noL1' 
+        elif 'mu2noL1' in self.chainName:
+          muon_name = 'mu2noL1' 
+        dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon",dimuon_name)
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = mass_low
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = mass_high
         self.EFsequenceList += [[['EF_CB_FS'],
                                   [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
                                   'EF_mu_step3']]
