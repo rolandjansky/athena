@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
@@ -11,9 +11,6 @@
 #include "CxxUtils/make_unique.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/CscSimDataCollection.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "CLHEP/Random/RandomEngine.h"
@@ -40,12 +37,10 @@ CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 
   /** Event DAta Store keys for the 2 data streams to overlay
       - modifiable in job options */
-  declareProperty("CopySDO", m_copySDO=true);
   declareProperty("DigitizationTool", m_digTool);
   declareProperty("MakeRDOTool2", m_rdoTool2);
   declareProperty("MakeRDOTool4", m_rdoTool4);
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
-  declareProperty("CSCSDO", m_sdo = "CSC_SDO");
   declareProperty("RndmSvc", 	     m_rndmSvc, "Random Number Service used for CscDigitToCscRDOTool" );
   declareProperty("RndmEngine",      m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
 
@@ -158,19 +153,6 @@ StatusCode CscOverlay::overlayExecute() {
     this->overlayContainer(inputDataRDO.cptr(), inputOverlayRDO.cptr());
   }
   
-  //----------------------------------------------------------------
-  ATH_MSG_DEBUG("Processing MC truth data");
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just CSC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy CSC-specific MC truth objects to the output.
-  if ( m_copySDO ) {
-    this->copyMuonObjects<CscSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
-  }
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("CscOverlay::execute() end");
   return StatusCode::SUCCESS;
@@ -710,4 +692,3 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
   ATH_MSG_DEBUG("overlay<>() end: CscRawDatas size="<<datas.size());
   return datas;
 }
-

@@ -10,5 +10,4 @@ def getMdtOverlay(name="MdtOverlay", **kwargs):
     kwargs.setdefault("IntegrationWindow", 20) # in ns
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
-    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
     return CfgMgr.MdtOverlay(name, **kwargs)
