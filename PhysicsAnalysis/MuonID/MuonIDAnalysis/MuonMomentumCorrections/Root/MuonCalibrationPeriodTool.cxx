@@ -99,9 +99,9 @@ namespace CP {
             sagittaCorrPhaseSpace17 = true;
             
             statComb18 = false;
-            sagittaCorr18 = false;
-            sagittaMCDistortion18 = true;
-            sagittaCorrPhaseSpace18 = false;
+            sagittaCorr18 = true;
+            sagittaMCDistortion18 = false;
+            sagittaCorrPhaseSpace18 = true;
             
         }  else if (m_calib_mode == MuonCalibrationPeriodTool::additionalMCsys){
             ATH_MSG_INFO("Data will be untouched. Instead an additional systematic will be added (recommended setup 2)");

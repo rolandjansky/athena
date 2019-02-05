@@ -43,8 +43,8 @@ namespace CP {
     declareProperty("MinCombPt", m_StatCombPtThreshold=300.0);
     declareProperty("SagittaCorr", m_doSagittaCorrection = false);
     declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19");
-    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
-    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=true);
+    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true);
+    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
     declareProperty("sgItersCB",m_sgItersCB=4);
     declareProperty("sgItersID",m_sgItersID=4);
     declareProperty("sgItersME",m_sgItersME=4);
