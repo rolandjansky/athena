@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Module of factory functions to control the instantiation of Algorithms.
 
@@ -52,6 +52,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,              #
                                                  TrigHLTJetHypo_TLA,           # noqa: F401
                                                  TrigHLTJetHypo_SMC,           # noqa: F401
                                                  TrigHLTJetHypo_Dijet,         
+                                                 TrigHLTJetHypo_JetAttrs,         
                                                  )
 
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter    # noqa: F401

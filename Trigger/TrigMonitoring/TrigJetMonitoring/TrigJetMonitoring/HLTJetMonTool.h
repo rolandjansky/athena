@@ -89,10 +89,10 @@ class HLTJetMonTool : public IHLTMonTool {
     // data members
 
     // binning for basic histograms
-    std::vector<int>   m_njnbins,  m_jEtnbins,  m_jetanbins,  m_jphinbins,  m_jemfracnbins,  m_jhecfracnbins, m_jDEtnbins,  m_jDepnbins;
-    std::vector<float> m_njperbin, m_jEtperbin, m_jetaperbin, m_jphiperbin, m_jemfracperbin, m_jhecfracperbin, m_jDEtperbin, m_jDepperbin;
-    std::vector<float> m_njbinlo,  m_jEtbinlo,  m_jetabinlo,  m_jphibinlo,  m_jemfracbinlo,  m_jhecfracbinlo, m_jDEtbinlo,  m_jDepbinlo;
-    std::vector<float> m_njbinhi,  m_jEtbinhi,  m_jetabinhi,  m_jphibinhi,  m_jemfracbinhi,  m_jhecfracbinhi, m_jDEtbinhi,  m_jDepbinhi;
+    std::vector<int>   m_njnbins,  m_jEtnbins,  m_jetanbins,  m_jphinbins,  m_jemfracnbins,  m_jhecfracnbins,  m_jDEtnbins,  m_jDepnbins,  m_jJVTnbins,  m_jSumPtTrk500nbins;
+    std::vector<float> m_njperbin, m_jEtperbin, m_jetaperbin, m_jphiperbin, m_jemfracperbin, m_jhecfracperbin, m_jDEtperbin, m_jDepperbin, m_jJVTperbin, m_jSumPtTrk500perbin;
+    std::vector<float> m_njbinlo,  m_jEtbinlo,  m_jetabinlo,  m_jphibinlo,  m_jemfracbinlo,  m_jhecfracbinlo,  m_jDEtbinlo,  m_jDepbinlo,  m_jJVTbinlo,  m_jSumPtTrk500binlo;
+    std::vector<float> m_njbinhi,  m_jEtbinhi,  m_jetabinhi,  m_jphibinhi,  m_jemfracbinhi,  m_jhecfracbinhi,  m_jDEtbinhi,  m_jDepbinhi,  m_jJVTbinhi,  m_jSumPtTrk500binhi;
 
     // binning for trigger efficiency 
     std::vector<float> m_l1binloEt, m_l1binhiEt, m_l1nperbinEt,       // for L1 trigger eff vs. Et

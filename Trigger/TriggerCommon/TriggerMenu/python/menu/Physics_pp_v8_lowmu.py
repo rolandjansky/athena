@@ -108,6 +108,18 @@ def setupMenu():
         ['j260_a10_lcw_subjes_L1J75',       'L1_J75', [], [PhysicsStream], ['Legacy:Primary','RATE:SingleJet', 'BW:Jet'], -1],
         ['j360_a10_lcw_subjes_L1J100',     'L1_J100',[], [PhysicsStream], ['Legacy:Backup','RATE:SingleJet', 'BW:Jet'], -1],
 
+        #ATR-ATR-19271
+        ['j15_320eta490_L1TE5',      'L1_TE5', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j25_320eta490_L1TE10',      'L1_TE10', [], [PhysicsStream,'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j30_0eta490_L1TE20',      'L1_TE20', [], [PhysicsStream,'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j35_320eta490_L1TE20',      'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j40_0eta490_L1TE20',      'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j55_320eta490',      'L1_J15.31ETA49', [], [PhysicsStream,'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_200eta320_L1J20',      'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j75_200eta320_L1J20',      'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j50_L1J15',      'L1_J15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j75_L1J20',      'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j100_L1J20',      'L1_J20', [], [PhysicsStream,'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 			 ]
 

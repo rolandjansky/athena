@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
@@ -88,8 +88,10 @@ def defineMenu():
         # 3 x Central Jet
         'J35.0ETA23','J40.0ETA25', 'J20.28ETA31',
 
-        # 6 Jets
-        'J40', 'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
+        # 6 Jets # replace J400 with J45.0ETA20 - ATR-19309
+        'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J120',
+        # 'J40', 'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
+
 
         # 6 x FJ              
         'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', #'JJ15.23ETA49', 'J100.31ETA49',
@@ -487,7 +489,7 @@ def defineMenu():
         'L1_MU20_XE30',
 
         # single jet
-        "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50" ,"L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
+        "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50" ,"L1_J75","L1_J85", "L1_J100", "L1_J120", #"L1_J400",
         "L1_J20.31ETA49", "L1_J30.31ETA49", "L1_J50.31ETA49", "L1_J75.31ETA49", #"L1_J100.31ETA49",
         #'L1_J15.23ETA49',
          'L1_J15.31ETA49',
@@ -505,6 +507,8 @@ def defineMenu():
         
         # multi jet
 
+	"L1_J45.0ETA20_3J15.0ETA25",
+	"L1_J50_2J40.0ETA25_3J15.0ETA25",
         "L1_J20_J20.31ETA49",
         "L1_3J15", "L1_3J40",  "L1_3J50", "L1_4J15", "L1_4J20",
         "L1_4J20.0ETA49",
@@ -1041,7 +1045,7 @@ def defineMenu():
         'L1_J85' : 99,
         'L1_J100' : 100,
         'L1_J120' : 101,
-        'L1_J400' : 102,
+        #'L1_J400' : 102,
         'L1_J20.31ETA49' : 103,
         'L1_J30.31ETA49' : 104,
         'L1_J50.31ETA49' : 105,
@@ -1077,7 +1081,9 @@ def defineMenu():
         'L1_4J15' : 131,
         'L1_4J20' : 132,
         'L1_3J15.0ETA25_XE40' : 184,
-        
+        'L1_J45.0ETA20_3J15.0ETA25' : 374,
+        'L1_J50_2J40.0ETA25_3J15.0ETA25' : 375,
+ 
 #        'L1_3J75' : 133,
 #        'L1_4J30' : 134,
         'L1_6J15' : 135,
@@ -1528,6 +1534,41 @@ def defineMenu():
         'L1_MU20_TAU12IM_FTK'                  : 498,
         'L1_RD3_FTK' : 417,
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
+        'L1_W-05RO-XEHT-0' : 87,
+        'L1_ALFA_ELAST1' : 162,
+        'L1_ALFA_ELAST2' : 179,
+        'L1_ALFA_ELAST11' : 180,
+        'L1_ALFA_ELAST12' : 209,
+        'L1_ALFA_ELAST13' : 215,
+        'L1_ALFA_ELAST14' : 217,
+        'L1_ALFA_ELAST15_Calib' : 222,
+        'L1_ALFA_ELAST16' : 239,
+        'L1_ALFA_ELAST17' : 241,
+        'L1_ALFA_ELAST18_Calib' : 242,
+        'L1_ALFA_BGT_BGRP4' : 244,
+        'L1_ALFA_BGT_BGRP10' : 257,
+        'L1_ALFA_SHOWSYST5' : 265,
+        'L1_ALFA_SYST9' : 274,
+        'L1_ALFA_SYST10' : 277,
+        'L1_ALFA_SYST11' : 283,
+        'L1_ALFA_SYST12' : 284,
+        'L1_ALFA_ANY_BGRP10' : 287,
+        'L1_ALFA_B7L1U' : 289,
+        'L1_ALFA_B7L1L' : 296,
+        'L1_ALFA_A7L1U' : 297,
+        'L1_ALFA_A7L1L' : 298,
+        'L1_ALFA_A7R1U' : 304,
+        'L1_ALFA_A7R1L' : 306,
+        'L1_ALFA_B7R1U' : 307,
+        'L1_ALFA_B7R1L' : 308,
+        'L1_ALFA_B7L1U_OD' : 310,
+        'L1_ALFA_B7L1L_OD' : 311,
+        'L1_ALFA_A7L1U_OD' : 312,
+        'L1_ALFA_A7L1L_OD' : 359,
+        'L1_ALFA_A7R1U_OD' : 360,
+        'L1_ALFA_A7R1L_OD' : 361,
+        'L1_ALFA_B7R1U_OD' : 362,
+        'L1_ALFA_B7R1L_OD' : 363,
 }
 
 
