@@ -88,9 +88,6 @@ namespace CP {
             //Retrieve the primary vertex
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
 
-            void getExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
-            void calcExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
-
             //Returns the Size of the Isolation cone
             double coneSize(const xAOD::IParticle*  particle, IsoType Cone) const;
             //Retrieves the uncalibrated pt from the particle
@@ -104,7 +101,12 @@ namespace CP {
             // whose variables should be corrected but their clusters
             // & tracks do not contribute
             bool considerForCorrection(const xAOD::IParticle*  particle) const;
-
+     
+        public:
+            // Extrapolated phi eta needed for proper dR of the muons
+            void getExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
+            void calcExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
+            
             //Some helper functions for Overlap and DeltaR
             bool isSame(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1) const;
             bool overlap(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, double dR) const;
@@ -133,7 +135,6 @@ namespace CP {
             
             bool isPFlowIso(xAOD::Iso::IsolationType type) const;
             
-
             bool isEgamma(const xAOD::IParticle* particle) const;
 
             const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle*  particle, bool force_id = false) const;
@@ -144,7 +145,7 @@ namespace CP {
 
             const xAOD::IParticle* topoEtIsoRefPart(const xAOD::IParticle*  particle) const;
             const xAOD::CaloCluster* getCluster(const xAOD::IParticle*  particle) const;
-
+      
             ClusterCollection getAssociatedClusters(const xAOD::IParticle*  particle) const;
             void getClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;
 
@@ -154,7 +155,7 @@ namespace CP {
             std::string particleName(xAOD::Type::ObjectType T) const;
             void printIsolationCones(const IsoVector& types, xAOD::Type::ObjectType T) const;
             
-
+       private:
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
 
             float m_coreCone; //The core of the topoEt variables. Clusters within the core shall not be
@@ -194,13 +195,13 @@ namespace CP {
 
             SelectionDecorator m_dec_isoselection;
 
-            SG::AuxElement::Accessor<bool> m_chk_assocEtaPhi;
-            SG::AuxElement::Accessor<double> m_acc_assocEta;
-            SG::AuxElement::Accessor<double> m_acc_assocPhi;
+            BoolAccessor m_chk_assocEtaPhi;
+            FloatAccessor m_acc_assocEta;
+            FloatAccessor m_acc_assocPhi;
 
-            SG::AuxElement::Decorator<bool> m_dec_assocEtaPhi;
-            SG::AuxElement::Decorator<double> m_dec_assocEta;
-            SG::AuxElement::Decorator<double> m_dec_assocPhi;
+            BoolDecorator m_dec_assocEtaPhi;
+            FloatDecorator m_dec_assocEta;
+            FloatDecorator m_dec_assocPhi;
 
             //Functionallity to backup the original cone variables if needed
             std::string m_backup_prefix;

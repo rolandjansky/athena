@@ -104,6 +104,7 @@ namespace ana
 
     /// description: the b-tagged jet selection tool
     asg::AnaToolHandle<IBTaggingSelectionTool> m_bsel_tool;
+    std::map< int, asg::AnaToolHandle<IBTaggingSelectionTool>> m_bsel_tools;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_bsel_OR_tool;
 
     /// description: the cleaning tool

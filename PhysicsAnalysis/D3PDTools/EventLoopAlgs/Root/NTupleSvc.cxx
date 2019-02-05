@@ -26,7 +26,7 @@
 #include <TTree.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <EventLoopAlgs/WhiteBoardSvc.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -39,7 +39,7 @@ ClassImp(EL::NTupleSvc)
 
 namespace EL
 {
-  NTupleSvc *getNTupleSvc (Worker *worker, const std::string& outputStream,
+  NTupleSvc *getNTupleSvc (IWorker *worker, const std::string& outputStream,
 			   const std::string& treeName)
   {
     RCU_REQUIRE_SOFT (worker != 0);

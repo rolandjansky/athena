@@ -49,7 +49,7 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_useAdditionalJSS(false),
   m_egamma("EG_"),
   m_jetsyst("JET_"),
-  m_muonsyst("MUONS_"),
+  m_muonsyst("MUON_"),
   m_InJetContainerBase( "AntiKt4EMTopoJets_RC"),
   m_OutJetContainerBase("AntiKtRCJets"),
   m_InputJetContainer(  "AntiKt4EMTopoJets_RC"),
@@ -294,6 +294,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	     
 	     if(m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMTopoJets")!=std::string::npos)getEMTopoClusters(clusters,rcjet); // //  // use subjet constituents
 	     else getLCTopoClusters(clusters,rcjet); //	//  // use LCTOPO CLUSTERS matched to subjet
+	     
 	     top::check(!clusters.empty(),"RCJetMC15::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
 	     
 	     // Now rebuild the large jet from the small jet constituents aka the original clusters
@@ -407,12 +408,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	    rcjet->auxdecor<float>("L3_clstr") = L3;
 	    rcjet->auxdecor<float>("L4_clstr") = L4;
 	    rcjet->auxdecor<float>("L5_clstr") = L5;
-	    // lets also store the rebuilt jet incase we need it later
+	  }
+	  
+	  // lets also store the rebuilt jet in case we need it later
+	  if (m_useJSS || m_useAdditionalJSS){  
+	    
 	    rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
 	    rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
 	    rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
 	    rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
-	    
 	    
 	  }// end of if useAdditional JSS
 	}// end of rcjet loop

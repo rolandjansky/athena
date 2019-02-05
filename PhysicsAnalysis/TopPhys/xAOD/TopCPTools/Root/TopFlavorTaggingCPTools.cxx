@@ -88,6 +88,17 @@ StatusCode FlavorTaggingCPTools::initialize() {
   top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
   top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
 
+
+  // special stuff to use AntiKt4EMTopoJets scale-factors and tagger WPs when using AntiKt4EMPFlowJets or AntiKt4LCTopoJets, for which no SF is yet available
+  std::string caloJets_collection = m_config->sgKeyJets();
+  if (caloJets_collection == "AntiKt4LCTopoJets" || caloJets_collection == "AntiKt4EMTopoNoElJets") {
+    ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
+    ATH_MSG_WARNING( "     No b-tagging calibration available for jet collection " + caloJets_collection);
+    ATH_MSG_WARNING( "     We'll use the calibration for AntiKt4EMTopoJets instead");
+    ATH_MSG_WARNING("      Be careful!!" );
+    caloJets_collection = "AntiKt4EMTopoJets";
+  }
+
   // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is adjusted)
   std::vector<std::string> DL1_algorithms = {"DL1",
 					     "DL1r",
@@ -97,7 +108,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
     BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
     top::check(btagsel->setProperty("TaggerName", alg),
 	       "Failed to set b-tagging selecton tool TaggerName");
-    top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyJets()),
+    top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
 	       "Failed to set b-tagging selection JetAuthor");
     top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
 				    m_cdi_file),
@@ -124,16 +135,6 @@ StatusCode FlavorTaggingCPTools::initialize() {
   // Loop through all the different working points we have and create a
   // BTaggingSelectionTool and corresponding BTaggingEfficiencyTool if the working point is calibrated.
   //------------------------------------------------------------
-
-  // special stuff to use AntiKt4EMTopoJets scale-factors and tagger WPs when using AntiKt4EMPFlowJets or AntiKt4LCTopoJets, for which no SF is yet available
-  std::string caloJets_collection = m_config->sgKeyJets();
-  if (caloJets_collection == "AntiKt4LCTopoJets" || caloJets_collection == "AntiKt4EMTopoNoElJets") {
-    ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
-    ATH_MSG_WARNING( "     No b-tagging calibration available for jet collection " + caloJets_collection);
-    ATH_MSG_WARNING( "     We'll use the calibration for AntiKt4EMTopoJets instead");
-    ATH_MSG_WARNING("      Be careful!!" );
-    caloJets_collection = "AntiKt4EMTopoJets";
-  }
 
   // check if the WP requested by the user are available, and if yes, initialize the tools
   // loop through all btagging WPs requested

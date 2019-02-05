@@ -1,4 +1,6 @@
-//        Copyright Iowa State University 2015.
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,7 +18,7 @@
 
 #include "AsgTools/ToolStore.h"
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <TInterpreter.h>
 #include <TROOT.h>
 #include <regex>
@@ -106,7 +108,7 @@ namespace asg
       AnaToolCleanup cleanup;
       ANA_CHECK (config.makeTool (name, nullptr, th, cleanup));
       res_result.reset (new AnaToolShare (th, cleanup));
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       if (!th.empty())
       {
 	th->release ();
@@ -124,7 +126,7 @@ namespace asg
 // legacy code
 //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 namespace asg
 {
@@ -297,7 +299,7 @@ namespace asg
 	return false;
       if (!m_type.empty())
 	return false;
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       if (m_factory)
 	return false;
 #endif
@@ -331,7 +333,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   StatusCode AnaToolConfig ::
   allocateTool (AsgTool*& toolPtr, const std::string& toolName) const
   {
@@ -363,7 +365,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     StatusCode AnaToolConfig ::
     applyPropertiesAthena (const std::string& toolName,
 			   AnaToolCleanup& cleanup) const
@@ -401,7 +403,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     StatusCode AnaToolConfig ::
     makeToolRootCore (const std::string& toolName, IAsgTool*& toolPtr,
 		      AnaToolCleanup& cleanup) const
@@ -428,7 +430,7 @@ namespace asg
 #endif
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// \brief manage the reference count on a tool
 
     struct ToolRefManager
@@ -499,7 +501,7 @@ namespace asg
       else
         toolName = "ToolSvc." + name;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       interfaceType_t *baseToolPtr = nullptr;
       AnaToolCleanup baseCleanup;
       ANA_CHECK (makeToolRootCore (toolName, baseToolPtr, baseCleanup));
@@ -572,7 +574,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     AnaToolPropertyCopyTool ::
     AnaToolPropertyCopyTool (const std::string& val_type,
                              const std::string& val_name)

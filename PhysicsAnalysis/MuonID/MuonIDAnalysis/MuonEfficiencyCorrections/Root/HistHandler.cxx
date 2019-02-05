@@ -9,79 +9,52 @@
 #include <cstring>
 
 #include <TH1.h>
-#include <TH2.h>
-#include <TH3.h>
-
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH3F.h>
-
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TH3D.h>
-
+#include <TH2Poly.h>
 namespace CP {
 
     //###########################################################################################################
     //                                                   AxisHandlerProvider
     //###########################################################################################################
-    AxisHandler * AxisHandlerProvider::GetAxisHandler(const TAxis * axisptr) {
+    std::unique_ptr<AxisHandler> AxisHandlerProvider::GetAxisHandler(const TAxis * axisptr) {
         if (axisptr != nullptr) {
             std::string axis = axisptr->GetTitle();
-            axis = AxisHandlerProvider::EraseWhiteSpaces(axis);
+            axis = EraseWhiteSpaces(axis);
             size_t Abs1 = axis.find("|");
             size_t Abs2(0);
             if (Abs1 != std::string::npos) Abs2 = axis.find("|", Abs1 + 1);
             bool AbsAxis = (Abs2 != std::string::npos) && (Abs2 != 0);
             if (axis.find("pt") != std::string::npos || axis.find("pT") != std::string::npos || axis.find("p_{T}") != std::string::npos) {
-                return new PtAxisHandler;
-            } else if (axis.find("etaphi") != std::string::npos) {
-                return new FineEtaPhiAxisHandler;
-            } else if (axis.find("region") != std::string::npos) {
-                if (axis.find("signed") != std::string::npos || axis.find("Signed") != std::string::npos) {
-                    return new SignedDetRegionAxisHandler;
-                } else {
-                    return new DetRegionAxisHandler;
-                }
+                return std::make_unique<PtAxisHandler>();
             } else if (axis.find("phi") != std::string::npos) {
-                return new PhiAxisHandler;
+                return std::make_unique<PhiAxisHandler>();
             } else if (axis.find("q") != std::string::npos || axis.find("charge") != std::string::npos) {
-                return new ChargeAxisHandler;
+                return std::make_unique<ChargeAxisHandler>();
             } else if (axis.find("eta") != std::string::npos) {
-                if (AbsAxis) return new AbsEtaAxisHandler;
-                return new EtaAxisHandler;
+                if (AbsAxis) return std::make_unique<AbsEtaAxisHandler>();
+                return std::make_unique<EtaAxisHandler>();
             } else if (axis.find("dRJet") != std::string::npos) {
-                return new dRJetAxisHandler;
+                return std::make_unique<dRJetAxisHandler>();
             }
 
             Error("AxisHandlerProvider", "Can not interpret axis title %s", axis.c_str());
         } else {
             Error("AxisHandlerProvider", "nullptr pointer passed");
         }
-        return new UndefinedAxisHandler;
+        return std::make_unique<UndefinedAxisHandler>();
     }
-    std::string AxisHandlerProvider::EraseWhiteSpaces(std::string str) {
-        str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
-        if (str.find(" ") == 0) return EraseWhiteSpaces(str.substr(1, str.size()));
-        if (str.size() > 0 && str.find(" ") == str.size() - 1) return EraseWhiteSpaces(str.substr(0, str.size() - 1));
-        return str;
-    }
-
     //###########################################################################################################
     //                                                   HistHandler
     //###########################################################################################################
     HistHandler::HistHandler(TH1* Hist) :
-                m_H(Hist) {
-        if (m_H.get() != nullptr) m_H->SetDirectory(nullptr);
+                m_H(clone(Hist)) {       
 
     }
-
     void HistHandler::Copy(const HistHandler & other) {
         if (this == &other) {
             return;
         }
         if (other.m_H) {
-            m_H = Histo_Ptr(dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
+            m_H = clone(other.GetHist());
         }
     }
     HistHandler::HistHandler(const HistHandler & other) :
@@ -89,34 +62,17 @@ namespace CP {
         Copy(other);
     }
     HistHandler::~HistHandler() {
-    }
-    double HistHandler::GetBinContent(int bin) const {
-        if (!m_H) {
-            return DBL_MAX;
-        }
-        return m_H->GetBinContent(bin);
-    }
+    }    
     void HistHandler::SetBinContent(int bin, float val) const {
-
         if (m_H) {
             m_H->SetBinContent(bin, val);
         }
-    }
-    double HistHandler::GetBinError(int bin) const {
-        if (!m_H) {
-            return DBL_MAX;
-        }
-        return m_H->GetBinError(bin);
-    }
+    }    
     void HistHandler::SetBinError(int bin, float val) const {
         if (m_H) {
             m_H->SetBinError(bin, val);
         }
     }
-    Histo_Ptr HistHandler::GetHist() const {
-        return m_H;
-    }
-
     //###########################################################################################################
     //                                                   HistHandler_TH1
     //###########################################################################################################
@@ -135,7 +91,7 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
+        m_x_handler = std::unique_ptr<AxisHandler>(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(GetHist()->GetXaxis()));        
         return *this;
     }
     HistHandler_TH1::~HistHandler_TH1() {
@@ -168,7 +124,7 @@ namespace CP {
     //###########################################################################################################
     //                                                   HistHandler_TH2
     //###########################################################################################################
-    HistHandler_TH2::HistHandler_TH2(TH2 * h) :
+    HistHandler_TH2::HistHandler_TH2(TH1*  h) :
                 HistHandler(h),
                 m_x_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
                 m_y_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
@@ -199,8 +155,9 @@ namespace CP {
         if (this == &other) {
             return *this;
         }
-        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
-        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
+        Copy(other);
+        m_x_handler = std::unique_ptr<AxisHandler>(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(GetHist()->GetXaxis()));
+        m_y_handler = std::unique_ptr<AxisHandler>(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(GetHist()->GetYaxis()));
         return *this;
     }
     HistHandler_TH2::~HistHandler_TH2() {
@@ -228,7 +185,7 @@ namespace CP {
     //                                                   HistHandler_TH3
     //###########################################################################################################
 
-    HistHandler_TH3::HistHandler_TH3(TH3 * h) :
+    HistHandler_TH3::HistHandler_TH3(TH1* h) :
                 HistHandler(h),
                 m_x_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
                 m_y_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())),
@@ -250,9 +207,9 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
-        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
-        m_z_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis()));
+        m_x_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
+        m_y_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
+        m_z_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis()));
         return *this;
     }
     int HistHandler_TH3::NBins() const {
@@ -321,8 +278,8 @@ namespace CP {
         }
         Copy(other);
         m_h = other.m_h;
-        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
-        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
+        m_x_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
+        m_y_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
         return *this;
     }
 

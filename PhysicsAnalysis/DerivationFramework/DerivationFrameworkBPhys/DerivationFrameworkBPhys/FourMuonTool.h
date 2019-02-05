@@ -181,7 +181,6 @@ namespace DerivationFramework {
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
-        ToolHandle < InDet::ConversionFinderUtils > m_helpertool;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
         ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
     };

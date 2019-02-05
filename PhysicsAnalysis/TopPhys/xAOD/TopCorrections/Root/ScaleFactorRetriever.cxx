@@ -757,65 +757,163 @@ namespace top {
                                     bool isLoose) const {
     // See TauScaleFactorCalculator.cxx for uncertainties
     static SG::AuxElement::ConstAccessor<float> acc_tauSF("tauSF");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_down       ("tauSF_eleolr_total_down");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_up       ("tauSF_eleolr_total_up");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_down     ("tauSF_eleolr_total_down");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_total_up       ("tauSF_trueelectron_eleolr_total_up");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_total_down     ("tauSF_trueelectron_eleolr_total_down");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_total_up        ("tauSF_jetid_total_up");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_total_down      ("tauSF_jetid_total_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_highmu_down       ("tauSF_trueelectron_eleolr_highmu_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_highmu_up       ("tauSF_trueelectron_eleolr_highmu_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_lowmu_down       ("tauSF_trueelectron_eleolr_lowmu_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_lowmu_up       ("tauSF_trueelectron_eleolr_lowmu_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_syst_down       ("tauSF_trueelectron_eleolr_syst_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_syst_up       ("tauSF_trueelectron_eleolr_syst_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16a_down       ("tauSF_trueelectron_elebdt_mc16a_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16a_up       ("tauSF_trueelectron_elebdt_mc16a_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16d_down       ("tauSF_trueelectron_elebdt_mc16d_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16d_up       ("tauSF_trueelectron_elebdt_mc16d_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_syst_down       ("tauSF_trueelectron_elebdt_syst_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_syst_up       ("tauSF_trueelectron_elebdt_syst_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2025_down       ("tauSF_jetid_1p2025_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2025_up       ("tauSF_jetid_1p2025_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2530_down       ("tauSF_jetid_1p2530_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2530_up       ("tauSF_jetid_1p2530_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p3040_down       ("tauSF_jetid_1p3040_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p3040_up       ("tauSF_jetid_1p3040_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1pge40_down       ("tauSF_jetid_1pge40_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1pge40_up       ("tauSF_jetid_1pge40_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3p2030_down       ("tauSF_jetid_3p2030_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3p2030_up       ("tauSF_jetid_3p2030_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3pge30_down       ("tauSF_jetid_3pge30_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3pge30_up       ("tauSF_jetid_3pge30_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_down       ("tauSF_jetid_highpt_down");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_up       ("tauSF_jetid_highpt_up");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_down     ("tauSF_jetid_highpt_down");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_up         ("tauSF_reco_total_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_syst_down       ("tauSF_jetid_syst_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_syst_up       ("tauSF_jetid_syst_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_af2_down       ("tauSF_jetid_af2_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_af2_up       ("tauSF_jetid_af2_up");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_down       ("tauSF_reco_total_down");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_up        ("tauSF_reco_highpt_up");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_down      ("tauSF_reco_highpt_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_up       ("tauSF_reco_total_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_down       ("tauSF_reco_highpt_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_up       ("tauSF_reco_highpt_up");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_af2_down       ("tauSF_reco_af2_down");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_af2_up       ("tauSF_reco_af2_up");
 
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_loose("tauSF_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_down_loose       ("tauSF_eleolr_total_down_loose");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_up_loose       ("tauSF_eleolr_total_up_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_eleolr_total_down_loose     ("tauSF_eleolr_total_down_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_total_up_loose       ("tauSF_trueelectron_eleolr_total_up_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_total_down_loose     ("tauSF_trueelectron_eleolr_total_down_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_total_up_loose        ("tauSF_jetid_total_up_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_total_down_loose      ("tauSF_jetid_total_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_highmu_down_loose       ("tauSF_trueelectron_eleolr_highmu_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_highmu_up_loose       ("tauSF_trueelectron_eleolr_highmu_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_lowmu_down_loose       ("tauSF_trueelectron_eleolr_lowmu_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_lowmu_up_loose       ("tauSF_trueelectron_eleolr_lowmu_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_syst_down_loose       ("tauSF_trueelectron_eleolr_syst_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_eleolr_syst_up_loose       ("tauSF_trueelectron_eleolr_syst_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16a_down_loose       ("tauSF_trueelectron_elebdt_mc16a_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16a_up_loose       ("tauSF_trueelectron_elebdt_mc16a_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16d_down_loose       ("tauSF_trueelectron_elebdt_mc16d_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_mc16d_up_loose       ("tauSF_trueelectron_elebdt_mc16d_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_syst_down_loose       ("tauSF_trueelectron_elebdt_syst_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_trueelectron_elebdt_syst_up_loose       ("tauSF_trueelectron_elebdt_syst_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2025_down_loose       ("tauSF_jetid_1p2025_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2025_up_loose       ("tauSF_jetid_1p2025_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2530_down_loose       ("tauSF_jetid_1p2530_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p2530_up_loose       ("tauSF_jetid_1p2530_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p3040_down_loose       ("tauSF_jetid_1p3040_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1p3040_up_loose       ("tauSF_jetid_1p3040_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1pge40_down_loose       ("tauSF_jetid_1pge40_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_1pge40_up_loose       ("tauSF_jetid_1pge40_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3p2030_down_loose       ("tauSF_jetid_3p2030_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3p2030_up_loose       ("tauSF_jetid_3p2030_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3pge30_down_loose       ("tauSF_jetid_3pge30_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_3pge30_up_loose       ("tauSF_jetid_3pge30_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_down_loose       ("tauSF_jetid_highpt_down_loose");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_up_loose       ("tauSF_jetid_highpt_up_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_highpt_down_loose     ("tauSF_jetid_highpt_down_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_up_loose         ("tauSF_reco_total_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_syst_down_loose       ("tauSF_jetid_syst_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_syst_up_loose       ("tauSF_jetid_syst_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_af2_down_loose       ("tauSF_jetid_af2_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_jetid_af2_up_loose       ("tauSF_jetid_af2_up_loose");
     static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_down_loose       ("tauSF_reco_total_down_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_up_loose        ("tauSF_reco_highpt_up_loose");
-    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_down_loose      ("tauSF_reco_highpt_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_total_up_loose       ("tauSF_reco_total_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_down_loose       ("tauSF_reco_highpt_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_highpt_up_loose       ("tauSF_reco_highpt_up_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_af2_down_loose       ("tauSF_reco_af2_down_loose");
+    static SG::AuxElement::ConstAccessor<float> acc_tauSF_reco_af2_up_loose       ("tauSF_reco_af2_up_loose");
 
     if (!isLoose) {
       switch (SFSyst) {
-	//EleOLR true hadtau
-      case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP :
-        return acc_tauSF_eleolr_total_up(x);
       case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_DOWN :
         return acc_tauSF_eleolr_total_down(x);
-	//EleOLR true elec
-      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_UP :
-        return acc_tauSF_trueelectron_eleolr_total_up(x);
-      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_DOWN :
-        return acc_tauSF_trueelectron_eleolr_total_down(x);
-	//jetID total
-      case top::topSFSyst::TAU_SF_JETID_TOTAL_UP :
-        return acc_tauSF_jetid_total_up(x);
-      case top::topSFSyst::TAU_SF_JETID_TOTAL_DOWN :
-        return acc_tauSF_jetid_total_down(x);
-	//jetID highpt
-      case top::topSFSyst::TAU_SF_JETID_HIGHPT_UP :
-        return acc_tauSF_jetid_highpt_up(x);
+      case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP :
+        return acc_tauSF_eleolr_total_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN :
+        return acc_tauSF_trueelectron_eleolr_highmu_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_UP :
+        return acc_tauSF_trueelectron_eleolr_highmu_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_DOWN :
+        return acc_tauSF_trueelectron_eleolr_lowmu_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_UP :
+        return acc_tauSF_trueelectron_eleolr_lowmu_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_DOWN :
+        return acc_tauSF_trueelectron_eleolr_syst_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_UP :
+        return acc_tauSF_trueelectron_eleolr_syst_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_DOWN :
+        return acc_tauSF_trueelectron_elebdt_mc16a_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_UP :
+        return acc_tauSF_trueelectron_elebdt_mc16a_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_DOWN :
+        return acc_tauSF_trueelectron_elebdt_mc16d_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_UP :
+        return acc_tauSF_trueelectron_elebdt_mc16d_up(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_DOWN :
+        return acc_tauSF_trueelectron_elebdt_syst_down(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_UP :
+        return acc_tauSF_trueelectron_elebdt_syst_up(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2025_DOWN :
+        return acc_tauSF_jetid_1p2025_down(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2025_UP :
+        return acc_tauSF_jetid_1p2025_up(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2530_DOWN :
+        return acc_tauSF_jetid_1p2530_down(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2530_UP :
+        return acc_tauSF_jetid_1p2530_up(x);
+      case top::topSFSyst::TAU_SF_JETID_1P3040_DOWN :
+        return acc_tauSF_jetid_1p3040_down(x);
+      case top::topSFSyst::TAU_SF_JETID_1P3040_UP :
+        return acc_tauSF_jetid_1p3040_up(x);
+      case top::topSFSyst::TAU_SF_JETID_1PGE40_DOWN :
+        return acc_tauSF_jetid_1pge40_down(x);
+      case top::topSFSyst::TAU_SF_JETID_1PGE40_UP :
+        return acc_tauSF_jetid_1pge40_up(x);
+      case top::topSFSyst::TAU_SF_JETID_3P2030_DOWN :
+        return acc_tauSF_jetid_3p2030_down(x);
+      case top::topSFSyst::TAU_SF_JETID_3P2030_UP :
+        return acc_tauSF_jetid_3p2030_up(x);
+      case top::topSFSyst::TAU_SF_JETID_3PGE30_DOWN :
+        return acc_tauSF_jetid_3pge30_down(x);
+      case top::topSFSyst::TAU_SF_JETID_3PGE30_UP :
+        return acc_tauSF_jetid_3pge30_up(x);
       case top::topSFSyst::TAU_SF_JETID_HIGHPT_DOWN :
         return acc_tauSF_jetid_highpt_down(x);
-	//reco total
-      case top::topSFSyst::TAU_SF_RECO_TOTAL_UP :
-        return acc_tauSF_reco_total_up(x);
+      case top::topSFSyst::TAU_SF_JETID_HIGHPT_UP :
+        return acc_tauSF_jetid_highpt_up(x);
+      case top::topSFSyst::TAU_SF_JETID_SYST_DOWN :
+        return acc_tauSF_jetid_syst_down(x);
+      case top::topSFSyst::TAU_SF_JETID_SYST_UP :
+        return acc_tauSF_jetid_syst_up(x);
+      case top::topSFSyst::TAU_SF_JETID_AF2_DOWN :
+        return acc_tauSF_jetid_af2_down(x);
+      case top::topSFSyst::TAU_SF_JETID_AF2_UP :
+        return acc_tauSF_jetid_af2_up(x);
       case top::topSFSyst::TAU_SF_RECO_TOTAL_DOWN :
         return acc_tauSF_reco_total_down(x);
-	//reco highpt
-      case top::topSFSyst::TAU_SF_RECO_HIGHPT_UP :
-        return acc_tauSF_reco_highpt_up(x);
+      case top::topSFSyst::TAU_SF_RECO_TOTAL_UP :
+        return acc_tauSF_reco_total_up(x);
       case top::topSFSyst::TAU_SF_RECO_HIGHPT_DOWN :
         return acc_tauSF_reco_highpt_down(x);
+      case top::topSFSyst::TAU_SF_RECO_HIGHPT_UP :
+        return acc_tauSF_reco_highpt_up(x);
+      case top::topSFSyst::TAU_SF_RECO_AF2_DOWN :
+        return acc_tauSF_reco_af2_down(x);
+      case top::topSFSyst::TAU_SF_RECO_AF2_UP :
+        return acc_tauSF_reco_af2_up(x);
       default :
         // If not a tau systematic then return nominal SF
         return acc_tauSF(x);
@@ -823,36 +921,82 @@ namespace top {
       }
     } else {
       switch (SFSyst) {
-	//EleOLR true hadtau
-      case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP :
-        return acc_tauSF_eleolr_total_up_loose(x);
       case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_DOWN :
         return acc_tauSF_eleolr_total_down_loose(x);
-	//EleOLR true elec
-      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_UP :
-        return acc_tauSF_trueelectron_eleolr_total_up_loose(x);
-      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_DOWN :
-        return acc_tauSF_trueelectron_eleolr_total_down_loose(x);
-	//jetID total
-      case top::topSFSyst::TAU_SF_JETID_TOTAL_UP :
-        return acc_tauSF_jetid_total_up_loose(x);
-      case top::topSFSyst::TAU_SF_JETID_TOTAL_DOWN :
-        return acc_tauSF_jetid_total_down_loose(x);
-	//jetID highpt
-      case top::topSFSyst::TAU_SF_JETID_HIGHPT_UP :
-        return acc_tauSF_jetid_highpt_up_loose(x);
+      case top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP :
+        return acc_tauSF_eleolr_total_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN :
+        return acc_tauSF_trueelectron_eleolr_highmu_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_UP :
+        return acc_tauSF_trueelectron_eleolr_highmu_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_DOWN :
+        return acc_tauSF_trueelectron_eleolr_lowmu_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_UP :
+        return acc_tauSF_trueelectron_eleolr_lowmu_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_DOWN :
+        return acc_tauSF_trueelectron_eleolr_syst_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_UP :
+        return acc_tauSF_trueelectron_eleolr_syst_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_DOWN :
+        return acc_tauSF_trueelectron_elebdt_mc16a_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_UP :
+        return acc_tauSF_trueelectron_elebdt_mc16a_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_DOWN :
+        return acc_tauSF_trueelectron_elebdt_mc16d_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_UP :
+        return acc_tauSF_trueelectron_elebdt_mc16d_up_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_DOWN :
+        return acc_tauSF_trueelectron_elebdt_syst_down_loose(x);
+      case top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_UP :
+        return acc_tauSF_trueelectron_elebdt_syst_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2025_DOWN :
+        return acc_tauSF_jetid_1p2025_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2025_UP :
+        return acc_tauSF_jetid_1p2025_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2530_DOWN :
+        return acc_tauSF_jetid_1p2530_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P2530_UP :
+        return acc_tauSF_jetid_1p2530_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P3040_DOWN :
+        return acc_tauSF_jetid_1p3040_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1P3040_UP :
+        return acc_tauSF_jetid_1p3040_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1PGE40_DOWN :
+        return acc_tauSF_jetid_1pge40_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_1PGE40_UP :
+        return acc_tauSF_jetid_1pge40_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_3P2030_DOWN :
+        return acc_tauSF_jetid_3p2030_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_3P2030_UP :
+        return acc_tauSF_jetid_3p2030_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_3PGE30_DOWN :
+        return acc_tauSF_jetid_3pge30_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_3PGE30_UP :
+        return acc_tauSF_jetid_3pge30_up_loose(x);
       case top::topSFSyst::TAU_SF_JETID_HIGHPT_DOWN :
         return acc_tauSF_jetid_highpt_down_loose(x);
-	//reco total
-      case top::topSFSyst::TAU_SF_RECO_TOTAL_UP :
-        return acc_tauSF_reco_total_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_HIGHPT_UP :
+        return acc_tauSF_jetid_highpt_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_SYST_DOWN :
+        return acc_tauSF_jetid_syst_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_SYST_UP :
+        return acc_tauSF_jetid_syst_up_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_AF2_DOWN :
+        return acc_tauSF_jetid_af2_down_loose(x);
+      case top::topSFSyst::TAU_SF_JETID_AF2_UP :
+        return acc_tauSF_jetid_af2_up_loose(x);
       case top::topSFSyst::TAU_SF_RECO_TOTAL_DOWN :
         return acc_tauSF_reco_total_down_loose(x);
-	//reco highpt
-      case top::topSFSyst::TAU_SF_RECO_HIGHPT_UP :
-        return acc_tauSF_reco_highpt_up_loose(x);
+      case top::topSFSyst::TAU_SF_RECO_TOTAL_UP :
+        return acc_tauSF_reco_total_up_loose(x);
       case top::topSFSyst::TAU_SF_RECO_HIGHPT_DOWN :
         return acc_tauSF_reco_highpt_down_loose(x);
+      case top::topSFSyst::TAU_SF_RECO_HIGHPT_UP :
+        return acc_tauSF_reco_highpt_up_loose(x);
+      case top::topSFSyst::TAU_SF_RECO_AF2_DOWN :
+        return acc_tauSF_reco_af2_down_loose(x);
+      case top::topSFSyst::TAU_SF_RECO_AF2_UP :
+        return acc_tauSF_reco_af2_up_loose(x);
       default :
 	// If not a tau systematic then return nominal SF
 	return acc_tauSF_loose(x);

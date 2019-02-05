@@ -1,5 +1,5 @@
 ################################################################################
-# EXOT27 - MonoHbb tests - candidate for official monoHbb+monoScalar derviation
+# EXOT27 - Official monoHbb+monoScalar derivation
 ################################################################################
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
@@ -60,7 +60,6 @@ EXOT27Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # jet finding) only if the kernel's selections pass.
 EXOT27Seq = CfgMgr.AthSequencer("EXOT27Sequence")
 DerivationFrameworkJob += EXOT27Seq
-# As we create skimming algs, etc add them to this list
 # As we add extra variables add them to this dictionary (key is container name,
 # aux data in the value)
 EXOT27ExtraVariables = defaultdict(set)
@@ -69,9 +68,16 @@ EXOT27ExtraVariables = defaultdict(set)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
   "PrimaryVertices", "BTagging_AntiKt4EMTopo", "MET_Reference_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow"
   ]
 EXOT27AllVariables = [
   ]
+# Note which small-r jets are used in this list, will be useful later (doing it
+# here as it is close to the EXOT27SmartContainers declaration which is what
+# ensures that they will be added to the output).
+OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]
+
+
 if DerivationFrameworkIsMonteCarlo:
   EXOT27AllVariables += [
     "TruthParticles",
@@ -302,7 +308,7 @@ EXOT27ThinningTools += [
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
 # code
 if DerivationFrameworkIsMonteCarlo:
-  truth_with_descendants = [6, 23, 24, 25]
+  truth_with_descendants = [6, 23, 24, 25, 54]  # pdg id 54: scalar particle in mono-scalar signal model
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
@@ -311,7 +317,7 @@ if DerivationFrameworkIsMonteCarlo:
         ParticleSelectionString = truth_sel_with_descendants,
         PreserveDescendants     = True),
     ]
-  truth_no_descendants = [5, 11, 12, 13, 14, 15, 16, 17, 18]
+  truth_no_descendants = [5, 11, 12, 13, 14, 15, 16, 17, 18, 55]  # pdg id 55: Z' boson in mono-scalar signal model
   truth_sel_no_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_no_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
@@ -334,8 +340,13 @@ sel_list = []
 # Common SR selection
 # Resolved requirement - analysis level selection is 1 central jet with pT > 45
 # GeV. Use 30 GeV and |eta| < 2.8 to allow for future differences in calibration
-sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " +
-    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 1")
+sel_list += [("count(({0}.DFCommonJets_Calib_pt > 30.*GeV) && " +
+    "(abs({0}.DFCommonJets_Calib_eta) < 2.8)) >= 1").format(jets)
+    for jets in ["AntiKt4EMTopoJets"] ]
+
+# NB - this selection is only applied to the TopoJets as the PFlow jets don't
+# have the DFCommonJets_Calib_* decorations. Is this going to be an issue? Do we
+# need to remove this whole part of the preselection?
 # NB - this selection is almost comically loose - is there really nothing
 # tighter we can apply?
 

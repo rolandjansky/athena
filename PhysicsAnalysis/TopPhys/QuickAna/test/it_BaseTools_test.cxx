@@ -23,7 +23,7 @@
 #pragma GCC diagnostic pop
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <AssociationUtils/AltMuJetOverlapTool.h>
 #include <AssociationUtils/DeltaROverlapTool.h>
 #include <AssociationUtils/EleJetOverlapTool.h>

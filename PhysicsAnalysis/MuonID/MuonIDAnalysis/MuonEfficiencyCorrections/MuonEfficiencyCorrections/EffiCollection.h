@@ -1,14 +1,6 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-
-/*
- * EffiCollection.h
- *
- *  Created on: Jun 21, 2014
- *      Author: goblirsc
- */
-
 #ifndef EFFICOLLECTION_H_
 #define EFFICOLLECTION_H_
 
@@ -18,105 +10,176 @@
 
 
 #include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
-#include <AsgTools/AsgTool.h>
-
-#include "xAODMuon/Muon.h"
-
+#include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+#include <xAODMuon/Muon.h>
 #include <map>
 #include <string>
 #include <iostream>
 
 namespace CP {
+    class MuonEfficiencyScaleFactors;
     class EfficiencyScaleFactor;
-
-    typedef std::shared_ptr<EfficiencyScaleFactor> EfficiencyScaleFactor_Ptr;
-
-    class EffiCollection {
+    class SystematicSet;
+    class SystematicVariation;
+    /// The EffiCollection class handles the 5 different scale-factor maps binned in time. Each muon is piped to the correct map based 
+    /// whether it's a calo-tag muon, belongs to the high-eta region or has low-pt. 
+    /// There exists one instance of the EffiCollection foreach systematic variation and nominal. Scale-factor maps which are not affected by 
+    /// a systematic, especially in the case of common vs. low-pt, are taken from the Nominal maps.
+    class EffiCollection final {
         public:
-            EffiCollection();
-            EffiCollection(const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition = 20000.);
-            //Constructor with nominal as fallback..
-            EffiCollection(const EffiCollection* Nominal, const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition = 20000.);
-            EffiCollection(const EffiCollection& other);
-            EffiCollection & operator =(const EffiCollection & other);
-
+            explicit EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
+            ///Constructor with nominal as fallback..
+            EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up);
+          
             /// return the correct SF type to provide, depending on eta and the author
-            EfficiencyScaleFactor_Ptr retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
+            EfficiencyScaleFactor* retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
             enum CollectionType {
-                Central, Calo, Forward, CentralLowPt, CaloLowPt
+                /// The five different scale-factor maps
+                Central = 1, 
+                Calo   = 1<<1, 
+                Forward = 1<<2, 
+                CentralLowPt = 1<<3, 
+                CaloLowPt = 1<<4, 
+                
+                ZAnalysis = Central | Calo | Forward,
+                /// Distinguish these two because the systematics
+                /// are named with an extra LOWPT
+                JPsiAnalysis = CentralLowPt | CaloLowPt,
+                
+                OwnFallBack = 1<<5,
+               
+            };
+            enum Systematic{
+                Symmetric = 1<<6,
+                PtDependent = 1<<7,
+                UnCorrelated = 1<<8,
+                UpVariation = 1<<9,
             };
             static std::string FileTypeName(EffiCollection::CollectionType T);
+            
+            
+            /// a consistency check of the scale-factor maps. All scale-factor maps must be present
+            /// and there must no overlapping periods to pass this test.
+            bool CheckConsistency();
 
-            // return the name of the systematic variation being run
-            std::string sysname() const;
-
-            // a consistency check
-            bool CheckConsistency() const;
-
-            virtual ~EffiCollection();
+            /// Get the number of all bins in the scale-factor maps including
+            /// the overflow & underflow bins
             unsigned int nBins() const;
+            
+            /// If systematic decorrelation is activated then the user needs to loop
+            /// manually over the syst bins. This method activates the i-th bin to 
+            /// be active. For the remaining bins the nominal scale-factor is returned
+            /// instead.
             bool SetSystematicBin(unsigned int Bin);
+            
+            /// Checks whether the i-th bin belongs to the low-pt map...
             bool IsLowPtBin(unsigned int Bin) const;
+            /// Checks whether the i-th bin belongs to the forward map
             bool IsForwardBin(unsigned int Bin) const;
 
+            /// Returns the global bin name conststucted from the axis
+            /// titles and the bin borders
             std::string GetBinName(unsigned int bin) const;
+            
+            /// Returns the bin number from which the scale-factor of the muon
+            /// is going to be retrieved...
             int getUnCorrelatedSystBin(const xAOD::Muon& mu) const;
-
+            
+            
+            ///    Returns the systematic set affecting this collection.
+            SystematicSet* getSystSet() const;
+            ///    Returns whether the given set has variations affecting this Collection
+            bool  isAffectedBySystematic(const SystematicVariation& variation) const;
+            bool  isAffectedBySystematic(const SystematicSet& set) const;
+            
         protected:
-            //Forward declaration for the shared_ptr
-            class CollectionContainer;
-            typedef std::shared_ptr<CollectionContainer> CollectionContainer_Ptr;
-            //Create a subclass to handle the periods
-
-            class CollectionContainer {
+            
+            /// The collection container manages the time binning of a particular scale-factor map. For a given runNumber,
+            /// it pipes the right map to the upstream tools.
+            class CollectionContainer final {
                 public:
-
-                    CollectionContainer(const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt = false, bool hasPtDepSys = false);
-                    CollectionContainer(CollectionContainer_Ptr Nominal, const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt = false, bool hasPtDepSys = false);
-
-
-                    CollectionContainer & operator =(const CollectionContainer & other);
-                    CollectionContainer(const CollectionContainer & other);
-                    virtual ~CollectionContainer();
-
-                    EfficiencyScaleFactor_Ptr retrieve(unsigned int RunNumer) const;
-                    bool CheckConsistency() const;
+                    /// Nominal constructor... Only needs to know about it's type and the file to load
+                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
+                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
+                  
+                    /// Retrieve the scale-factor map belonging to that particular run of data-taking
+                    EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
+                    
+                    /// Checks if the global bin number belongs to this map
+                    bool isBinInMap (unsigned int bin) const;
+                    /// Consistency check of all scale-factor maps managed by the container instance
+                    bool CheckConsistency();
+                    
+                    /// Returns  MUON_EFF_<sysname()>
                     std::string sysname() const;
+                    
+                    /// Activate this bin to run in the uncorrelated systematic mode
                     bool SetSystematicBin(unsigned int Bin);
+                    
+                    /// Sets the global offset to align the order in the map into a
+                    /// global numbering scheme
+                    void SetGlobalOffSet(unsigned int OffSet);
+                    
+                    /// Number of bins of the map itself
                     unsigned int nBins() const;
-                    std::string GetBinName(unsigned int Bin) const;
+                    
+                    /// Global offset of the bin numbers
+                    unsigned int globalOffSet() const;
+                   
+                    /// Name of the i-th bin 
+                    std::string GetBinName(unsigned int Bin) const;                    
+                    
+                    /// Returns the global bin number corresponding to the
+                    /// muon kinematics. In case of failures -1 is returned
                     int FindBinSF(const xAOD::Muon &mu) const;
-
+                    
+                    /// File type of the map
                     EffiCollection::CollectionType type() const;
                     
+                    bool isNominal() const;
+                    bool isUpVariation() const;
+                    bool seperateBinSyst() const;
+                    
                 private:
+                    std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;
+                    std::string fileName(const MuonEfficiencyScaleFactors& ref_tool) const;
+                  
                     bool LoadPeriod(unsigned int RunNumber) const;
-                    typedef std::pair<unsigned int, unsigned int> RunRanges;
-
-                    std::vector<EfficiencyScaleFactor_Ptr> m_SF;
-                    mutable EfficiencyScaleFactor_Ptr m_currentSF;
+                   
+                    std::vector<std::shared_ptr<EfficiencyScaleFactor>> m_SF;
+                    mutable EfficiencyScaleFactor* m_currentSF;
+                    
                     EffiCollection::CollectionType m_FileType;
+                    /// Offset to translate between the bin-numbers in the bin numbers
+                    /// of each file against the global bin-number
+                    unsigned int m_binOffSet;
+                
             };
 
+            /// Method to retrieve a container from the class ordered by a collection type
+            /// This method is mainly used to propagate the nominal maps to the variations
+            /// as fallback maps if no variation has been defined in this situation
+            std::shared_ptr<CollectionContainer> retrieveContainer(CollectionType Type) const;
+
         private:
+            CollectionContainer* FindContainer(unsigned int bin) const;
+            CollectionContainer* FindContainer(const xAOD::Muon& mu) const;
+            
+            const MuonEfficiencyScaleFactors& m_ref_tool;
+            
+            /// Make the collection container shared ptr to allow that a systematic EffiCollection
+            /// can use the same container as the nominal one if the current systematic has no
+            /// effect on that particular container....
+            std::shared_ptr<CollectionContainer> m_central_eff;
+            std::shared_ptr<CollectionContainer> m_calo_eff;
+            std::shared_ptr<CollectionContainer> m_forward_eff;
+            std::shared_ptr<CollectionContainer> m_lowpt_central_eff;
+            std::shared_ptr<CollectionContainer> m_lowpt_calo_eff;
 
-
-            bool DoesBinFitInRange(CollectionContainer_Ptr Container, unsigned int & Bin) const;
-            bool DoesMuonEnterBin(CollectionType Type, const xAOD::Muon mu, int &Bin) const;
-            std::string ReplaceExpInString(std::string str, const std::string &exp, const std::string &rep) const;
-
-            CollectionContainer_Ptr retrieveContainer(CollectionType Type) const;
-            CollectionContainer_Ptr FindContainerFromBin(unsigned int &bin) const;
-            CollectionContainer_Ptr FindContainer(const xAOD::Muon& mu) const;
-
-            CollectionContainer_Ptr m_central_eff;
-            CollectionContainer_Ptr m_calo_eff;
-            CollectionContainer_Ptr m_forward_eff;
-            CollectionContainer_Ptr m_lowpt_central_eff;
-            CollectionContainer_Ptr m_lowpt_calo_eff;
-
-            double m_lowpt_transition;
-            CP::MuonEfficiencyType m_sfType;
+            /// The systematic set is returned back to the MuonEfficiencyScaleFactors instance to register
+            /// The known systematics to the global service
+            std::unique_ptr<SystematicSet> m_syst_set;
+        
     };
 }
 #endif /* EFFICOLLECTION_H_ */

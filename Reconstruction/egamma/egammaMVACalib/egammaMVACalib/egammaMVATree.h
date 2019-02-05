@@ -325,16 +325,16 @@ namespace egammaMVATreeHelpers
     else return original;
   }
 
-  struct ConversionHelper
+    struct ConversionHelper : asg::AsgMessaging
   {
     ConversionHelper(const xAOD::Photon* ph)
-      : m_vertex(ph ? ph->vertex() : nullptr),
+      : asg::AsgMessaging("ConversionHelper"),
+        m_vertex(ph ? ph->vertex() : nullptr),
         m_tp0(m_vertex ? m_vertex->trackParticle(0) : nullptr),
         m_tp1(m_vertex ? m_vertex->trackParticle(1) : nullptr),
         m_pt1conv(0.), m_pt2conv(0.)
     {
-      static asg::AsgMessaging static_msg("ConversionHelper");
-      static_msg.msg(MSG::DEBUG) << "init conversion helper";
+      ATH_MSG_DEBUG("init conversion helper");
       if (!m_vertex) return;
 
       static SG::AuxElement::Accessor<float> accPt1("pt1");
@@ -346,7 +346,7 @@ namespace egammaMVATreeHelpers
       }
       else
       {
-        static_msg.msg(MSG::WARNING) << "pt1/pt2 not available, will approximate from first measurements";
+        ATH_MSG_WARNING("pt1/pt2 not available, will approximate from first measurements");
         m_pt1conv = getPtAtFirstMeasurement(m_tp0);
         m_pt2conv = getPtAtFirstMeasurement(m_tp1);
       }
@@ -362,8 +362,7 @@ namespace egammaMVATreeHelpers
       uint8_t hits = 0;
       if (m_tp0->summaryValue(hits, xAOD::numberOfPixelHits)) { return hits; }
       else {
-        static asg::AsgMessaging static_msg("ConversionHelper");
-        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfPixelHits";
+        ATH_MSG_WARNING("cannot read xAOD::numberOfPixelHits");
         return 0;
       }
     }
@@ -372,8 +371,7 @@ namespace egammaMVATreeHelpers
       uint8_t hits;
       if (m_tp1->summaryValue(hits, xAOD::numberOfPixelHits)) { return hits; }
       else {
-        static asg::AsgMessaging static_msg("ConversionHelper");
-        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfPixelHits";
+        ATH_MSG_WARNING("cannot read xAOD::numberOfPixelHits");
         return 0;
       }
     }
@@ -382,8 +380,7 @@ namespace egammaMVATreeHelpers
       uint8_t hits;
       if (m_tp0->summaryValue(hits, xAOD::numberOfSCTHits)) { return hits; }
       else {
-        static asg::AsgMessaging static_msg("ConversionHelper");
-        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfSCTHits";
+        ATH_MSG_WARNING("cannot read xAOD::numberOfSCTHits");
         return 0;
       }
     }
@@ -392,8 +389,7 @@ namespace egammaMVATreeHelpers
       uint8_t hits;
       if (m_tp1->summaryValue(hits, xAOD::numberOfSCTHits)) { return hits; }
       else {
-        static asg::AsgMessaging static_msg("ConversionHelper");
-        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfSCTHits";
+        ATH_MSG_WARNING("cannot read xAOD::numberOfSCTHits");
         return 0;
       }
     }
@@ -415,8 +411,7 @@ namespace egammaMVATreeHelpers
       for (unsigned int i = 0; i < tp->numberOfParameters(); ++i)
         if (tp->parameterPosition(i) == xAOD::FirstMeasurement)
           return hypot(tp->parameterPX(i), tp->parameterPY(i));
-      static asg::AsgMessaging static_msg("ConversionHelper");
-      static_msg.msg(MSG::WARNING) << "Could not find first parameter, return pt at perigee";
+      ATH_MSG_WARNING("Could not find first parameter, return pt at perigee");
       return tp->pt();
     }
     const xAOD::Vertex* m_vertex;

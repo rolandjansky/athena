@@ -20,6 +20,7 @@
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/BatchSample.h>
 #include <EventLoop/BatchSegment.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
@@ -321,7 +322,10 @@ namespace EL
   void BatchDriver ::
   doSubmit (const Job& job, const std::string& location) const
   {
+    using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
+
+    ANA_MSG_DEBUG ("submitting batch job in location " << location);
 
     const std::string submitDir = location + "/submit";
     if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
@@ -430,7 +434,10 @@ namespace EL
   bool BatchDriver ::
   doRetrieve (const std::string& location) const
   {
+    using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
+
+    ANA_MSG_DEBUG ("retrieving batch job in location " << location);
 
     std::unique_ptr<TFile> file
       (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
@@ -632,7 +639,11 @@ namespace EL
   mergeHists (const std::string& location,
 	      const BatchJob& config)
   {
+    using namespace msgEventLoop;
+
     bool result = true;
+
+    ANA_MSG_DEBUG ("merging histograms in location " << location);
 
     RCU_ASSERT (config.njobs_old.size() == config.samples.size());
     for (std::size_t sample = 0, end = config.samples.size();
@@ -644,6 +655,8 @@ namespace EL
       output << location << "/hist-" << config.samples[sample].name << ".root";
       if (gSystem->AccessPathName (output.str().c_str()) != 0)
       {
+        ANA_MSG_VERBOSE ("merge files for sample " << config.samples[sample].name);
+
 	bool complete = true;
 	std::vector<std::string> input;
 	for (std::size_t segment = mysample.begin_segments,
@@ -659,6 +672,15 @@ namespace EL
 	  fail_file << location << "/status/fail-" << segment;
 	  std::ostringstream done_file;
 	  done_file << location << "/status/done-" << segment;
+
+          const bool hasCompleted =
+            (gSystem->AccessPathName (completed_file.str().c_str()) == 0);
+          const bool hasFail =
+            (gSystem->AccessPathName (fail_file     .str().c_str()) == 0);
+          const bool hasDone =
+            (gSystem->AccessPathName (done_file     .str().c_str()) == 0);
+
+          ANA_MSG_VERBOSE ("merge segment " << segment << " completed=" << hasCompleted << " done=" << hasDone << " fail=" << hasFail);
 
 	  input.push_back (hist_file);
 
