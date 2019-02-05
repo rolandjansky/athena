@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -184,40 +184,36 @@ namespace NSWL1 {
 
 
       if (m_tree) {
-	std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+          
+        std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
         m_tree->Branch(TString::Format("%s_cl_n",n).Data(),&m_cl_n,TString::Format("%s_cl_n/i",n).Data());
-	m_tree->Branch(TString::Format("%s_cl_charge",n).Data(),&m_cl_charge);
-	m_tree->Branch(TString::Format("%s_cl_x",n).Data(),&m_cl_x);
-	m_tree->Branch(TString::Format("%s_cl_y",n).Data(),&m_cl_y);
-	m_tree->Branch(TString::Format("%s_cl_z",n).Data(),&m_cl_z);
-	m_tree->Branch(TString::Format("%s_cl_lx",n).Data(),&m_cl_lx);
-	m_tree->Branch(TString::Format("%s_cl_ly",n).Data(),&m_cl_ly);
-	m_tree->Branch(TString::Format("%s_cl_lz",n).Data(),&m_cl_lz);
-	m_tree->Branch(TString::Format("%s_cl_ltgx",n).Data(),&m_cl_ltgx);
-	m_tree->Branch(TString::Format("%s_cl_ltgy",n).Data(),&m_cl_ltgy);
-	m_tree->Branch(TString::Format("%s_cl_ltgz",n).Data(),&m_cl_ltgz);
-	m_tree->Branch(TString::Format("%s_cl_size",n).Data(),&m_cl_size);
-	m_tree->Branch(TString::Format("%s_cl_isSmall",n).Data(),&m_cl_isSmall);
-	m_tree->Branch(TString::Format("%s_cl_side",n).Data(),&m_cl_side);
-	m_tree->Branch(TString::Format("%s_cl_wedge",n).Data(),&m_cl_wedge);
-	m_tree->Branch(TString::Format("%s_cl_sector",n).Data(),&m_cl_sector);
-	m_tree->Branch(TString::Format("%s_cl_module",n).Data(),&m_cl_module);
-	m_tree->Branch(TString::Format("%s_cl_layer",n).Data(),&m_cl_layer);
-	m_tree->Branch(TString::Format("%s_cl_bandId",n).Data(),&m_cl_bandId);
-	m_tree->Branch(TString::Format("%s_cl_truth_x",n).Data(),&m_cl_truth_x);
-	m_tree->Branch(TString::Format("%s_cl_truth_y",n).Data(),&m_cl_truth_y);
-	m_tree->Branch(TString::Format("%s_cl_truth_z",n).Data(),&m_cl_truth_z);
-	m_tree->Branch(TString::Format("%s_cl_truth_lx",n).Data(),&m_cl_truth_lx);
-	m_tree->Branch(TString::Format("%s_cl_truth_ly",n).Data(),&m_cl_truth_ly);
-	m_tree->Branch(TString::Format("%s_cl_truth_lz",n).Data(),&m_cl_truth_lz);
-	m_tree->Branch(TString::Format("%s_cl_truth_E",n).Data(),&m_cl_truth_E);
-	m_tree->Branch(TString::Format("%s_cl_truth_n",n).Data(),&m_cl_truth_n);
-
-
-
-
-
+        m_tree->Branch(TString::Format("%s_cl_charge",n).Data(),&m_cl_charge);
+        m_tree->Branch(TString::Format("%s_cl_x",n).Data(),&m_cl_x);
+        m_tree->Branch(TString::Format("%s_cl_y",n).Data(),&m_cl_y);
+        m_tree->Branch(TString::Format("%s_cl_z",n).Data(),&m_cl_z);
+        m_tree->Branch(TString::Format("%s_cl_lx",n).Data(),&m_cl_lx);
+        m_tree->Branch(TString::Format("%s_cl_ly",n).Data(),&m_cl_ly);
+        m_tree->Branch(TString::Format("%s_cl_lz",n).Data(),&m_cl_lz);
+        m_tree->Branch(TString::Format("%s_cl_ltgx",n).Data(),&m_cl_ltgx);
+        m_tree->Branch(TString::Format("%s_cl_ltgy",n).Data(),&m_cl_ltgy);
+        m_tree->Branch(TString::Format("%s_cl_ltgz",n).Data(),&m_cl_ltgz);
+        m_tree->Branch(TString::Format("%s_cl_size",n).Data(),&m_cl_size);
+        m_tree->Branch(TString::Format("%s_cl_isSmall",n).Data(),&m_cl_isSmall);
+        m_tree->Branch(TString::Format("%s_cl_side",n).Data(),&m_cl_side);
+        m_tree->Branch(TString::Format("%s_cl_wedge",n).Data(),&m_cl_wedge);
+        m_tree->Branch(TString::Format("%s_cl_sector",n).Data(),&m_cl_sector);
+        m_tree->Branch(TString::Format("%s_cl_module",n).Data(),&m_cl_module);
+        m_tree->Branch(TString::Format("%s_cl_layer",n).Data(),&m_cl_layer);
+        m_tree->Branch(TString::Format("%s_cl_bandId",n).Data(),&m_cl_bandId);
+        m_tree->Branch(TString::Format("%s_cl_truth_x",n).Data(),&m_cl_truth_x);
+        m_tree->Branch(TString::Format("%s_cl_truth_y",n).Data(),&m_cl_truth_y);
+        m_tree->Branch(TString::Format("%s_cl_truth_z",n).Data(),&m_cl_truth_z);
+        m_tree->Branch(TString::Format("%s_cl_truth_lx",n).Data(),&m_cl_truth_lx);
+        m_tree->Branch(TString::Format("%s_cl_truth_ly",n).Data(),&m_cl_truth_ly);
+        m_tree->Branch(TString::Format("%s_cl_truth_lz",n).Data(),&m_cl_truth_lz);
+        m_tree->Branch(TString::Format("%s_cl_truth_E",n).Data(),&m_cl_truth_E);
+        m_tree->Branch(TString::Format("%s_cl_truth_n",n).Data(),&m_cl_truth_n);
 
       }
       else {
@@ -279,9 +275,6 @@ namespace NSWL1 {
 void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
 
     ATH_MSG_DEBUG("M_Clusters recieved " << m_clusters.size());
-
-
-
 
 
     bool first_strip=true;
@@ -488,6 +481,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
 
   bool StripClusterTool::MatchModule(const std::unique_ptr<StripData>& one, const StripData* two){
+      //S.I : what about sector type ? are sectorId ranging from 1 ... 6 or 1 ... 8  ???? is it a good idea to make this a member ? You use it only at a single place
     return one->sideId() == two->sideId()          // side
       && one->wedge()==two->wedge()    // Wedge
       && one->sectorId()==two->sectorId()       // Sector
@@ -533,7 +527,19 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 	       continue;
 	     }
          else{
-	       sameMod=MatchModule((hit),p_hit);
+             static auto MatchHits=[](const auto& a1,const auto& a2){
+                if( a1->sideId() != a2->sideId()  || 
+                    a1->wedge() !=a2->wedge()  || 
+                    a1->sectorId() !=a2->sectorId() || 
+                    a1->moduleId() !=a2->moduleId() || 
+                    a1->layer() !=a2->layer() ||
+                    a1->isSmall() !=a2->isSmall() 
+                ) return false;
+                
+                return true;
+             };     
+	         //sameMod=MatchModule((hit),p_hit);
+             sameMod=MatchHits((hit),p_hit);
          }
          //S.I
          p_hit=hit.get();

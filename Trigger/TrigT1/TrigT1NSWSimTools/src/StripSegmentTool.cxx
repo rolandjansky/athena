@@ -182,7 +182,16 @@ namespace NSWL1 {
           
           
        int bandId=band.first;
-	    if ((band.second[0].size() == 0) || (band.second[1].size() == 0)) continue;
+       if (band.second[0].size() == 0){
+           ATH_MSG_WARNING("Cluster size is zero for inner wedge trg with bandId "<<bandId<<"...skipping");
+           continue;
+           
+      }
+      
+      if(band.second[1].size() == 0){
+           ATH_MSG_WARNING("Cluster size is zero for outer wedge trg with bandId "<<bandId<<"...skipping");
+           continue;
+      }
   
 	    float glx1=0;
 	    float gly1=0;
