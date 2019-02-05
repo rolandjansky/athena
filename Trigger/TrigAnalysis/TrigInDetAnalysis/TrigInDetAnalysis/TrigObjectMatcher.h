@@ -40,10 +40,18 @@ public:
 
   TrigObjectMatcher(  TrackSelector* selector, 
 		      const std::vector<TrackTrigObject>& objects, 
-		      bool (*select_function)(const TrackTrigObject& t)=0 ) 
+		      bool (*select_function)(const TrackTrigObject& )=0 ) 
     : m_status(1) {         
     const std::vector<TIDA::Track*> tracks = selector->tracks();
     for ( size_t i=tracks.size() ; i-- ; ) if ( match( tracks[i]->id(), objects, select_function )==false ) selector->delete_track( tracks[i] );
+  } 
+
+  TrigObjectMatcher(  TrackSelector* selector, 
+		      const std::vector<TrackTrigObject>& objects, 
+		      bool (*select_function)(const TrackTrigObject& , TIDA::Track* )=0 ) 
+    : m_status(1) {         
+    const std::vector<TIDA::Track*> tracks = selector->tracks();
+    for ( size_t i=tracks.size() ; i-- ; ) if ( match( tracks[i], objects, select_function )==false ) selector->delete_track( tracks[i] );
   } 
 
 
@@ -78,6 +86,22 @@ private:
 	if ( track_id == objects[j].children()[k] ) {
 	  if ( select_function==0 || select_function(objects[j]) ) { 
 	    m_objectmap.insert( map_type::value_type( track_id, &objects[j] ) );
+	    return true;
+	  }
+	  else return false;
+	}
+      } 
+    }
+    return false;
+  } 
+
+
+  bool  match( TIDA::Track* track, const std::vector<TrackTrigObject>& objects, bool (*select_function)(const TrackTrigObject& , TIDA::Track* )=0 ) { 
+    for ( size_t j=objects.size() ; j-- ; ) { 
+      for ( size_t k=objects[j].children().size() ; k-- ; ) {
+	if ( track->id() == objects[j].children()[k] ) {
+	  if ( select_function==0 || select_function(objects[j], track) ) { 
+	    m_objectmap.insert( map_type::value_type( track->id(), &objects[j] ) );
 	    return true;
 	  }
 	  else return false;
