@@ -1,17 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2015.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
-#undef NDEBUG
 
 //
 // includes
@@ -32,6 +25,18 @@
 // unit test
 //
 
+void ut_assert (bool success, const char *code, const char *file, unsigned line)
+{
+  if (!success)
+  {
+    using namespace ana::msgUserCode;
+    ANA_MSG_FATAL ("failed test: " << code);
+    ANA_MSG_FATAL ("test at " << file << ":" << line);
+    std::abort();
+  }
+}
+#define UT_ASSERT(X) ut_assert (X, #X, __FILE__, __LINE__)
+
 template<typename T,typename T1,typename T2>
 void checkTypeWeightSingle (const T& scSuccess, const CP::CorrectionCode& scTest,
 			    bool expectedSuccess, bool expectedFinish,
@@ -50,12 +55,12 @@ void checkTypeWeightSingle (const T& scSuccess, const CP::CorrectionCode& scTest
     QA_CHECK_WEIGHT (T2, weightVar, func (weightVar));
     finish = true;
     return scSuccess;} ();
-  RCU_ASSERT (successTest (mySC) == expectedSuccess);
-  RCU_ASSERT (finish == expectedFinish);
+  UT_ASSERT (successTest (mySC) == expectedSuccess);
+  UT_ASSERT (finish == expectedFinish);
   if (expectedSet)
-    RCU_ASSERT (weightVar == 42);
+    UT_ASSERT (weightVar == 42);
   else
-    RCU_ASSERT (weightVar == -7);
+    UT_ASSERT (weightVar == -7);
 }
 
 template<typename T,typename T1,typename T2>
@@ -88,9 +93,9 @@ void checkTypeCutSingle (const T& scSuccess, const CP::CorrectionCode& scTest,
     QA_CHECK_CUT (selCut, scTest);
     finish = true;
     return scSuccess;} ();
-  RCU_ASSERT (successTest (mySC) == expectedSuccess);
-  RCU_ASSERT (finish == expectedFinish);
-  RCU_ASSERT (expectedGet == selCut.get());
+  UT_ASSERT (successTest (mySC) == expectedSuccess);
+  UT_ASSERT (finish == expectedFinish);
+  UT_ASSERT (expectedGet == selCut.get());
 }
 
 template<typename T>
@@ -117,8 +122,8 @@ void checkTypeSingle (const T& scSuccess, const T& scTest, bool expectedSuccess,
     success = true;
     return scSuccess;
   } ();
-  RCU_ASSERT (successTest (mySC) == expectedSuccess);
-  RCU_ASSERT (success == expectedSuccess);
+  UT_ASSERT (successTest (mySC) == expectedSuccess);
+  UT_ASSERT (success == expectedSuccess);
 }
 
 template<typename T>
