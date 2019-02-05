@@ -2,6 +2,19 @@
 
 from AthenaCommon import CfgMgr
 
+def getCscTruthOverlay(name="CscTruthOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isDataOverlay():
+        kwargs.setdefault("BkgInputKey", "")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+CSC_SDO");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+CSC_SDO");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+CSC_SDO");
+
+    return CfgMgr.CscSimDataOverlay(name, **kwargs)
+
+
 def getMdtTruthOverlay(name="MdtTruthOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
