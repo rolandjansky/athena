@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDStandardPerformance_H
@@ -14,7 +14,6 @@
 #include <map>
 #include <memory>
 
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -38,6 +37,7 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // // forward declarations
 namespace AlignMon {
@@ -794,6 +794,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     std::string m_PixeltracksName;
     SG::ReadHandleKey<TrackCollection> m_SCTtracksName;
     SG::ReadHandleKey<TrackCollection> m_TRTtracksKey{ this, "TRTtracksName", "StandaloneTRTTracks", "Container name for the Standalone TRT Tracks" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt{ this, "EvtInfo", "EventInfo", "EventInfo name"};
 
     typedef std::multimap<HepMcParticleLink,float> recoToTruthMap;//!< map containing reco track and matched truth track barcode
     recoToTruthMap m_rttMap;
