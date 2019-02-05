@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_RT_RELATION_DB_DIGITOOL_H
@@ -28,7 +28,6 @@ Adopted from RT_Relation_DigiTool
 //#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 //#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -45,13 +44,13 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     
     //Methods
     StatusCode initialize();
-    MdtDigiToolOutput digitize(const MdtDigiToolInput& input);
+    virtual MdtDigiToolOutput digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine *rndmEngine) override final;
     bool initializeTube();
   
   private:
     //Methods
-    double getDriftTime(double radius,Identifier DigitId);
-    double getAdcResponse(double radius);
+    double getDriftTime(double radius,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine);
+    double getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine);
     bool   isTubeEfficient(double radius);
     
     //Data members
@@ -62,9 +61,6 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     
   protected:
     ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
-    CLHEP::HepRandomEngine *m_rndmEngine;
-    std::string m_rndmEngineName;
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
 };
 
 

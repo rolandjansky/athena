@@ -20,8 +20,6 @@ def MDT_LastXing():
     return 150
 
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
-   kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )
-   kwargs.setdefault("TwinRndmSvc", jobproperties.Digitization.rndmSvc())
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)
@@ -41,11 +39,6 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
          kwargs.setdefault("DoQballCharge", False)
    else:
       kwargs.setdefault("DoQballCharge", False)
-
-   mdtRndm = kwargs.setdefault("RndmEngine","MDT_Digitization")
-   mdtTwinRndm = kwargs.setdefault("TwinRndmEngine","MDT_DigitizationTwin")
-   jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510, 105132394 )
-   jobproperties.Digitization.rndmSeedList.addSeed(mdtTwinRndm, 393242561, 857132381 )
 
    if jobproperties.Digitization.doXingByXingPileUp():
       kwargs.setdefault("FirstXing", MDT_FirstXing() ) # this should match the range for the MDT in Digitization/share/MuonDigitization.py
@@ -67,18 +60,10 @@ def getMdtRange(name="MdtRange", **kwargs):
 
 
 def RT_Relation_DB_DigiTool(name="RT_Relation_DB_DigiTool",**kwargs):
-   global ToolSvc, ServiceMgr
-   kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-   mdtRndm = kwargs.setdefault("RndmEngine", "RTRelationDB")
-   jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510,105132394 )
-
    return CfgMgr.RT_Relation_DB_DigiTool(name,**kwargs)
 
 
 def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
-   kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-   mdtRndm = kwargs.setdefault("RndmEngine", "MDTResponse")
-
    if jobproperties.Digitization.specialConfiguration.statusOn:
       specialConfigDict = jobproperties.Digitization.specialConfiguration.get_Value()
       if 'MDT_QballConfig' in specialConfigDict.keys():
@@ -88,7 +73,6 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
    else:
       kwargs.setdefault("DoQballGamma", False)
 
-   jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510,105132394 )
    return CfgMgr.MDT_Response_DigiTool(name,**kwargs)
 
 def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):

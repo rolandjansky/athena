@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Response/MDT_Response.h"
@@ -56,7 +56,7 @@ void generateEvents( int eventMax ) {
     response.SetSegment(radius,positionAlongTube);
 
     // check whether tube fired as we also simulate tube inefficiency
-    bool hasHit = response.GetSignal();
+    bool hasHit = response.GetSignal(&ranEngine);
     if( hasHit ){
       // get the drift time (TDC count) and ADC
       double driftTime = response.DriftTime();

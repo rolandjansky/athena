@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,15 +20,10 @@ RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const
 , m_maxRadius(0)
 , m_muonGeoMgr(0)
 , m_calibDbSvc("MdtCalibrationDbSvc", name)
-, m_rndmEngine(0)
-, m_rndmEngineName("MuonDigitization")
-, m_rndmSvc("AtRndmGenSvc", name )
 {
   declareInterface<IMDT_DigitizationTool>(this);
   declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
   declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in Muon digitization" );
-  declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 }
 
 
@@ -67,19 +62,6 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
     return StatusCode::FAILURE;
   }
   
-  if ( !m_rndmSvc.retrieve().isSuccess() )
-  {
-    ATH_MSG_ERROR("Could not initialize Random Number Service");
-  }      
-  
-  // random numbers stream
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0)
-  {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-  
   initializeTube();
   
   return StatusCode::SUCCESS;
@@ -87,14 +69,14 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 
 
 
-MdtDigiToolOutput RT_Relation_DB_DigiTool::digitize(const MdtDigiToolInput& input)
+MdtDigiToolOutput RT_Relation_DB_DigiTool::digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine *rndmEngine)
 {
   ATH_MSG_DEBUG("Digitizing input ");
   
   if( isTubeEfficient( input.radius() ) )
   {
     Identifier DigitId = input.getHitID();
-    MdtDigiToolOutput output(true,getDriftTime( input.radius(),DigitId ), getAdcResponse(input.radius()) );
+    MdtDigiToolOutput output(true,getDriftTime( input.radius(),DigitId,rndmEngine ), getAdcResponse(input.radius(),rndmEngine) );
 
     return output;
   }
@@ -115,7 +97,7 @@ bool RT_Relation_DB_DigiTool::initializeTube()
 
 
 
-double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId)
+double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine)
 {
   //Get RT relation from DB
   const MuonCalib::MdtRtRelation *data = m_calibDbSvc->getRtCalibration( DigitId );
@@ -172,10 +154,10 @@ double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId)
     do 
     {
       cutoff++; //avoid eternal loop in case of problems
-      t = CLHEP::RandFlat::shoot(m_rndmEngine,tmin, tmax);
+      t = CLHEP::RandFlat::shoot(rndmEngine,tmin, tmax);
 
       gaussian = (1-p1r)*sqrt_one_over_two_pi*exp(-(t-time)*(t-time)/(2.0*timeWidth*timeWidth));
-      if (gaussian>=CLHEP::RandFlat::shoot(m_rndmEngine,0.0, 1.0) || cutoff>200) 
+      if (gaussian>=CLHEP::RandFlat::shoot(rndmEngine,0.0, 1.0) || cutoff>200) 
       {
         flag = 1;
       }
@@ -197,7 +179,7 @@ double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId)
 
 
 
-double RT_Relation_DB_DigiTool::getAdcResponse(double radius)
+double RT_Relation_DB_DigiTool::getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine)
 {
   //parametrization of the average adc value with respect to radius
   const double p0 = 57.38141;
@@ -220,7 +202,7 @@ double RT_Relation_DB_DigiTool::getAdcResponse(double radius)
  double adcWidth= g0 + g1*radius + g2*std::pow(radius,2) + g3*std::pow(radius,3);
   
  //now smear according to adc width
- double adc = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,adcfunc,adcWidth);
+ double adc = CLHEP::RandGaussZiggurat::shoot(rndmEngine,adcfunc,adcWidth);
  
  return adc;
 }

@@ -34,7 +34,7 @@ class RT_Relation_DigiTool : public AthAlgTool,
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  MdtDigiToolOutput digitize(const MdtDigiToolInput& input);
+  MdtDigiToolOutput digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *rndmEngine);
   
   StatusCode initialize();
 
