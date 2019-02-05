@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # Compiled beam effects methods
