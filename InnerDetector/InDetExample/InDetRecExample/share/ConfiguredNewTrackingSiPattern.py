@@ -235,9 +235,6 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
          
 
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-            InDetSiTrackMaker.ITKGeometry = True
-
          if NewTrackingCuts.mode() == "PixelThreeLayer":
             InDetSiTrackMaker.CleanSpuriousSCTClus = True
 
