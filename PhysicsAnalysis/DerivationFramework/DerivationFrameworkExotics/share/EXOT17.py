@@ -141,5 +141,5 @@ EXOT17SlimmingHelper.ExtraVariables += EXOT9Extravariables
 EXOT17SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 EXOT17SlimmingHelper.IncludeEGammaTriggerContent = False
 EXOT17SlimmingHelper.IncludeMuonTriggerContent = True
-addMETOutputs(EXOT17SlimmingHelper, ["EXOT17", "Track"], ["AntiKt4EMTopo"])
+addMETOutputs(EXOT17SlimmingHelper, ["EXOT17", "Track","AntiKt4EMTopo","AntiKt4EMPFlow"], ["AntiKt4EMTopo","AntiKt4EMPFlow"])
 EXOT17SlimmingHelper.AppendContentToStream(EXOT17Stream)
