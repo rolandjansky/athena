@@ -1459,7 +1459,7 @@ class L2EFChain_mu(L2EFChainDef):
       'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
       'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
       'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
-      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_lala_','SAFSHypo'+hypocut+'_'+hypocutEF),
+      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
       }
     
 
