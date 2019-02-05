@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondAlgY.h"
@@ -7,9 +7,6 @@
 #include "StoreGate/WriteCondHandle.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <thread>
 #include <chrono>
