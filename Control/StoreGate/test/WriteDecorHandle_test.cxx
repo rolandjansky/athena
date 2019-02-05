@@ -41,7 +41,6 @@ static const CLID MyCLID = 293847295;
 
 typedef DataVector<MyObj> MyObjCont;
 CLASS_DEF (MyObjCont, 293847296, 1)
-static const CLID MyContCLID = 293847296;
 
 
 // Ctors
