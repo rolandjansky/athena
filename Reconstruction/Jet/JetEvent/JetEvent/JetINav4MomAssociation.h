@@ -1,7 +1,7 @@
 // emacs this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETINAVIGABLE4MOMENTUMASSOCIATION_H
@@ -37,9 +37,9 @@ class JetINav4MomAssociation : public JetAssociationBase,
       
       
 public:
-  JetINav4MomAssociation() ;      //!< constructor
+  JetINav4MomAssociation();      //!< constructor
   JetINav4MomAssociation(NameType& name) ;      //!< constructor
-  ~JetINav4MomAssociation() ;      //!< destructor
+  ~JetINav4MomAssociation() = default;      //!< destructor
       
   virtual JetAssociationBase* clone() const; 
   //!< a clone method for the proper workings of the copy constructor

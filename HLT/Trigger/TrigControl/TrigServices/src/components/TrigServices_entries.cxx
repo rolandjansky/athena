@@ -1,7 +1,7 @@
-#include "TrigServices/TrigMessageSvc.h"
+#include "../TrigMessageSvc.h"
 #include "../TrigMonTHistSvc.h"
-#include "TrigServices/HltEventLoopMgr.h"
-#include "TrigServices/HltROBDataProviderSvc.h"
+#include "../HltEventLoopMgr.h"
+#include "../HltROBDataProviderSvc.h"
 #include "../TrigCOOLUpdateHelper.h"
 
 DECLARE_COMPONENT( TrigMessageSvc )

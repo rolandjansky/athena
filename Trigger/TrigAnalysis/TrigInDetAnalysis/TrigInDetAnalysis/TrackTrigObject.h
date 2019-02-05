@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackTrigObject.h        
-//
-//                   
-//  
-//
-//   $Id: TrackTrigObject.h, v0.0   Mon  5 Nov 2012 00:07:15 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackTrigObject.h
+ **
+ **     @author  mark sutton
+ **     @date    Mon  5 Nov 2012 00:07:15 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  TRACKTRIGOBJECT_H
@@ -71,12 +69,12 @@ private:
 
 
 inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& t ) { 
-  return s << "[" 
-	   << "\ttype=" << t.type()
-	   << ":\teta=" << t.eta()
-	   << "\tphi="  << t.phi()
-	   << "\tpt="   << t.pt()
-	   << " ]" << std::endl;
+  s << "Object [" 
+    << "\ttype=" << t.type()
+    << ":\teta=" << t.eta()
+    << "\tphi="  << t.phi()
+    << "\tpt="   << t.pt()*0.001 << " GeV"
+    << " ] \t(";
   
   for ( size_t i=0 ; i<t.children().size() ; i++ ) s << "  0x" << std::hex << t.children()[i] << std::dec;
   s << "  )" ;

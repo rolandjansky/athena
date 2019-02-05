@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,7 +28,7 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
       //@name Service methods, reimplemented
       //@{
       SCT_CalibEventInfo(const std::string&, const std::string&, const IInterface*);
-      virtual ~SCT_CalibEventInfo() {}
+      virtual ~SCT_CalibEventInfo() = default;
       virtual StatusCode initialize();
       virtual StatusCode finalize();
       //static const InterfaceID & interfaceID() {return ISCT_CalibEvtInfo::interfaceID();}

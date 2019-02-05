@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
@@ -10,10 +10,6 @@
 // constructor
 SCT_CondParameterData::SCT_CondParameterData() {
   clear();
-}
-
-// destructor
-SCT_CondParameterData::~SCT_CondParameterData() {
 }
 
 // Get the indicated value for a module identifier hash

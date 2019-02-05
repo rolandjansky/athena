@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETASSOCIATIONBASE_H
@@ -28,7 +28,7 @@ class JetAssociationBase : public virtual INavigable
   typedef JetKeyDescriptor::key_t   name_t;
   typedef name_t                    NameType; // FIXME backward compatibility
 
-  virtual ~JetAssociationBase();
+  virtual ~JetAssociationBase() = default;
   
   void setName(const name_t& name);
   const name_t& name() const;

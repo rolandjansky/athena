@@ -34,33 +34,37 @@ bTaggingWP = {
     }
 
 ####################################################################################################  
-
-def TrigBjetHypoToolFromName( name, conf ):
-    from AthenaCommon.Constants import DEBUG
-    """ Configure a b-jet hypo tool from chain name. """
-
-    default_conf = { 'threshold' : '0',
-                     'multiplicity' : '1',
-                     'gscThreshold' : '0',
-                     'bTag' : 'offperf',
-                     'bConfig' : 'EF',
-                     'minEta' : '0',
-                     'maxEta' : '320'}
-
-    chain = conf
-    match = re_Bjet.match( chain )
-    conf_dict = match.groupdict()
-
-    for k, v in default_conf.items():
-        if k not in conf_dict: conf_dict[k] = v
-        if conf_dict[k] == None: conf_dict[k] = v
-
+def TrigBjetHypoToolFromDict( chainDict ):
+    print chainDict
+    chainPart = chainDict['chainParts'][0]
+    conf_dict = { 'threshold'    : chainPart['threshold'],
+                  'multiplicity' : chainPart['threshold'],
+                  'gscThreshold' : '0' if 'gscThreshold' not in chainPart else chainPart['gscThreshold'].replace('gsc',''),
+                  'bTag' :         chainPart['bTag'],
+                  'bConfig' :      'EF' if len(chainPart['bConfig']) == 0 else chainPart['bConfig'][0],
+                  'minEta' :       chainPart['etaRange'].split('eta')[0],
+                  'maxEta' :       chainPart['etaRange'].split('eta')[1]}
+    name = chainDict['chainName']
+    # TODO the chain dict can be probably passed over down the line here
     tool = getBjetHypoConfiguration( name,conf_dict )
     
     print "TrigBjetHypoToolFromName: name = %s, tagger = %s "%(name,tool.MethodTag)
     print "TrigBjetHypoToolFromName: tagger %s and threshold %s "%(tool.MethodTag,tool.BTaggingCut)
 
     return tool
+
+def TrigBjetHypoToolFromName( name, conf ):
+    from AthenaCommon.Constants import DEBUG
+    """ Configure a b-jet hypo tool from chain name. """
+    
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    
+    decoder = DictFromChainName()        
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict['chainName'] = name # override
+	
+    return TrigBjetHypoToolFromDict( decodedDict )
+
 
 ####################################################################################################  
 

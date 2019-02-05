@@ -33,9 +33,9 @@ atlas_add_component( SCT_ModuleDistortions
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry TrkEventPrimitives TrkParameters AthenaBaseComps StoreGateLib SGtests InDetIdentifier PathResolver )
 
 atlas_add_test( TestSCT_DistortionsTool
-                SCRIPT athena.py --threads=1 SCT_ModuleDistortions/TestSCT_DistortionsTool.py
+                SCRIPT athena.py --threads=5 SCT_ModuleDistortions/TestSCT_DistortionsTool.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 
 # Install files from the package:
 atlas_install_headers( SCT_ModuleDistortions )

@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -26,9 +26,6 @@ PURPOSE:  Create  a simple ntuple to perform EoverP studies with
 #include <vector>
 // Validation mode - TTree includes
 #include "GaudiKernel/ITHistSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -150,10 +147,10 @@ IDPerfMonEoverP::~IDPerfMonEoverP()
 
 StatusCode IDPerfMonEoverP::initialize()
 {
-
-// MSGStream object to output messages from your algorithm
-
   ATH_MSG_INFO("Initializing IDPerfMonEoverP");
+
+  ATH_CHECK( m_evt.initialize() );
+
   // Retrieve Jet selector tool
   m_jetCleaningTool.setTypeAndName("JetCleaningTool/JetCleaningTool");
   CHECK( m_jetCleaningTool.retrieve() );
@@ -476,14 +473,14 @@ StatusCode IDPerfMonEoverP::execute()
   }
 
   ATH_MSG_DEBUG("Retrieving event info.");
-  const EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure())
-    ATH_MSG_ERROR("Could not retrieve event info.");
-  else
-  {
-    m_runNumber = eventInfo->event_ID()->run_number();
-    m_evtNumber = eventInfo->event_ID()->event_number();
-    m_lumi_block = eventInfo->event_ID()->lumi_block();
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(evt.isValid()) {
+    m_runNumber = evt->runNumber();
+    m_evtNumber = evt->eventNumber();
+    m_lumi_block = evt->lumiBlock();
+  }
+  else {
+    ATH_MSG_ERROR("Could not retrieve event info."); // Keeping ERROR only to preserve old functionality
   }
 
   ATH_MSG_DEBUG("Retrieved Trigger info.");

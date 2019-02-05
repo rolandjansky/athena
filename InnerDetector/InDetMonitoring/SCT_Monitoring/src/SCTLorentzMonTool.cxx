@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTLorentzMonTool.cxx
@@ -65,12 +65,6 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   declareProperty("tracksName", m_tracksName = std::string("CombinedInDetTracks")); // this recommended
   declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
   m_numberOfEvents = 0;
-}
-
-// ====================================================================================================
-// ====================================================================================================
-SCTLorentzMonTool::~SCTLorentzMonTool() {
-  // nada
 }
 
 // ====================================================================================================

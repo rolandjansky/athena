@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_TrigSpacePointTool.h"
@@ -67,11 +67,6 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
  declareProperty("VertexZ", m_zVertex);
 }
 
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-// virtual destructor
-SCT_TrigSpacePointTool::~SCT_TrigSpacePointTool()
-{}
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::initialize()  {
   ATH_CHECK( AthAlgTool::initialize() );

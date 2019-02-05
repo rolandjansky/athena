@@ -48,14 +48,18 @@ if jobproperties.Beam.beamType()=='collisions':
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTTracksMonTool
 
-                                           
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
+
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
 InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      OutputLevel      = 4,
                                      histoPathBase    = "/stat",
                                      CheckRate        = 1000,
                                      doPositiveEndcap = True,
-                                     doNegativeEndcap = True)
+                                     doNegativeEndcap = True,
+                                     SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool())
 
 if jobproperties.Beam.beamType()=='collisions':
   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool

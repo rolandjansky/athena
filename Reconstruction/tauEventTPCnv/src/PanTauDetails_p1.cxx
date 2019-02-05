@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file PanTauDetails_p1.cxx
@@ -68,4 +68,3 @@ PanTauDetails_p1::PanTauDetails_p1()
     m_CellBased_Combined_DeltaR1stNeutralTo1stCharged(0)
 {}
 
-PanTauDetails_p1::~PanTauDetails_p1(){}

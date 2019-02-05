@@ -56,6 +56,10 @@ private:
     StatusCode bookJpsiFinder(); //! book the hists with offline comparisons
     StatusCode fillJpsiFinder(); //! fill the hists with offline comparisons
 
+    StatusCode bookJpsiFinderEfficiency();//! book the hists for the JpsiFinder efficiency
+    StatusCode fillJpsiFinderEfficiency();//! fill the hists for the JpsiFinder efficiency 
+    StatusCode fillJpsiFinderEfficiencyHelper(const std::string & groupName, const std::string & chainName); ////! helper method for JpsiFinder Efficiency 
+
     StatusCode bookContainers(); //! book the hists for containers
     StatusCode fillContainers(); //! fill the hists for containers
 
@@ -79,7 +83,8 @@ private:
     const Trig::ChainGroup *m_all;
     //list for pair of muon track links for efficiency 
     std::list<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_efficiency_denomnoVtxOS_pairs;   
-
+    //vector for pair of muon track links for JpsiFinder efficiency 
+    std::vector<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_JpsiFinderEfficiency_denomnoVtxOS_pairs;
     // vector of muon pairs to check if already put into histograms
     std::vector<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_muon_pairs_processed;
     
@@ -160,7 +165,10 @@ private:
     double m_tau_min, m_tau_max, m_tauErr_min, m_tauErr_max;
     double m_pt_min, m_pt_max, m_ptErr_min, m_ptErr_max;
     double m_massErr_min, m_massErr_max;
-    
+    double m_EffMatchThresh_Eta=0.1;   
+    double m_EffMatchThresh_phi=0.1; 
+    double m_EffMatchThresh_pT=0.1;  
+
     // Method for managing the histogram divisions
     void divide(TH1 *num, TH1 *den, TH1 *quo);
     void divide2(TH2 *num, TH2 *den, TH2 *quo);

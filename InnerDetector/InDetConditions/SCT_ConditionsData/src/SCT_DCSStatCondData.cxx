@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Implementation file for the data object class
@@ -17,10 +17,6 @@ using namespace std;
 SCT_DCSStatCondData::SCT_DCSStatCondData():
   m_bad_channels{}
 {
-}
-//////////////////////////////////
-//destructor
-SCT_DCSStatCondData::~SCT_DCSStatCondData() {
 }
 //////////////////////////////////
 //add map entries

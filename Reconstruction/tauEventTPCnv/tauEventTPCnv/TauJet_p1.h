@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ class TauJet_p1
             m_numberOfTracks(0),
             m_roiWord(0)
          {};
-        ~TauJet_p1() {};
+       ~TauJet_p1() = default;
 
     private:
         P4EEtaPhiM_p1           m_momentum;

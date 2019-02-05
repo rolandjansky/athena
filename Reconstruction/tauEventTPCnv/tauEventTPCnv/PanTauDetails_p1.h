@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// ////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ class PanTauDetails_p1
 {
     public:
         PanTauDetails_p1();
-        ~PanTauDetails_p1();
+       ~PanTauDetails_p1() = default;
         
         friend class PanTauDetailsCnv_p1;
 

@@ -38,12 +38,7 @@ if rec.doHeavyIon():
     JetCollectionKey='AntiKt4HIJets'
 else:
     JetCollectionKey='AntiKt4EMTopoJets'
-                        
-# Import external configuration
-#if not 'DQMonFlags' in dir():
-#   print "DataQualityMon_jobOptions.py: DQMonFlags not yet imported - I import them now"
-#   from AthenaMonitoring.DQMonFlags import DQMonFlags
-   
+                           
 # Import Algorithm
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "GlobalMonManager" )
@@ -78,7 +73,6 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                             doOnlineHists           = isOnline
                                             );
 
-        #ToolSvc += DQTDetSynchMon;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
 
     if rec.doCalo and CALOCLUSTER:
@@ -92,7 +86,6 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                           doOnlineHists           = isOnline
                                           );
         
-        #ToolSvc += DQTCaloClusterTool;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTCaloClusterTool ];
 
 
@@ -111,7 +104,6 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                             doTrigger = rec.doTrigger()
                                             );
         
-        #ToolSvc += DQTBackgroundMon;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTBackgroundMon ];
     
 
@@ -141,7 +133,6 @@ DQTDataFlowMon = DQTDataFlowMonTool(name = 'DQTDataFlowMon',
                                     histoPathBase = '/GLOBAL/DQTDataFlow',
                                     releaseString = releaseString
                                     );
-#ToolSvc += DQTDataFlowMon
 ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
 
 if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
@@ -166,11 +157,9 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
         name  = 'DQTGlobalWZFinderTool',
         doTrigger = rec.doTrigger(),
-        JetCollectionName = JetCollectionKey,
         MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
         IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
     )
-    #ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
     from DataQualityTools.DataQualityToolsConf import DQTLumiMonTool
@@ -190,6 +179,5 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
         TriggerChain = 'CATEGORY_primary_single_ele',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
-    #ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
 

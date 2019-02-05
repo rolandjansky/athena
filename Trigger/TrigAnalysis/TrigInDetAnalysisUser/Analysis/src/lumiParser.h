@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    lumiParser.h        
-//
-//                   
-//  
-//
-//   $Id: lumiparser.h, v0.0   Tue 12 Jul 2016 13:47:00 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    lumiParser.h
+ **
+ **     @author  mark sutton
+ **     @date    Tue 12 Jul 2016 13:47:00 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  LUMIPARSER_H

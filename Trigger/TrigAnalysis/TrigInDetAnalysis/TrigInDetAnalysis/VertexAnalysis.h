@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    VertexAnalysis.h        
-//
-//                   
-//  
-//
-//   $Id: VertexAnalysis.h, v0.0   Fri  7 Aug 2015 10:27:38 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    VertexAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri  7 Aug 2015 10:27:38 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  VERTEXANALYSIS_H
@@ -42,35 +40,17 @@ public:
 
   virtual void finalise() = 0;
 
+  void addHistogram( TH1* h ) {  m_histos.push_back( h ); }
 
-  void addHistogram( TH1* h ) {
-    //    std::string name = h->GetName();
-    //   m_histos.insert( std::map<std::string, TObject*>::value_type( name, h) );
-    m_histos.push_back( h );
-  }
-
-
-  void addHistogram( TProfile* h ) {
-    //    std::string name = h->GetName();
-    //   m_histos.insert( std::map<std::string, TObject*>::value_type( name, h) );
-    m_profs.push_back( h );
-  }
-
-  //  void addHistogram( TProfile* h ) {
-  //    std::string name = h->GetName();
-  //    m_effhistos.insert( std::map<std::string, TProfile*>::value_type( name, h) );
-  //  }
+  void addHistogram( TProfile* h ) {  m_profs.push_back( h ); }
 
   std::vector<TH1*>       objects() { return m_histos; }
   std::vector<TProfile*>  profs()   { return m_profs; }
 
 protected:
 
-  //  std::map<std::string, TObject*>  m_histos;
   std::vector<TH1*>       m_histos;
   std::vector<TProfile*>  m_profs;
-  //  std::map<std::string, TProfile*> m_effhistos;
-
 
 private:
 

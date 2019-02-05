@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,7 @@ public:
   SCT_DCSFloatCondData();
 
   //destructor
-  virtual ~SCT_DCSFloatCondData();
+  virtual ~SCT_DCSFloatCondData() = default;
   //@name main methods
   //@{
   /// set a float value for a channel

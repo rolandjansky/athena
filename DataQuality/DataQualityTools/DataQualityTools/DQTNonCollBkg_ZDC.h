@@ -77,6 +77,9 @@
 
 #include "ZdcIdentifier/ZdcID.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "ZdcEvent/ZdcDigitsCollection.h"
+
 #include "DataQualityTools/DataQualityFatherMonTool.h"
 
 class DQTNonCollBkg_ZDC: public DataQualityFatherMonTool
@@ -88,6 +91,8 @@ class DQTNonCollBkg_ZDC: public DataQualityFatherMonTool
 
   ~DQTNonCollBkg_ZDC();
 
+  StatusCode initialize();
+  
   StatusCode bookHistograms(  );
   //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
 
@@ -146,7 +151,8 @@ private:
   //m_digitsContainerName : the container that will be used to extract the ZDC information
   //m_complainContain     : controls if a warning message will be issued in case of failure
   //m_complainRetrieve    : controls if a warning message will be issued in case of failure
-  std::string m_digitsContainerName;
+  SG::ReadHandleKey<ZdcDigitsCollection> m_digitsContainerName
+    { "ZdcDigitsCollection" };
   bool m_complainContain;
   bool m_complainRetrieve;
 
@@ -165,7 +171,9 @@ private:
   std::map<Identifier::value_type, float > m_map_LowGain;
   std::map<Identifier::value_type, float > m_map_HighGain;
 
-
+  // StoreGate keys
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { "EventInfo" };
   };
 
 #endif

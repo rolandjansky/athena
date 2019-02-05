@@ -91,4 +91,4 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 
 ServiceMgr.EventSelector.RunNumber  = 140975
-theApp.EvtMax                   = 1
+theApp.EvtMax                   = 20

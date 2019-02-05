@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for the SCT DCS float data object class for HV and temperature
@@ -12,11 +12,6 @@
 SCT_DCSFloatCondData::SCT_DCSFloatCondData():
   m_channelValues{}
 {
-}
-
-//////////////////////////////////
-// destructor
-SCT_DCSFloatCondData::~SCT_DCSFloatCondData() {
 }
 
 //////////////////////////////////

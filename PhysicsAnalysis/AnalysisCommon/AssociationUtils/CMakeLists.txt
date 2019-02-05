@@ -97,7 +97,7 @@ macro( _add_gtest name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AssociationUtilsLib
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgTestingLib AssociationUtilsLib
       ${extra_libs} )
 endmacro( _add_gtest )
 

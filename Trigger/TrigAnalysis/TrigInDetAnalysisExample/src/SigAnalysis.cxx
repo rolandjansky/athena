@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    SigAnalysis.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: SigAnalysis.cxx, v0.0   Wed 28 Oct 2009 02:41:07 CET sutt $
+/**
+ **     @file    SigAnalysis.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:41:07 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysisExample/SigAnalysis.h"
