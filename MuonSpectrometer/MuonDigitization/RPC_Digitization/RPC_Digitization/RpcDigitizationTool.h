@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -41,6 +41,8 @@ the same strip before the dead time is ignored.
 
 #include "PileUpTools/PileUpToolBase.h"
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "MuonSimEvent/RPCSimHit.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
@@ -107,10 +109,6 @@ public:
       back-compatibility (IMuonDigitizationTool) */
   virtual StatusCode digitize() override final;
 
-  /** accessors */
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
-
 private:
 
   const MuonGM::MuonDetectorManager*  m_GMmgr;
@@ -153,11 +151,11 @@ private:
   /** Cluster simulation: first step.
       The impact point of the particle across the strip is used
       to decide whether the cluster size should be 1 or 2 */
-  std::vector<int> PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit );
+  std::vector<int> PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine);
   /** Cluster simulation: second step.
       Additional strips are turned on in order to reproduce the
       observed cluster size distribution */
-  std::vector<int> TurnOnStrips(std::vector<int> pcs, const Identifier* id);
+  std::vector<int> TurnOnStrips(std::vector<int> pcs, const Identifier* id, CLHEP::HepRandomEngine* rndmEngine);
   /** Calculates the propagation time along the strip */
   double PropagationTime(const Identifier* id, const Amg::Vector3D pos);
   double PropagationTimeNew(const Identifier* id, const Amg::Vector3D globPos);
@@ -186,9 +184,9 @@ private:
   /** Average calibration methods and parameters */
   StatusCode  PrintCalibrationVector();
   /** Evaluate detection efficiency */
-  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus);
+  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine);
   /** */
-  int ClusterSizeEvaluation(const Identifier* id, float xstripnorm);
+  int ClusterSizeEvaluation(const Identifier* id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);
   /** CoolDB */
   StatusCode DumpRPCCalibFromCoolDB();
         
@@ -229,9 +227,7 @@ protected:
   SG::WriteHandleKey<RpcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","RPC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
   ITagInfoMgr *m_tagInfoMgr            ; // Tag Info Manager
   std::string m_RPC_TimeSchema         ; // Tag info name of Rpc Time Info
