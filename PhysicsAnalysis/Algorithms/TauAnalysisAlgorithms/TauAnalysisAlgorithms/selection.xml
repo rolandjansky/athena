@@ -1,5 +1,8 @@
 <lcgdict>
 
+   <class name="CP::DiTauEfficiencyCorrectionsAlg" />
+   <class name="CP::DiTauSmearingAlg" />
+   <class name="CP::DiTauTruthMatchingAlg" />
    <class name="CP::TauEfficiencyCorrectionsAlg" />
    <class name="CP::TauSmearingAlg" />
    <class name="CP::TauTruthMatchingAlg" />

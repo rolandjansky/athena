@@ -32,6 +32,16 @@ print( tauSequence ) # For debugging
 # Add the sequence to the job:
 algSeq += tauSequence
 
+# Include, and then set up the tau analysis algorithm sequence:
+from TauAnalysisAlgorithms.DiTauAnalysisSequence import makeDiTauAnalysisSequence
+diTauSequence = makeDiTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
+diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJets' )
+print( diTauSequence ) # For debugging
+
+# Add the sequence to the job:
+# disabling this, the standard test files don't have DiTauJets
+# algSeq += diTauSequence
+
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
