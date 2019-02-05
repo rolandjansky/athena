@@ -1317,6 +1317,19 @@ class L2EFChain_mu(L2EFChainDef):
       self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
       self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
 
+      if 'FTKFS' in self.chainPart['FSinfo']:
+        self.TErenamingDict.update({
+            'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+            'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+            'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
+            'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
+            'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+            'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+            'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+            'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+            'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
+            })
+
       if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
 
       if run_isolation:
@@ -1438,17 +1451,17 @@ class L2EFChain_mu(L2EFChainDef):
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'+hypocut),
-      'EF_trk_ROIbFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'+hypocut),
-      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'+hypocut),
+      'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
       'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
-      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'+hypocut),
-      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_', 'SAFSHypo'+hypocut),
-      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'+hypocut), 
-      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
+      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_lala_','SAFSHypo'+hypocut+'_'+hypocutEF),
       }
+    
 
   #################################################################################################
   #################################################################################################
