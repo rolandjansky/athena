@@ -1157,6 +1157,9 @@ ps_rerun_list = [
       'xe0noL1_l2fsperf_pufit',
       'xe0noL1_l2fsperf_tc_em',
       'xe0noL1_l2fsperf_tc_lcw',
+      'xe0noL1_l2fsperf_trktc_lcw',
+      'xe0noL1_l2fsperf_pufittrack_lcw_nojcalib',
+      'xe0noL1_l2fsperf_trkmht',
       ]
 
 if TriggerFlags.doFTK():
