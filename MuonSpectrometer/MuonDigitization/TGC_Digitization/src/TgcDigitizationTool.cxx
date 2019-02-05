@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_Digitization/TgcDigitizationTool.h"
 
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 // Other includes
 #include "Identifier/Identifier.h"
@@ -40,9 +41,6 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
 					 const IInterface* parent) : 
   PileUpToolBase(type, name, parent),
   m_mergeSvc(0), 
-  m_rndmEngine(0),
-  m_rndmSvc("AtRndmGenSvc", name),
-  m_rndmEngineName("MuonDigitization"),
   m_hitIdHelper(0), 
   m_idHelper(0),
   m_mdManager(0),
@@ -53,8 +51,6 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
 {
   declareInterface<IMuonDigitizationTool>(this);
 
-  declareProperty("RndmSvc",          m_rndmSvc,                                  "Random Number Service used in Muon digitization");
-  declareProperty("RndmEngine",       m_rndmEngineName,                           "Random engine name");
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
   declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
@@ -133,23 +129,9 @@ StatusCode TgcDigitizationTool::initialize()
 				  m_mdManager,
 				  runperiod);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
-  if(!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL(" Could not initialize Random Number Service");
-    return StatusCode::FAILURE;
-  } 
-    
-  // getting our random numbers stream
-  ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if(m_rndmEngine==0) {
-    ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-		
-  if(m_digitizer->initialize(m_rndmEngine).isFailure()) {
-    ATH_MSG_FATAL("Fail to initialize TgcDigitMaker");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
+
+  ATH_CHECK(m_digitizer->initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -306,7 +288,12 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore() { 
+StatusCode TgcDigitizationTool::digitizeCore() {
+
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<TgcDigitContainer> digitContainer(m_outputDigitCollectionKey);
   ATH_CHECK(digitContainer.record(std::make_unique<TgcDigitContainer>(m_idHelper->module_hash_max())));
@@ -331,7 +318,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, rndmEngine);
 
       if(!digiHits) continue;
 
