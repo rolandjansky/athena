@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_RT_RELATION_DIGITOOL_H
@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
-
+#include "CLHEP/Random/RandFlat.h"
 #include "GaudiKernel/RndmGenerators.h"
 
 #include "MDT_Digitization/r_to_t_converter.h"
@@ -34,23 +34,21 @@ class RT_Relation_DigiTool : public AthAlgTool,
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  MdtDigiToolOutput digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *rndmEngine);
+  virtual MdtDigiToolOutput digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *rndmEngine) override final;
   
   StatusCode initialize();
 
   bool initializeTube();
 
  private:
-  double getDriftTime(double radius);
-  double getAdcResponse();
-  bool  isTubeEfficient(double radius);
+  double getDriftTime(double radius) const;
+  double getAdcResponse() const;
+  bool  isTubeEfficient(double radius, CLHEP::HepRandomEngine *rndmEngine) const;
   
   double m_effRadius;
   double m_maxRadius;
 
   std::vector <Rt_relation *> m_rt;
-
-  Rndm::Numbers              m_flatDist;
 
   const MuonGM::MuonDetectorManager* m_muonGeoMgr;
   const MdtIdHelper*         m_idHelper;
@@ -58,7 +56,7 @@ class RT_Relation_DigiTool : public AthAlgTool,
 };
 
 inline
-double  RT_Relation_DigiTool::getDriftTime(double r)
+double  RT_Relation_DigiTool::getDriftTime(double r) const
 {	
   // Drift radius --> time converter
   R_to_t_converter RTC;
@@ -70,17 +68,17 @@ double  RT_Relation_DigiTool::getDriftTime(double r)
 }
 
 inline 
-double   RT_Relation_DigiTool::getAdcResponse(){
+double   RT_Relation_DigiTool::getAdcResponse() const {
   return 76.7;
 }
 
 inline
-bool  RT_Relation_DigiTool::isTubeEfficient(double radius) {
+bool  RT_Relation_DigiTool::isTubeEfficient(double radius, CLHEP::HepRandomEngine *rndmEngine) const {
     
   if ((radius < 0) || (radius > m_maxRadius)) return false;
   if (radius < m_effRadius) return true;
   double eff = 1.0 + (radius-m_effRadius)/(m_effRadius-m_maxRadius);
-  if (m_flatDist() <= eff) return true;
+  if (CLHEP::RandFlat::shoot(rndmEngine,0.0, 1.0) <= eff) return true;
   
   return false;
 }

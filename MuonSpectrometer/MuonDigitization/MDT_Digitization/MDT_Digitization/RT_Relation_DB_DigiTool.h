@@ -14,7 +14,6 @@ Adopted from RT_Relation_DigiTool
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/RndmGenerators.h"
 
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -49,14 +48,13 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
   
   private:
     //Methods
-    double getDriftTime(double radius,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine);
-    double getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine);
-    bool   isTubeEfficient(double radius);
+    double getDriftTime(double radius,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine) const;
+    double getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine) const;
+    bool   isTubeEfficient(double radius,CLHEP::HepRandomEngine *rndmEngine) const;
     
     //Data members
     double m_effRadius;
     double m_maxRadius;
-    Rndm::Numbers  m_flatDist;
     const MuonGM::MuonDetectorManager* m_muonGeoMgr;
     
   protected:
@@ -64,12 +62,12 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
 };
 
 
-inline bool RT_Relation_DB_DigiTool::isTubeEfficient(double radius)
+inline bool RT_Relation_DB_DigiTool::isTubeEfficient(double radius,CLHEP::HepRandomEngine *rndmEngine) const
 {
   if ((radius < 0) || (radius > m_maxRadius)) return false;
   if (radius < m_effRadius) return true;
   double eff = 1.0 + (radius-m_effRadius)/(m_effRadius-m_maxRadius);
-  if (m_flatDist() <= eff) return true;
+  if (CLHEP::RandFlat::shoot(rndmEngine,0.0, 1.0) <= eff) return true;
   
   return false;
 }

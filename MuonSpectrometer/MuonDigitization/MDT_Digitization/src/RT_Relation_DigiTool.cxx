@@ -33,12 +33,12 @@ RT_Relation_DigiTool::RT_Relation_DigiTool( const std::string& type,
   declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
 }
 
-MdtDigiToolOutput RT_Relation_DigiTool::digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *)
+MdtDigiToolOutput RT_Relation_DigiTool::digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *rndmEngine)
 {
 
   ATH_MSG_DEBUG("Digitizing input ");
 
-  if( isTubeEfficient( input.radius() ) ){
+  if( isTubeEfficient( input.radius(), rndmEngine ) ){
     MdtDigiToolOutput output(true,getDriftTime( input.radius() ), getAdcResponse() );
     return output;
   }

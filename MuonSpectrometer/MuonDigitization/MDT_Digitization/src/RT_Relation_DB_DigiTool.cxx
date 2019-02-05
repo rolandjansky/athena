@@ -73,7 +73,7 @@ MdtDigiToolOutput RT_Relation_DB_DigiTool::digitize(const MdtDigiToolInput& inpu
 {
   ATH_MSG_DEBUG("Digitizing input ");
   
-  if( isTubeEfficient( input.radius() ) )
+  if( isTubeEfficient( input.radius(), rndmEngine ) )
   {
     Identifier DigitId = input.getHitID();
     MdtDigiToolOutput output(true,getDriftTime( input.radius(),DigitId,rndmEngine ), getAdcResponse(input.radius(),rndmEngine) );
@@ -97,7 +97,7 @@ bool RT_Relation_DB_DigiTool::initializeTube()
 
 
 
-double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine)
+double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine) const
 {
   //Get RT relation from DB
   const MuonCalib::MdtRtRelation *data = m_calibDbSvc->getRtCalibration( DigitId );
@@ -179,7 +179,7 @@ double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::
 
 
 
-double RT_Relation_DB_DigiTool::getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine)
+double RT_Relation_DB_DigiTool::getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine) const
 {
   //parametrization of the average adc value with respect to radius
   const double p0 = 57.38141;
