@@ -7,7 +7,6 @@ from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
 from StoreGate.StoreGateConf import StoreGateSvc
-import os
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
@@ -19,7 +18,7 @@ def MuonGeoModelCfg(flags):
     detTool = MuonDetectorTool()
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-    if ( ( not flags.Detector.SimulateMuon or flags.Detector.OverlayMuon ) and "AthSimulation_DIR" not in os.environ ):
+    if ( ( not flags.Detector.SimulateMuon or flags.Detector.OverlayMuon ) and flags.Common.Project is not "AthSimulation" ):
         # Needs configuration from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py to be migrated
         #detTool.TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"
         pass

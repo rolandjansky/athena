@@ -46,8 +46,7 @@ def TRT_GeometryCfg( flags ):
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align"))
-    import os
-    if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
+    if flags.Common.Project is not "AthSimulation": # Protection for AthSimulation builds
         if (not flags.Detector.SimulateTRT) or flags.Detector.OverlayTRT:
             acc.addCondAlgo(TRTAlignCondAlg)
 

@@ -25,6 +25,14 @@ def _createCfgFlags():
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
 
+    def _checkProject():
+        import os
+        if "AthSimulation_DIR" in os.environ:
+            return "AthSimulation"
+        #TODO expand this method.
+        return "Athena"
+    acf.addFlag('Common.Project', _checkProject())
+
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
     acf.addFlag("Beam.NumberOfCollisions",0) # former global.NumberOfCollisions
