@@ -21,6 +21,7 @@
 #include "xAODEventInfo/EventInfoContainer.h"
 
 #include "PileUpTools/IBeamIntensity.h"
+#include "PileUpTools/PileUpMisc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -399,16 +400,12 @@ StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
 
       // get the SG container for subevents infos
       xAOD::EventInfoContainer  *subEvCnt (nullptr);
-      ATH_CHECK( overEvent->evtStore()->retrieve(subEvCnt) );
-      // add subevent to the container
-      xAOD::EventInfo* sub_event = new xAOD::EventInfo( *pBkgEvent );
-      sub_event->setBCID( BCID );
-      subEvCnt->push_back( sub_event );
-      // MN: FIX:  Shold we also copy subevents of bkg event?
-      ElementLink< xAOD::EventInfoContainer > subEvtLink( "PileUpEventInfo", subEvCnt->size()-1, overEvent->evtStore() );
-      unsigned sub_idx = overEvent->subEvents().size();
-      xAOD::EventInfo::SubEvent  subev( t0BinCenter, sub_idx, m_pileUpEventType, subEvtLink );
-      overEvent->addSubEvent( subev );
+      ATH_CHECK( overEvent->evtStore()->retrieve(subEvCnt, c_pileUpEventInfoContName) );
+      // temporary EI instance to modify BCID before adding the EI
+      xAOD::EventInfo   tmp_ei( *pBkgEvent );
+      tmp_ei.setBCID( BCID );
+      // add subevent
+      addSubEvent( overEvent, &tmp_ei, t0BinCenter, m_pileUpEventType, subEvCnt, c_pileUpEventInfoContName );
                
 #ifdef DEBUG_PILEUP
       const xAOD::EventInfo* pStoreInfo(nullptr);

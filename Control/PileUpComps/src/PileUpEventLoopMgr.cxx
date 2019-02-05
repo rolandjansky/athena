@@ -22,6 +22,7 @@
 #include "PileUpTools/IBeamLuminosity.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IBkgStreamsCache.h"
+#include "PileUpTools/PileUpMisc.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -66,6 +67,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_timeKeeper("",name), m_allowSubEvtsEOF(true),
     m_xingByXing(false), m_isEventOverlayJob(false),
     m_failureMode(1),
+    m_evinfContName( c_pileUpEventInfoContName ),
     m_beamInt("FlatBM", name),
     m_beamLumi("LumiProfileSvc", name),
     m_currentRun(0), m_firstRun(true),
@@ -105,6 +107,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
   declareProperty("IsEmbedding", m_isEmbedding, "Set this to True for embedding jobs.");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
+  declareProperty("EventInfoContName", m_evinfContName, "SG key for the EventInfoContainer object");
   //  m_caches.push_back("BkgStreamsCache/MinBiasCache");
 }
 
@@ -353,9 +356,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       puei->setStore( puaux );
 
       // Record the EI container object(s):
-      const std::string puei_sg_key( "PileUpEventInfo" );  // FIX MN: name?
-      CHECK( m_evtStore->record( puei, puei_sg_key ) );
-      CHECK( m_evtStore->record( puaux, puei_sg_key+"Aux." ) );   
+      CHECK( m_evtStore->record( puei, m_evinfContName ) );
+      CHECK( m_evtStore->record( puaux, m_evinfContName+"Aux." ) );
  
       //ask the BeamIntensitySvc to choose (and remember)
       //in which xing this event will be wrto the beam int distribution
@@ -368,7 +370,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       else if (m_isEventOverlayJobMC) {
          pOverEvent->setEventNumber( pEventSignal->eventNumber() );
       }
-      
+
       unsigned int t0BCID = pOverEvent->bcid();
       ATH_MSG_VERBOSE ( "BCID =" << t0BCID );
       
@@ -408,13 +410,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
       // when doing overlay add the hard-scatter event as sub-event
       if( m_isEventOverlayJob ) {
-         puei->push_back( new xAOD::EventInfo( *pEventSignal ) );
-
-         // link to the fresh EI added to the container:
-         ElementLink< xAOD::EventInfoContainer > eilink( puei_sg_key, puei->size()-1,  &*m_evtStore );
-         xAOD::EventInfo::SubEvent  subev( 0, pOverEvent->subEvents().size(),
-                                           xAOD::EventInfo::Signal, eilink );
-         pOverEvent->addSubEvent( subev );
+         addSubEvent(pOverEvent, pEventSignal, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
       }
 
       //  register as sub event of the overlaid
@@ -432,19 +428,12 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
             if (it != end) { addpEvent=false; }
          }
          for (; it != end; ++it) {
-            // FIX MN: do we need to copy subevent to the new EI container?
-            pOverEvent->addSubEvent( *it );
+            addSubEvent( pOverEvent, *it, puei, m_evinfContName );
          }
       }
       
       if( addpEvent ) {
-         xAOD::EventInfo* ei = new xAOD::EventInfo( *pEvent );
-         ei->clearSubEvents();  // MN: FIX - verify that subevents should be cleared!
-         puei->push_back( ei );
-         // link to the fresh EI added to the container:
-         ElementLink< xAOD::EventInfoContainer > eilink( puei_sg_key, puei->size()-1,  &*m_evtStore );
-         xAOD::EventInfo::SubEvent  subev( 0, pOverEvent->subEvents().size(), xAOD::EventInfo::Signal, eilink );
-         pOverEvent->addSubEvent( subev );
+         addSubEvent(pOverEvent, pEvent, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
       }
 
       ATH_MSG_INFO ( "set aliases" );

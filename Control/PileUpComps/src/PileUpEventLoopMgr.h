@@ -148,6 +148,9 @@ private:
   /// property: control behaviour of event loop on algorithm failure
   Gaudi::Property<int> m_failureMode;
 
+  /// SG key for the EventInfoContainer
+  Gaudi::Property<std::string> m_evinfContName;
+
   /// property: beam intensity service handle for beam profile in local time
   ServiceHandle<IBeamIntensity> m_beamInt;
   /// property: beam intensity service handle for luminosity profile in iovtime
