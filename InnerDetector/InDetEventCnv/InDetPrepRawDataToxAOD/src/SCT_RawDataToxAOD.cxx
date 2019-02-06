@@ -61,9 +61,6 @@ StatusCode SCT_RawDataToxAOD::execute(const EventContext& ctx) const {
       phi_module_acc(*xrdo) = m_SCTHelper->phi_module(id);
       eta_module_acc(*xrdo) = m_SCTHelper->eta_module(id);
       side_acc(*xrdo) = m_SCTHelper->side(id);
-      // error condensed hit not used anymore (duplicates information from ByteStream errors)
-      //      SCT3_RawData* rdo3 = const_cast<SCT3_RawData*>(dynamic_cast<const SCT3_RawData*>(rdo));
-      //      if (rdo3) xrdo->setErrorCondensedHit(rdo3->getErrorCondensedHit());
     }
   }
   ATH_MSG_DEBUG(" recorded SCT_RawData objects: size " << xaod->size());
