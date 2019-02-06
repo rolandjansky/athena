@@ -606,6 +606,7 @@ namespace EL
 
     m_newInputFile = true;
     m_inputTree = tree;
+    m_inputTreeEntry = 0;
     m_inputFile = std::move (inputFile);
     m_inputFileUrl = std::move (inputFileUrl);
 
