@@ -110,6 +110,10 @@
    <class name="xAOD::TrigCompositeAuxContainer_v1"
           id="171EB8B8-A777-47D9-94A9-33B2482E2AAF" />
 
+   <!-- TrigComposite_v2 dictionaries: -->
+   <class name="xAOD::TrigCompositeAuxContainer_v2"
+          id="3174A8A0-7EA2-436D-93FC-0D058BE99B09" />
+
    <!-- RoiDescriptorStore_v1 dictionaries: -->
    <class name="xAOD::RoiDescriptorStore_v1"
           id="882822c8-906a-11e5-87f4-02163e010d8c" />

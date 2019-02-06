@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -17,7 +17,10 @@
 #include <map>
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "ZdcByteStream/ZdcDefs.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthContainers/DataVector.h"
 
 class ISvcLocator;
@@ -28,15 +31,15 @@ class ZdcDigitsCollection;
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
-class ZdcByteStreamRawDataV2: public AthAlgorithm
+class ZdcByteStreamRawDataV2: public AthReentrantAlgorithm
 {
 public:
 	ZdcByteStreamRawDataV2(const std::string& name, ISvcLocator* pSvcLocator);
 	virtual ~ZdcByteStreamRawDataV2();
 
-	virtual StatusCode initialize();
-	virtual StatusCode execute();
-	virtual StatusCode finalize();
+	virtual StatusCode initialize() override;
+	virtual StatusCode execute(const EventContext& ctx) const override;
+	virtual StatusCode finalize() override;
 
 private:
 	typedef std::map<unsigned int, const xAOD::TriggerTower*> ZdcTriggerTowersMap;
@@ -46,7 +49,8 @@ private:
 
 	/// ZDC Container and collection
 	/// StoreGate key
-	std::string m_ZdcTriggerTowerContainerLocation;
+        SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_ZdcTriggerTowerContainerLocation
+        { this, "ZdcTriggerTowerContainerLocation", ZdcDefs::ZdcTriggerTowerContainerLocation, "" };
 
 	//void setupZdcTriggerTowersMap(const xAOD::TriggerTowerContainer* ttCollection);
 

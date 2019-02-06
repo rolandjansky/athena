@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------------
@@ -754,14 +754,6 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
   }
 
-
-  selected_jets.empty();
-  no_cuts_jets.empty();
-  forward_jets.empty();
-  unsorted_leptons.empty();
-  leptons.empty();
-  unsorted_tight_leptons.empty();
-  tight_leptons.empty();
 
   return true;
 }

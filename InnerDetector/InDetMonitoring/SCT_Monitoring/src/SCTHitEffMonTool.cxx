@@ -132,7 +132,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_minPt(1000.), // minimu pt in MeV/c
   m_effdistcut(2.),
   m_maxZ0sinTheta(0.),
-  m_maxTracks(250.),
+  m_maxTracks(500.),
   m_insideOutOnly(false),
   m_usemasks(true),
   m_detailed(false),
@@ -294,6 +294,9 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   }
   for (unsigned int i(0); i != m_effMap.size(); ++i) {
     m_effMap[i].fill(0);
+  }
+  for (unsigned int i(0); i != m_effMapFirstBCID.size(); ++i) {
+    m_effMapFirstBCID[i].fill(0);
   }
   for (unsigned int i(0); i != m_effLumiBlock.size(); ++i) {
     m_effLumiBlock[i].fill(0);
@@ -524,6 +527,14 @@ SCTHitEffMonTool::bookHistograms() {
                              n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
           m_effMap[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
           m_effMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
+
+          CHECK(bookEffHisto(m_effMapFirstBCID[detIndex][j], histGroupE[isub],
+                             mapName[isub] + i + "_" + j + "_bcid",
+                             "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub] + " for first BCID",
+                             n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
+                             n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+          m_effMapFirstBCID[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
+          m_effMapFirstBCID[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
           CHECK(bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub],
                              effLumiName[isub] + i + "_" + j,
@@ -876,6 +887,13 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
           m_effMap[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
           m_effMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
+          CHECK(bookEffHisto(m_effMapFirstBCID[detIndex][j], histGroupE[isub],
+                             mapName[isub] + i + "_" + j + "_bcid",
+                             "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub] + " for first BCID",
+                             n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
+                             n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+          m_effMapFirstBCID[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
+          m_effMapFirstBCID[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
           CHECK(bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub],
                              effLumiName[isub] + i + "_" + j,
@@ -1095,7 +1113,7 @@ SCTHitEffMonTool::fillHistograms() {
   }
   unsigned BCID = pEvent->bcid();
   int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
-  bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
+  //bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
   if (m_chronotime) {
     m_chrono->chronoStart("SCTHitEff");
@@ -1677,7 +1695,7 @@ SCTHitEffMonTool::fillHistograms() {
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), eff);// 15.12.2014
       m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);// 20.01.2015
       m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), eff);// 02.09.2016
-      if (BCIDpos == 0 && InTrain) {
+      if (BCIDpos <= 0) {
         m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
       }
       if (m_detailed) {
@@ -1730,13 +1748,16 @@ SCTHitEffMonTool::fillHistograms() {
         }
       }
       m_Eff_Total->Fill(Double_t(isub), eff);
-      if (BCIDpos == 0 && InTrain) {
+      if (BCIDpos <= 0) {
         m_Eff_TotalBCID->Fill(Double_t(isub), eff);
       }
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
       m_effMap[histnumber][side]->Fill(ieta, iphi, eff);
+      if( BCIDpos <= 0 ){
+        m_effMapFirstBCID[histnumber][side]->Fill(ieta, iphi, eff);
+      }
       m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), eff);// 23.01.2015
 
       if (testOffline) {

@@ -962,6 +962,7 @@ DebugAids::coredump (int sig, ...)
 	// to work any better, but try it anyway.  Then make sure we
 	// die so that we won't return to the caller from the child.
 	abort ();
+        // cppcheck-suppress unreachableCode
 	_exit (255);
     }
     else if (corepid > 0) {

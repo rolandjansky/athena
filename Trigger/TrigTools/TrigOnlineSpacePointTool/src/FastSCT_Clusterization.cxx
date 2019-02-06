@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
@@ -13,9 +13,9 @@
 void FastSCT_Clusterization::initializeGeometry(const InDetDD::SCT_DetectorManager* manager){
 
   ///@todo WARNING - hack needed here for non-const method of SCT_DetectorManager
-  m_man = const_cast<InDetDD::SCT_DetectorManager*>(manager);
+  m_man = manager;
   // Barrel geometry : get a barrel element (use layer 0, phi 1, eta 1, side 0)
-  InDetDD::SiDetectorElement* element = m_man->getDetectorElement(0, 0, 1, 1, 0);
+  const InDetDD::SiDetectorElement* element = m_man->getDetectorElement(0, 0, 1, 1, 0);
   m_barrel_pitch  = element->phiPitch();
   m_deltaXlorentz=0.0026;
   m_corrTable[0]= 1.0;
@@ -30,7 +30,7 @@ std::cout << " barrel: pitch " << m_barrel_pitch  << " lorentz shift " << m_delt
   for (int disk=0; disk<s_ndisk; disk++)
     for (int ieta=0; ieta<s_neta; ieta++){
       // find the forward element. Use phi 0, side 0
-      InDetDD::SiDetectorElement* element = m_man->getDetectorElement(2, disk, 0, ieta, 0);
+      const InDetDD::SiDetectorElement* element = m_man->getDetectorElement(2, disk, 0, ieta, 0);
       if (0==element) continue;
       m_forward_pitch[disk][ieta]=element->phiPitch();
 #ifdef CLUSTERING_DBG

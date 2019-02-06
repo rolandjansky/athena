@@ -1,15 +1,6 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// DecisionSvc.cxx
-// Implementation file for class DecisionSvc
-// Author: S.Binet<binet@cern.ch>
-//         B.Radics<radbal@cern.ch>
-///////////////////////////////////////////////////////////////////
-
 
 #include "DecisionSvc.h"
 
@@ -18,25 +9,17 @@
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/EventContext.h"
 #include <algorithm>
-#include <sstream>
-
 
 DecisionSvc::DecisionSvc(const std::string& name,
 		       ISvcLocator* pSvcLocator ) :
-  AthService(name, pSvcLocator),
-  m_calcStats(false),
-  m_frozen(false),
+  base_class(name, pSvcLocator),
 #ifdef SIMULATIONBASE
   m_cutflowSvc("",name),
 #else
   m_cutflowSvc("CutFlowSvc/CutFlowSvc",name),
 #endif
-  m_algstateSvc("AlgExecStateSvc",name),
-  m_eventCount(0)
+  m_algstateSvc("AlgExecStateSvc",name)
 {
-  declareProperty("CalcStats",m_calcStats);
-
-  assert( pSvcLocator );
 }
 
 DecisionSvc::~DecisionSvc()
@@ -62,17 +45,11 @@ DecisionSvc::initialize()
   // Declares top filters to ICutFlowSvc if (and only if) needed (David Cote, Sep 2010)
 
   // Get handle to exec state service for retrieving decisions
-  if (!m_algstateSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Coulc not retrieve handle to AlgExecStateSvc");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( m_algstateSvc.retrieve() );
+
   // Must listen to EndEvent (why?)
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  if (!incSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Unable to get the IncidentSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "EndEvent", 100);
 
   return StatusCode::SUCCESS;
@@ -169,13 +146,13 @@ DecisionSvc::addStream(const std::string& stream)
     auto it = m_stream_accept.find(stream);
     if(it != m_stream_accept.end()){
       // ok, it exists, then do nothing
-      msg(MSG::WARNING) << "Stream name : " << stream << " already been registered!" << endmsg;
+      ATH_MSG_WARNING("Stream name : " << stream << " already been registered!");
       status = StatusCode::FAILURE;
     }else{
       //if the stream doesn't exist yet, then insert it to the accept list with an empty vector of Algs
       std::vector<std::string> tmpvec;
       tmpvec.clear();
-      msg(MSG::INFO) << "Inserting stream: "<< stream  << " with no Algs" << endmsg;
+      ATH_MSG_INFO("Inserting stream: "<< stream  << " with no Algs");
       m_stream_accept.insert(std::make_pair(stream, tmpvec));
       status = StatusCode::SUCCESS;
     }
@@ -203,9 +180,9 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
 	    if((*vit) == name){
 	      algexist = true;
 	      // it seems the alg was already inserted, warn the user
-	      msg(MSG::ERROR) << "Alg name : " << name
-                              << " of stream " << stream
-                              << " has already been registered!" << endmsg;
+	      ATH_MSG_ERROR("Alg name : " << name
+                        << " of stream " << stream
+                        << " has already been registered!");
 	      return StatusCode::FAILURE;
 	    }
 	  }
@@ -577,20 +554,4 @@ void DecisionSvc::DeclareToCutFlowSvc()
   }
 
   return;
-}
-
-
-StatusCode
-DecisionSvc::queryInterface( const InterfaceID& riid, void** ppvi )
-{
-  // valid placeholder?
-  if ( nullptr == ppvi ) { return StatusCode::FAILURE ; }  // RETURN
-  if ( IDecisionSvc::interfaceID() == riid )
-    {
-      *ppvi = static_cast<IDecisionSvc*>(this);
-      addRef(); // NB! : inrement the reference count!
-      return StatusCode::SUCCESS;                     // RETURN
-    }
-  // Interface is not directly availible: try out a base class
-  return Service::queryInterface( riid, ppvi );
 }
