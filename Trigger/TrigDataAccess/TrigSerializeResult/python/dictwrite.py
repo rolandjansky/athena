@@ -69,6 +69,7 @@ objects = [
 'xAOD::VertexAuxContainer_v1',
 'xAOD::TrigCompositeContainer_v1',
 'xAOD::TrigCompositeAuxContainer_v1',
+'xAOD::TrigCompositeAuxContainer_v2',
 'xAOD::MuonRoIContainer_v1',
 'xAOD::MuonRoIAuxContainer_v1',
 'xAOD::EmTauRoIContainer_v2',
