@@ -144,6 +144,8 @@ class MdtIdHelper : public MuonIdHelper
   int gasGap(const Identifier& id) const; 
   /// always false for MDTs 
   bool measuresPhi(const Identifier& id) const; 
+  /// is this and sMDT chamber
+  bool isSmallMdt(const Identifier& id) const;
 
  private:
 
@@ -339,6 +341,12 @@ inline bool MdtIdHelper::measuresPhi(const Identifier& /*id*/) const
 
 } 
 
+inline bool MdtIdHelper::isSmallMdt(const Identifier& id) const
+{
+  int index=stationName(id);
+  if(stationNameIndex("BME")==index || stationNameIndex("BMG")==index) return true;
+  else return false;
+}
 
 inline int MdtIdHelper::channel(const Identifier& id) const
 {
