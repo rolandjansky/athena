@@ -6,7 +6,7 @@
 
 # Set the environment variable(s):
 find_package( Rivet )
-find_package( Yoda )
+find_package( YODA )
 
 if( RIVET_FOUND AND YODA_FOUND )
   get_filename_component( _rivetPath "${RIVET_ROOT}" DIRECTORY )
@@ -14,6 +14,7 @@ if( RIVET_FOUND AND YODA_FOUND )
         FORCESET RIVETVER ${RIVET_VERSION} 
         FORCESET YODAVER ${YODA_VERSION}
         FORCESET RIVET_PATH ${_rivetPath}/${LCG_PLATFORM})
+  unset( _rivetPath )
 endif()
 
 # Silently declare the module found:
