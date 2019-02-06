@@ -47,6 +47,8 @@ namespace top{
 
     m_jetSubstructureName("None"),
 
+    m_recomputeCPvars(true),
+
     // Do systematics? - this needs many more configuration options
     m_systematics("SetMe"),
     /// special syst config
@@ -584,6 +586,9 @@ namespace top{
       }
 
     }
+
+    // Force recomputation of CP variables?
+    if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
 
     // Bootstrapping weights (permitted in MC and Data)
     if(settings->value("SaveBootstrapWeights") == "True") {

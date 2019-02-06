@@ -67,6 +67,7 @@ class TopConfig final {
   void setTDPPath( const std::string& s);
   inline const std::string& getTDPPath() const { return m_topDataPreparationPath; }
 
+  inline bool recomputeCPvars() const {return m_recomputeCPvars;}
 
   // What objects are we using
   inline bool usePhotons()    const {return m_usePhotons;   }
@@ -947,6 +948,9 @@ class TopConfig final {
   bool m_useTrackJets;
   bool m_useRCJets;
   bool m_useVarRCJets;
+
+  // recompute CP vars?
+  bool m_recomputeCPvars;
 
   // Ghost Tracks on jets can not really be disabled because they are always
   // available. However, we want the systematics to be executed automatically
