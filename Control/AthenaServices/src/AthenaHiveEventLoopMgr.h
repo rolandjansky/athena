@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
@@ -188,9 +188,9 @@ protected:
   /// Clear a slot in the WB 
   StatusCode clearWBSlot(int evtSlot);
   /// Declare the root address of the event
-  int declareEventRootAddress(const EventContext*);
+  int declareEventRootAddress(const EventContext&);
   /// Create event context
-  StatusCode createEventContext(EventContext*& eventContext, int createdEvents);
+  std::unique_ptr<EventContext> createEventContext(int createdEvents);
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler(int& finishedEvents);
   /// Instance of the incident listener waiting for AbortEvent. 
@@ -218,39 +218,41 @@ public:
   /// Standard Destructor
   virtual ~AthenaHiveEventLoopMgr();
   /// implementation of IAppMgrUI::initalize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// implementation of IAppMgrUI::finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   /// implementation of IAppMgrUI::nextEvent. maxevt==0 returns immediately
-  virtual StatusCode nextEvent(int maxevt);
+  virtual StatusCode nextEvent(int maxevt) override;
   /// implementation of IEventProcessor::executeEvent(void* par)
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent(void* par) override;
   /// implementation of IEventProcessor::executeRun(int maxevt)
-  virtual StatusCode executeRun(int maxevt);
+  virtual StatusCode executeRun(int maxevt) override;
   /// implementation of IEventProcessor::stopRun()
-  virtual StatusCode stopRun();
-
+  virtual StatusCode stopRun() override;
+  /// implementation of IService::stop
+  virtual StatusCode stop() override;
+ 
 
   /// Seek to a given event.
-  virtual StatusCode seek(int evt);
+  virtual StatusCode seek(int evt) override;
   /// Return the current event count.
-  virtual int curEvent() const;
+  virtual int curEvent() const override;
   /// Return the size of the collection.
-  virtual int size();
+  virtual int size() override;
   /// IIncidentListenet interfaces
-  void handle(const Incident& inc);
+  virtual void handle(const Incident& inc) override;
 
   /// interface dispatcher
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
 
   //FIXME hack to workaround pylcgdict problem...
-  virtual const std::string& name() const { return Service::name(); } //FIXME 
+  virtual const std::string& name() const  override { return Service::name(); } //FIXME 
 
 private:
-  AthenaHiveEventLoopMgr(); ///< no implementation
-  AthenaHiveEventLoopMgr(const AthenaHiveEventLoopMgr&); ///< no implementation
-  AthenaHiveEventLoopMgr& operator= (const AthenaHiveEventLoopMgr&); ///< no implementation
+  AthenaHiveEventLoopMgr() = delete;
+  AthenaHiveEventLoopMgr(const AthenaHiveEventLoopMgr&) = delete;
+  AthenaHiveEventLoopMgr& operator= (const AthenaHiveEventLoopMgr&) = delete;
 
   unsigned int m_nevt;
   unsigned int m_timeStamp { 0 };
@@ -278,6 +280,10 @@ private:
   const EventInfo* m_pEvent;
 
    ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
+
+   // Save a copy of the last event context to use
+   // at the end of event processing.
+   EventContext m_lastEventContext;
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
