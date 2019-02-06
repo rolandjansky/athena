@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -12,8 +12,8 @@
 
 
 
-static SG::AuxElement::Accessor< std::vector< int > >   readWriteAccessor( "decisions" );
-static SG::AuxElement::ConstAccessor< std::vector<int> > readOnlyAccessor( "decisions" );
+static const SG::AuxElement::Accessor< std::vector< int > >   readWriteAccessor( "decisions" );
+static const SG::AuxElement::ConstAccessor< std::vector<int> > readOnlyAccessor( "decisions" );
 
 namespace TrigCompositeUtils {  
 
