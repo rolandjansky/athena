@@ -127,6 +127,9 @@ namespace top{
       m_config->systematicsElectrons( specifiedSystematicsElectrons() );
     }
 
+    // bool to decide whether to use certain Egamma tools
+    m_recomputePhotonFudge = m_config->recomputeCPvars();
+
     return StatusCode::SUCCESS;
   }
   
@@ -164,9 +167,23 @@ namespace top{
 		     "Failed to apply photon isolation leakage correction");
 
 	  // Only apply shower shape fudging on full simulation MC
-	  if (m_config->isMC() && !m_config->isAFII()) {
-	    top::check(m_photonFudgeTool->applyCorrection(*photon),
-		       "Failed to apply photon shower shape fudge tool");
+	  if (m_config->isMC() && !m_config->isAFII() && m_recomputePhotonFudge) {
+	    if (m_photonFudgeTool->applyCorrection(*photon) == 0) { // 0: error, 1: OutOfRange (not possible), 2: OK
+	      // ElectronPhotonShowerShapeFudgeTool::applyCorrection can return an error for 3 reasons
+	      // 1) shower shapes not all found, 2) bad cluster, 3) shower shapes not all set.
+	      // 1 & 3 are most likely due to the smart slimming (no PhotonsDetailedCPContent), whereas 2 is an actual issue.
+	      // Check for case 2 now:
+	      if (photon->caloCluster() == nullptr) {
+		ATH_MSG_ERROR("Photon " << photon << " had no calo cluster - this is bad!");
+		return StatusCode::FAILURE;
+	      }
+	      else {
+		// We're now in case 1 or 3
+		ATH_MSG_WARNING(" Didn't find the necessary photon shower shapes variables for the ElectronPhotonShowerShapeFudgeTool! (but don't worry, you're still getting correctly ID'd photons)");
+		// Keep going, but don't try to use the tool anymore
+		m_recomputePhotonFudge = false;
+	      }
+	    }
 	  }
 
 	}

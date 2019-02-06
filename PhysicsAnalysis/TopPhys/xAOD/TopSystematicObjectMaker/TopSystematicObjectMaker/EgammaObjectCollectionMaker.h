@@ -105,6 +105,9 @@ namespace top{
       bool calibrateElectrons;
       bool calibratePhotons;
 
+      // Flag for recomputing CP vars
+      bool m_recomputePhotonFudge;
+
   };
 } // namespace
 #endif
