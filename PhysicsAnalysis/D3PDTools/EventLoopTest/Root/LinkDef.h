@@ -11,6 +11,7 @@
 
 #pragma link C++ class EL::UnitTestTool+;
 #pragma link C++ class EL::UnitTestAlg+;
+#pragma link C++ class EL::UnitTestAlgXAOD+;
 #pragma link C++ class EL::UnitTestAlg1+;
 #pragma link C++ class EL::UnitTestAlg2+;
 #pragma link C++ class EL::UnitTestAlg3+;
