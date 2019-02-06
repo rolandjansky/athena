@@ -271,7 +271,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
 
   // Find envelope of TileCal
   G4String nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
-  static const G4String tileVolumeString("Tile");
+  static const char * const tileVolumeString = "Tile";
   while (nameLogiVol.find(tileVolumeString) == G4String::npos) {
     level--;
     nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
@@ -283,9 +283,9 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   // Check whether we have multiple tree tops in DD
   // If this is the case, move one level down
   nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
-  static const G4String cenBarrelVolumeString("CentralBarrel");
-  static const G4String endcapPosVolumeString("EndcapPos");
-  static const G4String endcapNegVolumeString("EndcapNeg");
+  static const char * const cenBarrelVolumeString = "CentralBarrel";
+  static const char * const endcapPosVolumeString = "EndcapPos";
+  static const char * const endcapNegVolumeString = "EndcapNeg";
   if (nameLogiVol.find(cenBarrelVolumeString) != G4String::npos ||
       nameLogiVol.find(endcapPosVolumeString) != G4String::npos ||
       nameLogiVol.find(endcapNegVolumeString) != G4String::npos ) {
@@ -297,11 +297,11 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   const G4String namePhysSection = physSection->GetName();
 
   // Check current TileSectionDescription
-  static const G4String ebarrelVolumeString("EBarrel");
-  static const G4String barrelVolumeString("Barrel");
-  static const G4String itcVolumeString("ITC");
-  static const G4String gapVolumeString("Gap");
-  static const G4String crackVolumeString("Crack");
+  static const char * const ebarrelVolumeString = "EBarrel";
+  static const char * const barrelVolumeString = "Barrel";
+  static const char * const itcVolumeString = "ITC";
+  static const char * const gapVolumeString = "Gap";
+  static const char * const crackVolumeString = "Crack";
   int sect = 0;
   if (namePhysSection.find(ebarrelVolumeString) != G4String::npos) {
     hitData.section = lookup->GetSection(TileDddbManager::TILE_EBARREL);
@@ -313,7 +313,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
     sect = 1;
   } else if (namePhysSection.find(itcVolumeString) != G4String::npos) {
     hitData.nDetector = 3;
-    static const G4String plug1VolumeString("Plug1");
+    static const char * const plug1VolumeString = "Plug1";
     const G4String namePlug = theTouchable->GetVolume(level - 3)->GetName();
     if (namePlug.find(plug1VolumeString) != G4String::npos) {
       hitData.section = lookup->GetSection(TileDddbManager::TILE_PLUG1);
@@ -348,11 +348,11 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   // Check the side
   hitData.nSide = 1;
   hitData.isNegative = false;
-  static const G4String eBarrelVolumeString("EBarrel");
+  static const char * const eBarrelVolumeString = "EBarrel";
   if ((namePhysSection.find(barrelVolumeString) != G4String::npos) &&
       (namePhysSection.find(eBarrelVolumeString) == G4String::npos) ) {}
   else {
-    static const G4String negVolumeString("Neg");
+    static const char * const negVolumeString = "Neg";
     if (namePhysSection.find(negVolumeString) != G4String::npos) {
       hitData.nSide = -1;
       hitData.isNegative = true;
