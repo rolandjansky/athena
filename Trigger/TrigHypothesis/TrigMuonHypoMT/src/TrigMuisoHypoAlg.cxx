@@ -94,7 +94,6 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     
     ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
-    ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("Added view, muIsoInfo, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
     counter++;
   }
