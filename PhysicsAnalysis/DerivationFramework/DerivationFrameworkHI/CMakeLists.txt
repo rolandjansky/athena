@@ -8,6 +8,7 @@ atlas_subdir( DerivationFrameworkHI )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/HeavyIonPhys/HIEventUtils
                           InnerDetector/InDetRecToolsInDetTrackSelectionTool
@@ -15,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
-                          GaudiKernel )
+                          GaudiKernel
+                          PhysicsAnalysis/CommonTools/ExpressionEvaluation )
 
 # External dependencies:
 find_package( ROOT )
@@ -24,7 +26,7 @@ find_package( ROOT )
 atlas_add_component( DerivationFrameworkHI
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps HIEventUtilsLib GaudiKernel )
+                     LINK_LIBRARIES AthenaBaseComps HIEventUtilsLib GaudiKernel PATCoreLib ExpressionEvaluationLib DerivationFrameworkInterfacesLib)
 
 # Install files from the package:
 atlas_install_headers( DerivationFrameworkHI )

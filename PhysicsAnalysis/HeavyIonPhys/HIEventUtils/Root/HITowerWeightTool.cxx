@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HITowerWeightTool.h"
@@ -23,10 +23,9 @@ HITowerWeightTool::HITowerWeightTool(const std::string& n) : asg::AsgTool(n),
 							     m_run_index(0)
 
 {
-  declareProperty("InputFile",m_input_file="cluster.geo.root","File containing cluster geometric moments.");
-  declareProperty("ConfigDir",m_config_dir="HIEventUtils/","Directory containing configuration file.");
-  if(initialize().isFailure()) ATH_MSG_WARNING("Initial configuration of tool failed");
-
+  declareProperty("ApplyCorrection",m_applycorrection=true,"If false unit weigts are applied");
+  declareProperty("InputFile",m_input_file="cluster.geo.HIJING_2018.root","File containing cluster geometric moments.");
+  declareProperty("ConfigDir",m_config_dir="HIJetCorrection/","Directory containing configuration file.");
 }
 
 
@@ -67,20 +66,36 @@ float HITowerWeightTool::getEtaPhiOffset(float eta, float phi) const
 
 StatusCode HITowerWeightTool::configureEvent()
 {
+  if (!m_applycorrection){
+    m_run_index=0;
+    ATH_MSG_DEBUG("Using unit weights and doing no eta-phi correction.");
+    return StatusCode::SUCCESS;
+  }
+
   const xAOD::EventInfo* ei=nullptr;
   if(evtStore()->retrieve(ei,"EventInfo").isFailure())
   {
     ATH_MSG_ERROR("Could not retrieve EventInfo");
     return StatusCode::FAILURE;
-  }
+  } 
   unsigned int run_number=ei->runNumber();
+  
   if(m_run_number!=run_number)
   {
     auto itr=m_run_map.find(run_number);
     if(itr==m_run_map.end())
     {
-      m_run_index=0;
-      ATH_MSG_WARNING("No calibration avaliable for " << run_number << ". Doing no eta-phi correction.");
+        //trying generic run number <=> no run dependence
+        run_number = 226000;
+        auto itrg=m_run_map.find(run_number);
+        if(itrg==m_run_map.end()){  
+            m_run_index=0;
+            ATH_MSG_WARNING("No generic calibration or calibration for " << run_number << " is avaliable. Doing no eta-phi correction.");
+        }
+        else {
+            m_run_index=itrg->second;
+            ATH_MSG_DEBUG("Using generic calibration for eta-phi correction.");
+        }
     }
     else m_run_index=itr->second;
     m_run_number=run_number;
@@ -93,6 +108,7 @@ StatusCode HITowerWeightTool::initialize()
   if(m_init) return StatusCode::SUCCESS;
   std::string local_path=m_config_dir+m_input_file;
   std::string full_path=PathResolverFindCalibFile(local_path);
+  ATH_MSG_INFO("Reading input file "<< m_input_file << " from " << full_path);
   TFile* f=TFile::Open(full_path.c_str());
   if(f==nullptr) 
   {
@@ -154,7 +170,9 @@ StatusCode HITowerWeightTool::initialize()
     ATH_MSG_FATAL("Cannot find TH3F h1_run_index in config file " << full_path ); 
     return StatusCode::FAILURE;
   }
-  for(int xbin=1; xbin<h1_run_index->GetNbinsX(); xbin++) m_run_map.emplace_hint(m_run_map.end(),std::make_pair(h1_run_index->GetBinContent(xbin),xbin));
+  for(int xbin=1; xbin<=h1_run_index->GetNbinsX(); xbin++) {
+    m_run_map.emplace_hint(m_run_map.end(),std::make_pair(h1_run_index->GetBinContent(xbin),xbin));
+  }
   f->Close();
   m_init=true;
   return StatusCode::SUCCESS;
