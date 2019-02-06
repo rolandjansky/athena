@@ -140,7 +140,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
    SCRIPT test/test_full_menu.sh
    EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
-   PROPERTIES TIMEOUT 1000
+   PROPERTIES TIMEOUT 2000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
    )
 
