@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IDecisionSvc.h 
@@ -21,7 +21,6 @@
 // STL includes
 #include <vector>
 #include <string>
-#include <map>
 
 // fwd declares
 class INamedInterface;
@@ -33,7 +32,7 @@ class IDecisionSvc
 { 
 
 public:
-
+  DeclareInterfaceID( IDecisionSvc, 1, 0);
   virtual ~IDecisionSvc();
 
   /////////////////////////////////////////////////////////////////// 
@@ -72,24 +71,6 @@ public:
   /// Test whether this event should be output, of a given stream
   virtual bool isEventAccepted(const std::string& stream) const = 0;
   virtual bool isEventAccepted(const std::string& stream, const EventContext&) const = 0;
-
-
-  static const InterfaceID& interfaceID();
-  
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline 
-const InterfaceID& 
-IDecisionSvc::interfaceID() 
-{ 
-  static const InterfaceID IID_IDecisionSvc("IDecisionSvc", 1, 0);
-  return IID_IDecisionSvc; 
-}
-
-
 #endif //> !ATHENAKERNEL_IDECISIONSVC_H
-
