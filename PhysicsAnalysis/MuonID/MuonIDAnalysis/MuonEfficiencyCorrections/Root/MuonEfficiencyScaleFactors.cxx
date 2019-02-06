@@ -32,7 +32,7 @@ namespace CP {
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
                 m_calibration_version("190203_Winter_r21"),
-                m_lowpt_threshold(15.e3),
+                m_use_low_pt_map(true),
                 m_affectingSys(),
                 m_init(false),
                 m_seperateSystBins(false),
@@ -55,7 +55,7 @@ namespace CP {
         declareProperty("ScaleFactorDecorationName", m_sf_decoration_name);
       
         declareProperty("CalibrationRelease", m_calibration_version);
-        declareProperty("LowPtThreshold", m_lowpt_threshold);
+        declareProperty("UseLowPtMap", m_use_low_pt_map);
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
     }
@@ -63,7 +63,12 @@ namespace CP {
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
     }
     float MuonEfficiencyScaleFactors::lowPtTransition() const{
-        return m_lowpt_threshold;
+        static const float low_pt_threshold_reco = 15.e3;
+        static const float low_pt_threshold_iso = 4.e3;
+        if (!m_use_low_pt_map) return -1;
+        if (measurement() == CP::MuonEfficiencyType::Reco) return low_pt_threshold_reco;
+        if (measurement() == CP::MuonEfficiencyType::Iso) return low_pt_threshold_iso;        
+        return -1;
     }
     CP::MuonEfficiencyType MuonEfficiencyScaleFactors::measurement() const{
         return m_Type;
@@ -117,13 +122,13 @@ namespace CP {
 
         /// for isolation efficiencies, we don't use a low pt component for now - set the low pt threshold to -1
         /// same holds for TTVA SF, and for the HighPt WP
-        if (m_Type == CP::MuonEfficiencyType::Iso || m_Type == CP::MuonEfficiencyType::TTVA || m_Type == MuonEfficiencyType::BadMuonVeto || (m_Type == CP::MuonEfficiencyType::Reco && m_wp.find("HighPt") != std::string::npos)) {
+        if (m_Type == CP::MuonEfficiencyType::TTVA || m_Type == MuonEfficiencyType::BadMuonVeto || (m_Type == CP::MuonEfficiencyType::Reco && m_wp.find("HighPt") != std::string::npos)) {
             ATH_MSG_DEBUG("We are running Isolation or TTVA or High Pt reco SF, so we use Zmumu based SF for the whole pt range!");
-            m_lowpt_threshold = -1;
-        } else if (m_lowpt_threshold < 0) {
+            m_use_low_pt_map = false;
+        } else if (!m_use_low_pt_map) {
             ATH_MSG_INFO("Low pt SF turned off as crossover threshold is negative! Using Zmumu based SF for all pt values.");
         } else {
-            ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << m_lowpt_threshold / 1000. << " GeV!");
+            ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << lowPtTransition() / 1000. << " GeV!");
         }
         std::set<std::string> decorations{
             sf_decoration() ,
@@ -324,19 +329,20 @@ namespace CP {
         } else return resolve_file_location("Reco_HighEta_Z.root");
     }
     std::string MuonEfficiencyScaleFactors::filename_LowPt()const {
-
         if (!m_custom_file_LowPt.empty()) return resolve_file_location(m_custom_file_LowPt);
+        if (lowPtTransition() < 0.) return filename_Central();
+        if (measurement() ==  CP::MuonEfficiencyType::Reco) return resolve_file_location(Form("Reco_%s_JPsi.root", m_wp.c_str()));
         // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
-        else if (m_Type != CP::MuonEfficiencyType::Reco || m_lowpt_threshold < 0) {
-            return filename_Central();
-        } else return resolve_file_location(Form("Reco_%s_JPsi.root", m_wp.c_str()));
+        else if (measurement()  == CP::MuonEfficiencyType::Iso) {            
+            return resolve_file_location(Form("Iso_%s_DYmumu.root", m_wp.c_str()));;
+        }  
+        return filename_Central();
     }
     std::string MuonEfficiencyScaleFactors::filename_LowPtCalo() const{
-
         if (!m_custom_file_LowPtCalo.empty()) return resolve_file_location(m_custom_file_LowPtCalo);
         // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
-        else if (m_Type != CP::MuonEfficiencyType::Reco || m_lowpt_threshold < 0) {
-            return filename_Central();
+        else if (m_Type != CP::MuonEfficiencyType::Reco || lowPtTransition() < 0) {
+            return filename_Calo();
         } else return resolve_file_location("Reco_CaloTag_JPsi.root");
     }
     // load the SF histos
