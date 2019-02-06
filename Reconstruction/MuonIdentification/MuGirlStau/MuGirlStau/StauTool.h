@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,8 +24,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <map>
 #include <boost/regex.hpp>
@@ -415,12 +413,6 @@ private:
     std::string m_rpcCalibFileName;
     std::string m_caloCalibFileName;
 
-    //TFile *m_mdtCalibFile;
-    //TFile *m_rpcCalibFile;
-    //TFile *m_caloCalibFile;
-
-    int m_runNumber;
-
     /** Stau collection - save info in store gate */
     StauCollection* m_pCollection;
 
@@ -434,9 +426,6 @@ private:
     ServiceHandle<MdtCalibrationDbSvc> m_pMdtCalibDbSvc;
     ServiceHandle<IAtRndmGenSvc> m_randSvc;
     std::string m_randStreamName;
-
-    /** a handle on Store Gate for access to the Event Store */
-    const EventInfo* m_pEventInfo;
 
     const MuonGM::MuonDetectorManager* m_pMuonMgr; /* the muon detector manager*/
 
