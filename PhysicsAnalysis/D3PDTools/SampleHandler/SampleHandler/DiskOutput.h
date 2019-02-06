@@ -78,13 +78,28 @@ namespace SH
     /// \par Guarantee
     ///   strong
     /// \par Failures
-    ///   out of memory II
+    ///   out of memory II\n
     ///   i/o errors
   public:
     std::unique_ptr<DiskWriter>
     makeWriter (const std::string& sampleName,
                 const std::string& segmentName,
                 const std::string& suffix) const;
+
+
+    /// \brief the final output location for the given segment
+    ///
+    /// \pre !sampleName.empty()
+    /// \post !result.empty()
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string
+    targetURL (const std::string& sampleName,
+               const std::string& segmentName,
+               const std::string& suffix) const;
 
 
 
@@ -98,6 +113,15 @@ namespace SH
   protected:
     virtual std::unique_ptr<DiskWriter>
     doMakeWriter (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const = 0;
+
+    /// \copydoc finalLocation()
+    /// \par Rationale
+    ///   the virtual part of DiskOutput::targetURL
+  protected:
+    virtual std::string
+    getTargetURL (const std::string& sampleName,
                   const std::string& segmentName,
                   const std::string& suffix) const = 0;
 

@@ -57,4 +57,18 @@ namespace SH
     RCU_PROVIDE (result != nullptr);
     return result;
   }
+
+
+
+  std::string DiskOutput ::
+  targetURL (const std::string& sampleName,
+             const std::string& segmentName,
+             const std::string& suffix) const
+  {
+    RCU_READ_INVARIANT (this);
+    RCU_REQUIRE (!sampleName.empty());
+    std::string result = getTargetURL (sampleName, segmentName, suffix);
+    RCU_PROVIDE (!result.empty());
+    return result;
+  }
 }

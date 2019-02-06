@@ -63,12 +63,26 @@ namespace SH
 		const std::string& suffix) const
   {
     RCU_READ_INVARIANT (this);
+    return std::make_unique<DiskWriterLocal>
+      (targetURL (sampleName, segmentName, suffix));
+  }
+
+
+
+  std::string DiskOutputLocal ::
+  getTargetURL (const std::string& sampleName,
+                const std::string& segmentName,
+                const std::string& suffix) const
+  {
+    RCU_READ_INVARIANT (this);
     std::ostringstream file;
-    file << m_prefix << "/";
+    file << m_prefix;
+    if (m_prefix.back() != '-')
+      file << "/";
     file << sampleName;
     if (!segmentName.empty())
       file << "-" << segmentName;
     file << suffix;
-    return std::make_unique<DiskWriterLocal> (file.str());
+    return file.str();
   }
 }

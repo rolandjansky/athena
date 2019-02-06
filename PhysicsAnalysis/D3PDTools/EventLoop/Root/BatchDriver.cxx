@@ -649,6 +649,27 @@ namespace EL
   {
     using namespace msgEventLoop;
 
+    // This picks up the DiskOutput object used to write out our
+    // histograms, we will then use that to locate the output files.
+    // this is not really the best way of doing this, but there are
+    // bigger rewrites of this code excepted, so I don't want to spend
+    // a lot of time on this now (06 Feb 19).
+    std::unique_ptr<SH::DiskOutput> origHistOutputMemory;
+    const SH::DiskOutput *origHistOutput = nullptr;
+    for (auto iter = config.job.outputBegin(), end = config.job.outputEnd();
+         iter != end; ++ iter)
+    {
+      if (iter->label() == Job::histogramStreamName)
+        origHistOutput = iter->output();
+    }
+    if (origHistOutput == nullptr)
+    {
+      origHistOutputMemory = std::make_unique<SH::DiskOutputLocal>
+        (config.location + "/fetch/hist-");
+      origHistOutput = origHistOutputMemory.get();
+    }
+    RCU_ASSERT (origHistOutput != nullptr);
+
     bool result = true;
 
     ANA_MSG_DEBUG ("merging histograms in location " << location);
@@ -672,8 +693,9 @@ namespace EL
 	{
 	  const BatchSegment& mysegment = config.segments[segment];
 
-	  const std::string hist_file =
-	    location + "/fetch/hist-" + mysegment.fullName + ".root";
+	  const std::string hist_file = origHistOutput->targetURL
+            (mysegment.sampleName, mysegment.segmentName, ".root");
+
 	  std::ostringstream completed_file;
 	  completed_file << location << "/status/completed-" << segment;
 	  std::ostringstream fail_file;

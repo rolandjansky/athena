@@ -71,6 +71,12 @@ namespace SH
                   const std::string& segmentName,
 		  const std::string& suffix) const;
 
+  protected:
+    virtual std::string
+    getTargetURL (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const;
+
 
 
     //
