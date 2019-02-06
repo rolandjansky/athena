@@ -2911,6 +2911,131 @@ function Moriond2018_EMvsPF \
     options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;doCompare=rel21/Moriond2018/R4_AllNuisanceParameters.config&MC16&Total uncertainty, EMTopo&AntiKt4EMTopo;totalUncName=\"Total uncertainty, EMPFlow\""
 }
 
+#######################################
+## Fall 2018 functions
+
+function PreFall2018_forMJB \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="JetUncertainties/rel21/Fall2018/R4_JESNuisanceParametersForMJB.config"
+    outFile="Fall2018/JetUncertainties-IntoMJB_Fall2018.pdf"
+    compList="Zjet#,Gjet#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#;"
+    compLabels="Absolute #it{in situ} JES (Z,#gamma+jet);Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;bunchSpacing=25;fixedPtVals=25,40,60,80,100,120;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+
+}
+
+function PreFall2018_forMJB_comparePFlowEMTopo \
+{
+
+    # Load default Fall 2018 release
+    PreFall2018_forMJB
+    # Override variables
+    jetDefinition="AntiKt4EMTopo"
+    outFile="Fall2018/JetUncertainties-Fall2018-intoMJB-ComparePFlowEMTopo.pdf"
+    options="${options};doCompare=JetUncertainties/rel21/Fall2018/R4_JESNuisanceParametersForMJB.config&MC16&PFlow uncertainty&AntiKt4EMPFlow"
+
+}
+
+function Fall2018 \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="Fall2018/JetUncertainties-Fall2018-AllComponents-unknownComp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+function Fall2018_Dijet \
+{
+
+    Fall2018
+    outFile="Fall2018/JetUncertainties-Fall2018-AllComponents-dijetComp.pdf"    
+    options="isDijet=true;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+function Fall2018_GlobalReduction \
+{
+    # Load default Moriond 2018 release
+    Fall2018
+    # Override variables
+    configFile="rel21/Fall2018/R4_GlobalReduction_FullJER.config"
+    outFile="Fall2018/JetUncertainties-Fall2018-Unknown-GlobalReduction.pdf"
+    compList="EffectiveNP#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+
+}
+
+function Fall2018_CategoryReduction \
+{
+    # Load default Moriond 2018 release
+    Fall2018
+    # Override variables
+    configFile="rel21/Fall2018/R4_CategoryReduction.config"
+    outFile="Fall2018/JetUncertainties-Fall2018-Unknown-CategoryReduction.pdf"
+    compList="EffectiveNP#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+
+}
+
+
+#######################################
+## Fall 2018 special
+
+function Fall2018_fullStat_20152016 \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2015_16_AllJERNP.config"
+    outFile="Fall2018_fullStatUncertanties/JetUncertainties-Fall2018-AllStatTerms-2016-2016-unknownComp.pdf"
+    compList="Zjet#,Gjet#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+function Fall2018_fullStat_2017 \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2017_AllJERNP.config"
+    outFile="Fall2018_fullStatUncertanties/JetUncertainties-Fall2018-AllStatTerms-2017-unknownComp.pdf"
+    compList="Zjet#,Gjet#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+function Fall2018_fullStat_20152016_testNoJER \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2015_16_NoJER.config"
+    outFile="Fall2018_fullStatUncertanties/JetUncertainties-Fall2018-AllStatTerms-2016-2016-unknownComp-noJER.pdf"
+    compList="Zjet#,Gjet#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+function Fall2018_fullStat_2017_testNoJER \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2017_NoJER.config"
+    outFile="Fall2018_fullStatUncertanties/JetUncertainties-Fall2018-AllStatTerms-2017-unknownComp-noJER.pdf"
+    compList="Zjet#,Gjet#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=/afs/cern.ch/work/k/kpachal/JetUncertainties/JetUncertainties/athena/Reconstruction/Jet/JetUncertainties/share/"
+}
+
+#######################################
+# Older
+
 function testRel21AFII \
 {
     jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
