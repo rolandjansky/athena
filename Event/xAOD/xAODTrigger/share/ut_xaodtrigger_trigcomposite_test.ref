@@ -1,9 +1,8 @@
 Populating initial TC object
 Set detail ok.
+Set detail ok.
 Testing initial TC object
 Has detail ok.
-UnsignedShortVecValueEven = 5 10 50 100 
-UnsignedShortVecValueOdd = 1 1 3 4 7 
 FloatVecValue = [1.23, 2.34]
 Simple getDetail API ok.
 Missing details handled ok.
@@ -11,8 +10,6 @@ Basic link functionality OK
 Link recovery OK
 Testing copy constructor
 Has detail ok.
-UnsignedShortVecValueEven = 5 10 50 100 
-UnsignedShortVecValueOdd = 1 1 3 4 7 
 FloatVecValue = [1.23, 2.34]
 Simple getDetail API ok.
 Missing details handled ok.
@@ -20,8 +17,6 @@ Basic link functionality OK
 Link recovery OK
 Testing assignment operator (standalone object)
 Has detail ok.
-UnsignedShortVecValueEven = 5 10 50 100 
-UnsignedShortVecValueOdd = 1 1 3 4 7 
 FloatVecValue = [1.23, 2.34]
 Simple getDetail API ok.
 Missing details handled ok.
@@ -29,8 +24,13 @@ Basic link functionality OK
 Link recovery OK
 Testing assignment operator (object with store)
 Has detail ok.
-UnsignedShortVecValueEven = 5 10 50 100 
-UnsignedShortVecValueOdd = 1 1 3 4 7 
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+Basic link functionality OK
+Link recovery OK
+Testing assignment operator (EDM migration - new aux)
+Has detail ok.
 FloatVecValue = [1.23, 2.34]
 Simple getDetail API ok.
 Missing details handled ok.
