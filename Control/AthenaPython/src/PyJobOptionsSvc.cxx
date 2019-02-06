@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyJobOptionsSvc.cxx 
@@ -36,8 +36,8 @@ typedef PyJobOptionsCatalogue::Objects_t    Objects_t;
 // Constructors
 ////////////////
 PyJobOptionsSvc::PyJobOptionsSvc (const std::string& name, 
-				  ISvcLocator* pSvcLocator) : 
-  ::AthService (name, pSvcLocator),
+				  ISvcLocator* pSvcLocator)
+  : base_class (name, pSvcLocator),
   // m_pmgr       (),
   // m_source_path(),
   // m_source_type(),
@@ -78,13 +78,6 @@ PyJobOptionsSvc::PyJobOptionsSvc (const std::string& name,
 
 }
 
-// Destructor
-///////////////
-PyJobOptionsSvc::~PyJobOptionsSvc()
-{ 
-  ATH_MSG_DEBUG ("Calling destructor");
-}
-
 // Athena Service's Hooks
 ////////////////////////////
 StatusCode PyJobOptionsSvc::initialize()
@@ -107,26 +100,6 @@ StatusCode PyJobOptionsSvc::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  return StatusCode::SUCCESS;
-}
-
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-PyJobOptionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( IJobOptionsSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IJobOptionsSvc*>(this);
-  } else if ( IProperty::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IProperty*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return ::AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
 

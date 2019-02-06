@@ -27,8 +27,8 @@ typedef _object PyObject;
 namespace PyAthena {
 
 typedef ::AthAlgTool ToolBase_t;
-class ATLAS_NOT_THREAD_SAFE Tool : virtual public ::IPyComponent,
-	                           public   ToolBase_t
+class ATLAS_NOT_THREAD_SAFE Tool
+  : public extends<ToolBase_t,  ::IPyComponent>
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -47,63 +47,39 @@ class ATLAS_NOT_THREAD_SAFE Tool : virtual public ::IPyComponent,
   virtual ~Tool(); 
 
   // Athena tool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  sysInitialize();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  sysInitialize() override;
+  virtual StatusCode  finalize() override;
 
-  static const InterfaceID& interfaceID();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** return the @c std::type_info name of the underlying py-component
    *  This is used by concrete implementations to connect a python
    *  component to its C++ counter-part
    */
-  const char* typeName() const;
+  virtual const char* typeName() const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   /** @brief return associated python object. BORROWED reference.
    */ 
-  virtual PyObject* self() { return m_self; }
+  virtual PyObject* self() override { return m_self; }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
+
  protected: 
 
   /** attach the C++ component to its python cousin
    */
-  virtual bool setPyAttr( PyObject* pyobj );
+  virtual bool setPyAttr( PyObject* pyobj ) override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
-
   /// Default constructor: 
-  Tool();
+  Tool() = delete;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
  protected: 
 
   /// Pointer to self (from the python world)
   PyObject* m_self;
 
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace PyAthena
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IPyComponent.h 
@@ -30,18 +30,14 @@ namespace PyAthena { class PyComponentMgr; }
 class IPyComponent : virtual public INamedInterface
 { 
   friend class PyAthena::PyComponentMgr; // for access to setPyAttr
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
+
  public: 
+  DeclareInterfaceID (IPyComponent, 1, 0);
 
   /** Destructor: 
    */
-  virtual ~IPyComponent();
+  virtual ~IPyComponent() = default;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** return the @c std::type_info name of the underlying py-component
    *  This is used by concrete implementations to connect a python
@@ -49,11 +45,6 @@ class IPyComponent : virtual public INamedInterface
    */
   virtual const char* typeName() const = 0;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  static const InterfaceID& interfaceID();
 
   /** @brief return associated python object. BORROWED reference.
    */ 
@@ -66,17 +57,5 @@ class IPyComponent : virtual public INamedInterface
 
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& IPyComponent::interfaceID() 
-{ 
-  static const InterfaceID IID_IPyComponent("IPyComponent", 1, 0);
-  return IID_IPyComponent; 
-}
 
 #endif //> ATHENAPYTHON_IPYCOMPONENT_H
