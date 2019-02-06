@@ -321,6 +321,16 @@ namespace EL
     ///
     /// \warn To use this you have to call \ref requestFileExecute
     /// to use this.
+    ///
+    /// \warn The user should not expect this to be called at any
+    /// particular point in execution.  If a file is split between
+    /// multiple jobs this will be called in only one of these jobs,
+    /// and not the others.  It usually gets called before the first
+    /// event in a file, but that is **not** guaranteed and relying on
+    /// this is a bug.
+    ///
+    /// \warn The execution order of \ref beginInputFile and \ref
+    /// fileExecute is currently unspecified.
   protected:
     virtual ::StatusCode fileExecute ();
 
@@ -332,6 +342,17 @@ namespace EL
     ///
     /// \warn To use this you have to call \ref requestBeginInputFile
     /// to use this.
+    ///
+    /// \warn If a file is split across multiple jobs this will be
+    /// called more than once.  This only happens for specific batch
+    /// drivers and/or if it is explicitly configured by the user.
+    /// Still, this method should not be used for accounting that
+    /// relies to be called exactly once per file, take a look at \ref
+    /// fileExecute if you want something that is guaranteed to be
+    /// executed exactly once per input file.
+    ///
+    /// \warn The execution order of \ref beginInputFile and \ref
+    /// fileExecute is currently unspecified.
   protected:
     virtual ::StatusCode beginInputFile ();
 
