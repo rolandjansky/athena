@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -101,12 +101,10 @@ namespace InDet {
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
       MagField::IMagFieldSvc*               m_fieldService{}      ;
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
-      Trk::MagneticFieldProperties          m_fieldprop;  // Magnetic field properties
 
       int                                  m_outputlevel{};
       int                                  m_nprint{}   ;
       int                                  m_sizeroad{} ;
-      double                               m_zfield{}   ;
       float                                m_width{}    ;  // Width of the roadInnerDetector/InDetRecTools/
       double                               m_step{}     ;  // Max step allowed
       double                               m_rminTRT{}  ;
@@ -116,6 +114,7 @@ namespace InDet {
 
       std::string                          m_trt      ;  // PIX manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
+      Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
       std::string                     m_callbackString;
 
       ///////////////////////////////////////////////////////////////////
@@ -131,8 +130,6 @@ namespace InDet {
       double stepToDetElement
 	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&);
 
-      void       magneticFieldInit();
-      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       Trk::CylinderBounds getBound(const Trk::TrackParameters&);
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
