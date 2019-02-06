@@ -198,12 +198,15 @@ namespace EL
     ///   method is called just before init() is called
     ///
     /// Warning: If a file is split across multiple jobs this will be
-    /// called more than once.  This only happens for specific drivers
-    /// or if it is explicitly configured by the user.  Still, this
-    /// method should not be used for accounting that relies to be
-    /// called exactly once per file, take a look at \ref fileExecute
-    /// if you want something that is guaranteed to be executed
-    /// exactly once per input file.
+    /// called more than once.  This only happens for specific batch
+    /// drivers and/or if it is explicitly configured by the user.
+    /// With PROOF it could even happen multiple times within the same
+    /// job, and while PROOF is no longer supported that behavior may
+    /// come back if support for a similar framework is added in the
+    /// future.  As such, this method should not be used for
+    /// accounting that relies to be called exactly once per file,
+    /// take a look at fileExecute() if you want something that is
+    /// guaranteed to be executed exactly once per input file.
     ///
     /// Warning: The execution order of changeInput and fileExecute is
     /// currently unspecified.
