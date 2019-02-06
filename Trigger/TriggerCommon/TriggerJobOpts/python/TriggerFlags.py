@@ -1048,11 +1048,10 @@ class triggerMenuSetup(JobProperty):
         'MC_pp_v7','Physics_pp_v7','Physics_pp_v7_primaries','MC_pp_v7_no_prescale', 'MC_pp_v7_loose_mc_prescale',
         'MC_pp_v7_BulkMCProd_mc_prescale', 'MC_pp_v7_CPSampleProd_mc_prescale','MC_pp_v7_TriggerValidation_mc_prescale',
         'Physics_pp_v7_tight_physics_prescale','Physics_pp_v7_unprescaled_only_physics_prescale',
-        'MC_pp_v8', 'Physics_pp_v8', 'Physics_pp_v8_lowmu',
 
         # -----------------------------------------------------------------
         # Run 3
-        'MC_pp_v8','Physics_pp_v8', 'Physics_pp_v8_lowmu.py',
+        'MC_pp_v8', 'MC_pp_v8_BulkMCProd_mc_prescale', 'Physics_pp_v8', 'Physics_pp_v8_lowmu',
 
         # -----------------------------------------------------------------
         # Upgrade

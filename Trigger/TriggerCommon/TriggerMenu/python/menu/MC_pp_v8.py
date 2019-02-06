@@ -1258,25 +1258,60 @@ Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # 
 ps_online_list=[]
 ps_cosmic_list=[]
 ps_calibmon_list=[
-    'idpsl1_L1IDprescaled'
+    #'idpsl1_L1IDprescaled'
     ]    
 ps_eb_list=[]
 ps_beamspot_list=[]
 ps_fwdphys_list=[]
 ps_minb_list=[]
 
-ps_rerun_list = []
+ps_rerun_list = [
+      'xe0noL1_l2fsperf',
+      'xe0noL1_l2fsperf_mht',
+      'xe0noL1_l2fsperf_mht_em',
+      'xe0noL1_l2fsperf_pufit',
+      'xe0noL1_l2fsperf_tc_em',
+      'xe0noL1_l2fsperf_tc_lcw',
+      'xe0noL1_l2fsperf_trktc_lcw',
+      'xe0noL1_l2fsperf_pufittrack_lcw_nojcalib',
+      'xe0noL1_l2fsperf_trkmht',
+      ]
 
 if TriggerFlags.doFTK():
-    ps_rerun_list = []
+    ps_rerun_list = [
+      'xe0noL1_l2fsperf_trkmht_FTK',
+      'xe0noL1_l2fsperf_trktc_lcw_FTK',
+          ]
 
 ps_larnoiseburst_rerun_list = []
 
 ps_perform_list = [
-    'mu4_j15_dr05' ,
-    'mu4_j35_dr05'  ,
-    'mu6_j85_dr05' ,
-    'e5_lhloose_nod0_idperf'
+    #'mu4_j15_dr05' ,
+    #'mu4_j35_dr05'  ,
+    #'mu6_j85_dr05' ,
+    #'e5_lhloose_nod0_idperf',
+    'xe50',
+    'tau35_perf_tracktwo_tau25_perf_tracktwo',
+    'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwoEF_L1TAU100',
+    'tau160_idperf_tracktwoMVA_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwoEF_L1TAU100',
+    'tau160_perf_tracktwoMVA_L1TAU100',
+    'tau125_medium1_tracktwo',
+    'tau160_idperf_track_L1TAU100',
+    'tau160_idperf_track_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau25_idperf_track',
+    'tau25_medium1_tracktwo',
+    'tau25_perf_tracktwo',
+    'tau25_perf_tracktwo_L1TAU12',
+    'tau35_medium1_tracktwoMVA_L1TAU12IM',
+    'tau80_medium1_tracktwoMVA_L1TAU60',
+    'e5_lhmedium_nod0',
+    'e5_lhloose_nod0_idperf',
     ]
 
 ps_Jpsi_list = []
@@ -1286,9 +1321,23 @@ ps_ftk_list = []
 ps_Bphys_list = []
 
 if TriggerFlags.doFTK():
-    ps_ftk_list = []       
+    ps_ftk_list = [
+          'mu6_idperf_FTK_L1MU6_FTK',
+          'mu24_idperf_FTK_L1MU20MU21_FTK',
+          'mu6_idperf_FTKRefit_L1MU6_FTK',
+          'mu24_idperf_FTKRefit_L1MU20MU21_FTK',
+          'j35_boffperf_split_FTK_L1J15_FTK',
+          'j150_boffperf_split_FTK_L1J40_FTK',
+          'j35_boffperf_split_FTKVtx_L1J15_FTK',
+          'j150_boffperf_split_FTKVtx_L1J40_FTK',
+          'j35_boffperf_split_FTKRefit_L1J15_FTK',
+          'j150_boffperf_split_FTKRefit_L1J40_FTK',
+          'j225_boffperf_split_FTK_L1J100_FTK',
+          'j225_boffperf_split_FTKVtx_L1J100_FTK',
+          'j225_boffperf_split_FTKRefit_L1J100_FTK',
+          ]       
 
-ps_streamers_list = []
+    ps_streamers_list = []
 
 #-----------------------------------------------------
 
@@ -1344,7 +1393,8 @@ Prescales.HLTPrescales_TriggerValidation_mc_prescale = deepcopy(Prescales.HLTPre
 ######################################################
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
-chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+#chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+chain_list=ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
 
 #Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 #chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
