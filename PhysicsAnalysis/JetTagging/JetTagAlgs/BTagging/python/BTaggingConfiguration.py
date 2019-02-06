@@ -1934,12 +1934,9 @@ def toolMainBTaggingTool(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        from BTagging.BTaggingConfiguration_CommonTools import toolthisBTagLabeling as toolthisBTagLabeling
-        btagLabeling = toolthisBTagLabeling('thisBTagLabeling')
         defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
                      'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,
                      'BaselineTagger'               : BTaggingFlags.BaselineTagger,
-                     'BTagLabelingTool'             : btagLabeling,
                      'vxPrimaryCollectionName'      : BTaggingFlags.PrimaryVertexCollectionName,
                      'OutputLevel'                  : BTaggingFlags.OutputLevel }
         for option in defaults:
