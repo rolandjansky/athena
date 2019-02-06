@@ -23,6 +23,12 @@ class TList;
 class TObject;
 class TTree;
 
+namespace xAOD
+{
+  class TEvent;
+  class TStore;
+}
+
 namespace EL
 {
   namespace Detail
@@ -62,6 +68,10 @@ namespace EL
       /// \brief the (main) tree in the input file
       TTree *m_inputTree {nullptr};
 
+      /// \brief the entry in the input tree we are currently looking
+      /// at
+      uint64_t m_inputTreeEntry {0};
+
       /// \brief the meta-data we use
       const SH::MetaObject *m_metaData {nullptr};
 
@@ -73,6 +83,13 @@ namespace EL
 
       /// \brief Tree saving per-job statistics information
       std::unique_ptr<TTree> m_jobStats;
+
+
+      /// \brief the TEvent structure, if we use one
+      xAOD::TEvent *m_tevent {nullptr};
+
+      /// \brief the TStore structure, if we use one
+      xAOD::TStore *m_tstore {nullptr};
     };
   }
 }

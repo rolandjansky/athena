@@ -17,6 +17,7 @@
 
 #include <EventLoop/Worker.h>
 
+#include <EventLoop/Algorithm.h>
 #include <EventLoop/AlgorithmStateModule.h>
 #include <EventLoop/EventCountModule.h>
 #include <EventLoop/EventRange.h>
@@ -26,7 +27,7 @@
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/StopwatchModule.h>
-#include <EventLoop/TEventSvc.h>
+#include <EventLoop/TEventModule.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -327,11 +328,9 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    TEventSvc *const svc
-      = dynamic_cast<TEventSvc*>(getAlg (TEventSvc::name));
-    if (svc == 0)
+    if (m_tevent == nullptr)
       RCU_THROW_MSG ("Job not configured for xAOD support");
-    return svc->event();
+    return m_tevent;
   }
 
 
@@ -341,11 +340,9 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    TEventSvc *const svc
-      = dynamic_cast<TEventSvc*>(getAlg (TEventSvc::name));
-    if (svc == 0)
+    if (m_tstore == nullptr)
       RCU_THROW_MSG ("Job not configured for xAOD support");
-    return svc->store();
+    return m_tstore;
   }
 
 
@@ -424,6 +421,11 @@ namespace EL
     using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
 
+    const bool xAODInput = m_metaData->castBool (Job::optXAODInput, false);
+
+    ANA_MSG_INFO ("xAODInput = " << xAODInput);
+    if (xAODInput)
+      m_modules.push_back (std::make_unique<Detail::TEventModule> ());
     m_modules.push_back (std::make_unique<Detail::LeakCheckModule> ());
     m_modules.push_back (std::make_unique<Detail::StopwatchModule> ());
     m_modules.push_back (std::make_unique<Detail::FileExecutedModule> ());
@@ -525,11 +527,13 @@ namespace EL
 
     ANA_MSG_INFO ("Processing events " << eventRange.m_beginEvent << "-" << eventRange.m_endEvent << " in file " << eventRange.m_url);
 
-    for (Long64_t event = eventRange.m_beginEvent;
+    for (uint64_t event = eventRange.m_beginEvent;
          event != eventRange.m_endEvent;
          ++ event)
     {
       m_inputTreeEntry = event;
+      for (auto& module : m_modules)
+        ANA_CHECK (module->onExecute (*this));
       ANA_CHECK (algsExecute ());
       m_eventsProcessed += 1;
       if (m_eventsProcessed % 10000 == 0)

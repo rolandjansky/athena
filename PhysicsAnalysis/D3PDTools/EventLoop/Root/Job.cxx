@@ -22,7 +22,6 @@
 #include <EventLoop/AnaAlgorithmWrapper.h>
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/OutputStream.h>
-#include <EventLoop/TEventSvc.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -53,6 +52,7 @@ namespace EL
   const std::string Job::optD3PDCacheMinByte = "nc_EventLoop_D3PDCacheMinByte";
   const std::string Job::optD3PDCacheMinByteFraction = "nc_EventLoop_D3PDCacheMinByteFraction";
   const std::string Job::optPerfTree = "nc_EventLoop_PerfTree";
+  const std::string Job::optXAODInput = "nc_EventLoop_XAODInput";
   const std::string Job::optXaodAccessMode = "nc_EventLoop_XaodAccessMode";
   const std::string Job::optXaodAccessMode_branch = "branch";
   const std::string Job::optXaodAccessMode_class = "class";
@@ -361,8 +361,7 @@ namespace EL
   {
     RCU_CHANGE_INVARIANT (this);
 
-    if (!algsHas (TEventSvc::name))
-      algsAdd (new TEventSvc);
+    options()->setBool (Job::optXAODInput, true);
   }
 
 

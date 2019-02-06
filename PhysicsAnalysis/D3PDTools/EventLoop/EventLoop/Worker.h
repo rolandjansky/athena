@@ -363,9 +363,6 @@ namespace EL
     // private interface
     //
 
-  private:
-    Long64_t m_inputTreeEntry {0};
-
     /// \brief the output map
   private:
     typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
