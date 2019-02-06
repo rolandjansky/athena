@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthContainers
    Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgTesting
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
@@ -34,12 +35,12 @@ atlas_add_library( EventLoopAlgs
    PRIVATE_LINK_LIBRARIES xAODEventInfo )
 
 # Test(s) in the package:
-atlas_add_test( ut_DuplicateChecker
-   SOURCES test/ut_DuplicateChecker.cxx
+atlas_add_test( gt_DuplicateChecker
+   SOURCES test/gt_DuplicateChecker.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools RootCoreUtils
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools RootCoreUtils AsgTestingLib
    SampleHandler EventLoop xAODEventInfo xAODRootAccess EventLoopAlgs )
-set_tests_properties (EventLoopAlgs_ut_DuplicateChecker_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )
+set_tests_properties (EventLoopAlgs_gt_DuplicateChecker_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )
 
 atlas_add_test( ut_alg_skim
    SOURCES test/ut_alg_skim.cxx

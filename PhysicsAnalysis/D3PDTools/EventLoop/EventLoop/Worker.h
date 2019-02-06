@@ -385,8 +385,17 @@ namespace EL
     // private interface
     //
 
+    /// \brief the output map
   private:
-    Long64_t m_inputTreeEntry {0};
+    typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
+    std::map<std::string,TH1*> m_outputHistMap;
+
+
+    /// description: the list of output trees
+  private:
+    typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
+       OutputTreeMapIter;
+    std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
 
 
     /// description: the list of output files

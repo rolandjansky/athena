@@ -63,6 +63,12 @@ namespace EL
     }
 
     ::StatusCode Module ::
+    onExecute (ModuleData& /*data*/)
+    {
+      return ::StatusCode::SUCCESS;
+    }
+
+    ::StatusCode Module ::
     onInitialize (ModuleData& /*data*/)
     {
       return ::StatusCode::SUCCESS;
