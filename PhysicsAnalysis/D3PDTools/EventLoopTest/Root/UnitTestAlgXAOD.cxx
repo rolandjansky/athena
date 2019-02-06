@@ -128,13 +128,20 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
     ANA_MSG_INFO ("fileExecute");
     ANA_CHECK (testWorkerState (false, {State::HIST_INITIALIZED, State::INPUT_CHANGED, State::INITIALIZED}));
+
     // in principle I should check here that TEvent is connected to a
-    // good file, but I'm not sure how, just checking that file is present
+    // good file, but I'm not sure how, just checking that I can
+    // retrieve EventInfo, which is not guaranteed, as the input file
+    // may be empty, but none of the test files is
+
     if (wk()->inputFile() == nullptr)
     {
       ANA_MSG_ERROR ("didn't find input file");
       return StatusCode::FAILURE;
     }
+
+    const xAOD::EventInfo *info {nullptr};
+    ANA_CHECK (evtStore()->retrieve (info, "EventInfo"));
 
     return StatusCode::SUCCESS;
   }
