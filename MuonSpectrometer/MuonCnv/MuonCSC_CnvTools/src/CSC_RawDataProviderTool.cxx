@@ -8,7 +8,6 @@
 
 #include "CSC_RawDataProviderTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "EventInfo/EventInfo.h"
 #include "ByteStreamData/ROBData.h"
 
 #include "MuonIdHelpers/CscIdHelper.h"
