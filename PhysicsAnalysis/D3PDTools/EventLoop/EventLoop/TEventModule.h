@@ -23,6 +23,7 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/Module.h>
+#include <memory>
 
 namespace xAOD
 {
