@@ -560,6 +560,8 @@ namespace EL
       {
         for (auto& module : m_modules)
           ANA_CHECK (module->onCloseInputFile (*this));
+        for (auto& module : m_modules)
+          ANA_CHECK (module->postCloseInputFile (*this));
       }
       m_newInputFile = false;
       m_inputTree = nullptr;

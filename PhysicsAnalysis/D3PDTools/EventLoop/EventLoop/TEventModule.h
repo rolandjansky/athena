@@ -67,7 +67,7 @@ namespace EL
       virtual ::StatusCode onNewInputFile (ModuleData& data) override;
 
     public:
-      virtual ::StatusCode onCloseInputFile (ModuleData& data) override;
+      virtual ::StatusCode postCloseInputFile (ModuleData& data) override;
 
     public:
       virtual ::StatusCode onExecute (ModuleData& data) override;

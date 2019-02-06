@@ -41,6 +41,12 @@ namespace EL
     }
 
     ::StatusCode Module ::
+    postCloseInputFile (ModuleData& /*data*/)
+    {
+      return ::StatusCode::SUCCESS;
+    }
+
+    ::StatusCode Module ::
     postInitialize (ModuleData& /*data*/)
     {
       return ::StatusCode::SUCCESS;
