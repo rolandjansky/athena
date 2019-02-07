@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -124,9 +124,9 @@ StatusCode LArBadFebMaskingTool::finalize()
    return StatusCode::SUCCESS;
 }
 
-StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
+StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
+                                          const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   m_evt++;
 
 

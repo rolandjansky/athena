@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLGAINPATHOLOGY_H
@@ -26,8 +26,8 @@ class LArOnlineID;
 class HWIdentifier;
 class CaloCell;
 
-class LArCellGainPathology: public AthAlgTool,
-  virtual public ICaloCellMakerTool 
+class LArCellGainPathology
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:    
   LArCellGainPathology(const std::string& type, 
@@ -37,26 +37,27 @@ public:
 
   /** initialize the tool
   */
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   /** finalize   the tool
   */
-  virtual StatusCode finalize() ; 
+  virtual StatusCode finalize() override;
 
   /** update theCellContainer, masking Feb with errors
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
  private:
   /** method to apply pathology between a couple of cells
   */
   void ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id,
-		      const LArOnOffIdMapping* cabling);
+		      const LArOnOffIdMapping* cabling) const;
 
   /** method to find cell from hardware id
   */
   CaloCell* GetCell(CaloCellContainer* theCont, HWIdentifier id, 
-		    const LArOnOffIdMapping* cabling);
+		    const LArOnOffIdMapping* cabling) const;
 
   /** handle to LAr cabling service
   */

@@ -155,13 +155,14 @@ public:
                        const std::string& name,
                        const IInterface* parent);
 
-  ~BasicCellBuilderTool();
+  virtual ~BasicCellBuilderTool();
 
 
   virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 protected:
   void init_all_maps();
@@ -176,7 +177,6 @@ protected:
   void addCell(CaloCellContainer * theCellContainer, int etabin, int phibin, double energy, cellinfo_map& map );
 
   Identifier m_id;
-  int m_nEvent;
   double m_phi0_em;
   double m_phi0_had;
 

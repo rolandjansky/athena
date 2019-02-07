@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCELLCONTAINERFROMCLUSTERTOOL_H
@@ -26,7 +26,8 @@ class CaloCellContainerFromClusterTool
     virtual StatusCode initialize() override;
 
     // update theCellContainer
-    virtual StatusCode process(CaloConstCellContainer* theCellContainer) override;
+    virtual StatusCode process (CaloConstCellContainer* theCellContainer,
+                                const EventContext& ctx) const override;
 
   private:
 

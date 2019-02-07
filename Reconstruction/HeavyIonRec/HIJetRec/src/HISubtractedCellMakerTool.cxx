@@ -28,9 +28,9 @@ StatusCode HISubtractedCellMakerTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode HISubtractedCellMakerTool::process(CaloCellContainer* theCells)
+StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
+                                               const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (ctx.slot() > 1) {
     ATH_MSG_ERROR("This tool hasn't been converted for MT.");
     return StatusCode::FAILURE;    

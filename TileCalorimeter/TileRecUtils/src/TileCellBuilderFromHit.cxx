@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -209,9 +209,9 @@ StatusCode TileCellBuilderFromHit::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer) {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
+StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer,
+                                            const EventContext& ctx) const
+{
   //**
   //* Get TileHits
   //**

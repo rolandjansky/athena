@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -56,16 +56,18 @@ StatusCode CaloCellContainerCheckerTool::initialize() {
 
 
 StatusCode
-CaloCellContainerCheckerTool::process (CaloCellContainer* theCont)
+CaloCellContainerCheckerTool::process (CaloCellContainer* theCont,
+                                       const EventContext& ctx) const
 {
-  return doProcess (theCont, Gaudi::Hive::currentContext());
+  return doProcess (theCont, ctx);
 }
 
 
 StatusCode
-CaloCellContainerCheckerTool::process (CaloConstCellContainer* theCont)
+CaloCellContainerCheckerTool::process (CaloConstCellContainer* theCont,
+                                       const EventContext& ctx) const
 {
-  return doProcess (theCont->asDataVector(), Gaudi::Hive::currentContext());
+  return doProcess (theCont->asDataVector(), ctx);
 }
 
 
