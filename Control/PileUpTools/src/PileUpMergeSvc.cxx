@@ -134,8 +134,8 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
       sg->tryConstRetrieve<xAOD::EventInfo>()
       : sg->tryConstRetrieve<xAOD::EventInfo>( einame );
    if( xAODEventInfo ) {
-      ATH_MSG_INFO("Found xAOD::EventInfo");
-      ATH_MSG_INFO(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
+      ATH_MSG_DEBUG("Found xAOD::EventInfo");
+      ATH_MSG_DEBUG(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
       if( xAODEventInfo->evtStore() == nullptr ) {
          // SG is 0 only when the xAODEventInfo is first read
          const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( sg );

@@ -347,8 +347,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       pOverEvent->clearSubEvents();  // start clean without any subevents
 
       // Record the xAOD object(s):
-      CHECK( m_evtStore->record( pOverEventAux, "McEventInfoAux." ) );
-      CHECK( m_evtStore->record( pOverEvent, "McEventInfo" ) );
+      CHECK( m_evtStore->record( pOverEventAux, c_pileUpEventInfoObjName + "Aux." ) );
+      CHECK( m_evtStore->record( pOverEvent, c_pileUpEventInfoObjName ) );
       pOverEvent->setEvtStore( &*m_evtStore ); 
       // Create an EventInfoContainer for the pileup events:
       xAOD::EventInfoContainer *puei(new xAOD::EventInfoContainer());

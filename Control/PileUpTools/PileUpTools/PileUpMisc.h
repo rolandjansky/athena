@@ -9,6 +9,9 @@
 #include "xAODEventInfo/EventInfoContainer.h"
 
 /// default value for the EventInfoContainer storing subevents for PileUp
+const std::string       c_pileUpEventInfoObjName =  "EventInfo";
+
+/// default value for the EventInfoContainer storing subevents for PileUp
 const std::string       c_pileUpEventInfoContName =  "PileUpEventInfo";
 
 
