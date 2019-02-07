@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## This script checks the justification database for chains of a specific tag (e.g. "primary_at_1e32"). It makes a list of chains of this specific tag that are also in the menu of a specific release (e.g. "rel_0"). It picks from a reference RuleBook the lines corresponding to that list, and if the RuleBook does not contain any of these items, it writes this item with default value "(0,1)" for lumi 1000.
 ## Tomasz'json is being used.
 ##e.g. (from within the scripts directory) python makeRuleBook_for_justificationTag.py primary_at_1e32 rel_0 ../rules/Physics_pp_rulebook_PT.txt
 
 
-import simplejson as json
+import json
 import urllib2
 import sys, commands
 

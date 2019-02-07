@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_MODULEVETOCONDALG
 #define SCT_MODULEVETOCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
@@ -15,13 +15,13 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class SCT_ModuleVetoCondAlg : public AthAlgorithm 
+class SCT_ModuleVetoCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_ModuleVetoCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ModuleVetoCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:

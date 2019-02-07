@@ -1,14 +1,15 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Filter_Offline2017.h        
-//
-//            Filter class to implement the 2017 CP recomendations
-//            on hadronic tracks as found in 
-//              https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPPreRecsSummer2017
-// 
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Filter_Offline2017.h
+ **
+ **       Filter class to implement the 2017 CP recomendations
+ **       on hadronic tracks as found in 
+ **       https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPPreRecsSummer2017
+ **
+ **     @author  mark sutton
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSISUTILS_FILTER_OFFLINE2017_H 

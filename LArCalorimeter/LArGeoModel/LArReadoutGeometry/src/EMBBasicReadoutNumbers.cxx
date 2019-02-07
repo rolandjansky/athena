@@ -5,6 +5,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -13,7 +14,6 @@
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h" 
-#include "GeoModelKernel/Units.h"
 #include "LArReadoutGeometry/EMBBasicReadoutNumbers.h"
 
 EMBBasicReadoutNumbers::EMBBasicReadoutNumbers()
@@ -56,12 +56,12 @@ EMBBasicReadoutNumbers::EMBBasicReadoutNumbers()
 
 
 
-  m_presamplerRadius = (*presamplerGeometry)[0]->getDouble("RACTIVE")*GeoModelKernelUnits::cm;
-  m_rInAc            = (*barrelGeometry)[0]->getDouble("RIN_AC")*GeoModelKernelUnits::cm;
-  m_rOutAc           = (*barrelGeometry)[0]->getDouble("ROUT_AC")*GeoModelKernelUnits::cm;
+  m_presamplerRadius = (*presamplerGeometry)[0]->getDouble("RACTIVE")*Gaudi::Units::cm;
+  m_rInAc            = (*barrelGeometry)[0]->getDouble("RIN_AC")*Gaudi::Units::cm;
+  m_rOutAc           = (*barrelGeometry)[0]->getDouble("ROUT_AC")*Gaudi::Units::cm;
   for (int i=0;i<8;i++) m_EE.push_back((*barrelLongDiv)[0]->getDouble("EE",i));
-  for (int i=0;i<8;i++) m_RMX12.push_back((*barrelLongDiv)[0]->getDouble("RMX12",i)*GeoModelKernelUnits::cm);
-  for (int i=0;i<53;i++) m_RMX23.push_back((*barrelLongDiv)[0]->getDouble("RMX23",i)*GeoModelKernelUnits::cm);
+  for (int i=0;i<8;i++) m_RMX12.push_back((*barrelLongDiv)[0]->getDouble("RMX12",i)*Gaudi::Units::cm);
+  for (int i=0;i<53;i++) m_RMX23.push_back((*barrelLongDiv)[0]->getDouble("RMX23",i)*Gaudi::Units::cm);
   for (int i=0;i<448;i++) m_EMBSamplingSepInnerRMax.push_back((*embSamplingSepInner)[0]->getDouble("RMAX",i)); // 
 
 }

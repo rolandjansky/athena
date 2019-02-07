@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellEnergyRescaler.h" 
@@ -10,9 +10,8 @@
 CaloCellEnergyRescaler::CaloCellEnergyRescaler (const std::string& type, 
 						const std::string& name, 
 						const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+  base_class (type, name, parent),
   m_corrValues(0) { 
-  declareInterface<ICaloCellMakerTool>(this); 
   declareProperty("Folder",m_key="/CALO/Ofl/CellEnergyCorr",
 		  "Key (=foldername) of AttrListCollection");
 }
@@ -52,7 +51,10 @@ StatusCode CaloCellEnergyRescaler::load(IOVSVC_CALLBACK_ARGS) {
 }
 
 
-StatusCode CaloCellEnergyRescaler::process(CaloCellContainer* theCaloCellContainer) {
+StatusCode
+CaloCellEnergyRescaler::process (CaloCellContainer* theCaloCellContainer,
+                                 const EventContext& /*ctx*/) const
+{
   if (m_corrValues) {
     CaloCellContainer::iterator it=theCaloCellContainer->begin();
     CaloCellContainer::iterator it_e=theCaloCellContainer->end();

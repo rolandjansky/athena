@@ -19,7 +19,6 @@
 #include "xAODTracking/VertexContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
-#include "BTagging/BTagLabeling.h"
 #include "JetTagTools/ITagTool.h"
 
 namespace Analysis {
@@ -30,8 +29,7 @@ namespace Analysis {
     m_bTagTool(std::map<std::string, ITagTool*>()),
     m_BaselineTagger("IP3D+SV1"),
     m_vxPrimaryName("PrimaryVertices"),
-    m_runModus("analysis"),
-    m_BTagLabelingTool("Analysis::BTagLabeling", this)
+    m_runModus("analysis")
   {
     declareInterface<IBTagTool>(this);
 
@@ -44,7 +42,6 @@ namespace Analysis {
     declareProperty("BaselineTagger",                 m_BaselineTagger);
 
     declareProperty("Runmodus"   ,                    m_runModus); // The run modus (reference/analysis)
-    declareProperty("BTagLabelingTool",               m_BTagLabelingTool);
   }
 
   BTagTool::~BTagTool() {}
@@ -58,15 +55,16 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
-    //std::cout << "AARON in BTagTool::initialize" << std::endl;
-    /* new for ToolHandleArray 
-       retrieve tag tools
-    */
-    if ( m_bTagToolHandleArray.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("#BTAG# Failed to retreive " << m_bTagToolHandleArray);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved " << m_bTagToolHandleArray);
+    if ( m_bTagToolHandleArray.empty() ) {
+      ATH_MSG_DEBUG("#BTAG# No tagging tools defined. Please revisit configuration.");
+    }
+    else {
+      if ( m_bTagToolHandleArray.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_bTagToolHandleArray);
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_DEBUG("#BTAG# Retrieved " << m_bTagToolHandleArray);
+      }
     }
 
     // get BJetTagTools
@@ -77,16 +75,6 @@ namespace Analysis {
       m_bTagTool.insert(std::pair<std::string, ITagTool*>((*itTagTools).name(), &(*(*itTagTools)))); 
     }
 
-    // retrieve the truth labeling tool
-    if ( !m_BTagLabelingTool.empty() ) {
-      if ( m_BTagLabelingTool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_BTagLabelingTool);
-	return StatusCode::FAILURE;
-      } else {
-	ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_BTagLabelingTool);
-      }
-    }
-    
     // JBdV for debugging
     m_nBeamSpotPvx = 0;
     m_nAllJets     = 0;
@@ -100,19 +88,6 @@ namespace Analysis {
     ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
 		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
     m_nAllJets++;
-
-    /* ----------------------------------------------------------------------------------- */
-    /*               Truth Labeling                  				           */
-    /* ----------------------------------------------------------------------------------- */
-
-    StatusCode jetIsLabeled( StatusCode::SUCCESS );
-    if (!m_BTagLabelingTool.empty()) {
-      jetIsLabeled = m_BTagLabelingTool->BTagLabeling_exec( jetToTag);
-    }
-    if ( jetIsLabeled.isFailure() ) {
-      ATH_MSG_ERROR("#BTAG# Failed to do truth labeling");
-      return StatusCode::FAILURE;
-    }
 
     /* ----------------------------------------------------------------------------------- */
     /*               RETRIEVE PRIMARY VERTEX CONTAINER FROM STOREGATE                      */
@@ -228,20 +203,6 @@ namespace Analysis {
       ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
 		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
       m_nAllJets++;
-
-      /* ----------------------------------------------------------------------------------- */
-      /*               Truth Labeling                  				           */
-      /* ----------------------------------------------------------------------------------- */
-
-      StatusCode jetIsLabeled( StatusCode::SUCCESS );
-      if (!m_BTagLabelingTool.empty()) {
-        jetIsLabeled = m_BTagLabelingTool->BTagLabeling_exec( jetToTag);
-      }
-      if ( jetIsLabeled.isFailure() ) {
-        ATH_MSG_ERROR("#BTAG# Failed to do truth labeling");
-        continue;
-        //return StatusCode::FAILURE;
-      } 
 
       /* ----------------------------------------------------------------------------------- */
       /*               Call all the tag tools specified in m_bTagToolHandleArray             */

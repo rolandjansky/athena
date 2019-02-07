@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,8 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/Jet.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 #include <string>
 
 class IBTaggingSelectionTool : virtual public asg::IAsgTool {
@@ -23,13 +24,13 @@ class IBTaggingSelectionTool : virtual public asg::IAsgTool {
 
     public:
 
-    virtual const Root::TAccept& getTAccept() const = 0;
+    virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
     /// Get the decision using a generic IParticle pointer
-    virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const = 0;
-    virtual const Root::TAccept& accept( const xAOD::Jet& j ) const = 0;
+    virtual asg::AcceptData accept( const xAOD::IParticle* p ) const = 0;
+    virtual asg::AcceptData accept( const xAOD::Jet& j ) const = 0;
     /// Get the decision using thet jet's pt and mv2c20 weight values
-    virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const = 0;
-    virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */, double /* mv2c20 weight */ ) const = 0;
+    virtual asg::AcceptData accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const = 0;
+    virtual asg::AcceptData  accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */, double /* mv2c20 weight */ ) const = 0;
     /// Decide in which quantile of the MV2c20 weight distribution the jet belongs
     /// The return value represents the bin index of the quantile distribution
     virtual int getQuantile( const xAOD::IParticle* ) const = 0;

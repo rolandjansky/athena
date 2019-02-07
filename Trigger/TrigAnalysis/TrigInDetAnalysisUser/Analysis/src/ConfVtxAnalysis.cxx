@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    ConfVtxAnalysis.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: ConfVtxAnalysis.cxx, v0.0   Sun  9 Aug 2015 21:53:46 CEST sutt $
+/**
+ **     @file    ConfVtxAnalysis.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Sun  9 Aug 2015 21:53:46 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "ConfVtxAnalysis.h"

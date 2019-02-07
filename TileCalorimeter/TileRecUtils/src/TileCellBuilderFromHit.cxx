@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -70,7 +70,7 @@ const InterfaceID& TileCellBuilderFromHit::interfaceID( ) {
 //Constructor
 TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : base_class(type, name, parent)
   , m_infoName("TileInfo")
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
@@ -91,12 +91,10 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
 {
-  declareInterface<ICaloCellMakerTool>( this );
   declareInterface<TileCellBuilderFromHit>( this );
 
-  memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
-  memset(m_drawerRunStatus, 0, sizeof(m_drawerRunStatus));
-  memset(m_eventErrorCounter, 0, sizeof(m_eventErrorCounter));
+  //memset(m_drawerRunStatus, 0, sizeof(m_drawerRunStatus));
+  //memset(m_eventErrorCounter, 0, sizeof(m_eventErrorCounter));
 
   // never set energy to zero, but set it to some small number
   // this will help TopoCluster to assign proper weight to the cell if needed
@@ -143,12 +141,10 @@ StatusCode TileCellBuilderFromHit::initialize() {
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
   if (m_MBTSContainerKey.key().empty()) {
     m_mbtsMgr = nullptr;
-    m_MBTSVec.resize(0);
   } else {
 
     ATH_CHECK( m_MBTSContainerKey.initialize() );
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainerKey.key() );
-    m_MBTSVec.resize(NCELLMBTS);
     
     if (detStore()->retrieve(m_mbtsMgr).isFailure()) {
       ATH_MSG_WARNING( "Unable to retrieve MbtsDetDescrManager from DetectorStore" );
@@ -186,11 +182,8 @@ StatusCode TileCellBuilderFromHit::initialize() {
   ATH_MSG_INFO( "max time thr  " << m_maxTime << " ns" );
   ATH_MSG_INFO( "min time thr  " << m_minTime << " ns" );
   
-  // prepare empty vector for all cell pointers
-  m_allCells.resize(m_tileID->cell_hash_max(), 0);
-  m_E1_TOWER = (m_allCells.size() < 10000) ? 10 : 40;
+  m_E1_TOWER = (m_tileID->cell_hash_max() < 10000) ? 10 : 40;
 
-  ATH_MSG_INFO( "size of temp vector set to " << m_allCells.size() );
   ATH_MSG_INFO( "taking hits from '" << m_hitContainerKey.key() << "'" );
 
   m_cabling = TileCablingService::getInstance();
@@ -199,10 +192,8 @@ StatusCode TileCellBuilderFromHit::initialize() {
   if (m_RUN2 && !m_E4prContainerKey.key().empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainerKey.key() );
-    m_E4prVec.resize(NCELLE4PR);
   } else {
     m_E4prContainerKey = ""; // no E4' container for RUN1
-    m_E4prVec.resize(0);
   }
 
 
@@ -218,15 +209,16 @@ StatusCode TileCellBuilderFromHit::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer) {
-
+StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer,
+                                            const EventContext& ctx) const
+{
   //**
   //* Get TileHits
   //**
 
-  memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
+  TileDrawerEvtStatusArray drawerEvtStatus;
 
-  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
 
   if (!hitContainer.isValid()) {
 
@@ -237,12 +229,14 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
     
     ATH_MSG_DEBUG( "Container " << m_hitContainerKey.key() << " with TileHits found ");
 
+    std::unique_ptr<TileCellContainer> MBTSCells;
     if (!m_MBTSContainerKey.key().empty()) {
-      m_MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+      MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
 
+    std::unique_ptr<TileCellContainer> E4prCells;
     if (!m_E4prContainerKey.key().empty()) {
-      m_E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+      E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
     
     SelectAllObject<TileHitContainer> selAll(hitContainer.cptr());
@@ -251,17 +245,18 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
 
     if (begin != end) {
       ATH_MSG_DEBUG( " Calling build() method for hits from " << m_hitContainerKey.key() );
-      build(begin, end, theCellContainer);
+      build (drawerEvtStatus, begin, end, theCellContainer,
+             MBTSCells.get(), E4prCells.get());
     }
     
     if (!m_MBTSContainerKey.key().empty()) {
-      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey);
-      ATH_CHECK( MBTSContainer.record(std::move(m_MBTSCells)) );
+      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey, ctx);
+      ATH_CHECK( MBTSContainer.record(std::move(MBTSCells)) );
     }
     
     if (!m_E4prContainerKey.key().empty()) {
-      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey);
-      ATH_CHECK( E4prContainer.record(std::move(m_E4prCells)) );
+      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey, ctx);
+      ATH_CHECK( E4prContainer.record(std::move(E4prCells)) );
     }
 
     CaloCell_ID::SUBCALO caloNum = CaloCell_ID::TILE;
@@ -293,8 +288,8 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
   int drConsecNum = 0;
 
   for (int p = 1; p < 5; ++p) {
-    TileDrawerEvtStatus * evt = m_drawerEvtStatus[p];
-    TileDrawerRunStatus * run = m_drawerRunStatus[p];
+    TileDrawerEvtStatus * evt = drawerEvtStatus[p];
+    //TileDrawerRunStatus * run = m_drawerRunStatus[p];
     int drAbsent = 0;
     int drMasked = 0;
     int drConsec = 0;
@@ -307,11 +302,11 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
       if (evt[d].nChannels == 0) {
         ++drConsec;
         ++drAbsent;
-        ++(run[d].drawerAbsent);
+        //++(run[d].drawerAbsent);
       } else if (evt[d].nMaskedChannels >= evt[d].nChannels) {
         ++drConsec;
         ++drMasked;
-        ++(run[d].drawerMasked);
+        //++(run[d].drawerMasked);
       } else {
         if (drConsec > drConsecMax) {
           drConsecMax = drConsec;
@@ -321,9 +316,9 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
           }
         }
         drConsec = 0;
-        if (evt[d].nMaskedChannels > 0) {
-          ++(run[d].channelsMasked);
-        }
+        //if (evt[d].nMaskedChannels > 0) {
+        // ++(run[d].channelsMasked);
+        //}
         if (evt[d].nBadQuality) ++hasBadQ;
         if (evt[d].nOverflow) ++hasOver;
         if (evt[d].nUnderflow) ++hasUnder;
@@ -383,11 +378,11 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
   std::cout<<"partition flag 0x0"<<std::hex<<flag<<std::dec<<" error "<<error<<std::endl;
 #endif
 
-  ++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
-  ++m_eventErrorCounter[3]; // count separately total number of events
+  //++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
+  //++m_eventErrorCounter[3]; // count separately total number of events
   
   // retrieve EventInfo
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
 
   if (eventInfo.isValid()) {
 
@@ -406,6 +401,9 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
     }
 
   }
+  else {
+    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
+  }
   
   // Execution completed.
   ATH_MSG_DEBUG( "TileCellBuilderFromHit execution completed." );
@@ -415,7 +413,7 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
 
 //************************************************************************
 void TileCellBuilderFromHit::correctCell(TileCell* pCell, int correction, int pmt, int gain
-                                         , float ener, float time, unsigned char iqual, unsigned char qbit) {
+                                         , float ener, float time, unsigned char iqual, unsigned char qbit) const {
 //************************************************************************
 
 // Merge two pmts in one cell if needed
@@ -436,14 +434,15 @@ void TileCellBuilderFromHit::correctCell(TileCell* pCell, int correction, int pm
   }
 }
 
-unsigned char TileCellBuilderFromHit::qbits(int ros, int drawer, bool count_over
-    , bool good_time, bool good_ener, bool overflow, bool underflow, bool overfit) {
+unsigned char TileCellBuilderFromHit::qbits(TileDrawerEvtStatusArray& drawerEvtStatus,
+                                            int ros, int drawer, bool count_over
+    , bool good_time, bool good_ener, bool overflow, bool underflow, bool overfit) const {
 
-  ++m_drawerEvtStatus[ros][drawer].nChannels;
+  ++drawerEvtStatus[ros][drawer].nChannels;
   // new feature in rel 17.2.7 - count underflows and overflows
   if (count_over) {
-    if (overflow) ++m_drawerEvtStatus[ros][drawer].nOverflow;
-    if (underflow) ++m_drawerEvtStatus[ros][drawer].nUnderflow;
+    if (overflow) ++drawerEvtStatus[ros][drawer].nOverflow;
+    if (underflow) ++drawerEvtStatus[ros][drawer].nUnderflow;
   }
 #ifdef ALLOW_DEBUG_COUT
   if (overflow)  std::cout << "channel with overflow " << ((count_over)?"":"MBTS") << std::endl;
@@ -459,7 +458,7 @@ unsigned char TileCellBuilderFromHit::qbits(int ros, int drawer, bool count_over
   if (good_ener) {
     qbit |= TileCell::MASK_AMPL;
     if (count_over) {
-      ++m_drawerEvtStatus[ros][drawer].nSomeSignal;
+      ++drawerEvtStatus[ros][drawer].nSomeSignal;
     }
   }
 
@@ -467,8 +466,10 @@ unsigned char TileCellBuilderFromHit::qbits(int ros, int drawer, bool count_over
 }
 
 // masking for MBTS with single channel
-bool TileCellBuilderFromHit::maskBadChannel(TileCell* pCell) {
-
+bool
+TileCellBuilderFromHit::maskBadChannel (TileDrawerEvtStatusArray& drawerEvtStatus,
+                                        TileCell* pCell) const
+{
   Identifier cell_id = pCell->ID();
 
   HWIdentifier channel_id = m_cabling->s2h_channel_id(cell_id);
@@ -483,7 +484,7 @@ bool TileCellBuilderFromHit::maskBadChannel(TileCell* pCell) {
   // check quality first
   bool bad = ((int) pCell->qual1() > m_qualityCut);
   if (bad) {
-    ++m_drawerEvtStatus[ros][drawer].nBadQuality;
+    ++drawerEvtStatus[ros][drawer].nBadQuality;
 
   } else {
     // check bad status in DB
@@ -493,7 +494,7 @@ bool TileCellBuilderFromHit::maskBadChannel(TileCell* pCell) {
 
   if (bad) {
     // only one channel in this cell and it is bad
-    ++m_drawerEvtStatus[ros][drawer].nMaskedChannels;
+    ++drawerEvtStatus[ros][drawer].nMaskedChannels;
 
     //pCell->setEnergy(m_zeroEnergy,0.0,TileID::LOWGAIN,CaloGain::INVALIDGAIN); // reset energy completely, indicate problem putting low gain
     //pCell->setTime(0.0); // reset time completely
@@ -520,7 +521,9 @@ bool TileCellBuilderFromHit::maskBadChannel(TileCell* pCell) {
 }
   
 // masking for normal cells
-bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C10, bool Ecell) {
+bool
+TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus,
+                                         TileCell* pCell, bool single_PMT_C10, bool Ecell) const {
 
   const CaloDetDescrElement* caloDDE = pCell->caloDDE();
 
@@ -540,7 +543,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
   // check quality first
   bool bad1 = ((int) pCell->qual1() > m_qualityCut);
   if (bad1) {
-    ++m_drawerEvtStatus[ros1][drawer1].nBadQuality;
+    ++drawerEvtStatus[ros1][drawer1].nBadQuality;
 
   } else {
     // check bad status in DB
@@ -553,7 +556,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
 
     if (bad1) {
       // only one channel in this cell and it is bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
 
       if (gain1 == CaloGain::INVALIDGAIN) {
         pCell->setEnergy(m_zeroEnergy, 0.0, TileID::LOWGAIN, CaloGain::INVALIDGAIN); // reset energy completely, indicate problem putting low gain
@@ -587,7 +590,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
     // check quality first
     bool bad2 = ((int) pCell->qual2() > m_qualityCut);
     if (bad2) {
-      ++m_drawerEvtStatus[ros2][drawer2].nBadQuality;
+      ++drawerEvtStatus[ros2][drawer2].nBadQuality;
 
     } else {
       // check bad status in DB
@@ -623,7 +626,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
           pCell->setEnergy(pCell->ene2()/2., pCell->ene2()/2., gain2, gain2);
           //bad1 = bad2;
           bad1 = true;
-          --m_drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
+          --drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
         if (m_RUN2 || !chStatus2.isBad()) {
@@ -636,14 +639,14 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
           pCell->setEnergy(pCell->ene1()/2., pCell->ene1()/2., gain1, gain1);
           //bad2 = bad1;
           bad2 = true;
-          --m_drawerEvtStatus[ros2][drawer2].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
+          --drawerEvtStatus[ros2][drawer2].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       }
     }
     if (bad1 && bad2) {
       // both channels are bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
-      ++m_drawerEvtStatus[ros2][drawer2].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros2][drawer2].nMaskedChannels;
 
       if (gain1 == CaloGain::INVALIDGAIN || gain2 == CaloGain::INVALIDGAIN) {
         if (gain1 == CaloGain::INVALIDGAIN) gain1 = 0; // this is TileID::LOWGAIN; - commented out to make Coverity happy
@@ -660,7 +663,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
 
     } else if (bad1 && !bad2) {
       // first channel is bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
 
       float ene2 = pCell->ene2();
       pCell->setEnergy(ene2, ene2, gain2, gain2); // use energy/gain from second pmt for both pmts
@@ -683,7 +686,7 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
 
     } else if (!bad1 && bad2) {
       // second channel is bad
-      ++m_drawerEvtStatus[ros2][drawer2].nMaskedChannels;
+      ++drawerEvtStatus[ros2][drawer2].nMaskedChannels;
 
       float ene1 = pCell->ene1();
       pCell->setEnergy(ene1, ene1, gain1, gain1);  // use energy/gain from first pmt for both pmts
@@ -733,9 +736,13 @@ bool TileCellBuilderFromHit::maskBadChannels(TileCell* pCell, bool single_PMT_C1
 
 
 template<class ITERATOR, class COLLECTION>
-void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
-
+void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
+                                   const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll,
+                                   TileCellContainer* MBTSCells,
+                                   TileCellContainer* E4prCells) const
+{
   // disable checks for TileID and remember previous state
+  // FIXME: const violation; MT problem.
   bool do_checks = m_tileID->do_checks();
   m_tileID->set_do_checks(false);
   bool do_checks_tb = m_tileID->do_checks();
@@ -766,6 +773,16 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
   bool underflow = false;
   bool overfit = false;
   float ener_min = (m_useNoiseTool) ? 1.0E-30F : 0.0;
+
+  std::vector<TileCell*> allCells (m_tileID->cell_hash_max(), nullptr);
+  std::vector<TileCell*> MBTSVec;   //!< vector to of pointers to MBTS cells
+  if (MBTSCells) {
+    MBTSVec.resize (NCELLMBTS);
+  }
+  std::vector<TileCell*> E4prVec;   //!< vector to of pointers to E4' cells
+  if (E4prCells) {
+    E4prVec.resize (NCELLE4PR);
+  }
 
   for (ITERATOR hitItr = begin; hitItr != end; ++hitItr) {
 
@@ -857,13 +874,14 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
 
     if (E4pr) { // E4' cells
 
-      if (m_E4prCells) { // do something with them only if contaier existst
+      if (E4prCells) { // do something with them only if contaier existst
         ++nE4pr;
 
         eE4prTot += ener;
         unsigned char iqual = iquality(qual);
         // for E4' cell qbit use only non_zero_time flag and check that energy is above standatd energy threshold in MeV
-        unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
+        unsigned char qbit = qbits(drawerEvtStatus,
+                                   ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
                                    , overflow, underflow, overfit);
         CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
                                    ? CaloGain::TILEONEHIGH
@@ -890,16 +908,16 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
                             << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec << endmsg;
         }
 
-        if (m_E4prVec[index]) {
+        if (E4prVec[index]) {
           msg(MSG::WARNING) << " double E4' cell_id=" << m_tileTBID->to_string(cell_id)
                             << "  ignoring previous value" << endmsg;
         }
-        m_E4prVec[index] = pCell;
+        E4prVec[index] = pCell;
       }
 
     } else if (MBTS) { // MBTS cells
 
-      if (m_MBTSCells) { // do something with them only if contaier existst
+      if (MBTSCells) { // do something with them only if contaier existst
         ++nMBTS;
 
         // convert energy to pCb
@@ -910,7 +928,8 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
         eMBTSTot += ener;
         unsigned char iqual = iquality(qual);
         // for MBTS qbit use AND of good_time and non_zero_time and check that energy is above MBTS energy threshold in pC
-        unsigned char qbit = qbits(ros, drawer, false, (good_time && non_zero_time)
+        unsigned char qbit = qbits(drawerEvtStatus,
+                                   ros, drawer, false, (good_time && non_zero_time)
            , (fabs(ener) > m_eneForTimeCutMBTS), overflow, underflow, overfit);
         CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
                                    ? CaloGain::TILEONEHIGH
@@ -937,11 +956,11 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
                             << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec << endmsg;
         }
 
-        if (m_MBTSVec[index]) {
+        if (MBTSVec[index]) {
           msg(MSG::WARNING) << " double MBTS cell_id=" << m_tileTBID->to_string(cell_id)
                             << "  ignoring previous value" << endmsg;
         }
-        m_MBTSVec[index] = pCell;
+        MBTSVec[index] = pCell;
       }
     } else {
 
@@ -949,7 +968,8 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
 
       unsigned char iqual = iquality(qual);
       // for normal cell qbit use only non_zero_time flag and check that energy is above standard energy threshold in MeV
-      unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
+     unsigned char qbit = qbits(drawerEvtStatus,
+                                ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
           , overflow, underflow, overfit);
 
       if (E1_CELL && m_RUN2) {
@@ -960,7 +980,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
           int index2 = m_tileID->cell_hash(cell_id2);
           TileCell* pCell2 = NEWTILECELL();
           ++nCell;
-          m_allCells[index2] = pCell2;
+          allCells[index2] = pCell2;
           const CaloDetDescrElement* dde2 = m_tileMgr->get_cell_element(index2);
           pCell2->set(dde2, cell_id2);
           pCell2->setEnergy_nonvirt(0.0, 0.0, CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN);
@@ -973,13 +993,13 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
         }
       }
 
-      TileCell* pCell = m_allCells[index];
+      TileCell* pCell = allCells[index];
       if (pCell) {
         ++nTwo;
         correctCell(pCell, 2, pmt, gain, ener, time, iqual, qbit); // correct & merge 2 PMTs in one cell
       } else {
         ++nCell;
-        m_allCells[index] = pCell = NEWTILECELL();
+        allCells[index] = pCell = NEWTILECELL();
         const CaloDetDescrElement* dde = m_tileMgr->get_cell_element(index);
         pCell->set(dde, cell_id);
         pCell->setEnergy_nonvirt(0, 0, CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN);
@@ -1010,9 +1030,9 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
   //**
   // Now store all TileCells
   //**
-  for (unsigned int index = 0; index < m_allCells.size(); ++index) {
+  for (unsigned int index = 0; index < allCells.size(); ++index) {
 
-    TileCell * pCell = m_allCells[index];
+    TileCell * pCell = allCells[index];
     const CaloDetDescrElement* dde = m_tileMgr->get_cell_element(index);
     if(!dde)
     {
@@ -1038,7 +1058,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
         ++nCell;
         if (!single_PMT) ++nTwo;
 
-        m_allCells[index] = pCell = NEWTILECELL();
+        allCells[index] = pCell = NEWTILECELL();
         pCell->set(dde, cell_id);
 
         pCell->setEnergy_nonvirt(ener_min, 0.0, TileID::HIGHGAIN, (Ecell)?3:TileID::HIGHGAIN); // reset energy completely
@@ -1053,7 +1073,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
     if (pCell) {      // cell exists
 
       if (m_maskBadChannels)
-        if (maskBadChannels(pCell,single_PMT_C10,Ecell))
+        if (maskBadChannels (drawerEvtStatus, pCell,single_PMT_C10,Ecell))
           ATH_MSG_VERBOSE ( "cell with id=" << m_tileID->to_string(pCell->ID(), -2)
                            << " bad channels masked, new energy=" << pCell->energy() );
 
@@ -1108,26 +1128,26 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
         }
       }
       coll->push_back(pCell); // store cell in container
-      m_allCells[index] = 0; // clear pointer for next event
+      allCells[index] = 0; // clear pointer for next event
     }
   }
 
 
-  if (m_MBTSCells) {
+  if (MBTSCells) {
 
     for (int side = 0; side < NSIDE; ++side) {
       for (int phi = 0; phi < NPHI; ++phi) {
         for (int eta = 0; eta < NETA; ++eta) {
 
           int index=mbts_index(side,phi,eta);
-          TileCell * pCell = m_MBTSVec[index];
+          TileCell * pCell = MBTSVec[index];
 
           bool merged_MBTS = ( eta == 1 && (phi&1) == 1 && m_RUN2); // in RUN2 every second outer MBTS does not exist
 
           if (!pCell && !merged_MBTS) {
 
             ++nMBTS;
-            m_MBTSVec[index] = pCell = NEWTILECELL();
+            MBTSVec[index] = pCell = NEWTILECELL();
 
             Identifier cell_id = m_tileTBID->channel_id((side > 0) ? 1 : -1, phi, eta);
             pCell->set((m_mbtsMgr) ? m_mbtsMgr->get_element(cell_id) : NULL, cell_id);
@@ -1138,29 +1158,29 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
           }
           
           if (pCell) {
-            if (m_maskBadChannels && maskBadChannel(pCell))
+            if (m_maskBadChannels && maskBadChannel (drawerEvtStatus, pCell))
                 ATH_MSG_VERBOSE ( "MBTS cell with id=" << m_tileTBID->to_string(pCell->ID())
                                   << " bad channel masked, new energy=" << pCell->energy() );
 
-            m_MBTSCells->push_back(pCell); // store cell in container
-            m_MBTSVec[index] = 0; // clear pointer for next event
+            MBTSCells->push_back(pCell); // store cell in container
+            MBTSVec[index] = 0; // clear pointer for next event
           }
         }
       }
     }
   }
 
-  if (m_E4prCells) {
+  if (E4prCells) {
 
     for (int phi = 0; phi < E4NPHI; ++phi) {
 
       int index = e4pr_index(phi);
-      TileCell * pCell = m_E4prVec[index];
+      TileCell * pCell = E4prVec[index];
 
       if (!pCell) {
 
         ++nE4pr;
-        m_E4prVec[index] = pCell = NEWTILECELL();
+        E4prVec[index] = pCell = NEWTILECELL();
 
         pCell->set(NULL, m_tileTBID->channel_id(E4SIDE, phi, E4ETA));
         pCell->setEnergy_nonvirt(0.0, 0.0, CaloGain::TILEONEHIGH, CaloGain::INVALIDGAIN); // reset energy completely
@@ -1170,12 +1190,12 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
       }
 
       if (pCell) {
-        if (m_maskBadChannels && maskBadChannel(pCell))
+        if (m_maskBadChannels && maskBadChannel (drawerEvtStatus, pCell))
           ATH_MSG_VERBOSE ( "E4pr cell with id=" << m_tileTBID->to_string(pCell->ID())
                              << " bad channel masked, new energy=" << pCell->energy() );
 
-        m_E4prCells->push_back(pCell); // store cell in container
-        m_E4prVec[index] = 0; // clear pointer for next event
+        E4prCells->push_back(pCell); // store cell in container
+        E4prVec[index] = 0; // clear pointer for next event
       }
     }
   }
@@ -1188,10 +1208,10 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
                     << " nFake=" << nFake
                     << " eneTot=" << eCellTot;
 
-    if (m_MBTSCells)
+    if (MBTSCells)
       msg(MSG::DEBUG) << " nMBTS=" << nMBTS
                       << " eMBTS=" << eMBTSTot;
-    if (m_E4prCells)
+    if (E4prCells)
       msg(MSG::DEBUG) << " nE4pr=" << nE4pr
                       << " eE4pr=" << eE4prTot;
 

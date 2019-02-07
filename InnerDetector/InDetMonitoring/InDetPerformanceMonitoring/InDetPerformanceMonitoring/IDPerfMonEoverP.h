@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMonEoverP_H
@@ -47,6 +47,9 @@ class StoreGateSvc;
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
@@ -146,6 +149,8 @@ class IDPerfMonEoverP : public AthAlgorithm
   TrackCollection            *m_refittedTracks_no1;
   TrackCollection            *m_refittedTracks_no2;
 
+  /** @brief ReadHandle to the Event Info */
+  SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 
   /** @brief The track refitter */
   ToolHandle<IegammaTrkRefitterTool>  m_TrackRefitter;

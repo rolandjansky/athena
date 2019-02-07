@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*- 
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackEfficiency.h        
-//
-//                   
-// 
-//
-//   $Id: TrackEfficiency.h, v0.0   Sun 18 Jan 2009 19:08:11 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackDistributions.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:08:11 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <iostream>
@@ -22,6 +20,10 @@
 #include "TH1D.h"
 
 class TrackDistributions : public TrackAnalysis { 
+   
+public:
+  
+  using TrackAnalysis::execute;
   
 public:
   

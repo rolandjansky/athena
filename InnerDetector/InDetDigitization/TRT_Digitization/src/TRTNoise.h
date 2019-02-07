@@ -42,7 +42,9 @@ public:
    */
   TRTNoise( const TRTDigSettings*,
 	    const InDetDD::TRT_DetectorManager*,
-	    ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
+            CLHEP::HepRandomEngine* noiseRndmEngine,
+            CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+            CLHEP::HepRandomEngine* elecProcRndmEngine,
 	    TRTDigCondBase* digcond,
 	    TRTElectronicsProcessing * ep,
 	    TRTElectronicsNoise * electronicsnoise,
@@ -63,12 +65,14 @@ public:
    *                    noise digit to already hit straw.
    */
   void appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect,
-				      const std::set<int>& sim_hitids) ;
+				      const std::set<int>& sim_hitids,
+                                      CLHEP::HepRandomEngine* noiseRndmEngine) ;
 
 
   void appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
 					  const std::set<Identifier>& simhitsIdentifiers,
-					  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc);
+					  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc,
+                                          CLHEP::HepRandomEngine* noiseRndmEngine);
 
   void sortDigits(std::vector<TRTDigit>& digitVect);
 
@@ -109,7 +113,9 @@ public:
    * -# Call method @c ProduceNoiseDigitPool to produce pool of pure noise
    *   digits
    */
-  void InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool();
+  void InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP::HepRandomEngine* noiseRndmEngine,
+                                                                  CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                                                                  CLHEP::HepRandomEngine* elecProcRndmEngine);
 
   /**
    * Produce pool of pure noise digits (for simulation of noise in unhit
@@ -125,7 +131,10 @@ public:
    */
   void ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 			      const std::vector<float>& noiseamps,
-			      const std::vector<int>& strawType
+			      const std::vector<int>& strawType,
+                              CLHEP::HepRandomEngine* noiseRndmEngine,
+                              CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                              CLHEP::HepRandomEngine* elecProcRndmEngine
 			    );
 
   const TRT_ID* m_id_helper;

@@ -41,7 +41,7 @@ private:
                             eLutJepStrategy, eLutJepOffset, eLutJepNoiseCut, eLutJepSlope, eLutJepPar1, eLutJepPar2, eLutJepPar3, eLutJepPar4, eLutJepScale};
 
 public:
-  enum eCoolFolders { ePprChanDefaults, ePprChanCalib };
+  enum eCoolFolders { ePprChanDefaults, ePprChanCalib, ePprChanCalibCommon, ePprChanCalibStrategy };
 
   L1CaloPprConditionsContainerRun2();
   L1CaloPprConditionsContainerRun2(const std::map<L1CaloPprConditionsContainerRun2::eCoolFolders, std::string>& folderKeysMap);

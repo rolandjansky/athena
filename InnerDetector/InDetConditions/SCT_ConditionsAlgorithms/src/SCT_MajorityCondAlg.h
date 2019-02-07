@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_MAJORITYCONDALG
 #define SCT_MAJORITYCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SCT_ConditionsData/SCT_MajorityCondData.h"
@@ -14,13 +14,13 @@
 
 #include "GaudiKernel/ICondSvc.h"
 
-class SCT_MajorityCondAlg : public AthAlgorithm 
+class SCT_MajorityCondAlg : public AthReentrantAlgorithm
 {  
  public:
   SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_MajorityCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:

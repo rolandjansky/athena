@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,7 @@
 
 #include <vector>
 #include "GaudiKernel/ICondSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
@@ -34,7 +34,7 @@ namespace InDet {
      @author Susumu.Oda@cern.ch
   */
 
-  class SiDetElementsRoadCondAlg_xk : public AthAlgorithm
+  class SiDetElementsRoadCondAlg_xk : public AthReentrantAlgorithm
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -48,9 +48,9 @@ namespace InDet {
 
     SiDetElementsRoadCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~SiDetElementsRoadCondAlg_xk() = default;
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
       

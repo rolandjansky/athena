@@ -7,9 +7,7 @@
 #include "SCT_SLHC_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-
-
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 #include <cmath>
@@ -72,7 +70,7 @@ SCT_ForwardParameters::fwdNumWheels() const
 double
 SCT_ForwardParameters::fwdWheelZPosition(int iWheel) const
 {
-  return db()->getDouble(m_SctFwdWheel,"ZPOSITION",iWheel) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdWheel,"ZPOSITION",iWheel) * Gaudi::Units::mm;
 }
 
 int
@@ -107,19 +105,19 @@ SCT_ForwardParameters::getRingMapIndex(int iWheel, int iRingIndex) const
 double
 SCT_ForwardParameters::fwdDiscSupportInnerRadius(int iWheel) const
 {
-  return db()->getDouble(m_SctFwdDiscSupport,"INNERRADIUS",iWheel) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdDiscSupport,"INNERRADIUS",iWheel) * Gaudi::Units::mm;
 } 
 
 double
 SCT_ForwardParameters::fwdDiscSupportOuterRadius(int iWheel) const
 {
-  return db()->getDouble(m_SctFwdDiscSupport,"OUTERRADIUS",iWheel) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdDiscSupport,"OUTERRADIUS",iWheel) * Gaudi::Units::mm;
 }
  
 double
 SCT_ForwardParameters::fwdDiscSupportThickness(int iWheel) const
 {
-  return db()->getDouble(m_SctFwdDiscSupport,"THICKNESS",iWheel) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdDiscSupport,"THICKNESS",iWheel) * Gaudi::Units::mm;
 } 
 
 std::string
@@ -142,37 +140,37 @@ SCT_ForwardParameters::fwdRingNumModules(int iRingType) const
 double
 SCT_ForwardParameters::fwdRingInnerRadius(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"INNERRADIUS",iRingType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdRing,"INNERRADIUS",iRingType) * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingMiddleRadius(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"MIDDLERADIUS",iRingType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdRing,"MIDDLERADIUS",iRingType) * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingOuterRadius(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"OUTERRADIUS",iRingType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdRing,"OUTERRADIUS",iRingType) * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingOffset(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"OFFSET",iRingType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdRing,"OFFSET",iRingType) * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingModuleStagger(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"MODULESTAGGER",iRingType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdRing,"MODULESTAGGER",iRingType) * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingPhiOfRefModule(int iRingType) const
 {
-  return db()->getDouble(m_SctFwdRing,"PHIOFREFMODULE",iRingType) * GeoModelKernelUnits::radian;
+  return db()->getDouble(m_SctFwdRing,"PHIOFREFMODULE",iRingType) * Gaudi::Units::radian;
 }
 
 int
@@ -205,37 +203,37 @@ SCT_ForwardParameters::fwdWheelStereoType(m_iWheel, int iRing) const
 double
 SCT_ForwardParameters::fwdInnerRadius() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"INNERRADIUS") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"INNERRADIUS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdIntermediateRadius() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"RINTERMEDIATE") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"RINTERMEDIATE") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdOuterRadius() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"OUTERRADIUS") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"OUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdZMin() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"ZMIN") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"ZMIN") * Gaudi::Units::mm;
 } 
 
 double
 SCT_ForwardParameters::fwdZIntermediate() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"ZINTERMEDIATE") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"ZINTERMEDIATE") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdZMax() const
 {
-  return db()->getDouble(m_SctFwdGeneral,"ZMAX") * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdGeneral,"ZMAX") * Gaudi::Units::mm;
 }
 
 }

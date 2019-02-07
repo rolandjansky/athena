@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
     Reconstruction/Jet/JetRec
     Reconstruction/Jet/JetSubStructureMomentTools
     Reconstruction/Jet/JetSubStructureUtils
-    Reconstruction/egamma/egammaMVACalib
     Reconstruction/MVAUtils
     Tracking/TrkEvent/TrkParameters
     InnerDetector/InDetRecTools/InDetSVWithMuonTool
@@ -110,4 +109,4 @@ atlas_add_component( JetTagTools
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )
-
+atlas_install_python_modules( python/*.py )

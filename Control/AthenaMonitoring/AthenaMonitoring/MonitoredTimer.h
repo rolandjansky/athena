@@ -48,6 +48,7 @@ namespace Monitored {
 
   // TEMPORARY: for backwards compatibility
   namespace MonitoredTimer {
+    [[deprecated("Use Monitored::Timer instead (see MR athena!20403)")]]
     Timer declare(std::string name);
   }
 } // namespace Monitored

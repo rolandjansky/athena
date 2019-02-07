@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,12 +63,6 @@ SCT_TB04_RawData::SCT_TB04_RawData(const Identifier rdoId, const unsigned int wo
     m_errorCondensedHit[i] = errorhit[i];
   }
 }
-
-// Destructor:
-//should I be destructing something here?
-SCT_TB04_RawData::~SCT_TB04_RawData()
-{}
-
 
 //SCT_TB04_RawData *SCT_TB04_RawData::newObject(const Identifier rdoId, const unsigned int word)
 //{

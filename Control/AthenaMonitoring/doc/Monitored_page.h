@@ -15,6 +15,8 @@
    
    1) Add a GenericMonitoringTool instance to your component
    \code
+    #include "AthenaMonitoring/Monitored.h"
+    [...]
     private:
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
    \endcode
@@ -50,16 +52,14 @@
 
    5) Configure the list of histograms in python
    \code
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
       monTool = GenericMonitoringTool('MonTool')
-      monTool.Histograms = [defineHistogram('eta', path='EXPERT', type='TH1F', title='Eta;;Entries',
-                                             xbins=40, xmin=-2, xmax=2),
-                            defineHistogram('phi', path='EXPERT', type='TH1F', title='Phi;;Entries',
-                                             xbins=60, xmin=-3.2, xmax=3.2),
-                            defineHistogram('eta,phi', path='EXPERT', type='TH2F', title='Eta vs Phi',
-                                             xbins=20, xmin=-2, xmax=2, ybins=30, ymin=-3.2, ymax=3.2)]
+      monTool.defineHistogram('eta', path='EXPERT', type='TH1F', title='Eta;;Entries', xbins=40, xmin=-2, xmax=2)
+      monTool.defineHistogram('phi', path='EXPERT', type='TH1F', title='Phi;;Entries', xbins=60, xmin=-3.2, xmax=3.2)
+      monTool.defineHistogram('eta,phi', path='EXPERT', type='TH2F', title='Eta vs Phi',
+                              xbins=20, xmin=-2, xmax=2, ybins=30, ymin=-3.2, ymax=3.2)
 
-     topSequence.myAlg.MonTool = monTool
+      topSequence.myAlg.MonTool = monTool
    \endcode
 
    \remark Without this python configuration, i.e. the last line, no monitoring tool is instantiated
@@ -67,12 +67,15 @@
 
    ## Advanced usage ##
    ### Filling in tight loops ###
-   @copydetails Monitored::impl::Group::setAutoFill()
+   @copydetails Monitored::impl::Group::fill()
 
    ### Monitoring of collections (of objects) ###
    Existing iterable collections can be monitored directly without the need to create temporaries.
    If the collection contains objects, an accessor can be defined to retrieve the relevant quantity.
    See the examples in Monitored::Collection.
+
+   ### Timing histograms ###
+   @copydetails Monitored::Timer
 
    ## Additional documentation ##
    - The MonitoredAlg standalone example and its MonitoredOptions.py job

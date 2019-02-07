@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CablingCondAlgFromCoraCool_H
@@ -14,7 +14,7 @@
  */
 
 //Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "SCT_Cabling/SCT_CablingData.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -33,18 +33,18 @@
  *
  */
 
-class SCT_CablingCondAlgFromCoraCool: public AthAlgorithm {
+class SCT_CablingCondAlgFromCoraCool: public AthReentrantAlgorithm {
  public:
 
   SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* svc);
   virtual ~SCT_CablingCondAlgFromCoraCool() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
   
 private:
 
-  bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data);
+  bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const;
 
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyRod{this, "ReadKeyRod", "/SCT/DAQ/Config/ROD", "Key of input (raw) conditions folder of Rods"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyRodMur{this, "ReadKeyRodMur", "/SCT/DAQ/Config/RODMUR", "Key of input (raw) conditions folder of RodMurs"};

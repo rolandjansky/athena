@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -59,15 +59,24 @@ public:
   
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
+  virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   
+  const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   const std::set<IdentifierHash>* getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
-  virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override; // Internally used
+  virtual unsigned int tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
+  virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override;
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
+  virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
+  virtual bool isRODSimulatedData(const EventContext& ctx) const override; // Internally used
   virtual bool isRODSimulatedData() const override; // Internally used
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const override;
-  virtual bool HVisOn() const override; // Internally used
+  virtual bool isHVOn(const EventContext& ctx) const override; // Not used
+  virtual bool isHVOn() const override; // Not used
+  virtual bool isCondensedReadout(const EventContext& ctx) const override; // Not used
   virtual bool isCondensedReadout() const override; // Not used
 
 private:
@@ -104,14 +113,13 @@ private:
   void addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const;
   void resetSets(const EventContext& ctx) const;
 
-  bool isGoodChip(const Identifier& stripId) const;
-  int getChip(const Identifier& stripId) const;
+  bool isGoodChip(const Identifier& stripId, const EventContext& ctx) const;
+  int getChip(const Identifier& stripId, const EventContext& ctx) const;
 
   // For isRODSimulatedData, HVisOn and isCondensedReadout
-  const SCT_ByteStreamFractionContainer* getFracData() const;
-  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
+  const SCT_ByteStreamFractionContainer* getFracData(const EventContext& ctx) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 
-  const std::set<IdentifierHash>& getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const;
   const std::map<Identifier, unsigned int>& getTempMaskedChips(const EventContext& ctx) const;
   const std::map<Identifier, unsigned int>& getAbcdErrorChips(const EventContext& ctx) const;
 };

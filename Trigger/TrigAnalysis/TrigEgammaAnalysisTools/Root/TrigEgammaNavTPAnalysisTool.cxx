@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -183,30 +183,30 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             if(et < info.trigThrHLT-5.0) continue; 
             if(!offEl->auxdecor<bool>(info.trigPidDecorator)) continue; 
             const HLT::TriggerElement* feat = m_pairObj[i].second;
-            setAccept(feat,info); //Sets the trigger accepts
+            asg::AcceptData acceptData = setAccept(feat,info); //Sets the trigger accepts
             cd(m_dir+"/Expert/Event");
             if(et > info.trigThrHLT + 1.0)
                 hist1(m_anatype+"_nProbes")->Fill(cprobeTrigger,1);
             if ( feat ) {
                 if(et > info.trigThrHLT + 1.0){
-                    hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,getAccept().getCutResult("L1Calo"));
-                    hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,getAccept().getCutResult("L2Calo"));
-                    hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,getAccept().getCutResult("L2"));
-                    hist1(m_anatype+"_EffEFCalo")->Fill(cprobeTrigger,getAccept().getCutResult("EFCalo"));
-                    hist1(m_anatype+"_EffHLT")->Fill(cprobeTrigger,getAccept().getCutResult("HLT"));
-                    if( getAccept().getCutResult("L1Calo")){
+                    hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,acceptData.getCutResult("L1Calo"));
+                    hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,acceptData.getCutResult("L2Calo"));
+                    hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,acceptData.getCutResult("L2"));
+                    hist1(m_anatype+"_EffEFCalo")->Fill(cprobeTrigger,acceptData.getCutResult("EFCalo"));
+                    hist1(m_anatype+"_EffHLT")->Fill(cprobeTrigger,acceptData.getCutResult("HLT"));
+                    if( acceptData.getCutResult("L1Calo")){
                         hist1(m_anatype+"_nProbesL1")->Fill(cprobeTrigger,1);
                     }
-                    if( getAccept().getCutResult("L2Calo") ){
+                    if( acceptData.getCutResult("L2Calo") ){
                         hist1(m_anatype+"_nProbesL2Calo")->Fill(cprobeTrigger,1);
                     }
-                    if( getAccept().getCutResult("L2") ){
+                    if( acceptData.getCutResult("L2") ){
                         hist1(m_anatype+"_nProbesL2")->Fill(cprobeTrigger,1);
                     }
-                    if( getAccept().getCutResult("EFCalo") ){
+                    if( acceptData.getCutResult("EFCalo") ){
                         hist1(m_anatype+"_nProbesEFCalo")->Fill(cprobeTrigger,1);
                     }
-                    if( getAccept().getCutResult("HLT") ){
+                    if( acceptData.getCutResult("HLT") ){
                         hist1(m_anatype+"_nProbesHLT")->Fill(cprobeTrigger,1);
                     }
                 }

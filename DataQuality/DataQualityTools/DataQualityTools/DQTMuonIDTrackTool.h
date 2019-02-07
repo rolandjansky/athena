@@ -21,6 +21,8 @@
 #include <set>
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
 #include <stdint.h>
 #include <string>
 
@@ -38,7 +40,7 @@ class DQTMuonIDTrackTool: public DataQualityFatherMonTool
 
   ~DQTMuonIDTrackTool();
 
-  //StatusCode initialize();
+  StatusCode initialize();
     
   StatusCode bookHistograms( );
   //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
@@ -170,6 +172,13 @@ private:
   bool m_printedErrorMuon;
   bool m_printedErrorCombined;    
   bool m_printedErrorMuonColl;
+
+  // EventInfo key
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { "EventInfo" };
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey
+    { "Muons" };
+
 };
 
 #endif

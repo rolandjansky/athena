@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERFITFILTERCOOL_H
@@ -48,7 +48,6 @@
 #define LAS_DT_HI 1.8
 #define LAS_DT_LO 1.8
 
-class TileBeamInfoProvider;
 
 class TileRawChannelBuilderFitFilterCool: public TileRawChannelBuilder
                                         , public IIncidentListener {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DCSConditionsStatCondAlg.h"
@@ -11,7 +11,7 @@
 #include <memory>
 
 SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_doState{true}
 {
@@ -53,7 +53,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsStatCondAlg::execute() {
+StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   if (not m_doState) {
@@ -61,7 +61,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   }
 
   // Write Cond Handle (state)
-  SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState};
+  SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -71,7 +71,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   }
 
   // Read Cond Handle (state)
-  SG::ReadCondHandle<CondAttrListCollection> readHandleState{m_readKeyState};
+  SG::ReadCondHandle<CondAttrListCollection> readHandleState{m_readKeyState, ctx};
   const CondAttrListCollection* readCdoState{*readHandleState}; 
   if (readCdoState==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object (state)");
@@ -97,7 +97,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   for (; attrListState!=endState; ++attrListState) {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{attrListState->first};
-    CondAttrListCollection::AttributeList payload{attrListState->second};
+    const CondAttrListCollection::AttributeList &payload{attrListState->second};
     if (payload.exists(paramState) and not payload[paramState].isNull()) {
       unsigned int val{payload[paramState].data<unsigned int>()};
       unsigned int hvstate{val bitand 240};
@@ -116,7 +116,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
 
   if (m_returnHVTemp.value()) {
     // Read Cond Handle 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV, ctx};
     const CondAttrListCollection* readCdoHV{*readHandleHV};
     if (readCdoHV==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object (HV)");
@@ -146,7 +146,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
     for (; attrListHV!=endHV; ++attrListHV) {
       // A CondAttrListCollection is a map of ChanNum and AttributeList
       CondAttrListCollection::ChanNum channelNumber{attrListHV->first};
-      CondAttrListCollection::AttributeList payload{attrListHV->second};
+      const CondAttrListCollection::AttributeList &payload{attrListHV->second};
       if (payload.exists(paramHV) and not payload[paramHV].isNull()) {
         float hvval{payload[paramHV].data<float>()};
         if ((hvval<m_hvLowLimit) or (hvval>m_hvUpLimit)) {

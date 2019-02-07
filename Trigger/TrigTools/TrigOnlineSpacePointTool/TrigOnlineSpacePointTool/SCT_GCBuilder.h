@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GCBUILDER_H
@@ -18,7 +18,7 @@ namespace InDetDD {
 class SCT_GCBuilder {
 public:
   SCT_GCBuilder(const SCT_ID* , bool, int, int);
-  ~SCT_GCBuilder();
+  virtual ~SCT_GCBuilder() = default;
 
   void formSpacePoints (const InDet::SCT_ClusterCollection& phi_clusterColl,
                         const InDetDD::SiDetectorElementCollection* elements,

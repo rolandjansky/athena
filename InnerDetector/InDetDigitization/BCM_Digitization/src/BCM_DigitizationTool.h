@@ -6,7 +6,7 @@
 #define BCM_DIGITIZATION_BCM_DIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -62,7 +62,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
   std::vector<float> createAnalog(int mod, std::vector<float> enerVect, std::vector<float> timeVect);
 
   /** Add noise to analog waveform */
-  void addNoise(int mod, std::vector<float> &analog);
+  void addNoise(int mod, std::vector<float> &analog, CLHEP::HepRandomEngine *randomEngine);
 
   /** Do ToT digitization */
   std::bitset<64> applyThreshold(int chan, std::vector<float> analog);
@@ -76,7 +76,6 @@ class BCM_DigitizationTool : public PileUpToolBase {
   /** Create raw data object and put it in the container */
   void fillRDO(unsigned int chan, int p1x, int p1w, int p2x, int p2w);
 
-  CLHEP::HepRandomEngine *m_rndmEngine; //!< Random number engine used
   // Digitization parameters
   std::string m_hitCollName;      //!< Input simulation hit collection name
   std::vector<float> m_modNoise;  //!< RMS Gaussian noise
@@ -91,9 +90,8 @@ class BCM_DigitizationTool : public PileUpToolBase {
   BCM_RDO_Container* m_rdoContainer; //!< Output RDO container
   InDetSimDataCollection* m_simDataCollMap; //!< Output SDO map
 
-  std::string m_rndmEngineName;  //!< Name of random engine
   PileUpMergeSvc* m_mergeSvc; //!< Handle for pileup merging service
-  ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc; //!< Handle for random number service
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
 
   // Vectors to store G4 hit information
   std::vector<float> m_enerVect[8]; //!< G4 hit energies, weighted

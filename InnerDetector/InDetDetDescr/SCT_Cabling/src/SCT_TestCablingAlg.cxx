@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,7 +37,7 @@ using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_idHelper{nullptr} {
   //nop
 }
@@ -51,7 +51,7 @@ SCT_TestCablingAlg::initialize() {
 }
 
 std::string
-SCT_TestCablingAlg::coordString(const Identifier& offlineId) {
+SCT_TestCablingAlg::coordString(const Identifier& offlineId) const {
   using std::to_string;
   const std::string sep{", "};
   std::string result{std::string("[") + to_string(m_idHelper->barrel_ec(offlineId)) + sep};
@@ -63,43 +63,43 @@ SCT_TestCablingAlg::coordString(const Identifier& offlineId) {
 }
 
 StatusCode
-SCT_TestCablingAlg::execute() {
+SCT_TestCablingAlg::execute(const EventContext& ctx) const {
   const string testAreaPath{CoveritySafe::getenv("TestArea")};
   string filename{testAreaPath+"/cabling.txt"};
   ATH_MSG_INFO("Filename: " << filename << " will be written to your $TestArea.");
   ofstream opFile1{filename.c_str(), ios::out};
   ATH_MSG_INFO("Executing...");
   ATH_MSG_INFO("hash, offline Id, online Id(hex), serial number");
-  const unsigned int nHashesInCabling{2*m_cablingTool->size()};
+  const unsigned int nHashesInCabling{2*m_cablingTool->size(ctx)};
   for (unsigned int i{0}; i!=nHashesInCabling; ++i) {
     IdentifierHash hash{i};
     Identifier offlineId{m_idHelper->wafer_id(hash)};
-    SCT_OnlineId onlineId{m_cablingTool->getOnlineIdFromHash(hash)};
-    SCT_SerialNumber sn{m_cablingTool->getSerialNumberFromHash(hash)};
+    SCT_OnlineId onlineId{m_cablingTool->getOnlineIdFromHash(hash, ctx)};
+    SCT_SerialNumber sn{m_cablingTool->getSerialNumberFromHash(hash, ctx)};
     ATH_MSG_INFO(i << " " << offlineId << " " << hex << onlineId << dec << " " << sn << " " << coordString(offlineId));
     opFile1 << i << " " << offlineId << " " << hex << onlineId << dec << " " << sn << " " << coordString(offlineId) << std::endl;
-    if (m_cablingTool->getHashFromOnlineId(onlineId) != hash){
-      ATH_MSG_ERROR("?? " << m_cablingTool->getHashFromOnlineId(onlineId));
+    if (m_cablingTool->getHashFromOnlineId(onlineId, ctx) != hash){
+      ATH_MSG_ERROR("?? " << m_cablingTool->getHashFromOnlineId(onlineId, ctx));
     }
   }
   opFile1.close();
-  ATH_MSG_INFO("Size: " << m_cablingTool->size());
+  ATH_MSG_INFO("Size: " << m_cablingTool->size(ctx));
   std::vector<unsigned int> rods;
-  m_cablingTool->getAllRods(rods);
+  m_cablingTool->getAllRods(rods, ctx);
   ATH_MSG_INFO("Num. of rods= " << rods.size());
   ATH_MSG_INFO("First rod id " << std::hex << rods[0] << std::dec);
   string sn{"20220130000299"};
-  ATH_MSG_INFO("Hash from serial number " << m_cablingTool->getHashFromSerialNumber(sn));
+  ATH_MSG_INFO("Hash from serial number " << m_cablingTool->getHashFromSerialNumber(sn, ctx));
   int tsn{130000299};
-  ATH_MSG_INFO("Hash from truncated serial number " << m_cablingTool->getHashFromSerialNumber(tsn));
+  ATH_MSG_INFO("Hash from truncated serial number " << m_cablingTool->getHashFromSerialNumber(tsn, ctx));
   unsigned long long snll{20220130000299LL};
-  ATH_MSG_INFO("Hash from truncated serial number " << m_cablingTool->getHashFromSerialNumber(snll));
-  ATH_MSG_INFO("Hash from onlineid " << m_cablingTool->getHashFromOnlineId(0x3d230006));
-  ATH_MSG_INFO("Hash from invalid onlineid " << m_cablingTool->getHashFromOnlineId(0x3d250006));
-  ATH_MSG_INFO("Hash from textfile onlineid " << m_cablingTool->getHashFromOnlineId(0x3d220010));
-  ATH_MSG_INFO("Hash from db onlineid " << m_cablingTool->getHashFromOnlineId(0x3d220105));
+  ATH_MSG_INFO("Hash from truncated serial number " << m_cablingTool->getHashFromSerialNumber(snll, ctx));
+  ATH_MSG_INFO("Hash from onlineid " << m_cablingTool->getHashFromOnlineId(0x3d230006, ctx));
+  ATH_MSG_INFO("Hash from invalid onlineid " << m_cablingTool->getHashFromOnlineId(0x3d250006, ctx));
+  ATH_MSG_INFO("Hash from textfile onlineid " << m_cablingTool->getHashFromOnlineId(0x3d220010, ctx));
+  ATH_MSG_INFO("Hash from db onlineid " << m_cablingTool->getHashFromOnlineId(0x3d220105, ctx));
   std::vector<IdentifierHash> hashVec;
-  m_cablingTool->getHashesForRod(hashVec, 0x220005);
+  m_cablingTool->getHashesForRod(hashVec, 0x220005, ctx);
   ATH_MSG_INFO("number of hashes for rod 0x220005: " << hashVec.size());
   //new section December 2014
   
@@ -124,8 +124,8 @@ SCT_TestCablingAlg::execute() {
   for (unsigned int i{0}; i!=nHashesInCabling; ++i) {
     IdentifierHash hash{i};
     Identifier offlineId{m_idHelper->wafer_id(hash)};
-    SCT_OnlineId onlineId{m_cablingTool->getOnlineIdFromHash(hash)};
-    SCT_SerialNumber sn{m_cablingTool->getSerialNumberFromHash(hash)};
+    SCT_OnlineId onlineId{m_cablingTool->getOnlineIdFromHash(hash, ctx)};
+    SCT_SerialNumber sn{m_cablingTool->getSerialNumberFromHash(hash, ctx)};
     //rod, fibre, bec, layerDisk, eta,  phi, side,  robId, sn
     const int bec{m_idHelper->barrel_ec(offlineId)};
     const int layer{m_idHelper->layer_disk(offlineId)};

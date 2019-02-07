@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Array_test.cxx,v 1.2 2009-04-08 21:12:45 ssnyder Exp $
@@ -190,11 +190,13 @@ void test5()
 
   ++i11;
   assert (i11[0][0] == 4);
+  // cppcheck-suppress postfixOperator
   i11++;
   assert (i11[0][0] == 7);
 
   --i11;
   assert (i11[0][0] == 4);
+  // cppcheck-suppress postfixOperator
   i11--;
   assert (i11[0][0] == 1);
 

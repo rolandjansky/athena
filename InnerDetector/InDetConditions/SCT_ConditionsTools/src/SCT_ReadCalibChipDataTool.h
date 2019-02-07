@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTool.h Header file for SCT_ReadCalibChipDataTool.
@@ -49,13 +49,17 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the service as good/bad
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
   //@}
   
   // Methods to return calibration data
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const override; //!<Get NPtGain data per wafer
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const override; //!<Get NoiseOccupancy data wafer
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NoiseOccupancy data wafer
 
  private:

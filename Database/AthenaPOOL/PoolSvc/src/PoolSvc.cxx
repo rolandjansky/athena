@@ -222,8 +222,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
 //__________________________________________________________________________
 StatusCode PoolSvc::start() {
    // Switiching on ROOT implicit multi threading for AthenaMT
-   if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
-
+   if (m_useROOTIMT && Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
       if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<int>("ENABLE_IMPLICITMT", Gaudi::Concurrency::ConcurrencyFlags::numThreads() - 1)) {
          ATH_MSG_FATAL("Failed to enable implicit multithreading in ROOT via PersistencySvc.");
          return(StatusCode::FAILURE);
@@ -979,6 +978,7 @@ PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	m_guidLists() {
    declareProperty("WriteCatalog", m_writeCatalog = "xmlcatalog_file:PoolFileCatalog.xml");
    declareProperty("ReadCatalog", m_readCatalog);
+   declareProperty("UseROOTImplicitMT", m_useROOTIMT = true);
    declareProperty("AttemptCatalogPatch", m_attemptCatalogPatch = true);
    declareProperty("ConnectionRetrialPeriod", m_retrialPeriod = 300);
    declareProperty("ConnectionRetrialTimeOut", m_retrialTimeOut = 3600);

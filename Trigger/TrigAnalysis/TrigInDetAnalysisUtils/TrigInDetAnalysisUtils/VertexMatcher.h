@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    VertexMatcher.h        
-//
-//                   
-//  
-//
-//   $Id: VertexMatcher.h, v0.0   Mon 10 Aug 2015 17:47:51 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    VertexMatcher.h
+ **
+ **     @author  mark sutton
+ **     @date    Mon 10 Aug 2015 17:47:51 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  VERTEXMATCHER_H

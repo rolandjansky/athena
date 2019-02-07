@@ -83,8 +83,8 @@ namespace TrigCostRootAnalysis {
       if (mr == Config::config().getInt(kRunNumber)) {
         Fatal("TrigXMLService::TrigXMLService",
               "If doing MultiRun, provide the 'primary' run's inputs first, followed by the additional runs whose run numbers were speificed to --multiRun");
-        //Bool_t _primaryRunOpenedFirstBeforeMultiRunInputFiles = kFALSE;
-        //assert(_primaryRunOpenedFirstBeforeMultiRunInputFiles);
+        //Bool_t primaryRunOpenedFirstBeforeMultiRunInputFiles = kFALSE;
+        //assert(primaryRunOpenedFirstBeforeMultiRunInputFiles);
         std::abort();
       }
       parseRunXML(mr, kFALSE);
@@ -1259,7 +1259,7 @@ namespace TrigCostRootAnalysis {
    * Read (if not already imported) the XML rates and bunch groups for this run.
    * Return the weight for this event and store the event's  bunch group setting using the config service.
    * @param pass Which pass through the file(s), only increment counters on first pass
-   * @param _bcid Current event BCID
+   * @param bcid Current event BCID
    * @return The event weight from the EnhancedBias XML.
    */
   Float_t TrigXMLService::getEventWeight(UInt_t eventNumber, UInt_t lb, UInt_t pass) {

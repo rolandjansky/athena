@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
@@ -8,8 +8,6 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimEvent/MDTSimHitCollection.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
@@ -151,13 +149,9 @@ StatusCode MuonHitRelocation::initialize(){
 
 StatusCode MuonHitRelocation::execute() {
   
-  const EventInfo* pevt;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(pevt)) {
-    
-    m_c->event = pevt->event_ID()->event_number();
-    m_c->run   = pevt->event_ID()->run_number();
-  }
-
+  const EventContext& context = getContext();
+  m_c->event = context.eventID().event_number();
+  m_c->run   = context.eventID().run_number();
 
   const DataHandle<McEventCollection> mcEvent;
   StatusCode sc=evtStore()->retrieve(mcEvent,"TruthEvent");
@@ -204,8 +198,8 @@ StatusCode MuonHitRelocation::execute() {
           for(MDTSimHitConstIterator i_hit=mdt_collection->begin() ; i_hit!=mdt_collection->end() ; ++i_hit) {
               GeoMDTHit ghit(*i_hit);
 
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
               //std::cout<<"Event # "<<m_c->event<<"  phi/theta  "<<m_c->phi<<"/"<<m_c->theta<<std::endl;
@@ -265,8 +259,8 @@ StatusCode MuonHitRelocation::execute() {
           ATH_MSG_VERBOSE("TGC hit Collection found with size = "<<tgc_collection->size() );
           for(TGCSimHitConstIterator i_hit=tgc_collection->begin() ; i_hit!=tgc_collection->end() ; ++i_hit) {
               GeoTGCHit ghit(*i_hit);
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       
@@ -326,8 +320,8 @@ StatusCode MuonHitRelocation::execute() {
           ATH_MSG_VERBOSE("RPC hit Collection found with size = "<<rpc_collection->size() );
           for(RPCSimHitConstIterator i_hit=rpc_collection->begin() ; i_hit!=rpc_collection->end() ; ++i_hit) {
 
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
 
               GeoRPCHit ghit(*i_hit);
               m_c->theta = direction.theta();
@@ -386,8 +380,8 @@ StatusCode MuonHitRelocation::execute() {
           ATH_MSG_VERBOSE("CSC hit Collection found with size = "<<csc_collection->size() );
           for(CSCSimHitConstIterator i_hit=csc_collection->begin() ; i_hit!=csc_collection->end() ; ++i_hit) {
               GeoCSCHit ghit(*i_hit);
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       
@@ -449,8 +443,8 @@ StatusCode MuonHitRelocation::execute() {
 	    
               GeosTGCHit ghit(*i_hit);
 
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       
@@ -519,8 +513,8 @@ StatusCode MuonHitRelocation::execute() {
 	    
               GeoMMHit ghit(*i_hit);
 
-              m_c->event = pevt->event_ID()->event_number();
-              m_c->run   = pevt->event_ID()->run_number();
+              m_c->event = context.eventID().event_number();
+              m_c->run   = context.eventID().run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       

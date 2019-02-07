@@ -26,9 +26,6 @@
 #include "TileConditions/TileInfo.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //For getting TriggerTowers from BS
@@ -280,29 +277,17 @@ namespace LVL1 {
     ATH_MSG_DEBUG("Tile TTL1 pedestal value = " << m_TileTTL1Ped);
 
     // try to determine wheter we run on data or on simulation
-    auto ei = dynamic_cast<const EventIncident*>(&inc);
-    if(!ei) {
+    const xAOD::EventInfo* evtinfo{nullptr};
+    if(evtStore()->retrieve(evtinfo)!=StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
-    } else {
-      const EventType *eventType = ei->eventInfo().event_type();
-      
-      if (eventType == nullptr){
-        SG::ReadHandle<EventInfo> eventInfo(m_evtKey);
-        if (eventInfo.isValid()) {
-          eventType = eventInfo->event_type();
-        }
-      }
-      
-      if (eventType == nullptr) {
-        ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
+    }
+    else {
+      bool isData = !(evtinfo->eventTypeBitmask()&xAOD::EventInfo::IS_SIMULATION);
+      m_isDataReprocessing = isData;
+      if(m_isDataReprocessing) {
+	ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
       } else {
-        bool isData = !eventType->test(EventType::IS_SIMULATION);
-        m_isDataReprocessing = isData;
-        if(m_isDataReprocessing) {
-          ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
-        } else {
-          ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
-        }
+	ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
       }
     }
     

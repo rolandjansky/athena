@@ -18,6 +18,7 @@
 
 // Tile includes
 #include "TileSimAlgs/TileTBHitToBeamElem.h"
+#include "TileEvent/TileMutableBeamElemContainer.h"
 #include "TileConditions/TileInfo.h"
 
 // Calo includes
@@ -75,8 +76,8 @@ StatusCode TileTBHitToBeamElem::execute() {
   ATH_MSG_DEBUG( "Executing TileTBHitToBeamElem" );
 
   // create new container
-  SG::WriteHandle<TileBeamElemContainer> beamElemContainer(m_beamElemContainerKey);
-  ATH_CHECK( beamElemContainer.record(std::make_unique<TileBeamElemContainer>(true)) );
+  auto beamElemContainer = std::make_unique<TileMutableBeamElemContainer>(true);
+  ATH_CHECK( beamElemContainer->status() );
 
   //**
   //* Get TileHits from TileHitVector
@@ -111,8 +112,11 @@ StatusCode TileTBHitToBeamElem::execute() {
                     << " amp=" << amp_ch);
 
     std::unique_ptr<TileBeamElem> beamElem = std::make_unique<TileBeamElem>(adc_id, amp_ch);
-    beamElemContainer->push_back(beamElem.release());
+    ATH_CHECK( beamElemContainer->push_back(std::move(beamElem)) );
   }
+
+  SG::WriteHandle<TileBeamElemContainer> beamElemCnt(m_beamElemContainerKey);
+  ATH_CHECK( beamElemCnt.record(std::move(beamElemContainer)) );
 
   // Execution completed.
   ATH_MSG_DEBUG( "TileTBHitToBeamElem execution completed." );

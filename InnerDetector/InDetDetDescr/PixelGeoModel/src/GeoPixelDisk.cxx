@@ -17,6 +17,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <sstream>
@@ -55,7 +56,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // Need to specify some eta. Assume all module the same
   GeoPixelModule psd(theSensor);
   double zpos = m_gmt_mgr->PixelECSiDz1()*0.5;
-  double deltaPhi = 360.*GeoModelKernelUnits::deg/ (float) nbECSector;
+  double deltaPhi = 360.*Gaudi::Units::deg/ (float) nbECSector;
   // This is the start angle of the even modules (3.75 deg):
   double startAngle = deltaPhi*0.25;
   // Start angle could eventually come from the database...
@@ -133,17 +134,17 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
     m_gmt_mgr->SetPhi(phiId);
 
     double angle = ii*0.5*deltaPhi+startAngle;
-    //if ( m_gmt_mgr->GetSide()<0 ) angle = 360*GeoModelKernelUnits::deg-(ii*deltaPhi+startAngle);
+    //if ( m_gmt_mgr->GetSide()<0 ) angle = 360*Gaudi::Units::deg-(ii*deltaPhi+startAngle);
     int diskSide = (ii%2) ? +1 : -1; // even: -1, odd +1
 
 
     GeoTrf::Transform3D rmX(GeoTrf::Transform3D::Identity());
     if (oldGeometry && m_gmt_mgr->GetSide()<0) {
-      if (diskSide > 0) rmX = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg); // This is for compatibilty with older geomtries.
+      if (diskSide > 0) rmX = GeoTrf::RotateX3D(180.*Gaudi::Units::deg); // This is for compatibilty with older geomtries.
     } else {
-      if (diskSide < 0) rmX = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg); // depth axis points towards disk.
+      if (diskSide < 0) rmX = GeoTrf::RotateX3D(180.*Gaudi::Units::deg); // depth axis points towards disk.
     } 
-    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(angle) * rmX * GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(angle) * rmX * GeoTrf::RotateY3D(90*Gaudi::Units::deg);
     GeoTrf::Vector3D pos(moduleRadius,0.,diskSide*zpos);
     pos = GeoTrf::RotateZ3D(angle)*pos;
     GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rm);
@@ -208,11 +209,11 @@ double GeoPixelDisk::Thickness() {
   // 7-1 I switch to the minimum thickness possible as the cables are right
   // outside this volume.
   //
-  //  return 10*GeoModelKernelUnits::mm;
+  //  return 10*Gaudi::Units::mm;
   // GWG. It would be nice to get these numbers from the module itself to
   // ensure consistency.
-  double safety = 0.01* GeoModelKernelUnits::mm; // This is the safety added to the module.
-  double zClearance = 0.5 * GeoModelKernelUnits::mm; // Clearance for misalignments
+  double safety = 0.01* Gaudi::Units::mm; // This is the safety added to the module.
+  double zClearance = 0.5 * Gaudi::Units::mm; // Clearance for misalignments
   double tck = 2*(safety + 0.5*m_gmt_mgr->PixelBoardThickness()
                   + std::max(m_gmt_mgr->PixelHybridThickness(),
 			     m_gmt_mgr->PixelChipThickness()+m_gmt_mgr->PixelChipGap())

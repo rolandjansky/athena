@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,6 +10,9 @@
 
 #ifndef ISCT_DetectorLevelConditionsTool_h
 #define ISCT_DetectorLevelConditionsTool_h
+
+#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <list>
 
@@ -34,10 +37,12 @@ class ISCT_DetectorLevelConditionsTool: virtual public IAlgTool {
 
   ///Summarise the result of the detector as good/bad
   virtual bool isGood() const =0;
+  virtual bool isGood(const EventContext& ctx) const =0;
 
   ///Summarise the result of the barrel/endcap as good/bad
   //BEC = -2/0/2 for ECC/B/ECA
   virtual bool isGood(int bec) const =0;
+  virtual bool isGood(int bec, const EventContext& ctx) const =0;
   
  private:
 

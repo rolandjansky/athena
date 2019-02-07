@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # A collection of methods to unify/merge list-properties
 # ToDo: Define the merging-method when defining the property
 
+from AthenaCommon.Logging import logging
+log=logging.getLogger('ComponentAccumulator')
 
 def unifySet(prop1,prop2):
     #May want to strip whitespace in case the params are lists of strings
@@ -10,6 +12,13 @@ def unifySet(prop1,prop2):
     s2=set(prop2)
     su=s1 | s2
     return list(su)
+
+def unifySetVerbose(prop1,prop2):
+    log.debug("In UnifyProperties: unifying sets" )
+    log.debug( str(prop1) )
+    log.debug( "and" )
+    log.debug( str(prop2) )
+    return unifySet(prop1,prop2)
 
 def unifySetOfPairs(prop1,prop2):
 
@@ -19,7 +28,7 @@ def unifySetOfPairs(prop1,prop2):
         if (2*nPairs!=len(seq)):
             from AthenaConfiguration.ComponentAccumulator import ConfigurationError
             raise ConfigurationError("Expected a sequence with even number of elements")
-        
+
         for i in range(0,nPairs):
             r.add((seq[2*i],seq[2*i+1]))
         return r
@@ -31,6 +40,9 @@ def unifySetOfPairs(prop1,prop2):
     for p in unionOfPairs:
         finallist+=p
     return finallist
+
+
+
 
 _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "CondInputLoader.Load":unifySet,
@@ -48,20 +60,59 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "AtRndmGenSvc.Seeds": unifySet,
                }
 
-def matchPropName(propname):
+def setUnificationFunction(key, function):
+    _propsToUnify[key] = function
+
+def getUnificationKey(propname):
     if propname in _propsToUnify:
-        return True
+        return propname
     try:
         objectName, variableName = propname.split('.')[-2:]
-        return '*.{}'.format(variableName) in _propsToUnify or '{}.*'.format(objectName) in _propsToUnify
-    except:
-        return False
+
+        matchingByVariable = '*.{}'.format(variableName)
+        if matchingByVariable in _propsToUnify:
+            return matchingByVariable
+
+        matchingByObject = '{}.*'.format(objectName)
+        if matchingByObject in _propsToUnify:
+            return matchingByObject
+
+    except Exception:
+        pass
+
+    return None
+
+
+def matchProperty(propname):
+    return getUnificationKey(propname) is not None
+
+
+def getUnificationFunc(propname):
+    unificationKey = getUnificationKey(propname)
+    if unificationKey is None:
+        return None
+    return _propsToUnify[unificationKey]
 
 
 def unifyProperty(propname,prop1,prop2):
-    if not matchPropName(propname):
+    unificationFunc = getUnificationFunc(propname)
+    if unificationFunc is None:
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \
                                       + str(prop1) +"\n and \n" +str(prop2) \
                                       + "\nIf this property should be merged, consider adding it to AthenaConfiguration/UnifyProperties.py")
-    return _propsToUnify[propname](prop1,prop2)
+    return unificationFunc(prop1,prop2)
+
+
+# self test
+import unittest
+
+class BasicTest( unittest.TestCase ):
+    def runTest( self ):
+        unified = unifyProperty("Alg.HypoTools", ["a", "b"], ["c", "b"])
+        self.assertEqual( sorted(unified), sorted(["a", "b", "c"]), "Hypo tools unification failed" )
+
+        setUnificationFunction("*.HypoTools", unifySetVerbose)
+        log.setLevel(7)
+        unified = unifyProperty("Alg.HypoTools", ["a", "b"], ["c", "b"])
+        self.assertEqual( sorted(unified), sorted(["a", "b", "c"]), "Hypo tools unification failed" )

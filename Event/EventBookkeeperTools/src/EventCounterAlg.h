@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventCounterAlg.h
@@ -17,6 +17,8 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 class EventCounterAlg
@@ -40,9 +42,9 @@ class EventCounterAlg
   //EventCounterAlg &operator=(const EventCounterAlg &alg);
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
   ///////////////////////////////////////////////////////////////////
   // Const methods:
@@ -69,6 +71,8 @@ class EventCounterAlg
   /// Keep a vector of all cutIDs for the non-nominal MC event weights
   std::vector<CutIdentifier> m_mcCutIDs;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+  { this, "EventInfoKey", "EventInfo", "" };
 };
 
 // I/O operators

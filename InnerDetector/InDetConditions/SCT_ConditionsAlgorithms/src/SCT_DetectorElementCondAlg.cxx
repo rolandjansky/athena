@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -12,11 +12,10 @@
 #include <map>
 
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_readKey{"SCTAlignmentStore", "SCTAlignmentStore"}
   , m_condSvc{"CondSvc", name}
   , m_detManager{nullptr}
-  , m_commonItems{nullptr}
 {
   declareProperty("ReadKey", m_readKey);
 }
@@ -40,12 +39,12 @@ StatusCode SCT_DetectorElementCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DetectorElementCondAlg::execute()
+StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<InDetDD::SiDetectorElementCollection> writeHandle{m_writeKey};
+  SG::WriteCondHandle<InDetDD::SiDetectorElementCollection> writeHandle{m_writeKey, ctx};
 
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
@@ -66,7 +65,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   EventIDRange rangeW;
 
   // ____________ Get Read Cond Object ____________
-  SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey};
+  SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey, ctx};
   const GeoAlignmentStore* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKey.key());
@@ -85,17 +84,10 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   writeCdo->resize(oldColl->size(), nullptr);
   InDetDD::SiDetectorElementCollection::iterator newEl{writeCdo->begin()};
   for (const InDetDD::SiDetectorElement* oldEl: *oldColl) {
-    // At the first time access, SiCommonItems are prepared using the first old element
-    if (m_commonItems.get()==nullptr) {
-      const InDetDD::SiCommonItems* oldCommonItems{oldEl->getCommonItems()};
-      m_commonItems = std::make_unique<InDetDD::SiCommonItems>(oldCommonItems->getIdHelper());
-      m_commonItems->setSolenoidFrame(oldCommonItems->solenoidFrame());
-    }
-
     *newEl = new InDetDD::SiDetectorElement(oldEl->identify(),
                                             &(oldEl->design()),
                                             oldEl->GeoVDetectorElement::getMaterialGeom(),
-                                            m_commonItems.get(),
+                                            oldEl->getCommonItems(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
     newEl++;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_CONDALGX_H
@@ -12,7 +12,7 @@
 #include "AthExHive/CondDataObj.h"
 #include "AthExHive/IASCIICondDbSvc.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
 
 #include <string>
@@ -32,7 +32,7 @@ public:
 
 private:
   
-  SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt {this,"EvtInfo", "EventInfo", "EventInfo name"};
 
   SG::WriteCondHandleKey<CondDataObj> m_wchk {this, "Key_CH", "X2", "cond handle key"};
 

@@ -29,7 +29,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -102,8 +102,8 @@ SCT_Ski::getParameters()
 const GeoLogVol * 
 SCT_Ski::preBuild()
 {
-  const double rphiClearance = 0.5*GeoModelKernelUnits::mm;
-  const double radialClearance = 0.5*GeoModelKernelUnits::mm;
+  const double rphiClearance = 0.5*Gaudi::Units::mm;
+  const double radialClearance = 0.5*Gaudi::Units::mm;
 
 
   // Make components.
@@ -134,7 +134,7 @@ SCT_Ski::preBuild()
 
   // *** 18:00 Fri 27th May 2005 D.Naito put some comments.
   // I need to calculate moduleYMax and moduleYMin for yModuleOffset,
-  // because the modules is asyGeoModelKernelUnits::mmetry in y direction.
+  // because the modules is asyGaudi::Units::mmetry in y direction.
 
   //
   // These are coordinates of corners of module's envelopes.
@@ -183,8 +183,6 @@ SCT_Ski::preBuild()
   // *** End of modified lines. ------------------ (12)*********************************
 
 
-  //std::cout << "xPos, yPos = " << xPos << " " << yPos << std::endl;
-   
   //
   // Calculate position of cooling block
   //
@@ -236,8 +234,6 @@ SCT_Ski::preBuild()
   // 15th Aug 2005 S.Mima modified.
   //  double zDoglegOffset = m_module->baseBoardCenter();
   double zDoglegOffset = coolingBlockOffsetZ();
-
-  //std::cout << "Dogleg offset: " << yDoglegOffset << std::endl;
 
   //
   // Calculate position of cooling pipe.
@@ -401,13 +397,11 @@ SCT_Ski::preBuild()
   xmax1 += m_safety;
   ymin1 -= m_safety;
   ymax1 += m_safety;
-  //  std::cout << "xmin1,xmax1,ymin1,ymax1= " << xmin1 << " " << xmax1 << " " << ymin1 << " " << ymax1 << std::endl;
 
   xmin2 -= m_safety;
   xmax2 += m_safety;
   ymin2 -= m_safety;
   ymax2 += m_safety;
-  //  std::cout << "xmin2,xmax2,ymin2,ymax2= " << xmin2 << " " << xmax2 << " " << ymin2 << " " << ymax2 << std::endl;
 
   double xCenter = 0.5*(xmin1+xmax1);
   double yCenter = 0.5*(ymin1+ymax1);
@@ -418,9 +412,6 @@ SCT_Ski::preBuild()
 
   m_refPointTransform = new GeoTransform(GeoTrf::Translate3D(-xCenter, -yCenter, 0));
   m_refPointTransform->ref();
-  //  std::cout << "xCenter, yCenter = " << xCenter << "  " << yCenter << std::endl;
-  //  std::cout << "xShift2, yShift2 = " << xShift2 << "  " << yShift2 << std::endl;
-  //  std::cout << "xCoolingPipePos, yCoolingPipePos = " << xCoolingPipePos << "  " << yCoolingPipePos << std::endl;
 
   // *** 10:00 Tue 31st May 2005 D.Naito modified. (14)*********************************
   // *** -->>                                      (14)*********************************
@@ -469,17 +460,6 @@ SCT_Ski::preBuild()
 
   // Calculate the clearances. Module envelope1 is the thickness up to the sensors. This is used for the module to 
   // module distance
-
-  //std::cout << "Clearance Module to Module:        " 
-  //     <<  m_radialSep - m_module->env1Thickness() << std::endl;
-  //std::cout << "Clearance Module to Dogleg:        " 
-  //     << std::abs(xDoglegOffset) - 0.5*m_dogleg->thickness() - 0.5*m_module->thickness() << std::endl;
-  //std::cout << "Clearance Module to Cooling Block: " 
-  //     << std::abs(xCoolingBlockOffset) - 0.5*m_coolingBlock->thickness() - 0.5 * m_module->baseBoard()->thickness() - m_safety
-  //     << std::endl;
-  //std::cout << "Cooling block to pipe: " <<  std::abs(-xModuleOffset + xCoolingBlockOffset - xCoolingPipePos) 
-  // - 0.5*m_coolingBlock->thickness() - m_coolingPipe->pipeRadius() 
-  //    << std::endl;
 
   return skiLog;
 

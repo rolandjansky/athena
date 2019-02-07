@@ -24,7 +24,7 @@
 #include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrigSiSpacePointTool/ISpacePointProvider.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 class ISvcLocator;
@@ -468,42 +468,41 @@ int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
  */
 StatusCode muCombMT::execute()
 {
-   using namespace Monitored;
    using namespace xAOD;
 
    auto ctx = getContext();
 
    // Monitoring variables
    //Timer
-   auto timer = MonitoredTimer::declare("TIME_execute");
+   auto timer = Monitored::Timer("TIME_execute");
    //Input
-   auto ptMS = MonitoredScalar::declare("PtMS",        -9999.);
-   auto etaMS = MonitoredScalar::declare("EtaMS",      -9999.);
-   auto phiMS = MonitoredScalar::declare("PhiMS",      -9999.);
-   auto zetaMS = MonitoredScalar::declare("ZetaMS",    -9999.);
+   auto ptMS = Monitored::Scalar("PtMS",        -9999.);
+   auto etaMS = Monitored::Scalar("EtaMS",      -9999.);
+   auto phiMS = Monitored::Scalar("PhiMS",      -9999.);
+   auto zetaMS = Monitored::Scalar("ZetaMS",    -9999.);
    //ID
-   auto ptID = MonitoredScalar::declare("PtID",        -9999.);
-   auto etaID = MonitoredScalar::declare("EtaID",      -9999.);
-   auto phiID = MonitoredScalar::declare("PhiID",      -9999.);
-   auto zetaID = MonitoredScalar::declare("ZetaID",    -9999.);
+   auto ptID = Monitored::Scalar("PtID",        -9999.);
+   auto etaID = Monitored::Scalar("EtaID",      -9999.);
+   auto phiID = Monitored::Scalar("PhiID",      -9999.);
+   auto zetaID = Monitored::Scalar("ZetaID",    -9999.);
    //Combined
-   auto ptMC = MonitoredScalar::declare("PtMC",        -9999.);
-   auto dEta = MonitoredScalar::declare("DEta",        -9999.);
-   auto dPhi = MonitoredScalar::declare("DPhi",        -9999.);
-   auto dZeta = MonitoredScalar::declare("DZeta",      -9999.);
-   auto dR = MonitoredScalar::declare("DeltaR",        -9999.);
+   auto ptMC = Monitored::Scalar("PtMC",        -9999.);
+   auto dEta = Monitored::Scalar("DEta",        -9999.);
+   auto dPhi = Monitored::Scalar("DPhi",        -9999.);
+   auto dZeta = Monitored::Scalar("DZeta",      -9999.);
+   auto dR = Monitored::Scalar("DeltaR",        -9999.);
    //Failed
-   auto ptFL = MonitoredScalar::declare("PtFL",        -9999.);
-   auto etaFL = MonitoredScalar::declare("EtaFL",      -9999.);
-   auto phiFL = MonitoredScalar::declare("PhiFL",      -9999.);
+   auto ptFL = Monitored::Scalar("PtFL",        -9999.);
+   auto etaFL = Monitored::Scalar("EtaFL",      -9999.);
+   auto phiFL = Monitored::Scalar("PhiFL",      -9999.);
    //Info
-   auto efficiency = MonitoredScalar::declare<int>("Efficiency",  -1);
-   auto StrategyMC = MonitoredScalar::declare<int>("StrategyMC",  -1);
-   auto ErrorFlagMC = MonitoredScalar::declare<int>("ErrorFlagMC", 0);
-   auto MatchFlagMC = MonitoredScalar::declare<int>("MatchFlagMC", 0);
+   auto efficiency = Monitored::Scalar<int>("Efficiency",  -1);
+   auto StrategyMC = Monitored::Scalar<int>("StrategyMC",  -1);
+   auto ErrorFlagMC = Monitored::Scalar<int>("ErrorFlagMC", 0);
+   auto MatchFlagMC = Monitored::Scalar<int>("MatchFlagMC", 0);
 
 
-   auto mon = MonitoredScope::declare(m_monTool, timer, ptMS, etaMS, phiMS, zetaMS, 
+   auto mon = Monitored::Group(m_monTool, timer, ptMS, etaMS, phiMS, zetaMS, 
                                                         ptID, etaID, phiID, zetaID, 
                                                         ptMC, dEta, dPhi, dZeta, dR,
                                                         ptFL, etaFL, phiFL,

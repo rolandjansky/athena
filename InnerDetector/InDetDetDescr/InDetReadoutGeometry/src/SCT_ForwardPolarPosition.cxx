@@ -38,10 +38,6 @@ SCT_ForwardPolarPosition::SCT_ForwardPolarPosition(const double r,const double t
   if (m_r<0) m_r=0;
 }
 
-// Destructor:
-SCT_ForwardPolarPosition::~SCT_ForwardPolarPosition()
-{}
-
 // Assignment operator:
 SCT_ForwardPolarPosition &SCT_ForwardPolarPosition::operator=(const SCT_ForwardPolarPosition &polar)
 {

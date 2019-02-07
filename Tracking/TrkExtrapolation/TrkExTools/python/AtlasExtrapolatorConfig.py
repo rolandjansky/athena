@@ -12,16 +12,12 @@ from TrkExTools.TrkExToolsConf import Trk__Extrapolator
 class AtlasExtrapolatorCfg( Trk__Extrapolator ):
     # constructor
     def __init__(self,name = 'AtlasExtrapolator'):
-       
+       result=ComponentAccumulator()
+
        # get the correct TrackingGeometry setup
        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
        AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc 
-
-       # import the ToolSvc
-       from AthenaCommon.AppMgr import ToolSvc
-       if 'ToolSvc' not in dir() :
-           ToolSvc = ToolSvc()
 
        # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
        
@@ -29,13 +25,13 @@ class AtlasExtrapolatorCfg( Trk__Extrapolator ):
        
        from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RkPropagator
        AtlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
-       ToolSvc += AtlasRungeKuttaPropagator
+       result.addPublicTool(AtlasRungeKuttaPropagator) #TODO remove one day
        
        self.AtlasPropagators += [AtlasRungeKuttaPropagator]
        
        from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP_Propagator
        AtlasSTEP_Propagator = STEP_Propagator(name = 'AtlasSTEP_Propagator')
-       ToolSvc += AtlasSTEP_Propagator
+       result.addPublicTool(AtlasSTEP_Propagator) #TODO remove one day
        
        self.AtlasPropagators += [AtlasSTEP_Propagator]
 
@@ -45,13 +41,13 @@ class AtlasExtrapolatorCfg( Trk__Extrapolator ):
        
        from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
        AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
-       ToolSvc += AtlasMaterialEffectsUpdator
+       result.addPublicTool(AtlasMaterialEffectsUpdator) #TODO remove one day
        
        self.AtlasUpdators    += [ AtlasMaterialEffectsUpdator ]
        
        AtlasMaterialEffectsUpdatorLandau = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdatorLandau')
        AtlasMaterialEffectsUpdatorLandau.LandauMode = True
-       ToolSvc += AtlasMaterialEffectsUpdatorLandau
+       result.addPublicTool(AtlasMaterialEffectsUpdatorLandau) #TODO remove one day
        
        self.AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
                      
@@ -59,7 +55,7 @@ class AtlasExtrapolatorCfg( Trk__Extrapolator ):
        from TrkExTools.TrkExToolsConf import Trk__Navigator
        AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
        AtlasNavigator.TrackingGeometrySvc = AtlasTrackingGeometrySvc
-       ToolSvc += AtlasNavigator
+       result.addPublicTool(AtlasNavigator) #TODO remove one day
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
        

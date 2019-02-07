@@ -28,6 +28,18 @@
 #include "TrigT1CaloCalibConditions/L1CaloPpmDeadChannelsContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloDisabledTowers.h"
 #include "TrigT1CaloCalibConditions/L1CaloDisabledTowersContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategyContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunParsContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunPars.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfig.h"
+
+#include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
+
+
+
 
 struct TrigT1CaloCalibConditions_DUMMY_Instantiation {
   // we need to instantiate templated objects to get them into the dict
@@ -47,6 +59,11 @@ struct TrigT1CaloCalibConditions_DUMMY_Instantiation {
   L1CaloPprChanDefaultsContainer::const_iterator L1CaloPprChanDefaultsContainerCI;
   L1CaloPpmDeadChannelsContainer::const_iterator L1CaloPpmDeadChannelsContainerCI;
   L1CaloDisabledTowersContainer::const_iterator L1CaloDisabledTowersContainerCI;
+  L1CaloPprChanStrategyContainer::const_iterator L1CaloPprChanStrategyContainerConstInterator;
+  L1CaloDerivedRunParsContainer::const_iterator L1CaloDerivedRunParsContainerConstInterator;
+  L1CaloReadoutConfigContainer::const_iterator L1CaloReadoutConfigContainerConstInterator;
+  L1CaloRunParametersContainer::const_iterator L1CaloRunParametersContainerConstInterator;
+
 };
 
 #endif

@@ -9,8 +9,8 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelKernel/Units.h"
 
 /**
  ** Constructor(s)
@@ -19,28 +19,28 @@ ForwardRegionGeoModelTool::ForwardRegionGeoModelTool( const std::string& type, c
 : GeoModelTool( type, name, parent )
 {
     m_Config.clear();
-    declareProperty("TCL4JawDistB1I",m_Config.TCL4JawDistB1I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL4JawDistB2I",m_Config.TCL4JawDistB2I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL5JawDistB1I",m_Config.TCL5JawDistB1I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL5JawDistB2I",m_Config.TCL5JawDistB2I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL6JawDistB1I",m_Config.TCL6JawDistB1I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL6JawDistB2I",m_Config.TCL6JawDistB2I=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL4JawDistB1O",m_Config.TCL4JawDistB1O=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL4JawDistB2O",m_Config.TCL4JawDistB2O=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL5JawDistB1O",m_Config.TCL5JawDistB1O=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL5JawDistB2O",m_Config.TCL5JawDistB2O=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL6JawDistB1O",m_Config.TCL6JawDistB1O=57*GeoModelKernelUnits::mm);
-    declareProperty("TCL6JawDistB2O",m_Config.TCL6JawDistB2O=57*GeoModelKernelUnits::mm);
+    declareProperty("TCL4JawDistB1I",m_Config.TCL4JawDistB1I=57*Gaudi::Units::mm);
+    declareProperty("TCL4JawDistB2I",m_Config.TCL4JawDistB2I=57*Gaudi::Units::mm);
+    declareProperty("TCL5JawDistB1I",m_Config.TCL5JawDistB1I=57*Gaudi::Units::mm);
+    declareProperty("TCL5JawDistB2I",m_Config.TCL5JawDistB2I=57*Gaudi::Units::mm);
+    declareProperty("TCL6JawDistB1I",m_Config.TCL6JawDistB1I=57*Gaudi::Units::mm);
+    declareProperty("TCL6JawDistB2I",m_Config.TCL6JawDistB2I=57*Gaudi::Units::mm);
+    declareProperty("TCL4JawDistB1O",m_Config.TCL4JawDistB1O=57*Gaudi::Units::mm);
+    declareProperty("TCL4JawDistB2O",m_Config.TCL4JawDistB2O=57*Gaudi::Units::mm);
+    declareProperty("TCL5JawDistB1O",m_Config.TCL5JawDistB1O=57*Gaudi::Units::mm);
+    declareProperty("TCL5JawDistB2O",m_Config.TCL5JawDistB2O=57*Gaudi::Units::mm);
+    declareProperty("TCL6JawDistB1O",m_Config.TCL6JawDistB1O=57*Gaudi::Units::mm);
+    declareProperty("TCL6JawDistB2O",m_Config.TCL6JawDistB2O=57*Gaudi::Units::mm);
     declareProperty("vp1Compatibility", m_Config.vp1Compatibility=false);
     declareProperty("buildTCL4",m_Config.buildTCL4=false);
     declareProperty("buildTCL6",m_Config.buildTCL6=false);
     declareProperty("ALFAInNewPosition",m_Config.ALFAInNewPosition=false);
-    declareProperty("newPosB7L1",m_Config.newPosB7L1=245656.77*GeoModelKernelUnits::mm);
-    declareProperty("newPosB7R1",m_Config.newPosB7R1=-245656.11*GeoModelKernelUnits::mm);
-    declareProperty("posAFPL1",m_Config.posAFPL1=204500*GeoModelKernelUnits::mm);
-    declareProperty("posAFPR1",m_Config.posAFPR1=-204500*GeoModelKernelUnits::mm);
-    declareProperty("posAFPL2",m_Config.posAFPL2=212675*GeoModelKernelUnits::mm);
-    declareProperty("posAFPR2",m_Config.posAFPR2=-212675*GeoModelKernelUnits::mm);
+    declareProperty("newPosB7L1",m_Config.newPosB7L1=245656.77*Gaudi::Units::mm);
+    declareProperty("newPosB7R1",m_Config.newPosB7R1=-245656.11*Gaudi::Units::mm);
+    declareProperty("posAFPL1",m_Config.posAFPL1=204500*Gaudi::Units::mm);
+    declareProperty("posAFPR1",m_Config.posAFPR1=-204500*Gaudi::Units::mm);
+    declareProperty("posAFPL2",m_Config.posAFPL2=212675*Gaudi::Units::mm);
+    declareProperty("posAFPR2",m_Config.posAFPR2=-212675*Gaudi::Units::mm);
 }
 
 /**

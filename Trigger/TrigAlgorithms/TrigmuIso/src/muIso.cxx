@@ -43,7 +43,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 class ISvcLocator;
 
@@ -380,19 +380,18 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
                                  const xAOD::TrackParticleContainer& idTrackParticles,
                                  xAOD::L2IsoMuonContainer& muonISColl ) 
 {
-   using namespace Monitored;
    // Initalize Monitored variables
-   auto errorFlagMI = MonitoredScalar::declare("ErrorFlagMI", 0);
-   auto sumpt       = MonitoredScalar::declare("Sumpt", -9999);
-   auto muPt        = MonitoredScalar::declare("TEMuPt", -9999);
-   auto muEta       = MonitoredScalar::declare("TEMuEta", -9999);
-   auto muPhi       = MonitoredScalar::declare("TEMuPhi", -9999);
-   auto nTrk        = MonitoredScalar::declare("NTRK", -9999);
-   auto ptFL        = MonitoredScalar::declare("PtFL", -9999);
-   auto idIso       = MonitoredScalar::declare("IDiso", -9999);
-   auto isIsolated  = MonitoredScalar::declare("IsIsolated", -9999);
+   auto errorFlagMI = Monitored::Scalar("ErrorFlagMI", 0);
+   auto sumpt       = Monitored::Scalar("Sumpt", -9999);
+   auto muPt        = Monitored::Scalar("TEMuPt", -9999);
+   auto muEta       = Monitored::Scalar("TEMuEta", -9999);
+   auto muPhi       = Monitored::Scalar("TEMuPhi", -9999);
+   auto nTrk        = Monitored::Scalar("NTRK", -9999);
+   auto ptFL        = Monitored::Scalar("PtFL", -9999);
+   auto idIso       = Monitored::Scalar("IDiso", -9999);
+   auto isIsolated  = Monitored::Scalar("IsIsolated", -9999);
 
-   auto monitorIt   = MonitoredScope::declare( m_monTool, errorFlagMI, sumpt, 
+   auto monitorIt   = Monitored::Group( m_monTool, errorFlagMI, sumpt, 
                                                muPt, muEta, muPhi, nTrk, ptFL,
                                                idIso, isIsolated);
 

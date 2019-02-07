@@ -13,6 +13,8 @@ class GenericMonitoringTool(_GenericMonitoringTool):
     def __init__(self, name, **kwargs):
         super(GenericMonitoringTool, self).__init__(name, **kwargs)
 
+    def defineHistogram(self, *args, **kwargs):
+        self.Histograms.append(defineHistogram(*args, **kwargs))
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #
@@ -23,10 +25,15 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
-def defineHistogram(varname, type='TH1F', path='EXPERT',
+def defineHistogram(varname, type='TH1F', path=None,
                     title=None,
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
+
+    if path is None:
+        import warnings
+        warnings.warn("WARNING: Calling defineHistrogram without path is deprecated. Specify e.g. path='EXPERT'", stacklevel=2)
+        path = 'EXPERT'
 
     if title is None: title=varname
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
@@ -42,8 +49,9 @@ def defineHistogram(varname, type='TH1F', path='EXPERT',
 
     # For backwards compatibility
     elif labels is not None:
-        log.warning("The 'label1:label2' syntax in defineHistogram is deprecated. "
-                    "Please use a list instead: ['label1','label2']")
+        import warnings
+        warnings.warn("WARNING: The 'label1:label2' syntax in defineHistogram is deprecated. "
+                      "Please use a list instead: ['label1','label2']", stacklevel=2)
         labels = labels.strip()   # remove spurious white-spaces
         if len(labels)>0:
             if labels[-1]!=':': labels += ':'

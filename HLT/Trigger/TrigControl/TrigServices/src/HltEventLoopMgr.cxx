@@ -3,18 +3,15 @@
 */
 
 // Trigger includes
-#include "TrigServices/HltEventLoopMgr.h"
+#include "HltEventLoopMgr.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
-#include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
-#include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
@@ -25,7 +22,6 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgResourcePool.h"
-#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -33,6 +29,7 @@
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // TDAQ includes
@@ -68,7 +65,6 @@
 #define HLT_DRAINSCHED_CHECK(scexpr,errmsg,errcode,evctx) \
   HLT_LOOP_CHECK(scexpr,errmsg,errcode,evctx,DrainSchedulerStatusCode::FAILURE)
 using namespace boost::property_tree;
-using SOR = TrigSORFromPtreeHelper::SOR;
 
 // =============================================================================
 // Standard constructor
@@ -81,48 +77,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
-  m_evtSelector("EvtSel", name),
-  m_outputCnvSvc("OutputCnvSvc", name),
-  m_ioCompMgr("IoComponentMgr", name),
-  m_coolHelper("TrigCOOLUpdateHelper", this),
-  m_hltResultMaker("HLTResultMTMaker", this),
-  m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
-  m_localEventNumber(0),
-  m_threadPoolSize(-1),
-  m_evtSelContext(nullptr),
-  m_softTimeoutValue(10000),
-  m_runEventTimer(true),
-  m_nFrameworkErrors(0)
+  m_ioCompMgr("IoComponentMgr", name)
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
-  declareProperty("ApplicationName",          m_applicationName="None");
-  declareProperty("PartitionName",            m_partitionName="None");
-  declareProperty("enabledROBs",              m_enabledROBs);
-  declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
-  declareProperty("EvtSel",                   m_evtSelector);
-  declareProperty("OutputCnvSvc",             m_outputCnvSvc);
-  declareProperty("CoolUpdateTool",           m_coolHelper);
-  declareProperty("ResultMaker",              m_hltResultMaker);
-  declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
-                  "Name of the scheduler to be used");
-  declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
-                  "Name of the Whiteboard to be used");
-  declareProperty("TopAlg",                   m_topAlgNames={},
-                  "List of top level algorithms names");
-  declareProperty("HardTimeout",              m_hardTimeout=10*60*1000/*=10min*/,
-                  "Hard event processing timeout in milliseconds");
-  declareProperty("SoftTimeoutFraction",      m_softTimeoutFraction=0.8,
-                  "Fraction of the hard timeout to be set as the soft timeout");
-  declareProperty("MaxFrameworkErrors",       m_maxFrameworkErrors=0,
-                  "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)");
-  declareProperty("FwkErrorDebugStreamName",  m_fwkErrorDebugStreamName="HLTMissingData");
-  declareProperty("AlgErrorDebugStreamName",  m_algErrorDebugStreamName="HLTError");
-  declareProperty("EventContextWHKey",        m_eventContextWHKey="EventContext");
-  declareProperty("EventInfoRHKey",           m_eventInfoRHKey="ByteStreamEventInfo");
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 
 // =============================================================================
@@ -306,30 +262,18 @@ StatusCode HltEventLoopMgr::initialize()
   return StatusCode::SUCCESS;
 }
 
-// =============================================================================
-// Reimplementation of AthService::start (IStateful interface)
-// =============================================================================
-StatusCode HltEventLoopMgr::start()
-{
-  ATH_CHECK(AthService::start());
 
-  // start top level algorithms
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysStart());
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 // =============================================================================
 // Reimplementation of AthService::stop (IStateful interface)
 // =============================================================================
 StatusCode HltEventLoopMgr::stop()
 {
+  // temporary: endRun will eventually be deprecated
+  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysEndRun());
+
   // Stop top level algorithms
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysStop());
-  }
+  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysStop());
 
   return AthService::stop();
 }
@@ -467,42 +411,49 @@ StatusCode HltEventLoopMgr::restart()
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
   try
   {
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
     // do the necessary resets
-    // internalPrepareResets() was here
     ATH_CHECK(clearTemporaryStores());
 
-    const SOR* sor;
-    // update SOR in det store and get it back
-    if(!(sor = processRunParams(pt)))
-      return StatusCode::FAILURE;
+    // update SOR in det store
+    ATH_CHECK( processRunParams(pt) );
 
-    auto& soral = getSorAttrList(sor);
+    auto& soral = getSorAttrList();
 
-    updateInternal(soral);     // update internally kept info
+    updateInternal(soral);       // update internally kept info
     updateMetadataStore(soral);  // update metadata store
 
-    /*
+    /* Old code: kept for reference for the moment
     const EventInfo * evinfo;
     if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
-       resetCoolValidity().isFailure() || // reset selected proxies/IOV folders
        prepXAODEventInfo().isFailure() || // update xAOD event data in SG
        !(evinfo = prepEventInfo()))       // update old event data in SG
       return StatusCode::FAILURE;
 
     bookAllHistograms();
-
-    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-    if(prepareAlgs(*evinfo).isSuccess())
-      return StatusCode::SUCCESS;
     */
 
-    ATH_CHECK(m_ioCompMgr->io_finalize());  // close any open files (e.g. THistSvc)
+    // start top level algorithms
+    for (auto& ita : m_topAlgList) {
+      ATH_CHECK(ita->sysStart());
+    }
+
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
+
+    for (auto& ita : m_topAlgList) {
+      ATH_CHECK(ita->sysBeginRun());   // TEMPORARY: beginRun is deprecated
+    }
+    // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
+    m_coolHelper->readFolderInfo();
+
+    // close any open files (e.g. THistSvc)
+    ATH_CHECK(m_ioCompMgr->io_finalize());
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
@@ -555,20 +506,24 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 
   // Make sure output files, i.e. histograms are written to their own directory.
   // Nothing happens if the online TrigMonTHistSvc is used as there are no output files.
-  boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
-  worker_dir /= m_applicationName.value();
-  // Delete worker directory if it exists already
-  if ( boost::filesystem::exists(worker_dir) ) {
-    if ( !boost::filesystem::remove_all(worker_dir) ) {
-      ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+  SmartIF<IIoComponent> histsvc = serviceLocator()->service("THistSvc", /*createIf=*/ false).as<IIoComponent>();
+  if ( !m_ioCompMgr->io_retrieve(histsvc.get()).empty() ) {
+    boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
+    worker_dir /= m_applicationName.value();
+    // Delete worker directory if it exists already
+    if ( boost::filesystem::exists(worker_dir) ) {
+      if ( !boost::filesystem::remove_all(worker_dir) ) {
+        ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+        return StatusCode::FAILURE;
+      }
+    }
+    if ( !boost::filesystem::create_directories(worker_dir) ) {
+      ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
       return StatusCode::FAILURE;
     }
+    ATH_MSG_INFO("Writing worker output files to " << worker_dir);
+    ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));
   }
-  if ( !boost::filesystem::create_directories(worker_dir) ) {
-    ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
-    return StatusCode::FAILURE;
-  }
-  ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));
   ATH_CHECK(m_ioCompMgr->io_reinitialize());
 
   // Start the timeout thread
@@ -623,6 +578,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   ATH_MSG_INFO("Starting loop on events");
+
+  EventID::number_type maxLB = 0;  // Max lumiblock number we have seen
   bool loop_ended = false;
   bool events_available = true; // DataCollector has more events
 
@@ -660,7 +617,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // for the EventContext using the EventContext itself. The handle will use the linked hiveProxyDict to record
       // the context in the current store.
       auto eventContextPtr = std::make_unique<EventContext>(m_localEventNumber, slot);
-      eventContextPtr->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun) );
+      eventContextPtr->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                                 m_currentRunCtx.eventID().run_number()) );
       auto eventContext = SG::makeHandle(m_eventContextWHKey,*eventContextPtr);
       HLT_EVTLOOP_CHECK(eventContext.record(std::move(eventContextPtr)),
                         "Failed to record new EventContext in the event store",
@@ -742,6 +700,20 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);
+
+      //-----------------------------------------------------------------------
+      // COOL updates for LB changes
+      //-----------------------------------------------------------------------
+      // Schedule COOL folder updates based on CTP fragment
+      HLT_EVTLOOP_CHECK(m_coolHelper->scheduleFolderUpdates(*eventContext), "Failure reading CTP extra payload",
+                        hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+
+      // Do an update if this is a new LB
+      if ( maxLB < eventContext->eventID().lumi_block() ) {
+        maxLB = eventContext->eventID().lumi_block();
+        HLT_EVTLOOP_CHECK(m_coolHelper->hltCoolUpdate(*eventContext), "Failure during COOL update",
+                          hltonl::PSCErrorCode::COOL_UPDATE, *eventContext);
+      }
 
       //------------------------------------------------------------------------
       // Process the event
@@ -876,25 +848,23 @@ void HltEventLoopMgr::updateDFProps()
 }
 
 // =============================================================================
-const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
+StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  // update the run number
-  m_currentRun = pt.get<uint32_t>("RunParams.run_number");
 
-  // need to provide an event context extended with a run number, down the line passed to IOVDBSvc::signalBeginRun
-  EventContext runStartEventContext = {}; // with invalid evt number and slot number
-  runStartEventContext.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun));
+  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath);
+  const auto& rparams = pt.get_child("RunParams");
 
-  // Fill SOR parameters from the ptree
-  TrigSORFromPtreeHelper sorhelp{msgStream()};
-  const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"),runStartEventContext);
-  if(!sor) {
-    ATH_REPORT_MESSAGE(MSG::ERROR) << "setup of SOR from ptree failed";
-  }
+  // Set our "run context" (invalid event/slot)
+  m_currentRunCtx.setEventID( sorhelp.eventID(rparams) );
+  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                           m_currentRunCtx.eventID().run_number()));
+
+  // Fill SOR parameters from ptree and inform IOVDbSvc
+  ATH_CHECK( sorhelp.fillSOR(rparams, m_currentRunCtx) );
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return sor;
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -988,15 +958,18 @@ void HltEventLoopMgr::updateDetMask(const std::pair<uint64_t, uint64_t>& dm)
 }
 
 // =============================================================================
-const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) const
+const coral::AttributeList& HltEventLoopMgr::getSorAttrList() const
 {
+  auto sor = m_detectorStore->retrieve<const TrigSORFromPtreeHelper::SOR>(m_sorPath);
+  if (sor==nullptr) {
+    throw std::runtime_error("Cannot retrieve " + m_sorPath);
+  }
   if(sor->size() != 1)
   {
     // This branch should never be entered (the CondAttrListCollection
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    ATH_REPORT_MESSAGE(MSG::ERROR) << "Wrong SOR: size = " << sor->size();
     throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
   }
 

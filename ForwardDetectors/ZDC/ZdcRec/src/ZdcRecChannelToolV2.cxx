@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -113,7 +113,7 @@ StatusCode ZdcRecChannelToolV2::finalize()
 }
 //==================================================================================================
 
-int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttCollection, xAOD::ZdcModuleContainer* zdcModules )
+int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttCollection, xAOD::ZdcModuleContainer* zdcModules ) const
 {
 
   //typedef std::map<uint64_t,xAOD::ZdcModule*> hashmapType;
@@ -200,7 +200,7 @@ int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttColle
 
 }
 
-int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
+int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
 {
   
   size_t nsamp = 0;
@@ -335,7 +335,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 
 //Returns a pointer to a RawChannel Collection with energy and time
 //==================================================================================================
-int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCollection)
+int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCollection) const
 {
 
 	Identifier id;
@@ -345,7 +345,7 @@ int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCo
 	return 0;
 }
 
-int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs)
+int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) const
 {
   times.clear();
   adcs.clear();
@@ -360,7 +360,7 @@ int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vecto
   return 1;
 }
 
-int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp)
+int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp) const
 {
 
   if (times.size() != adcs.size()) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ModuleVetoCondAlg.h"
@@ -20,7 +20,7 @@ string2Vector(const std::string& s) {
 }
 
 SCT_ModuleVetoCondAlg::SCT_ModuleVetoCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -43,11 +43,11 @@ StatusCode SCT_ModuleVetoCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ModuleVetoCondAlg::execute() {
+StatusCode SCT_ModuleVetoCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_ModuleVetoCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_ModuleVetoCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -57,7 +57,7 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<AthenaAttributeList> readHandle{m_readKey};
+  SG::ReadCondHandle<AthenaAttributeList> readHandle{m_readKey, ctx};
   const AthenaAttributeList* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -76,7 +76,7 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   std::unique_ptr<SCT_ModuleVetoCondData> writeCdo{std::make_unique<SCT_ModuleVetoCondData>()};
 
   // Read bad wafer info
-  std::string badModuleString{(*readCdo)["ModuleList"].data<std::string>()};
+  const std::string &badModuleString{(*readCdo)["ModuleList"].data<std::string>()};
   std::vector<int> v{string2Vector<int>(badModuleString)};
   int numberInDb{static_cast<int>(v.size())};
   ATH_MSG_INFO(numberInDb << " elements were declared bad in the database.");

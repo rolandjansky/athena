@@ -9,7 +9,8 @@
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
@@ -39,27 +40,27 @@ class TrigEgammaEmulationTool
 
     //****************************************************************************** 
     TrigEgammaEmulationTool(const std::string& myname);
-    ~TrigEgammaEmulationTool() {};
+    virtual ~TrigEgammaEmulationTool() {};
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
     //execute all emulators
-    const Root::TAccept& executeTool( const std::string &);
-    const Root::TAccept& executeTool( const HLT::TriggerElement *, const std::string &);
-    const Root::TAccept& getAccept(){return m_accept;}
+    virtual asg::AcceptData executeTool( const std::string &) override;
+    virtual asg::AcceptData executeTool( const HLT::TriggerElement *, const std::string &) override;
+    virtual const asg::AcceptInfo& getAccept() const override {return m_accept;}
     
-    bool EventWiseContainer();
-    bool isPassed(const std::string&);
-    bool isPassed(const std::string&, const std::string&);
+    virtual bool EventWiseContainer() override;
+    virtual bool isPassed(const std::string&) override;
+    virtual bool isPassed(const std::string&, const std::string&) override;
 
     
     /* Experimental methods */
-    void ExperimentalAndExpertMethods(){m_experimentalAndExpertMethods=true;};
+    virtual void ExperimentalAndExpertMethods() override {m_experimentalAndExpertMethods=true;};
     
-    void match( const xAOD::Egamma *, const HLT::TriggerElement *&);
-    const HLT::TriggerElement* getTEMatched(){return m_teMatched;};
+    virtual void match( const xAOD::Egamma *, const HLT::TriggerElement *&) override;
+    virtual const HLT::TriggerElement* getTEMatched() override {return m_teMatched;};
 
 
   private:
@@ -93,7 +94,7 @@ class TrigEgammaEmulationTool
     std::vector<std::string>                      m_supportingTrigList;
     std::map<std::string, Trig::Info>             m_trigInfo;
 
-    Root::TAccept                                 m_accept;
+    asg::AcceptInfo                               m_accept;
     StoreGateSvc                                 *m_storeGate;
     ToolHandle<Trig::TrigDecisionTool>            m_trigdec;
     ToolHandle<Trig::ITrigEgammaMatchingTool>     m_matchTool;

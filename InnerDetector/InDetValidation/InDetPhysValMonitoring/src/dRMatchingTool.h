@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_DRMATCHINGTOOL_H
@@ -90,30 +90,30 @@ public:
   ~dRMatchingTool();
 
   /// SelectionTool method(s).
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual const Root::TAccept& getTAccept( ) const;
-  virtual const Root::TAccept& accept(const xAOD::IParticle* p) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual const asg::AcceptInfo& getAcceptInfo( ) const override;
+  virtual asg::AcceptData accept(const xAOD::IParticle* p) const override;
 
   /// dR-matching specific method(s).
   // For matching single track to set of truth particles.
-  virtual const Root::TAccept&
+  virtual asg::AcceptData
   acceptLegacy(const xAOD::TrackParticle* p,
                const xAOD::TruthParticleContainer* truthParticles,
                bool (* truthSelectionTool)(const xAOD::TruthParticle*) = nullptr) const;
 
-  const Root::TAccept&
+  asg::AcceptData
   accept(const xAOD::TrackParticle* p,
          const xAOD::TruthParticleContainer* truthParticles,
          bool (* truthSelectionTool)(const xAOD::TruthParticle*) = nullptr) const;
 
   // For matching single truth particle to set of tracks.
-  virtual const Root::TAccept&
+  virtual asg::AcceptData
   acceptLegacy(const xAOD::TruthParticle* p,
                const xAOD::TrackParticleContainer* trackParticles,
                bool (* trackSelectionTool)(const xAOD::TrackParticle*) = nullptr) const;
 
-  const Root::TAccept&
+  asg::AcceptData
   accept(const xAOD::TruthParticle* p,
          const xAOD::TrackParticleContainer* trackParticles,
          bool (* trackSelectionTool)(const xAOD::TrackParticle*) = nullptr) const;
@@ -165,8 +165,8 @@ protected:
                    std::vector< const V* >& vec_phi) const;
 private:
   /// Data member(s).
-  // TAccept object.
-  mutable Root::TAccept m_accept;
+  // AcceptInfo object.
+  asg::AcceptInfo m_accept;
   // Vector of stored cut names and descriptions.
   std::vector<std::pair<std::string, std::string> > m_cuts;
 

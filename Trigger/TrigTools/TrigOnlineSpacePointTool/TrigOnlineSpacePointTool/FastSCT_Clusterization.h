@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CLUSTERIZATION_H
@@ -8,7 +8,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "Identifier/Identifier.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
 #include <vector>

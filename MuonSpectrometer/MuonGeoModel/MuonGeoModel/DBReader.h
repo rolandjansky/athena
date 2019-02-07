@@ -15,7 +15,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <string>
 #include <iostream>
@@ -176,19 +176,19 @@ namespace MuonGM {
                 //std::cout<<" ProcessMDT "<<s<<" index "<<i<<" jsta ="<<wmdt[i].iw<<std::endl;
                 
                 mdt->numOfLayers=wmdt[i].laymdt;
-                mdt->innerRadius=wmdt[i].tubrad*GeoModelKernelUnits::cm;
-                mdt->totalThickness=wmdt[i].tubsta*GeoModelKernelUnits::cm;
-                mdt->pitch=wmdt[i].tubpit*GeoModelKernelUnits::cm;
+                mdt->innerRadius=wmdt[i].tubrad*Gaudi::Units::cm;
+                mdt->totalThickness=wmdt[i].tubsta*Gaudi::Units::cm;
+                mdt->pitch=wmdt[i].tubpit*Gaudi::Units::cm;
                 mdt->thickness=mdt->totalThickness;
                 mdt->tubeDeadLength = 0; // cannot be defined here (it depends on chamber size)
                 //mdt->endPlugLength  is not OK in p03
-                //mdt->endPlugLength = wmdt[i].tubdea*GeoModelKernelUnits::cm;
-                mdt->tubeEndPlugLength = wmdt[i].tubdea*GeoModelKernelUnits::cm;
+                //mdt->endPlugLength = wmdt[i].tubdea*Gaudi::Units::cm;
+                mdt->tubeEndPlugLength = wmdt[i].tubdea*Gaudi::Units::cm;
                                 
-                mdt->tubeWallThickness = wmdt[i].tubwal*GeoModelKernelUnits::cm;
+                mdt->tubeWallThickness = wmdt[i].tubwal*Gaudi::Units::cm;
                 
-                for(unsigned int k=0; k<4;k++) mdt->y[k]=wmdt[i].tubyco[k]*GeoModelKernelUnits::cm;
-                for(unsigned int j=0; j<4;j++) mdt->x[j]=wmdt[i].tubxco[j]*GeoModelKernelUnits::cm;
+                for(unsigned int k=0; k<4;k++) mdt->y[k]=wmdt[i].tubyco[k]*Gaudi::Units::cm;
+                for(unsigned int j=0; j<4;j++) mdt->x[j]=wmdt[i].tubxco[j]*Gaudi::Units::cm;
                 //std::cout << mdt->numOfLayers << std::endl;
             }
             //std::cout<<" nstruct in processMDT "<< nStruct<<" at iter "<<i<<std::endl;
@@ -214,17 +214,17 @@ namespace MuonGM {
         //std::cout << " TECH. A new RPC named " <<s<<" nrpc = "<<nrpc<<std::endl;
         //std::cout<<" Creating a RPC at "<<rpc<<" named "<<s<<std::endl;
     
-        rpc->centralSupPanelThickness          = (wrpcall->tckfsp)*GeoModelKernelUnits::cm;
-        rpc->centralAlSupPanelThickness        = (wrpcall->ackfsp)*GeoModelKernelUnits::cm;
+        rpc->centralSupPanelThickness          = (wrpcall->tckfsp)*Gaudi::Units::cm;
+        rpc->centralAlSupPanelThickness        = (wrpcall->ackfsp)*Gaudi::Units::cm;
         if (RPCprint)
             std::cout<<"ProcessRPC:: RPC central sup panel: tot & Al "<<rpc->centralSupPanelThickness<<" "
                      <<rpc->centralAlSupPanelThickness<<std::endl;
 
-        rpc->bakeliteThickness                  =(wrpcall->tckbak)*GeoModelKernelUnits::cm;
-        rpc->bakeliteframesize                  =0.5*(wrpcall->sdedmi)*GeoModelKernelUnits::cm;
-        rpc->gasThickness                       =(wrpcall->tckgas)*GeoModelKernelUnits::cm;
-        rpc->bakelitePetThickness               =0.190*GeoModelKernelUnits::mm; // TBM same as Amdb, why hardwired? Not in DblQ00Wrpc!
-        rpc->totalAirThickness = 0.52*GeoModelKernelUnits::mm;                  // TBM added
+        rpc->bakeliteThickness                  =(wrpcall->tckbak)*Gaudi::Units::cm;
+        rpc->bakeliteframesize                  =0.5*(wrpcall->sdedmi)*Gaudi::Units::cm;
+        rpc->gasThickness                       =(wrpcall->tckgas)*Gaudi::Units::cm;
+        rpc->bakelitePetThickness               =0.190*Gaudi::Units::mm; // TBM same as Amdb, why hardwired? Not in DblQ00Wrpc!
+        rpc->totalAirThickness = 0.52*Gaudi::Units::mm;                  // TBM added
         rpc->GasGapThickness=2.*rpc->bakeliteThickness+
                              rpc->gasThickness        +
                              2.*rpc->bakelitePetThickness +
@@ -242,26 +242,26 @@ namespace MuonGM {
         if (RPCprint)
             std::cout<<"ProcessRPC::WARNING redefining RPC::bakeliteThickness to include pet "
                      <<rpc->bakeliteThickness<<std::endl;    
-        rpc->spacerDiameter                     =(wrpcall->spdiam)*GeoModelKernelUnits::cm;
-        rpc->spacerPitch                        =(wrpcall->sppitc)*GeoModelKernelUnits::cm;
+        rpc->spacerDiameter                     =(wrpcall->spdiam)*Gaudi::Units::cm;
+        rpc->spacerPitch                        =(wrpcall->sppitc)*Gaudi::Units::cm;
         rpc->MidChamberDeadRegion_in_s          =2.*rpc->bakeliteframesize;
-        rpc->MidChamberDeadRegion_in_z          =(wrpcall->zdedmi)*GeoModelKernelUnits::cm;
+        rpc->MidChamberDeadRegion_in_z          =(wrpcall->zdedmi)*Gaudi::Units::cm;
         if (RPCprint)
             std::cout<<" ProcessRPC:: spacerDiam, pitch, MidChamberDeadRegion_in_s, MidChamberDeadRegion_in_z "
                      <<rpc->spacerDiameter<<" "<<rpc->spacerPitch<<" "
                      <<rpc->MidChamberDeadRegion_in_s<<" "<<rpc->MidChamberDeadRegion_in_z<<std::endl;
 
-        rpc->petFoilThickness    =0.190*GeoModelKernelUnits::mm; //TBM this is the same as bakelite PET thickness?
+        rpc->petFoilThickness    =0.190*Gaudi::Units::mm; //TBM this is the same as bakelite PET thickness?
         if (RPCprint) std::cout
             <<"ProcessRPC:: defining RPC::petfoilThickness = "<<rpc->petFoilThickness
             <<std::endl;    
     
-        rpc->stripPanelFoamThickness            =(wrpcall->tckssu)*GeoModelKernelUnits::cm;
-        rpc->stripPanelCopperSkinThickness      =(wrpcall->tckstr)*GeoModelKernelUnits::cm;
-        rpc->stripPanelStripSidePetThickness    =0.25*GeoModelKernelUnits::mm; //missing in AmdbNova
-        rpc->stripPanelGroundSidePetThickness   =0.07*GeoModelKernelUnits::mm; //missing in AmdbNova
-        rpc->frontendBoardWidth = 36.*GeoModelKernelUnits::mm;
-        rpc->backendBoardWidth  = 21.*GeoModelKernelUnits::mm;
+        rpc->stripPanelFoamThickness            =(wrpcall->tckssu)*Gaudi::Units::cm;
+        rpc->stripPanelCopperSkinThickness      =(wrpcall->tckstr)*Gaudi::Units::cm;
+        rpc->stripPanelStripSidePetThickness    =0.25*Gaudi::Units::mm; //missing in AmdbNova
+        rpc->stripPanelGroundSidePetThickness   =0.07*Gaudi::Units::mm; //missing in AmdbNova
+        rpc->frontendBoardWidth = 36.*Gaudi::Units::mm;
+        rpc->backendBoardWidth  = 21.*Gaudi::Units::mm;
         if (RPCprint) std::cout
             <<"ProcessRPC:: stp panel: foam, 2*copper, petg, pets, fe, be "
             <<rpc->stripPanelFoamThickness<<" "
@@ -283,7 +283,7 @@ namespace MuonGM {
             <<"ProcessRPC::WARNING redefining RPC::stripPanelFoamThickness to include pet on both sides "
             <<rpc->stripPanelFoamThickness <<std::endl;    
         
-        rpc->rpcLayerThickness                  =(wrpcall->tckrla)*GeoModelKernelUnits::cm;
+        rpc->rpcLayerThickness                  =(wrpcall->tckrla)*Gaudi::Units::cm;
         double rpcLayerComputedTck = rpc->GasGapThickness +
                                      2*rpc->stripPanelThickness + rpc->petFoilThickness;    
         if (RPCprint) std::cout<<"ProcessRPC:: rpcLayerComputedTck =  "<<rpcLayerComputedTck
@@ -308,8 +308,8 @@ namespace MuonGM {
                 done = true;
                 //std::cout<<" done for jtech, wrpc[i].jsta = "<<jtech<<" "<<wrpc[i].jsta<<std::endl;
             
-                rpc->externalSupPanelThickness           =(wrpcall->tlohcb)*GeoModelKernelUnits::cm; //TBM
-                rpc->externalAlSupPanelThickness         =(wrpcall->alohcb)*GeoModelKernelUnits::cm; //TBM
+                rpc->externalSupPanelThickness           =(wrpcall->tlohcb)*Gaudi::Units::cm; //TBM
+                rpc->externalAlSupPanelThickness         =(wrpcall->alohcb)*Gaudi::Units::cm; //TBM
                 if (RPCprint) std::cout<<"ProcessRPC:: RPC external sup panel: tot & Al "
                                        <<rpc->centralSupPanelThickness<<" "
                                        <<rpc->centralAlSupPanelThickness<<std::endl;
@@ -323,13 +323,13 @@ namespace MuonGM {
                                                           rpc->externalSupPanelThickness;
                 if (RPCprint) std::cout<<"ProcessRPC:: (computed) Total RPC thickness = "
                                        <<rpc->TotalThickness<<std::endl;
-                rpc->maxThickness = 46.*GeoModelKernelUnits::mm;  // TBM same as (wrpcall->tottck)*GeoModelKernelUnits::cm;
+                rpc->maxThickness = 46.*Gaudi::Units::mm;  // TBM same as (wrpcall->tottck)*Gaudi::Units::cm;
                 rpc->thickness = rpc->maxThickness;
                 if (RPCprint) std::cout<<"ProcessRPC:: RPC max thickness "<<rpc->maxThickness <<std::endl;
                         
-                rpc->stripPitchS                        =(wrpc[i].spitch)*GeoModelKernelUnits::cm;
-                rpc->stripPitchZ                        =(wrpc[i].zpitch)*GeoModelKernelUnits::cm;
-                rpc->stripSeparation                    =(wrpc[i].dedstr)*GeoModelKernelUnits::cm;
+                rpc->stripPitchS                        =(wrpc[i].spitch)*Gaudi::Units::cm;
+                rpc->stripPitchZ                        =(wrpc[i].zpitch)*Gaudi::Units::cm;
+                rpc->stripSeparation                    =(wrpc[i].dedstr)*Gaudi::Units::cm;
                 if (RPCprint) std::cout<<"ProcessRPC:: s_pitch, z_pitch "
                                        <<rpc->stripPitchS <<" "<<rpc->stripPitchZ<<std::endl;
             
@@ -375,11 +375,11 @@ namespace MuonGM {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wtgcall[i].jsta,2) )
             {
                 tgc->nlayers  =wtgcall[i].nbevol;
-                tgc->thickness=wtgcall[i].widchb*GeoModelKernelUnits::cm;
+                tgc->thickness=wtgcall[i].widchb*Gaudi::Units::cm;
                 //std::cout<<" ProcessTGC accepted "<<s<<" index "<<i<<" jsta ="<<wtgcall[i].jsta
                 //         <<" internal struct has "<<tgc->nlayers<<" layers; thickness is "<<tgc->thickness<<std::endl;
-                tgc->frame_h  =wtgcall[i].fwirch*GeoModelKernelUnits::cm;
-                tgc->frame_ab =wtgcall[i].fwixch*GeoModelKernelUnits::cm;
+                tgc->frame_h  =wtgcall[i].fwirch*Gaudi::Units::cm;
+                tgc->frame_ab =wtgcall[i].fwixch*Gaudi::Units::cm;
                 //int subtype = wtgcall[i].jsta;
                 //             std::cout<<" thick, frame_h, frame_ab "<< tgc->thickness
                 //                      <<" "<<tgc->frame_h<<" "<<tgc->frame_ab<<std::endl;
@@ -394,8 +394,8 @@ namespace MuonGM {
                     n++;
                     //std::cout<<" select this by jsta = "<<wtgc[j].jsta<<" until now "<<n<<" selected"<<std::endl;
                     mat=(int)wtgc[j].icovol;
-                    p=wtgc[j].zpovol*GeoModelKernelUnits::cm;
-                    t=wtgc[j].widvol*GeoModelKernelUnits::cm;
+                    p=wtgc[j].zpovol*Gaudi::Units::cm;
+                    t=wtgc[j].widvol*Gaudi::Units::cm;
                     tgc->materials.push_back(v[mat-1]);
                     //std::cerr<<" Processing TGC iw = "<<s<<" mat = "<<mat<<" v[mat-1] "<<v[mat-1]<<std::endl;
                     tgc->positions.push_back(p);
@@ -454,25 +454,25 @@ namespace MuonGM {
                     //                    std::cout<<" ProcessCSC "<<s<<" index "<<i<<" jsta ="<<wcsc[i].jsta<<std::endl;
                     
                     csc->numOfLayers=wcsc[i].laycsc;
-                    csc->totalThickness=wcsc[i].ttotal*GeoModelKernelUnits::cm;
+                    csc->totalThickness=wcsc[i].ttotal*Gaudi::Units::cm;
                     csc->thickness=csc->totalThickness;
-                    csc->honeycombthick=wcsc[i].tnomex*GeoModelKernelUnits::cm;
+                    csc->honeycombthick=wcsc[i].tnomex*Gaudi::Units::cm;
                     
-                    csc->g10thick=wcsc[i].tlag10*GeoModelKernelUnits::cm;  //csc->g10thick=0.0820*GeoModelKernelUnits::cm;
+                    csc->g10thick=wcsc[i].tlag10*Gaudi::Units::cm;  //csc->g10thick=0.0820*Gaudi::Units::cm;
 
                     // wire spacing 
-                    csc->wirespacing =wcsc[i].wispa*GeoModelKernelUnits::cm;
+                    csc->wirespacing =wcsc[i].wispa*Gaudi::Units::cm;
                     // anode-cathode distance
-                    csc->anocathodist=wcsc[i].dancat*GeoModelKernelUnits::cm;
+                    csc->anocathodist=wcsc[i].dancat*Gaudi::Units::cm;
                     // gapbetwcathstrips
-                    csc->gapbetwcathstrips=wcsc[i].gstrip*GeoModelKernelUnits::cm;
+                    csc->gapbetwcathstrips=wcsc[i].gstrip*Gaudi::Units::cm;
 
                     // precision (Radial) strip pitch
-                    csc->cathreadoutpitch=wcsc[i].pcatre*GeoModelKernelUnits::cm; // it was not used before but set by hand in CscReadoutEl.
+                    csc->cathreadoutpitch=wcsc[i].pcatre*Gaudi::Units::cm; // it was not used before but set by hand in CscReadoutEl.
                     // Azimuthal strip pitch
 
-                    //csc->phireadoutpitch = wcsc[i].psndco*GeoModelKernelUnits::cm;
-                    csc->phireadoutpitch = wcsc[i].azcat*GeoModelKernelUnits::cm;
+                    //csc->phireadoutpitch = wcsc[i].psndco*Gaudi::Units::cm;
+                    csc->phireadoutpitch = wcsc[i].azcat*Gaudi::Units::cm;
                     //std::cerr<<" do we come here ??? csc->phireadoutpitch = "<<csc->phireadoutpitch<<std::endl;
 
                     //std::cerr<<" csc->phireadoutpitch = "<<csc->phireadoutpitch<<"  csc->cathreadoutpitch "<< csc->cathreadoutpitch<<std::endl;
@@ -485,20 +485,20 @@ namespace MuonGM {
                     csc->nPhistrips = 48;
 
                     // precision (Radial) strip width
-                    csc->readoutstripswidth=wcsc[i].wrestr*GeoModelKernelUnits::cm;
+                    csc->readoutstripswidth=wcsc[i].wrestr*Gaudi::Units::cm;
                     // Azimuthal strip width
                     csc->floatingstripswidth =0.;
-                    csc->phistripwidth      = wcsc[i].wflstr*GeoModelKernelUnits::cm; // CTB and layout Q interpretation
+                    csc->phistripwidth      = wcsc[i].wflstr*Gaudi::Units::cm; // CTB and layout Q interpretation
 
                     // dead materials 
-                    csc->rectwasherthick=wcsc[i].trrwas*GeoModelKernelUnits::cm;
-                    csc->roxacellwith = 54.96*GeoModelKernelUnits::mm; //  CTB, layout Q, R, etc: must be computed
-                    csc->roxwirebargap=wcsc[i].groxwi*GeoModelKernelUnits::cm;
-                    csc->fullgasgapwirewidth=wcsc[i].wgasba*GeoModelKernelUnits::cm;
-                    csc->fullwirefixbarwidth=wcsc[i].wfixwi*GeoModelKernelUnits::cm;
-                    csc->wirebarposx=wcsc[i].pba1wi*GeoModelKernelUnits::cm;
-                    csc->wirebarposy=wcsc[i].pba2wi*GeoModelKernelUnits::cm;
-                    csc->wirebarposz=wcsc[i].pba3wi*GeoModelKernelUnits::cm;
+                    csc->rectwasherthick=wcsc[i].trrwas*Gaudi::Units::cm;
+                    csc->roxacellwith = 54.96*Gaudi::Units::mm; //  CTB, layout Q, R, etc: must be computed
+                    csc->roxwirebargap=wcsc[i].groxwi*Gaudi::Units::cm;
+                    csc->fullgasgapwirewidth=wcsc[i].wgasba*Gaudi::Units::cm;
+                    csc->fullwirefixbarwidth=wcsc[i].wfixwi*Gaudi::Units::cm;
+                    csc->wirebarposx=wcsc[i].pba1wi*Gaudi::Units::cm;
+                    csc->wirebarposy=wcsc[i].pba2wi*Gaudi::Units::cm;
+                    csc->wirebarposz=wcsc[i].pba3wi*Gaudi::Units::cm;
 //                    std::cerr<<"A) tname, s, csc->numOfLayers "<<tname<<" "<<s<<" "<<csc->numOfLayers<<std::endl;
                     if (tname == s) return;
                     
@@ -524,14 +524,14 @@ namespace MuonGM {
                 log<<MSG::WARNING<<" update by hand a few numbers for the current technology sub-type "<<s
                    <<" // Layout = "<<mysql->getGeometryVersion()<<" OK if layout is Q02, Q02_initial"<<endmsg;
                 // precision (Radial) strip pitch
-                csc->cathreadoutpitch  =5.31*GeoModelKernelUnits::mm;
+                csc->cathreadoutpitch  =5.31*Gaudi::Units::mm;
                 // Azimuthal strip pitch
-                csc->phireadoutpitch   =21.0*GeoModelKernelUnits::mm;
+                csc->phireadoutpitch   =21.0*Gaudi::Units::mm;
                 // precision (Radial) strip width
-                csc->readoutstripswidth=1.52*GeoModelKernelUnits::mm;
+                csc->readoutstripswidth=1.52*Gaudi::Units::mm;
                 // Azimuthal strip width
                 csc->floatingstripswidth = 0; // layout P interpretation
-                csc->phistripwidth    =20.60*GeoModelKernelUnits::mm;
+                csc->phistripwidth    =20.60*Gaudi::Units::mm;
                 return;
             }
         }
@@ -552,9 +552,9 @@ namespace MuonGM {
         //std::cerr << " TECH. A new SPA named " <<s<<" nspa = "<<nspa<<std::endl;
         for (unsigned int i=0; i<dhwspa->size(); i++) {
             //        sprintf(ind,"%i",wspa[i].type);
-            //if(s[3]==ind[0]) spa->thickness=wspa[i].tckspa*GeoModelKernelUnits::cm;
+            //if(s[3]==ind[0]) spa->thickness=wspa[i].tckspa*Gaudi::Units::cm;
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wspa[i].jsta,2) )
-                spa->thickness=wspa[i].tckspa*GeoModelKernelUnits::cm;
+                spa->thickness=wspa[i].tckspa*Gaudi::Units::cm;
         }
     } // end of ProcessSPA
     
@@ -576,17 +576,17 @@ namespace MuonGM {
             //        sprintf(ind,"%i",wsup[i].type);
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wsup[i].jsta,2) )
             {
-                sup->alFlangeThickness=wsup[i].xxsup[0]*GeoModelKernelUnits::cm;
+                sup->alFlangeThickness=wsup[i].xxsup[0]*Gaudi::Units::cm;
                 //if (s[3]=='3') //SUP3
                 if( s.substr(3,s.size()-3) == "03" )
                 {
-                    sup->alHorFlangeLength=(fabs)(wsup[i].zzsup[1])*GeoModelKernelUnits::cm;
-                    sup->alVerFlangeLength=wsup[i].xxsup[1]*GeoModelKernelUnits::cm - wsup[i].xxsup[0]*GeoModelKernelUnits::cm;
-                    sup->alVerProfileThickness=wsup[i].zzsup[3]*GeoModelKernelUnits::cm;
-                    sup->alHorProfileThickness=wsup[i].xxsup[3]*GeoModelKernelUnits::cm - wsup[i].xxsup[2]*GeoModelKernelUnits::cm;
-                    sup->largeVerClearance=wsup[i].xxsup[3]*GeoModelKernelUnits::cm;
-                    sup->smallVerClearance=wsup[i].xxsup[2]*GeoModelKernelUnits::cm;
-                    sup->HorClearance=wsup[i].zzsup[2]*GeoModelKernelUnits::cm;
+                    sup->alHorFlangeLength=(fabs)(wsup[i].zzsup[1])*Gaudi::Units::cm;
+                    sup->alVerFlangeLength=wsup[i].xxsup[1]*Gaudi::Units::cm - wsup[i].xxsup[0]*Gaudi::Units::cm;
+                    sup->alVerProfileThickness=wsup[i].zzsup[3]*Gaudi::Units::cm;
+                    sup->alHorProfileThickness=wsup[i].xxsup[3]*Gaudi::Units::cm - wsup[i].xxsup[2]*Gaudi::Units::cm;
+                    sup->largeVerClearance=wsup[i].xxsup[3]*Gaudi::Units::cm;
+                    sup->smallVerClearance=wsup[i].xxsup[2]*Gaudi::Units::cm;
+                    sup->HorClearance=wsup[i].zzsup[2]*Gaudi::Units::cm;
                     sup->xAMDB0 = -sup->largeVerClearance -sup->alHorProfileThickness/2.;
                     sup->yAMDB0 = 0.;
                     sup->zAMDB0 = - sup->alVerProfileThickness
@@ -596,11 +596,11 @@ namespace MuonGM {
                 }
                 else //SUP1 and SUP2
                 {
-                    sup->alHorFlangeLength=wsup[i].zzsup[0]*GeoModelKernelUnits::cm;
+                    sup->alHorFlangeLength=wsup[i].zzsup[0]*Gaudi::Units::cm;
                     sup->alVerFlangeLength=0.;
-                    sup->alVerProfileThickness=wsup[i].xxsup[0]*GeoModelKernelUnits::cm;
+                    sup->alVerProfileThickness=wsup[i].xxsup[0]*Gaudi::Units::cm;
                     sup->alHorProfileThickness=0.;
-                    sup->largeVerClearance=wsup[i].xxsup[1]*GeoModelKernelUnits::cm;
+                    sup->largeVerClearance=wsup[i].xxsup[1]*Gaudi::Units::cm;
                     sup->smallVerClearance=0.;
                     sup->HorClearance=0.;
                     double totzgm = 2.*sup->alHorFlangeLength+sup->alVerProfileThickness+sup->HorClearance;
@@ -643,11 +643,11 @@ namespace MuonGM {
         for (unsigned int i=0; i<dhwded->size(); i++) {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wded[i].jsta,2) )
             {
-//                 ded->AlThickness=(wded[i].tckded)*GeoModelKernelUnits::cm;
-//                 ded->AlThickness = ded->AlThickness * GeoModelKernelUnits::cm;
+//                 ded->AlThickness=(wded[i].tckded)*Gaudi::Units::cm;
+//                 ded->AlThickness = ded->AlThickness * Gaudi::Units::cm;
 // a lot of confusion in the various versions of the geometry in nova
-                ded->AlThickness=0.3*GeoModelKernelUnits::mm;
-                ded->thickness=(wded[i].auphcb)*GeoModelKernelUnits::cm;
+                ded->AlThickness=0.3*Gaudi::Units::mm;
+                ded->thickness=(wded[i].auphcb)*Gaudi::Units::cm;
                 ded->HoneyCombThickness=ded->thickness-2.*ded->AlThickness;
                 break;
             }
@@ -670,9 +670,9 @@ namespace MuonGM {
         for (int i=0; i<nStruct; i++) {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wchv[i].jsta,2) )
             {
-                chv->thickness=wchv[i].thickness*GeoModelKernelUnits::cm;
-                chv->largeness=wchv[i].largeness*GeoModelKernelUnits::cm;
-                chv->height=wchv[i].heightness*GeoModelKernelUnits::cm;
+                chv->thickness=wchv[i].thickness*Gaudi::Units::cm;
+                chv->largeness=wchv[i].largeness*Gaudi::Units::cm;
+                chv->height=wchv[i].heightness*Gaudi::Units::cm;
             }
         }
     }// end of ProcessCHV
@@ -694,9 +694,9 @@ namespace MuonGM {
         for (int i=0; i<nStruct; i++) {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wcro[i].jsta,2) )
             {
-                cro->thickness=wcro[i].thickness*GeoModelKernelUnits::cm;
-                cro->largeness=wcro[i].largeness*GeoModelKernelUnits::cm;
-                cro->height=wcro[i].heightness*GeoModelKernelUnits::cm;
+                cro->thickness=wcro[i].thickness*Gaudi::Units::cm;
+                cro->largeness=wcro[i].largeness*Gaudi::Units::cm;
+                cro->height=wcro[i].heightness*Gaudi::Units::cm;
                 //std::cerr<<" thick, width, height "<<cro->thickness<<" "<<cro->largeness<<" "<<cro->height<<std::endl;
             }
         }
@@ -719,9 +719,9 @@ namespace MuonGM {
         for (int i=0; i<nStruct; i++) {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wcmi[i].jsta,2) )
             {
-                cmi->thickness=wcmi[i].thickness*GeoModelKernelUnits::cm;
-                cmi->largeness=wcmi[i].largeness*GeoModelKernelUnits::cm;
-                cmi->height=wcmi[i].heightness*GeoModelKernelUnits::cm;
+                cmi->thickness=wcmi[i].thickness*Gaudi::Units::cm;
+                cmi->largeness=wcmi[i].largeness*Gaudi::Units::cm;
+                cmi->height=wcmi[i].heightness*Gaudi::Units::cm;
             }
         }
     }// end of ProcessCMI
@@ -743,10 +743,10 @@ namespace MuonGM {
         for (int i=0; i<nStruct; i++) {
             if( s.substr(2,s.size()-2) == MuonGM::buildString(wlbi[i].jsta,2) )
             {
-                lbi->thickness=wlbi[i].thickness*GeoModelKernelUnits::cm;
-                lbi->height=wlbi[i].height*GeoModelKernelUnits::cm;
-                lbi->lowerThickness=wlbi[i].lowerThickness*GeoModelKernelUnits::cm;
-                lbi->yShift=wlbi[i].yShift*GeoModelKernelUnits::cm;
+                lbi->thickness=wlbi[i].thickness*Gaudi::Units::cm;
+                lbi->height=wlbi[i].height*Gaudi::Units::cm;
+                lbi->lowerThickness=wlbi[i].lowerThickness*Gaudi::Units::cm;
+                lbi->yShift=wlbi[i].yShift*Gaudi::Units::cm;
             }
         }
     } // end of ProcessLBI
@@ -860,13 +860,13 @@ namespace MuonGM {
                 //std::cout<<" ---- iz,fi  "<<p.zindex<<", "<<p.phiindex;
                 p.phi      = aptp[ipos].dphi+double(phiindex)*45.;
                 //std::cout<<" phi is "<<p.phi;
-                p.radius   = aptp[ipos].r*GeoModelKernelUnits::cm;
+                p.radius   = aptp[ipos].r*Gaudi::Units::cm;
                 //std::cout<<"  r  is "<<p.radius<<std::endl;
-                p.z        = aptp[ipos].z*GeoModelKernelUnits::cm;
+                p.z        = aptp[ipos].z*Gaudi::Units::cm;
                 if (p.zindex<0 && name.substr(0,1) == "B" && hasMdts) p.z = p.z-halfpitch;
             
                 //std::cout<<"  z  is "<<p.z<<std::endl;
-                p.shift    = aptp[ipos].s*GeoModelKernelUnits::cm;
+                p.shift    = aptp[ipos].s*Gaudi::Units::cm;
                 if (verbose_posmap) std::cout<<"p.zindex,p.phi "<<p.zindex<<" "<<p.phiindex<<" shift is "<<p.shift<<std::endl;
                 // amdb seems to follow the opposite convention about the sign
                 // of rotation around the azimuthal axis (foro them it is a rotation
@@ -1045,9 +1045,9 @@ namespace MuonGM {
                             //                       std::cout << "FindPosition found the match for " << stname
                             //                                 << std::endl;
                             AlignPos ap;
-                            ap.tras=0.*GeoModelKernelUnits::cm; // in cm from NOVA...
-                            ap.traz=0.*GeoModelKernelUnits::cm; // in cm
-                            ap.trat=0.*GeoModelKernelUnits::cm; // in cm
+                            ap.tras=0.*Gaudi::Units::cm; // in cm from NOVA...
+                            ap.traz=0.*Gaudi::Units::cm; // in cm
+                            ap.trat=0.*Gaudi::Units::cm; // in cm
                             ap.rots=0.; // in radians
                             ap.rotz=0.; // in radians
                             ap.rott=0.; // in radians             
@@ -1055,9 +1055,9 @@ namespace MuonGM {
 			    
                             if (controlAlines >= 111111) 
                             {
-                                ap.tras=aszt[ipos].tras*GeoModelKernelUnits::cm; // in cm from NOVA...
-                                ap.traz=aszt[ipos].traz*GeoModelKernelUnits::cm; // in cm
-                                ap.trat=aszt[ipos].trat*GeoModelKernelUnits::cm; // in cm
+                                ap.tras=aszt[ipos].tras*Gaudi::Units::cm; // in cm from NOVA...
+                                ap.traz=aszt[ipos].traz*Gaudi::Units::cm; // in cm
+                                ap.trat=aszt[ipos].trat*Gaudi::Units::cm; // in cm
                                 ap.rots=aszt[ipos].rots; // in radians
                                 ap.rotz=aszt[ipos].rotz; // in radians
                                 ap.rott=aszt[ipos].rott; // in radians
@@ -1083,17 +1083,17 @@ namespace MuonGM {
                                 }
                                 if  (int(controlAlines/1000)%10 != 0)
                                 {
-                                    ap.trat=aszt[ipos].trat*GeoModelKernelUnits::cm;
+                                    ap.trat=aszt[ipos].trat*Gaudi::Units::cm;
                                     //std::cout<<" setting up t-translation "<<ap.trat<<endl;
                                 }
                                 if  (int(controlAlines/10000)%10 != 0)
                                 {
-                                    ap.traz=aszt[ipos].traz*GeoModelKernelUnits::cm;
+                                    ap.traz=aszt[ipos].traz*Gaudi::Units::cm;
                                     //std::cout<<" setting up z-translation "<<ap.traz<<endl;
                                 }
                                 if  (int(controlAlines/100000)%10 != 0)
                                 {
-                                    ap.tras=aszt[ipos].tras*GeoModelKernelUnits::cm;
+                                    ap.tras=aszt[ipos].tras*Gaudi::Units::cm;
                                     //std::cout<<" setting up s-translation "<<ap.tras<<endl;
                                 }
                             }
@@ -1153,7 +1153,7 @@ namespace MuonGM {
 
         // that doesn't seem right for BME/BMG chambers - no idea if has an impact at the end
         // in any case it was wrong since every and would have been wrong also in previous code
-        double default_halfpitch = 15.0175*GeoModelKernelUnits::mm;
+        double default_halfpitch = 15.0175*Gaudi::Units::mm;
 	double halfpitch = default_halfpitch;
 	
         // loop over the banks of station components: ALMN
@@ -1220,7 +1220,7 @@ namespace MuonGM {
 			<< " for " << name << std::endl;
 		      continue;
 		    }
-		    halfpitch = 0.5*wmdt[jtech-1].tubpit*GeoModelKernelUnits::cm;
+		    halfpitch = 0.5*wmdt[jtech-1].tubpit*Gaudi::Units::cm;
 		    log << MSG::DEBUG
 		      << "Found new halfpitch: " << halfpitch
 		      << " for " << name << std::endl;
@@ -1268,19 +1268,19 @@ namespace MuonGM {
             }
 
             // define here common properties
-            c->posx=almn[icomp].dx*GeoModelKernelUnits::cm;
-            c->posy=almn[icomp].dy*GeoModelKernelUnits::cm;
-            c->posz=almn[icomp].dz*GeoModelKernelUnits::cm;
+            c->posx=almn[icomp].dx*Gaudi::Units::cm;
+            c->posy=almn[icomp].dy*Gaudi::Units::cm;
+            c->posz=almn[icomp].dz*Gaudi::Units::cm;
             c->index=almn[icomp].job;
             c->name=cartec+MuonGM::buildString(almn[icomp].iw, 2);
             c->iswap=almn[icomp].ishape;
-            c->dx1=almn[icomp].width_xs*GeoModelKernelUnits::cm;
-            c->dx2=almn[icomp].width_xl*GeoModelKernelUnits::cm;
-            c->dy=almn[icomp].length_y*GeoModelKernelUnits::cm;
-            c->excent=almn[icomp].excent*GeoModelKernelUnits::cm;
-            c->deadx=almn[icomp].dead1*GeoModelKernelUnits::cm;
-            c->deady=almn[icomp].dead2*GeoModelKernelUnits::cm;
-            c->dead3=almn[icomp].dead3*GeoModelKernelUnits::cm;
+            c->dx1=almn[icomp].width_xs*Gaudi::Units::cm;
+            c->dx2=almn[icomp].width_xl*Gaudi::Units::cm;
+            c->dy=almn[icomp].length_y*Gaudi::Units::cm;
+            c->excent=almn[icomp].excent*Gaudi::Units::cm;
+            c->deadx=almn[icomp].dead1*Gaudi::Units::cm;
+            c->deady=almn[icomp].dead2*Gaudi::Units::cm;
+            c->dead3=almn[icomp].dead3*Gaudi::Units::cm;
 
             //std::cout<<" This component of station "<<name<<" is a "<<c->name<<std::endl;
             if (cartec == "CSC")
@@ -1289,10 +1289,10 @@ namespace MuonGM {
                 if (derc == NULL) std::cout<<" There is a problem"<<std::endl;
                 if (name[2] == 'L'){
                     //std::cout<<" here is a CSL ..."<<std::endl;
-                    derc->dy = 1129.20*GeoModelKernelUnits::mm;  // AMDB-Q and CTB
+                    derc->dy = 1129.20*Gaudi::Units::mm;  // AMDB-Q and CTB
                     // DHW: fix values from AMDB
-                    //else derc->dy = 1111.5*GeoModelKernelUnits::mm;
-                    derc->maxwdy = almn[icomp].length_y*GeoModelKernelUnits::cm;
+                    //else derc->dy = 1111.5*Gaudi::Units::mm;
+                    derc->maxwdy = almn[icomp].length_y*Gaudi::Units::cm;
                 }
                 else  derc->maxwdy = c->dy;
                 //ProcessCSC(derc->name);
@@ -1302,7 +1302,7 @@ namespace MuonGM {
                 derc->maxwdy = derc->dy;
                 if (jtech == 6 && name.substr(0,3) == "CSL") 
                 {
-                    derc->dy     = 1129.20*GeoModelKernelUnits::mm; // AMDB-Q and CTB
+                    derc->dy     = 1129.20*Gaudi::Units::mm; // AMDB-Q and CTB
                 }
                 //ProcessSPA(derc->name);
             }
@@ -1409,10 +1409,10 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		     << " component with subcut i="<<alin[ialin].i
 		     << endmsg;
 		  Cutout *c = new Cutout();
-		  c->dx = alin[ialin].dx*GeoModelKernelUnits::cm;
-		  c->dy = alin[ialin].dy*GeoModelKernelUnits::cm;
-		  c->widthXs = alin[ialin].width_xs*GeoModelKernelUnits::cm;
-		  c->widthXl = alin[ialin].width_xl*GeoModelKernelUnits::cm;
+		  c->dx = alin[ialin].dx*Gaudi::Units::cm;
+		  c->dy = alin[ialin].dy*Gaudi::Units::cm;
+		  c->widthXs = alin[ialin].width_xs*Gaudi::Units::cm;
+		  c->widthXl = alin[ialin].width_xl*Gaudi::Units::cm;
                   //std::string::size_type locmystr = mysql->get_DBMuonVersion().find("Egg");
                   //if ( locmystr != std::string::npos )
                   //{                      
@@ -1425,19 +1425,19 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
                   //    if (alin[ialin].jtyp == 11 && c->dy>0.1)
                   //    {
                   //        std::cout<<"DBREADER redefining dy of the cutout from "<<c->dy;
-                  //        c->dy = 1021.2000*GeoModelKernelUnits::mm;
+                  //        c->dy = 1021.2000*Gaudi::Units::mm;
                   //        std::cout<<" to "<<c->dy<<std::endl;
                   //    }
                   //    else if (alin[ialin].jtyp == 11 && c->dy>0.0001)
                   if (alin[ialin].jtyp == 11 && (c->dy>0.0001 && c->dy<1.))
                   {
                     std::cout<<"DBREADER redefining dy of the cutout from "<<c->dy;
-                    c->dy = 0.000*GeoModelKernelUnits::mm;
+                    c->dy = 0.000*Gaudi::Units::mm;
                     std::cout<<" to "<<c->dy<<std::endl;
                   }
                   //}
-		  c->lengthY = alin[ialin].length_y*GeoModelKernelUnits::cm;
-		  c->excent = alin[ialin].excent*GeoModelKernelUnits::cm;
+		  c->lengthY = alin[ialin].length_y*Gaudi::Units::cm;
+		  c->excent = alin[ialin].excent*Gaudi::Units::cm;
                   c->dead1 = alin[ialin].dead1;
 		  // temporary fix for bug in Nova/Oracle: 18/05/2006 I don't think this is needed anymore 
 		  // c->dead1 = 10.*alin[ialin].dead1;

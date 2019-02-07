@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,16 +34,22 @@ class ISCT_DCSConditionsTool: virtual public ISCT_ConditionsTool {
   DeclareInterfaceID(ISCT_DCSConditionsTool, 1, 0);
 
   //@}
+  virtual float modHV(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   //Does the same for hashIds
+  virtual float modHV(const IdentifierHash& hashId, const EventContext& ctx) const =0;
   virtual float modHV(const IdentifierHash& hashId) const =0;
   //Returns temp0 (0 if there is no information)
+  virtual float hybridTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   virtual float hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   //Does the same for hashIds
+  virtual float hybridTemperature(const IdentifierHash& hashId, const EventContext& ctx) const =0;
   virtual float hybridTemperature(const IdentifierHash& hashId) const =0;
   //Returns temp0 + correction for Lorentz angle calculation (0 if there is no information)
+  virtual float sensorTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   //Does the same for hashIds
+  virtual float sensorTemperature(const IdentifierHash& hashId, const EventContext& ctx) const =0;
   virtual float sensorTemperature(const IdentifierHash& hashId) const =0;
 
  private:

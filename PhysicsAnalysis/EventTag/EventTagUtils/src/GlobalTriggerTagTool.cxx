@@ -115,8 +115,8 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
         }
      }
      const EventIncident* evtinc = dynamic_cast<const EventIncident*>(&incident);
-     if(evtinc==0) ATH_MSG_ERROR("Couldn't get EventIncident object => EventInfo not available");
-     unsigned long run = evtinc->eventInfo().event_ID()->run_number();
+     if(evtinc==0) ATH_MSG_ERROR("Couldn't get EventIncident object => Event Info not available");
+     unsigned long run = incident.context().eventID().run_number();
 
      unsigned int index = 0;
      std::map<std::string,std::string> bitmap;

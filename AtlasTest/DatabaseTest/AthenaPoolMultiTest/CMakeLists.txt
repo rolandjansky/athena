@@ -6,9 +6,7 @@
 atlas_subdir( AthenaPoolMultiTest )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleAlgorithms
-                          PRIVATE
+atlas_depends_on_subdirs( PRIVATE
                           AtlasTest/DatabaseTest/AthenaPoolTestData
                           Control/AthenaBaseComps
                           Control/SGTools
@@ -22,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/DBDataModel
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamData
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
                           TestPolicy )
@@ -31,17 +28,11 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
-atlas_add_library( AthenaPoolMultiTestLib
-                   src/*.cxx
-                   PUBLIC_HEADERS AthenaPoolMultiTest
-                   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES StoreGateLib SGtests GoodRunsListsLib ByteStreamData_test
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools CollectionBase CollectionUtilities AthenaPoolExampleData AthenaPoolUtilities PersistentDataModel DBDataModel ByteStreamData EventInfo xAODEventInfo GaudiKernel )
-
 atlas_add_component( AthenaPoolMultiTest
+                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools StoreGateLib SGtests GoodRunsListsLib CollectionBase CollectionUtilities AthenaPoolExampleData AthenaPoolUtilities DBDataModel ByteStreamData ByteStreamData_test EventInfo xAODEventInfo GaudiKernel AthenaPoolMultiTestLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools StoreGateLib SGtests GoodRunsListsLib CollectionBase CollectionUtilities AthenaPoolExampleData AthenaPoolUtilities PersistentDataModel DBDataModel ByteStreamData ByteStreamData_test xAODEventInfo GaudiKernel )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
@@ -67,24 +58,12 @@ endfunction (athenapoolmultitest_run_test)
 
 athenapoolmultitest_run_test( AthenaPoolMultiTestBuildInput SplittableData_jo
                               post_check_bi )
-#athenapoolmultitest_run_test( AthenaPoolMultiTestCollectInput TestSimpleCollection
-#                              post_check_ci
-#                              DEPENDS AthenaPoolMultiTestBuildInput )
 athenapoolmultitest_run_test( AthenaPoolMultiTestEventSplit EventSplit_jo
                               post_check_es
                               DEPENDS AthenaPoolMultiTestBuildInput )
-#athenapoolmultitest_run_test( AthenaPoolMultiTestCheckCollections CheckExplicit_jo
-#                              post_check_co
-#                              DEPENDS AthenaPoolMultiTestEventSplit )
 athenapoolmultitest_run_test( AthenaPoolMultiTestCheckNull CheckNull_jo
                               post_check_cn
                               DEPENDS AthenaPoolMultiTestEventSplit )
 athenapoolmultitest_run_test( AthenaPoolMultiTestCheckOutput CheckImplicit_jo
                               post_check_co
                               DEPENDS AthenaPoolMultiTestEventSplit )
-
-#athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWrite BSMetaWrite
-#                              post_check_bs )
-#athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWriteNone BSMetaWriteNone
-#                              post_check_bs
-#                              DEPENDS AthenaPoolMultiTestBSMetaWrite )

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowClone_p1.cxx 
@@ -13,9 +13,3 @@
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/ParticleShallowClone_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-ParticleShallowClone_p1::~ParticleShallowClone_p1()
-{}

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Python function implementation of B-tagging configuration
 # Wouter van den Wollenberg (2013-2015)
@@ -487,6 +487,7 @@ class Configuration:
               raise RuntimeError
           print self.BTagTag()+' - INFO - Adding JetBTaggerAlg for '+jetcol
           from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
+          objs = {}
           options = dict(options)
           options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
           # setup the Analysis__BTagTrackAssociation tool
@@ -495,7 +496,7 @@ class Configuration:
           self._BTaggingConfig_MainAssociatorTools[jetcol] = thisBTagTrackAssociation
           options.setdefault('BTagTrackAssocTool', thisBTagTrackAssociation)
           # setup the secondary vertexing tool
-          thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+          thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose, objs=objs)
           self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
           options.setdefault('BTagSecVertexing', thisSecVtxTool)
           # Setup the associator tool
@@ -507,8 +508,11 @@ class Configuration:
           options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
           options.setdefault('BTaggingCollectionName', btagname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
+          objs['xAOD::BTaggingContainer'] = options['BTaggingCollectionName']
           # -- create main BTagging algorithm and add it to topSequence
           jetbtaggeralg = JetBTaggerAlg(**options)
+          from RecExConfig.ObjKeyStore import objKeyStore
+          objKeyStore.addManyTypesTransient(objs)
           if not topSequence is None:
               topSequence += jetbtaggeralg
           if Verbose:
@@ -1380,7 +1384,7 @@ class Configuration:
           ToolSvc += tool
       return tool
 
-  def setupSecVtxTool(self, name, JetCollection, ToolSvc, Verbose = False, options={}):
+  def setupSecVtxTool(self, name, JetCollection, ToolSvc, Verbose = False, options={}, objs=None):
       """Adds a SecVtxTool instance and registers it.
 
       input: name:               The tool's name.
@@ -1388,7 +1392,9 @@ class Configuration:
              ToolSvc:            The ToolSvc instance.
              Verbose:            Whether to print detailed information about the tool.
              options:            Python dictionary of options to be passed to the SecVtxTool.
-      output: The tool."""
+      output: The tool.
+
+      If OBJS is set, then it is filled with objects written to SG."""
       jetcol = JetCollection
       secVtxFinderList = []
       secVtxFinderTrackNameList = []
@@ -1426,6 +1432,9 @@ class Configuration:
       options.setdefault('JetFitterVariableFactory', jetFitterVF)
       options.setdefault('MSVVariableFactory', varFactory)
       options['name'] = name
+      if objs:
+        objs['xAOD::VertexContainer'] = options['BTagSVCollectionName']
+        objs['xAOD::BTagVertexContainer'] = options['BTagJFVtxCollectionName']
       from BTagging.BTaggingConf import Analysis__BTagSecVertexing
       tool = Analysis__BTagSecVertexing(**options)
       if self._name == "Trig":
@@ -1925,12 +1934,9 @@ def toolMainBTaggingTool(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        from BTagging.BTaggingConfiguration_CommonTools import toolthisBTagLabeling as toolthisBTagLabeling
-        btagLabeling = toolthisBTagLabeling('thisBTagLabeling')
         defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
                      'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,
                      'BaselineTagger'               : BTaggingFlags.BaselineTagger,
-                     'BTagLabelingTool'             : btagLabeling,
                      'vxPrimaryCollectionName'      : BTaggingFlags.PrimaryVertexCollectionName,
                      'OutputLevel'                  : BTaggingFlags.OutputLevel }
         for option in defaults:

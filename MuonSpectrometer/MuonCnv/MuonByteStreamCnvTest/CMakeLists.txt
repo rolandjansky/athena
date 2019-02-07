@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1RPChardware
                           Trigger/TrigT1/TrigT1RPClogic
                           PRIVATE
-                          Event/EventInfo
                           Event/EventInfoMgt
                           MuonSpectrometer/MuonCablings/MuonMDT_Cabling
                           MuonSpectrometer/MuonCablings/TGCcablingInterface

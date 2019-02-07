@@ -103,7 +103,16 @@ StatusCode  FastHitConvertTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode  FastHitConvertTool::process(CaloCellContainer *theCellContainer)
+StatusCode  FastHitConvertTool::process (CaloCellContainer* theCellContainer,
+                                         const EventContext& ctx) const
+{
+  if (ctx.slot() > 1) {
+    ATH_MSG_ERROR ("FastHitConvertTool doesn't work with MT.");
+    return StatusCode::FAILURE;
+  }
+  return const_cast<FastHitConvertTool*>(this)->process_nc (theCellContainer);
+}
+StatusCode  FastHitConvertTool::process_nc(CaloCellContainer *theCellContainer)
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   if (ctx.slot() > 1) {

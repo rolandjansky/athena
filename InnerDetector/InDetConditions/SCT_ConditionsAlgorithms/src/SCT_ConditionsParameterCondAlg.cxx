@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsParameterCondAlg.h"
@@ -72,7 +72,7 @@ namespace { //anonymous namespace introduces file-scoped functions
 }//namespace
 
 SCT_ConditionsParameterCondAlg::SCT_ConditionsParameterCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -96,11 +96,11 @@ StatusCode SCT_ConditionsParameterCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ConditionsParameterCondAlg::execute() {
+StatusCode SCT_ConditionsParameterCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_CondParameterData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_CondParameterData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -110,7 +110,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKey, ctx};
   const CondAttrListVec* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -137,7 +137,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   for (; modItr != modEnd; modItr += nChipsPerModule) {
     // Get SN and identifiers (the channel number is serial number+1)
     const unsigned int truncatedSerialNumber{modItr->first - 1};
-    const IdentifierHash& moduleHash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& moduleHash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx)};
     if (not moduleHash.is_valid()) continue;
     // Loop over chips within module
    
@@ -154,7 +154,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
         //short id      = channelItr->second[2].data<short>(); //chip 0-11
         float vthr{mVperDacBit * channelItr->second[10].data<short>()};  //threshold setting
         short rcFunctionIndex{channelItr->second[15].data<short>()}; //response curve function
-        std::string rcArgumentString{channelItr->second[16].data<std::string>()}; //response curve arguments
+        const std::string &rcArgumentString{channelItr->second[16].data<std::string>()}; //response curve arguments
         parseResponseCurveArguments(parameters, rcArgumentString);
         //float target = channelItr->second[18].data<float>(); //trim target...use for debugging only
         float femtoCoulombThreshold{responseCurve(parameters[0], parameters[1], parameters[2], vthr, rcFunctionIndex)};

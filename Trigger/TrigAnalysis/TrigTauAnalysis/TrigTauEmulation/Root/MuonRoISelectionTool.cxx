@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -28,20 +28,26 @@ StatusCode MuonRoISelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
+const asg::AcceptInfo& MuonRoISelectionTool::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method
-const Root::TAccept& MuonRoISelectionTool::accept(const xAOD::MuonRoI& l1muon) const
+asg::AcceptData MuonRoISelectionTool::accept(const xAOD::MuonRoI& l1muon) const
 
 {
-  m_accept.clear();
-  m_accept.setCutResult("MuonRoI", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("MuonRoI", false);
 
   if (fabs(l1muon.eta()) > m_roi_eta)
-    return m_accept;
+    return acceptData;
 
   if (l1muon.thrValue() < m_roi_pt)
-    return m_accept;
+    return acceptData;
 
-  m_accept.setCutResult("MuonRoI", true);
-  return m_accept;
+  acceptData.setCutResult("MuonRoI", true);
+  return acceptData;
 }
 

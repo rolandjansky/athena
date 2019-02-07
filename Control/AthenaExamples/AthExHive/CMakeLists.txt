@@ -12,14 +12,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/CxxUtils
                           Control/StoreGate
-                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthExHive
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaKernel AthenaBaseComps EventInfo )
+                     LINK_LIBRARIES AthenaKernel AthenaBaseComps xAODEventInfo )
 
 # Install files from the package:
 atlas_install_headers( AthExHive )

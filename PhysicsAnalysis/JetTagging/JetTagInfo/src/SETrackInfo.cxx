@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SETrackInfo.h"
@@ -63,9 +63,6 @@ SETrackInfo::SETrackInfo(const ElementLink<PhotonContainer>& gamLink,
     m_pTrel (pTrel),
     m_tagLikelihood (std::move (tagLikelihood))
  {
-}
-
-SETrackInfo::~SETrackInfo() {
 }
 
 const egamma* SETrackInfo::electron() const {

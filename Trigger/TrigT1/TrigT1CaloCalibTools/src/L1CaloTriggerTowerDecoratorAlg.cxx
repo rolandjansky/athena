@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1CaloTriggerTowerDecoratorAlg.cxx 728363 2016-03-08 12:45:29Z amazurov $
@@ -31,17 +31,15 @@ namespace LVL1 {
 L1CaloTriggerTowerDecoratorAlg::L1CaloTriggerTowerDecoratorAlg(
     const std::string& name, ISvcLocator* svcLoc)
     : AthAlgorithm(name, svcLoc),
-      m_sgKey_TriggerTowers(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
       m_caloCellEnergy(""),  // disabled by default
       m_caloCellET(""),      // disabled by default
       m_caloCellEnergyByLayer("CaloCellEnergyByLayer"),
       m_caloCellETByLayer("CaloCellETByLayer"),
       m_caloCellsQuality("CaloCellQuality"),
       m_caloCellEnergyByLayerByReceiver(""),  // disabled by default
-      m_caloCellETByLayerByReceiver("")       // disabled by default
+      m_caloCellETByLayerByReceiver(""),       // disabled by default
+      m_ttTools(this)
 {
-  declareProperty("sgKey_TriggerTowers", m_sgKey_TriggerTowers);
-
   declareProperty("DecorName_caloCellEnergy",
                   m_caloCellEnergy,  // disabled by default
                   "Decoration name - leave empty to disable");
@@ -108,6 +106,8 @@ StatusCode L1CaloTriggerTowerDecoratorAlg::initialize() {
             m_caloCellETByLayerByReceiver);
   }
 
+  CHECK( m_triggerTowerContainerKey.initialize(SG::AllowEmpty) );
+
   // Return gracefully:
   return StatusCode::SUCCESS;
 }
@@ -132,12 +132,11 @@ StatusCode L1CaloTriggerTowerDecoratorAlg::execute() {
   // use decorators to avoid the costly name -> auxid lookup
 
   // Shall I proceed?
-  if (evtStore()->contains<xAOD::TriggerTowerContainer>(
-          m_sgKey_TriggerTowers)) {
+  if (!m_triggerTowerContainerKey.empty()) {
     CHECK(m_ttTools->initCaloCells());
 
-    const xAOD::TriggerTowerContainer* tts(nullptr);
-    CHECK(evtStore()->retrieve(tts, m_sgKey_TriggerTowers));
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<xAOD::TriggerTowerContainer> tts (m_triggerTowerContainerKey, ctx);
     for (const auto x : *tts) {
       if (caloCellEnergyDecorator)
         (*caloCellEnergyDecorator)(*x) = m_ttTools->caloCellsEnergy(*x);

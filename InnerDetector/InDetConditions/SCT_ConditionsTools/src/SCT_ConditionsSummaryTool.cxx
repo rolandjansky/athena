@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,6 +10,8 @@
 
 #include "SCT_ConditionsSummaryTool.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+#include "GaudiKernel/EventContext.h"
 
 using namespace std;
 
@@ -64,8 +66,9 @@ SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, con
 bool
 SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   if (not m_noReports) {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(h) and (not tool->isGood(elementId, h))) return false;
+      if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) return false;
     }
   }
   return true;
@@ -74,8 +77,9 @@ SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetCondit
 bool
 SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash) const {
   if (not m_noReports) {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(InDetConditions::SCT_SIDE) and (not tool->isGood(elementHash))) return false;
+      if (tool->canReportAbout(InDetConditions::SCT_SIDE) and (not tool->isGood(elementHash, ctx))) return false;
     }    
   }
   return true;
@@ -84,8 +88,9 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash) const {
 bool
 SCT_ConditionsSummaryTool::isGood(const IdentifierHash& /*elementHash*/, const Identifier& elementId) const {
   if (not m_noReports) {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(InDetConditions::SCT_STRIP) and (not tool->isGood(elementId))) return false;
+      if (tool->canReportAbout(InDetConditions::SCT_STRIP) and (not tool->isGood(elementId, ctx))) return false;
     } 
   }
   return true;

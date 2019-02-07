@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTestAlg.cxx Implementation file for SCT_ReadCalibChipDataTestAlg class
@@ -21,7 +21,7 @@
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_id_sct{nullptr},
   m_moduleId{0},
   m_waferId{0},
@@ -89,7 +89,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::processProperties()
 } // SCT_ReadCalibChipDataTestAlg::processProperties()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
+StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
 
@@ -97,7 +97,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
   ATH_MSG_DEBUG("in execute()");
 
   // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
+  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey, ctx};
   if (not currentEvent.isValid()) {
     ATH_MSG_FATAL("Could not get event info");
     return StatusCode::FAILURE;
@@ -113,7 +113,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_waferId};
-    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, InDetConditions::SCT_SIDE)};
+    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, ctx, InDetConditions::SCT_SIDE)};
     ATH_MSG_INFO("Side " << IdS << " on module " << IdM << " is " << (Sok ? "good" : "bad"));
   }
 
@@ -126,7 +126,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     // Try to get some NPtGain data
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     std::string whatNPdata{"GainByChip"};
-    std::vector<float> NPdata{m_ReadCalibChipDataTool->getNPtGainData(Id, side, whatNPdata)};
+    std::vector<float> NPdata{m_ReadCalibChipDataTool->getNPtGainData(Id, side, whatNPdata, ctx)};
     for (unsigned int i{0}; i<NPdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNPdata << " for chip number " << i << " on side " << side << " is: " << NPdata[i]);
     }
@@ -134,7 +134,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     // Try to get some NO data
     // occupancy, occupancyRMS, noise, offset
     std::string whatNOdata{"OccupancyRMSByChip"};
-    std::vector<float> NOdata{m_ReadCalibChipDataTool->getNoiseOccupancyData(Id, side, whatNOdata)};
+    std::vector<float> NOdata{m_ReadCalibChipDataTool->getNoiseOccupancyData(Id, side, whatNOdata, ctx)};
     ATH_MSG_INFO("Size of returned data: "<<NOdata.size());
     for (unsigned int i{0}; i<NOdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNOdata << " for chip number " << i << " on side " << side << " is: " << NOdata[i]);
@@ -144,7 +144,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     Identifier invalidId;//constructor forms invalid Id
     ATH_MSG_INFO("Trying to retrieve invalid data");
-    std::vector<float> nvNPdata{m_ReadCalibChipDataTool->getNPtGainData(invalidId, 0, whatNPdata)};
+    std::vector<float> nvNPdata{m_ReadCalibChipDataTool->getNPtGainData(invalidId, 0, whatNPdata, ctx)};
     const long unsigned int sizeOfInvalidNPData{nvNPdata.size()};
     ATH_MSG_INFO("Size of returned data: " << sizeOfInvalidNPData);
     for (long unsigned int i{0}; i!=sizeOfInvalidNPData; ++i) {

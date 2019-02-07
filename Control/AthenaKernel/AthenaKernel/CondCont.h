@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -609,7 +609,7 @@ protected:
 
 private:
   /// Key type of this container.
-  KeyType m_keyType;
+  std::atomic<KeyType> m_keyType;
 
 
   /// CLID of the most-derived @c CondCont

@@ -14,6 +14,8 @@
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 #include <string>
 #include <map>
@@ -29,12 +31,12 @@ namespace Trig{
             TrigEgammaEmulationToolTest(const std::string& name, ISvcLocator* pSvcLocator);
 
             /// Destructor: 
-            ~TrigEgammaEmulationToolTest(); 
+            virtual ~TrigEgammaEmulationToolTest(); 
 
             /// Athena algorithm's Hooks
-            StatusCode  initialize();
-            StatusCode  execute();
-            StatusCode  finalize();
+            virtual StatusCode  initialize() override;
+            virtual StatusCode  execute() override;
+            virtual StatusCode  finalize() override;
 
         private: 
 
@@ -43,7 +45,7 @@ namespace Trig{
             StatusCode Method1();
             StatusCode Method2();
             void writeEmulationSummary();
-            bool setAccept(const HLT::TriggerElement*);
+            asg::AcceptData setAccept(const HLT::TriggerElement*);
             float ratio(float,float);
 
 
@@ -66,7 +68,7 @@ namespace Trig{
             std::map<std::string, unsigned >m_countMap;
             std::vector<std::string>   m_triggerList;
             StoreGateSvc              *m_storeGate;
-            Root::TAccept              m_accept;
+            asg::AcceptInfo            m_accept;
 
             const xAOD::ElectronContainer   *m_offElectrons;
 

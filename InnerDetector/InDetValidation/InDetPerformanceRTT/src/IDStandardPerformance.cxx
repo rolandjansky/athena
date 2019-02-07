@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -313,6 +313,7 @@ StatusCode IDStandardPerformance::initialize()
   // Read Handle Key
   ATH_CHECK(m_SCTtracksName.initialize(m_doHitBasedMatching));
   ATH_CHECK( m_TRTtracksKey.initialize(m_doHitBasedMatching) );
+  ATH_CHECK( m_evt.initialize() );
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
@@ -1724,14 +1725,11 @@ StatusCode IDStandardPerformance::fillHistograms()
     }
   }
   // WJM start: Get mu
-  const EventInfo* eventInfo = 0;
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
   double mu_val = 0;
-  if (evtStore()->retrieve(eventInfo)) {
-    //  if (evtStore()->retrieve(eventInfo, "EventInfo")) {
-    mu_val = eventInfo->averageInteractionsPerCrossing();
-    //    std::cout<<"wjm: found mu_val = "<<mu_val<<std::endl;
+  if(evt.isValid()) {
+    mu_val = evt->averageInteractionsPerCrossing();
   }
-  //  std::cout<<"wjm: now mu_val = "<<mu_val<<std::endl;
   m_mu->Fill(mu_val);
   // WJM end
   if (haveTruth)

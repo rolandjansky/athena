@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -12,6 +12,7 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // STL include(s):
@@ -73,8 +74,6 @@ namespace LVL1{
       
       /// Calo Cells into maps for L1Calo use
       StatusCode                                 initCaloCells(); 
-      /// Database init 
-      StatusCode                                 initDatabase();      
 
       std::vector<L1CaloRxCoolChannelId>         receivers( const xAOD::TriggerTower& tt ) const;
       std::vector<unsigned int>                  receiversId( const xAOD::TriggerTower& tt ) const;
@@ -179,9 +178,8 @@ namespace LVL1{
       CaloTriggerTowerService*                     m_ttSvc;
       
       /// StoreGate keys for the Calo Cells 
-      std::string m_sgKey_CaloCells;
-      /// StoreGate keys for the Database
-      std::string m_sgKey_dbPpmChanCalib;
+      SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey
+      { this, "CaloCellContainerKey", "AllCalo" };
       
       /// Database
       const CondAttrListCollection* m_dbPpmChanCalib;

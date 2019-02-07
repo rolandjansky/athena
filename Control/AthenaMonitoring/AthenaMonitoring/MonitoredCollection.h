@@ -62,12 +62,16 @@ namespace Monitored {
   // TEMPORARY: for backwards compatibility
   namespace MonitoredCollection {
 
-    template <class T> ValuesCollection<T> declare(std::string name, const T& collection) {
+
+    template <class T>
+    [[deprecated("Use Monitored::Collection instead (see MR athena!20403)")]]
+    ValuesCollection<T> declare(std::string name, const T& collection) {
       return ValuesCollection<T>(std::move(name), collection);
     }
 
-    template <class T> ObjectsCollection<T>
-    declare(std::string name, const T& collection,
+    template <class T>
+    [[deprecated("Use Monitored::Collection instead (see MR athena!20403)")]]
+    ObjectsCollection<T> declare(std::string name, const T& collection,
             std::function<double(const typename ObjectsCollection<T>::const_value_type&)>
                 converterToDouble) {
       return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));

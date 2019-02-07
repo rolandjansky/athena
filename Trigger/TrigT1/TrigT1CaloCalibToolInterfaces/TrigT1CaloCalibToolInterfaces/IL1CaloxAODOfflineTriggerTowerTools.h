@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -43,8 +43,6 @@ namespace LVL1{
       
       /// Calo Cells into maps for L1Calo use
       virtual StatusCode                                 initCaloCells() = 0;
-      /// Database init 
-      virtual StatusCode                                 initDatabase() = 0;
 
       virtual std::vector<L1CaloRxCoolChannelId>         receivers( const xAOD::TriggerTower& tt ) const = 0;
       virtual std::vector<unsigned int>                  receiversId( const xAOD::TriggerTower& tt ) const = 0;

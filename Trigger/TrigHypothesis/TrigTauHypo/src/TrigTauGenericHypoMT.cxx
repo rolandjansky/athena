@@ -44,7 +44,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 //class ISvcLocator;
 
@@ -94,10 +94,9 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
 
   bool pass = false;
 
-  using namespace Monitored;
 
-  auto PassedCuts        = MonitoredScalar::declare<int>( "CutCounter", -1 );
-  auto monitorIt         = MonitoredScope::declare( m_monTool, PassedCuts );
+  auto PassedCuts        = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto monitorIt         = Monitored::Group( m_monTool, PassedCuts );
 
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)

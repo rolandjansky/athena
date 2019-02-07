@@ -9,7 +9,7 @@
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "TRTDigSettings.h"
 
@@ -18,7 +18,7 @@
 
 //_____________________________________________________________________________
 TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
-					 ServiceHandle <IAtRndmGenSvc> atRndmGenSvc )
+					 CLHEP::HepRandomEngine *elecNoiseRndmEngine )
   : m_settings(digset),
     m_msg("TRTElectronicsNoise")
 {
@@ -27,10 +27,9 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
 
   //Need to initialize the signal shaping first as it is used in tabulateNoiseSignalShape()!
   this->InitializeNoiseShaping();
-  m_pHRengine = atRndmGenSvc->GetEngine("TRT_ElectronicsNoise");
   m_fractionOfSlowNoise = m_settings->slowPeriodicNoisePulseFraction();
   this->tabulateNoiseSignalShape();
-  this->reinitElectronicsNoise(200);
+  this->reinitElectronicsNoise(200, elecNoiseRndmEngine);
   const double slowPeriod(m_settings->slowPeriodicNoisePulseDistance());
 
   //Must be rounded to nearest multiple of binwidth... (fixme - from options)
@@ -46,7 +45,7 @@ TRTElectronicsNoise::~TRTElectronicsNoise(){}
 
 //_____________________________________________________________________________
 void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxLTOverNoiseAmp,
-							unsigned long nsamplings) {
+							unsigned long nsamplings, CLHEP::HepRandomEngine* rndmEngine) {
 
   // Note: The offset structure is not the same as in
   // addElectronicsNoise(), but that is OK, since it is not the exact
@@ -55,7 +54,7 @@ void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxL
 
   maxLTOverNoiseAmp.resize(nsamplings);
 
-  reinitElectronicsNoise(500);
+  reinitElectronicsNoise(500, rndmEngine);
   unsigned int index         = m_noiseSignalShape.size();
   unsigned int nbinsinperiod = m_settings->numberOfBins();
   unsigned int maxindex      = m_cachedFastNoiseAfterSignalShaping.size() - nbinsinperiod;
@@ -64,7 +63,7 @@ void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxL
     maxLTOverNoiseAmp[i] = getMax(index, index, nbinsinperiod );
     index += nbinsinperiod;
     if ( index  > maxindex ) {
-      reinitElectronicsNoise(500);
+      reinitElectronicsNoise(500, rndmEngine);
       index = m_noiseSignalShape.size();
     }
   }
@@ -93,7 +92,8 @@ double TRTElectronicsNoise::getMax(unsigned int firstbinslowsignal,
 }
 
 //_____________________________________________________________________________
-void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDigitLengths /*number of 75ns timeslices*/)
+void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDigitLengths /*number of 75ns timeslices*/,
+                                                 CLHEP::HepRandomEngine* rndmEngine)
 {
   //This method gives the actual physics shape!
   //Model parameters:
@@ -130,7 +130,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   while ( true ) {
     binindex = static_cast<unsigned int>(timeOfNextPulse*invbinwidth);
     if (binindex >= nbins) break;
-    m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 0., 1.);
+    m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0., 1.);
     timeOfNextPulse += fastPeriod;
   };
 
@@ -155,7 +155,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   while (true) {
     binindex = static_cast<unsigned int>(timeOfNextPulse*invbinwidth);
     if (binindex >= nbins) break;
-    m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 0., 1.);
+    m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0., 1.);
     timeOfNextPulse += slowPeriod;
   };
 
@@ -202,7 +202,8 @@ void TRTElectronicsNoise::tabulateNoiseSignalShape() {
 
 //_____________________________________________________________________________
 void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
-					      const double& noiseamplitude) {
+					      const double& noiseamplitude,
+                                              CLHEP::HepRandomEngine *rndmEngine) {
 
   // complain if uninitialized? (fixme)
 
@@ -223,10 +224,10 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
 
   //Find array offset for fast signal:
   const unsigned int nsignalbins(signal.size());
-  const unsigned int offset_fast(CLHEP::RandFlat::shootInt(m_pHRengine, m_cachedFastNoiseAfterSignalShaping.size()-nsignalbins));
+  const unsigned int offset_fast(CLHEP::RandFlat::shootInt(rndmEngine, m_cachedFastNoiseAfterSignalShaping.size()-nsignalbins));
 
   //Find array offset for slow periodic signal:
-  int offset_slowperiodic(CLHEP::RandFlat::shootInt(m_pHRengine,
+  int offset_slowperiodic(CLHEP::RandFlat::shootInt(rndmEngine,
                           m_cachedSlowNoiseAfterSignalShaping.size()
                           - nsignalbins-n_slowperiodic_shift
                           - slowperiodic_constshift));
@@ -234,7 +235,7 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
   offset_slowperiodic -= ( offset_slowperiodic % m_nbins_periodic );
   offset_slowperiodic -= slowperiodic_constshift;
 
-  const double rand(CLHEP::RandFlat::shoot(m_pHRengine, 0., 1.));
+  const double rand(CLHEP::RandFlat::shoot(rndmEngine, 0., 1.));
   for (unsigned int i(0); i < n_slowperiodic_shift; ++i) {
     if ( rand < slowperiodic_shift_prob_comul[i] ) {
       offset_slowperiodic -= i;

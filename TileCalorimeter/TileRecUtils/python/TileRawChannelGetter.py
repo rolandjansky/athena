@@ -58,13 +58,6 @@ class TileRawChannelGetter ( Configured)  :
         from AthenaCommon.AppMgr import ToolSvc
 
         from TileRecUtils.TileRecFlags import jobproperties
-        from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-        theTileBeamInfoProvider = TileBeamInfoProvider()
-
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        if hasattr(condSequence, 'TileDCSCondAlg'):
-            theTileBeamInfoProvider.CheckDCS = True
 
         # true for real data, false for MC - GlobalFlags.DataSource.is_data()
         # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
@@ -75,23 +68,23 @@ class TileRawChannelGetter ( Configured)  :
                 jobproperties.TileRecFlags.noiseFilter=1
 
             if jobproperties.TileRecFlags.TileRunType() == 1 :
-                theTileBeamInfoProvider.TileBeamElemContainer="";
+                tileBeamElemContainer="";
             else:
-                theTileBeamInfoProvider.TileBeamElemContainer="TileBeamElemCnt";
+                tileBeamElemContainer="TileBeamElemCnt";
             if jobproperties.TileRecFlags.readDigits():
-                theTileBeamInfoProvider.TileDigitsContainer="TileDigitsCnt";
+                tileDigitsContainer="TileDigitsCnt";
             else:
-                theTileBeamInfoProvider.TileDigitsContainer="";
-            theTileBeamInfoProvider.TileRawChannelContainer="TileRawChannelCnt";
+                tileDigitsContainer="";
+            tileRawChannelContainer="TileRawChannelCnt";
         else:
-            theTileBeamInfoProvider.TileBeamElemContainer="";
-            theTileBeamInfoProvider.TileDigitsContainer="";
-            theTileBeamInfoProvider.TileRawChannelContainer="";
+            tileBeamElemContainer="";
+            tileDigitsContainer="";
+            tileRawChannelContainer="";
 
         from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-        dq = TileDQstatusAlgDefault (TileRawChannelContainer = theTileBeamInfoProvider.TileRawChannelContainer,
-                                     TileDigitsContainer = theTileBeamInfoProvider.TileDigitsContainer,
-                                     TileBeamElemContainer = theTileBeamInfoProvider.TileBeamElemContainer)
+        dq = TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
+                                     TileDigitsContainer = tileDigitsContainer,
+                                     TileBeamElemContainer = tileBeamElemContainer)
                                 
 
         # set time window for amplitude correction if it was not set correctly before
@@ -105,8 +98,6 @@ class TileRawChannelGetter ( Configured)  :
                 jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
                 jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
 
-        ToolSvc += theTileBeamInfoProvider
-        
         TileFrameLength = ServiceMgr.TileInfoLoader.NSamples
         if TileFrameLength!=7:
             mlog.info("disabling reading of OFC from COOL because Nsamples!=7")

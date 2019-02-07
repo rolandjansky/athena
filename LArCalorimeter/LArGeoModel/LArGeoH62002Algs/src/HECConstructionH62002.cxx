@@ -23,7 +23,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoShapeUnion.h"  
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/AbsFunction.h"
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/Sin.h"
@@ -36,6 +35,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -151,7 +151,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   int lastPlaneHEC = ( sizeof(HECMotherZplan) / sizeof(double) );
 
 
-  double moduleDeltaPhi =  2.*M_PI/32. ;  //  = 11.25*GeoModelKernelUnits::deg; 
+  double moduleDeltaPhi =  2.*M_PI/32. ;  //  = 11.25*Gaudi::Units::deg; 
   double phiStart []  = {-19. , -18. } ;
   double hecPhistart[]  = { phiStart[0]*M_PI/32  ,   phiStart[1]*M_PI/32 } ;
   double modulePhistart[]  = { (phiStart[0]+2.)*M_PI/32  ,   (phiStart[1]+2.)*M_PI/32 } ;
@@ -212,9 +212,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   double             spacerDiameter[2];
 
   double ztie[2];   // This is the +/- z length of the tie rod in the LAr gap
-  ztie[0]=-0.227825*GeoModelKernelUnits::cm;
-  ztie[1]= 0.227825*GeoModelKernelUnits::cm;
-  double rodSize = 0.39435*GeoModelKernelUnits::cm;
+  ztie[0]=-0.227825*Gaudi::Units::cm;
+  ztie[1]= 0.227825*Gaudi::Units::cm;
+  double rodSize = 0.39435*Gaudi::Units::cm;
 
 
 
@@ -225,7 +225,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   const GeoLogVol*   logiSlice[3];
   GeoPhysVol*        physiSlice[3];
   // Absorber
-  double             radialShift = 1.02*GeoModelKernelUnits::cm;  // absorbers are adjusted by this amount          
+  double             radialShift = 1.02*Gaudi::Units::cm;  // absorbers are adjusted by this amount          
   GeoTubs*           solidFrontAbsorber[2];
   const GeoLogVol*   logiFrontAbsorber[2];
   GeoPhysVol*        physiFrontAbsorber[2];
@@ -272,19 +272,19 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   int    moduleNumberFront   = 3;             
   int    moduleNumberRear    = 2;              
   // radial dimensions of the modules:
-  double moduleRinner1  = (*hecLongitudinalBlock)[0]->getDouble("BLRMN")*GeoModelKernelUnits::cm;   
-  double moduleRinner2  = (*hecLongitudinalBlock)[1]->getDouble("BLRMN")*GeoModelKernelUnits::cm;   
-  double moduleRouter   = (*hecLongitudinalBlock)[0]->getDouble("BLRMX")*GeoModelKernelUnits::cm;   
+  double moduleRinner1  = (*hecLongitudinalBlock)[0]->getDouble("BLRMN")*Gaudi::Units::cm;   
+  double moduleRinner2  = (*hecLongitudinalBlock)[1]->getDouble("BLRMN")*Gaudi::Units::cm;   
+  double moduleRouter   = (*hecLongitudinalBlock)[0]->getDouble("BLRMX")*Gaudi::Units::cm;   
   // thickness of Cu pads, LAr gaps and inter-wheel gap:
-  double copperPad      = (*hadronicEndcap)[0]->getDouble("COPPER")*GeoModelKernelUnits::cm;
-  double gapSize        = (*hadronicEndcap)[0]->getDouble("LARG")*GeoModelKernelUnits::cm;
-  double betweenWheel   = (*hadronicEndcap)[0]->getDouble("GAPWHL")*GeoModelKernelUnits::cm; 
+  double copperPad      = (*hadronicEndcap)[0]->getDouble("COPPER")*Gaudi::Units::cm;
+  double gapSize        = (*hadronicEndcap)[0]->getDouble("LARG")*Gaudi::Units::cm;
+  double betweenWheel   = (*hadronicEndcap)[0]->getDouble("GAPWHL")*Gaudi::Units::cm; 
 
 
   for (int idepth=0; idepth < depthNumber; ++idepth)
     {
-      depthSize[idepth]    = (*hecLongitudinalBlock)[idepth]->getDouble("BLDPTH")*GeoModelKernelUnits::cm;
-      firstAbsorber[idepth]= (*hecLongitudinalBlock)[idepth]->getDouble("PLATE0")*GeoModelKernelUnits::cm;
+      depthSize[idepth]    = (*hecLongitudinalBlock)[idepth]->getDouble("BLDPTH")*Gaudi::Units::cm;
+      firstAbsorber[idepth]= (*hecLongitudinalBlock)[idepth]->getDouble("PLATE0")*Gaudi::Units::cm;
       gapNumber[idepth]    = (int) (*hecLongitudinalBlock)[idepth]->getDouble("BLMOD");
     }
 
@@ -293,8 +293,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << ikapton;
       const std::string A0 = A0STR.str();
-      kaptonPosition[ikapton] = (*hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*GeoModelKernelUnits::cm;
-      kaptonWidth[ikapton]    = (*hadronicEndcap)[0]->getDouble("KPTWID"+A0)*GeoModelKernelUnits::cm;
+      kaptonPosition[ikapton] = (*hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*Gaudi::Units::cm;
+      kaptonWidth[ikapton]    = (*hadronicEndcap)[0]->getDouble("KPTWID"+A0)*Gaudi::Units::cm;
     }
 
   for (int itie=0; itie < 4; ++itie)
@@ -302,8 +302,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << itie;
       const std::string A0 = A0STR.str(); 
-      tieRodPositionX[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*GeoModelKernelUnits::cm;
-      tieRodPositionY[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*GeoModelKernelUnits::cm;
+      tieRodPositionX[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*Gaudi::Units::cm;
+      tieRodPositionY[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*Gaudi::Units::cm;
     }
 
   for (int i=0; i < 2; ++i)
@@ -311,16 +311,16 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << i;
       const std::string A0 = A0STR.str();  
-      tieRodDiameter[i] = (*hadronicEndcap)[0]->getDouble("RODDIM"+A0)*GeoModelKernelUnits::cm;
-      spacerDiameter[i] = (*hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*GeoModelKernelUnits::cm;
+      tieRodDiameter[i] = (*hadronicEndcap)[0]->getDouble("RODDIM"+A0)*Gaudi::Units::cm;
+      spacerDiameter[i] = (*hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*Gaudi::Units::cm;
     }
 
 
-  double frontAbsThickness = (*hadronicEndcap)[0]->getDouble("PLATE_0")*GeoModelKernelUnits::cm;
-  double rearAbsThickness  = (*hadronicEndcap)[0]->getDouble("PLATE_1")*GeoModelKernelUnits::cm;
+  double frontAbsThickness = (*hadronicEndcap)[0]->getDouble("PLATE_0")*Gaudi::Units::cm;
+  double rearAbsThickness  = (*hadronicEndcap)[0]->getDouble("PLATE_1")*Gaudi::Units::cm;
   
   // Radial dimensions and z-plane locations
-  double zCoordinate[] = {0.0*GeoModelKernelUnits::cm, depthSize[0], depthSize[0], 816.51*GeoModelKernelUnits::mm, 816.51*GeoModelKernelUnits::mm, 1350.*GeoModelKernelUnits::mm };
+  double zCoordinate[] = {0.0*Gaudi::Units::cm, depthSize[0], depthSize[0], 816.51*Gaudi::Units::mm, 816.51*Gaudi::Units::mm, 1350.*Gaudi::Units::mm };
   double innerRadius[] = {moduleRinner1,moduleRinner1,
                          moduleRinner2,moduleRinner2,moduleRinner2,moduleRinner2,};   
 
@@ -490,7 +490,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //----------------------------------------------------------------
   //    Absorbers , the inner and outer Radius are smaller by radialShift
   //                but positionned in the center of depth. this alows
-  //                to have 2 GeoModelKernelUnits::mm gap between the copper plates of neighbor FrontModules 
+  //                to have 2 Gaudi::Units::mm gap between the copper plates of neighbor FrontModules 
   //----------------------------------------------------------------
 
   // Two different Absorbers for the front depths: 
@@ -703,10 +703,10 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //    Tie rods in Slice
   //----------------------------------------------------------------
 
-  //  double rodSize = 0.85*GeoModelKernelUnits::cm;
+  //  double rodSize = 0.85*Gaudi::Units::cm;
   for (int iwheel=0; iwheel<2; iwheel++) 
     { 
-      solidTieRod[iwheel] = new GeoTubs(0.*GeoModelKernelUnits::cm,spacerDiameter[iwheel]/2.,rodSize/2., 0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
+      solidTieRod[iwheel] = new GeoTubs(0.*Gaudi::Units::cm,spacerDiameter[iwheel]/2.,rodSize/2., 0.*Gaudi::Units::deg,360.*Gaudi::Units::deg); 
       logiTieRod[iwheel] = new GeoLogVol(tieRodName, solidTieRod[iwheel], Iron);     
     }
 
@@ -747,12 +747,12 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //----------------------------------------------------------------
   //    Tie rods in Absorbers
   //----------------------------------------------------------------
-  solidAbsorberTieRod[0] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg);
-  solidAbsorberTieRod[1] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
+  solidAbsorberTieRod[0] = new GeoTubs(0.*Gaudi::Units::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*Gaudi::Units::deg,360.*Gaudi::Units::deg);
+  solidAbsorberTieRod[1] = new GeoTubs(0.*Gaudi::Units::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*Gaudi::Units::deg,360.*Gaudi::Units::deg); 
   logiAbsorberTieRod[0]  = new GeoLogVol(tieRodName,solidAbsorberTieRod[0],Iron);  //,0,0,0);
   logiAbsorberTieRod[1]  = new GeoLogVol(tieRodName,solidAbsorberTieRod[1],Iron);  //,0,0,0);
-  solidAbsorberTieRodRear[0] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg);
-  solidAbsorberTieRodRear[1] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
+  solidAbsorberTieRodRear[0] = new GeoTubs(0.*Gaudi::Units::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*Gaudi::Units::deg,360.*Gaudi::Units::deg);
+  solidAbsorberTieRodRear[1] = new GeoTubs(0.*Gaudi::Units::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*Gaudi::Units::deg,360.*Gaudi::Units::deg); 
   logiAbsorberTieRodRear[0]  = new GeoLogVol(tieRodRearName,solidAbsorberTieRodRear[0],Iron);  //,0,0,0);
   logiAbsorberTieRodRear[1]  = new GeoLogVol(tieRodRearName,solidAbsorberTieRodRear[1],Iron);  //,0,0,0);
 

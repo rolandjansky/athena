@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_TRACKTRUTHSELECTORTOOL_H
@@ -21,13 +21,13 @@ public:
   virtual
   ~TrackTruthSelectionTool();
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual const Root::TAccept& getTAccept( ) const;
-  virtual const Root::TAccept& accept(const xAOD::IParticle* p) const;
-  virtual const Root::TAccept& accept(const xAOD::TruthParticle* p) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual const asg::AcceptInfo& getAcceptInfo( ) const override;
+  virtual asg::AcceptData accept(const xAOD::IParticle* p) const override;
+  virtual asg::AcceptData accept(const xAOD::TruthParticle* p) const;
 private:
-  mutable Root::TAccept m_accept;
+  asg::AcceptInfo m_accept;
   std::vector<std::pair<std::string, std::string> > m_cuts;
   mutable ULong64_t m_numTruthProcessed; // !< a counter of the number of tracks proccessed
   mutable ULong64_t m_numTruthPassed; // !< a counter of the number of tracks that passed all cuts

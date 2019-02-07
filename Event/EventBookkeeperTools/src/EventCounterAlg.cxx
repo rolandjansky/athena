@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventCounterAlg.cxx
@@ -21,6 +21,7 @@
 // EDM includes
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 
 
@@ -64,6 +65,7 @@ StatusCode EventCounterAlg::initialize()
                                    xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
                                    "AllStreams");
 
+  ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -79,6 +81,7 @@ StatusCode EventCounterAlg::finalize()
 
 StatusCode EventCounterAlg::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_VERBOSE ("Executing " << this->name() << "...");
 
   setFilterPassed(true);
@@ -86,8 +89,7 @@ StatusCode EventCounterAlg::execute()
   // Update also the other counters for the non-nominal MC weights
   if (m_trackOtherMCWeights) {
     // Get the EventInfo object
-    const xAOD::EventInfo* evtInfo = 0;
-    ATH_CHECK( evtStore()->retrieve(evtInfo) );
+    SG::ReadHandle<xAOD::EventInfo> evtInfo (m_eventInfoKey, ctx);
     // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
     if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) ) {
       ATH_MSG_DEBUG("We are not running on simulation and thus, nothing to be done here");

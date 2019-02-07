@@ -382,6 +382,18 @@ ElementLink< STORABLE >::dataID() const {
 }
 
 template< typename STORABLE >
+bool ElementLink< STORABLE >::operator==( const ElementLink& rhs ) const {
+
+   return ( ( key() == rhs.key() ) && ( index() == rhs.index() ) );
+}
+
+template< typename STORABLE >
+bool ElementLink< STORABLE >::operator!=( const ElementLink& rhs ) const {
+
+   return ( ! ( *this == rhs ) );
+}
+
+template< typename STORABLE >
 typename ElementLink< STORABLE >::ElementConstReference
 ElementLink< STORABLE >::operator*() const {
 

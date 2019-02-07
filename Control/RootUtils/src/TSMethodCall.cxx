@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -92,6 +92,7 @@ TMethodCall* TSMethodCall::call()
   if (!m_initialized) {
     // Not initialized ... try to do so now.  First take the lock.
     std::lock_guard<std::mutex> lock (m_mutex);
+    // cppcheck-suppress identicalInnerCondition; false positive
     if (!m_initialized) {
       m_meth.InitWithPrototype (m_cls, m_fname.c_str(), m_args.c_str(),
                                 false, ROOT::kExactMatch);

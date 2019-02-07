@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -60,8 +60,10 @@ class CaloCellFastCopyTool
                          const IInterface* parent);
 
     virtual StatusCode initialize() override;
-    virtual StatusCode process(CaloCellContainer* theCellContainer) override;
-    virtual StatusCode process(CaloConstCellContainer* theCellContainer) override;
+    virtual StatusCode process (CaloCellContainer* theCellContainer,
+                                const EventContext& ctx) const override;
+    virtual StatusCode process (CaloConstCellContainer* theCellContainer,
+                                const EventContext& ctx) const override;
 
 
 private:

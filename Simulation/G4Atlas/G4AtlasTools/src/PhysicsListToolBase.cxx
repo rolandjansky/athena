@@ -7,7 +7,7 @@
 #include "G4VUserPhysicsList.hh"
 #include "G4StateManager.hh"
 #include "G4RunManager.hh"
-#include "G4EmProcessOptions.hh"
+#include "G4EmParameters.hh"
 #include "G4UImanager.hh"
 #include "G4PhysListFactory.hh"
 
@@ -29,8 +29,13 @@ PhysicsListToolBase::PhysicsListToolBase(const std::string& type, const std::str
   declareProperty("GeneralCut"      , m_generalCut = 0,                "General cut");
   declareProperty("EMMaxEnergy"     , m_emMaxEnergy = -1.,             "Maximum energy for EM tables");
   declareProperty("EMMinEnergy"     , m_emMinEnergy = -1.,             "Minimum energy for EM tables");
-  declareProperty("EMDEDXBinning"   , m_emDEDXBinning = -1,            "Binning for EM dE/dX tables");
-  declareProperty("EMLambdaBinning" , m_emLambdaBinning = -1,          "Binning for EM Lambda tables");
+  /* --- ATLASSIM-3967 ---
+     Old methods SetDEDXBinning and SetLambdaBinning are replaced in G4 10.4 by
+     SetNumberOfBinsPerDecade which now controls both settings with the same
+     value. Instead of changing the overall number of bins, user should
+     specify the number of bins per energy decade instead.
+  */
+  declareProperty("EMNumberOfBinsPerDecade"   , m_emNumberOfBinsPerDecade = -1,  "Number of bins per Energy decade. Used for both DeDx and for the Lambda binning.");
   declareProperty("ApplyEMCuts"     , m_applyEMCuts = true,            "Apply cuts EM flag in Geant4");
   declareProperty("PhysOption"      , m_phys_option ,                  "Tool handle array of physics options" );
   declareProperty("PhysicsDecay"    , m_phys_decay ,                   "Tool handle array of physics decays" );
@@ -149,14 +154,13 @@ void PhysicsListToolBase::SetPhysicsOptions()
     }
   }
 
-  G4EmProcessOptions emo;
-  if (m_emMaxEnergy>=0) emo.SetMaxEnergy(m_emMaxEnergy);
-  if (m_emDEDXBinning>=0) emo.SetDEDXBinning(m_emDEDXBinning);
-  if (m_emLambdaBinning>=0) emo.SetLambdaBinning(m_emLambdaBinning);
-  if (m_emMinEnergy>=0) emo.SetMinEnergy(m_emMinEnergy);
+  G4EmParameters* emp = G4EmParameters::Instance();
+  if (m_emMaxEnergy>=0) emp->SetMaxEnergy(m_emMaxEnergy);
+  if (m_emNumberOfBinsPerDecade>=0) emp->SetNumberOfBinsPerDecade(m_emNumberOfBinsPerDecade);
+  if (m_emMinEnergy>=0) emp->SetMinEnergy(m_emMinEnergy);
   if (m_applyEMCuts)
     {
-      emo.SetApplyCuts(true);
+      emp->SetApplyCuts(true);
     }
   return;
 }

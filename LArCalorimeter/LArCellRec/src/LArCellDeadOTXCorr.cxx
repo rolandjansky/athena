@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *  @file  LArCellDeadOTXCorr.cxx
@@ -215,13 +215,9 @@ StatusCode LArCellDeadOTXCorr::initialize()
 //  process method
 //
 
-StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont) {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  return process(cellCont,ctx);
-}
-
-StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont, 
-					const EventContext& ctx) const {
+StatusCode  LArCellDeadOTXCorr::process (CaloCellContainer* cellCont,
+                                         const EventContext& ctx) const
+{
         ATH_MSG_DEBUG (" in process...");
 
 	SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_badFebKey,ctx};

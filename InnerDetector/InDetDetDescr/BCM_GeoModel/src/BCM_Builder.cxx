@@ -19,6 +19,8 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 //================ Constructor =================================================
 
 InDetDD::BCM_Builder::BCM_Builder(const std::string& t,
@@ -232,11 +234,11 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       
       //setting transformation
       GeoTrf::Translation3D pos(parameters->Position_X(), parameters->Position_Y(), parameters->Position_Z());
-      GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(parameters->Rotation_Z()*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateY3D(parameters->Rotation_Y()*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateX3D(parameters->Rotation_X()*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateY3D(-90.*GeoModelKernelUnits::deg);
+      GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(parameters->Rotation_Z()*Gaudi::Units::deg)
+	* GeoTrf::RotateY3D(parameters->Rotation_Y()*Gaudi::Units::deg)
+	* GeoTrf::RotateX3D(parameters->Rotation_X()*Gaudi::Units::deg)
+	* GeoTrf::RotateZ3D(-90.*Gaudi::Units::deg)
+	* GeoTrf::RotateY3D(-90.*Gaudi::Units::deg);
       GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       xform->ref();
       ATH_MSG_DEBUG(" --> Module " << i << " build!");

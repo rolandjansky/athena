@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBCELLCONTAINERFILLERTOOL_H
@@ -17,18 +17,19 @@ class CaloCell_ID;
 class LArCablingService;
 class LArOnlineID;
 
-class TBCellContainerFillerTool: public AthAlgTool, virtual public ICaloCellMakerTool 
+class TBCellContainerFillerTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
-    
    public:    
         
         TBCellContainerFillerTool(const std::string& type, const std::string& name, 
                                   const IInterface* parent) ;
 
-        virtual StatusCode initialize() ; 
+        virtual StatusCode initialize() override;
 
         // update theCellContainer
-        virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+        virtual StatusCode process (CaloCellContainer* theCellContainer,
+                                    const EventContext& ctx) const override;
 
     private:
         const CaloDetDescrManager *m_theCaloDDM;

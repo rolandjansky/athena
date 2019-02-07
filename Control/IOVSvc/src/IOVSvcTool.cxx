@@ -260,8 +260,6 @@ IOVSvcTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  p_incSvc->addListener( this, "CheckIOV", pri, true);
-
   if (m_preLoadData) {
     m_log << MSG::INFO;
     m_log.setColor(MSG::GREEN);
@@ -335,11 +333,11 @@ IOVSvcTool::handle(const Incident &inc) {
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
   if(Gaudi::Concurrency::ConcurrencyFlags::numProcs()==0) {
-    if (inc.type() == "BeginRun") {
+    if (inc.type() == IncidentType::BeginRun) {
       m_firstEventOfRun = true;
     }
 
-    if (inc.type() == "BeginEvent" && m_firstEventOfRun) {
+    if (inc.type() == IncidentType::BeginEvent && m_firstEventOfRun) {
       m_firstEventOfRun = false;
       if (m_checkTrigger == "BeginEvent") {
 	return;
@@ -347,57 +345,35 @@ IOVSvcTool::handle(const Incident &inc) {
     }
   }
 
-  if ( inc.type() == m_checkTrigger || inc.type() == "BeginRun" ||
-       inc.type() == "CheckIOV" ) {  
+  if ( inc.type() == m_checkTrigger || inc.type() == IncidentType::BeginRun ) {
 
-    const EventInfo* evt(0);
-    
-    // try to get EventInfo object from incident for CheckIOV
-    if (inc.type() == "CheckIOV") {
+    EventContext context;
+    const EventInfo* evt{nullptr};
+
+    if (StatusCode::SUCCESS != p_sgSvc->retrieve(evt)) {
+      // If EventInfo is not in the event store, check whether 
+      // whether we can get event context via BeginRun incident
+      evt = nullptr;
       const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-      if (eventInc != 0) {
-        if (m_log.level() <= MSG::DEBUG) {
-          m_log << MSG::DEBUG << " Got EventInfo object from CheckIOV incident"
-                << endmsg;
-        }
-        evt = &eventInc->eventInfo();
-      } else if (p_sgSvc->retrieve(evt).isFailure()) {
-        m_log << MSG::ERROR << " Unable to get EventInfo from either "
-              << "EventStore or CheckIOV incident" << endmsg;
-        return;
-
+      if(!eventInc) {
+	m_log << MSG::ERROR 
+	      << " Unable to get event information from either EventStore (via EventInfo) or " 
+	      << inc.type() << " incident (via EventContext)" 
+	      << endmsg;
+	return;
       } else {
-        if (m_log.level() <= MSG::DEBUG) {
-          m_log << MSG::DEBUG << " Got EventInfo object from StoreGate "
-                << "for CheckIOV incident"
-                << endmsg;
-        }
-      }
-    } else {
-
-      if (StatusCode::SUCCESS != p_sgSvc->retrieve(evt)) {
-        // If EventInfo is not in the event store, check whether it
-        // has come via the BeginRun incident
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-        if(!eventInc) {
-          m_log << MSG::ERROR 
-                << " Unable to get EventInfo from either EventStore or " 
-                << inc.type() << " incident" << endmsg;
-          return;
-        } else {
-          evt = &eventInc->eventInfo();
-          if (m_log.level() <= MSG::DEBUG) {
-            m_log << MSG::DEBUG << "Got EventIncident from " << inc.type() 
-                  << " incident" << endmsg;
-          }
-        }
+	context = inc.context();
+	if (m_log.level() <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Got event context from " << inc.type() << " incident" << endmsg;
+	}
       }
     }
 
     m_curTime.reset();
-
-    event = evt->event_ID()->lumi_block();
-    run   = evt->event_ID()->run_number();
+    
+    const EventIDBase* eventID = (evt ? evt->event_ID() : &context.eventID());
+    event = eventID->lumi_block();
+    run   = eventID->run_number();
     
     m_curTime.setRunEvent(run,event);
 
@@ -410,7 +386,7 @@ IOVSvcTool::handle(const Incident &inc) {
       m_log << inc.type() << ": [R/LB] = " << m_curTime << endmsg;
     }
 
-    if (inc.type() == "BeginRun") {
+    if (inc.type() == IncidentType::BeginRun) {
       // Signal BeginRun directly to IOVDbSvc
       IIOVDbSvc *iovDB = 0;
       if (StatusCode::SUCCESS != service("IOVDbSvc", iovDB, false)) {
@@ -494,7 +470,7 @@ IOVSvcTool::handle(const Incident &inc) {
     ////// We need to check both R/E and Clocktime sets
     //
 
-    if (inc.type() == "BeginRun" && m_forceReset && !s_firstRun) {
+    if (inc.type() == IncidentType::BeginRun && m_forceReset && !s_firstRun) {
       if (m_log.level() <= MSG::DEBUG) {
         m_log << MSG::DEBUG 
               << "Resetting all proxies on BeginRun incident for store \""
@@ -668,7 +644,7 @@ IOVSvcTool::handle(const Incident &inc) {
 
   }  // end if(inc.type() == m_checkTrigger)
 
-  if ( inc.type() == "BeginRun") {
+  if ( inc.type() == IncidentType::BeginRun) {
     s_firstRun = false;
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ class SiLocalPosition;
                                  const double radius);
 
       /** Destructor: */
-      ~SCT_ForwardFrameTransformation();
+      virtual ~SCT_ForwardFrameTransformation() = default;
 
       /** Assignment operator: */
       SCT_ForwardFrameTransformation &operator=(const SCT_ForwardFrameTransformation &frame);
@@ -88,9 +88,6 @@ class SiLocalPosition;
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline SCT_ForwardFrameTransformation::~SCT_ForwardFrameTransformation()
-{}
-
 inline double SCT_ForwardFrameTransformation::etaCenter() const
 {
   return m_etaCenter;

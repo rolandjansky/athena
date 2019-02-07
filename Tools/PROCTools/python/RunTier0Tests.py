@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## RunTier0Tests.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # $Id$
@@ -12,6 +12,7 @@ import time
 import uuid
 import logging
 import glob
+from PROCTools.RunTier0TestsTools import ciRefFileMap
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -300,21 +301,21 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
-        # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/.
+        # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/version/.
         # This should work both in standalone and CI
         subfolder = os.environ['AtlasVersion'][0:4]
         # Use EOS if mounted, otherwise CVMFS
-        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
         if(glob.glob(clean_dir)):
             logging.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
             clean_dir = 'root://eosatlas.cern.ch/'+clean_dir # In case outside CERN
         else:
             logging.info("EOS is not mounted, going to read the reference files from CVMFS")
-            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
 
     logging.info("Reading the reference file from location "+clean_dir)
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RecoTimingObj_p1_RAWtoALL_mems  RecoTimingObj_p1_RAWtoALL_timings  RAWtoALL_mems  RAWtoALL_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     # We want to catch/print both container additions/subtractions as well as
@@ -722,7 +723,7 @@ def main():
                     elif RunOverlay:
                         RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
-                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
 
                 def mypatchedqtest(q=q):
@@ -774,7 +775,7 @@ def main():
                     elif RunOverlay:
                         RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
-                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
                 
                 def mypatchedqtest(q=q):
@@ -783,7 +784,7 @@ def main():
                     elif RunOverlay:
                         RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg)
                     else:   
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)

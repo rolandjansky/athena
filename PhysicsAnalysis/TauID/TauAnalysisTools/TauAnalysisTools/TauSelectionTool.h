@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
@@ -100,32 +100,32 @@ public:
   virtual ~TauSelectionTool();
 
   /// Function initialising the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /// Function initialising the tool
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
+  virtual StatusCode initializeEvent() override __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
 
   /// Get an object describing the "selection steps" of the tool
-  virtual const Root::TAccept& getTAccept() const;
+  virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
   /// Get the decision using a generic IParticle pointer
-  virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const;
+  virtual asg::AcceptData accept( const xAOD::IParticle* p ) const override;
 
   /// Get the decision for a specific TauJet object
-  virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const;
+  virtual asg::AcceptData accept( const xAOD::TauJet& tau ) const override;
 
   /// Set output file for control histograms
-  void setOutFile( TFile* fOutFile );
+  virtual void setOutFile( TFile* fOutFile ) override;
 
   /// Write control histograms to output file
-  void writeControlHistograms();
+  virtual void writeControlHistograms() override;
 
 private:
 
   // Execute at each new input file
-  virtual StatusCode beginInputFile();
+  virtual StatusCode beginInputFile() override;
   // Execute at each event
-  virtual StatusCode beginEvent();
+  virtual StatusCode beginEvent() override;
 
   template<typename T, typename U>
   void FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax);
@@ -202,8 +202,8 @@ private:
 protected:
   bool m_bCreateControlPlots;
 
-  /// Object used to store the last decision
-  mutable Root::TAccept m_aAccept;
+  /// Object used to store selection information.
+  asg::AcceptInfo m_aAccept;
 
 
 

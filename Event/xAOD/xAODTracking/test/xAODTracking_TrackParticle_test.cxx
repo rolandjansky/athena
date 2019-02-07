@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTracking_TrackParticle_test.cxx 606456 2014-07-15 09:20:53Z emoyse $
 
 // System include(s):
 #include <iostream>
@@ -46,7 +45,7 @@ void fill( xAOD::TrackParticle& tp ) {
       { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 },
       { 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 }
    };
-   static std::vector< std::vector< float > > parametersVec;
+   std::vector< std::vector< float > > parametersVec;
    if( ! parametersVec.size() ) {
       for( int i = 0; i < 2; ++i ) {
          std::vector< float > temp( parameters[ i ],

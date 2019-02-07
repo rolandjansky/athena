@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 
 SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator) {
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 //Initialize
@@ -34,12 +34,12 @@ StatusCode SCT_LinkMaskingTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_LinkMaskingTestAlg::execute() {
+StatusCode SCT_LinkMaskingTestAlg::execute(const EventContext& ctx) const {
 
-  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingTool->isGood(Identifier{167772160}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingTool->isGood(Identifier{167773184}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingTool->isGood(Identifier{167786496}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingTool->isGood(Identifier{167787520}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingTool->isGood(Identifier{167772160}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingTool->isGood(Identifier{167773184}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingTool->isGood(Identifier{167786496}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingTool->isGood(Identifier{167787520}, ctx) ? "not masked" : "masked"));
 
   return StatusCode::SUCCESS;
 }

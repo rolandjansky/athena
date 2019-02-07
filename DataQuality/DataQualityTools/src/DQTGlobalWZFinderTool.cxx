@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -56,15 +56,6 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_muon_Eta(nullptr),
      m_ele_Et(nullptr),
      m_ele_Eta(nullptr),
-     m_electronContainerName("Electrons"),
-     m_egDetailContainerName("egDetailAOD"),
-     //m_VxPrimContainerName("VxPrimaryCandidate"), //Kshort
-     m_VxPrimContainerName("PrimaryVertices"),
-     m_VxContainerName("SecVertices"), //Kshort
-     m_METName("MET_Reference_AntiKt4EMTopo"),
-     m_muonContainerName("Muons"),
-     m_jetCollectionName("AntiKt4EMTopoJets"),
-     m_tracksName("InDetTrackParticles"), //Kshort
      m_electronEtCut(25),
      m_muonPtCut(25),
      m_metCut(25),
@@ -75,15 +66,12 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_Jpsi_mm_trigger{"CATEGORY_primary_bphys"},
      m_Z_mm_trigger{"CATEGORY_monitoring_muonIso", "CATEGORY_monitoring_muonNonIso"},
      m_Z_ee_trigger{"CATEGORY_primary_single_ele"}
+     //   ,m_JetContainerKey("AntiKt4EMTopoJets")
 //----------------------------------------------------------------------------------
 
 {
   m_path = "GLOBAL/DQTGlobalWZFinder";
-  declareProperty("ElectronContainerName", m_electronContainerName);
-  declareProperty("ElectronDetailContainerName", m_egDetailContainerName);
-  declareProperty("MetName", m_METName);
-  declareProperty("MuonContainerName",m_muonContainerName);
-  declareProperty("JetCollectionName", m_jetCollectionName);
+  //  declareProperty("JetCollectionName", m_JetContainerKey);
   declareProperty("ElectronEtCut",m_electronEtCut);
   declareProperty("MuonPtCut",m_muonPtCut);
   declareProperty("MetCut",m_metCut);
@@ -121,6 +109,12 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
 StatusCode DQTGlobalWZFinderTool::initialize() {
   ATH_CHECK(m_muonSelectionTool.retrieve());
   ATH_CHECK(m_isolationSelectionTool.retrieve());
+  ATH_CHECK(m_EventInfoKey.initialize());
+  ATH_CHECK(m_MissingETContainerKey.initialize());
+  ATH_CHECK(m_ElectronContainerKey.initialize());
+  ATH_CHECK(m_MuonContainerKey.initialize());
+  ATH_CHECK(m_VertexContainerKey.initialize());
+  //  ATH_CHECK(m_JetContainerKey.initialize());
   return DataQualityFatherMonTool::initialize();
 }
 
@@ -141,11 +135,11 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   std::string  fullPathDQTGlobalWZFinder=m_path;
   
 
-  const xAOD::EventInfo* thisEventInfo;
-  StatusCode sc = evtStore()->retrieve(thisEventInfo);
-  if(sc.isFailure()) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_EventInfoKey, ctx);
+  if(! thisEventInfo.isValid()) {
     ATH_MSG_ERROR("Could not find EventInfo in evtStore()");
-    return sc;
+    return StatusCode::FAILURE;
   } else {
     m_this_lb = thisEventInfo->lumiBlock() ;
   }
@@ -175,10 +169,6 @@ StatusCode DQTGlobalWZFinderTool::bookHistograms( )
   bool failure(false);
 
   MsgStream log(msgSvc(), name());
-  m_printedErrorEleContainer = false;
-  m_printedErrorMuColl = false;
-  m_printedErrorMet = false;
-  m_printedErrorTrackContainer = false;
 
   //Initialize counters for rate monitors
   for (int index =0 ; index < 2 ; index++) {
@@ -269,18 +259,14 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      StatusCode sc = StatusCode::SUCCESS;
 
      //Get LumiBlock and EventNumber
-     const xAOD::EventInfo* thisEventInfo;
-     sc = evtStore()->retrieve(thisEventInfo);
-     if(sc.isFailure()) 
-       {
-	 log << MSG::ERROR << "Could not find EventInfo in evtStore()" << endmsg;
-	 return sc;
-       }
-     else
-       {
+     SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_EventInfoKey);
+     if(! thisEventInfo.isValid()) {
+       ATH_MSG_ERROR("Could not find EventInfo in evtStore()");
+	 return StatusCode::FAILURE;
+     } else {
          m_this_lb = thisEventInfo->lumiBlock() ;
 	 m_eventNumber  = thisEventInfo->eventNumber();
-       }
+     }
 
      Float_t evtWeight = 1;
      if (thisEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
@@ -291,19 +277,12 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      //Get MET
      
      Double_t phiMet = 0, metMet = 0;
-     //     const MissingET *missET;
-     const xAOD::MissingETContainer *missETcont(0);
-     if ( evtStore()->contains<xAOD::MissingETContainer>(m_METName) ) {
+     SG::ReadHandle<xAOD::MissingETContainer> missETcont(m_MissingETContainerKey);
+     if ( missETcont.isValid() ) {
        const xAOD::MissingET* missET = nullptr;
-       sc = evtStore()->retrieve(missETcont,m_METName);
-       if (sc.isSuccess()) {
-         missET = (*missETcont)["FinalClus"];
-       }
+       missET = (*missETcont)["FinalClus"];
        if (!missET){
-	 ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
-	 if (!m_printedErrorMet)
-	   ATH_MSG_WARNING("Cannot retrieve " << m_METName);
-	 m_printedErrorMet = true;
+	 ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET FinalClus");
        }
        else {
 	 phiMet = missET->phi();
@@ -311,9 +290,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        }
      }
      else {
-        if (!m_printedErrorMet)
-           log << MSG::WARNING << "Cannot retrieve xAOD::MissingETContainer " << m_METName << endmsg;
-        m_printedErrorMet = true;
+       ATH_MSG_WARNING("Cannot retrieve xAOD::MissingETContainer " << m_MissingETContainerKey);
      }
 
      ATH_MSG_DEBUG(" MET = " << metMet << " and met phi = " << phiMet);
@@ -321,20 +298,10 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      //Get Electrons
      
-     //     const ElectronContainer* elecTES = 0;
-     const xAOD::ElectronContainer* elecTES = 0;
-     if ( evtStore()->contains<xAOD::ElectronContainer>(m_electronContainerName) ) {
-        sc=evtStore()->retrieve( elecTES, m_electronContainerName);
-        if( sc.isFailure()  ||  !elecTES ) {
-	  if (!m_printedErrorEleContainer) log << MSG::WARNING << "No electron container" <<  m_electronContainerName << " found in evtStore" << endmsg; 
-           m_printedErrorEleContainer = true;
-           return StatusCode::SUCCESS;
-        }
-     }
-     else {
-        if (!m_printedErrorEleContainer) log << MSG::WARNING << "No electron container" <<  m_electronContainerName << " found in evtStore" << endmsg; 
-        m_printedErrorEleContainer = true;
-        return StatusCode::SUCCESS;
+     SG::ReadHandle<xAOD::ElectronContainer> elecTES(m_ElectronContainerKey);
+     if ( ! elecTES.isValid() ) {
+       ATH_MSG_ERROR("No electron container" <<  m_ElectronContainerKey << " found in evtStore");
+       return StatusCode::FAILURE;
      }
      
      ATH_MSG_DEBUG("ElectronContainer successfully retrieved");
@@ -342,45 +309,24 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      //Get Muons
         
-     //     const Analysis::MuonContainer* muons  = 0;
-     const xAOD::MuonContainer* muons  = 0;
-     if(evtStore()->contains<xAOD::MuonContainer>(m_muonContainerName)){
-        sc = evtStore()->retrieve(muons,m_muonContainerName);
-        if (sc.isFailure()) {
-           if (!m_printedErrorMuColl) log << MSG::WARNING << "No muon collection with name " << m_muonContainerName << " found in evtStore" << endmsg;
-           m_printedErrorMuColl = true;
-           return StatusCode::SUCCESS;
-        }
-     } else {
-        if (!m_printedErrorMuColl) log << MSG::WARNING << "evtStore() does not contain muon Collection with name "<< m_muonContainerName <<" " <<endmsg;
-        m_printedErrorMuColl = true;
-        return StatusCode::SUCCESS;
+     SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey);
+     if (! muons.isValid() ) {
+       ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
+       return StatusCode::FAILURE;
      }
 
-     ATH_MSG_DEBUG("Got muon collection! ");
-
+     ATH_MSG_DEBUG("Got muon collection!");
+     
      std::vector<const xAOD::Electron*> goodelectrons;
      std::vector<const xAOD::Muon*> goodmuonsZ;
      std::vector<CLHEP::HepLorentzVector> goodmuonsJPsi;
      std::vector<Int_t> goodmuonJPsicharge;
-
-     //get primary vertex info
-     //const VxContainer *m_vertices;
-     const xAOD::VertexContainer* vertices(0);
-     //bool vertexCut = false;
      
-     //EP CHECK( m_xaodConverter.retrieve() );
-
+     //get primary vertex info
      const xAOD::Vertex* pVtx(0);
-     if ( evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)) {
-       sc = evtStore()->retrieve(vertices,m_VxPrimContainerName);
-
-       if (sc.isFailure()) {
-	 log << MSG::WARNING << "No collection with name " << m_VxPrimContainerName << " found in evtStore()" << endmsg;
-	 //return StatusCode::SUCCESS;
-       }
-       else {
-	 ATH_MSG_DEBUG("Collection with name " << m_VxPrimContainerName << " with size " << vertices->size() << " found in evtStore()");
+     SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertexContainerKey);
+     if (vertices.isValid()) {
+       ATH_MSG_DEBUG("Collection with name " << m_VertexContainerKey << " with size " << vertices->size() << " found in evtStore()");
 	 xAOD::VertexContainer::const_iterator vxItr = vertices->begin();
 	 xAOD::VertexContainer::const_iterator vxItrE = vertices->end();
 	 for (; vxItr != vxItrE; ++vxItr) {
@@ -388,44 +334,27 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	   if ((*vxItr)->vertexType() == xAOD::VxType::PriVtx) {
 	     pVtx = *vxItr;
 	   }
-	 }
-       }
+        }
+     } else {
+     ATH_MSG_WARNING("No collection with name " << m_VertexContainerKey << " found in evtStore()");
+     //return StatusCode::SUCCESS;
      }
-
+     
 
 
      //MET cleaning
      bool isBad = false;
+/*
      const JetContainer* jetTES;
+     SG::ReadHandle<JetContainer> jetTES(m_JetContainerKey);
      //std::string m_jetCollectionName = "AntiKt4TopoEMJets";
-     bool printedErrorJetCollection = false;
-     if (evtStore()->contains<JetContainer>(m_jetCollectionName)) {
-       //       log << MSG::DEBUG << "Found JetCollection!" << endmsg;
-       ATH_CHECK( evtStore()->retrieve(jetTES,m_jetCollectionName) );
-	      
-       //MET cleaning
-       //JetContainer::const_iterator fJet = jetTES->begin();
-       //JetContainer::const_iterator fJetE = jetTES->end();
-       
-       //       for (; fJet != fJetE; ++fJet) //loop over jet collection
-	 //	 {
-       //	   Jet::signalstate_t s = (*fJet)->signalState(); //save the signal state
-       //	   JetSignalState::setState(*fJet, P4SignalState::JETEMSCALE); //switch to the em scale
-       //	   JetSignalState::setState(*fJet, s); //switch to the initial scale
-       //	   isBad = JetCaloQualityUtils::isBad(*fJet); //test jet
-       //	   if (isBad) break;
-       //	 }
-       //
-     }
-     else {
+     if (! jetTES.isValid()) {
        log << MSG::WARNING << "Didn't find JetCollection" << endmsg;  
-       if (!printedErrorJetCollection) log << MSG::WARNING << "No jet collection found in TDS" << endmsg;
-       printedErrorJetCollection = true;
-       isBad = true;
-       return StatusCode::SUCCESS;
+       return StatusCode::FAILURE;
      }
      ATH_MSG_DEBUG("JetCollection successfully retrieved");
-     
+*/  
+   
 
      // Electron Cut Flow
      Int_t El_N = 0;
@@ -491,10 +420,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      Int_t MuJPsi_N = 0;
      ATH_MSG_DEBUG("Start muon selection");
 
-     xAOD::MuonContainer::const_iterator muonItr;
-     for (muonItr=muons->begin(); muonItr != muons->end(); ++muonItr) {
+     for (const auto& muonItr : *muons) {
          Float_t minptCutJPsi(1.0*GeV);
-	 auto muTrk = (*muonItr)->primaryTrackParticle();
+	 auto muTrk = (muonItr)->primaryTrackParticle();
 	 float d0sig;
 	 if (!muTrk) {
 	   ATH_MSG_WARNING("No muon track! " << thisEventInfo->runNumber() << " " << thisEventInfo->eventNumber());
@@ -513,18 +441,18 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	 }
 	 
 	 
-	 ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
-	 ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
-	 ATH_MSG_DEBUG("Muon iso: " << static_cast<bool> (m_isolationSelectionTool->accept(**muonItr)));
+	 ATH_MSG_DEBUG("Muon accept: " << static_cast<bool>(m_muonSelectionTool->accept(*muonItr)));
+	 ATH_MSG_DEBUG("Muon pt: " << muonItr->pt() << " " << m_muonPtCut*GeV);
+	 ATH_MSG_DEBUG("Muon iso: " << static_cast<bool> (m_isolationSelectionTool->accept(*muonItr)));
 	 ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
 	 ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
 	 if (pVtx) 
 	   ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
 	 ATH_MSG_DEBUG("Muon isBad: " << isBad);
 	 
-         if ( m_muonSelectionTool->accept(**muonItr) &&
-              ((*muonItr)->pt() > m_muonPtCut*GeV) &&
-	      m_isolationSelectionTool->accept(**muonItr) &&
+         if ( m_muonSelectionTool->accept(*muonItr) &&
+              (muonItr->pt() > m_muonPtCut*GeV) &&
+	      m_isolationSelectionTool->accept(*muonItr) &&
 	      fabs(d0sig) < 3 &&
 	      pVtx &&
 	      fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
@@ -533,18 +461,18 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
              MuZ_N++;
 
-	     m_muon_Pt->Fill((*muonItr)->pt()/GeV, evtWeight);
-	     m_muon_Eta->Fill((*muonItr)->eta(), evtWeight);
-             goodmuonsZ.push_back(*muonItr);
+	     m_muon_Pt->Fill((muonItr)->pt()/GeV, evtWeight);
+	     m_muon_Eta->Fill((muonItr)->eta(), evtWeight);
+             goodmuonsZ.push_back(muonItr);
          }
-         if ( ((*muonItr)->pt() > minptCutJPsi) ) {
+         if ( ((muonItr)->pt() > minptCutJPsi) ) {
              MuJPsi_N++;
 
-             Float_t px = (*muonItr)->p4().Px();
-             Float_t py = (*muonItr)->p4().Py();
-             Float_t pz = (*muonItr)->p4().Pz();
-             Float_t e = (*muonItr)->p4().E();
-             Int_t charge = 0;//(Int_t)((*muonItr)->charge()); // TODO update when xAODMuon-00-06-00
+             Float_t px = (muonItr)->p4().Px();
+             Float_t py = (muonItr)->p4().Py();
+             Float_t pz = (muonItr)->p4().Pz();
+             Float_t e = (muonItr)->p4().E();
+             Int_t charge = 0;//(Int_t)((muonItr)->charge()); // TODO update when xAODMuon-00-06-00
 
              CLHEP::HepLorentzVector thislepton;
              thislepton.setPx(px);

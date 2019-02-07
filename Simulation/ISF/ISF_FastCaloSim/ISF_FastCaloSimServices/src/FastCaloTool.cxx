@@ -165,6 +165,7 @@ StatusCode ISF::FastCaloTool::setupEvent()
 
 StatusCode ISF::FastCaloTool::commonSetup()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // loop on setup tools
   for ( auto tool : m_caloCellMakerTools_setup) {
     ATH_MSG_DEBUG( "Calling tool " << tool->name() );
@@ -183,10 +184,9 @@ StatusCode ISF::FastCaloTool::commonSetup()
   }
 
   // loop on simulate tools
-  for ( auto tool : m_caloCellMakerTools_simulate) {
+  for ( const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerTools_simulate) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*tool));
     if(fcs) {
-      const EventContext& ctx = Gaudi::Hive::currentContext();
       if(fcs->setupEvent(ctx, m_rndm).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in setupEvent");
         return StatusCode::FAILURE;
@@ -404,6 +404,8 @@ StatusCode ISF::FastCaloTool::releaseEventST()
   // the return value
   StatusCode sc = StatusCode::SUCCESS;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // (1.) batch processing of all particles from McTruth
   //       (for MC12 parametrization)
   //
@@ -419,7 +421,7 @@ StatusCode ISF::FastCaloTool::releaseEventST()
 
       ATH_MSG_VERBOSE( "Calling tool " << tool->name() );
 
-      if( fcs->process(m_theContainer).isFailure()) {
+      if( fcs->process(m_theContainer, ctx).isFailure()) {
         ATH_MSG_WARNING( "batch simulation of FastCaloSim particles failed" );
         sc = StatusCode::FAILURE;
       }

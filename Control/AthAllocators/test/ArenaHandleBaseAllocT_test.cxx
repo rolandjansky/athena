@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHandleBaseAllocT_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -20,7 +20,7 @@ class TestAlloc
   : public SG::ArenaAllocatorBase
 {
 public:
-  TestAlloc (Params  params) : m_params (std::move(params)) {}
+  TestAlloc (Params  params) : m_stats(), m_params (std::move(params)) {}
   virtual void reset() override {}
   virtual void erase() override {}
   virtual void reserve(size_t) override {}

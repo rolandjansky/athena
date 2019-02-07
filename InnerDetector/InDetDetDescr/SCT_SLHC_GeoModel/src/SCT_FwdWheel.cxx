@@ -22,11 +22,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -65,7 +62,7 @@ void SCT_FwdWheel::getParameters(){
     m_ringOffset.push_back(parameters->fwdRingOffset(ringType));
     m_ringTypes.push_back(ringType);
   }
-  m_staggerGap = 0.001* GeoModelKernelUnits::mm;
+  m_staggerGap = 0.001* Gaudi::Units::mm;
 
   // Set numerology
   detectorManager()->numerology().setNumRingsForDisk(m_iWheel,m_numRings);  
@@ -85,10 +82,10 @@ const GeoLogVol* SCT_FwdWheel::preBuild(){
   }
   //Calculate the extent of the envelope  
   //start the support disc
-  //m_outerRadius = m_discSupport->outerRadius() + 0.52*GeoModelKernelUnits::cm;//0.01mm safety necessary
-  //m_innerRadius = m_discSupport->innerRadius() - 0.52*GeoModelKernelUnits::cm;//0.01mm safety necessary
-  m_outerRadius = m_discSupport->outerRadius() + 9*GeoModelKernelUnits::mm;//0.01mm safety necessary
-  m_innerRadius = m_discSupport->innerRadius() - 9*GeoModelKernelUnits::mm;//0.01mm safety necessary
+  //m_outerRadius = m_discSupport->outerRadius() + 0.52*Gaudi::Units::cm;//0.01mm safety necessary
+  //m_innerRadius = m_discSupport->innerRadius() - 0.52*Gaudi::Units::cm;//0.01mm safety necessary
+  m_outerRadius = m_discSupport->outerRadius() + 9*Gaudi::Units::mm;//0.01mm safety necessary
+  m_innerRadius = m_discSupport->innerRadius() - 9*Gaudi::Units::mm;//0.01mm safety necessary
   //then comsider rings
   double wheelThickness_neg = -1.0;//negative value! see code below
   double wheelThickness_pos = -1.0;

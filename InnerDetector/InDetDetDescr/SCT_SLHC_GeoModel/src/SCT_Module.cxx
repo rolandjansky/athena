@@ -24,11 +24,8 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
-
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 
@@ -83,13 +80,13 @@ const GeoLogVol* SCT_Module::preBuild(){
     // Sensor only if placing sensors directly on stave
     m_width   = m_innerSide->width();
     m_length  = m_innerSide->length();
-    m_thickness = m_innerSide->thickness() + 0.01*GeoModelKernelUnits::mm;// Not really necessary but doesn't hurt
+    m_thickness = m_innerSide->thickness() + 0.01*Gaudi::Units::mm;// Not really necessary but doesn't hurt
   } else if(m_doubleSided){
     sideWidth  = std::max(m_innerSide->width(), m_outerSide->width());
     sideLength = std::max(m_innerSide->length(), m_outerSide->length());
-    m_width    = std::max(sideWidth*cos(half_stereo/GeoModelKernelUnits::radian) + sideLength*sin(half_stereo/GeoModelKernelUnits::radian),
+    m_width    = std::max(sideWidth*cos(half_stereo/Gaudi::Units::radian) + sideLength*sin(half_stereo/Gaudi::Units::radian),
 			  m_baseBoard->width());
-    m_length   = std::max(sideWidth*sin(half_stereo/GeoModelKernelUnits::radian) + sideLength*cos(half_stereo/GeoModelKernelUnits::radian), 
+    m_length   = std::max(sideWidth*sin(half_stereo/Gaudi::Units::radian) + sideLength*cos(half_stereo/Gaudi::Units::radian), 
 			  m_baseBoard->length());
     double interSidesGap = std::max(m_baseBoard->thickness(), m_interSidesGap);
     m_thickness = m_innerSide->thickness() + m_outerSide->thickness() + interSidesGap + 0.01;//0.01mm safety necessary
@@ -127,7 +124,7 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
     GeoTrf::Transform3D outerSidePos(GeoTrf::Transform3D::Identity());
     if (m_doubleSided){
       //inner side position (shift this side towards the intreaction point, ie X negative)
-      GeoTrf::Transform3D inner_Rot = GeoTrf::RotateX3D(-0.5*m_stereoAngle)*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+      GeoTrf::Transform3D inner_Rot = GeoTrf::RotateX3D(-0.5*m_stereoAngle)*GeoTrf::RotateZ3D(180*Gaudi::Units::deg);
       double interSidesGap = std::max(m_baseBoard->thickness(), m_interSidesGap);
       double Xpos = -0.5*(interSidesGap + m_innerSide->thickness());
       //std::cerr<<"inner Xpos "<<Xpos<<" thickness "<<m_innerSide->thickness()<<std::endl;
@@ -158,7 +155,7 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
       outerSidePos = GeoTrf::Transform3D(outer_Xpos*outer_Rot);
     } else {
       //inner side position (shift this side towards the intreaction point, ie X negative)
-      GeoTrf::RotateZ3D inner_Rot(180*GeoModelKernelUnits::deg);
+      GeoTrf::RotateZ3D inner_Rot(180*Gaudi::Units::deg);
       double Xpos = -0.5*m_baseBoard->thickness();
       //protection
       if(fabs(Xpos)+0.5*m_innerSide->thickness() > 0.5*m_thickness){

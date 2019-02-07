@@ -13,6 +13,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "InDetServMatGeoModel/ServicesTracker.h"
 #include "InDetServMatGeoModel/ServicesTrackerBuilder.h"
@@ -301,8 +302,8 @@ void InDetServMatBuilderToolSLHC::printNewVolume( const ServiceVolume& vol,
 		   << " zmin " << vol.zMin() 
 		   << " zmax " << vol.zMax() << endmsg;
  
-    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * GeoModelKernelUnits::cm3 / GeoModelKernelUnits::g 
-		   << " [g/cm3] weight " << dens*param.volume()/GeoModelKernelUnits::kg  << " [kg]" << endmsg;
+    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * Gaudi::Units::cm3 / GeoModelKernelUnits::g 
+		   << " [g/cm3] weight " << dens*param.volume()/Gaudi::Units::kg  << " [kg]" << endmsg;
   } 
   if (msgLvl(MSG::DEBUG)) {   // FIXME: change to VERBOSE when done!
     msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endmsg;

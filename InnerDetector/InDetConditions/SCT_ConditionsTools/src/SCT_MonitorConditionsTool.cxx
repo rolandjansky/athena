@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -81,11 +81,11 @@ SCT_MonitorConditionsTool::canReportAbout(InDetConditions::Hierarchy h) const {
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool
-SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_MonitorConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   Identifier waferid{m_pHelper->wafer_id(elementId)};
   Identifier iimodule{m_pHelper->module_id(waferid)};
   // defectlist is based on each module
-  std::string defectlist{getList(iimodule)};
+  std::string defectlist{getList(iimodule, ctx)};
 
   if (not defectlist.empty()) {
     switch (h) {
@@ -107,34 +107,57 @@ SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+bool
+SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
 bool 
-SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
-  //bool result(true);
+SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void 
-SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) const {
+bool
+SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+void
+SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips, const EventContext& ctx) const {
   // Set of bad strip Identifers for all modules
   SCT_ID::const_id_iterator waferItr{m_pHelper->wafer_begin()}, waferEnd{m_pHelper->wafer_end()};
   // Loop over modules (side-0 of wafers)
   for (; waferItr != waferEnd; ++waferItr) {
     if (m_pHelper->side(*waferItr) != 0) continue;
     Identifier moduleId{m_pHelper->module_id(*waferItr)};
-    badStrips(moduleId, strips);
+    badStrips(moduleId, strips, ctx);
   }
+}
+
+void
+SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  badStrips(strips, ctx);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const {
+SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx) const {
   // Set of bad strip Identifers for a given module
   // Get defect string and check it is sensible, i.e. non-empty and contains numbers
-  std::string defectStr{getList(moduleId)};
+  std::string defectStr{getList(moduleId, ctx)};
   if (doesNotHaveNumbers(defectStr)) return;
 
   // Expand the string
@@ -159,11 +182,23 @@ SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identi
   }
 }
 
+void
+SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badStrips(moduleId, strips, ctx);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::string 
+SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId, const EventContext& ctx) const {
+  return getList(moduleId, ctx);
+}
+
+std::string
 SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) const {
-   return getList(moduleId);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badStripsAsString(moduleId, ctx);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -171,9 +206,8 @@ SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) const {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::string
-SCT_MonitorConditionsTool::getList(const Identifier& moduleId) const {
+SCT_MonitorConditionsTool::getList(const Identifier& moduleId, const EventContext& ctx) const {
   string currentDefectList{""};
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MonitorCondData* condData{getCondData(ctx)};
   if (condData) {
     const IdentifierHash moduleHash{m_pHelper->wafer_hash(moduleId)};

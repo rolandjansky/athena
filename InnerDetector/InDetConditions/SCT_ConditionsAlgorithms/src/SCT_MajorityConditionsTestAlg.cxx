@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 #include "Identifier/Identifier.h"
 
 SCT_MajorityConditionsTestAlg::SCT_MajorityConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -32,13 +32,13 @@ StatusCode SCT_MajorityConditionsTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_MajorityConditionsTestAlg::execute() {
+StatusCode SCT_MajorityConditionsTestAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO("Calling execute");
 
-  ATH_MSG_INFO("Detector is " << (m_majorityTool->isGood()   ? "GOOD" : "BAD"));
-  ATH_MSG_INFO("ECC is      " << (m_majorityTool->isGood(-2) ? "GOOD" : "BAD"));
-  ATH_MSG_INFO("Barrel is   " << (m_majorityTool->isGood(0)  ? "GOOD" : "BAD"));
-  ATH_MSG_INFO("ECA is      " << (m_majorityTool->isGood(2)  ? "GOOD" : "BAD"));
+  ATH_MSG_INFO("Detector is " << (m_majorityTool->isGood(ctx)   ? "GOOD" : "BAD"));
+  ATH_MSG_INFO("ECC is      " << (m_majorityTool->isGood(-2, ctx) ? "GOOD" : "BAD"));
+  ATH_MSG_INFO("Barrel is   " << (m_majorityTool->isGood(0, ctx)  ? "GOOD" : "BAD"));
+  ATH_MSG_INFO("ECA is      " << (m_majorityTool->isGood(2, ctx)  ? "GOOD" : "BAD"));
 
   return StatusCode::SUCCESS;
 }

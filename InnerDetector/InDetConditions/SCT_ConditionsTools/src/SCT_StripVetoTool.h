@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,8 +10,6 @@
 
 #ifndef SCT_StripVetoTool_h
 #define SCT_StripVetoTool_h
-//STL includes
-#include <set>
 
 //Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -19,6 +17,9 @@
 //Athena includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+//STL includes
+#include <set>
 
 //forward declarations
 class IdentifierHash;
@@ -43,9 +44,11 @@ public:
   
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::SCT_STRIP) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::SCT_STRIP) const override;
   
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
 private:
   StatusCode fillData();

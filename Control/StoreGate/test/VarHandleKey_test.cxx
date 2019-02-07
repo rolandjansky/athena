@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -44,6 +44,7 @@ void test1()
   assert (k1.storeHandle().isSet());
   assert (k1.start().isSuccess());
   assert (!k1.isCondition());
+  assert (!k1.empty());
 
   k1 = "aab";
   assert (k1.clid() == 1234);
@@ -95,6 +96,8 @@ void test1()
   assert (!k4.storeHandle().isSet());
   assert (k4.initialize().isFailure());
   assert (k4.initialize(false).isSuccess());
+  assert (k4.initialize(SG::AllowEmpty).isSuccess());
+  assert (k4.empty());
 
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
                     SG::VarHandleKey (1237, "a/b/c", Gaudi::DataHandle::Updater));

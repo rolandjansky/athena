@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,6 +16,7 @@
 #include "SCT_ConditionsData/SCT_ChargeTrappingCondData.h"
 
 //Gaudi Includes
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
 
 //forward declarations
@@ -34,7 +35,9 @@ class ISCT_ChargeTrappingTool: virtual public IAlgTool
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISCT_ChargeTrappingTool, 1, 0);
 
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const =0;
   virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const =0;
+  virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2, const EventContext& ctx) const =0;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const =0;
 
 };

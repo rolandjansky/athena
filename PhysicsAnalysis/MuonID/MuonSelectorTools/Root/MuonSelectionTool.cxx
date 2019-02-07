@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonSelectionTool.cxx 299883 2014-03-28 17:34:16Z krasznaa $
@@ -14,7 +14,7 @@ namespace CP {
   MuonSelectionTool::MuonSelectionTool( const std::string& name )
     : asg::AsgTool( name ),
       m_name(name),
-      m_accept( "MuonSelection" ){
+      m_acceptInfo( "MuonSelection" ){
     
     declareProperty( "MaxEta", m_maxEta = 2.7 );
     //xAOD::MuonQuality enum {Tight, Medium, Loose, VeryLoose}
@@ -46,7 +46,7 @@ namespace CP {
       m_name(toCopy.m_name+"_copy"),
       m_maxEta( toCopy.m_maxEta ),
       m_quality( toCopy.m_quality ),
-      m_accept( toCopy.m_accept ),
+      m_acceptInfo( toCopy.m_acceptInfo ),
       m_toroidOff( toCopy.m_toroidOff ),
       m_developMode( toCopy.m_developMode ),
       m_TrtCutOff( toCopy.m_TrtCutOff ),
@@ -101,14 +101,14 @@ namespace CP {
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
 
     // Set up the TAccept object:
-    m_accept.addCut( "Eta",
-		     "Selection of muons according to their pseudorapidity" );
-    m_accept.addCut( "IDHits",
-                     "Selection of muons according to whether they passed the MCP ID Hit cuts" );
-    m_accept.addCut( "Preselection",
-                     "Selection of muons according to their type/author" );
-    m_accept.addCut( "Quality",
-		     "Selection of muons according to their tightness" );
+    m_acceptInfo.addCut( "Eta",
+                         "Selection of muons according to their pseudorapidity" );
+    m_acceptInfo.addCut( "IDHits",
+                         "Selection of muons according to whether they passed the MCP ID Hit cuts" );
+    m_acceptInfo.addCut( "Preselection",
+                         "Selection of muons according to their type/author" );
+    m_acceptInfo.addCut( "Quality",
+                         "Selection of muons according to their tightness" );
     // Sanity check
     if(m_quality>5 ){
       ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5! (0=Tight, 1=Medium, 2=Loose, 3=Veryloose, 4=HighPt, 5=LowPtEfficiency)" );
@@ -173,59 +173,55 @@ namespace CP {
   }
 
   
-  const Root::TAccept& MuonSelectionTool::getTAccept() const {
+  const asg::AcceptInfo& MuonSelectionTool::getAcceptInfo() const {
     
-    return m_accept;
+    return m_acceptInfo;
   }
   
-  const Root::TAccept&
+  asg::AcceptData
   MuonSelectionTool::accept( const xAOD::IParticle* p ) const {
-    
-    // Reset the result:
-    m_accept.clear();
-    
+  
     // Check if this is a muon:
     if( p->type() != xAOD::Type::Muon ) {
       ATH_MSG_ERROR( "accept(...) Function received a non-muon" );
-      return m_accept;
+      return asg::AcceptData (&m_acceptInfo);
     }
     
     // Cast it to a muon:
     const xAOD::Muon* mu = dynamic_cast< const xAOD::Muon* >( p );
     if( ! mu ) {
       ATH_MSG_FATAL( "accept(...) Failed to cast particle to muon" );
-      return m_accept;
+      return asg::AcceptData (&m_acceptInfo);
     }
     
     // Let the specific function do the work:
     return accept( *mu );
   }
   
-  const Root::TAccept& MuonSelectionTool::accept( const xAOD::Muon& mu ) const {
+  asg::AcceptData MuonSelectionTool::accept( const xAOD::Muon& mu ) const {
     
-    // Reset the result:
-    m_accept.clear();
+    asg::AcceptData acceptData (&m_acceptInfo);
 
     // Do the eta cut:
     ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     if( std::abs( mu.eta() ) > m_maxEta ) {
-      return m_accept;
+      return acceptData;
     }
-    m_accept.setCutResult( "Eta", true );
+    acceptData.setCutResult( "Eta", true );
 
     // Passes ID hit cuts 
     ATH_MSG_VERBOSE( "Passes ID Hit cuts " << passedIDCuts(mu) );
     if( !passedIDCuts (mu) ) {
-      return m_accept;
+      return acceptData;
     }
-    m_accept.setCutResult( "IDHits", true );
+    acceptData.setCutResult( "IDHits", true );
     
     // Passes muon preselection
     ATH_MSG_VERBOSE( "Passes preselection cuts " << passedMuonCuts(mu) );
     if( !passedMuonCuts (mu) ) {
-      return m_accept;
+      return acceptData;
     }
-    m_accept.setCutResult( "Preselection", true );
+    acceptData.setCutResult( "Preselection", true );
 
     // Passes quality requirements 
     xAOD::Muon::Quality thisMu_quality = getQuality(mu);
@@ -233,17 +229,17 @@ namespace CP {
     bool thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
     ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
     if(m_quality<4 && thisMu_quality > m_quality){
-      return m_accept;
+      return acceptData;
     }
     if(m_quality==4 && !thisMu_highpt){
-      return m_accept;
+      return acceptData;
     }
     if(m_quality==5 && !thisMu_lowptE){
-      return m_accept;
+      return acceptData;
     }
-    m_accept.setCutResult( "Quality", true );
+    acceptData.setCutResult( "Quality", true );
     // Return the result:
-    return m_accept;
+    return acceptData;
   }
   
   void MuonSelectionTool::setQuality( xAOD::Muon& mu ) const {

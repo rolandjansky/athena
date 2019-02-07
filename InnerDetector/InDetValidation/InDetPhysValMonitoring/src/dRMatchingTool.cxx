@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dRMatchingTool.h"
@@ -127,10 +127,10 @@ dRMatchingTool::initialize() {
                                     "Cut on maximal, relativ pT difference between track and truth particle."));
   }
 
-  // Add cuts to the TAccept.
+  // Add cuts to the AcceptOmfp.
   for (const auto& cut : m_cuts) {
     if (m_accept.addCut(cut.first, cut.second) < 0) {
-      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the TAccept object is full.");
+      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the AcceptInfo object is full.");
       return StatusCode::FAILURE;
     }
   }
@@ -150,19 +150,18 @@ dRMatchingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept&
-dRMatchingTool::getTAccept( ) const {
+const asg::AcceptInfo&
+dRMatchingTool::getAcceptInfo( ) const {
   return m_accept;
 }
 
-const Root::TAccept&
+asg::AcceptData
 dRMatchingTool::accept(const xAOD::IParticle* /*p*/) const {
-  m_accept.clear();
 
   ATH_MSG_ERROR(
     "accept(...) function called without needed Truth- or TrackParticleContainer. Please use one of the dRMatchingTool-specific accept methods.");
 
-  return m_accept;
+  return asg::AcceptData (&m_accept);
 }
 
 template<class T, class U>
@@ -373,12 +372,11 @@ dRMatchingTool::sortedMatch(const U* p,
   return passes;
 }
 
-const Root::TAccept&
+asg::AcceptData
 dRMatchingTool::accept(const xAOD::TrackParticle* track,
                        const xAOD::TruthParticleContainer* truthParticles,
                        bool (* truthSelectionTool)(const xAOD::TruthParticle*)) const {
-  // Reset the results.
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   // Determine whether to cache current truth particle container
   checkCacheTruthParticles(truthParticles, truthSelectionTool);
@@ -391,34 +389,33 @@ dRMatchingTool::accept(const xAOD::TrackParticle* track,
 
   // Set cut values.
   if (m_dRmax > -1) {
-    m_accept.setCutResult("dRmax", passes);
+    acceptData.setCutResult("dRmax", passes);
   }
   if (m_pTResMax > -1) {
-    m_accept.setCutResult("pTResMax", passes);
+    acceptData.setCutResult("pTResMax", passes);
   }
 
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
     }
   }
 
   m_numProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
-const Root::TAccept&
+asg::AcceptData
 dRMatchingTool::accept(const xAOD::TruthParticle* truth,
                        const xAOD::TrackParticleContainer* trackParticles,
                        bool (* trackSelectionTool)(const xAOD::TrackParticle*)) const {
-  // Reset the results.
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   // Determine whether to cache current track particle container
   checkCacheTrackParticles(trackParticles, trackSelectionTool);
@@ -431,34 +428,33 @@ dRMatchingTool::accept(const xAOD::TruthParticle* truth,
 
   // Set cut values.
   if (m_dRmax > -1) {
-    m_accept.setCutResult("dRmax", passes);
+    acceptData.setCutResult("dRmax", passes);
   }
   if (m_pTResMax > -1) {
-    m_accept.setCutResult("pTResMax", passes);
+    acceptData.setCutResult("pTResMax", passes);
   }
 
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
     }
   }
 
   m_numProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
-const Root::TAccept&
+asg::AcceptData
 dRMatchingTool::acceptLegacy(const xAOD::TrackParticle* p,
                              const xAOD::TruthParticleContainer* truthParticles,
                              bool (* truthSelectionTool)(const xAOD::TruthParticle*)) const {
-  // Reset the results.
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
   m_dRmin = 9999.;
 
   // Define variables.
@@ -504,34 +500,34 @@ dRMatchingTool::acceptLegacy(const xAOD::TrackParticle* p,
 
   // Set cut values.
   if (m_dRmax > -1) {
-    m_accept.setCutResult("dRmax", passes);
+    acceptData.setCutResult("dRmax", passes);
   }
   if (m_pTResMax > -1) {
-    m_accept.setCutResult("pTResMax", passes);
+    acceptData.setCutResult("pTResMax", passes);
   }
 
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
     }
   }
 
   m_numProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
-const Root::TAccept&
+asg::AcceptData
 dRMatchingTool::acceptLegacy(const xAOD::TruthParticle* p,
                              const xAOD::TrackParticleContainer* trackParticles,
                              bool (* trackSelectionTool)(const xAOD::TrackParticle*)) const {
   // Reset the results.
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
   m_dRmin = 9999.;
 
   // Define variables.
@@ -577,26 +573,26 @@ dRMatchingTool::acceptLegacy(const xAOD::TruthParticle* p,
 
   // Set cut values.
   if (m_dRmax > -1) {
-    m_accept.setCutResult("dRmax", passes);
+    acceptData.setCutResult("dRmax", passes);
   }
   if (m_pTResMax > -1) {
-    m_accept.setCutResult("pTResMax", passes);
+    acceptData.setCutResult("pTResMax", passes);
   }
 
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
     }
   }
 
   m_numProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 StatusCode

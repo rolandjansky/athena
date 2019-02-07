@@ -48,14 +48,18 @@ if jobproperties.Beam.beamType()=='collisions':
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTTracksMonTool
 
-                                           
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
+
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
 InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      OutputLevel      = 4,
                                      histoPathBase    = "/stat",
                                      CheckRate        = 1000,
                                      doPositiveEndcap = True,
-                                     doNegativeEndcap = True)
+                                     doNegativeEndcap = True,
+                                     SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool())
 
 if jobproperties.Beam.beamType()=='collisions':
   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
@@ -107,7 +111,13 @@ if (InDetFlags.doPrintConfigurables()):
 #InDetSCTMonMan.AthenaMonTools += [SCTTimeDependentMonTool]
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
-InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
+from BTagging.BTaggingConfiguration_CommonTools import toolAtlasExtrapolator
+atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+options = {}
+options.setdefault('Extrapolator', atlasExtrapolator)
+from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+trackToVertex = Reco__TrackToVertex(**options)
+InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool", TrackToVertexTool = trackToVertex,
                                              OutputLevel      = 4)
 
 InDetSCTLorentzMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()

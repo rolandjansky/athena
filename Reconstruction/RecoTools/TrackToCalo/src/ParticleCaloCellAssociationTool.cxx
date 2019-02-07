@@ -93,6 +93,9 @@ namespace Rec {
       auto pos2 = pos;
       if(sample== CaloSampling::PreSamplerB) {
         pos2 = entryExitLayerMap.find(CaloSampling::EMB1);
+	if (pos2==entryExitLayerMap.end()) {
+	    pos2=pos;
+	  }
       } 
       //// calculate 3D path length
       double path = 0.;

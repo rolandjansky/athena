@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -56,9 +56,9 @@ SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
 }
 
 bool 
-SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_RODVetoTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
-  const IdentifierSet* badIds{getCondData()};
+  const IdentifierSet* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
     return true;
@@ -68,15 +68,29 @@ SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy 
 }
 
 bool 
-SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
+SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
+bool 
+SCT_RODVetoTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
   Identifier moduleId{m_pHelper->module_id(elementId)};
-  return isGood(moduleId);
+  return isGood(moduleId, ctx);
+}
+
+bool 
+SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
 }
 
 const IdentifierSet*
-SCT_RODVetoTool::getCondData() const {
-  SG::ReadHandle<IdentifierSet> condData{m_badModuleIds};
+SCT_RODVetoTool::getCondData(const EventContext& ctx) const {
+  SG::ReadHandle<IdentifierSet> condData{m_badModuleIds, ctx};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_badModuleIds.key());
     return nullptr;

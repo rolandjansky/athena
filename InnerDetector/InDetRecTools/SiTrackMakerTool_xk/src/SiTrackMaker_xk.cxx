@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #include <ostream>
 #include <iomanip>
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
@@ -143,6 +142,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
     m_fieldService = &*m_fieldServiceHandle;
   }
+  if(m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
+  else if(m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
+  else m_fieldModeEnum = Trk::FullField;
 
   // Get detector elements road maker tool
   //
@@ -209,25 +211,6 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
   if(m_cosmicTrack)  m_seedsfilter = 3;
 
-  // Setup for magnetic field
-  //
-  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
-  const DataHandle<CondAttrListCollection> currentHandle;
-  if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)) {
-    
-    StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
-    
-    if(sc==StatusCode::SUCCESS) {
-      ATH_MSG_INFO( "Registered callback from MagneticFieldSvc for " << name() );
-    } else {
-      ATH_MSG_ERROR( "Could not book callback from MagneticFieldSvc for " << name () );
-      return StatusCode::FAILURE;
-    }
-  } 
-  else {
-    magneticFieldInit();
-    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
-  }
   ATH_CHECK( m_caloCluster.initialize(m_useBremModel && m_useCaloSeeds));
   ATH_CHECK( m_caloHad.initialize( !m_useSSSfilter && m_useHClusSeed) );
   
@@ -269,7 +252,10 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
 			     "ToroidalField" ,"Grid3DField"  ,"RealisticField" ,
 			     "UndefinedField","AthenaField"  , "?????"         };
 
-  int mode = m_fieldprop.magneticFieldMode(); 
+  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
+  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+  int mode = fieldprop.magneticFieldMode();
   if(mode<0 || mode>8 ) mode = 8; 
 
   n     = 62-fieldmode[mode].size();
@@ -668,7 +654,10 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
   m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
-  if(m_fieldprop.magneticFieldMode() > 0) {
+  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
+  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+  if(fieldprop.magneticFieldMode() > 0) {
 
     double H[3],gP[3] ={x0,y0,z0}; m_fieldService->getFieldZR(gP,H);
 
@@ -753,7 +742,10 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
   m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
   m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
-  if(m_fieldprop.magneticFieldMode() > 0) {
+  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
+  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+  if(fieldprop.magneticFieldMode() > 0) {
 
     double H[3],gP[3] ={p0[0],p0[1],p0[2]}; m_fieldService->getFieldZR(gP,H);
 
@@ -846,28 +838,6 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
     }
   }
 } 
-
-///////////////////////////////////////////////////////////////////
-// Callback function - get the magnetic field /
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
-{
-  // Build MagneticFieldProperties 
-  //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
-  magneticFieldInit();
-  return StatusCode::SUCCESS;
-}
-
-void InDet::SiTrackMaker_xk::magneticFieldInit() 
-{
-  Trk::MagneticFieldProperties* pMF = 0;
-  if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
-  else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
-  else                                  pMF = new Trk::MagneticFieldProperties(Trk::FullField);
-  m_fieldprop = *pMF; delete pMF;
-}
 
 ///////////////////////////////////////////////////////////////////
 // New clusters comparison with clusters associated with track

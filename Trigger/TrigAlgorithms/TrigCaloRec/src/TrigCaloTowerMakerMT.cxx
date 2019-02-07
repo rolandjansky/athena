@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -21,7 +21,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 //
@@ -170,16 +170,13 @@ StatusCode TrigCaloTowerMakerMT::finalize()
 
 
 StatusCode TrigCaloTowerMakerMT::execute()
-
 {
-  using namespace Monitored;   
-    
   // Monitoring initialization...
-  auto timer = MonitoredTimer::declare("TIME_execute");
-  auto time_tools = MonitoredTimer::declare("TIME_tools");
-  auto mon_towerContainerSize = MonitoredScalar::declare("towerContainerSize", 0.);
+  auto timer = Monitored::Timer("TIME_execute");
+  auto time_tools = Monitored::Timer("TIME_tools");
+  auto mon_towerContainerSize = Monitored::Scalar("towerContainerSize", 0.);
 
-  auto monitorIt = MonitoredScope::declare( m_monTool, timer, time_tools, mon_towerContainerSize);
+  auto monitorIt = Monitored::Group( m_monTool, timer, time_tools, mon_towerContainerSize);
 
     ATH_MSG_DEBUG ( "in execute()" );
     

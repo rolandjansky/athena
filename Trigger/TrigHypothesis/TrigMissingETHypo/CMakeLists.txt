@@ -35,6 +35,9 @@ atlas_add_component( TrigMissingETHypo
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent TrigMissingETHypoLib DecisionHandling  )
 
+atlas_add_test( TrigMissingETHypoConfigMT SCRIPT python -m TrigMissingETHypo.TrigMissingETHypoConfigMT
+		POST_EXEC_SCRIPT nopost.sh )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/TriggerConfig_*.py )

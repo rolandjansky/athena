@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/ParticleEnergyParametrization.h"
@@ -9,8 +9,74 @@
 #include "FastCaloSimAthenaPool/FastShowerInfo.h"
 #include <exception>
 #include <stdexcept> // out_of_range exception
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
+
+
+namespace {
+
+
+const Double_t* GetIntegral (const TH1& h)
+{
+  // Ok as long as h.ComputeIntegral() has already been called.
+  TH1& h_nc ATLAS_THREAD_SAFE = const_cast<TH1&>(h);
+  return h_nc.GetIntegral();
+}
+
+
+// TH2::GetRandom2 is not MT-safe, since it's non-const and uses gRandom.
+// Copy it here, making it const and taking the random generator
+// as an argument rather than using gRandom.
+// ComputeIntegral must have already been called.
+void GetRandom2 (TRandom& rand, const TH2& h, Double_t &x, Double_t &y)
+{
+  Int_t nbinsx = h.GetNbinsX();
+  Int_t nbinsy = h.GetNbinsY();
+  Int_t nbins  = nbinsx*nbinsy;
+  const Double_t* integral_arr = GetIntegral (h);
+  Double_t integral = integral_arr[nbins];
+  // compute integral checking that all bins have positive content (see ROOT-5894)
+  if (integral == 0 ) { x = 0; y = 0; return;}
+  // case histogram has negative bins
+  if (integral == TMath::QuietNaN() ) { x = TMath::QuietNaN(); y = TMath::QuietNaN(); return;}
+
+  Double_t r1 = rand.Rndm();
+  Int_t ibin = TMath::BinarySearch(nbins,integral_arr,(Double_t) r1);
+  Int_t biny = ibin/nbinsx;
+  Int_t binx = ibin - nbinsx*biny;
+  x = h.GetXaxis()->GetBinLowEdge(binx+1);
+  if (r1 > integral_arr[ibin]) x +=
+                                 h.GetXaxis()->GetBinWidth(binx+1)*(r1-integral_arr[ibin])/(integral_arr[ibin+1] - integral_arr[ibin]);
+  y = h.GetYaxis()->GetBinLowEdge(biny+1) + h.GetYaxis()->GetBinWidth(biny+1)*rand.Rndm();
+}
+
+
+// TH1::GetRandom2 is not MT-safe, since it's non-const and uses gRandom.
+// Copy it here, making it const and taking the random generator
+// as an argument rather than using gRandom.
+// ComputeIntegral must have already been called.
+Double_t GetRandom (TRandom& rand, const TH1& h)
+{
+  Int_t nbinsx = h.GetNbinsX();
+  const Double_t* integral_arr = GetIntegral (h);
+  Double_t integral = integral_arr[nbinsx];
+  // compute integral checking that all bins have positive content (see ROOT-5894)
+  if (integral == 0) return 0;
+  // return a NaN in case some bins have negative content
+  if (integral == TMath::QuietNaN() ) return TMath::QuietNaN();
+
+  Double_t r1 = rand.Rndm();
+  Int_t ibin = TMath::BinarySearch(nbinsx,integral_arr,r1);
+  Double_t x = h.GetBinLowEdge(ibin+1);
+  if (r1 > integral_arr[ibin]) x +=
+                                 h.GetBinWidth(ibin+1)*(r1-integral_arr[ibin])/(integral_arr[ibin+1] - integral_arr[ibin]);
+  return x;
+}
+
+
+} // anonymous namespace
+
 
 ParticleEnergyParametrization::ParticleEnergyParametrization(int id,double E,double eta):TNamed(Form("ParticleShape%d_E%d_eta%d",id,(int)(E+0.1),(int)(eta*100+0.1)),Form("ParticleShape pdgid=%d E=%1.1f eta=%4.2f",id,E,eta)),m_id(id),m_E(E),m_eta(eta) {
   m_Ecal_vs_dist=0;
@@ -29,6 +95,7 @@ ParticleEnergyParametrization::~ParticleEnergyParametrization() {
 
 void  ParticleEnergyParametrization::set_Ecal_vs_dist(TH2* h) {
   m_Ecal_vs_dist=h;
+  h->ComputeIntegral(true);
   m_DistPara.Expand(h->GetNbinsX()+2);
   for(int distbin=0;distbin<h->GetNbinsX()+2;++distbin) m_DistPara.AddAt(new ParticleEnergyParametrizationInDistbin(),distbin);
 }
@@ -182,7 +249,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
     p.dist000=0;
     return;
   }
-  m_Ecal_vs_dist->GetRandom2(p.dist_in,p.Ecal);
+  GetRandom2 (rand, *m_Ecal_vs_dist, p.dist_in, p.Ecal);
   int distbin=m_Ecal_vs_dist->FindBin(p.dist_in);
   if(distbin<1) distbin=1;
   if(distbin>m_Ecal_vs_dist->GetNbinsX()) distbin=m_Ecal_vs_dist->GetNbinsX();
@@ -190,11 +257,11 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
   double xmin= m_Ecal_vs_dist->GetXaxis()->GetBinLowEdge(distbin);
   double xmax= m_Ecal_vs_dist->GetXaxis()->GetBinUpEdge(distbin);
 
-  //p.dist_in = GetRandomInBinRange( xmin,xmax ,(TH1F*)m_h_layer_d_fine);
+  //p.dist_in = GetRandomInBinRange(rand, xmin,xmax ,(TH1F*)m_h_layer_d_fine);
   if(m_h_layer_d_fine) {
     //cout<<" fine hist ptr="<<m_h_layer_d_fine<<endl;
     //cout<<" fine hist="<<m_h_layer_d_fine->GetName()<<" : "<<m_h_layer_d_fine->GetTitle()<<endl;
-    p.dist_in = GetRandomInBinRange( xmin,xmax ,(TH1*) m_h_layer_d_fine);
+    p.dist_in = GetRandomInBinRange(rand, xmin,xmax ,(TH1*) m_h_layer_d_fine);
   }
 
   const ParticleEnergyParametrizationInDistbin* shapeindist=DistPara(distbin);
@@ -252,7 +319,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
       p.fcal_layer[i]=0;
       TH1* h1=shapeindist->m_ElayerProp[i];
       if(h1) {
-        double f=h1->GetRandom()+shapeindist->m_mean(i);
+        double f=GetRandom(rand, *h1)+shapeindist->m_mean(i);
         if(f<0) f=0;
         p.fcal_layer[i]=f;
         p.fcal_tot+=f;
@@ -265,7 +332,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
 //    p.fcal_layer[i]=0;
     TH1* h1=shapeindist->m_ElayerProp[i];
     if(h1) {
-      double f=h1->GetRandom()+shapeindist->m_mean(i);
+      double f=GetRandom(rand, *h1)+shapeindist->m_mean(i);
       if(f<0) f=0;
 //        p.fcal_layer[i]=f;
       p.fcal_tot_uncor+=f;
@@ -297,7 +364,7 @@ void ParticleEnergyParametrization::RepeatDiceParticles(ParticleEnergyShape* p,i
   }
 }
 
-double ParticleEnergyParametrization::GetRandomInBinRange(double xmin_in1, double xmax_in1 , TH1* in2) const {
+double ParticleEnergyParametrization::GetRandomInBinRange(TRandom& rand, double xmin_in1, double xmax_in1 , TH1* in2) const {
 
  // cout << " enter GetRandomInBinRange " << endl;
   int NumOfBin_in2 = in2->GetNbinsX();
@@ -314,7 +381,7 @@ double ParticleEnergyParametrization::GetRandomInBinRange(double xmin_in1, doubl
   double r1,r;
   double x;
   do{
-     r=gRandom->Rndm();
+     r=rand.Rndm();
      r1= in2->GetIntegral()[firstbin_in2] +r*( in2->GetIntegral()[lastbin_in2]-in2->GetIntegral()[firstbin_in2]);
 
      Int_t ibin = TMath::BinarySearch(NumOfBin_in2,&in2->GetIntegral()[0],r1);

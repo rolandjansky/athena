@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTSiPropertiesCondAlg.h"
@@ -14,7 +14,7 @@
 #include <memory>
 
 SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
@@ -37,7 +37,7 @@ StatusCode SCTSiPropertiesCondAlg::initialize() {
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -45,11 +45,11 @@ StatusCode SCTSiPropertiesCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCTSiPropertiesCondAlg::execute() {
+StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<InDet::SiliconPropertiesVector> writeHandle{m_writeKey};
+  SG::WriteCondHandle<InDet::SiliconPropertiesVector> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -59,7 +59,7 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   }
 
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp};
+  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp, ctx};
   const SCT_DCSFloatCondData* readCdoTemp{*readHandleTemp};
   if (readCdoTemp==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -73,7 +73,7 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV};
+  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV, ctx};
   const SCT_DCSFloatCondData* readCdoHV{*readHandleHV};
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -94,7 +94,7 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   }
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");

@@ -15,7 +15,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 
 #include "TrigBjetHypoTool.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 
 TrigBjetHypoTool::TrigBjetHypoTool( const std::string& type, 
@@ -44,7 +44,7 @@ StatusCode TrigBjetHypoTool::initialize()  {
  
   // Retrieve Tools
   // =====================================
-  if ( retrieveTool( "Monitoring Tool",m_monTool ).isFailure() ) return StatusCode::FAILURE;
+  ATH_CHECK( m_monTool.retrieve() );
   // =====================================
   if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );
@@ -62,8 +62,8 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
   ATH_MSG_DEBUG(  "Executing TrigBjetHypoTool"  );
 
   // initialise monitoring variables 
-  auto PassedCuts = Monitored::MonitoredScalar::declare<int>( "CutCounter", -1 );
-  auto monitorIt  = Monitored::MonitoredScope::declare( m_monTool, PassedCuts );
+  auto PassedCuts = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto monitorIt = Monitored::Group( m_monTool, PassedCuts );
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 

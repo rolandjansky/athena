@@ -57,42 +57,34 @@ job += ReadSCTElements;
 from AthenaCommon.AppMgr import ServiceMgr
 
 #
-# Both pixel and SCT
-#
-from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-
-#
 # Pixel
 #
 # Load DCS service
 from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
 pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-pixelDCSConditionsToolSetup.setIsDATA(isData)
 pixelDCSConditionsToolSetup.setup()
+pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
 from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
-pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
 pixelSiPropertiesToolSetup.setup()
 pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
+from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+pixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 
 ReadPixelElements.UseConditionsTools = True
-ReadPixelElements.SiLorentzAngleTool = lorentzAngleSvc.pixel
+ReadPixelElements.SiLorentzAngleTool = pixelLorentzAngleTool
 ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
-ReadPixelElements.SiConditionsTool   = None
+ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
 
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleTool=lorentzAngleSvc.pixel
 #
 # SCT
 #
-# Load DCS Tool
-from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-sct_DCSConditionsToolSetup.setup()
-InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
-
-## Silicon conditions tool (set up by LorentzAngleSvcSetup)
-sctSiliconConditionsTool = lorentzAngleSvc.SCT_SiliconConditionsTool
+# Silicon Lorentz angle tool
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+sctLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+sctSiliconConditionsTool = sctLorentzAngleToolSetup.sctSiliconConditionsTool
 
 # Silicon properties tool
 from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
@@ -102,18 +94,18 @@ sct_SiPropertiesToolSetup.setup()
 sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
 ReadSCTElements.UseConditionsTools = True
-ReadSCTElements.SiLorentzAngleTool = lorentzAngleSvc.sct
+ReadSCTElements.SiLorentzAngleTool = sctLorentzAngleTool
 ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
 ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
 ReadSCTElements.DetEleCollKey = "SCT_DetectorElementCollection"
 
 print ReadPixelElements
-print lorentzAngleSvc.pixel
-print pixelSiliconConditionsSvc
-print pixelSiPropertiesSvc
+print pixelLorentzAngleTool
+print pixelDCSConditionsTool
+print pixelSiPropertiesTool
 
 print ReadSCTElements
-print lorentzAngleSvc.sct
+print sctLorentzAngleTool
 print sctSiliconConditionsTool
 print sctSiPropertiesTool
 

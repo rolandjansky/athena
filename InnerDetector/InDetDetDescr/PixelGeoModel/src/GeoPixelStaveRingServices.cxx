@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <algorithm>
 using std::max;
@@ -43,7 +44,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 
   double ladderHalfThickN = m_ladder.thicknessN();
   double ladderHalfThickP = m_ladder.thicknessP();
-  double safetyMargin = 0.001*GeoModelKernelUnits::mm;
+  double safetyMargin = 0.001*Gaudi::Units::mm;
 
   // Get endblock from m_staveSupport
   GeoPhysVol* endblockA=dynamic_cast<GeoPhysVol*>(m_staveSupport.getEndblockEnvelopShape(2));
@@ -109,7 +110,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   }
   else {
 
-    double angle=360./nSectors*GeoModelKernelUnits::deg;
+    double angle=360./nSectors*Gaudi::Units::deg;
     GeoTrf::Transform3D transRadiusAndTilt = GeoTrf::TranslateX3D(layerRadius)*GeoTrf::RotateZ3D(ladderTilt);
     double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();
 
@@ -208,7 +209,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	double dimX=dimX_lin/cos(alpha1)-.15;
 	double dimY=m_gmt_mgr->IBLStaveFlexWidth();
 	double dimZ=m_gmt_mgr->IBLStaveFlexBaseThickness();
-	double angle=90.*GeoModelKernelUnits::deg-alpha1;   //90.-27.99;
+	double angle=90.*Gaudi::Units::deg-alpha1;   //90.-27.99;
 	double delta=m_gmt_mgr->IBLFlexDoglegDY();
 	double trX=-dimX_lin*tan(alpha1)*0.5;   //-3.28;
 	double trZ=eoStave+dimX_lin*0.5;
@@ -222,7 +223,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	for(unsigned int iPt=0; iPt<xShape.size(); iPt++) tmp_shape->addVertex(xShape[iPt],yShape[iPt]);
 	
 	
-	//	GeoPara * tmp_shape = new GeoPara(0.47,5.5,9.,0.*GeoModelKernelUnits::deg,55.*GeoModelKernelUnits::deg,0.);
+	//	GeoPara * tmp_shape = new GeoPara(0.47,5.5,9.,0.*Gaudi::Units::deg,55.*Gaudi::Units::deg,0.);
 	std::string flexMatName = m_gmt_mgr->IBLFlexMaterial(1,"doglegA");
 	const GeoMaterial* tmp_material = m_mat_mgr->getMaterial(flexMatName);
 	GeoLogVol* tmp_logVol = new GeoLogVol("FlexDogLeg1",tmp_shape,tmp_material);
@@ -253,7 +254,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	double trX2=trX*2.-dimX2_lin*tan(alpha2)*0.5;   //-3.28;
 	double trZ2=eoStave+dimX_lin+dimX2_lin*0.5;
 	xShape.clear(); yShape.clear();
-	angle=90.*GeoModelKernelUnits::deg-alpha2;
+	angle=90.*Gaudi::Units::deg-alpha2;
 	xShape.push_back(dimX2*0.5);  yShape.push_back(dimY2*0.5);
 	xShape.push_back(-dimX2*0.5);  yShape.push_back(dimY2*0.5);
 	xShape.push_back(-dimX2*0.5); yShape.push_back(-dimY2*0.5);

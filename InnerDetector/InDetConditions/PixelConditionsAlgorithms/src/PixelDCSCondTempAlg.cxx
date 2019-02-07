@@ -61,8 +61,8 @@ StatusCode PixelDCSCondTempAlg::execute() {
   // Read temperature info
   std::string param{"temperature"};
   for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-    CondAttrListCollection::ChanNum channelNumber{attrList->first};
-    CondAttrListCollection::AttributeList payload{attrList->second};
+    const CondAttrListCollection::ChanNum &channelNumber{attrList->first};
+    const CondAttrListCollection::AttributeList &payload{attrList->second};
     if (payload.exists(param) and not payload[param].isNull()) {
       float val = payload[param].data<float>();
       writeCdo->setValue(channelNumber, val);

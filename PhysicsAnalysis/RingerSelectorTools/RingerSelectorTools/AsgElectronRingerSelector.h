@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AsgElectronRingerSelector.h 704615 2015-10-29 18:50:12Z wsfreund $
@@ -14,7 +14,8 @@
 
 #ifndef RINGER_STANDALONE
 // Athena includes
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
@@ -74,7 +75,7 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     virtual ~AsgElectronRingerSelector();
 
     /** Gaudi Service Interface method implementations */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** External initialize method */
     StatusCode initialize( const char *metaName, unsigned int cutMask
@@ -82,34 +83,34 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
         , RingerConfStruct &confStruct);
 
     /** Gaudi Service Interface method implementations */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /// Main methods for IAsgSelectionTool interface
     ///@{
     /**
      * @brief Set the discrimination configuration file
      **/
-    void setDiscrFile( const std::string path );
+    virtual void setDiscrFile( const std::string path ) override;
 
     /**
      * @brief Set the threshold configuration file
      **/
-    void setThresFile( const std::string path );
+    virtual void setThresFile( const std::string path ) override;
 
     /**
      * @brief Set the threshold configuration file
      **/
-    void setCutMask( const unsigned int cutMask );
+    virtual void setCutMask( const unsigned int cutMask ) override;
 
     /**
      * @brief Set the CutIDSelector to be used
      **/
-    void setCutIDSelector( IAsgElectronIsEMSelector *cutID );
+    virtual void setCutIDSelector( IAsgElectronIsEMSelector *cutID ) override;
 
     /**
      * @brief Set the RingSetConfContainer (MetaData) key
      **/
-    void setRSMetaName( const std::string name );
+    virtual void setRSMetaName( const std::string name ) override;
 
     /**
      * @brief Set whether to cache the meta data and assume it will be the same
@@ -120,78 +121,82 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     /**
      * @brief This method will bypass accept to xAOD::Electron if it is possible.
      **/
-    const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+    virtual asg::AcceptData accept( const xAOD::IParticle* part ) const override;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Electron* part ) const;
+    virtual asg::AcceptData accept( const xAOD::Electron* part ) const override;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Electron* part, const double mu ) const;
+    virtual asg::AcceptData accept( const xAOD::Electron* part, const double mu ) const;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Egamma* eg ) const;
+    virtual asg::AcceptData accept( const xAOD::Egamma* eg ) const;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Egamma* eg, const double mu ) const;
+    virtual asg::AcceptData  accept( const xAOD::Egamma* eg, const double mu ) const;
 
     /**
      * @brief Accept using Electron reference
      **/
-    const Root::TAccept& accept( const xAOD::Electron& part ) const;
+    virtual asg::AcceptData accept( const xAOD::Electron& part ) const override;
     /**
      * @brief Accept using Electron reference
      **/
-    const Root::TAccept& accept( const xAOD::Electron& part, const double mu ) const;
+    virtual asg::AcceptData  accept( const xAOD::Electron& part, const double mu ) const;
     /**
      * @brief Accept using IParticle reference
      **/
-    const Root::TAccept& accept( const xAOD::IParticle& part ) const;
+    virtual asg::AcceptData accept( const xAOD::IParticle& part ) const override;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Egamma& eg ) const;
+    virtual asg::AcceptData accept( const xAOD::Egamma& eg ) const;
 
     /**
      * @brief Identification procedure is done in this method
      **/
-    const Root::TAccept& accept( const xAOD::Egamma& eg, const double mu ) const;
+    virtual asg::AcceptData accept( const xAOD::Egamma& eg, const double mu ) const;
 
     /**
      * @brief Method to get the plain TAccept for the last particle.
      **/
-    const Root::TAccept& getTAccept() const;
+    virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
     /** Method to get output space representation */
-    const std::vector<float>& getOutputSpace() const;
+    virtual const std::vector<float>& getOutputSpace() const override;
 
     /**
      * @brief Execute without mu information
      **/
-    StatusCode execute(const xAOD::Electron* eg) const;
+    virtual StatusCode execute(const xAOD::Electron* eg,
+                               asg::AcceptData& acceptData) const override;
 
     /**
      * @brief Main execute method
      **/
-    StatusCode execute(const xAOD::Electron* eg, const double mu) const;
+    StatusCode execute(const xAOD::Electron* eg, const double mu,
+                       asg::AcceptData& acceptData) const;
 
     /**
      * @brief Execute without tracking information, potentially used by trigger.
      **/
-    StatusCode execute(const xAOD::Egamma* eg) const;
+    virtual StatusCode execute(const xAOD::Egamma* eg,
+                               asg::AcceptData& acceptData) const override;
 
     /**
      * @brief Execute without tracking information, potentially used by trigger.
      **/
-    StatusCode execute(const xAOD::Egamma* eg, const double mu) const;
+    StatusCode execute(const xAOD::Egamma* eg, const double mu,
+                       asg::AcceptData& acceptData) const;
     ///@}
 
     /**
@@ -204,12 +209,12 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     /**
      * @brief Update metadata information held
      */
-    StatusCode beginInputFile();
+    virtual StatusCode beginInputFile() override;
 
     /**
      * @brief Called when entering a new event
      **/
-    StatusCode beginEvent();
+    virtual StatusCode beginEvent() override;
 
   private:
 
@@ -255,11 +260,8 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     /// @brief The particles CaloRings decorations reader
     xAOD::caloRingsReader_t* m_ringsELReader;
 
-    /// @brief Last particle decision bitmask (the inverse of the IsEM)
-    ATH_RINGER_MUTABLE Root::TAccept m_partDecMsk;
-
     /// @brief Last particle accept bitmask (already applying the m_cutsToUse)
-    ATH_RINGER_MUTABLE Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     /// @brief Which subset of decisions to use
     ElectronTAccept::bitMskWord m_cutsToUse;
@@ -306,11 +308,6 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
      * @brief Configure wrappers
      **/
     StatusCode configureFromStruct(RingerConfStruct &fileConf);
-
-    /**
-     * Set TAccept value
-     **/
-    void fillTAccept() const;
     /// @}
 };
 
@@ -407,7 +404,7 @@ void AsgElectronRingerSelector::setCacheMetaData( bool flag )
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::Electron& part, double mu = -99. ) const
 {
   return accept (&part, mu);
@@ -415,7 +412,7 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::IParticle& part ) const
 {
   return accept(&part);
@@ -423,7 +420,7 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::Egamma& part ) const
 {
   return accept (&part, -99);
@@ -431,44 +428,46 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 //=============================================================================
 inline
-StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg) const
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg,
+                                              asg::AcceptData& acceptData) const
 {
-  return execute( eg, -99 );
+  return execute( eg, -99, acceptData);
 }
 //=============================================================================
 inline
-StatusCode AsgElectronRingerSelector::execute(const xAOD::Electron* eg) const
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Electron* eg,
+                                              asg::AcceptData& acceptData) const
 {
-  return execute( eg, -99 );
+  return execute( eg, -99, acceptData );
 }
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Egamma& eg, const double mu ) const
+asg::AcceptData AsgElectronRingerSelector::accept( const xAOD::Egamma& eg, const double mu ) const
 {
   return accept( &eg, mu );
 }
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Egamma* eg ) const
+asg::AcceptData AsgElectronRingerSelector::accept( const xAOD::Egamma* eg ) const
 {
   return accept( eg, -99 );
 }
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Electron* part ) const
+asg::AcceptData AsgElectronRingerSelector::accept( const xAOD::Electron* part ) const
 {
   return accept( part, -99 );
 }
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Electron& part ) const
+asg::AcceptData AsgElectronRingerSelector::accept( const xAOD::Electron& part ) const
 {
   return accept( &part );
 }
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::getTAccept() const
+const asg::AcceptInfo& AsgElectronRingerSelector::getAcceptInfo() const
 {
   return m_accept;
 }

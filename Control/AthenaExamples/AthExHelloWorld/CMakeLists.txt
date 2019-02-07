@@ -37,7 +37,7 @@ atlas_add_test( AthExHelloWorldMT_1
 atlas_add_test( AthExHelloWorldMT_2
     ENVIRONMENT THREADS=2
 		SCRIPT test/test_AthExHelloWorld.sh
-    EXTRA_PATTERNS "AthenaHiveEventLoopMgr.* processing event" #processing order can change
+    EXTRA_PATTERNS "AthenaHiveEventLoopMgr.* processing event|^HelloWorld .*(INFO|WARNING A WARNING|ERROR An ERROR|FATAL A FATAL" #processing order can change
 		)
 
 atlas_add_test( AthExHelloWorld_CfgTest    SCRIPT python -m AthExHelloWorld.HelloWorldConfig    POST_EXEC_SCRIPT nopost.sh )

@@ -23,7 +23,7 @@ import os, sys
 import string,math
 from math import fabs
 import argparse
-import pathExtract
+from DataQualityUtils import pathExtract
 
 import ROOT
 from ROOT import *
@@ -130,7 +130,7 @@ if tagDirectory=="": # TAG files stored on EOS
   listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
   if len(listOfFiles)>0:
     for files in listOfFiles:
-      tree.AddFile("root://eosatlas.cern.ch/%s"%(files))
+      tree.AddFile("root://eosatlas/%s"%(files))
       print "I chained the file %s"%(files)
   else:
     print "No file found on EOS.Exiting..."

@@ -3,6 +3,14 @@ delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
 delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
 delta eta:  abs(0 - 24) = 24, cosh 000000001011000111
 ** test2: L1TopoSimulationUtils KFLUT correction vs. et and eta**
+ et 4 [0],  eta 2.4 [12] : 0.52 >>>
+ et 12 [0],  eta 2.4 [12] : 0.52 >>>
+ et 4 [0],  eta 2.6 [13] : 0.59 >>>
+ et 12 [0],  eta 2.6 [13] : 0.59 >>>
+ et 4 [0],  eta 2.9 [14] : 0.62 >>>
+ et 12 [0],  eta 2.9 [14] : 0.62 >>>
+ et 4 [0],  eta 3.1 [14] : 0.62 >>>
+ et 12 [0],  eta 3.1 [14] : 0.62 >>>
 ** test3: L1TopoSimulationUtils KFLUT saturation**
 This out_of_range is expected for ET values beyond 1024 : vector::_M_range_check: __n (which is 5) >= this->size() (which is 5)
 ** test4: L1TopoSimulationUtils quadraticSumBW bitshift**

@@ -24,17 +24,18 @@ def decodeEtEta(match, chain):
     return conf_tool
 
 
+def  trigJetHypoToolFromDict(chainDict):
+    return trigJetHypoToolFromName( chainDict['chainName'], chainDict['chainName'])
+
 def  trigJetHypoToolFromName(name, jetconfig):
     """Configure a jet hypo tool from chain name.
 
     Delegate to functions according to the hypo scenartio."""
-
-    
     scenario_dict = {re_EtEta0: decodeEtEta}
 
     chain = jetconfig
     for k, v in scenario_dict.items():
-        match = k.match(chain)       
+        match = k.match(chain)
         if match:
             hypo_tool = TrigJetHypoToolMT(chain)
             hypo_tool.HypoConfigurer = v(match, chain)
@@ -43,19 +44,24 @@ def  trigJetHypoToolFromName(name, jetconfig):
     msg = 'trigJetHypoToolFromName(%s) - decode error' % chain
     raise NotImplementedError(msg)
 
-    
-    
+
+import unittest
+class TestStringMethods(unittest.TestCase):
+    def testValidConfigs(self):
+        # EtaEt hypos
+        # from MC_pp_v7 import  TriggerFlags.JetSlice.signatures
+        # exception or any other issue will make the ctest for this package fail
+        chains = ('HLT_j85', 'HLT_j35_320eta490')
+        wid = max(len(c) for c in chains)
+        for c in chains:
+            tool = trigJetHypoToolFromName(c, c)
+            self.assertIsNotNone( tool ) 
+            print '%s' % c.rjust(wid), tool
+
+    def testInvalidConfig(self):
+        with self.assertRaises(NotImplementedError):
+            tool = trigJetHypoToolFromName('HLT_nonsense', 'HLT_nonsense')
 
 
 if __name__ == '__main__':
-
-    # EtaEt hypos
-    # from MC_pp_v7 import  TriggerFlags.JetSlice.signatures
-
-    chains = ('HLT_j85', 'HLT_j35_320eta490', 'HLT_nonsense')
-    wid = max(len(c) for c in chains)
-    for c in chains:
-        try:
-            print '%s' % c.rjust(wid), trigJetHypoToolFromName(c)
-        except Exception, e:
-            print e
+    unittest.main()

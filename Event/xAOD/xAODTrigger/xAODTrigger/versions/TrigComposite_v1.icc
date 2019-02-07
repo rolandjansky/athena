@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigComposite_v1.icc 784388 2016-11-15 17:08:58Z tamartin $
@@ -19,36 +19,46 @@
 
 namespace xAOD {
 
-   template< typename TYPE >
-   bool TrigComposite_v1::hasDetail( const std::string& name ) const {
+  template< typename TYPE >
+  bool TrigComposite_v1::hasDetail( const std::string& name ) const {
 
-      // Object used to check for the existence of an object:
-      Accessor< TYPE > acc( name );
+    // Object used to check for the existence of an object:
+    ConstAccessor< TYPE > acc( name );
 
-      // Use the Accessor object for the check:
-      return acc.isAvailable( *this );
-   }
+    // Use the Accessor object for the check:
+    return acc.isAvailable( *this );
+  }
 
-   template<>     
-   bool TrigComposite_v1::hasDetail<unsigned int>( const std::string& name ) const;
+  template< typename TYPE >
+  bool TrigComposite_v1::setDetail( const std::string& name, const TYPE& value ) {
+    // It should be pretty strange if this should fail:
+    try {
+       auxdata< TYPE >( name ) = value;
+    } catch(const std::exception& exc) {
+       std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found: [" << exc.what() << "]" << std::endl;
+       return false;
+    }
+    // Return gracefully:
+    return true;
+  }
 
-   template<>     
-   bool TrigComposite_v1::hasDetail<std::vector<unsigned int>>( const std::string& name ) const;
-
+  template< typename TYPE >
+  bool TrigComposite_v1::getDetail( const std::string& name, TYPE& value) const {
+    if( ! hasDetail<TYPE>(name) ) {
+       return false;
+    }
+    // Object used to access the auxiliary data:
+    ConstAccessor< TYPE > acc( name );
+    value = acc( *this );
+    return true;
+  }
 
   template< typename TYPE >
   TYPE TrigComposite_v1::getDetail( const std::string& name ) const {
-   TYPE temp;
-   if ( getDetail(name, temp) == false ) 
-     throw std::runtime_error( "xAOD::TrigComposite::getDetail<TYPE>("+name+") encountered missing detail"); 
-   return temp; // RVO
-  }
-
-  template<typename TYPE>
-  std::pair<bool, TYPE> TrigComposite_v1::returnDetail( const std::string& name ) const {
     TYPE temp;
-    bool result = getDetail(name, temp);
-    return std::make_pair(result, temp);
+    if ( getDetail(name, temp) == false ) 
+      throw std::runtime_error( "xAOD::TrigComposite::getDetail<TYPE>("+name+") encountered missing detail"); 
+    return temp; // RVO
   }
   
   template< class CONTAINER >

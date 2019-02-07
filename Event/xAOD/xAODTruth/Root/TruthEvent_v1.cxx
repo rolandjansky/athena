@@ -189,7 +189,7 @@ namespace xAOD {
    // Implementation for the links to truth particles/vertices
 
    // Accessor for the signal vertex
-   static SG::AuxElement::Accessor< TruthEvent_v1::TruthVertexLink_t >
+   static const SG::AuxElement::Accessor< TruthEvent_v1::TruthVertexLink_t >
       signalProcessVertexLinkAcc( "signalProcessVertexLink" );
 
    const TruthVertex* TruthEvent_v1::signalProcessVertex() const {
@@ -217,9 +217,9 @@ namespace xAOD {
                                       setSignalProcessVertexLink )
 
    // Accessors for the beam particles
-   static SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
+   static const SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
       beamParticle1LinkAcc( "beamParticle1Link" );
-   static SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
+   static const SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
       beamParticle2LinkAcc( "beamParticle2Link" );
 
    std::pair< const TruthParticle*, const TruthParticle* >

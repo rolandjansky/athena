@@ -1,88 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-#include <sstream>
-
-#include "GaudiKernel/System.h"
 
 #include "JobIDSvc.h"
 
-using namespace std;
+#include <uuid/uuid.h>
 
-using namespace Athena; 
+JobIDSvc::JobIDSvc(const std::string& name, ISvcLocator* svc) :
+  base_class(name, svc)
+{}
 
-/// Standard Constructor
-JobIDSvc::JobIDSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc),
-    m_JobID()
+StatusCode JobIDSvc::initialize()
 {
-    
-  // Get user's input	
-//  declareProperty("CLIDDBFiles",  m_DBFiles, 
-//		  "list of db files with (CLID, class_name) entries. Loaded at init in svc maps. Files are looked up in DATAPATH");
- // declareProperty("OutputFileName",  m_outputFileName,
-//		  "path to clid.db file in which write at finalize entries in m_clidMap. Default ('NULL') is not to write output clid.db");
-
-}
-
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-
-StatusCode 
-JobIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-    if ( IJobIDSvc::interfaceID().versionMatch(riid) )    {
-        *ppvInterface = (IJobIDSvc*)this;
-    }
-    else  {
-	// Interface is not directly available: try out a base class
-	return AthService::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-}
-
-StatusCode 
-JobIDSvc::initialize()
-{
-  ATH_MSG_INFO
-    ("Initializing " << name() 
-     << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
   uuid_generate(m_JobID);
   return StatusCode::SUCCESS;
 }
 
-StatusCode 
-JobIDSvc::finalize()
+PJobID_t JobIDSvc::getJobID() const
 {
-  return AthService::finalize();
+  return const_cast<PJobID_t>(m_JobID);
 }
 
-PJobID_t
-JobIDSvc::getJobID() const {
-	return (PJobID_t)m_JobID;
-}
-
-std::string
-JobIDSvc::toString() const {
-  std::ostringstream o; o << m_JobID;
-  return o.str();
-}
-
-void 
-JobIDSvc::dump() const {
-}
-
-
-StatusCode
-JobIDSvc::reinitialize() {
-  ATH_MSG_INFO
-    ("RE-initializing " << name() 
-     << " - package version " << PACKAGE_VERSION);
-  return this->initialize();
+std::string JobIDSvc::toString() const
+{
+  return reinterpret_cast<const char*>(m_JobID);
 }

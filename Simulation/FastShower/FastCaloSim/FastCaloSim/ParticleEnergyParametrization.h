@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ParticleEnergyParametrization_h
@@ -44,7 +44,7 @@ public:
   
   void    DiceParticle(ParticleEnergyShape& p,TRandom& rand) const;
   void    RepeatDiceParticles(ParticleEnergyShape* p,int n);
-  double  GetRandomInBinRange(double xmin_in1,double xmax_in2,TH1* in2) const;
+  double  GetRandomInBinRange(TRandom& rand, double xmin_in1,double xmax_in2,TH1* in2) const;
 
   void MakeCumulativeX(int calosample,TH2* h);
   static void CorelatedGausRandom_corset(const TMatrixD& v,TMatrixD& c);
@@ -54,7 +54,7 @@ public:
   int    id() const {return m_id;};
   double E() const {return m_E;};
   double eta() const {return m_eta;};
-  TH2*  Ecal_vs_dist() const {return m_Ecal_vs_dist;};
+  const TH2*  Ecal_vs_dist() const {return m_Ecal_vs_dist;};
   TH1*  dist_fine() {return m_h_layer_d_fine; };
   
   double  GetDistMin() const {return Ecal_vs_dist()->GetXaxis()->GetXmin();};

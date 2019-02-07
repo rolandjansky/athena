@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconHVCondAlg.h"
@@ -12,7 +12,7 @@
 #include <memory>
 
 SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
@@ -43,11 +43,11 @@ StatusCode SCT_SiliconHVCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_SiliconHVCondAlg::execute() {
+StatusCode SCT_SiliconHVCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -57,7 +57,7 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
   }
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV};
+  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV, ctx};
   const SCT_DCSFloatCondData* readCdoHV{*readHandleHV};
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -74,7 +74,7 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
 
   if (m_useState.value()) {
     // Read Cond Handle (state)
-    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
+    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState, ctx};
     const SCT_DCSStatCondData* readCdoState{*readHandleState};
     if (readCdoState==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -99,7 +99,7 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
   std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
-    writeCdo->setValue(hash, m_sctDCSTool->modHV(IdentifierHash(hash)));
+    writeCdo->setValue(hash, m_sctDCSTool->modHV(IdentifierHash(hash), ctx));
   }
 
   // Record the output cond object

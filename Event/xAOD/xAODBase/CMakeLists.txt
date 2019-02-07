@@ -38,8 +38,7 @@ atlas_add_dictionary( xAODBaseDict
 
 atlas_add_dictionary( xAODBaseObjectTypeDict
    xAODBase/xAODBaseObjectTypeDict.h
-   xAODBase/selection-ObjectType.xml
-   LINK_LIBRARIES xAODBase )
+   xAODBase/selection-ObjectType.xml)
 
 # Test(s) in the package:
 atlas_add_test( ut_xAODObjectType_test

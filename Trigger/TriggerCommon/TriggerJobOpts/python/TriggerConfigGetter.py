@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 __author__  = 'J. Stelzer'
@@ -248,7 +248,7 @@ class TriggerConfigGetter(Configured):
         ### preparations are done!
         try:
             self.svc.SetStates( self.ConfigSrcList )
-        except:
+        except Exception as ex:
             log.error( 'Failed to set state of TrigConfigSvc to %r' % self.ConfigSrcList )
         else:
             log.info('The following configuration services will be tried: %r' % self.ConfigSrcList )
@@ -256,7 +256,7 @@ class TriggerConfigGetter(Configured):
 
         try:
             self.svc.InitialiseSvc()
-        except Exception, ex:
+        except Exception as ex:
             log.error( 'Failed to activate TrigConfigSvc: %r' % ex )
 
         if self.readTriggerDB:
