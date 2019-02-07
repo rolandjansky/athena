@@ -1,8 +1,13 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file AnalysisConfig_Ntuple.h */
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    AnalysisConfig_Ntuple.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:37 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 #define TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H

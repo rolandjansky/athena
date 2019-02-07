@@ -1170,7 +1170,7 @@ FastShowerCellBuilderTool::get_calo_surface(std::vector<Trk::HitInfo>* hitVector
 StatusCode
 FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                                             std::vector<Trk::HitInfo>* hitVector,
-                                            Amg::Vector3D initMom,
+                                            const Amg::Vector3D& initMom,
                                             double mass,
                                             int pdgid,
                                             int barcode,
@@ -1894,8 +1894,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
           if(ecell==0) continue;
           elayertot3+=ecell;
 
-          // is there a other way to get a non const pointer?
-          CaloCell* theCaloCell=(CaloCell*)(theCellContainer->findCell(cell->calo_hash()));
+          CaloCell* theCaloCell=theCellContainer->findCell(cell->calo_hash());
           if(theCaloCell) {
             //            log << MSG::VERBOSE << "found calo cell : eta=" <<theCaloCell->caloDDE()->eta()<<" phi="<<theCaloCell->caloDDE()->phi()<<" overlap="<<iter->second<<"old e=" <<theCaloCell->energy()<< " ; new e=" <<theCaloCell->energy()+energy*iter->second<< endmsg;
             theCaloCell->setEnergy(theCaloCell->energy()+ecell);
@@ -2290,10 +2289,10 @@ void FastShowerCellBuilderTool::init_shape_correction()
   }
 }
 
-StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContainer)
+StatusCode
+FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
+                                    const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
 
   TRandom3 rndm;

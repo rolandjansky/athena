@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace InDetDD {
     SCT_ForwardPolarPosition(const double r,const double theta);
   
     // Destructor:
-    virtual ~SCT_ForwardPolarPosition();
+    virtual ~SCT_ForwardPolarPosition() = default;
   
     // Assignment operator:
     SCT_ForwardPolarPosition &operator=(const SCT_ForwardPolarPosition &polar);

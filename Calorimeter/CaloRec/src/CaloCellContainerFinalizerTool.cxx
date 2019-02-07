@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -38,11 +38,9 @@ CaloCellContainerFinalizerTool::CaloCellContainerFinalizerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
-   m_theCaloCCIDM(nullptr)
+  :base_class (type, name, parent),
+   m_theCaloCCIDM (nullptr)
 {
-  declareInterface<ICaloCellMakerTool>(this); 
-  declareInterface<ICaloConstCellMakerTool>(this); 
 }
 
 
@@ -66,7 +64,7 @@ StatusCode CaloCellContainerFinalizerTool::initialize()
 }
 
 template <class CONTAINER>
-StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont )
+StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont ) const
 {
 
   const unsigned int hashMax=m_theCaloCCIDM->calo_cell_hash_max();
@@ -147,7 +145,8 @@ StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont )
 
 
 StatusCode
-CaloCellContainerFinalizerTool::process(CaloCellContainer * theCont )
+CaloCellContainerFinalizerTool::process (CaloCellContainer * theCont,
+                                         const EventContext& /*ctx*/) const
 {
   CHECK( doProcess (theCont) );
   return StatusCode::SUCCESS;
@@ -155,7 +154,8 @@ CaloCellContainerFinalizerTool::process(CaloCellContainer * theCont )
 
 
 StatusCode
-CaloCellContainerFinalizerTool::process(CaloConstCellContainer * theCont )
+CaloCellContainerFinalizerTool::process (CaloConstCellContainer * theCont,
+                                         const EventContext& /*ctx*/) const
 {
   // Container will automatically be locked when recorded.
   return doProcess (theCont);

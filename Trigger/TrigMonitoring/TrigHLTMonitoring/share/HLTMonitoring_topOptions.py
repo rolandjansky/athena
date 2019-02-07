@@ -26,7 +26,6 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doMinBias  = False
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
-  HLTMonFlags.doIDJpsiMon  = False
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
   log.info('Environment is tier0ESD')
   # we are in ESD->AOD step
@@ -43,8 +42,9 @@ else :
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
 
-# temporarily disabling IDJpsiMon to deal with ATR-12037
-HLTMonFlags.doIDJpsiMon = False
+# remove flag for IDJpsi monitoring in anticipation of the code 
+# being removed
+# HLTMonFlags.doIDJpsiMon = False
 
 log.info("HLTMonFlags are:")
 print HLTMonFlags

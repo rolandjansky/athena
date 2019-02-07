@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloMBTSRetriever.h"
@@ -21,8 +21,6 @@
 #include "TileIdentifier/TileTBID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 namespace JiveXML {
@@ -56,7 +54,15 @@ namespace JiveXML {
 
   StatusCode CaloMBTSRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    ATH_MSG_DEBUG( "Initialising Tool" );
+
+
+    //=== get TileCondToolTiming
+    ATH_CHECK( m_tileToolTiming.retrieve() );
+
+    //=== get TileCondToolEmscale
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+
 
     return StatusCode::SUCCESS;
   }
@@ -121,7 +127,6 @@ namespace JiveXML {
     const TileHWID* tileHWID;
     const TileInfo* tileInfo;
     const TileCablingService* cabling=nullptr;
-    ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
     TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
     cabling = TileCablingService::getInstance();
     bool offlineRch = false;
@@ -136,9 +141,6 @@ namespace JiveXML {
     if ( detStore()->retrieve(tileInfo, "TileInfo").isFailure() )
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getMBTSData(), Could not retrieve TileInfo"<< endmsg;
 
-    //=== get TileCondToolEmscale
-    if ( tileToolEmscale.retrieve().isFailure())
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve " << tileToolEmscale << endmsg;
 
     std::string RchName[7] = {"TileRawChannelOpt2","TileRawChannelOpt","TileRawChannelFixed",
                               "TileRawChannelFitCool","TileRawChannelFit",
@@ -219,9 +221,9 @@ namespace JiveXML {
             amplitude = (*chItr)->amplitude();
             //Change amplitude units to ADC counts
             if (TileRawChannelUnit::ADCcounts < RChUnit && RChUnit < TileRawChannelUnit::OnlineADCcounts) {
-              amplitude /= tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
+              amplitude /= m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
             } else if (RChUnit > TileRawChannelUnit::OnlineADCcounts) {
-              amplitude = tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
+              amplitude = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
             }
 
             theMbtspedestal.insert(std::make_pair( cellid, (*chItr)->pedestal() ) );
@@ -344,14 +346,17 @@ namespace JiveXML {
           int drawer    = tileHWID->drawer(hwid);
           int ros       = tileHWID->ros(hwid);
           int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-          float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
+          float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
+                                                        TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
           float amp;
 
           if (  cell->energy() >= m_mbtsThreshold ) amp = cell->energy()/scale;
           else amp = 0.0;
           float time = cell->time();
 
-          if ((qual != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
+          if ((qual != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) {
+            time += m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
+          }
 
           cellRawAmplitude.push_back(DataType(amp));
           cellRawTime.push_back(DataType(time));

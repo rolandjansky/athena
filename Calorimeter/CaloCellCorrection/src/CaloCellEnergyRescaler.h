@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -21,16 +21,19 @@ class CaloCondBlobFlt;
     @brief CaloCellMakerTool to re-scale cell energies.
 */
 
-class CaloCellEnergyRescaler : public AthAlgTool, virtual public ICaloCellMakerTool  {
+class CaloCellEnergyRescaler
+  : public extends<AthAlgTool, ICaloCellMakerTool>
+{
 public:
   
   CaloCellEnergyRescaler (const std::string& type, const std::string& name, 
 			  const IInterface* parent);
 
   ~CaloCellEnergyRescaler();
-  virtual StatusCode initialize(); 
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
  private: 
   /// IOV callback method

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -156,7 +156,8 @@ public:
   StatusCode testProcess (CaloCellFastCopyTool* tool,
                           CONT* destCont)
   {
-    return tool->process (destCont);
+    EventContext ctx;
+    return tool->process (destCont, ctx);
   }
 
 

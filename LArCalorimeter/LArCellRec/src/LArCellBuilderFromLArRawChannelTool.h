@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLBUILDERFROMLARRAWCHANNELTOOL_H
@@ -52,8 +52,8 @@ class LArCell;
  */
 
 
-class LArCellBuilderFromLArRawChannelTool: public AthAlgTool, 
-					   virtual public ICaloCellMakerTool
+class LArCellBuilderFromLArRawChannelTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:  
   /**
@@ -66,7 +66,7 @@ public:
   /**
    * @brief Destructor, deletes the MsgService.
    */
-  ~LArCellBuilderFromLArRawChannelTool();
+  virtual ~LArCellBuilderFromLArRawChannelTool();
 
   /**
    * @brief Initialize method.
@@ -77,15 +77,17 @@ public:
    * Computes the total number of cells based on the subcalo hash-range. 
    *
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /**
    * @brief process method as defined in ICaloCellMaker interface
    * @param theCellContainer Pointer to the CaloCellContainer we are working on
+   * @param ctx The event context.
    * @return Gaudi status code.
    *
    */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 private: 
 

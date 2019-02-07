@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonGenericTracks_H
@@ -38,7 +38,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-class EventInfo;
 
 namespace Trk  { 
   //class VxCandidate;

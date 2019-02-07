@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_ALGA_H
@@ -10,7 +10,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 
@@ -31,7 +31,7 @@ public:
   
 private:
 
-  SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt {this,"EvtInfo", "EventInfo", "xAOD EventInfo name"};
 
   SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "a1", "WHK 1"};
   SG::WriteHandleKey<HiveDataObj> m_wrh2 {this, "Key_W2", "a2", "WHK 2"};

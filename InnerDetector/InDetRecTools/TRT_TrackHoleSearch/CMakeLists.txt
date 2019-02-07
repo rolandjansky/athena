@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
-                          Event/EventInfo
                           Event/EventPrimitives
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
@@ -40,7 +39,7 @@ atlas_add_component( TRT_TrackHoleSearch
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkParameters TrkToolInterfaces Identifier EventInfo EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkEventUtils TrkTrack TrkTrackSummary VxVertex TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkParameters TrkToolInterfaces Identifier EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkEventUtils TrkTrack TrkTrackSummary VxVertex TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackHoleSearch )

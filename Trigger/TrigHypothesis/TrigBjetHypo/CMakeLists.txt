@@ -50,6 +50,10 @@ atlas_add_component( TrigBjetHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODBase xAODTracking GaudiKernel Particle VxSecVertex TrigInDetEvent TrigInterfacesLib AthContainers GeoPrimitives EventInfo EventPrimitives FourMomUtils xAODBTagging xAODCore xAODJet xAODMuon BTaggingLib JetEvent VxVertex TrigCaloEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent DecisionHandlingLib AthViews )
+atlas_add_test( TrigBjetHypoTool SCRIPT python -m  	TrigBjetHypo.TrigBjetHypoTool
+	
+			POST_EXEC_SCRIPT nopost.sh )
+
 
 # Install files from the package:
 atlas_install_headers( TrigBjetHypo )

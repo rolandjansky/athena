@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,11 +13,10 @@ unsigned int Trk::Segment::s_numberOfInstantiations=0;
 
 // default constructor
 Trk::Segment::Segment()
-    :
-    Trk::MeasurementBase(),
-    m_fitQuality(nullptr),
-     m_containedMeasBases(nullptr),
-     m_author(AuthorUnknown)
+    : Trk::MeasurementBase(),
+      m_fitQuality(nullptr),
+      m_containedMeasBases( nullptr ),
+      m_author(AuthorUnknown)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Segment, so increment total count
@@ -26,20 +25,20 @@ Trk::Segment::Segment()
 
 // copy constructor
 Trk::Segment::Segment(const Trk::Segment& seg)
-    :
-    Trk::MeasurementBase(seg),
+    : Trk::MeasurementBase(seg),
     m_fitQuality(seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr),
+    m_containedMeasBases( new DataVector<const Trk::MeasurementBase>  ),
     m_author( seg.m_author)
 {
-    m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
-    DataVector<const Trk::MeasurementBase>::const_iterator rotIter = seg.m_containedMeasBases->begin();
-    DataVector<const Trk::MeasurementBase>::const_iterator rotEnd  = seg.m_containedMeasBases->end();
-    for (; rotIter!=rotEnd; ++rotIter)
-       m_containedMeasBases->push_back((*rotIter)->clone());
+    m_containedMeasBases->reserve(seg.m_containedMeasBases->size());
+    for(const Trk::MeasurementBase *const measurement : *(seg.m_containedMeasBases)) {
+       m_containedMeasBases->push_back(measurement->clone());
+    }
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Segment, so increment total count
 #endif
 }
+
 
 
 // copy constructor
@@ -59,11 +58,29 @@ Trk::Segment::Segment(const Trk::LocalParameters& locpars,
 #endif
 }
 
+
+// move constructor
+Trk::Segment::Segment(Trk::Segment&& seg)
+     : Trk::MeasurementBase(seg),
+       m_author( seg.m_author)
+{
+     m_fitQuality = seg.m_fitQuality;
+     seg.m_fitQuality = nullptr;
+     m_containedMeasBases = seg.m_containedMeasBases;
+     seg.m_containedMeasBases = nullptr;
+#ifndef NDEBUG
+     s_numberOfInstantiations++; // new Segment, so increment total count
+#endif 
+}
+
+
 // destructor - child save
 Trk::Segment::~Segment()
 {
-   delete m_fitQuality; m_fitQuality                = nullptr;
-   delete m_containedMeasBases; m_containedMeasBases= nullptr;
+
+   delete m_containedMeasBases;
+   delete m_fitQuality;
+
 #ifndef NDEBUG
    s_numberOfInstantiations--; // delete Segment, so decrement total count
 #endif
@@ -74,26 +91,49 @@ Trk::Segment::~Segment()
 Trk::Segment& Trk::Segment::operator=(const Trk::Segment& seg)
 {
   if (this!=&seg){
-    delete m_fitQuality;
-    delete m_containedMeasBases;
     Trk::MeasurementBase::operator=(seg);
-    m_fitQuality         = seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr;
-
+    delete m_fitQuality;
+    
+    m_fitQuality = seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr;
     if (seg.m_containedMeasBases) {
-      m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
-      DataVector<const Trk::MeasurementBase>::const_iterator rotIter = seg.m_containedMeasBases->begin();
-      DataVector<const Trk::MeasurementBase>::const_iterator rotEnd  = seg.m_containedMeasBases->end();
-      for (; rotIter!=rotEnd; ++rotIter){
-        m_containedMeasBases->push_back((*rotIter)->clone());
-      }
+      if (!m_containedMeasBases) {
+         m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
+      }  
+       else {
+           m_containedMeasBases->clear();
+       }
+      m_containedMeasBases->reserve(seg.m_containedMeasBases->size());
+      for(const Trk::MeasurementBase *const measurement : *(seg.m_containedMeasBases)) {
+       m_containedMeasBases->push_back(measurement->clone());
+      } 
     }
-    else
-      m_containedMeasBases = nullptr;
-
+    else {
+      delete m_containedMeasBases;
+      m_containedMeasBases = nullptr; 
+    }
     m_author = seg.m_author;
   }
   return (*this);
 }
+
+
+// move assignment operator
+Trk::Segment& Trk::Segment::operator=(Trk::Segment&& seg) {
+   if (this!=&seg){
+     Trk::MeasurementBase::operator=(seg);
+     delete m_fitQuality;
+     m_fitQuality = seg.m_fitQuality;
+     seg.m_fitQuality = nullptr;
+     delete m_containedMeasBases;
+     m_containedMeasBases = seg.m_containedMeasBases;
+     seg.m_containedMeasBases = nullptr;
+     m_author = seg.m_author;
+   }
+   return (*this);
+ } 
+
+
+
 
 unsigned int Trk::Segment::numberOfInstantiations()
 {

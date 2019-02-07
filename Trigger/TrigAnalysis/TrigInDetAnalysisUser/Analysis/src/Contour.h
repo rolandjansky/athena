@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Contour.h        
-//
-//                   
-//  
-//
-//   $Id: Contour.h, v0.0   Mon 17 Aug 2015 19:11:54 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Contour.h
+ **
+ **     @author  mark sutton
+ **     @date    Mon 17 Aug 2015 19:11:54 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  CONTOUR_H

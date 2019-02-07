@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Array.icc,v 1.1 2009-03-20 20:44:22 ssnyder Exp $
@@ -714,6 +714,7 @@ WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
  * match the length of the @c Arrayrep's shape.
  */
 inline
+// cppcheck-suppress uninitMemberVar  ; false positive
 WritableArray<0>::WritableArray (Arrayrep& rep)
   : Array<0> (rep),
     m_elt_nc (&rep.m_data[0])
@@ -746,6 +747,7 @@ WritableArray<0>& WritableArray<0>::operator= (Arrayelt elt)
  * instances returned from an indexing operation.
  */
 inline
+// cppcheck-suppress uninitMemberVarPrivate  ; false positive
 WritableArray<0>::WritableArray (Arrayrep& rep, unsigned int offs)
   : Array<0> (rep, offs),
     m_elt_nc (&rep.m_data[offs])

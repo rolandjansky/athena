@@ -37,9 +37,6 @@
 
 // Misc includes
 #include "GaudiKernel/ITHistSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -252,16 +249,9 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_DEBUG("execute()");
 
   // Event information
-  const EventInfo* pevt(0);
-  if( evtStore()->retrieve(pevt).isSuccess() ) {
-    m_runNumber = pevt->event_ID()->run_number();
-    m_eventNumber = pevt->event_ID()->event_number();
-    ATH_MSG_DEBUG("Now processing event number:" << m_eventNumber << ", run number:" << m_runNumber);
-  } else {
-    ATH_MSG_WARNING("Could not retrieve event info!");
-    m_runNumber = -1;
-    m_eventNumber = -1;
-  }
+  const EventContext& context = getContext();
+  m_runNumber = context.eventID().run_number();
+  m_eventNumber = context.eventID().event_number();
 
   if (m_doTruth) ATH_CHECK( m_TruthVar->fillVariables() );
 

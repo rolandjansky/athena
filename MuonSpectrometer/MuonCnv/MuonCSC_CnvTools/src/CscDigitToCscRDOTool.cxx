@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -14,15 +14,9 @@
 #include "MuonDigitContainer/CscDigitCollection.h"
 #include "MuonDigitContainer/CscDigit.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 #include "CscRODReadOut.h"
 
 #include "CscDigitToCscRDOTool.h"
-
-#include "EventInfo/EventInfo.h"
-
 
 #include <math.h>
 #include <cassert>

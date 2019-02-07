@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,7 @@ public:
   SCT_TdaqEnabledCondData();
 
   // Destructor
-  virtual ~SCT_TdaqEnabledCondData();
+  virtual ~SCT_TdaqEnabledCondData() = default;
 
   // Set a good ROD
   bool setGoodRod(const unsigned int rodNumber);

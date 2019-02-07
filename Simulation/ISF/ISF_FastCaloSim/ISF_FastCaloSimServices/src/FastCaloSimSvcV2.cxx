@@ -127,6 +127,7 @@ StatusCode ISF::FastCaloSimSvcV2::finalize()
 
 StatusCode ISF::FastCaloSimSvcV2::setupEvent()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_VERBOSE(m_screenOutputPrefix << "setupEvent NEW EVENT!");
   
   m_theContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
@@ -140,13 +141,11 @@ StatusCode ISF::FastCaloSimSvcV2::setupEvent()
 
   CHECK( m_caloCellMakerToolsSetup.retrieve() );
   ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerToolsSetup );
-  ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerToolsSetup.begin();
-  ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsSetup.end();
-  for (; itrTool != endTool; ++itrTool)
+  for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
   {
-    std::string chronoName=this->name()+"_"+ itrTool->name();
+    std::string chronoName=this->name()+"_"+ tool.name();
     if (m_chrono) m_chrono->chronoStart(chronoName);
-    StatusCode sc = (*itrTool)->process(m_theContainer);
+    StatusCode sc = tool->process(m_theContainer, ctx);
     if (m_chrono) {
       m_chrono->chronoStop(chronoName);
       ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
@@ -154,7 +153,7 @@ StatusCode ISF::FastCaloSimSvcV2::setupEvent()
 
     if (sc.isFailure())
     {
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
+      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << tool.name() );
       return StatusCode::FAILURE;
     }
   }

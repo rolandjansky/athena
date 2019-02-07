@@ -73,7 +73,6 @@ private:
 private:
 
   CSC_Hid2RESrcID                   m_hid2re;
-  const EventInfo   *               m_eventInfo;
   const CscIdHelper *               m_cscHelper;
   ServiceHandle<CSCcablingSvc>      m_cabling;
 

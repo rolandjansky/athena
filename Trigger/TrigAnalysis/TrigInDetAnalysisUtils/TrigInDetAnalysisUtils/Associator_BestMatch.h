@@ -1,19 +1,18 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Associator_BestMatch.h         
-//   
-//            Erkcan's track matchers 
-//                   
-// 
-//
-//   $Id: Associator_BestMatch.h, v0.0   Wed 28 Oct 2009 02:23:23 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Associator_BestMatch.h
+ **
+ **       Erkcan's track matchers 
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:23:23 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __ASSOCIATOR_BESTMATCH_H
-#define __ASSOCIATOR_BESTMATCH_H
+#ifndef TIDAUTILS_ASSOCIATOR_BESTMATCH_H
+#define TIDAUTILS_ASSOCIATOR_BESTMATCH_H
 
 #include <set>
 #include <map>
@@ -252,4 +251,4 @@ public:
 
 
 
-#endif //  __ASSOCIATOR_BESTMATCH_H
+#endif //  TIDAUTILS_ASSOCIATOR_BESTMATCH_H

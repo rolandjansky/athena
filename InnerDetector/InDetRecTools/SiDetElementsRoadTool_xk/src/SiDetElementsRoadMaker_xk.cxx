@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@
 
 #include "SiDetElementsRoadUtils_xk.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "EventInfo/TagInfo.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -85,6 +83,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
     ATH_CHECK( m_fieldServiceHandle.retrieve() );
     m_fieldService = &*m_fieldServiceHandle;
   }
+  if(m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
+  else if(m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
+  else m_fieldModeEnum = Trk::FullField;
 
   // Get propagator tool
   //
@@ -100,17 +101,6 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 
   ATH_CHECK(m_layerVecKey.initialize());
 
- std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
- const DataHandle<CondAttrListCollection> currentHandle;
- if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)){
-   ATH_CHECK( detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::magneticFieldInit,
-			   this,currentHandle,folder));
- }
- else {
-   magneticFieldInit();
-   ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
- }
- 
   return StatusCode::SUCCESS;
 }
 
@@ -148,7 +138,11 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
 			     "ToroidalField" ,"Grid3DField"  ,"RealisticField" ,
 			     "UndefinedField","AthenaField"  , "?????"         };
 
-  int mode = m_fieldprop.magneticFieldMode(); 
+  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
+  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+
+  int mode = fieldprop.magneticFieldMode();
   if(mode<0 || mode>8 ) mode = 8; 
 
   n     = 62-fieldmode[mode].size();
@@ -508,8 +502,12 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   m_test = true; if(D<0) {m_test = false; S=-S;}
 
+  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
+  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+
   std::list<Amg::Vector3D> G;
-  m_proptool->globalPositions(G,Tp,m_fieldprop,getBound(Tp),S,Trk::pion);
+  m_proptool->globalPositions(G,Tp,fieldprop,getBound(Tp),S,Trk::pion);
   if(G.size()<2) return;
 
   if(D > 0) {
@@ -728,39 +726,6 @@ float InDet::SiDetElementsRoadMaker_xk::stepToDetElement
 }
 
 ///////////////////////////////////////////////////////////////////
-// Callback function - get the magnetic field /
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::SiDetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
-{
-  // Build MagneticFieldProperties 
-  //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
-  magneticFieldInit();
-  return StatusCode::SUCCESS;
-}
-
-void InDet::SiDetElementsRoadMaker_xk::magneticFieldInit() 
-{
-  // Build MagneticFieldProperties 
-  //
-  Trk::MagneticFieldProperties* pMF = 0;
-  if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
-  else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
-  else                                  pMF = new Trk::MagneticFieldProperties(Trk::FullField);
-  m_fieldprop = *pMF; delete pMF;
-
-  // Test is filed or no
-  //
-  m_zfield = 0.;
-  if(m_fieldprop.magneticFieldMode()!=Trk::NoField) {
-
-    double f[3], p[3] ={10.,10.,0.}; m_fieldService->getFieldZR(p,f);
-    m_zfield =  299.7925*f[2];
-  }
-}
-
-///////////////////////////////////////////////////////////////////
 // Cylinder bounds parameters estimation
 ///////////////////////////////////////////////////////////////////
 
@@ -769,11 +734,19 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
 {
   const double cor = 1.;
 
-  if( fabs(m_zfield) < .0000001    ) return m_bounds;
+  double zfield = 0.;
+  if(m_fieldModeEnum!=Trk::NoField && m_fieldService->solenoidOn()) {
+    // const Amg::Vector3D& pos = Tp.position();
+    double f[3], p[3] ={10., 10., 0.};//{pos[Amg::x],pos[Amg::y],pos[Amg::z]};
+    m_fieldService->getFieldZR(p,f);
+    zfield =  299.7925*f[2];
+  }
+
+  if( fabs(zfield) < .0000001    ) return m_bounds;
 
   const AmgVector(5)& Vp = Tp.parameters();
   
-  double cur  = m_zfield*Vp[4]/sin(Vp[3]);
+  double cur  = zfield*Vp[4]/sin(Vp[3]);
 
   if( fabs(cur)*m_bounds.r() < cor ) return m_bounds;
 

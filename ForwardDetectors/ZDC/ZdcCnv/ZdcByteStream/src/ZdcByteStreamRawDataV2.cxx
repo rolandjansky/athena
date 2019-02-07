@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -15,7 +15,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "ZdcEvent/ZdcDigits.h"
 #include "ZdcEvent/ZdcDigitsCollection.h"
@@ -30,9 +30,8 @@
 
 //==================================================================================================
 ZdcByteStreamRawDataV2::ZdcByteStreamRawDataV2(const std::string& name, ISvcLocator* pSvcLocator) :
-	AthAlgorithm(name, pSvcLocator)
+	AthReentrantAlgorithm(name, pSvcLocator)
 {
-	declareProperty("ZdcTriggerTowerContainerLocation", m_ZdcTriggerTowerContainerLocation = ZdcDefs::ZdcTriggerTowerContainerLocation);
 	declareProperty("ForceSlicesLUT", m_forceSlicesLut = 0);
 	declareProperty("ForceSlicesFADC", m_forceSlicesFadc = 0);
 }
@@ -52,28 +51,22 @@ StatusCode ZdcByteStreamRawDataV2::initialize()
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
 			<< endmsg;
 
+        ATH_CHECK( m_ZdcTriggerTowerContainerLocation.initialize() );
 	return StatusCode::SUCCESS;
 }
 //==================================================================================================
 
 
 //==================================================================================================
-StatusCode ZdcByteStreamRawDataV2::execute()
+StatusCode ZdcByteStreamRawDataV2::execute (const EventContext& ctx) const
 {
 	if (!msgLvl(MSG::INFO)) return StatusCode::SUCCESS;
 	msg(MSG::INFO);
 
-	//ZdcDigitsCollection* ttCollection = 0;
-	const DataHandle<xAOD::TriggerTowerContainer> ttCollection;
+	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation.key() << endmsg;
 
-	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation << endmsg;
-
-	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcTriggerTowerContainerLocation);
-	if (sc.isFailure() || !ttCollection || ttCollection->empty())
-	{
-		msg() << "No Zdc Digits found" << endmsg;
-		return StatusCode::SUCCESS;
-	}
+        SG::ReadHandle<xAOD::TriggerTowerContainer> ttCollection
+          (m_ZdcTriggerTowerContainerLocation, ctx);
 
 	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endmsg;
 

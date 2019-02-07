@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,11 +21,9 @@ StatusCode HICaloCellCorectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode HICaloCellCorectionTool::process(CaloCellContainer* cells){
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
-  //  ATH_MSG_INFO( evtStore()->dump() );  
-
+StatusCode HICaloCellCorectionTool::process (CaloCellContainer* cells,
+                                             const EventContext& ctx) const
+{
   SG::ReadHandle<xAOD::HIEventShapeContainer> eventShape (m_eventShapeKey, ctx);
 
   CaloCellContainer clone(SG::VIEW_ELEMENTS); // this is not newed as it will be disposed at the return from this fucntion

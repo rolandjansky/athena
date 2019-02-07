@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
   m_addMuToF(true), m_rpcBugFix(false), m_rpcTimeShift(5.),
                 m_tileEnergyCut(0.5), m_doGlobalFit(true), m_doMdt(true), m_doRpc(false), m_doTileCal(true),
                 m_isData(true), m_mdtSmearFactor(0.9), //default mid smear
-                m_rpcSmearFactor(-1), m_tileSmearFactor(-1), m_doCalibration(false), m_runNumber(0),
+                m_rpcSmearFactor(-1), m_tileSmearFactor(-1), m_doCalibration(false),
                 m_pCollection(NULL), m_pMdtSegmentMaker("Muon::DCMathSegmentMaker"),
                 m_pMdtDriftCircleCreator("Muon::MdtDriftCircleOnTrackCreator"), m_pTofTool("MuGirlNS::StauBetaTofTool"),
                 m_pGlobalFitTool("MuGirlNS::GlobalFitTool", 0),    // make this a public tool
@@ -557,13 +557,6 @@ void StauTool::initializeCandidate(const xAOD::TrackParticle* trkParticle,
         m_pIdTrack = NULL;
     m_trigP = trigMomentum;
     m_pMuonRefittedTrack = pMuonRefittedTrack;
-    if (m_doCalibration)
-    {
-        StatusCode sc = evtStore()->retrieve(m_pEventInfo);
-        if (sc.isFailure()) ATH_MSG_ERROR(  "Unable to retrieve pointer to event store" );
-        const EventID* myEventID = m_pEventInfo->event_ID();
-        m_runNumber = myEventID->run_number();
-    }
     //initiate the 'technologies'
     m_pStauRPC = new StauRPC(this, msg(),
                              *m_randSvc->GetEngine(m_randStreamName),
@@ -626,7 +619,6 @@ void StauTool::clearCandidate()
     m_techContribution2Chi2.clear();
     m_techBetaChi2.clear();
     m_techBetaAvg.clear();
-    m_runNumber = 0;
     m_pRefittedTrack = NULL;
     //clear the vector of new mdt segments.
     // the segments are handles by theSegmentManager

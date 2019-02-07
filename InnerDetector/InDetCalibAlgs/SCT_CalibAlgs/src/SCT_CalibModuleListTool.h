@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -41,7 +41,7 @@ class SCT_CalibModuleListTool : public extends<AthAlgTool, ISCT_CalibModuleListT
       //@name Tool methods, reimplemented
       //@{
       SCT_CalibModuleListTool(const std::string&, const std::string&, const IInterface*);
-      virtual ~SCT_CalibModuleListTool() {};
+      virtual ~SCT_CalibModuleListTool() = default;
       virtual StatusCode initialize();
       virtual StatusCode finalize();
       virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );

@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackAnalysisSequence.h        
-//
-//                   
-// 
-//
-//   $Id: TrackAnalysisSequence.h, v0.0   Tue  3 Nov 2009 17:01:50 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackAnalysisSequence.h
+ **
+ **     @author  mark sutton
+ **     @date    Tue  3 Nov 2009 17:01:50 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKANALYSISSEQUENCE_H
-#define __TRACKANALYSISSEQUENCE_H
+#ifndef TIDA_TRACKANALYSISSEQUENCE_H
+#define TIDA_TRACKANALYSISSEQUENCE_H
 
 #include <iostream>
 #include <string>
@@ -181,7 +179,7 @@ inline std::ostream& operator<<( std::ostream& s, const TrackAnalysisSequence& /
 }
 
 
-#endif  // __TRACKANALYSISSEQUENCE_H 
+#endif  // TIDA_TRACKANALYSISSEQUENCE_H 
 
 
 

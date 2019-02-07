@@ -63,70 +63,17 @@ namespace xAOD {
       template< typename TYPE >
       bool hasDetail( const std::string& name ) const;
 
-      /// Set an integer detail on the object
-      bool setDetail( const std::string& name, int32_t value );
-      /// Set an unsigned detail on the object
-      bool setDetail( const std::string& name, uint32_t value );
-      /// Set a floating point detail on the object
-      bool setDetail( const std::string& name, float value );
-      /// Set a string detail on the object
-      bool setDetail( const std::string& name,
-                      const std::string& value );
-      /// Set a vector<int> detail on the object
-      bool setDetail( const std::string& name,
-                      const std::vector< int32_t >& value );
-      /// Set a vector<unsigned int> detail on the object 
-      bool setDetail( const std::string& name,
-                      const std::vector< uint32_t >& value );
-      /// Set a vector<unsigned short> detail on the object. Note: For an even vector, the final entry cannot be (2^16)-1=65535
-      bool setDetail( const std::string& name,
-                      const std::vector< uint16_t >& value );
-      /// Set a vector<float> detail on the object
-      bool setDetail( const std::string& name,
-                      const std::vector< float >& value );
-      /// Set a vector<string> detail on the object
-      bool setDetail( const std::string& name,
-                      const std::vector< std::string >& value );
+      /// Set an TYPE detail on the object
+      template< typename TYPE >
+      bool setDetail( const std::string& name, const TYPE& value );
 
-      /// Get an integer detail from the object
-      bool getDetail( const std::string& name, int32_t& value ) const;
-
-      /// Get an unsigned integer detail from the object
-      bool getDetail( const std::string& name, uint32_t& value ) const;
-
-      /// Get a floating point detail from the object
-      bool getDetail( const std::string& name, float& value ) const;
-
-      /// Get a string detail from the object
-      bool getDetail( const std::string& name, std::string& value ) const;
-
-      /// Get a vector<int> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< int32_t >& value ) const;
-
-      /// Get a vector<insigned int> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< uint32_t >& value ) const;
-
-      /// Get a vector<unsigned short> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< uint16_t >& value ) const;
-
-      /// Get a vector<float> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< float >& value ) const;
-
-      /// Get a vector<string> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< std::string >& value ) const;
+      /// Get an TYPE detail from the object
+      template< typename TYPE >
+      bool getDetail( const std::string& name, TYPE& value ) const;
 
       /// Get a detail by name, missing detail will result on std::runtime_error exception
-      template<typename T>
-      T getDetail( const std::string& name ) const;
-
-      /// Get a detail by name, will not throw. Name change to solve disambiguation
-      template<typename T>
-      std::pair<bool, T> returnDetail( const std::string& name ) const;
+      template<typename TYPE>
+      TYPE getDetail( const std::string& name ) const;
 
       /// @}
 
@@ -162,9 +109,16 @@ namespace xAOD {
       ElementLinkVector< CONTAINER >
       objectCollectionLinks( const std::string& collectionName ) const;
 
+      /// Add a link without type
+      void typelessSetObjectLink( const std::string& name, 
+                                  const uint32_t key, 
+                                  const uint32_t clid, 
+                                  const uint16_t beginIndex, 
+                                  const uint16_t endIndex = 0 );
+
       /// @}
 
-      /// @name Functions for accessing links to component objects and object collections
+      /// @name Functions for copying links between objects
       /// @{
 
       /// Copy one named link from another object.
@@ -206,8 +160,6 @@ namespace xAOD {
       /// Raw access to the persistent link CLIDs
       const std::vector< uint32_t >& linkColClids() const;
 
-      /// Add a link without type
-      void typelessSetObjectLink( const std::string& name, const uint32_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex = 0 );
 
       /// @}
 

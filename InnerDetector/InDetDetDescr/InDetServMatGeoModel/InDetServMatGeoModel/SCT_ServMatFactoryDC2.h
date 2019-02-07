@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC2_H
@@ -25,7 +25,7 @@ class SCT_ServMatFactoryDC2   {
   SCT_ServMatFactoryDC2(StoreGateSvc  *pDetStore,
 			ServiceHandle<IRDBAccessSvc>& pRDBAccess);  
   // Destructor:
-  ~SCT_ServMatFactoryDC2();
+  virtual ~SCT_ServMatFactoryDC2() = default;
   
   // Creation of geometry:
   void create(GeoPhysVol *mother);

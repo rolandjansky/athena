@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
@@ -22,9 +22,6 @@ SCT_GCBuilder::SCT_GCBuilder(const SCT_ID* sctId, bool useOffline,
   m_useOfflineAlgorithm=useOffline;
   m_OffsetBarrelSCT = offsetBarrelSCT;
   m_OffsetEndcapSCT = offsetEndcapSCT;
-}
-
-SCT_GCBuilder::~SCT_GCBuilder() {
 }
 
 void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clusterColl, 

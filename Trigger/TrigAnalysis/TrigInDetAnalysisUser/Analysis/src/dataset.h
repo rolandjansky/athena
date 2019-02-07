@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    dataset.h        
-//
-//                   
-//  
-//
-//   $Id: dataset.h 760843 2016-07-09 23:56:54Z sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    dataset.h
+ **
+ **     @author  mark sutton
+ **     @date    2016-07-09 23:56:54 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __DATASET_H
-#define __DATASET_H
+#ifndef ANALYSIS_DATASET_H
+#define ANALYSIS_DATASET_H
 
 #include <cstdio>
 #include <cstdlib>
@@ -104,7 +102,7 @@ inline std::ostream& operator<<( std::ostream& s, const dataset& _d ) {
 }
 
 
-#endif  // __DATASET_H 
+#endif  // ANALYSIS_DATASET_H 
 
 
 

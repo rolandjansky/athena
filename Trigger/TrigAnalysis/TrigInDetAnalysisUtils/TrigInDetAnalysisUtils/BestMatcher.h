@@ -1,16 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    BestMatcher.h        
-//
-//            truely generic template class of a best matching 
-//            algorithm based on an efficient implementation of 
-//            the "best matcher" algorithm from Ercan Ozcan 
-// 
-//
-//   $Id: BestMatcher.h, v0.0   Mon 10 Aug 2015 03:07:24 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    BestMatcher.h
+ **
+ **       truely generic template class of a best matching 
+ **       algorithm based on an efficient implementation of 
+ **       the "best matcher" algorithm from Ercan Ozcan 
+ **
+ **     @author  mark sutton
+ **     @date    Mon 10 Aug 2015 03:07:24 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  BESTMATCHER_H

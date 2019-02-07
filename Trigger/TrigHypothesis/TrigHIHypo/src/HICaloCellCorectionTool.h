@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HICALOCELLCORECTIONTOOL_H
@@ -24,7 +24,8 @@ class HICaloCellCorectionTool
   virtual ~HICaloCellCorectionTool(){};
   
   virtual StatusCode initialize() override;
-  virtual StatusCode process(CaloCellContainer* cellContainer) override;
+  virtual StatusCode process (CaloCellContainer* cellContainer,
+                              const EventContext& ctx) const override;
  private:
 
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_eventShapeKey;

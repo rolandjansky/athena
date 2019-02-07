@@ -49,8 +49,7 @@ private:
   double m_generalCut;               ///!< A general cut - this isn't normally used in our simulation
   double m_emMaxEnergy;              ///!< Maximum energy of the pre-calculated EM cross-section tables
   double m_emMinEnergy;              ///!< Minimum energy of the pre-calculated EM cross-section tables
-  int m_emDEDXBinning;               ///!< Binning for the EM dE/dX tables
-  int m_emLambdaBinning;             ///!< Binning for the EM lambda tables
+  int m_emNumberOfBinsPerDecade;     ///!< Number of bins per Energy decade. Used for both DeDx and for the Lambda binning.
   bool m_applyEMCuts;                ///!< Switch for the G4 "apply cuts" EM physics flag
 
 };

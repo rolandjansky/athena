@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -113,7 +113,6 @@ namespace InDet{
       int                                  m_outputlevel{};
       int                                  m_nprint{}   ;
       int                                  m_sizeroad{} ;
-      double                               m_zfield{}   ;
       float                                m_width{}    ;  // Width of the road
       double                               m_step {}    ;  // Max step allowed
       Trk::CylinderBounds                  m_bounds{}   ;  //  
@@ -121,7 +120,7 @@ namespace InDet{
       std::string                          m_pix      ;  // PIX manager   location
       std::string                          m_sct      ;  // SCT manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
-      Trk::MagneticFieldProperties         m_fieldprop;  // Magnetic field properties
+      Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
       SG::ReadCondHandleKey<SiDetElementsLayerVectors_xk> m_layerVecKey{this, "LayerVecKey",
           "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
 
@@ -139,9 +138,6 @@ namespace InDet{
       void       mapDetectorElementsProduction();
       float stepToDetElement
 	(const InDetDD::SiDetectorElement*&,Amg::Vector3D&,Amg::Vector3D&);
-
-      void       magneticFieldInit();
-      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       Trk::CylinderBounds getBound(const Trk::TrackParameters&);
 

@@ -1,34 +1,37 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    particleType.h        
-//            a class of my own because ttying to access the  
-//            ParticleDataTable in athena is frankly more 
-//            trouble than it is worth        
-//        
-//            As it happens, this class has no data memebrs,
-//            but derives from an std::map
-//  
-//
-//   $Id: particleType.h, v0.0   Thu 14 Jul 2011 09:50:36 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    particleType.h
+ **
+ **     @brief   a class of my own because ttying to access the  
+ **              ParticleDataTable in athena is frankly more 
+ **              trouble than it is worth        
+ **
+ **              As it happens, this class has no data members,
+ **              but derives from an std::map, although a *private* 
+ **              std::map so neatly sidestepping all the sound reasons 
+ **              why one should not inherit from std classes 
+ **
+ **     @author  mark sutton
+ **     @date    Thu 14 Jul 2011 09:50:36 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef PARTICLETYPE_H
-#define PARTICLETYPE_H
+#ifndef TIDAUTILS_PARTICLETYPE_H
+#define TIDAUTILS_PARTICLETYPE_H
 
 #include <iostream>
 #include <string>
 #include <map>
 
 
-class particleType :  public std::map<int, std::string> {
+class particleType :  private std::map<int, std::string> {
 
 public:
 
-  typedef std::map<int, std::string>::const_iterator  const_iterator;
-  typedef std::map<int, std::string>::iterator              iterator;
+  using std::map<int, std::string>::begin;
+  using std::map<int, std::string>::end;
 
 public:
 
@@ -142,7 +145,7 @@ inline std::ostream& operator<<( std::ostream& s, const particleType& p ) {
 }
 
 
-#endif  // __PARTICLETYPE_H 
+#endif  // TIDAUTILS_PARTICLETYPE_H 
 
 
 

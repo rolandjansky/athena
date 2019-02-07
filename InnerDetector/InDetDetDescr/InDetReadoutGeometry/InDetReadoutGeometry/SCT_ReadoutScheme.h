@@ -45,7 +45,7 @@ namespace InDetDD {
       		    const int cells,const int shift);
       
         // Destructor:
-        ~SCT_ReadoutScheme();
+        virtual ~SCT_ReadoutScheme() = default;
       
         // Assignment operator:
         SCT_ReadoutScheme &operator=(const SCT_ReadoutScheme &scheme);
@@ -102,9 +102,6 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline SCT_ReadoutScheme::~SCT_ReadoutScheme()
-{}
-
 inline void SCT_ReadoutScheme::setDiodes(int numDiodes) {
   m_diodes = numDiodes;
 }
