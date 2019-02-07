@@ -18,6 +18,7 @@
 #include <EventLoop/Driver.h>
 
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/RootUtils.h>
@@ -174,13 +175,15 @@ namespace EL
   bool Driver ::
   wait (const std::string& location, unsigned time)
   {
+    using namespace msgEventLoop;
+
     // no invariant used
 
     struct SigTrap {
       static void handler (int) 
       { 
 	EL::Driver::abortRetrieve = true; 
-	std::cout << "\nAborting..." << std::endl;
+	ANA_MSG_INFO ("\nAborting...");
       }
       SigTrap() { signal (SIGINT, &handler); }
       ~SigTrap() { signal (SIGINT, SIG_DFL); EL::Driver::abortRetrieve = false; }
@@ -189,13 +192,13 @@ namespace EL
     while (!retrieve (location))
     {
       if (abortRetrieve) { return false; }
-      std::cout << "not all worker jobs finished yet, waiting " << time << " seconds" << std::endl;
+      ANA_MSG_INFO ("not all worker jobs finished yet, waiting " << time << " seconds");
       for (unsigned i = 0; i != time; ++i) 
       {
 	if (abortRetrieve) { return false; }
 	sleep (1);
       }
-      std::cout << "rechecking jobs" << std::endl;
+      ANA_MSG_INFO ("rechecking jobs");
     }
     return true;
   }

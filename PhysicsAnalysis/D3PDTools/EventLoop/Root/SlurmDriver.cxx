@@ -19,6 +19,7 @@
 
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
@@ -61,13 +62,15 @@ namespace EL
                const std::vector<std::size_t>& jobIndices, bool resubmit)
     const
   {
+    using namespace msgEventLoop;
+
     auto all_set = m_b_job_name && m_b_account && m_b_partition && m_b_run_time;
     if (!all_set)
     {
-      std::cout << "Job Name" << m_job_name << std::endl;
-      std::cout << "Account " << m_account << std::endl;
-      std::cout << "Partition " << m_partition << std::endl;
-      std::cout << "Run Time " << m_run_time << std::endl;
+      ANA_MSG_INFO ("Job Name" << m_job_name);
+      ANA_MSG_INFO ("Account " << m_account);
+      ANA_MSG_INFO ("Partition " << m_partition);
+      ANA_MSG_INFO ("Run Time " << m_run_time);
 
       RCU_THROW_MSG("All parameters need to be set before job can be submitted");
       return;
