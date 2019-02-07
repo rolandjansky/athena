@@ -27,9 +27,9 @@ namespace xAOD {
       EventInfoRunNumberFixAlg( const std::string& name, ISvcLocator* svcLoc );
 
       /// Function initialising the algorithm
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Function executing the algorithm
-      virtual StatusCode execute();
+      virtual StatusCode execute() override;
 
    private:
 
