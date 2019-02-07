@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
@@ -510,6 +510,9 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
     ///-- if executeNominal, skip other systematics (and vice-versa) --///
     if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
     if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+
+    if((!m_config->doTightSysts() && !isLoose) && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+    if((!m_config->doLooseSysts() && isLoose)  && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
 
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );

@@ -162,6 +162,13 @@ class TopConfig final {
   // Default is true for Data and false for MC
   inline bool doLooseEvents() const {return m_doLooseEvents;}
 
+  // Run systematics on Loose selection
+  // Default is true
+  inline bool doTightSysts() const {return m_doTightSysts;}
+  // Run systematics on Loose selection
+  // Default is true
+  inline bool doLooseSysts() const {return m_doLooseSysts;}
+
   // Do fakes MM weight calculation
   inline bool doFakesMMWeights() const {return m_doFakesMMWeights;}
 
@@ -1024,6 +1031,10 @@ class TopConfig final {
   bool m_doTightEvents;
   // Dumps the "*_Loose trees (on demand)
   bool m_doLooseEvents;
+
+  // Run systematics on the given selection
+  bool m_doTightSysts;
+  bool m_doLooseSysts;
 
   // In the *_Loose trees, lepton SFs are calculated considering
   // tight ID and isolation instead of loose

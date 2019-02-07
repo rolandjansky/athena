@@ -1,18 +1,16 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 // Dear emacs, this is -*- c++ -*-
 // $Id: CorrectionTool.h 600738 2014-06-07 14:34:05Z krasznaa $
 #ifndef PATINTERFACES_CORRECTIONTOOL_H
 #define PATINTERFACES_CORRECTIONTOOL_H
 
-//        Copyright Iowa State University 2014.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
-// Local include(s):
 #include "PATInterfaces/CorrectionCode.h"
 
 namespace CP {

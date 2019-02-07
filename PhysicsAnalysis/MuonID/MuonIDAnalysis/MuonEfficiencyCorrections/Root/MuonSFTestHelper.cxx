@@ -99,15 +99,12 @@ namespace TestMuonSF {
             }
             CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
             if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-//             else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.scale_factor = FLT_MAX;
 
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
             if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-//            else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.data_eff = FLT_MAX;
 
             cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
             if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-//             else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.mc_eff = FLT_MAX;            
         }
         return CP::CorrectionCode::Ok;
     }
@@ -169,14 +166,17 @@ namespace TestMuonSF {
     //###########################################################
     //                  MuonInfoBranches
     //###########################################################
-    MuonInfoBranches::MuonInfoBranches(TTree* tree) :
+    MuonInfoBranches::MuonInfoBranches(TTree* tree, const ToolHandle<CP::IMuonSelectionTool>& sel_tool) :
                 MuonEffiBranches(tree),
+                m_selection_tool(sel_tool),
                 m_pt(FLT_MAX),
                 m_eta(FLT_MAX),
                 m_phi(FLT_MAX),
                 m_quality(-1),
                 m_author(-1),
-                m_type(-1) {
+                m_type(-1),
+                m_passLowPt(false),
+                m_passHighPt(false) {
     }
     MuonInfoBranches::~MuonInfoBranches() {
     }
@@ -186,6 +186,10 @@ namespace TestMuonSF {
         if (!initBranch(m_phi, "phi")) return false;
         if (!initBranch(m_quality, "quality")) return false;
         if (!initBranch(m_author, "author")) return false;
+        if (!m_selection_tool.isSet()) return true;
+        if (!initBranch(m_passLowPt, "isLowPt")) return false;
+        if (!initBranch(m_passHighPt, "isHighPt")) return false;
+       
         return true;
     }
     std::string MuonInfoBranches::name() const {
@@ -197,7 +201,11 @@ namespace TestMuonSF {
         m_phi = muon.phi();
         m_author = muon.author();
         m_type = muon.type();
-        m_quality = muon.quality();
+        if (m_selection_tool.isSet()){
+            m_quality = m_selection_tool->getQuality(muon);
+            m_passLowPt = m_selection_tool->passedLowPtEfficiencyCuts(muon);
+            m_passHighPt = m_selection_tool->passedHighPtCuts(muon);
+        } else m_quality = muon.quality();
         return CP::CorrectionCode::Ok;
     }
 
@@ -208,23 +216,26 @@ namespace TestMuonSF {
                 m_name(release_name),
                 m_tree(),
                 m_tree_raw_ptr(new TTree("MuonEfficiencyTest", "MuonEfficiencyTest")),
-                m_Branches() {
+                m_Branches(),
+                m_sel_tool(){
         if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
-        m_Branches.push_back(EffiBranch_Ptr(new MuonInfoBranches(tree())));
+        m_Branches.push_back(EffiBranch_Ptr(new MuonInfoBranches(tree(),m_sel_tool)));
         if (HasOwnerShip) m_tree = std::shared_ptr < TTree > (m_tree_raw_ptr);
     }
     MuonSFTestHelper::MuonSFTestHelper(std::shared_ptr<TTree> tree, const std::string& release_name) :
                 m_name(release_name),
                 m_tree(tree),
                 m_tree_raw_ptr(tree.get()),
-                m_Branches() {
+                m_Branches(),
+                m_sel_tool(){
         if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
     }
     MuonSFTestHelper::MuonSFTestHelper(TTree* tree, const std::string& release_name) :
                 m_name(release_name),
                 m_tree(),
                 m_tree_raw_ptr(tree),
-                m_Branches() {
+                m_Branches(),
+                m_sel_tool(){
         if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
     }
     MuonSFTestHelper::~MuonSFTestHelper() {
@@ -241,6 +252,13 @@ namespace TestMuonSF {
     void MuonSFTestHelper::addReplicaTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle) {
         m_Branches.push_back(EffiBranch_Ptr(new MuonReplicaBranches(tree(), handle, m_name)));
     }
+    void MuonSFTestHelper::setSelectionTool(const asg::AnaToolHandle<CP::IMuonSelectionTool> & sel_tool){
+        setSelectionTool(sel_tool.getHandle());
+    }
+    void MuonSFTestHelper::setSelectionTool(const ToolHandle<CP::IMuonSelectionTool> & sel_tool){
+       m_sel_tool = sel_tool;    
+    }
+          
     bool MuonSFTestHelper::init() {
         if (m_Branches.empty()) {
             Error("init()", "No scale-factors have been defined thus far");

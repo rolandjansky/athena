@@ -78,6 +78,18 @@ for alg in tauSequence:
     job.algsAdd( alg )
     pass
 
+# Include, and then set up the di-tau analysis algorithm sequence:
+from TauAnalysisAlgorithms.DiTauAnalysisSequence import makeDiTauAnalysisSequence
+diTauSequence = makeDiTauAnalysisSequence( dataType, 'Tight', postfix = 'tight', deepCopyOutput = True )
+diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJets' )
+print( diTauSequence ) # For debugging
+
+# Add all algorithms to the job:
+for alg in diTauSequence:
+    # disabling this, the standard test files don't have DiTauJets
+    # job.algsAdd( alg )
+    pass
+
 # Find the right output directory:
 submitDir = options.submission_dir
 if options.unit_test:
