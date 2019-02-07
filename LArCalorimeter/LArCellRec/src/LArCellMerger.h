@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLMERGER_H
@@ -30,11 +30,9 @@
 class CaloCell_ID;
 class LArRawChannelContainer;
 
-class LArCellMerger: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class LArCellMerger
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
- 
 public:    
   
   LArCellMerger(const std::string& type, 
@@ -52,8 +50,8 @@ public:
 
   /** update theCellContainer
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) override; //could be const if the abstract base-class were const
-
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 
  private:

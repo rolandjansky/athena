@@ -1,14 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    ChainString.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: ChainString.cxx, v0.0   Thu 30 Apr 2015 14:06:56 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    ChainString.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Thu 30 Apr 2015 14:06:56 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysisExample/ChainString.h"

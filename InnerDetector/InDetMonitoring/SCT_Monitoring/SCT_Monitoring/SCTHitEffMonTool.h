@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Tool to measure the intrinsic single hit efficiency in the SCT
@@ -79,7 +79,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   /** Constructor */
   SCTHitEffMonTool (const std::string &type, const std::string &name, const IInterface* parent);
   /** Destructor */
-  ~SCTHitEffMonTool (); 
+  virtual ~SCTHitEffMonTool () = default;
 
   /** Histogram booking method */
   virtual StatusCode bookHistograms ();
@@ -179,6 +179,7 @@ private:
   typedef std::array < std::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
 
   std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
+  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID;
   std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
   std::array < std::array < TProfile *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
   std::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;

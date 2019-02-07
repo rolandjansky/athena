@@ -1,11 +1,22 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTrackSelector.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:39 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
-#define TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 
+#ifndef TIDAUTILS_TRIGTRACKSELECTOR_H
+#define TIDAUTILS_TRIGTRACKSELECTOR_H
+
+#include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
+
+#ifndef  TIDA_NEWTRACKING_H
+#include "TrigInDetAnalysisUtils/TrigTrackSelector_old.h"
+#else
 
 /// L2 tracks
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -57,7 +68,6 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
-
 class TrigTrackSelector : public TrackSelector { 
 
 public:
@@ -76,7 +86,7 @@ public:
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
-  virtual void clear() { for ( unsigned i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); }   
+  virtual void clear() { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
   bool selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );
@@ -153,4 +163,5 @@ private:
 };
 
 
-#endif // TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
+#endif //   TIDA_NEWTRACKING_H
+#endif // TIDAUTILS_TRIGTRACKSELECTOR_H

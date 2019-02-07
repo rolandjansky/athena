@@ -1,10 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Associator_TruthMatch.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:39 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __ASSOCIATOR_TRUTHMATCH_H
-#define __ASSOCIATOR_TRUTHMATCH_H
+
+#ifndef TIDAUTILS_ASSOCIATOR_TRUTHMATCH_H
+#define TIDAUTILS_ASSOCIATOR_TRUTHMATCH_H
 
 #include <set>
 #include <map>
@@ -99,5 +105,5 @@ private:
 };
 
 
-#endif //  __ASSOCIATOR_TRUTHMATCH_H
+#endif //  TIDAUTILS_ASSOCIATOR_TRUTHMATCH_H
                                                         

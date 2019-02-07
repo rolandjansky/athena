@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -18,11 +18,6 @@ SCT_TdaqEnabledCondData::SCT_TdaqEnabledCondData():
   m_goodIds{},
   m_noneBad{false},
   m_filled{false}
-{}
-
-//----------------------------------------------------------------------
-// Destructor
-SCT_TdaqEnabledCondData::~SCT_TdaqEnabledCondData()
 {}
 
 //----------------------------------------------------------------------

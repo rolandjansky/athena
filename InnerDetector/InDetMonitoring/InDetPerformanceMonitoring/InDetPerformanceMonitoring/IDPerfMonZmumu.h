@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPERFMON_ZMUMU_H
@@ -13,6 +13,9 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
@@ -45,6 +48,9 @@ class IDPerfMonZmumu : public AthAlgorithm
   bool m_doIsoSelection;
   bool m_isMC;
   std::vector<std::string> m_regions;
+
+  /** @brief ReadHandle to the Event Info */
+  SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 
   /** @brief The track refitter */
   ToolHandle<IegammaTrkRefitterTool>  m_TrackRefitter1;

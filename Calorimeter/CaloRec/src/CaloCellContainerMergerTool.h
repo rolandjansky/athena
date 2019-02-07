@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCELLCONTAINERMERGERTOOL_H
@@ -11,11 +11,9 @@ class StoreGateSvc;
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 
-class CaloCellContainerMergerTool: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class CaloCellContainerMergerTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
- 
 public:    
   
   CaloCellContainerMergerTool(const std::string& type, 
@@ -23,10 +21,11 @@ public:
                               const IInterface* parent) ;
 
 
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 
  private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -21,17 +21,12 @@ class Fluff
 {
 	public:
 		virtual ~Fluff() { }
-		Fluff() : m_int(1), m_float(-379.456f),
+		Fluff() : m_int(1),
 			m_string("this is the Fluff struct")
 		{
 		}
 
-		Fluff(const Fluff& f)
-		{
-			m_int = f.m_int;
-			m_float = f.m_float;
-			m_string = f.m_string;
-		}
+		Fluff(const Fluff& f) = default;
                 Fluff& operator= (const Fluff&) = default;
 
 		void setPar(int j) { m_int = j; }
@@ -40,7 +35,6 @@ class Fluff
 	private:
 
 		int m_int;
-		float m_float;
 		string m_string;
 
 };
@@ -127,7 +121,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
 	int k = 10;
 	DataPool<Fluff>::const_iterator iter2 = df->begin();
 	DataPool<Fluff>::const_iterator iend2 = df->end();
-	for (; iter2 != iend2; iter2++)
+	for (; iter2 != iend2; ++iter2)
 	{
 		assert(nullptr != (*iter2));
                 // Note: we iterate backwards...

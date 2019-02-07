@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaBlockAllocatorBase.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -26,7 +26,8 @@ namespace SG {
 ArenaBlockAllocatorBase::ArenaBlockAllocatorBase (const Params& params)
   : m_params (params),
     m_blocks (nullptr),
-    m_freeblocks (nullptr)
+    m_freeblocks (nullptr),
+    m_stats()
 {
 }
 

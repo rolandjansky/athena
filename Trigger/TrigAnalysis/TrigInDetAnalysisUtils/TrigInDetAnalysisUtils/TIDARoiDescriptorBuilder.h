@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDARoiDescriptorBuilder.h        
-//
-//                   
-// 
-//
-//   $Id: TIDARoiDescriptorBuilder.h, v0.0   Tue 10 Nov 2009 11:12:38 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDARoiDescriptorBuilder.h
+ **
+ **     @author  mark sutton
+ **     @date    Tue 10 Nov 2009 11:12:38 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __ROIDESCRIPTORBUILDER_H
-#define __ROIDESCRIPTORBUILDER_H
+#ifndef TIDAUTILS_ROIDESCRIPTORBUILDER_H
+#define TIDAUTILS_ROIDESCRIPTORBUILDER_H
 
 #include <iostream>
 
@@ -53,7 +51,7 @@ public:
 // }
 
 
-#endif  // __ROIDESCRIPTORBUILDER_H 
+#endif  // TIDAUTILS_ROIDESCRIPTORBUILDER_H 
 
 
 

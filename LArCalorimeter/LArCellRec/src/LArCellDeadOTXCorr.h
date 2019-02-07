@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -82,8 +82,8 @@ class LArCellDeadOTXCorr
 		virtual ~LArCellDeadOTXCorr();
 
 		virtual StatusCode initialize() override;
-		virtual StatusCode process( CaloCellContainer * CellCont) override;
-		virtual StatusCode process( CaloCellContainer * CellCont, const EventContext& ctx ) const;
+		virtual StatusCode process ( CaloCellContainer* CellCont,
+                                             const EventContext& ctx) const override;
 		virtual StatusCode finalize() override;
 
 		using AthAlgTool::setProperty;

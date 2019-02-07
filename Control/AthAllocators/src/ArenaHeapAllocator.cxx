@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHeapAllocator.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -186,7 +186,7 @@ void ArenaHeapAllocator::slowClear()
   std::vector<ArenaBlock*>::iterator bi = blocks.begin();
   std::vector<ArenaBlock*>::iterator bi_end = blocks.end();
   func_t* clear = m_params.clear;
-  for (; bi != bi_end; bi++) {
+  for (; bi != bi_end; ++bi) {
     ArenaBlock& bl = **bi;
     size_t sz = bl.size();
     size_t elt_size = bl.eltSize();

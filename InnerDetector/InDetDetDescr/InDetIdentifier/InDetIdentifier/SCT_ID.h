@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETIDENTIFIER_SCT_ID_H
@@ -84,7 +84,7 @@ public:
     /// @name strutors
     //@{
     SCT_ID(void);
-    ~SCT_ID(void);
+    virtual ~SCT_ID(void) = default;
     //@}
         
     /// @name Creators for wafer ids and pixel ids

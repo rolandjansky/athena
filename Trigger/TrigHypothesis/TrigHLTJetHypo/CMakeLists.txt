@@ -33,6 +33,9 @@ atlas_add_component( TrigHLTJetHypo
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib TrigHLTJetHypoLib DecisionHandlingLib )
 
+atlas_add_test( TrigHLTJetHypoTool SCRIPT python -m TrigHLTJetHypo.TrigJetHypoToolConfig
+				POST_EXEC_SCRIPT nopost.sh )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py ) 
 

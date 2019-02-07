@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_RODDECODER_H
@@ -18,21 +18,11 @@
 class LUCID_RodDecoder {
   
  public: 
+  StatusCode decode(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment,
+                    std::vector<uint32_t>& data_block,
+                    MsgStream& msg) const;
   
-  LUCID_RodDecoder();
-  ~LUCID_RodDecoder();
-  
-  StatusCode decode(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment, std::vector<uint32_t>& data_block);
-  
-  MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl; }
-  
-  bool msgLevel(MSG::Level lvl){ return m_msg.get().level() <= lvl; }
-
-  unsigned int getSourceID() { return 0x00820000; }
-  
- private:
-  
-  mutable Athena::MsgStreamMember m_msg;
+  unsigned int getSourceID() const { return 0x00820000; }
 }; 
 
 #endif

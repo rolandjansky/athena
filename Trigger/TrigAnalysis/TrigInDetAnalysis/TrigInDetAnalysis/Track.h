@@ -1,8 +1,13 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file Track.h */
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Track.h
+ **
+ **     @author  mark sutton
+ **     @date    Thu 10 Jan 2019 19:58:49 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TIDA_TRACK_H
 #define TIDA_TRACK_H

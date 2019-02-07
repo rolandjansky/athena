@@ -117,6 +117,10 @@ SCTErrMonTool.histoPathBase="/stat";
 SCTErrMonTool.CheckRate= 1000;
 SCTErrMonTool.doPositiveEndcap= True;
 SCTErrMonTool.doNegativeEndcap= True;
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
+SCTErrMonTool.SCT_DCSConditionsTool=sct_DCSConditionsToolSetup.getTool()
 #ToolSvc += SCTErrMonTool;
 SCTMonMan.AthenaMonTools +=[SCTErrMonTool]
 

@@ -1,14 +1,14 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    BinConfig.h        
-//            scales to modify the binning for histograms 
-//                   
-//  
-//
-//   $Id: BinConfig.h, v0.0   Thu 27 Feb 2014 07:57:21 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    BinConfig.h
+ **
+ **     @brief   scales to modify the binning for histograms 
+ **
+ **     @author  mark sutton
+ **     @date    Thu 27 Feb 2014 07:57:21 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  BINCONFIG_H

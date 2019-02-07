@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauCommonExtraDetails_p1.h
@@ -39,7 +39,7 @@ public:
     TauCommonExtraDetails_p1();
 
     /// Destructor
-    ~TauCommonExtraDetails_p1();
+    ~TauCommonExtraDetails_p1() = default;
     
 private:
     ///@copydoc Analysis::TauCommonExtraDetails::m_sumPtLooseTrk

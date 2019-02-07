@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -71,8 +71,7 @@ def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserAction
 ### Base Version
 def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('RandomGenerator', 'athena')
-    kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
+    kwargs.setdefault('RandomNumberService', simFlags.RandomSvcMT())
     kwargs.setdefault('InputConverter', 'ISF_InputConverter')
     kwargs.setdefault('UserActionSvc','G4UA::ISFUserActionSvc')
     if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:

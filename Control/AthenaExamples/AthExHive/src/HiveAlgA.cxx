@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgA.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <thread>
 #include <chrono>
@@ -39,13 +37,13 @@ StatusCode HiveAlgA::execute() {
 
   ATH_MSG_DEBUG("execute " << name());
 
-  SG::ReadHandle<EventInfo> evt( m_evt );
+  SG::ReadHandle<xAOD::EventInfo> evt( m_evt );
   if (!evt.isValid()) {
     ATH_MSG_ERROR ("Could not retrieve EventInfo");
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("   EventInfo:  r: " << evt->event_ID()->run_number()
-		 << " e: " << evt->event_ID()->event_number() );
+    ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
+		 << " e: " << evt->eventNumber() );
   }
 
   sleep();
@@ -54,7 +52,7 @@ StatusCode HiveAlgA::execute() {
 
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
   wrh1 = std::make_unique< HiveDataObj >
-    ( HiveDataObj(10000 + evt->event_ID()->event_number()*100 + i) );
+    ( HiveDataObj(10000 + evt->eventNumber()*100 + i) );
 
   SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
   wrh2 = std::make_unique< HiveDataObj >( HiveDataObj(10050+i) );

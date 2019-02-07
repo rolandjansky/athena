@@ -57,8 +57,8 @@ protected:
    std::string m_type;
    /// The instance name of the target tool
    std::string m_name;
-   /// The name of the parent ool
-   std::string m_parentName;
+   /// The parent tool
+   INamedInterface *m_parent;
 
 }; // class ToolHandleBase
 

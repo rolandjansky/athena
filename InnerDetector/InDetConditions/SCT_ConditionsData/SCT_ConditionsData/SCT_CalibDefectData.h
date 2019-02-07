@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,7 +33,7 @@ public:
   SCT_CalibDefectData();
 
   // Destructor
-  virtual ~SCT_CalibDefectData();
+  virtual ~SCT_CalibDefectData() = default;
 
   /// Add defects for a module
   bool addModule( const Identifier & moduleId, const CalibModuleDefects & defects );

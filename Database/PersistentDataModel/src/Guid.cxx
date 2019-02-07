@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModel/Guid.h"
@@ -59,7 +59,7 @@ const std::string Guid::toString() const {
    char text[128];
    ::sprintf(text, fmt_Guid, m_data1, m_data2, m_data3,
 	   m_data4[0], m_data4[1], m_data4[2], m_data4[3], m_data4[4], m_data4[5], m_data4[6], m_data4[7]);
-   return text;
+   return std::string(text);
 }
 
 const Guid& Guid::fromString(const std::string& source) {

@@ -204,6 +204,8 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     end->first = range;
     end->second = ptr.release();
 
+    std::atomic_thread_fence (std::memory_order_seq_cst);
+
     // Update the last pointer.
     m_last = end;
     // Now the new element is visible to other threads.

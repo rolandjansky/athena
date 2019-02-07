@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECELLMASKINGTOOL_H
@@ -28,9 +28,10 @@ class TileCellMaskingTool: public AthAlgTool, virtual public ICaloCellMakerTool 
                         , const std::string& name
                         , const IInterface* parent);
 
-    virtual StatusCode initialize();
-    virtual StatusCode process(CaloCellContainer * theCellContainer);
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode process (CaloCellContainer* theCellContainer,
+                                const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
     virtual bool channel_is_good(HWIdentifier & hwid);
 

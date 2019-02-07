@@ -126,13 +126,13 @@ if HLTMonFlags.doMonTier0:
       except:
         log.info("Problems with HLTMinBiasDumpTool, tool not enabled")
 
-    # IDJpsi HLTMonTool
-    if HLTMonFlags.doIDJpsiMon:
-      try:
-        from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConfig import TrigIDJpsiMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigIDJpsiMonitoringTool()
-      except:
-        log.info("Problems with TrigIDJpsiMonTool, tool not enabled")
+    # MinBias HLTMonTool
+    #    if HLTMonFlags.doIDJpsiMon:
+    #      try:
+    #        from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConfig import TrigIDJpsiMonitoringTool
+    #        HLTMonManager.AthenaMonTools += TrigIDJpsiMonitoringTool()
+    #      except:
+    #        log.info("Problems with TrigIDJpsiMonTool, tool not enabled")
 
 
 ################ Dump Tools ################

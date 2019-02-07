@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/GeoModel/GeoAdaptors
                           DetectorDescription/Identifier
-                          Event/EventInfo
                           GaudiKernel
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -26,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonSimHitToPrdTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GeoAdaptors Identifier EventInfo GaudiKernel GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonSimEvent )
+                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GeoAdaptors Identifier GaudiKernel GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonSimEvent )
 
 # Install files from the package:
 atlas_install_headers( MuonSimHitToPrdTest )

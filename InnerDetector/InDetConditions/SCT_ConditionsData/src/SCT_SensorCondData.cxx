@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -15,11 +15,6 @@ SCT_SensorCondData::SCT_SensorCondData():
   m_manufacturer{""},
   m_depletionVoltage{0., 0., 0., 0.},
   m_crystalOrientation{0, 0, 0, 0}
-{}
-
-//----------------------------------------------------------------------
-// Destructor
-SCT_SensorCondData::~SCT_SensorCondData()
 {}
 
 //----------------------------------------------------------------------

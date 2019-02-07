@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDAAssociator.h        
-//
-//                   
-// 
-//
-//   $Id: TIDAAssociator.h, v0.0   Sun 18 Jan 2009 19:08:11 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDAAssociator.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:08:11 GMT 
+ **
+ **     @copyright Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef   TIDA_ASSOCIATOR_H

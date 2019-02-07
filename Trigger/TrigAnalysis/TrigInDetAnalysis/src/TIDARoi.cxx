@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDA::Roi.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: TIDA::Roi.cxx, v0.0   Tue  2 Feb 2010 00:11:09 GMT sutt $
+/**
+ **     @file    TIDARoi.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Tue  2 Feb 2010 00:11:09 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysis/TIDARoi.h"

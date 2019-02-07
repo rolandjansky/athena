@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*    @file SCTRatioNoiseMonTool.h
@@ -58,7 +58,7 @@ class SCT_ID;
 class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
  public:
   SCTRatioNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent);
-  virtual ~SCTRatioNoiseMonTool();
+  virtual ~SCTRatioNoiseMonTool() = default;
   // initialize
   virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */

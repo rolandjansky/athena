@@ -24,7 +24,6 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetIdentifier/PixelID.h"
 
-#include "xAODEventInfo/EventInfo.h"
 //##include "Tracking/TrkVertexFitter/TrkVxEdmCnv.h"
 
 using namespace std;
@@ -35,7 +34,6 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
 		   const IInterface* parent)
   : DataQualityFatherMonTool(type, name, parent),
     m_failedBooking(false),
-    m_VertexContainerKey(""),
     m_aveMu_vs_LB(nullptr),
     m_nLooseVtx_vs_LB(nullptr),
     m_nTightVtx_vs_LB(nullptr),
@@ -62,17 +60,19 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
     m_nClustersB1_vs_aveMu(nullptr),
     m_nClustersB2_vs_aveMu(nullptr)
 {
-  declareInterface<IMonitorToolBase>(this);
   declareProperty("histoPath", m_path = "");
-  //  declareProperty("VertexContainerKey", m_VertexContainerKey = "VxPrimaryCandidate");
-  declareProperty("VertexContainerKey", m_VertexContainerKey = "PrimaryVertices");
   declareProperty("MinNtracksForTight", m_MinNtracksForTight = 4);
   declareProperty("MinTrackWeightForTight", m_MinTrackWeightForTight = 0.01);
-  declareProperty("PixelClustersKey", m_PixelClustersKey = "PixelClusters");
-  declareProperty("PixelIDKey", m_PixelIDKey = "PixelID");
 }
 
 DQTLumiMonTool::~DQTLumiMonTool(){
+}
+
+StatusCode DQTLumiMonTool::initialize(){
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_VertexContainerKey.initialize() );
+  ATH_CHECK( m_PixelClustersKey.initialize(m_environment != AthenaMonManager::AOD) );
+  return DataQualityFatherMonTool::initialize();
 }
 
 // StatusCode DQTLumiMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool isNewRun ){ // avoid compilation warnings
@@ -135,11 +135,10 @@ bool DQTLumiMonTool::bookDQTLumiMonTool(){
 StatusCode DQTLumiMonTool::fillHistograms(){
   if(m_failedBooking) return StatusCode::SUCCESS;
 
-  const xAOD::EventInfo* thisEventInfo;
-  StatusCode sc = evtStore()->retrieve(thisEventInfo);
-  if(sc.isFailure()  || !thisEventInfo){
-    msg(MSG::WARNING) << "Could not retreive EventInfo from evtStore" << endmsg;
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_EventInfoKey);
+  if(! thisEventInfo.isValid()) {
+    ATH_MSG_WARNING( "Could not retreive EventInfo from evtStore" );
+    return StatusCode::FAILURE;
   }
 
   unsigned LB = thisEventInfo->lumiBlock();
@@ -170,9 +169,9 @@ StatusCode DQTLumiMonTool::fillHistograms(){
 
 
   // Get vertex related info
-  const xAOD::VertexContainer* vertices(0);
-  if(evtStore()->retrieve(vertices, m_VertexContainerKey).isFailure() || !vertices){
-    msg(MSG::WARNING) << "Could not retrieve " <<m_VertexContainerKey<< " from evtStore" << endmsg;
+  SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertexContainerKey);
+  if(! vertices.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve " <<m_VertexContainerKey<< " from evtStore");
   }else{
     int nVtxLoose = 0;
     int nVtxTight = 0;
@@ -198,12 +197,13 @@ StatusCode DQTLumiMonTool::fillHistograms(){
   
   // Get pixels related info
   if ( m_environment != AthenaMonManager::AOD ) {
-    const InDet::PixelClusterContainer* pixelClContainer = 0;
+    SG::ReadHandle<InDet::PixelClusterContainer> pixelClContainer(m_PixelClustersKey);
     const PixelID* pixelId = 0;
-    if(evtStore()->retrieve(pixelClContainer, m_PixelClustersKey).isFailure() || !pixelClContainer){
-      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelClustersKey<< " from evtStore" << endmsg;
+    
+    if(! pixelClContainer.isValid()) {
+      ATH_MSG_WARNING("Could not retrieve " <<m_PixelClustersKey<< " from evtStore");
     }else if(m_detStore->retrieve(pixelId, m_PixelIDKey).isFailure() || !pixelId){
-      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelIDKey<< " from DetStore" << endmsg;
+      ATH_MSG_WARNING("Could not retrieve " <<m_PixelIDKey<< " from DetStore");
     }else{
       int nClustersAll = 0;
       int nClustersECA = 0;

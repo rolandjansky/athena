@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSC_HID2RESRCID
@@ -33,11 +33,11 @@ public:
   */
   CSC_Hid2RESrcID (CSCcablingSvc * p_cabling, const CscIdHelper* cscHelper) { this->set(p_cabling, cscHelper); }
 
-  /** destrcutor 
+  /** destructor 
   */ 
-  ~CSC_Hid2RESrcID () {} 
+  ~CSC_Hid2RESrcID () = default;
 
-  /** intialize the idenitfier helper
+  /** initialize the identifier helper
   */
 
   void set(CSCcablingSvc * p_cabling, const CscIdHelper* cscHelper) { 
@@ -57,27 +57,27 @@ public:
   /** Make a ROD Source ID for CSC RDO
    */ 
 
-  uint32_t getRodID(const CscRawDataCollection *rdo);
-  uint32_t getRodID(uint16_t subId, uint16_t rodId);
+  uint32_t getRodID(const CscRawDataCollection *rdo) const;
+  uint32_t getRodID(uint16_t subId, uint16_t rodId) const;
 
   /** Make a ROD Source ID for CscDigitCollection
    */ 
-  uint32_t getRodID(const Identifier & offlineId);
+  uint32_t getRodID(const Identifier & offlineId) const;
   
   /** Make a ROB Source ID from a ROD source ID
    */ 
-  uint32_t getRobID  (uint32_t rod_id); 
+  uint32_t getRobID  (uint32_t rod_id) const;
   
   /** Make a ROS Source ID from a ROB source ID
    */ 
-  uint32_t getRosID  (uint32_t rob_id); 
+  uint32_t getRosID  (uint32_t rob_id) const;
   
   /** Make a SubDetector ID from ROS source ID 
    */
-  uint32_t getDetID  (uint32_t ros_id); 
+  uint32_t getDetID  (uint32_t ros_id) const; 
 
   /** return all the ROB IDs */
-  const std::vector<uint32_t>& allRobIds() { return m_robIDs; }
+  const std::vector<uint32_t>& allRobIds() const { return m_robIDs; }
 
 private:
 

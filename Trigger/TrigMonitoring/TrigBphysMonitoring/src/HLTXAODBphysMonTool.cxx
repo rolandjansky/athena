@@ -194,7 +194,9 @@ m_muonMass(105.66)
     declareProperty("pT_max"                        , m_pt_max              , "Maximum of pT Dist");
     declareProperty("pTErr_min"                     , m_ptErr_min           , "Minimum of pT Error Dist");
     declareProperty("pTErr_max"                     , m_ptErr_max           , "Maximum of pT Error Dist");
-
+    declareProperty("EffMatchThresh_Eta"            , m_EffMatchThresh_Eta  , "Eta threshold for matching in efficiencies");
+    declareProperty("EffMatchThresh_phi"            , m_EffMatchThresh_phi  , "phi threshold for matching in efficiencies");
+    declareProperty("EffMatchThresh_pT"             , m_EffMatchThresh_pT   , "pT threshold for matching in efficiencies");
     
 } //HLTXAODBphysMonTool
 
@@ -309,8 +311,11 @@ StatusCode HLTXAODBphysMonTool::book()
     // book the efficiency hists
     ATH_MSG_DEBUG ("Booking... Efficiency");
     if (bookEfficiencyGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Efficiency method"); return StatusCode::FAILURE;}
-    
-    
+ 
+    // book the JpsiFinder efficiency hists                                                                                                        
+    ATH_MSG_DEBUG ("Booking...JpsiFinderEfficiency");                                                                                                       
+    if (bookJpsiFinderEfficiency().isFailure())   {ATH_MSG_ERROR("Problems booking JpsiFinder Efficiency method"); return StatusCode::FAILURE;}    
+     
     return StatusCode::SUCCESS;
 } // book
 
@@ -346,6 +351,10 @@ StatusCode HLTXAODBphysMonTool::fill()
     // fill the efficiency hists
     ATH_MSG_DEBUG ("fill... Efficiency");
     if (fillEfficiencyGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Efficiency method");}
+    
+    // fill the JpsiFinder efficiency hists
+    ATH_MSG_DEBUG ("fill...JpsiFinder Efficiency");
+    if (fillJpsiFinderEfficiency().isFailure())   {ATH_MSG_WARNING("Problems filling JpsiFinder Efficiency method");}
 
     return StatusCode::SUCCESS;
 } // fill
@@ -1104,7 +1113,186 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
     return StatusCode::SUCCESS;
 } // fillJpsiFinder
 
+StatusCode HLTXAODBphysMonTool::bookJpsiFinderEfficiency() {
 
+    int nBins(40);
+
+    for (const auto& effpair: m_efficiency_chains) {
+         TString prefix = m_prefix + "_Jpsi_noVtx_noOS_" + effpair.first;
+         addMonGroup(new MonGroup(this,m_base_path_shifter+"/JpsiFinder/Efficiency/"+"noVtx_noOS_"+effpair.first,run));
+             
+         addProfile  ( new TProfile(prefix+"_eta", prefix+"_eta"   ,nBins,-3.,3.) );
+         addProfile  ( new TProfile(prefix+"_phi", prefix+"_phi"   ,nBins, -TMath::Pi(), TMath::Pi()) );
+         addProfile  ( new TProfile(prefix+"_pt",  prefix+"_pt"    ,nBins, 0,50) );
+      
+         addProfile  ( new TProfile(prefix+"_eta1", prefix+"_eta1", nBins, -3.,3.) );
+         addProfile  ( new TProfile(prefix+"_phi1", prefix+"_phi1", nBins, -TMath::Pi(), TMath::Pi()) );
+         addProfile  ( new TProfile(prefix+"_pt1",  prefix+"_pt1" , nBins, 0,50) );
+
+         addProfile  ( new TProfile(prefix+"_eta2", prefix+"_eta2", nBins, -3.,3.) );
+         addProfile  ( new TProfile(prefix+"_phi2", prefix+"_phi2", nBins, -TMath::Pi(), TMath::Pi()) );
+         addProfile  ( new TProfile(prefix+"_pt2",  prefix+"_pt2" , nBins, 0,50) );
+     }
+
+    return StatusCode::SUCCESS;
+}
+
+
+StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiency() {
+    
+    m_JpsiFinderEfficiency_denomnoVtxOS_pairs.clear();
+    
+    const auto cg   = getTDT()->getChainGroup(m_trigchain_denomnoVtxOS);
+    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
+    
+    if (isPassed){
+    
+      const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
+      const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
+      
+      ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
+    
+      for( auto cont_bphys : fc_bphys ) {
+        ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+        for ( auto bphys:  *(cont_bphys.cptr()) )  {
+             ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+             // ignore l2 objects
+             if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+             
+             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+             if (trackVector.size() <2) {
+                 ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                 continue;
+             }
+           
+             const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+             if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                 ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                 continue;
+             }
+             if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                 ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                 continue;
+             }
+             trk1 = *trackVector.at(0);
+             trk2 = *trackVector.at(1);
+
+             auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
+             m_JpsiFinderEfficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
+             }
+        }
+
+
+        for (const auto& effpair: m_efficiency_chains) {
+             if (fillJpsiFinderEfficiencyHelper(Form("noVtx_noOS_%s",effpair.first.c_str()),effpair.second).isFailure()) {                 
+                 ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); 
+                 continue;                                            
+             }                  
+        }
+    }
+
+    return StatusCode::SUCCESS;
+
+}
+
+StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string & groupName, const std::string & chainName) {
+
+    TString prefix = m_prefix + "_Jpsi_" + groupName; // convert from std::string to TString          
+    const auto cg   = getTDT()->getChainGroup(chainName);
+    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
+    
+    if (isPassed) { 
+      const xAOD::VertexContainer*    jpsiContainer(nullptr);
+    
+      if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
+      ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
+      return StatusCode::SUCCESS;
+      }
+    
+      ATH_MSG_DEBUG("number of jpsi candidates " << jpsiContainer->size());
+
+      // Extract information from the Jpsi candidates
+      for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; ++vxcItr ) {
+           const xAOD::Vertex* jpsiCandidate = (*vxcItr);
+           if (!jpsiCandidate) continue;
+           // to see how to access variables; refer to:
+           // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/JpsiUpsilonTools/trunk/src/JpsiExample.cxx
+          
+          
+           // refitted track parameters
+           TLorentzVector refTrk1 = track4Momentum(jpsiCandidate, 0, m_muonMass);
+           TLorentzVector refTrk2 = track4Momentum(jpsiCandidate, 1, m_muonMass);
+       
+           TLorentzVector ref_onia  = refTrk1 + refTrk2;
+           double phi     = ref_onia.Phi();
+           double eta     = ref_onia.Eta();
+           double pt      = ref_onia.Pt();
+      
+           double phiTrk1 = refTrk1.Phi();
+           double etaTrk1 = refTrk1.Eta();
+           double ptTrk1  = refTrk1.Pt();
+      
+           double phiTrk2 = refTrk2.Phi();
+           double etaTrk2 = refTrk2.Eta();
+           double ptTrk2  = refTrk2.Pt();
+      
+           unsigned int it_number=0;
+      
+           for(auto it=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.begin();it!=m_JpsiFinderEfficiency_denomnoVtxOS_pairs.end();it++) {
+             
+             auto cur_pair_Noos=*it;
+             // refitted track parameters 
+             TLorentzVector noosTrk1 = cur_pair_Noos.first ->p4();
+             TLorentzVector noosTrk2 = cur_pair_Noos.second->p4();
+             it_number=it_number+1;         
+             double phiNoosTrk1 = noosTrk1.Phi();
+             double etaNoosTrk1 = noosTrk1.Eta();
+             double ptNoosTrk1  = noosTrk1.Pt();
+      
+             double phiNoosTrk2 = noosTrk2.Phi();
+             double etaNoosTrk2 = noosTrk2.Eta();
+             double ptNoosTrk2  = noosTrk2.Pt();
+             
+             if(   ((abs(phiNoosTrk1-phiTrk1)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk1-etaTrk1)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk1-ptTrk1))/ptNoosTrk1)<=m_EffMatchThresh_pT) && (abs(phiNoosTrk2-phiTrk2)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk2-etaTrk2)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk2-ptTrk2))/ptNoosTrk2)<=m_EffMatchThresh_pT))
+               ||  ((abs(phiNoosTrk2-phiTrk1)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk2-etaTrk1)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk2-ptTrk1))/ptNoosTrk2)<=m_EffMatchThresh_pT) && (abs(phiNoosTrk1-phiTrk2)<=m_EffMatchThresh_phi) && (abs(etaNoosTrk1-etaTrk2)<=m_EffMatchThresh_Eta) && (((abs(ptNoosTrk1-ptTrk2))/ptNoosTrk1)<=m_EffMatchThresh_pT)) ) {
+            // ******** SHIFTER ********* //               
+             setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder/Efficiency/"+groupName);
+             profile(Form("%s_eta",prefix.Data()))->Fill(eta,1.0,1.0);
+             profile(Form("%s_phi",prefix.Data()))->Fill(phi,1.0,1.0);
+             profile(Form("%s_pt", prefix.Data()))->Fill(pt*0.001,1.0,1.0);
+             
+             profile(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1,1.0,1.0);
+             profile(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1,1.0,1.0);
+             profile(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001,1.0,1.0);
+             
+             profile(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2,1.0,1.0);
+             profile(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2,1.0,1.0);
+             profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,1.0,1.0);
+             continue;}
+           }
+           if (it_number==m_JpsiFinderEfficiency_denomnoVtxOS_pairs.size()) {
+               
+               
+             setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder/Efficiency/"+groupName); 
+             
+             profile(Form("%s_eta",prefix.Data()))->Fill(eta,0.0,1.0);
+             profile(Form("%s_phi",prefix.Data()))->Fill(phi,0.0,1.0);
+             profile(Form("%s_pt", prefix.Data()))->Fill(pt*0.001,0.0,1.0);
+             
+             profile(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1,0.0,1.0);
+             profile(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1,0.0,1.0);
+             profile(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001,0.0,1.0);
+             
+             profile(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2,0.0,1.0);
+             profile(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2,0.0,1.0);
+             profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,0.0,1.0);
+           }
+      }
+    }
+
+    return StatusCode::SUCCESS;
+
+}
 StatusCode HLTXAODBphysMonTool::bookTriggerGroups() {
     // book the hists for the triggered groups
     

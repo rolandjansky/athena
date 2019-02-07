@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace iFatras {
     SCT_Segmentation(double lengthXmin, double lengthXmax, double Rmin, double Rmax, double pitchPhi, double avePhi=0.);
 
     /// Destructor:
-    ~SCT_Segmentation();
+    virtual ~SCT_Segmentation() = default;
 
     //
     bool cellOfPosition(const Amg::Vector2D& localPos, std::pair<int, int>& entryXY) const;

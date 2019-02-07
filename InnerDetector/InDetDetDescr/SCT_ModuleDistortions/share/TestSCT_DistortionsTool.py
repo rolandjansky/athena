@@ -53,7 +53,7 @@ MessageSvc.OutputLevel      = INFO
 # Event related parameters
 #--------------------------------------------------------------
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 1
+theApp.EvtMax = 20
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()

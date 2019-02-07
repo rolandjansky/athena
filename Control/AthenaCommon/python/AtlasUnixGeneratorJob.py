@@ -24,6 +24,13 @@ def _setupAtlasUnixGeneratorJob():
 
     # Persistency services
     svcMgr.EventPersistencySvc.CnvServices += [ "McCnvSvc" ]
+
+    # Temporarily inject the xAOD::EventInfo converter here to allow for adiabatic migration of the clients
+    from AthenaCommon.AlgSequence import AthSequencer
+    topSequence = AthSequencer("AthAlgSeq")
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg()
+
     return
 
 ## load basic services configuration at module import

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,11 +24,11 @@ using namespace std;
 // spits out ubsan warnings.
 int doBanner() { return 0; }
 
-int inputError(std::string errDescr, const po::options_description& optDescr ) {
+int inputError(const std::string& errDescr, const po::options_description& optDescr ) {
   cerr << errDescr << "\n" << optDescr << endl;
   return 1;
 }
-int gaudiError(std::string errDescr) {
+int gaudiError(const std::string& errDescr) {
   cerr << errDescr << endl;
   return 2;
 }

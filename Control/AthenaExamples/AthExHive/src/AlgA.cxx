@@ -3,8 +3,6 @@
 */
 
 #include "AlgA.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -48,9 +46,9 @@ StatusCode AlgA::execute() {
 
   ATH_MSG_DEBUG("execute " << name());
 
-  SG::ReadHandle<EventInfo> evt(m_evt);
-  ATH_MSG_INFO("   EventInfo:  r: " << evt->event_ID()->run_number()
-               << " e: " << evt->event_ID()->event_number()
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
+               << " e: " << evt->eventNumber()
                << " evt: " << Gaudi::Hive::currentContextEvt() );
 
 
@@ -59,7 +57,7 @@ StatusCode AlgA::execute() {
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
-                                       evt->event_ID()->event_number()*100 + 
+                                       evt->eventNumber()*100 + 
                                        i) ) )
              );
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );

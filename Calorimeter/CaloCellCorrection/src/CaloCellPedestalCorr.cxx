@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************************
@@ -67,11 +67,7 @@ StatusCode CaloCellPedestalCorr::initialize()
   ATH_MSG_INFO( "CaloCellPedestalCorr initialize() end"  );
   return StatusCode::SUCCESS;
 }
-StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer) {
-  //This function is a stopgap solution until all CaloCellCorrector tools are const
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  return this->process(theCellContainer,ctx);
-}
+
 
 StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, const EventContext& ctx) const {
 
