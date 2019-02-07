@@ -19,6 +19,9 @@ def RegSelConfig( flags ):
     acc.addPublicTool( larTable )
     regSel.LArRegionSelectorTable      = larTable
 
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
+
 
     from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
     tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
@@ -87,6 +90,7 @@ def RegSelConfig( flags ):
                                        PrintHashId = True,
                                        PrintTable  = False)
     acc.addPublicTool(trtTable)
+    acc.addService( regSel )
 
     return acc, regSel
 
@@ -95,9 +99,49 @@ if __name__ == "__main__":
     acc = ComponentAccumulator()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaCommon.Configurable import Configurable
+    from AthenaCommon.Constants import DEBUG
 
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    Configurable.configurableRun3Behavior=True
 
+    
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW    
+    ConfigFlags.dump()
+    ConfigFlags.lock()
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    cfg=MainServicesSerialCfg() 
+    #cfg = ComponentAccumulator()
+
+    ## move up
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    cfg.merge( LArGMCfg( ConfigFlags ) )
+    cfg.merge( TileGMCfg( ConfigFlags ) )
+
+# when trying AOD
+#    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+#    cfg.merge( PoolReadCfg( ConfigFlags ) )
+
+    
+    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
+    cfg.merge(TrigBSReadCfg( ConfigFlags ))
+    
+    
     acc,regSel = RegSelConfig( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    cfg.merge( acc )
+
+
+
+    from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg
+    testerAlg = RegSelTestAlg()
+    testerAlg.Mt=True    
+
+    testerAlg.OutputLevel=DEBUG
+    cfg.addEventAlgo( testerAlg )
+    cfg.store( file( "test.pkl", "w" ) )
+    print "used flags"
+    ConfigFlags.dump()
+    cfg.run(10)
     print "All OK"
