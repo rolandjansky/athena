@@ -535,6 +535,8 @@ def setupMenu():
             ['j100_ftkrefit',           'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
             ['3j30_ftk',                'L1_TE10', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
             ['j420_ftk',                'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+		#ATR-18086
+		['j15_ftk',                         'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
 
             ] 
 
@@ -799,6 +801,7 @@ def setupMenu():
 # L1XE50
         ['xe110_pufit_xe60_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE50'] ]],
 
+
 # L1XE55
         ['xe110_pufit_xe60_L1XE55', 'L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE55'] ]],
 
@@ -990,6 +993,9 @@ def setupMenu():
         ['tau125_perf_tracktwo',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_perf_ptonly',                     'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau160_perf_track',                      'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_track',                    'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_tracktwo',                 'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_perf_tracktwo',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau80_medium1_track',                    'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_medium1_track',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - No BDT: variations
@@ -1099,6 +1105,15 @@ def setupMenu():
         # Single electron/photon chains for Calo sequence optimization (kept as before)
         ['g140_loose_L1EM24VHI',        'L1_EM24VHI', [], [PhysicsStream, 'express'], ['RATE:SinglePhoton','BW:Egamma'],-1],
 
+        # GSF testing
+        ['e28_lhtight_nod0_gsf_ivarloose',        'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e28_lhtight_nod0_gsf_idperf_ivarloose', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e17_lhvloose_nod0_gsf',                 'L1_EM15VH',  [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_nod0_gsf_L1EM24VHI',       'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e140_lhloose_nod0_gsf_L1EM24VHI',       'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['2e24_lhvloose_nod0_gsf',                'L1_2EM20VH', [], [PhysicsStream, 'express'], ['Primary:20000','RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['e5_lhloose_gsf',                        'L1_EM3',       [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+
         # Di-photon triggers
 
         ['2g20_tight_icalovloose',           'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
@@ -1160,9 +1175,6 @@ def setupMenu():
 
         ['e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', 'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e5_etcut_L1W-05RO-XEHT-0',            'L1_W-05RO-XEHT-0',           ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-90RO2-XEHT-0',           'L1_W-90RO2-XEHT-0',          ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-250RO2-XEHT-0',          'L1_W-250RO2-XEHT-0',         ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-HT20-JJ15.ETA49',        'L1_W-HT20-JJ15.ETA49',       ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e13_etcut_L1EM12_W-MT25',             'L1_EM12_W-MT25',             ['L1_EM12'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e18_etcut_L1EM15_W-MT35',             'L1_EM15_W-MT35',             ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e18_etcut_trkcut', 'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE', ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -2119,10 +2131,6 @@ def setupMenu():
         ['2g10_tight_icalotight_j200_L1J100', 'L1_J100', ['L1_2EM8I','L1_J100'],  [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["2g10_tight_icalotight","j200_L1J100"] ]], 
         ['2g6_tight_icalotight_j200_L1J100', 'L1_J100', ['L1_2EM3','L1_J100'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["2g6_tight_icalotight","j200_L1J100"] ]],
 
-#ATR-17462
-        ['2g6_tight_icalotight_L1J50', 'L1_J50', ['L1_2EM3','L1_J50'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
-        ['2g6_loose_L1J50', 'L1_J50', ['L1_2EM3','L1_J50'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
-
         #move razor triggers from physics to MC: ATR-17795
         ['j30_xe10_razor170', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
 
@@ -2414,6 +2422,7 @@ ps_calibmon_list=[
     'sct_noise',
     'tilecalib_laser',
     'rpcpeb_L1RD0_EMPTY',
+    'rpcpebsecondaryreadout',
     'idpsl1_L1IDprescaled'
     ]    
 ps_eb_list=[
@@ -3179,8 +3188,12 @@ ps_perform_list = [
     'mu14_iloose_tau25_perf_ptonly_L1MU10_TAU12IM',
     'tau160_idperf_tracktwo',
     'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwoEF_L1TAU100',
+    'tau160_idperf_tracktwoMVA_L1TAU100',
     'tau160_perf_tracktwo',
     'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwoEF_L1TAU100',
+    'tau160_perf_tracktwoMVA_L1TAU100',
     'tau35_perf_tracktwo',
     'tau35_perf_tracktwo_L1TAU20_tau25_perf_tracktwo_L1TAU12',
     'tau0_perf_ptonly_L1TAU12',
@@ -3189,6 +3202,9 @@ ps_perform_list = [
     'tau125_medium1_track',
     'tau125_perf_ptonly',
     'tau160_idperf_track',
+    'tau160_idperf_tracktwo',
+    'tau160_perf_tracktwo',
+    'tau160_idperf_track_L1TAU100',
     'tau160_perf_track',
     'tau25_idperf_track',
     'tau25_idperf_tracktwo2015',
@@ -3237,7 +3253,6 @@ ps_perform_list = [
     'j0_perf_boffperf_L1J12_EMPTY',
     'j0_perf_boffperf_L1MU10',
     'j0_perf_boffperf_L1RD0_EMPTY',
-    'j35_boffperf_split',
     'e4_etcut',
     'e5_lhmedium_nod0',
     'e5_lhloose_nod0_idperf'
@@ -3644,9 +3659,6 @@ ps_streamers_list = [
      'noalg_l1topo_L1TAU30',
      'noalg_l1topo_L1TAU40',
      'noalg_l1topo_L1W-05RO-XEHT-0',
-     'noalg_l1topo_L1W-250RO2-XEHT-0',
-     'noalg_l1topo_L1W-90RO2-XEHT-0',
-     'noalg_l1topo_L1W-HT20-JJ15.ETA49',
 #     'noalg_l1topo_L1W-NOMATCH',
      'noalg_l1topo_L1XE35',
      'noalg_l1topo_L1XE45',

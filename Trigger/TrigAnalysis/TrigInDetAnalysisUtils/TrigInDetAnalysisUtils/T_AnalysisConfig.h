@@ -35,7 +35,7 @@
 // #include "TrigInDetAnalysisUtils/Converter.h"
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
 #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
-
+#include "TrigInDetAnalysis/TrackTrigObject.h"
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
 
 #ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -475,7 +475,9 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, 
+  unsigned processElectrons( TrigTrackSelector& selectorRef,
+			     std::vector<TrackTrigObject>* elevec=0,
+			     const unsigned int selection=0, 
 			     bool   raw_track=false,  
 			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -533,8 +535,21 @@ protected:
 #     endif
 
       if (good_electron) { 
-	if ( raw_track ) selectorRef.selectTrack( xAOD::EgammaHelpers::getOriginalTrackParticle( *elec ) );
-	else             selectorRef.selectTrack( (*elec)->trackParticle() );
+	const xAOD::Electron_v1& eleduff = *(*elec);
+	long unsigned   eleid  = (unsigned long)(&eleduff) ;
+	TrackTrigObject eleobj = TrackTrigObject( (*elec)->eta(),
+						  (*elec)->phi(),
+						  (*elec)->pt(),
+						  0,
+						  (*elec)->type(),
+						  eleid );
+	
+	bool trk_added ;
+	if ( raw_track ) trk_added = selectorRef.selectTrack( xAOD::EgammaHelpers::getOriginalTrackParticle( *elec ) );
+	else             trk_added = selectorRef.selectTrack( (*elec)->trackParticle() );
+	
+	if (trk_added) eleobj.addChild( selectorRef.tracks().back()->id() );
+	if (elevec)    elevec->push_back( eleobj ); 
       }
     }
 
@@ -544,7 +559,7 @@ protected:
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////
-  /// select offline muons
+  /// select offlinqe muons
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processMuons(     TrigTrackSelector& selectorRef,  const unsigned int selection=0, 
 			     double ETOffline=0,
@@ -604,6 +619,7 @@ protected:
     /// select offline taus
     ////////////////////////////////////////////////////////////////////////////////////////////
 unsigned processTaus( TrigTrackSelector& selectorRef,
+		      std::vector<TrackTrigObject>* tauvec=0,
 		      const unsigned selection=0,
 		      int            requireNtracks=0,
 		      double         EtCutOffline=0,
@@ -674,14 +690,26 @@ unsigned processTaus( TrigTrackSelector& selectorRef,
     //   std::cout << "SUTT tau ntracks: " << N << "\tgoodtau: " << good_tau << "\tpt: " << (*tau)->p4().Et() << "\t3prong: " << doThreeProng << std::endl;  
       
     if (good_tau){
+      const xAOD::TauJet_v3& duff = *(*tau);
+      long unsigned tauid = (unsigned long)(&duff) ;
+      TrackTrigObject tauobj = TrackTrigObject( (*tau)->eta(),
+						(*tau)->phi(),
+						(*tau)->pt(),
+						0,
+						(*tau)->type(),
+						tauid );
+      
+      bool trk_added;
       for ( unsigned i=N ; i-- ; )  {
 #       ifdef XAODTAU_TAUTRACK_H  
-        selectorRef.selectTrack((*tau)->track(i)->track());
+        trk_added = selectorRef.selectTrack((*tau)->track(i)->track());
 #       else
-        selectorRef.selectTrack((*tau)->track(i));
+        trk_added = selectorRef.selectTrack((*tau)->track(i));
 #       endif
         Ntaus++;
+	if ( trk_added ) tauobj.addChild( selectorRef.tracks().back()->id() );
       }
+      if ( tauvec ) tauvec->push_back( tauobj );
     }
   }
 

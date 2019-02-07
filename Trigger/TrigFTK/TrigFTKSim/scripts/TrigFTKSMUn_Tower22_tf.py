@@ -98,7 +98,6 @@ def getTransform():
             outData=['NTUP_FTK'],
             runtimeRunargs={
                 'inputNTUP_FTKTMPFile': "['tmp.NTUP_FTKTMP']",
-                'inputNTUP_FTKIPFile' : "['OUT.NTUP_FTKIP.root']",
                 'MergeFromTowers': True,
                 'FirstRegion': 0,
                 'NBanks': 1,

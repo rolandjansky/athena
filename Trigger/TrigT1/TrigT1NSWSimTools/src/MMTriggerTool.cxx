@@ -12,16 +12,17 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+//Muon software includes
+#include "MuonDigitContainer/MmDigit.h"
+
+
+
 //Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// Muon software includes
-#include "MuonDigitContainer/MmDigit.h"
-
-// ROOT includes
+// local includes
 #include "TTree.h"
-
 
 namespace NSWL1 {
 
@@ -37,6 +38,7 @@ namespace NSWL1 {
     declareInterface<NSWL1::IMMTriggerTool>(this);
     declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
     declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
+
   }
 
   MMTriggerTool::~MMTriggerTool() {
@@ -149,6 +151,7 @@ namespace NSWL1 {
       bool pass_cuts = truth_info.pass_cut;
       double trueta = truth_info.eta_ip;
       double trupt = truth_info.pt;
+
 
       double tent=truth_info.theta_ent;
       double tpos=truth_info.theta_pos;

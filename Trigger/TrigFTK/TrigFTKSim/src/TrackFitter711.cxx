@@ -1281,23 +1281,42 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
        all hits for previous steps as real*/
     unsigned int cbitmask(m_incomplete_coordsmask_eff);
     newtrk.setHalfInvPt(curtrackI.getHalfInvPt());
+    newtrk.setInvPtFW(round(curtrackI.getInvPtFW()*1e5)/1e5);
 
     /* Fix from corrgen: in the constant generation, tracks
        in regions 3, 4, and 5 has phi defined in the range [0:2 PI].
        For the extrapolation only checks if the angle is in those
        regions and fix the definition */
-    if (m_ssmap_complete->getRegionMap()->getNumRegions()==8 && region>=3 && region<=5 && curtrackI.getPhi()<=0)
-      newtrk.setPhi(curtrackI.getPhi()+2*M_PI,false);
-    else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64 && (region==9 || region==10 || region==25 || region==26 || region==41 || region==42 || region==57 || region==58)  && curtrackI.getPhi()<=0)
+    if (m_ssmap_complete->getRegionMap()->getNumRegions()==8) { // 8 Regions, constant generation step
+      if (region>=3 && region<=5) { // Regions 3, 4, and 5
+        if (curtrackI.getPhi()<=0) { // The angle should be defined in the range [0:2 PI]. Otherwise we fix it.
+          newtrk.setPhi(curtrackI.getPhi()+2*M_PI,false);
+          newtrk.setPhiFW(round(curtrackI.getPhiFW()+2*M_PI),false);
+        }
+      }
+    }
+    else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64) { // 64 Regions, extrapolation step
+      if (region==9 || region==10 || region==25 || region==26 || region==41 || region==42 || region==57 || region==58) { // Regions 9, 10, 25, 26, 41, 42, 57, and 58
+        if (curtrackI.getPhi()<=0) {
+          newtrk.setPhi(curtrackI.getPhi()+2*M_PI,false);
+          newtrk.setPhiFW(round(curtrackI.getPhiFW()+2*M_PI),false);
+        }
+      }
+    }
+    else { // In other cases we don't have to force phi to be in the range [0:2 PI].
       newtrk.setPhi(curtrackI.getPhi());
-    else
-      newtrk.setPhi(curtrackI.getPhi());
+      newtrk.setPhiFW(round(curtrackI.getPhiFW()));
+    }
 
     // set the incomplete track with some original info
     newtrk.setIP(curtrackI.getIP());
+    newtrk.setIPFW(round(curtrackI.getIPFW()));
     newtrk.setCotTheta(curtrackI.getCotTheta());
+    newtrk.setCTheta(round(curtrackI.getCTheta()));
     newtrk.setZ0(curtrackI.getZ0());
+    newtrk.setZ0FW(round(curtrackI.getZ0FW()));
     newtrk.setChi2(curtrackI.getChi2());
+    newtrk.setChi2FW(round(curtrackI.getChi2FW()));
     newtrk.setOrigChi2(curtrackI.getOrigChi2());
     newtrk.setCombinationID(curtrackI.getCombinationID());
 
@@ -3183,23 +3202,42 @@ void TrackFitter711::prepareTrack() {
      all hits for previous steps as real*/
   m_cbitmask = m_incomplete_coordsmask_eff;
   newtrk.setHalfInvPt(newtrkI.getHalfInvPt());
+  newtrk.setInvPtFW(round(newtrkI.getInvPtFW()*1e5)/1e5);
 
   /* Fix from corrgen: in the constant generation, tracks
      in regions 3, 4, and 5 has phi defined in the range [0:2 PI].
      For the extrapolation only checks if the angle is in those
      regions and fix the definition */
-  if (m_ssmap_complete->getRegionMap()->getNumRegions()==8 && m_region_for_superexp>=3 && m_region_for_superexp<=5 && newtrkI.getPhi()<=0)
-    newtrk.setPhi(newtrkI.getPhi()+2*M_PI,false);
-  else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64 && (m_region_for_superexp==9 || m_region_for_superexp==10 || m_region_for_superexp==25 || m_region_for_superexp==26 || m_region_for_superexp==41 || m_region_for_superexp==42 || m_region_for_superexp==57 || m_region_for_superexp==58)  && newtrkI.getPhi()<=0)
-    newtrk.setPhi(newtrkI.getPhi());
-  else
-    newtrk.setPhi(newtrkI.getPhi());
+    if (m_ssmap_complete->getRegionMap()->getNumRegions()==8) { // 8 Regions, constant generation step
+      if (m_region_for_superexp>=3 && m_region_for_superexp<=5) { // Regions 3, 4, and 5
+        if (newtrkI.getPhi()<=0) { // The angle should be defined in the range [0:2 PI]. Otherwise we fix it.
+          newtrk.setPhi(newtrkI.getPhi()+2*M_PI,false);
+          newtrk.setPhiFW(round(newtrkI.getPhiFW()+2*M_PI),false);
+        }
+      }
+    }
+    else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64) { // 64 Regions, extrapolation step
+      if (m_region_for_superexp==9 || m_region_for_superexp==10 || m_region_for_superexp==25 || m_region_for_superexp==26 || m_region_for_superexp==41 || m_region_for_superexp==42 || m_region_for_superexp==57 || m_region_for_superexp==58) { // Regions 9, 10, 25, 26, 41, 42, 57, and 58
+        if (newtrkI.getPhi()<=0) {
+          newtrk.setPhi(newtrkI.getPhi()+2*M_PI,false);
+          newtrk.setPhiFW(round(newtrkI.getPhiFW()+2*M_PI),false);
+        }
+      }
+    }
+    else { // In other cases we don't have to force phi to be in the range [0:2 PI].
+      newtrk.setPhi(newtrkI.getPhi());
+      newtrk.setPhiFW(round(newtrkI.getPhiFW()));
+    }
 
   // set the incomplete track with some original info
   newtrk.setIP(newtrkI.getIP());
+  newtrk.setIPFW(round(newtrkI.getIPFW()));
   newtrk.setCotTheta(newtrkI.getCotTheta());
+  newtrk.setCTheta(round(newtrkI.getCTheta()));
   newtrk.setZ0(newtrkI.getZ0());
+  newtrk.setZ0FW(round(newtrkI.getZ0FW()));
   newtrk.setChi2(newtrkI.getChi2());
+  newtrk.setChi2FW(round(newtrkI.getChi2FW()));
   newtrk.setOrigChi2(newtrkI.getOrigChi2());
   newtrk.setCombinationID(newtrkI.getCombinationID());
 

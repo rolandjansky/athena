@@ -447,6 +447,8 @@ double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, dou
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], double aw[], double bw[]){
+  const float ZERO_LIMIT = 1.e-5;
+
   std::vector<std::vector<double> > * rpc_R;
   std::vector<std::vector<double> > * rpc_Z;
   rpc_R = &m_hits_in_layer_R;
@@ -527,15 +529,13 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
   inn_bit=0xF;//00001111
   double theta_m,theta_t, theta_f;
   if((result_pat & inn_bit)==inn_bit){
-    if(Z[hot_max[0]] != Z[hot_min[0]]){
-      theta_m = atan(R[hot_min[0]]/Z[hot_min[0]]);
-      theta_t = atan((R[hot_max[0]]- R[hot_min[0]])/(Z[hot_max[0]]-Z[hot_min[0]]));
-      theta_f = (theta_m+theta_t)/2.0;
+    theta_m = atan2(R[hot_min[0]],Z[hot_min[0]]);
+    theta_t = atan2(R[hot_max[0]]-R[hot_min[0]],Z[hot_max[0]]-Z[hot_min[0]]);
+    theta_f = (theta_m+theta_t)/2.0;
       
-      aw[0] = tan(theta_f);
-      bw[0] = R[hot_min[0]] - Z[hot_min[0]]*aw[0];
-      aw[0] = 1.0/aw[0];
-    }
+    aw[0] = tan(theta_f);
+    bw[0] = R[hot_min[0]] - Z[hot_min[0]]*aw[0];
+    aw[0] = 1.0/aw[0];
   }else{
     if(hot_min[0]!=999){
       aw[0] = Z[hot_min[0]] / R[hot_min[0]];
@@ -548,7 +548,7 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
 
   for(int i=1;i<3;i++){
     if(hot_max[i]!=-999 && hot_min[i]!=999){
-      if(Z[hot_max[i]]!=Z[hot_min[i]]){
+      if(fabs(Z[hot_max[i]] - Z[hot_min[i]]) > ZERO_LIMIT) {
         aw[i] = (R[hot_max[i]]- R[hot_min[i]]) / (Z[hot_max[i]]-Z[hot_min[i]]);
         bw[i] = R[hot_max[i]] - Z[hot_max[i]]*aw[i];
         aw[i] = 1.0/aw[i];

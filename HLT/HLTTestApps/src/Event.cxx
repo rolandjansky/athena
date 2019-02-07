@@ -19,6 +19,9 @@
 #include <sstream>
 #include <algorithm>
 #include <array>
+#include <execinfo.h>
+#include <cstdlib>
+#include <stdlib.h>
 #include <boost/python.hpp>
 #include <boost/python/stl_iterator.hpp>
 #include "issue.h"
@@ -125,21 +128,26 @@ HLTTestApps::Event::ROSHitMap  HLTTestApps::Event::sm_rosHitMapAccept{};
 std::set<HLTTestApps::Event::ROBID> HLTTestApps::Event::sm_l1r_robs{};
 std::vector<int> HLTTestApps::Event::sm_eventsForROSStat{};
 int HLTTestApps::Event::sm_strategy{};
+std::ofstream HLTTestApps::Event::sm_ros_rejected_outfile{};
+std::ofstream HLTTestApps::Event::sm_ros_accepted_outfile{};
 
 enum RosHitMapIndex {
   // total number of ROBs in ROS
   rh_number_of_robs=0,
-  // for all events: average number of hits/evt., average fraction of ROBs retrieved/evt.
+  // for all events: average number of hits/evt., average fraction of ROBs retrieved/evt., average size in words retrieved/evt.
   rh_all_hit_fra=1,
   rh_all_rob_fra=2,
-  // normal collect (no evt. building): average number of hits/evt., average fraction of ROBs retrieved/evt.
-  rh_normal_hit_fra=3,
-  rh_normal_rob_fra=4,
-  // collect for evt. building: average number of hits/evt., average fraction of ROBs retrieved/evt.
-  rh_evbld_hit_fra=5,
-  rh_evbld_rob_fra=6,
+  rh_all_rob_siz=3,
+  // normal collect (no evt. building): average number of hits/evt., average fraction of ROBs retrieved/evt., average size in words retrieved/evt.
+  rh_normal_hit_fra=4,
+  rh_normal_rob_fra=5,
+  rh_normal_rob_siz=6,
+  // collect for evt. building: average number of hits/evt., average fraction of ROBs retrieved/evt., average size in words retrieved/evt.
+  rh_evbld_hit_fra=7,
+  rh_evbld_rob_fra=8,
+  rh_evbld_rob_siz=9,
   // total size of rosHitMap per ROS
-  rh_total_size=7
+  rh_total_size=10
 };
 
 enum RosHitMapIndexPerEvent {
@@ -148,14 +156,17 @@ enum RosHitMapIndexPerEvent {
   // for all events: average number of hits/evt., average fraction of ROBs retrieved/evt.
   rh_all_ev_hit_fra=1,    // for single event 
   rh_all_ev_rob_fra=2,    // for single event
+  rh_all_ev_rob_siz=3,  // for single event
   // normal collect (no evt. building): average number of hits/evt., average fraction of ROBs retrieved/evt.
-  rh_normal_ev_hit_fra=3, // for single event
-  rh_normal_ev_rob_fra=4, // for single event
+  rh_normal_ev_hit_fra=4, // for single event
+  rh_normal_ev_rob_fra=5, // for single event
+  rh_normal_ev_rob_siz=6,  // for single event
   // collect for evt. building: average number of hits/evt., average fraction of ROBs retrieved/evt.
-  rh_evbld_ev_hit_fra=5, // for single event
-  rh_evbld_ev_rob_fra=6, // for single event
+  rh_evbld_ev_hit_fra=7, // for single event
+  rh_evbld_ev_rob_fra=8, // for single event
+  rh_evbld_ev_rob_siz=9,  // for single event
   // total size of rosHitMap per ROS per event
-  rh_total_ev_size=7
+  rh_total_ev_size=10
 };
 
 enum EventCounterIndex {
@@ -205,6 +216,14 @@ void HLTTestApps::Event::set_ros2rob_map(const boost::python::dict& d)
 		  });
   });
 
+  // open output files for ROS statistics
+  if ((ers::debug_level() > 0) && (!sm_rob2ros.empty())) {
+    std::ostringstream out_reject_filename, out_accept_filename;
+    out_reject_filename << "ROS-rejected-events.txt";
+    out_accept_filename << "ROS-accepted-events.txt";
+    sm_ros_rejected_outfile.open((out_reject_filename.str()).c_str());
+    sm_ros_accepted_outfile.open((out_accept_filename.str()).c_str());
+    }
   DEBUG_PRINT_ROB_ROS_MAP;
 }
 
@@ -237,6 +256,12 @@ HLTTestApps::Event::Event(const eformat::read::FullEventFragment& event)
  : hltinterface::DataCollector()
 {
   m_lvl1_id = event.lvl1_id();
+  
+  std::ostringstream ost; 
+  ost << "=== EVENT:  LVL1 id " 
+      << " Run / Event / Lvl1id = " << event.run_no() << " / " << event.global_id() << " / " << m_lvl1_id ; 
+  if (sm_ros_rejected_outfile.is_open()) sm_ros_rejected_outfile << ost.str() << std::endl;
+  if (sm_ros_accepted_outfile.is_open()) sm_ros_accepted_outfile << ost.str() << std::endl;
 
   // Reset the ROB prefetching map
   m_Det_Robs_for_retrieval.clear(); 
@@ -290,7 +315,7 @@ HLTTestApps::Event::Event(const eformat::read::FullEventFragment& event)
 	  }
           else
           {
-            m_map.insert(std::make_pair(robid, ROB{robid, pair.second}));
+            m_map.insert(std::make_pair(robid, ROB{robid, pair.second, eformat::read::ROBFragment(pair.second).fragment_size_word()}));
             // std::map::emplace still not available in gcc4.7.2
             // m_map.emplace(robid, ROB{robid, it->second[k]});
           }
@@ -341,8 +366,14 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
 	  // mark all prefetch ROBs on the list for this ROS as retrieved
 	  for (const auto& it_prefetch_rob_id : it_prefetch_ros->second) {
 	    auto rob_prefetched = m_map.find(it_prefetch_rob_id);
-	    if(rob_prefetched != m_map.end()) { 
+	    if(rob_prefetched != m_map.end() && !(rob_prefetched->second).reserved ) { 
 	      (rob_prefetched->second).reserved = true ;
+	      if (!sm_rob2ros.empty()) {
+		(sm_rosHitMap[ros])[rh_all_ev_rob_fra] += 1.;
+		(sm_rosHitMap[ros])[rh_normal_ev_rob_fra] += 1.;
+		(sm_rosHitMap[ros])[rh_all_ev_rob_siz] += (rob_prefetched->second).size_word ;
+		(sm_rosHitMap[ros])[rh_normal_ev_rob_siz] += (rob_prefetched->second).size_word ;
+	      }
 	      n_additional_robs++;
 	    } 
 	  }
@@ -351,12 +382,6 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
 	}
       }
     }
-    ERS_DEBUG(2, "Request with LVL1 id " << lvl1_id << " had requests for "
-                 << ids.size() << " ROBs and got " << data.size()
-                 << " fragments.");
-    ERS_DEBUG(2, "Request with LVL1 id " << lvl1_id << " had "
-	         << n_additional_robs << " additional ROBs retrieved from " << m_hit_roses.size()
-	         << " ROS(es) for prefetching strategy = " << sm_strategy);
     DEBUG_OUT_ROBINFOS(data);
     return data.size();
   }
@@ -433,6 +458,8 @@ void HLTTestApps::Event::hit_roses()
 		    if (!sm_rob2ros.empty()) {
 		      (sm_rosHitMap[get_rosid(elem.first)])[rh_all_ev_rob_fra] += 1.;
 		      (sm_rosHitMap[get_rosid(elem.first)])[rh_evbld_ev_rob_fra] += 1.;
+		      (sm_rosHitMap[get_rosid(elem.first)])[rh_all_ev_rob_siz] += (elem.second).size_word ;
+		      (sm_rosHitMap[get_rosid(elem.first)])[rh_evbld_ev_rob_siz] += (elem.second).size_word ;
 		    }
 		  }
                 });
@@ -457,6 +484,11 @@ void HLTTestApps::Event::hit_roses(const std::vector<ROBID>& robids)
 		  if (!sm_rob2ros.empty()) {
 		    (sm_rosHitMap[get_rosid(id)])[rh_all_ev_rob_fra] += 1.;
 		    (sm_rosHitMap[get_rosid(id)])[rh_normal_ev_rob_fra] += 1.;
+		    auto rob = m_map.find(id);
+		    if(rob != m_map.end()) {
+		      (sm_rosHitMap[get_rosid(id)])[rh_all_ev_rob_siz] += (rob->second).size_word ;
+		      (sm_rosHitMap[get_rosid(id)])[rh_normal_ev_rob_siz] += (rob->second).size_word ;
+		    }
 		  }
 		});
 
@@ -566,100 +598,126 @@ void HLTTestApps::Event::debug_print_ros_hit_map(const int nevent)
     ERS_DEBUG(1," No ROS-ROB mapping available");
     return;
   }
-  std::ostringstream oss;
-  float hit_fraction, rob_fraction ;
-  float hit_fraction_normal, rob_fraction_normal ;
-  float hit_fraction_evbuild, rob_fraction_evbuild ;
+  std::ostringstream oss, oss_r, oss_a;
+  float hit_fraction, rob_fraction, rob_size ;
+  float hit_fraction_normal, rob_fraction_normal, rob_size_normal ;
+  float hit_fraction_evbuild, rob_fraction_evbuild, rob_size_evbuild ;
 
   oss << "\n\tprint_ros_hit_map: DCM prefetching strategy                      = " << sm_strategy ;
   oss << "\n\tprint_ros_hit_map: Total number of events processed              = " << nevent ;
 
-  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
-  oss << "\n\tprint_ros_hit_map: | Rejected Events | " ;
-  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
-  oss << "\n\tprint_ros_hit_map: Number of rejected events used for statistics = " << sm_eventsForROSStat[rh_count_reject] <<"\n" ;
+  oss_r << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss_r << "\n\tprint_ros_hit_map: | Rejected Events | " ;
+  oss_r << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss_r << "\n\tprint_ros_hit_map: Number of rejected events used for statistics = " << sm_eventsForROSStat[rh_count_reject] <<"\n" ;
   if (sm_eventsForROSStat[rh_count_reject] > 0) {
-    oss << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
-	<< std::setw(24) << std::left << std::setfill(' ') << " | total"
-	<< std::setw(24) << std::left << std::setfill(' ') << " | no evt. bld."
-	<< std::setw(24) << std::left << std::setfill(' ') << " | evt. bld." 
-	<< " | ";
+    oss_r << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
+	  << std::setw(36) << std::left << std::setfill(' ') << " | total"
+	  << std::setw(36) << std::left << std::setfill(' ') << " | no evt. bld."
+	  << std::setw(36) << std::left << std::setfill(' ') << " | evt. bld." 
+	  << " | ";
 
-    oss << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
-	<< std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
-	<< std::setw(12) << std::left << std::setfill(' ') 
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | ";
-
+    oss_r << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
+	  << std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
+	  << std::setw(36) << std::left << std::setfill(' ') 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | ";
 
     for(const auto& ros : sm_rosHitMapReject) {
       hit_fraction = (ros.second)[rh_all_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
       rob_fraction = (ros.second)[rh_all_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_size     = (ros.second)[rh_all_rob_siz]/float(sm_eventsForROSStat[rh_count_reject]);
 
       hit_fraction_normal = (ros.second)[rh_normal_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
       rob_fraction_normal = (ros.second)[rh_normal_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_size_normal     = (ros.second)[rh_normal_rob_siz]/float(sm_eventsForROSStat[rh_count_reject]);
 
       hit_fraction_evbuild = (ros.second)[rh_evbld_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
       rob_fraction_evbuild = (ros.second)[rh_evbld_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_size_evbuild     = (ros.second)[rh_evbld_rob_siz]/float(sm_eventsForROSStat[rh_count_reject]);
 
-      oss << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
-	  << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
-	  << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " | " ;
+      oss_r << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	    << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	    << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " , " 
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size     << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " , "
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size_normal     << " | "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " , "
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size_evbuild     << " | " ;
     }
   }
 
-  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
-  oss << "\n\tprint_ros_hit_map: | Accepted Events | " ;
-  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
-  oss << "\n\tprint_ros_hit_map: Number of accepted events used for statistics = " << sm_eventsForROSStat[rh_count_accept] <<"\n" ;
+  oss_a << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss_a << "\n\tprint_ros_hit_map: | Accepted Events | " ;
+  oss_a << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss_a << "\n\tprint_ros_hit_map: Number of accepted events used for statistics = " << sm_eventsForROSStat[rh_count_accept] <<"\n" ;
   if (sm_eventsForROSStat[rh_count_accept] > 0) {
     // Accepted events
-    oss << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
-	<< std::setw(24) << std::left << std::setfill(' ') << " | total"
-	<< std::setw(24) << std::left << std::setfill(' ') << " | no evt. bld."
-	<< std::setw(24) << std::left << std::setfill(' ') << " | evt. bld." 
-	<< " | ";
+    oss_a << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
+	  << std::setw(36) << std::left << std::setfill(' ') << " | total"
+	  << std::setw(36) << std::left << std::setfill(' ') << " | no evt. bld."
+	  << std::setw(36) << std::left << std::setfill(' ') << " | evt. bld." 
+	  << " | ";
 
-    oss << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
-	<< std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
-	<< std::setw(12) << std::left << std::setfill(' ') 
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | Hits/Evt. " << ", ROBs/Evt."
-	<< " | ";
+    oss_a << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
+	  << std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
+	  << std::setw(36) << std::left << std::setfill(' ') 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | Hits/Evt. , ROBs/Evt. , Data/Evt." 
+	  << " | ";
 
     for(const auto& ros : sm_rosHitMapAccept) {
       hit_fraction = (ros.second)[rh_all_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
       rob_fraction = (ros.second)[rh_all_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_size     = (ros.second)[rh_all_rob_siz]/float(sm_eventsForROSStat[rh_count_accept]);
 
       hit_fraction_normal = (ros.second)[rh_normal_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
       rob_fraction_normal = (ros.second)[rh_normal_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_size_normal     = (ros.second)[rh_normal_rob_siz]/float(sm_eventsForROSStat[rh_count_accept]);
 
       hit_fraction_evbuild = (ros.second)[rh_evbld_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
       rob_fraction_evbuild = (ros.second)[rh_evbld_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_size_evbuild     = (ros.second)[rh_evbld_rob_siz]/float(sm_eventsForROSStat[rh_count_accept]);
 
-      oss << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
-	  << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
-	  << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " | " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
-	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " | " ;
+      oss_a << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	    << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	    << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " , " 
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size     << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " , "
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size_normal     << " | "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " , "
+	    << std::setw(9) << std::right << std::setfill(' ') << std::setprecision(2) << rob_size_evbuild     << " | " ;
     }
   } else {
     oss << " print_ros_hit_map: number of input events - 0 ";
   }
+
+  // print summary and close output files for ROS statistics
+  if (sm_ros_rejected_outfile.is_open()) {
+    sm_ros_rejected_outfile << oss.str()   << std::endl;
+    sm_ros_rejected_outfile << oss_r.str() << std::endl;
+    sm_ros_rejected_outfile.close();
+  }
+  if (sm_ros_accepted_outfile.is_open()) {
+    sm_ros_accepted_outfile << oss.str()   << std::endl;
+    sm_ros_accepted_outfile << oss_a.str() << std::endl;
+    sm_ros_accepted_outfile.close();
+  }
+
   ERS_DEBUG(1,oss.str());
+  ERS_DEBUG(1,oss_r.str());
+  ERS_DEBUG(1,oss_a.str());
 }
 
 void HLTTestApps::Event::accumulateStatistics(const int numberOfStreamTags)
@@ -683,38 +741,85 @@ void HLTTestApps::Event::accumulateStatistics(const int numberOfStreamTags)
     if (numberOfStreamTags == 0) {
       // total
       sm_rosHitMapReject[ros.first][rh_all_hit_fra] += (ros.second)[rh_all_ev_hit_fra];
-      if ((ros.second)[rh_all_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_all_ev_hit_fra] != 0.) { 
 	sm_rosHitMapReject[ros.first][rh_all_rob_fra] += ( (ros.second)[rh_all_ev_rob_fra]/(ros.second)[rh_all_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapReject[ros.first][rh_all_rob_siz] += (ros.second)[rh_all_ev_rob_siz];
       // normal collect
       sm_rosHitMapReject[ros.first][rh_normal_hit_fra] += (ros.second)[rh_normal_ev_hit_fra];
-      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) { 
 	sm_rosHitMapReject[ros.first][rh_normal_rob_fra] += ( (ros.second)[rh_normal_ev_rob_fra]/(ros.second)[rh_normal_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapReject[ros.first][rh_normal_rob_siz] += (ros.second)[rh_normal_ev_rob_siz];
       // eventbuilding collect
       sm_rosHitMapReject[ros.first][rh_evbld_hit_fra] += (ros.second)[rh_evbld_ev_hit_fra];
-      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) {
 	sm_rosHitMapReject[ros.first][rh_evbld_rob_fra] += ( (ros.second)[rh_evbld_ev_rob_fra]/(ros.second)[rh_evbld_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapReject[ros.first][rh_evbld_rob_siz] += (ros.second)[rh_evbld_ev_rob_siz];
+      if ((ros.second)[rh_all_ev_hit_fra] >= 1) {
+	std::ostringstream ost; 
+	ost << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	    << " | " << std::setw(4) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	    << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_hit_fra] << " , "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_rob_siz] << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_hit_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_rob_siz] << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_hit_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_rob_siz] << " | " ;
+	if (sm_ros_rejected_outfile.is_open()) sm_ros_rejected_outfile << ost.str() << std::endl;
+      }
     } else {
       // total
       sm_rosHitMapAccept[ros.first][rh_all_hit_fra] += (ros.second)[rh_all_ev_hit_fra];
-      if ((ros.second)[rh_all_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_all_ev_hit_fra] != 0.) { 
 	sm_rosHitMapAccept[ros.first][rh_all_rob_fra] += ( (ros.second)[rh_all_ev_rob_fra]/(ros.second)[rh_all_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapAccept[ros.first][rh_all_rob_siz] += (ros.second)[rh_all_ev_rob_siz];
       // normal collect
       sm_rosHitMapAccept[ros.first][rh_normal_hit_fra] += (ros.second)[rh_normal_ev_hit_fra];
-      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) { 
 	sm_rosHitMapAccept[ros.first][rh_normal_rob_fra] += ( (ros.second)[rh_normal_ev_rob_fra]/(ros.second)[rh_normal_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapAccept[ros.first][rh_normal_rob_siz] += (ros.second)[rh_normal_ev_rob_siz];
       // eventbuilding collect
       sm_rosHitMapAccept[ros.first][rh_evbld_hit_fra] += (ros.second)[rh_evbld_ev_hit_fra];
-      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) 
+      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) { 
 	sm_rosHitMapAccept[ros.first][rh_evbld_rob_fra] += ( (ros.second)[rh_evbld_ev_rob_fra]/(ros.second)[rh_evbld_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      }
+      sm_rosHitMapAccept[ros.first][rh_evbld_rob_siz] += (ros.second)[rh_evbld_ev_rob_siz];
+      if ((ros.second)[rh_all_ev_hit_fra] >= 1) {
+	std::ostringstream ost; 
+	ost << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	    << " | " << std::setw(4) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	    << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_hit_fra] << " , "
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_all_ev_rob_siz] << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_hit_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_normal_ev_rob_siz] << " | " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_hit_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_rob_fra] << " , " 
+	    << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(1) << (ros.second)[rh_evbld_ev_rob_siz] << " | " ;
+	if (sm_ros_accepted_outfile.is_open()) sm_ros_accepted_outfile << ost.str() << std::endl;
+      }
     }
     // total
     (ros.second)[rh_all_ev_hit_fra] = 0.; 
     (ros.second)[rh_all_ev_rob_fra] = 0.; 
+    (ros.second)[rh_all_ev_rob_siz] = 0.; 
     // normal collect
     (ros.second)[rh_normal_ev_hit_fra] = 0.; 
     (ros.second)[rh_normal_ev_rob_fra] = 0.; 
+    (ros.second)[rh_normal_ev_rob_siz] = 0.; 
     // eventbuilding collect
     (ros.second)[rh_evbld_ev_hit_fra] = 0.; 
     (ros.second)[rh_evbld_ev_rob_fra] = 0.; 
+    (ros.second)[rh_evbld_ev_rob_siz] = 0.; 
   }
 }

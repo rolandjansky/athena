@@ -33,7 +33,7 @@ ByteStreamEmonInputSvc.Partition = Partition
 # The source of events, SFI for full events
 # #########################################
 if not 'SamplingLevel' in dir():
-  SamplingLevel="SFI"
+  SamplingLevel="efd"
 ByteStreamEmonInputSvc.Key = SamplingLevel
 
 # ############################################################
@@ -82,7 +82,9 @@ ByteStreamEmonInputSvc.KeyCount = Nodes
 # #################################
 # Set dispersion flag to false (so other can sample the same event
 # #################################
-ByteStreamEmonInputSvc.Dispersion=False
+if not 'Dispersion' in dir():
+  Dispersion=False
+ByteStreamEmonInputSvc.Dispersion=Dispersion
 
 # #################################
 # Set timeout (in ms?)
@@ -105,7 +107,9 @@ ByteStreamEmonInputSvc.LVL1Logic = "Ignore"
 # 
 # This can be used instead of or in addition to LVL1Bits.
 # ###########################################################
-#ByteStreamEmonInputSvc.LVL1Names = ['L1_MU2', 'L1_MU3', 'L1_EM10' ]
+if 'LVL1Names' in dir():
+  ByteStreamEmonInputSvc.LVL1Logic = "Or"
+  ByteStreamEmonInputSvc.LVL1Names = LVL1Names.split(' ')
 
 # A list of numerical trigger bits instead of names. This is
 # Or'ed with LVL1Names
@@ -119,7 +123,7 @@ ByteStreamEmonInputSvc.LVL1Logic = "Ignore"
 if ( not 'Stream' in dir()) or (Stream == 'Default') or (Stream.startswith("Test")):
   ByteStreamEmonInputSvc.StreamLogic = "Ignore"
 else:
-  ByteStreamEmonInputSvc.StreamLogic = "And"
+  ByteStreamEmonInputSvc.StreamLogic = "Or"
 
 # ###########################################
 # One of 'physics' or 'calibration'
@@ -132,7 +136,7 @@ ByteStreamEmonInputSvc.StreamType = StreamType
 # ############################################
 # A list of stream tag names
 # ############################################
-ByteStreamEmonInputSvc.StreamNames = [ Stream ]
+ByteStreamEmonInputSvc.StreamNames = Stream.split(' ')
 
 # #################################################
 # The event buffer size

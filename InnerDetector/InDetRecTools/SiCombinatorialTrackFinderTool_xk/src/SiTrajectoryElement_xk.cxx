@@ -102,6 +102,8 @@ void InDet::SiTrajectoryElement_xk::setTools(const InDet::SiTools_xk* t)
   m_proptool     = m_tools->propTool    ();
   m_riotool      = m_tools->rioTool     ();
   m_assoTool     = m_tools->assoTool    ();
+  m_pixIdHelper  = m_tools->pixIdHelper ();
+  m_sctIdHelper  = m_tools->sctIdHelper ();
 } 
 
 void InDet::SiTrajectoryElement_xk::setParameters()
@@ -1847,4 +1849,26 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
     dR[0]+=(dA[0]*S); dR[1]+=(dA[1]*S); dR[2]+=(dA[2]*S);
   }
   return true;
+}
+
+int InDet::SiTrajectoryElement_xk::getSCTLayerSide()
+{
+  if( !isSCT() ) return -1;
+  return m_sctIdHelper->side(m_detelement->identify());
+}
+
+int InDet::SiTrajectoryElement_xk::getSCTLayer()
+{
+  if( !isSCT() ) return -1;
+  return m_sctIdHelper->layer_disk(m_detelement->identify()); 
+}
+
+bool InDet::SiTrajectoryElement_xk::isPixel()
+{
+  return m_detelement->isPixel();
+}
+
+bool InDet::SiTrajectoryElement_xk::isSCT()
+{
+  return m_detelement->isSCT();
 }

@@ -350,7 +350,7 @@ MMLoadVariables::~MMLoadVariables() {
       entries = dummy;
       int min_hits = 1,max_hits = 10000,nent=entries.size();
 
-      m_uvxxmod=(m_par->setup.compare("xxuvuvxx")==0);
+      m_uvxxmod=(m_par->m_setup.compare("xxuvuvxx")==0);
       //Number of hits cut
       if(!particle_info.bad_wedge)     particle_info.pass_cut=true; //default is false
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
@@ -392,7 +392,7 @@ MMLoadVariables::~MMLoadVariables() {
           thisSignal.strip_gpos.Y()-thisSignal.truth_lpos.Y(),
           thisSignal.strip_gpos.Z());
 
-        if(m_par->dlm_new){
+        if(m_par->m_dlm_new){
           athena_tru.SetX(thisSignal.strip_gpos.X()-thisSignal.strip_lpos.X());
         }
 
@@ -447,15 +447,15 @@ MMLoadVariables::~MMLoadVariables() {
 
       //*** FIGURE OUT WHAT TO DO WITH THE TIES--IS MIMIC VMM BUSTED? DO WE PLACE THE HIT REQUIREMENTS HERE? (PROBABLY)
       int xhit=0,uvhit=0,strip_X_tot=0,strip_UV_tot=0;
-      vector<bool>plane_hit(m_par->setup.size(),false);
+      vector<bool>plane_hit(m_par->m_setup.size(),false);
 
       for(map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
         int plane=it->second.plane;
         plane_hit[plane]=true;
         particle_info.N_hits_postVMM++;
         Hits_Data_Set_Time[it->first]=it->second;
-        if(m_par->setup.substr(plane,1).compare("x")==0){
-          ATH_MSG_DEBUG("ADD X STRIP VALUE "<<it->second.strip);
+        if(m_par->m_setup.substr(plane,1).compare("x")==0){
+	  ATH_MSG_DEBUG("ADD X STRIP VALUE "<<it->second.strip);
           strip_X_tot+=it->second.strip;
         }
         else{
@@ -465,16 +465,17 @@ MMLoadVariables::~MMLoadVariables() {
 
       for(unsigned int ipl=0;ipl<plane_hit.size();ipl++){
         if(plane_hit[ipl]){
-          if(m_par->setup.substr(ipl,1)=="x") xhit++;
-          else if(m_par->setup.substr(ipl,1)=="u"||m_par->setup.substr(ipl,1)=="v") uvhit++;
+          if(m_par->m_setup.substr(ipl,1)=="x") xhit++;
+          else if(m_par->m_setup.substr(ipl,1)=="u"||m_par->m_setup.substr(ipl,1)=="v") uvhit++;
         }
       }
       
       particle_info.N_X_hits=xhit;
       particle_info.N_UV_hits=uvhit;
       //X and UV hits minumum cut
-      if(xhit<m_par->CT_x) particle_info.pass_cut=false;//return;
-      if(uvhit<m_par->CT_uv) particle_info.pass_cut=false;//return;
+      if(xhit<m_par->m_CT_x) particle_info.pass_cut=false;//return;
+      if(uvhit<m_par->m_CT_uv) particle_info.pass_cut=false;//return;
+      //*** place any cuts on n_x, n_uv, n_postvmm here...
 
       //Moved the removing of some entries to the end of ~Trigger
       Event_Info[event]=particle_info;
@@ -503,7 +504,7 @@ MMLoadVariables::~MMLoadVariables() {
   }
 
   void MMLoadVariables::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+    double degree=TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());
     if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
@@ -512,7 +513,7 @@ MMLoadVariables::~MMLoadVariables() {
   }
 
   void MMLoadVariables::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+    double degree=-TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());
     if(m_striphack) hit.SetY(hit.Y()*std::cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
@@ -524,8 +525,8 @@ MMLoadVariables::~MMLoadVariables() {
   int 
   MMLoadVariables::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
-    string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
+    string setup(m_par->m_setup);
+    double strip_width=m_par->m_strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -555,13 +556,12 @@ MMLoadVariables::~MMLoadVariables() {
     return ceil(1.*strip/strips_per_VMM);
   }
 
-  int 
-  MMLoadVariables::strip_number(int station,int plane,int spos)const{
-    if (station<=0||station>m_par->n_stations_eta) {
+  int MMLoadVariables::strip_number(int station,int plane,int spos)const{
+    if (station<=0||station>m_par->m_n_stations_eta) {
       int base_strip = 0;
       return base_strip;
     }
-    if (plane<0||plane>(int)m_par->setup.size()) {
+    if (plane<0||plane>(int)m_par->m_setup.size()) {
       int base_strip = 0;
 
       return base_strip;

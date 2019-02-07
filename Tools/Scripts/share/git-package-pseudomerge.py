@@ -30,8 +30,16 @@ parser.add_argument('--target', type=str,
                    default='upstream/master', help='target branch (default: upstream/master)')
 parser.add_argument('--reset', action='store_true',
                    help='Remove branches created by this script. Use to start again or recover from any issues')
+parser.add_argument('--debug', action='store_true',
+                   help='Extra printing')
 
 args = parser.parse_args()
+
+def sortBySplitLen(element):
+    return len(element.split('/'))
+
+args.packages = sorted(args.packages, key=sortBySplitLen)
+
 print(args)
 
 class bcolors:
@@ -154,7 +162,7 @@ if args.stage == 1:
     level = 0 # Distance into directory tree
     resetPath = ''
     while (True):
-      # print("Evaluate " + fileTuple[1])
+      if (args.debug): print("Evaluate " + fileTuple[1] + " level=" + str(level))
       if level == len(fileSplit): # Reached beyond bottom of directory tree
         print(bcolors.FAIL + "ERR" + bcolors.ENDC)
         break
@@ -165,19 +173,22 @@ if args.stage == 1:
         pathSplit = path.rstrip('/').split('/') # Explode path
         if level == len(pathSplit) and path == responsibleRule:
           doKeep = True  # The previous operation matched the final path segment. Keep this file
-        elif level < len(pathSplit) and fileSplit[level] == pathSplit[level]:
+          if (args.debug): print("  doKeep=True (" + path + " = " + responsibleRule + ") as level is equal to size of " + path + ", " + str(len(pathSplit)) )
+        elif doKeep == False and level < len(pathSplit) and fileSplit[level] == pathSplit[level]:
           doProgress = True # We match the current level - check next level of directory
           responsibleRule = path # Record which package rule is allowing us to progress
+          if (args.debug): print("  doProgress=True (" + fileSplit[level] + " = " + pathSplit[level] + ") as level is less than the size of " + path + ", " + str(len(pathSplit)) )
 
       if doKeep: # At least one match to keep this
-        # print("Keeping  "+fileSplit[level])
+        if (args.debug): print("    Keeping  "+path)
         break
       elif doProgress: # At least one partial match - check next level
         resetPath += fileSplit[level] + '/'
-        # print("Progressing  "+resetPath)
+        if (args.debug): print("    Progressing  "+resetPath)
         level += 1
       else: # No matches - reset this path
         resetPath += fileSplit[level]
+        if (args.debug): print("    Resetting  "+resetPath)
         if not resetPath in toReset:
           print("To reset:  "+resetPath + " level = " + str(level))
           toReset.append(resetPath)

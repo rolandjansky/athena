@@ -86,7 +86,7 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   // true, the hit is valid; if it's false, there was some problem
   // with the hit and it should be ignored.
 
-  double energy = a_step->GetTotalEnergyDeposit();
+  double energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
   if (m_birksLaw) {
        G4double wholeStepLengthCm = a_step->GetStepLength() / Units::cm;
        G4double efield = 10.;  // 10 kV/cm simple approximation of electric field

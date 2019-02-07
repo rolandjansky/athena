@@ -2,6 +2,7 @@
 
 # art-description: athenaHLT on recent EnhancedBias with cost monitoring enabled
 # art-type: grid
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1
@@ -20,6 +21,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: *.regtest
+# art-output: *stdout*
 
 export NAME="athenaHLT_CostMonitoring_PhysicsV7_grid"
 export TESTOPTION="setMenu='Physics_pp_v7_unprescaled_only_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True;HLTOutputLevel=INFO;doValidation=True;"

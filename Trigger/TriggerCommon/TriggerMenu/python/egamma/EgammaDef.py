@@ -169,10 +169,11 @@ class EgammaFexBuilder(object):
 
         self._fast_calo_egamma          = T2CaloEgamma_eGamma()
         self._fast_calo_ringer          = T2CaloEgamma_Ringer()
-        
+
         self._fast_electron                = L2ElectronFex_1()
         self._fast_photon                 = L2PhotonFex_1()
         self._egamma_rec         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)()
+        self._egamma_rec_gsf         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma_gsf",doBremCollection = True,doPrint=False)()
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
         self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
@@ -344,12 +345,14 @@ class EgammaFexBuilder(object):
                 log.debug('Superclusters for electron')
 
         log.debug('Electron preciserec')
+        if 'gsf' in chain_part['addInfo']:
+            log.debug('Electron gsf rec')
+            return self._egamma_rec_gsf
         if 'isoInfo' in chain_part:
             iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
             if len(iso)>0:
                 log.debug('Electron calo isolation %s',iso[0])
                 do_caloiso = True
-    
         if do_caloiso:
             if do_superclusters:
                 log.debug('SuperClusters Electron calo + track isolation')
@@ -365,6 +368,8 @@ class EgammaFexBuilder(object):
                 log.debug('Electron default rec')
                 return self._egamma_rec
 
+            log.debug('Electron default rec')
+            return self._egamma_rec
 
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
@@ -437,6 +442,7 @@ class EgammaHypoBuilder(object):
                             'perf':False,
                             'ringer':False,
                             'sc':False,
+                            'gsf':False,
                             'g':False,
                             'e':False,
                             'hiptrt':False,

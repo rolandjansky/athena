@@ -205,14 +205,27 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
 
-  TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
+
+  /// for anti protons and anti neutrons the kinetic energy should be 
+  /// calculated as Ekin = E() + M() instead of E() - M()
+  /// this is achieved by constructing the TFCSTruthState with negative mass 
+  float isfp_mass = isfp.mass(); 
+  if(isfp.pdgCode() == -2212 or isfp.pdgCode() == -2112) {
+    isfp_mass = - isfp_mass;
+    ATH_MSG_VERBOSE("Found anti-proton/neutron, negative mass is used for TFCSTruthState "); 
+  }
+
+
+  TFCSTruthState truth;
+  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp_mass);
+  truth.set_pdgid(isfp.pdgCode());  
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate(m_randomEngine);
 
-  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi());
+  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
   m_param->setLevel(MSG::DEBUG);
 
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);

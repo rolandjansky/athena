@@ -17,4 +17,8 @@ def getTTL1Overlay(name="OverlayTTL1", **kwargs):
     kwargs.setdefault("TileTTL1OverlayKey", overlayFlags.evtStore() + "/TileTTL1Cnt");
     kwargs.setdefault("TileTTL1OutputKey", overlayFlags.outputStore() + "/TileTTL1Cnt");
 
+    kwargs.setdefault("TileMBTSTTL1MainKey", overlayFlags.dataStore() + "/TileTTL1MBTS");
+    kwargs.setdefault("TileMBTSTTL1OverlayKey", overlayFlags.evtStore() + "/TileTTL1MBTS");
+    kwargs.setdefault("TileMBTSTTL1OutputKey", overlayFlags.outputStore() + "/TileTTL1MBTS");
+
     return CfgMgr.LVL1__OverlayTTL1(name, **kwargs)

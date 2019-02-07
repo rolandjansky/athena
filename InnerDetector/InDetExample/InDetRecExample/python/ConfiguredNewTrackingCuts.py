@@ -404,7 +404,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "DisplacedSoftPion":
       self.__extension             = "DisplacedSoftPion" # this runs parallel to NewTracking
       self.__maxPT                 = 1.0 * Units.TeV
-      self.__minPT                 = 100 * Units.MeV
+      self.__minPT                 = 200 * Units.MeV
       self.__maxEta                = 5
       self.__maxPrimaryImpact      = 150.0 * Units.mm
       self.__maxZImpact            = 1000.0 * Units.mm
@@ -773,7 +773,7 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = True
       self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
-      self.__radMax           = 100. * Units.mm # to pixel layer-1 (~ 88 mm)
+      self.__radMax           = 150. * Units.mm # to pixel layer-4 (~ 122.5 mm)
 
 
     # --- changes for SCT segments

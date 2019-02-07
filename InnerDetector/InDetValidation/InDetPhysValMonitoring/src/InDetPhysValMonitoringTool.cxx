@@ -455,8 +455,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
         std::vector< const xAOD::TrackParticle* > bestTrack;
         int SiSPweight(0), TRTSeededweight(0), TRTStandaloneweight(0), other_weight(0);
         double truth_charge = thisTruth->charge();
+        double prod_rad = 0.;
         const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
-        double prod_rad = vtx->perp();
+        if (vtx)
+          prod_rad = vtx->perp();
         double best_match = -1;
         for(const auto& thisTrack: selectedTracks){
           double track_charge = thisTrack->charge();

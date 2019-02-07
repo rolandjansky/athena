@@ -35,7 +35,7 @@ namespace NSWL1{
         size_t nPads(pads.size());
         bool haveEnoughPads(nPads>2);
         if(not haveEnoughPads)
-	  std::cerr<<"SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads"<<std::endl;
+	  ATH_MSG_ERROR("SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads");
         assert(haveEnoughPads);
         
         const PadWithHits &pad0=pads[0], &pad1=pads[1], &pad2=pads[2];

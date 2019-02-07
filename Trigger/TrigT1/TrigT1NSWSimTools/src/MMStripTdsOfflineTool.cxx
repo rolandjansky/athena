@@ -569,7 +569,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+    double degree=TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -578,7 +578,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+    double degree=-TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -602,8 +602,8 @@ namespace NSWL1 {
 
   int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
-    string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
+    string setup(m_par->m_setup);
+    double strip_width=m_par->m_strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->m_stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -631,31 +631,31 @@ namespace NSWL1 {
   }
 
   int MMStripTdsOfflineTool::strip_number(int station,int plane,int spos)const{
-    if (station<=0||station>m_par->n_stations_eta) {
+    if (station<=0||station>m_par->m_n_stations_eta) {
       int base_strip = 0;
 
       return base_strip;
     }
-    if (plane<0||plane>(int)m_par->setup.size()) {
+    if (plane<0||plane>(int)m_par->m_setup.size()) {
       int base_strip = 0;
 
       return base_strip;
     }
     bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFixed()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFixed();
+    double H=m_par->m_H.getFixed()/*,h=m_par->m_h1,z=m_par->m_z_nominal[plane],z0=m_par->m_z_nominal.front()*/,ybase=m_par->m_ybases[plane][station-1].getFixed();
     if(do_auto){
       //-log(tan(0.5(atan(y/z))))=eta
       //this is the even y spacing
-      if(m_par->dlm_new) ybase=H+1100.*(station-1);
+      if(m_par->m_dlm_new) ybase=H+1100.*(station-1);
       else ybase=H+950.*(station-1);
       /*//this is the even eta spacing version
-      double etalo=-log(tan(0.5*atan((h+H)/z))),etahi=-log(tan(0.5*atan(H/z))),inc=(etahi-etalo)/m_par->n_stations_eta;
-      double this_eta=etalo+inc*(station-1);
+      double m_etalo=-log(tan(0.5*atan((h+H)/z))),m_etahi=-log(tan(0.5*atan(H/z))),inc=(m_etahi-m_etalo)/m_par->m_n_stations_eta;
+      double this_eta=m_etalo+inc*(station-1);
       ybase=z*tan(2*atan(exp(-1.*this_eta)));
       */
     }
-    double width=m_par->strip_width.getFixed(); string plane_char=m_par->setup.substr(plane,1);
+    double width=m_par->m_strip_width.getFixed(); string plane_char=m_par->m_setup.substr(plane,1);
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
   }

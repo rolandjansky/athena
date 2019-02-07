@@ -459,6 +459,7 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
   if (nmissing!=guess_res) {
     // majority failed, this chi2 is used as a flag
     track.setChi2(0.);
+    track.setChi2FW(0);
   }
   else {
     // evaluate the chi2
@@ -529,6 +530,7 @@ void FTKConstantBank::linfit_chisq(int secid, FTKTrack &trk) const {
     }
 
   trk.setChi2(chi2);
+  trk.setChi2FW(round(chi2));
 }
 
 
@@ -566,15 +568,20 @@ void FTKConstantBank::linfit_pars_eval(int secid, FTKTrack &trk) const
 
   if (m_npars>3) {
     trk.setZ0(pars[3]);
+    trk.setZ0FW(round(pars[3]));
     trk.setZ0Raw(pars[3]);
     trk.setCotTheta(pars[4]);
+    trk.setCTheta(round(pars[4]));
   }
   //cout << "secid: " << secid << endl; // cy debug
   //cout << "phi after corrgen: " << pars[2] << endl; //cy debug
   trk.setHalfInvPt(pars[0]);
+  trk.setInvPtFW(round(pars[0]*1e5)/1e5);
   trk.setIP(pars[1]);
+  trk.setIPFW(round(pars[1]));
   trk.setIPRaw(pars[1]);
   trk.setPhi(pars[2]); // angle is moved within -pi to +pi
+  trk.setPhiFW(round(pars[2])); // angle is moved within -3 to +3
   trk.setPhiRaw(pars[2]); // angle is moved within -pi to +pi
   //    cout << "phi within [-pi,pi]: " << track.getPhi() << endl; // cy debug
 
@@ -668,8 +675,8 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
       a[0] -= m_maj_kk[secid][col][m_missid[0]]*coords[col];
       a[1] -= m_maj_kk[secid][col][m_missid[1]]*coords[col];
       if (cmDebug > 8) {
-	printf("\ta[0] = %f\n",a[0]);
-	printf("\ta[1] = %f\n",a[1]);
+        FTKSetup::PrintMessageFmt(ftk::info,"\ta[0] = %f\n",a[0]);
+        FTKSetup::PrintMessageFmt(ftk::info,"\ta[1] = %f\n",a[1]);
       }
     }
 
@@ -761,12 +768,12 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
     }
     if (cmDebug > 5) {
       FTKSetup::PrintMessage(ftk::debg,"new coordinates:\n");
-      if (newcoords)
-	for (int i=0;i<m_ncoords;++i)
-	  printf("\t%d: %f\n",i,newcoords[i]);
-      else
-	for (int i=0;i<m_ncoords;++i)
-	  printf("\t%d: %f\n",i,coords[i]);
+      if (newcoords) {
+        for (int i=0;i<m_ncoords;++i) FTKSetup::PrintMessageFmt(ftk::debg,"\t%d: %f\n",i,newcoords[i]);
+      }  
+      else {
+        for (int i=0;i<m_ncoords;++i) FTKSetup::PrintMessageFmt(ftk::info,"\t%d: %f\n",i,coords[i]);
+      }
       FTKSetup::PrintMessage(ftk::debg,"\n");
     }
 
@@ -1727,7 +1734,7 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
   // Otherwise, set to the caluclated value, scaled back to nominal units.
 
   float fchi2 = oflhw ? 9999999. : chi2HW / pow(2.0, 2.*13);//EFF_SHIFT); //Rui's change to match fw
-  trk.setChi2FW(fchi2);
+  trk.setChi2FW(round(fchi2));
   trk.setChi2  (fchi2);
 
   // any negative hits?

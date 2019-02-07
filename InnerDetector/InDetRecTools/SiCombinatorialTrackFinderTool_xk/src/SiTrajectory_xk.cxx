@@ -8,6 +8,8 @@
 
 #include "TrkSurfaces/PlaneSurface.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 ///////////////////////////////////////////////////////////////////
 // Set work information to trajectory
@@ -1113,6 +1115,262 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
 
 bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 {
+
+  if( !m_tools->cleanSCTClus() ){
+    return forwardExtensionDefault(smoother,itmax);
+  }
+  else{
+    return forwardExtensionTracklet(smoother,itmax);
+  }
+
+}
+
+///////////////////////////////////////////////////////////////////
+// Default forward trajectory extension
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectory_xk::forwardExtensionDefault(bool smoother,int itmax)
+{
+  const double pi2 = 2.*M_PI, pi = M_PI;
+
+  if(m_firstElement >= m_lastElement) return false;
+
+  int L = m_lastElement, lElement = m_nElements-1;
+
+  if(smoother) {
+
+    L = m_firstElement;
+
+    if(m_elements[m_elementsMap[L]].difference()) {
+  
+      if(!m_elements[m_elementsMap[L]].firstTrajectorElement()) return false;
+
+      for(++L; L<=m_lastElement; ++L) {
+
+	InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
+	InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
+	if(!Ef.ForwardPropagationWithoutSearch(El)) return false; 
+      }
+    }
+    else                                          {
+      
+      bool diff = false;
+      for(++L; L<=m_lastElement; ++L) {
+	
+	InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
+	InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
+	
+	if(!diff) {
+	  if((diff = Ef.difference())) {
+	    if(!Ef.addNextClusterF(El,Ef.cluster())) return false;
+	  }
+	}
+	else      {
+	  if(!Ef.ForwardPropagationWithoutSearch(El)) return false; 
+	}
+      }
+    }
+    --L;
+  }
+  if( L== lElement) return true;
+
+  // Search best forward trajectory prolongation
+  //  
+  int                     MP    [300]                              ;
+  int                     MPbest[300]                              ;
+  int                     TE    [100]                              ;  
+  const InDet::SiCluster* CL    [100]                              ;
+
+  int    maxholes       = m_tools->maxholes ()                     ;
+  int    maxdholes      = m_tools->maxdholes()                     ;
+  const int itm         = itmax-1                                  ;
+  int    it             = 0                                        ;
+  int    itbest         = 0                                        ;
+  int    qbest          =-100                                      ;   
+  int    nbest          = 0                                        ;
+  int    ndfbest        = 0                                        ;
+  int    hbest          = 0                                        ;
+  int    hbeste         = 0                                        ;
+  int    ndbest         = 0                                        ;
+  int    ndcut          = 3                                        ;
+  int    nclbest        = 0                                        ;
+  int    lbest          = L                                        ;
+  int    F              = L                                        ;
+  int    M              = L                                        ;
+  MP    [M]             = L                                        ;
+  double Xi2best        = 0.                                       ;
+  const double dfmax    = 2.2                                      ;
+  double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().par()[2];
+
+  m_elements[m_elementsMap[F]].setNdist(0);
+
+  for(; it!=itmax; ++it) {
+
+    int  l  = F;
+    int  p  = F;
+    int  Fs = F;
+    int  Ml = M;
+    int  Cm = nclbest-lElement;
+    bool h  = false;
+
+    for(++F; F!=m_nElements; ++F) {
+      
+      InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[Fs]];
+      InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[F ]];
+
+      if(!Ef.ForwardPropagationWithSearch(El)) {
+
+	if(!Ef.isBarrel() || Fs!=F-1) break;
+
+	int f = F;
+	for(; f!=m_nElements; ++f) {
+	  if(!m_elements[m_elementsMap[f]].isBarrel() ) break; 
+	}
+	if(f==m_nElements) break;
+
+	F = f-1; continue;	
+      }
+      else {Fs = F;}  MP[++M] = F;
+
+      if     (Ef.cluster()     ) {
+	double df = fabs(Ef.parametersUF().par()[2]-f0); if(df > pi) df = pi2-df; 
+	if(df > dfmax) break;
+ 	p=F; l=F; Ml = M; h=false; 
+      }
+
+      else if(Ef.inside() < 0  ) {
+	p=F; if(Ef.nholesF() > maxholes || Ef.dholesF() > maxdholes) break; h=true;
+
+	double df = fabs(Ef.parametersPF().par()[2]-f0); if(df > pi) df = pi2-df; 
+	if(df > dfmax ) break;
+      }
+      else                       {
+	double df = fabs(Ef.parametersPF().par()[2]-f0); if(df > pi) df = pi2-df; 
+	if(df > dfmax) break;
+      }
+      int nm = Ef.nclustersF()-F; 
+      if(Ef.ndist() > ndcut ||  nm < Cm || (nm == Cm && Ef.xi2totalF() > Xi2best)) break;
+    }
+
+    int    m  = m_elementsMap[l];
+    int    nc = m_elements[m].nclustersF();
+    int    nh = m_elements[m].nholesF();
+    m_nholese = m_elements[m_elementsMap[p]].nholesF()-nh;
+
+    if(it==0 && nc==m_nclusters) return true;
+
+    int    fl = F; if(fl==m_nElements) --fl;
+    int    nd =  m_elements[m_elementsMap[fl]].ndist();
+    int    q  = nc-nh;
+    double X  = m_elements[m].xi2totalF();
+    if     ( (q > qbest) || (q==qbest && X < Xi2best ) ) {
+      qbest   = q; 
+      nbest   = 0;
+      ndfbest = 0;
+      hbest   = nh;
+      hbeste  = m_elements[m_elementsMap[p]].nholesF()-nh; 
+      itbest  = it; 
+      lbest   = L ;
+      Xi2best = X ;
+      ndbest  = nd; if(fl==lElement && nd < ndcut) ndcut = nd;
+
+      for(int j=L+1; j<=Ml; ++j) {
+
+	int    i  = MP[j]; 
+	InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
+
+	if(Ei.inside() <= 0) {
+	  MPbest[++lbest] = i;
+	  if(Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
+	}
+      }
+      nclbest = m_nclusters+nbest;
+      if( (nclbest >= 14 && !h) || (fl==lElement && ndbest == 0)) break;
+    }
+
+    F = -1; bool cl = false; int nb = lElement-nclbest-1; double Xn;
+
+    for(int j=Ml; j!=L; --j) {
+
+      int i = MP[j]; 
+      InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
+
+      if(i!=lElement && Ei.cluster() && Ei.isNextClusterHoleF(cl,Xn)) {
+
+	int nm = nb-i+Ei.nclustersF();
+
+	if(!cl) {if(Ei.dist() < -2. && Ei.ndist() > ndcut-1) continue;}
+	else  ++nm;
+
+	if(nm < 0 || (nm == 0 &&   Xn > Xi2best)) continue;
+	F=i; M=j; break;
+      }
+    }
+
+    if(F < 0 ) break;
+    if(it!=itm) if(!m_elements[m_elementsMap[F]].addNextClusterF()) break;
+  }
+
+  if(it == itmax) --it;
+
+  if(!nbest) return true;
+
+  m_nholes      = hbest      ;
+  m_nholese     = hbeste     ;
+  m_nclusters  += nbest      ; 
+  m_ndf        += ndfbest    ;
+  m_lastElement = TE[nbest-1];
+  m_nElements   = m_lastElement+1;
+
+  if(m_lastElement != MPbest[m_lastElement]) {
+    for(int n = L+1; n<=m_lastElement; ++n) m_elementsMap[n]=m_elementsMap[MPbest[n]];
+  }
+  if(itbest==it) return true;
+
+  int mb =  0;
+  F      = -1;
+  for(int n = L+1; n!=m_nElements; ++n) {
+
+    InDet::SiTrajectoryElement_xk& En = m_elements[m_elementsMap[n]];
+
+    int m = mb;
+    for(; m!=nbest; ++m) if(TE[m]==n) break;
+    
+    if(m!=nbest) {
+      if(CL[m]!=En.cluster()) {
+	if(F<0) {F=n; En.addNextClusterF(m_elements[m_elementsMap[n-1]],CL[m]);} 
+	else    {     En.setCluster(CL[m]);                                    }
+      }
+      if(++mb == nbest) break;
+    }
+    else {
+      if(En.cluster()) {
+	if(F<0) {F=n; En.addNextClusterF(m_elements[m_elementsMap[n-1]],0);}
+	else    {     En.setCluster(0);                                    }
+      }
+    }
+  } 
+  if(F < 0 || m_lastElement == F) {
+    return true;
+  }  
+
+  for(++F; F<=m_lastElement; ++F) {
+    
+    InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[F-1]];
+    InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[F  ]];
+    if(!Ef.ForwardPropagationWithoutSearch(El)) return false; 
+  }
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Forward trajectory extension for short tracklets
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectory_xk::forwardExtensionTracklet(bool smoother,int itmax)
+{
+  const double pi2 = 2.*M_PI, pi = M_PI;
+
   if(m_firstElement >= m_lastElement) return false;
 
   int L = m_lastElement, lElement = m_nElements-1;
@@ -1245,6 +1503,19 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       Xi2best = X ;
       ndbest  = nd; if(fl==lElement && nd < ndcut) ndcut = nd;
 
+      if( Ml>L ){
+	InDet::SiTrajectoryElement_xk& El  = m_elements[m_elementsMap[ MP[Ml] ]];
+	InDet::SiTrajectoryElement_xk& Ell = m_elements[m_elementsMap[ MP[Ml-1] ]];
+	if( El.isSCT() ){
+	  if( Ell.isPixel()    ) Ml=Ml-1;
+	  else if( Ell.isSCT() ){
+	    if( El.getSCTLayer()!=Ell.getSCTLayer() || El.getSCTLayerSide()==Ell.getSCTLayerSide() ) Ml=Ml-2;
+	    else if( !El.cluster() || !Ell.cluster() ) Ml=Ml-2;
+	  }
+	}
+      }
+      if( Ml<L ) Ml=L;
+    
       for(int j=L+1; j<=Ml; ++j) {
 
         int    i  = MP[j]; 

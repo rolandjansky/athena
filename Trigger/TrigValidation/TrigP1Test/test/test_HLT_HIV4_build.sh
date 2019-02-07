@@ -2,6 +2,7 @@
 
 # art-description: athenaHLT standalone with HLT_HIV4 menu on a HI sample 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

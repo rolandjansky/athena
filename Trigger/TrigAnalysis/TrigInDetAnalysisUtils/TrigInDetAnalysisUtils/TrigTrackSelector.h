@@ -89,14 +89,14 @@ public:
   virtual void clear() { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
-  void selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );
+  bool selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );
 
 
   // extract all the tracks from a TrigInDetTrack collection and associated TruthMap and convert them
   void selectTracks( const TrigInDetTrackCollection* trigtracks, const TrigInDetTrackTruthMap* truthMap=0 );
 
   // add a TrackParticle 
-  void selectTrack( const Rec::TrackParticle* track );
+  bool selectTrack( const Rec::TrackParticle* track );
   
 
   // extract all the tracks from a TrackParticle collection and add them
@@ -108,14 +108,14 @@ public:
 
 
   // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
-  void selectTrack( const HepMC::GenParticle* track );
+  bool selectTrack( const HepMC::GenParticle* track );
 
 
   // add a TruthParticle 
-  void selectTrack( const TruthParticle& track );
+  bool selectTrack( const TruthParticle& track );
 
   // add a TruthParticle 
-  void selectTrack( const TruthParticle* track );
+  bool selectTrack( const TruthParticle* track );
 
 
   // make a TIDA::Track from a GenParticle 
@@ -126,7 +126,7 @@ public:
 
 
   // add a Trk::Track
-  void selectTrack( const Trk::Track* track );
+  bool selectTrack( const Trk::Track* track );
 
   
   // extract all the tracks from a TrackCollection and add them
@@ -135,7 +135,7 @@ public:
 
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 
-  void selectTrack( const xAOD::TrackParticle* track, void* =0);
+  bool selectTrack( const xAOD::TrackParticle* track, void* =0);
 
 
   void selectTracks( const xAOD::TrackParticleContainer* tracks, void* =0);

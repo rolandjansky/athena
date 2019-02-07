@@ -4,23 +4,26 @@
 #     but setup things ourselves
 #####
 
-### Make sure a StreamESD stream has been setup before
-if not 'StreamESD' in dir():
-  print "\n\n"
-  print "\t WARNING: StreamESD is not available - can not run VP1 event producers!"
-  print "\t          Please use \"rec.doWriteESD\" to activate StreamESD.\n\n"
-  import sys
-  sys.exit(3);
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaServices.AthenaServicesConf import OutputStreamSequencerSvc
 
+outputStreamSequencerSvc = OutputStreamSequencerSvc()
+outputStreamSequencerSvc.SequenceIncidentName = "EndEvent"
+outputStreamSequencerSvc.IgnoreInputFileBoundary = True
+svcMgr += outputStreamSequencerSvc
 
 ### Add the algorithm producing VP1 events
-from VP1Algs.VP1AlgsConf import VP1EventProd
+from VP1AlgsEventProd.VP1AlgsEventProdConf import VP1EventProd
 VP1EventProducer = VP1EventProd(InputPoolFile = StreamESD.OutputFile)
+## =================== Added 09/03/15 by sjiggins ================= 
+print "<<<<<<< VP1 Output File >>>>>>>"
+print "OutputFile: %s" % StreamESD.OutputFile
+## ================================================================
 
 #Write out files in the directory given by the stream name
-VP1EventProducer.DestinationDirectory = OutputDirectory
+VP1EventProducer.DestinationDirectory = "%s/.Unknown/" % OutputDirectory
 #Set number of files large so deleting is doen by prune script
-VP1EventProducer.MaxNumberOfFiles = 10000
+VP1EventProducer.MaxNumberOfFiles = 250
 
 #Set the output level
 if not 'VP1MsgLvl' in dir():

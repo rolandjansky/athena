@@ -2,6 +2,7 @@
 
 # art-description: AthenaHLT on data, with MC_pp_V7 menu loose prescale set 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

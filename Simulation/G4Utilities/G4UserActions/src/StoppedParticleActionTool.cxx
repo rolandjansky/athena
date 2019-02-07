@@ -13,7 +13,7 @@ namespace G4UA
                                                        const IInterface* parent)
     : ActionToolBase<StoppedParticleAction>(type, name, parent)
   {
-    declareProperty("StoppingCondition",m_stoppingCondition=-1,"Negative ignores gasses; number indicates condition (effectively an enum)");
+    declareProperty("StoppingCondition",m_stoppingCondition=-3,"Negative ignores gasses; number indicates condition (effectively an enum)");
     declareInterface<IG4SteppingActionTool>(this);
   }
 

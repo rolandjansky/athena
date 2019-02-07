@@ -1,74 +1,166 @@
-#########################################
-#
-# Setup for running event displays at point1
-# 
-#########################################
+## -- Overview of all default local settings that one can change 
+## -- The default values are also shown.
 
-#Define the general output directory for VP1 and Atlantis
-#All events will be stored in subdirectories of that directory
+## ------------------------------------------- flags set in: RecExOnline_jobOptions.py  
+isOnline          = True
+isOnlineStateless = True
+
+#Crashes online if you do not set this....
+isOfflineTest     = False
+
+#for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
+useEmon           = True
+#The number of machines we run with helpfully labelled "keycount"
+keycount          = 10 #10 #1000
+buffersize        = 10
+updateperiod      = 200
+timeout           = 600000
+
+keyname           = 'dcm'
+
+#Blank to read all
+streamName          = ''
+
+#Read Physics
+streamType        = 'physics'          #Progonal Does not specify  these
+
+
+streamLogic       = 'Or'#HAS TO BE OR AT ALL TIMES WHEN SPECIFYING A CERTAIN STREAM
+
+useAtlantisEmon   = False
+
+
+## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
+partitionName   = 'ATLAS'
+#Current test partition looping through 2015 data if you want to test when no run is ongoing.
+#partitionName   = 'GMTestPartition_lshi_tdaq6'
+publishName     = 'EventDisplays'
+
+if (partitionName == 'ATLAS'):
+    evtMax            = -1
+
+#Don't flood if you are running on a test loop
+if (partitionName != 'ATLAS'):
+    evtMax            = 200
+
+## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
+#read the pickle file if you want to use the AMI tag info
+#stored in ami_recotrf.pickle (produced by 'tct_getAmiTag.py f140 ami_recotrf.cmdargs ami_recotrf.pickle') 
+usePickleConfig   = False
+pickleconfigfile  = './ami_recotrf.pickle'
+DataSource        = 'data'
+InputFormat       = 'bytestream'
+fileName          = './0.data'
+#beamType          = 'cosmics'
+#beamType          = 'collisions'
+
+#COND tag and GEO are needed for running over a test partition online
+#Previous COND tag
+ConditionsTag     = 'CONDBR2-HLTP-2017-03' #Removed 07/04
+#Swapped to this following AMI tag for current reco. Swap back if not in release
+#ConditionsTag     = 'CONDBR2-ES1PA-2016-01' #Different
+#Current DetDesc
+DetDescrVersion   = 'ATLAS-R2-2016-01-00-01'
+
+doESD             = True
+writeESD          = True # False - Jiggins_12Feb_v2 working version switch 
+doAOD             = False #True  # False - Jiggins_12Feb_v2 wokring version switch
+writeAOD          = False # True  # False - Jiggins_12Feb_v2 working version switch
+IOVDbSvcMessage   = False
+
+## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
+doAllReco   = True
+doInDet     = doAllReco
+doMuon      = True
+doLArg      = doAllReco
+doTile      = doAllReco
+doTrigger   = doAllReco 
+doHist      = False
+doJiveXML   = False
+doEgammaTau = False
+
+## ------------------------------------------ flags set in : RecExOnline_monitoring.py (from from RecExOnline_jobOptions.py)
+doAllMon  = False
+doCaloMon = doAllMon
+doPhysMon = doAllMon
+doTrigMon = False
+doIDMon   = doAllMon
+doTRTMon  = doAllMon
+doMuonMon = False
+
+doIDMon   = doAllMon
+doTRTMon  = doAllMon
+doMuonMon = False
+
+## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
+
+## Define the general output directory for VP1 and Atlantis
 if not 'OutputDirectory' in dir():
-  OutputDirectory="/EventDisplayEvents/"
-#Make sure it ends with a "/"
-if not OutputDirectory.endswith("/"):
-  OutputDirectory += "/"
+  OutputDirectory="/atlas/EventDisplayEvents"
 
-#Make sure we run infintly if not otherwise specified on the command line
-from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
-if 'EvtMax' in dir():
-  athenaCommonFlags.EvtMax.set_Value_and_Lock(EvtMax)
-else:
-  athenaCommonFlags.EvtMax.set_Value_and_Lock(-1)
+## Pause this thread until the ATLAS partition is up
+include ("EventDisplaysOnline/WaitForAtlas_jobOptions.py")
 
-#Get a logger so we can show formated messages
-from AthenaCommon.Logging import logging                                                                                                                
-mlog = logging.getLogger( 'EventDisplays' )                                                                                       
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
 
-#Make sure we have a stream name defined
-if not 'Stream' in dir():
-  Stream="Default"
+## Setup unique output files (so that multiple Athenas on the same machine don't interfere)
+jobId = os.environ.get('TDAQ_APPLICATION_NAME', '').split(':')
+if not len(jobId) == 5:
+    from random import randint
+    jobId = ['Athena-EventProcessor', 'Athena-EventDisplays-Segment', 'EventDisplays-Rack', 'tmp', '%d' % randint(0, 999)]
 
-#Make sure the Splash flag exists
-if not 'Splash' in dir():
-  Splash=False
+IPC_timeout = int(os.environ['TDAQ_IPC_TIMEOUT'])
+print " IPC_timeout Envrionment Variable = %d" %IPC_timeout
+#################################################################################
 
-#Create phony stream name
-if not 'StreamName' in dir():
-  StreamName = Stream+(Splash and '-Splash' or '')
+#from random import randrange
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-#Assemble final output directory
-OutputDirectory += StreamName
+# #################### From JiveXML server python script ####################
+athenaCommonFlags.PoolESDOutput = "ESD-%s-%s.pool.root" % (jobId[3], jobId[4])                               
+## Additional flags from: GetTfCommand.py --AMI=x392
+from CaloRec.CaloCellFlags import jobproperties
+jobproperties.CaloCellFlags.doLArHVCorr=False
+jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False)
+jobproperties.CaloCellFlags.doLArCreateMissingCells=False
 
-#Make sure the output directory exists and is writable
-import os, stat
-if os.access(OutputDirectory, os.F_OK):
-  if os.path.isdir(OutputDirectory) and os.access(OutputDirectory, os.W_OK):
-    mlog.info("using existing output directory \'%s\' for stream \'%s\'" % (OutputDirectory, StreamName))
-  else:
-    mlog.fatal("cannot write to directory \'%s\'" % OutputDirectory)
-    raise OSError("cannot write to directory \'%s\'" % OutputDirectory)
-else:
-  try:
-    os.mkdir(OutputDirectory);
-    os.chmod(OutputDirectory, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
-    mlog.info("created output directory \'%s\' for stream \'%s\'" % (OutputDirectory, StreamName))
-  except OSError, err:
-    mlog.fatal("failed to create output directory \'%s\' for stream \'%s\': %s", (OutputDirectory, StreamName, err.strerror))
-    raise err
+#Work around to stop crash in pixel cluster splitting 
+from InDetRecExample.InDetJobProperties import InDetFlags#All OK
+InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True)
 
-#Bytestream input is configured here
-include('EventDisplaysOnline/ByteStreamInput_jobOptions.py')
+from JetRec.JetRecFlags import jetFlags
+jetFlags.useTracks.set_Value_and_Lock(False)
 
-#Add reconstruction on top of that
-if not Splash:
-  include('EventDisplaysOnline/RecoCommon_jobOptions.py')
-else :
-  include('EventDisplaysOnline/SplashEvent_jobOptions.py')
+#from MuonRecExample.MuonRecFlags import muonRecFlags; 
+#Crashes claiming does not exist
+#muonRecFlags.writeRDO.set_Value_and_Lock(True);
 
-#Add Atlantis-specific jobOptions
-include('EventDisplaysOnline/Atlantis_jobOptions.py')
+from RecExConfig.RecFlags import rec
+#rec.projectName.set_Value_and_Lock('data16_comm') # CHECK THIS NAME WITH RUN CONTROL
 
-#Add VP1-specific jobOptions
-include('EventDisplaysOnline/VP1_jobOptions.py')
+from RecExConfig.RecAlgsFlags import recAlgs
+recAlgs.doEFlow.set_Value_and_Lock(False)
+recAlgs.doMissingET.set_Value_and_Lock(False)
 
-#Finally configure the ByteStreamController (after RecoCommon!)
-#include('EventDisplaysOnline/ByteStreamController_jobOptions.py')
+## Main online reco scripts
+include ("RecExOnline/RecExOnline_jobOptions.py")
+
+ToolSvc.InDetPixelRodDecoder.OutputLevel = ERROR
+
+rec.abortOnUncheckedStatusCode = False
+rec.abortOnErrorMessage=False
+
+include ("EventDisplaysOnline/JiveXMLServer_jobOptions.py")
+include ("EventDisplaysOnline/Atlantis_jobOptions.py")
+#include ("EventDisplaysOnline/VP1_jobOptions.py")
+
+## Disable histogramming
+svcMgr.ByteStreamInputSvc.ISServer=''
+
+################### Added by sjiggins 10/03/15 as given by Peter Van Gemmeren for name PoolFileatalogs
+svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:PoolFileCatalog_%s_%s.xml" % (jobId[3], jobId[4])
+####################################################################################################  
+
+svcMgr.MessageSvc.OutputLevel = WARNING #INFO
+svcMgr.MessageSvc.Format = "% F%t %18W%S%7W%R%T %0W%M"

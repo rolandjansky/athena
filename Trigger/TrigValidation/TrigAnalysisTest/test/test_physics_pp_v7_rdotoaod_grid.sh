@@ -22,6 +22,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: AOD.pool.root.checkFile0
 # art-output: AOD.pool.root.checkFiletrigSize.txt
+# art-output: *.regtest
 
 export NAME="physics_pp_v7_rdotoaod_grid"
 export COST_MONITORING="False"

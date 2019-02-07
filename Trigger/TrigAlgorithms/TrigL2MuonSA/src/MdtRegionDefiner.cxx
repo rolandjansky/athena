@@ -476,8 +476,8 @@ void TrigL2MuonSA::MdtRegionDefiner::find_phi_min_max(float phiMiddle, float& ph
 void TrigL2MuonSA::MdtRegionDefiner::find_eta_min_max(float zMin, float rMin, float zMax, float rMax,
 						      float& etaMin, float& etaMax)
 {   
-   const bool doEmulateMuFast = true;
-   // const bool doEmulateMuFast = false;
+   // const bool doEmulateMuFast = true;
+   const bool doEmulateMuFast = false;
 
    etaMin = 0.;
    etaMax = 0.;

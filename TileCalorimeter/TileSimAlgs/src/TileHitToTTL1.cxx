@@ -41,8 +41,6 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileTTL1Container.h"
 #include "TileEvent/TileLogicalOrdering.h"
 #include "TileSimAlgs/TileHitToTTL1.h"
 #include "TileConditions/ITileBadChanTool.h"
@@ -82,15 +80,16 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_tileBadChanTool("TileBadChanTool")
 {
   m_infoName = "TileInfo";
-  m_hitContainer = "TileHitCnt";
-  m_TTL1Container = "TileTTL1Cnt";
-  m_MBTSTTL1Container = "TileTTL1MBTS";
+  m_hitContainerKey = "TileHitCnt";
+  m_TTL1ContainerKey = "TileTTL1Cnt";
+  m_MBTSTTL1ContainerKey = "TileTTL1MBTS";
   m_TileTTL1Type = "Standard";
 
+  declareProperty("TileHitContainer", m_hitContainerKey);
+  declareProperty("TileTTL1Container", m_TTL1ContainerKey);
+  declareProperty("TileMBTSTTL1Container", m_MBTSTTL1ContainerKey);
+
   declareProperty("TileInfoName", m_infoName);
-  declareProperty("TileHitContainer", m_hitContainer);    
-  declareProperty("TileTTL1Container", m_TTL1Container);
-  declareProperty("TileMBTSTTL1Container", m_MBTSTTL1Container);
   declareProperty("TileTTL1Type",m_TileTTL1Type);
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileHitToTTL1");
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
@@ -148,10 +147,15 @@ StatusCode TileHitToTTL1::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_MBTSTTL1Container.size() > 0)
-    ATH_MSG_INFO( "Storing MBTS TileTTL1 in separate container " << m_MBTSTTL1Container );
+  if (!m_MBTSTTL1ContainerKey.key().empty())
+    ATH_MSG_INFO( "Storing MBTS TileTTL1 in separate container " << m_MBTSTTL1ContainerKey.key() );
   else
     ATH_MSG_INFO( "TileTTL1 from MBTS will not be produced" );
+
+  // Check and initialize keys
+  ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_TTL1ContainerKey.initialize() );
+  ATH_CHECK( m_MBTSTTL1ContainerKey.initialize() );
 
   if (m_maskBadChannels)
     ATH_MSG_INFO( "Bad Channel trigger status will be applied" );
@@ -226,15 +230,28 @@ StatusCode TileHitToTTL1::execute() {
   // but TTL1 container has no collections and no structure
   /*........................................................................*/
 
-  const TileHitContainer* hitCont;
-  CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  SG::ReadHandle<TileHitContainer> hitCont(m_hitContainerKey);
+  if (!hitCont.isValid()) {
+    ATH_MSG_ERROR("Could not get TileHitContainer container (" << m_hitContainerKey.key() << ")");
+    return StatusCode::FAILURE;
+  }
 
+  SG::WriteHandle<TileTTL1Container> pTTL1Container(m_TTL1ContainerKey);
+  // Register the TTL1 container in the TES
+  ATH_CHECK( pTTL1Container.record(std::make_unique<TileTTL1Container>()) );
+  ATH_MSG_DEBUG( "Output TileTTL1Container registered successfully (" << m_TTL1ContainerKey.key() << ")" );
 
-  TileTTL1Container * pTTL1Container = new TileTTL1Container();
-  TileTTL1 * pTTL1;
   TileTTL1Container * mbtsTTL1Container = NULL;
-  if (m_MBTSTTL1Container.size() > 0)
-    mbtsTTL1Container = new TileTTL1Container();
+  if (!m_MBTSTTL1ContainerKey.key().empty()) {
+    SG::WriteHandle<TileTTL1Container> mbtsTTL1ContainerOutput(m_MBTSTTL1ContainerKey);
+    // Register the MBTS TTL1 container in the TES
+    ATH_CHECK( mbtsTTL1ContainerOutput.record(std::make_unique<TileTTL1Container>()) );
+    ATH_MSG_DEBUG( "Output MBTS TileTTL1Container registered successfully (" << m_MBTSTTL1ContainerKey.key() << ")" );
+
+    mbtsTTL1Container = mbtsTTL1ContainerOutput.ptr();
+  }
+
+  TileTTL1 * pTTL1;
 
   /*........................................................................*/
   // Create temporary arrays for processing signals.
@@ -674,16 +691,6 @@ StatusCode TileHitToTTL1::execute() {
     ATH_MSG_DEBUG( "Sorting container of size " << pTTL1Container->size() );
     TileLogicalOrdering<TileTTL1> order;
     pTTL1Container->sort(order);
-  }
-
-  // step8: register the TTL1 container in the TES
-  CHECK( evtStore()->record(pTTL1Container, m_TTL1Container, false) );
-  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_TTL1Container << ")" );
-
-
-  if (mbtsTTL1Container) {
-    CHECK( evtStore()->record(mbtsTTL1Container, m_MBTSTTL1Container, false) );
-    ATH_MSG_DEBUG( "MBTS TileTTL1Container registered successfully (" << m_MBTSTTL1Container << ")" );
   }
 
   // Execution completed.

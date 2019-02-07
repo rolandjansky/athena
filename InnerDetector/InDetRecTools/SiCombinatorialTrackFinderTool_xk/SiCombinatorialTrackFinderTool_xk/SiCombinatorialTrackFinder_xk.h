@@ -143,6 +143,8 @@ namespace InDet{
       Trk::TrackInfo                 m_trackinfo     ;
 
       InDet::SiTools_xk              m_tools         ;
+      const PixelID*                 m_pixIdHelper   ;
+      const SCT_ID*                  m_sctIdHelper   ;
       bool                           m_pix           ;
       bool                           m_sct           ;
       bool                           m_simpleTrack   ;

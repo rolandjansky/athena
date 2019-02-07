@@ -356,7 +356,7 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     elif hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
-    if digitizationFlags.PileUpPremixing or (hasattr(runArgs, "AddCaloDigi") and runArgs.AddCaloDigi):
+    if hasattr(runArgs, "AddCaloDigi") and runArgs.AddCaloDigi:
         digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
         digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
