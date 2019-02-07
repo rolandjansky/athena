@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaGILStateEnsure.h 
@@ -33,8 +33,8 @@ class PyGILStateEnsure
 /////////////////////////////////////////////////////////////////// 
 
 inline PyGILStateEnsure::PyGILStateEnsure()
-{ 
-   m_gstate = PyGILState_Ensure();
+  : m_gstate (PyGILState_Ensure())
+{
 }
 
 inline PyGILStateEnsure::~PyGILStateEnsure()
