@@ -365,7 +365,8 @@ class ItemDef:
         # TAU ctpid=[0x40:0x4f]
         LVL1MenuItem('L1_TAU2'  ).setLogic( HA2   & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU3'  ).setLogic( HA3   & physcond).setTriggerType( TT.calo )    # noqa: F821
-        
+        # ATR-19359 
+        LVL1MenuItem('L1_TAU5'  ).setLogic( HA5   & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU6'  ).setLogic( HA6   & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU8'  ).setLogic( HA8   & physcond).setTriggerType( TT.calo )    # noqa: F821
 
@@ -383,7 +384,8 @@ class ItemDef:
         LVL1MenuItem('L1_TAU20' ).setLogic( HA20  & physcond).setTriggerType( TT.calo )      # noqa: F821
         LVL1MenuItem('L1_TAU20IL' ).setLogic( HA20IL  & physcond).setTriggerType( TT.calo )  # noqa: F821
         LVL1MenuItem('L1_TAU20IM' ).setLogic( HA20IM  & physcond).setTriggerType( TT.calo )  # noqa: F821
-        LVL1MenuItem('L1_TAU20IT' ).setLogic( HA20IT  & physcond).setTriggerType( TT.calo )  # noqa: F821
+        if not '_v8' in TriggerFlags.triggerMenuSetup() :
+           LVL1MenuItem('L1_TAU20IT' ).setLogic( HA20IT  & physcond).setTriggerType( TT.calo )  # noqa: F821
         
         LVL1MenuItem('L1_TAU20A' ).setLogic( HA20A  & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU20C' ).setLogic( HA20C  & physcond).setTriggerType( TT.calo )    # noqa: F821
@@ -503,7 +505,8 @@ class ItemDef:
         LVL1MenuItem('L1_TAU20_2TAU12_XE35'            ).setLogic( HA20    & HA12.x(2)  & XE35 & physcond).setTriggerType( TT.calo )      # noqa: F821
         LVL1MenuItem('L1_TAU20IM_2TAU12IM_XE35'        ).setLogic( HA20IM  & HA12IM.x(2)  & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU20IL_2TAU12IL_XE35'        ).setLogic( HA20IL  & HA12IL.x(2)  & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_TAU20IT_2TAU12IT_XE35'        ).setLogic( HA20IT  & HA12IT.x(2)  & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
+        if not '_v8' in TriggerFlags.triggerMenuSetup() :
+           LVL1MenuItem('L1_TAU20IT_2TAU12IT_XE35'        ).setLogic( HA20IT  & HA12IT.x(2)  & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU20IM_2TAU12IM_XE40'        ).setLogic( HA20IM  & HA12IM.x(2)  & XE40 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU40_2TAU12IM_XE40'        ).setLogic( HA40  & HA12IM.x(2)  & XE40 & physcond).setTriggerType( TT.calo )        # noqa: F821
         LVL1MenuItem('L1_EM20VHI_TAU20IM_2TAU20_J25_3J20'          ).setLogic( EM20VHI  &  HA20IM  &  HA20.x(2) &  J25  & J20.x(3) & physcond).setTriggerType( TT.calo )    # noqa: F821
