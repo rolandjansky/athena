@@ -131,7 +131,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     for ( const xAOD::TrigComposite* tc : *outputHandle ) {
       ATH_MSG_INFO("Algorithm:'" << tc->name() << "'");
       ATH_MSG_INFO("  Store:'" << tc->getDetail<std::string>("store") << "'");
-      ATH_MSG_INFO("  View ID:" << tc->getDetail<int>("view"));
+      ATH_MSG_INFO("  View ID:" << tc->getDetail<int16_t>("view"));
       ATH_MSG_INFO("  Thread ID Hash:" << tc->getDetail<uint32_t>("threadID") );
       ATH_MSG_INFO("  Start Time Seconds:" << tc->getDetail<uint32_t>("startTimeSeconds") << " s");
       ATH_MSG_INFO("  Start Time Microseconds:" << tc->getDetail<uint32_t>("startTimeMicroseconds") << " mu s");
