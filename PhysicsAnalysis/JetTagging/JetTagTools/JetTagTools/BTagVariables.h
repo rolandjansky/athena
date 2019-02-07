@@ -69,13 +69,6 @@ namespace btagvar {
   static const char* JF_DETA   = "jf_deta";
   static const char* JF_SIG3D  = "jf_sig3d";
 
-  static const char* JET_WIDTH           = "jet_width";
-  static const char* JET_N_TRK3_SIGD0CUT = "jet_n_trk_sigd0cut";
-  static const char* JET_TRK3_D0SIG      = "jet_trk3_d0sig";
-  static const char* JET_TRK3_Z0SIG      = "jet_trk3_z0sig";
-  static const char* JET_SV_SCALED_EFC   = "jet_sv_scaled_efc";
-  static const char* JET_JF_SCALED_EFC   = "jet_jf_scaled_efc";
-
   static const char* JF_NTRK_VTX1         = "nTrk_vtx1";//"jf_ntrk_vtx1";
   static const char* JF_MASS_VTX1         = "mass_first_vtx";//"jf_m_vtx1";
   static const char* JF_E_VTX1            = "e_first_vtx";//"jf_e_vtx1";

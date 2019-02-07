@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
@@ -88,7 +88,10 @@ def main(args):
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
-    msg.setLevel(L.logging.INFO)
+    if args.verbose:
+        msg.setLevel(L.logging.VERBOSE)
+    else:
+        msg.setLevel(L.logging.INFO)
 
     from PyUtils.Helpers import ShutUp
 
@@ -153,8 +156,12 @@ def main(args):
             msg.warning('the following variables exist only in the new file !')
             for l in new_leaves:
                 msg.warning(' - [%s]', l)
-        skip_leaves = old_leaves | new_leaves | set(args.ignore_leaves)
-        
+
+        # need to remove trailing dots as they confuse reach_next()
+        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
+        for l in skip_leaves:
+            msg.debug('skipping [%s]', l)
+
         leaves = infos['old']['leaves'] & infos['new']['leaves']
         msg.info('comparing [%s] leaves over entries...', len(leaves))
         all_good = True
@@ -182,7 +189,7 @@ def main(args):
                 skip = False
                 for n in leafname_fromdump(entry).split('.'):
                     name.append(n)
-                    if '.'.join(name) in skip_leaves:
+                    if '.'.join(name) in skip_leaves or n in skip_leaves:
                         skip = True
                         break
                 if not skip:

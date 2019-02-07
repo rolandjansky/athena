@@ -141,15 +141,6 @@ def Initiate(ConfInstance=None):
       raise RuntimeError
     # -------------- \Calibration Broker --------------
 
-
-    global BTagJetTruthMatching
-    global BTagLeptonTruthTool
-    global thisBTagLabeling
-    # FF: disable cone-based labelling as this is now being done as a part of jet reconstruction
-    BTagJetTruthMatching = None
-    BTagLeptonTruthTool = None
-    thisBTagLabeling = None
-
     # -- for reference mode:
     if BTaggingFlags.Runmodus == 'reference':
 
@@ -323,8 +314,7 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   # Note that we are not storing this tool on a variable on purpose; there is now a different one per jet collection and therefore
   # subsequent scripts cannot depend on this variable (since it would just hold the last one initialized).
   ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
-                                  options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
-                                           'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
+                                  options={ 'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
   # Setup associators
   BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator(
@@ -527,8 +517,7 @@ def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
   # Note that we are not storing this tool on a variable on purpose; there is now a different one per jet collection and therefore
   # subsequent scripts cannot depend on this variable (since it would just hold the last one initialized).
   ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
-                                  options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
-                                           'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
+                                  options={ 'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
   # Setup all taggers
 
@@ -658,8 +647,7 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
   # Note that we are not storing this tool on a variable on purpose; there is now a different one per jet collection and therefore
   # subsequent scripts cannot depend on this variable (since it would just hold the last one initialized).
   ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
-                                  options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
-                                           'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
+                                  options={ 'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
   # Setup associators
   BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)

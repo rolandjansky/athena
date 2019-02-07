@@ -54,28 +54,36 @@ DecisionSvc          INFO Inserting stream: Coll1and7 with no Algs
 DecisionSvc          INFO Inserting stream: Coll348 with no Algs
 DecisionSvc          INFO Inserting stream: CollTrig with no Algs
 DecisionSvc          INFO Inserting stream: CollBad with no Algs
+CollBit1.Regist...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+CollBit1.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+Coll23.Registra...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Coll23.Registra...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split23.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+Coll456.Registr...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Coll456.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split456.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+CollBar.Registr...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+CollBar.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBar.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+Coll1and7.Regis...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Coll1and7.Regis...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1plus7' already registered ( POOL : "registerPFN" from "FileCatalog" )
+Coll348.Registr...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Coll348.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split348.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+CollTrig.CollTr...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+CollTrig.CollTr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitTrig.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+CollBad.Registr...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+CollBad.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBad.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 1
 Stream1              INFO Records written: 1
 Stream3              INFO Records written: 1
 Others               INFO Records written: 1
 Bad                  INFO Records written: 1
-CollBit1.Regist...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll23.Registra...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll456.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollBar.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll1and7.Regis...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll348.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollTrig.CollTr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollBad.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
