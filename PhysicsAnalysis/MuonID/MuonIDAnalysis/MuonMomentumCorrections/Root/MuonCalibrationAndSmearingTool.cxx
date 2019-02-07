@@ -42,13 +42,13 @@ namespace CP {
     declareProperty("StatComb", m_useStatComb = false);
     declareProperty("MinCombPt", m_StatCombPtThreshold=300.0);
     declareProperty("SagittaCorr", m_doSagittaCorrection = false);
-    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_30_07_18");
-    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
-    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=true);
-    declareProperty("sgItersCB",m_sgItersCB=11);
-    declareProperty("sgItersID",m_sgItersID=11);
-    declareProperty("sgItersME",m_sgItersME=11);
-    declareProperty("sgIetrsMamual",m_sgIetrsMamual=false);
+    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19");
+    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true);
+    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
+    declareProperty("sgItersCB",m_sgItersCB=4);
+    declareProperty("sgItersID",m_sgItersID=4);
+    declareProperty("sgItersME",m_sgItersME=4);
+    declareProperty("sgIetrsManual",m_sgIetrsManual=false);
     declareProperty("fixedRho",m_fixedRho=1.0);
     declareProperty("useFixedRho",m_useFixedRho=false);
     declareProperty("noEigenDecor" ,m_doNotUseAMGMATRIXDECOR=false);
@@ -326,13 +326,18 @@ namespace CP {
       else if (m_SagittaRelease.compare("sagittaBiasDataAll_IntegratedPhi_30_07_18")==0){
         m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
       }
+      // R21 corrections: full run 2 with uniform treatment of 2015+2016, 2017, 2018 data. 
+      // it includes MC phase-space correction, 30x30 bins for good stat, iterations set 4, for minimal RMS
+      else if (m_SagittaRelease.compare("sagittaBiasDataAll_03_02_19")==0){
+        m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4);
+      }
 
       else {
         ATH_MSG_WARNING("Unknown SagittaBiasRelease: Number of sagitta iterations set to 0");
         m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0);
       }
 
-      if(m_sgIetrsMamual){
+      if(m_sgIetrsManual){
         ATH_MSG_INFO("Number of sagitta iterations set to manual CB "<<m_sgItersCB<<" ID "<<m_sgItersID<<" "<<m_sgItersME);
         m_SagittaIterations.clear();
         m_SagittaIterations.push_back(m_sgItersCB);
