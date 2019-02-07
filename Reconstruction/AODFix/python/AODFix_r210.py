@@ -169,10 +169,11 @@ class AODFix_r210(AODFix_base):
             execfile('runargs.AODtoDAOD.py',variables)
           if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
             runNumber = variables['runArgs'].runNumber
-          # 
-          from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
-          EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
-          topSequence+=EventInfoRunNumberFixAlg
+
+          if runNumber != input_mcChanNb:
+            from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
+            EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
+            topSequence+=EventInfoRunNumberFixAlg
 
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging
