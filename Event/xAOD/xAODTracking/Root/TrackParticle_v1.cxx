@@ -507,8 +507,12 @@ namespace xAOD {
       }
 
       return *( acc( *this ) );
-   }
-   
+   } 
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+   
+   void TrackParticle_v1::resetCache(){
+     m_perigeeParameters.reset();
+   }
 
+ 
 } // namespace xAOD
