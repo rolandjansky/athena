@@ -8,7 +8,6 @@
 #define IJETTAGGER_H
 
 #include "PATInterfaces/CorrectionCode.h"
-#include "PATInterfaces/ISystematicsTool.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
 #include "xAODJet/JetContainer.h"
@@ -16,16 +15,7 @@
 
 namespace CP {
 
-  namespace JetTaggerSyst {
-    const static SystematicVariation BkgModelling__1up("JET_JetTagger_BkgModelling__1up");
-    const static SystematicVariation BkgModelling__1down("JET_JetTagger_BkgModelling__1down");
-    //const static SystematicVariation stat__1up("JET_JetTagger_stat__1up");
-    //const static SystematicVariation stat__1down("JET_JetTagger_stat__1down");
-    //const static SystematicVariation syst1__1up("JET_JetTagger_syst1__1up");
-    //const static SystematicVariation syst1__1down("JET_JetTagger_syst1__1down");
-  }
-
-  class IJetTagger : public virtual CP::ISystematicsTool, public virtual IJetSelectorTool {
+  class IJetTagger : public virtual IJetSelectorTool {
 
     ASG_TOOL_INTERFACE( CP::IJetTagger )
 

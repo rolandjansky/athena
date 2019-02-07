@@ -9,7 +9,6 @@
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/IJetTagger.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "PATInterfaces/SystematicsTool.h"
 #include "AsgTools/AsgTool.h"
 
 #include "lwtnn/LightweightNeuralNetwork.hh"
@@ -29,17 +28,7 @@
 #include <vector>
 
 namespace CP{
-  enum JSSWTopTaggerSystApplied {
-    JSSWTopTaggerDNN_NONE,
-    JSSWTopTaggerDNN_BKGMODELLING__1UP,
-    JSSWTopTaggerDNN_BKGMODELLING__1DOWN
-    //JSSWTopTaggerDNN_STAT__1UP,
-    //JSSWTopTaggerDNN_STAT__1DOWN,
-    //JSSWTopTaggerDNN_SYST1__1UP,
-    //JSSWTopTaggerDNN_SYST1__1DOWN
-  };
-
-  class JSSWTopTaggerDNN:  public IJetTagger, public JSSTaggerBase, public SystematicsTool {
+  class JSSWTopTaggerDNN:  public IJetTagger, public JSSTaggerBase {
     ASG_TOOL_CLASS(JSSWTopTaggerDNN, IJetTagger)
 
     public:
@@ -74,13 +63,6 @@ namespace CP{
     std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
     StatusCode finalize();
 
-    // functions for systematic variations
-    bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
-    SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}
-    SystematicSet recommendedSystematics() const {return SystematicsTool::recommendedSystematics();}
-    SystematicCode applySystematicVariation(const SystematicSet& set) {return SystematicsTool::applySystematicVariation(set);}
-    SystematicCode sysApplySystematicVariation(const SystematicSet&);
-    
   private:
     std::string m_name;
     std::string m_APP_NAME;
@@ -121,17 +103,11 @@ namespace CP{
     TF1* m_funcMassCutHigh;
     TF1* m_funcScoreCut;
 
-    JSSWTopTaggerSystApplied m_appliedSystEnum;
-
     // histograms for scale factors
     std::map<std::string, TH2*> m_weightHistograms;
 
-    // histograms for scale factors (systematic varaiations)
+    // histograms for scale factors
     std::map<std::string, TH2*> m_weightHistograms_nominal;
-    std::map<std::string, TH2*> m_weightHistograms_stat__1up;
-    std::map<std::string, TH2*> m_weightHistograms_stat__1down;
-    std::map<std::string, TH2*> m_weightHistograms_syst1__1up;
-    std::map<std::string, TH2*> m_weightHistograms_syst1__1down;
 
     // string for decorating jets with DNN output
     std::string m_decorationName;

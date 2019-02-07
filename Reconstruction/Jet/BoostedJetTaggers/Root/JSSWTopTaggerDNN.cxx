@@ -15,7 +15,6 @@
 namespace CP {
 JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   JSSTaggerBase( name ),
-  m_appliedSystEnum(JSSWTopTaggerDNN_NONE),
   m_name(name),
   m_APP_NAME(APP_NAME),
   m_lwnn(nullptr),
@@ -52,7 +51,6 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
 
     declareProperty( "DSID",             m_DSID = -1);
 
-    //applySystematicVariation(SystematicSet()).ignore();
 }
 
 JSSWTopTaggerDNN::~JSSWTopTaggerDNN() {}
@@ -277,31 +275,13 @@ StatusCode JSSWTopTaggerDNN::initialize(){
       return StatusCode::FAILURE;
     }
 
-    /*
-    // specify systematic variations relevant for this tool
-    if ( !addAffectingSystematic(JSSWTopTaggerSyst::BkgModelling__1up, true) ||
-	 !addAffectingSystematic(JSSWTopTaggerSyst::BkgModelling__1down, true) ||
-         !addAffectingSystematic(JSSWTopTaggerSyst::stat__1up, true) ||
-	 !addAffectingSystematic(JSSWTopTaggerSyst::stat__1down, true) ||
-	 !addAffectingSystematic(JSSWTopTaggerSyst::syst1__1up, true) ||
-	 !addAffectingSystematic(JSSWTopTaggerSyst::syst1__1down, true)) {
-      ATH_MSG_ERROR("failed to set up JSSWTopTagger systematics");
-      return StatusCode::FAILURE;
-    }
-    */
-
     // install histograms for tagging SF
     std::stringstream ss{m_weightFlavors};
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
-      //m_weightHistograms_stat__1up.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_stat__1up").c_str()) ) );
-      //m_weightHistograms_stat__1down.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_stat__1down").c_str()) ) );
-      //m_weightHistograms_syst1__1up.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_syst1__1up").c_str()) ) );
-      //m_weightHistograms_syst1__1down.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor+"_syst1__1down").c_str()) ) );
       std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
     }
-    m_weightHistograms_syst1__1up.insert( std::make_pair( "q", (TH2D*)weightConfig->Get((m_weightHistogramName+"_q_BkgModelling").c_str()) ) );
     m_weightHistograms = m_weightHistograms_nominal;
   }
 
@@ -605,53 +585,6 @@ StatusCode JSSWTopTaggerDNN::decorateTruthLabel(const xAOD::Jet& jet, const xAOD
 StatusCode JSSWTopTaggerDNN::finalize(){
     // Delete or clear anything
     return StatusCode::SUCCESS;
-}
-
-SystematicCode JSSWTopTaggerDNN::sysApplySystematicVariation(const SystematicSet& systSet){
-    ATH_MSG_DEBUG( "Applying systematic variation by weight" );
-
-    // by default no systematics are applied
-    m_appliedSystEnum = JSSWTopTaggerDNN_NONE;
-    m_weightHistograms=m_weightHistograms_nominal;
-
-    if (systSet.size()==0) {
-      ATH_MSG_DEBUG("No affecting systematics received.");
-      return SystematicCode::Ok;
-    }
-    else if (systSet.size()>1) {
-      ATH_MSG_WARNING("Tool does not support multiple systematics, returning unsupported" );
-      return CP::SystematicCode::Unsupported;
-    }
-    SystematicVariation systVar = *systSet.begin();
-    if (systVar == SystematicVariation("")){
-      m_appliedSystEnum = JSSWTopTaggerDNN_NONE;
-      m_weightHistograms=m_weightHistograms_nominal;
-    }
-    /*
-    else if ( systVar == JSSWTopTaggerSyst::stat__1up ){
-      m_appliedSystEnum = JSSWTopTaggerDNN_STAT__1UP;
-      m_weightHistograms=m_weightHistograms_stat__1up;
-    }
-    else if ( systVar == JSSWTopTaggerSyst::stat__1down ){
-      m_appliedSystEnum = JSSWTopTaggerDNN_STAT__1DOWN;
-      m_weightHistograms=m_weightHistograms_stat__1down;
-    }
-    else if ( systVar == JSSWTopTaggerSyst::syst1__1up ){
-      m_appliedSystEnum = JSSWTopTaggerDNN_SYST1__1UP;
-      m_weightHistograms=m_weightHistograms_syst1__1up;
-    }
-    else if ( systVar == JSSWTopTaggerSyst::syst1__1down ){
-      m_appliedSystEnum = JSSWTopTaggerDNN_SYST1__1DOWN;
-      m_weightHistograms=m_weightHistograms_syst1__1down;
-    }
-    */
-    else {
-      ATH_MSG_WARNING("unsupported systematic applied");
-      return SystematicCode::Unsupported;
-    }
-
-    ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum);
-    return SystematicCode::Ok;
 }
 
 }/*namespace CP*/

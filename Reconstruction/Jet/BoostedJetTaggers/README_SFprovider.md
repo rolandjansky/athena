@@ -2,7 +2,7 @@ Tagging efficiency SF provider
 ===================
 
 Tagging efficiency SF is decorated to the jet.
-Currently, development is ongoing only for DNN top tagger.
+[Note] Currently, development is ongoing only for DNN top tagger.
 
 
 Step 1: Decprate the truth labeling
@@ -82,6 +82,16 @@ An example is found in share/JSSWTopTaggingDNN/JSSDNNTagger_AntiKt10LCTopoTrimme
 Systematic uncertainties
 ===================
 
-We plan to provide the systematic uncertainties using this tool.
-IJetTagger interface class inherits ISystematicTool class.
+We plan to provide the systematic uncertainties using JetUncertainties tool.
 [Not ready yet]
+
+
+
+
+Test the tool
+===================
+To run the script to apply SF to tagged jets,
+```
+$ test_JSSWTopTaggerDNN -f your.test.DAOD.root
+```
+you can find output_JSSWTopTaggerDNN.root in your directory.
