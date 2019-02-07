@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopObjectSelectionTools/PhotonMC16.h"
@@ -12,23 +12,26 @@
 
 namespace top {
 
-PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation) :
+  PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation, bool usePhotonShowerShapeVariables) :
   m_ptcut(ptcut),
   m_etamax(etamax),
   m_photon_selection("DFCommonPhotonsIsEMTight"),
   m_loose_photon_selection("DFCommonPhotonsIsEMLoose"),
-  m_isolation(isolation) {
+  m_isolation(isolation),
+  m_usePhotonShowerShapeVariables(usePhotonShowerShapeVariables) {
 }
 
 PhotonMC16::PhotonMC16(double ptcut, double etamax,
                        const std::string& tightID,
                        const std::string& looseID,
-                       IsolationBase* isolation) :
+                       IsolationBase* isolation,
+		       bool usePhotonShowerShapeVariables) :
   m_ptcut(ptcut),
   m_etamax(etamax),
   m_photon_selection(tightID),
   m_loose_photon_selection(looseID),
-  m_isolation(isolation) {
+  m_isolation(isolation),
+  m_usePhotonShowerShapeVariables(usePhotonShowerShapeVariables) {
   // Make a map of shortcuts e.g "Tight = DFCommonPhotonsIsEMTight"
   std::map<std::string, std::string> id_map;
   id_map["Tight"] = "DFCommonPhotonsIsEMTight";
@@ -95,12 +98,20 @@ bool PhotonMC16::passSelectionNoIsolation(const xAOD::Photon& ph,
   // <tom.neep@cern.ch>: This is madness!! I *think* this is the right way
   // to do this but there should really be a helper function supplied by egamma!
   // <iconnell@cern.ch>: Updating the cleaning for R21, using similar options...
-  if( (ph.OQ()&1073741824)!=0 ||
-      ( ( ph.OQ()&134217728)!=0 &&
-	( ph.showerShapeValue(xAOD::EgammaParameters::Reta) >0.98
-	  || ph.showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
-	  || (ph.OQ()&67108864)!=0) ) ) 
-    return false;
+  if (m_usePhotonShowerShapeVariables) {
+    try {
+      if( (ph.OQ()&1073741824)!=0 ||
+	  ( ( ph.OQ()&134217728)!=0 &&
+	    ( ph.showerShapeValue(xAOD::EgammaParameters::Reta) >0.98
+	      || ph.showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
+	      || (ph.OQ()&67108864)!=0) ) )
+	return false;
+    }
+    catch (const SG::ExcBadAuxVar &e) {
+      std::cout << "WARNING - Didn't find the necessary photon shower shapes variables for photon cleaning! This might be a derivation issue, skipping from now on." << std::endl;
+      m_usePhotonShowerShapeVariables = false;
+    }
+  }
 
   return true;
 }
