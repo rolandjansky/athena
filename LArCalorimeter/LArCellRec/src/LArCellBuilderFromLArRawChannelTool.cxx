@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,7 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class (type, name, parent),
    m_rawChannelsKey("LArRawChannels"),
    m_addDeadOTX(true),
    m_initialDataPoolSize(-1),
@@ -42,7 +42,6 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
    m_caloCID(nullptr),
    m_missingFebKey("LArBadFeb")
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
   //key of input raw channel
   declareProperty("RawChannelsName",m_rawChannelsKey,"Name of input container");
   // bad channel tool
@@ -105,14 +104,16 @@ StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
 
 
 // ========================================================================================== //
-StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theCellContainer) {
- 
+StatusCode
+LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContainer,
+                                              const EventContext& ctx) const
+{
   if (theCellContainer->ownPolicy() == SG::OWN_ELEMENTS) {
     ATH_MSG_ERROR( "Called with a CaloCellContainer with wrong ownership policy! Need a VIEW container!"  );
     return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<LArRawChannelContainer> rawColl(m_rawChannelsKey);
+  SG::ReadHandle<LArRawChannelContainer> rawColl(m_rawChannelsKey, ctx);
   if(!rawColl.isValid()) { 
     ATH_MSG_ERROR( " Can not retrieve LArRawChannelContainer: "
                    << m_rawChannelsKey.key()  );
@@ -136,9 +137,9 @@ StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theC
     theCellContainer->clear();
   }
 
-  DataPool<LArCell> pool;
+  DataPool<LArCell> pool (ctx);
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*cablingHdl;
 
   
@@ -181,7 +182,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theC
     unsigned nMissingButPresent=0;
 
   if (m_addDeadOTX) {
-    SG::ReadCondHandle<LArBadFebCont> missingFebHdl(m_missingFebKey);
+    SG::ReadCondHandle<LArBadFebCont> missingFebHdl(m_missingFebKey, ctx);
     const LArBadFebCont::BadChanVec& allMissingFebs=(*missingFebHdl)->fullCont();
 
     for (const LArBadFebCont::BadChanEntry& it : allMissingFebs) {

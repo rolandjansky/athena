@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -396,13 +396,11 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
 
   // Looping over cell container tools... this could be used for calibrations...
   
-  std::vector<ICaloCellMakerTool*> ::const_iterator itrcont=m_containerTools.begin();
-  std::vector<ICaloCellMakerTool*> ::const_iterator endcont=m_containerTools.end();
-  
   index=0;
-  for (; itrcont!=endcont; ++itrcont) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  for (const ICaloCellMakerTool* tool : m_containerTools) {
     if (timerSvc()) m_timer[2+index]->start();
-    if ( (*itrcont)->process(m_caloCellContainer).isFailure() ) {
+    if ( tool->process (m_caloCellContainer, ctx).isFailure() ) {
       //msg() << MSG::ERROR << "Error executing tool " << m_containerToolNames[index] << endmsg;
       msg() << MSG::ERROR << "Error executing container tool " << endmsg;
     } 

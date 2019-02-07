@@ -115,7 +115,8 @@ class TileCellBuilder
     virtual StatusCode finalize() override;
 
     /// method to process all raw channels and store them in container
-    virtual StatusCode process(CaloCellContainer* theCellContainer) override;
+    virtual StatusCode process (CaloCellContainer* theCellContainer,
+                                const EventContext& ctx) const override;
 
     void reset(bool fullSizeCont, bool printReset = true); //!< Method to reset the options of the TileCellContainer
 

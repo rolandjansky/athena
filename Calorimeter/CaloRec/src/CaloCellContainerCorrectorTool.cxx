@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -18,7 +18,6 @@ PURPOSE:  Apply cell correction to CaloCellContainer
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -29,10 +28,9 @@ CaloCellContainerCorrectorTool::CaloCellContainerCorrectorTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
    m_caloSelection(false)
 {
-  declareInterface<ICaloCellMakerTool>(this); 
   declareProperty("CaloNums",m_caloNums);
   declareProperty("CellCorrectionToolNames",m_cellCorrectionTools);
   m_caloNums.clear();
@@ -87,14 +85,16 @@ StatusCode CaloCellContainerCorrectorTool::initialize() {
 
 }
 
-StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
+StatusCode
+CaloCellContainerCorrectorTool::process (CaloCellContainer* theCont,
+                                         const EventContext& ctx) const
 {
   if (!m_caloSelection) {
     // no selection mode (faster)
     CaloCellContainer::iterator itrCellBeg=theCont->begin();
     CaloCellContainer::iterator itrCellEnd=theCont->end();
     
-    StatusCode sc = processOnCellIterators(itrCellBeg, itrCellEnd );
+    StatusCode sc = processOnCellIterators(itrCellBeg, itrCellEnd, ctx );
     if (sc.isFailure()) 
       msg(MSG::WARNING) << "Failure from processOnCellIterators" << endmsg ;
   }else {
@@ -113,7 +113,7 @@ StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
 	    << *itrCalo << endmsg ;
       } else 
       {
-	StatusCode sc=processOnCellIterators(itrCellBeg, itrCellEnd );
+	StatusCode sc=processOnCellIterators(itrCellBeg, itrCellEnd, ctx );
 	if (sc.isFailure()) 
 	  msg(MSG::WARNING) << "Failure from processOnCellIterators for calo "
 	      << static_cast<int> (caloNum)
@@ -131,10 +131,12 @@ StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
   return StatusCode::SUCCESS ;
 }
 
-StatusCode CaloCellContainerCorrectorTool::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
-{
-  const EventContext& ctx = Gaudi::Hive::currentContext();
 
+StatusCode
+CaloCellContainerCorrectorTool::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg,
+                                                       const CaloCellContainer::iterator & itrCellEnd,
+                                                       const EventContext& ctx) const
+{
   // not clear what s the best way to do the loop
   CaloCellContainer::iterator itrCell;
 

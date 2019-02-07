@@ -268,9 +268,9 @@ StatusCode TileCellBuilder::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
+StatusCode TileCellBuilder::process (CaloCellContainer* theCellContainer,
+                                     const EventContext& ctx) const
+{
   //**
   //* Get TileRawChannels
   //**

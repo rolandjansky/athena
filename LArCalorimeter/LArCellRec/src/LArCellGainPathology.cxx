@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -34,12 +34,10 @@ LArCellGainPathology::LArCellGainPathology(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class (type, name, parent),
     m_calo_id(nullptr),
     m_onlineID(nullptr)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
-
 }
 
 
@@ -66,7 +64,8 @@ StatusCode LArCellGainPathology::finalize()
    return StatusCode::SUCCESS;
 }
 
-StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
+StatusCode LArCellGainPathology::process (CaloCellContainer* theCont,
+                                          const EventContext& /*ctx*/) const
 {
   ATH_MSG_DEBUG (" in  LArCellGainPathology::process ");
 
@@ -98,7 +97,7 @@ StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
   return StatusCode::SUCCESS;
 }
 
-void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2,const LArOnOffIdMapping* cabling)
+void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2,const LArOnOffIdMapping* cabling) const
 {
 
   CaloCell* cell1 = this->GetCell(theCont, id1,cabling);
@@ -133,7 +132,7 @@ void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifi
 
 }
 
-CaloCell* LArCellGainPathology::GetCell(CaloCellContainer* theCont, HWIdentifier id,const LArOnOffIdMapping* cabling)
+CaloCell* LArCellGainPathology::GetCell(CaloCellContainer* theCont, HWIdentifier id,const LArOnOffIdMapping* cabling) const
 {
   CaloCell* aCell =0;
   if (cabling->isOnlineConnected(id)) {
