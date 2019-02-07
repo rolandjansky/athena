@@ -121,7 +121,6 @@ namespace Analysis {
     fill_jetfitter(inputs, BTag);    // fill JetFitter variables
     fill_sv0(inputs, BTag);          // fill sv0 variables
     fill_sv1(inputs, BTag);          // fill sv1 variables
-    //fill_mvb(inputs, jetToTag, BTag);// fill MVb variables
     fill_mv2cl100(inputs, BTag); // fill MV2cl100 variables
     fill_trkSum(inputs,BTag);
     fill_softmuon(inputs,BTag);
@@ -565,100 +564,6 @@ namespace Analysis {
     inputs[btagvar::SV1_SIG3D] = sv1_sig3d;
     inputs[btagvar::SV1_DR]    = sv1_dR;
     inputs[btagvar::SV1_DISTMATLAY]    = sv1_distmatlay;
-  }
-
-  void MultivariateTagManager::fill_mvb(var_map& inputs,xAOD::Jet& jet, xAOD::BTagging* BTag) const {
-    // Generating MVb variables (as in MV2Tag.cxx)
-    std::vector< ElementLink< xAOD::TrackParticleContainer > > IP3DTracks;
-    bool trksOK= BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (m_ip3d_infosource, "TrackParticleLinks", IP3DTracks );
-
-    // TODO: improve this part?
-    std::vector<float> vectD0, vectD0Signi, vectZ0, vectZ0Signi;
-    vectD0.clear(), vectD0Signi.clear(), vectZ0.clear(), vectZ0Signi.clear();
-
-    trksOK &= BTag->variable< std::vector<float> > ("IP3D", "valD0wrtPVofTracks", vectD0     );
-    trksOK &= BTag->variable< std::vector<float> > ("IP3D", "sigD0wrtPVofTracks", vectD0Signi);
-    trksOK &= BTag->variable< std::vector<float> > ("IP3D", "valZ0wrtPVofTracks", vectZ0     );
-    trksOK &= BTag->variable< std::vector<float> > ("IP3D", "sigZ0wrtPVofTracks", vectZ0Signi);
-
-    if (vectD0.size() and vectD0Signi.size() and vectZ0.size() and vectZ0Signi.size()) {
-      trksOK &= IP3DTracks.size() == vectD0.size();
-      trksOK &= IP3DTracks.size() == vectZ0.size();
-      trksOK &= IP3DTracks.size() == vectD0Signi.size();
-      trksOK &= IP3DTracks.size() == vectZ0Signi.size();
-    }
-
-    int ntrks = IP3DTracks.size();
-    float width = NAN;
-    int   n_trk_d0cut = INT_MISSING;
-    float trk3_d0sig = NAN;
-    float trk3_z0sig = NAN;
-    float sv_scaled_efc = NAN;
-    float jf_scaled_efc = NAN;
-
-    if (trksOK) {
-      ATH_MSG_VERBOSE("#BTAG# MV2: calculating MVb inputs.");
-
-      float sum_pt = NAN, sum_pt_dr = NAN;
-
-      std::vector<std::pair<float, float> > trk_d0_z0;
-      trk_d0_z0.reserve(IP3DTracks.size());
-
-      unsigned trkIndex=0;
-      for(auto trkIter = IP3DTracks.begin(); trkIter != IP3DTracks.end(); ++trkIter) {
-  const xAOD::TrackParticle* aTemp = **trkIter;
-  TLorentzVector trk;
-  trk.SetPtEtaPhiM(aTemp->pt(), aTemp->eta(), aTemp->phi(), 0.);
-
-  // no need for a dedicated selection here, the tracks are already
-  // selected by the IP3D algorithm
-  const float d0sig = vectD0Signi.at(trkIndex);
-  const float z0sig = vectZ0Signi.at(trkIndex);
-  trkIndex++;
-
-  if (std::fabs(d0sig) > 1.8){
-    if(n_trk_d0cut==INT_MISSING) n_trk_d0cut = 0;
-          n_trk_d0cut++;
-        }
-
-  // track width components
-  if (std::isnan(sum_pt) && std::isnan(sum_pt_dr)) {
-    sum_pt = 0., sum_pt_dr = 0.;
-  }
-
-
-        sum_pt += trk.Pt();
-  const float dRtoJet = trk.DeltaR(jet.p4());
-  sum_pt_dr += dRtoJet * trk.Pt();
-  // for 3rd higest d0/z0 significance
-  trk_d0_z0.push_back(std::make_pair(d0sig, z0sig));
-      } //end of trk loop
-
-      // sort by highest signed d0 sig
-      std::sort(trk_d0_z0.begin(), trk_d0_z0.end());
-      std::reverse(trk_d0_z0.begin(), trk_d0_z0.end());
-
-      // look up some variables from JF and SV1
-      double sv1_efrc = inputs.at(btagvar::SV1_EFRC);
-      double sv1_ntrkv = inputs.at(btagvar::SV1_NTRKV);
-      double jf_nvtx1t = inputs.at(btagvar::JF_NVTX1T);
-      double jf_ntrkv = inputs.at(btagvar::JF_NTRKV);
-      double jf_efrc = inputs.at(btagvar::JF_EFRC);
-
-      //Assign MVb variables
-      if (sum_pt > 0) width = sum_pt_dr / sum_pt;
-      if (trk_d0_z0.size() > 2) trk3_d0sig = trk_d0_z0[2].first;
-      if (trk_d0_z0.size() > 2) trk3_z0sig = trk_d0_z0[2].second;
-      if (sv1_ntrkv>0) sv_scaled_efc  =  sv1_efrc * (static_cast<float>(ntrks) / sv1_ntrkv);
-      if (jf_ntrkv + jf_nvtx1t>0) jf_scaled_efc  =  jf_efrc * (static_cast<float>(ntrks) / (jf_ntrkv + jf_nvtx1t));
-    }
-
-    inputs[btagvar::JET_WIDTH]  = width;
-    inputs[btagvar::JET_N_TRK3_SIGD0CUT]  = n_trk_d0cut;
-    inputs[btagvar::JET_TRK3_D0SIG]  = trk3_d0sig;
-    inputs[btagvar::JET_TRK3_Z0SIG]  = trk3_z0sig;
-    inputs[btagvar::JET_SV_SCALED_EFC]  = sv_scaled_efc;
-    inputs[btagvar::JET_JF_SCALED_EFC]  = jf_scaled_efc;
   }
 
   void MultivariateTagManager::fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) const {
