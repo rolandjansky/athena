@@ -990,6 +990,7 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
 | | |-CscContainerCacheKey              = 'StoreGateSvc+'
+| | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
@@ -1192,45 +1193,19 @@ Py:Athena            INFO Print Config
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |=/***** Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool *****
-| | |-AuditFinalize                    = False
-| | |-AuditInitialize                  = False
-| | |-AuditReinitialize                = False
-| | |-AuditRestart                     = False
-| | |-AuditStart                       = False
-| | |-AuditStop                        = False
-| | |-AuditTools                       = False
-| | |-CSCHashIdOffset                  = 22000
-| | |-DecodeData                       = True
-| | |-MonitorService                   = 'MonitorSvc'
-| | |-OutputCollection                 = 'StoreGateSvc+CSC_Measurements'
-| | |-OutputLevel                      = 0
-| | |-RDOContainer                     = 'StoreGateSvc+CSCRDO'
-| | |=/***** Private AlgTool Muon::CSC_RawDataProviderTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool *****
-| | | |-AuditFinalize                     = False
-| | | |-AuditInitialize                   = False
-| | | |-AuditReinitialize                 = False
-| | | |-AuditRestart                      = False
-| | | |-AuditStart                        = False
-| | | |-AuditStop                         = False
-| | | |-AuditTools                        = False
-| | | |-CscContainerCacheKey              = 'StoreGateSvc+'
-| | | |-MonitorService                    = 'MonitorSvc'
-| | | |-OutputLevel                       = 0
-| | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
-| | | |=/***** Private AlgTool Muon::CscROD_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool.CscROD_Decoder *****
-| | | | |-AuditFinalize                  = False
-| | | | |-AuditInitialize                = False
-| | | | |-AuditReinitialize              = False
-| | | | |-AuditRestart                   = False
-| | | | |-AuditStart                     = False
-| | | | |-AuditStop                      = False
-| | | | |-AuditTools                     = False
-| | | | |-IsCosmics                      = False
-| | | | |-IsOldCosmics                   = False
-| | | | |-MonitorService                 = 'MonitorSvc'
-| | | | |-OutputLevel                    = 0
-| | | | \----- (End of Private AlgTool Muon::CscROD_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool.CscROD_Decoder) -----
-| | | \----- (End of Private AlgTool Muon::CSC_RawDataProviderTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool) -----
+| | |-AuditFinalize                  = False
+| | |-AuditInitialize                = False
+| | |-AuditReinitialize              = False
+| | |-AuditRestart                   = False
+| | |-AuditStart                     = False
+| | |-AuditStop                      = False
+| | |-AuditTools                     = False
+| | |-CSCHashIdOffset                = 22000
+| | |-DecodeData                     = True
+| | |-MonitorService                 = 'MonitorSvc'
+| | |-OutputCollection               = 'StoreGateSvc+CSC_Measurements'
+| | |-OutputLevel                    = 0
+| | |-RDOContainer                   = 'StoreGateSvc+CSCRDO'
 | | |=/***** Private AlgTool CscCalibTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscCalibTool *******
 | | | |-AuditFinalize                   = False
 | | | |-AuditInitialize                 = False
@@ -1654,14 +1629,8 @@ MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
-CscRdoToCscPrep...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
-CscRdoToCscPrep...   INFO  Tool = CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
-CscRdoToCscPrep...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
-CscRdoToCscPrep...   INFO The Muon Geometry version is R.08.01
-CscRdoToCscPrep...   INFO initialize() successful in CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
-CscRdoToCscPrep...WARNING Implicit circular data dependency detected for id  ( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' ) 
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
 EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
