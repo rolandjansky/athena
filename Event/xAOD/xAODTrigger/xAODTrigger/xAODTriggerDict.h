@@ -66,6 +66,7 @@
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 #include "xAODTrigger/versions/TrigCompositeContainer_v1.h"
 #include "xAODTrigger/versions/TrigCompositeAuxContainer_v1.h"
+#include "xAODTrigger/versions/TrigCompositeAuxContainer_v2.h"
 
 #include "xAODTrigger/versions/BunchConfKey_v1.h"
 #include "xAODTrigger/versions/BunchConfContainer_v1.h"

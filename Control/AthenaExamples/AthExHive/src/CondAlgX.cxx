@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondAlgX.h"
@@ -11,9 +11,6 @@
 
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <thread>
 #include <chrono>
@@ -66,21 +63,21 @@ StatusCode CondAlgX::finalize() {
 StatusCode CondAlgX::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
-  SG::ReadHandle<EventInfo> evt( m_evt );
+  SG::ReadHandle<xAOD::EventInfo> evt( m_evt );
   if (!evt.isValid()) {
     ATH_MSG_ERROR ("Could not retrieve EventInfo");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("   EventInfo:  r: " << evt->event_ID()->run_number()
-                << " e: " << evt->event_ID()->event_number() );
+  ATH_MSG_DEBUG("   EventInfo:  r: " << evt->runNumber()
+                << " e: " << evt->eventNumber() );
 
 
   SG::WriteCondHandle<CondDataObj> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
-  if (evt->event_ID()->event_number() == 10) {
+  if (evt->eventNumber() == 10) {
       std::this_thread::sleep_for(std::chrono::milliseconds( 500 ));
   }
 

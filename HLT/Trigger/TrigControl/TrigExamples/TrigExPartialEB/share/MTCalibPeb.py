@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 ################################################################################
@@ -28,14 +28,24 @@ svcMgr.ByteStreamCnvSvc.GetDetectorMask = True
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "ROIB::RoIBResult" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 
+# Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
+# This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+svcMgr += LVL1ConfigSvc()
+
+# Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+
 # Initialise L1 decoding tools
 from L1Decoder.L1DecoderConf import CTPUnpackingTool
 ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains = True)
 # Can add other tools here if needed
 
-# Define the "menu"
-chainCTPMap = {"HLT_MTCalibPeb1": "L1_NIML1A",
-               "HLT_MTCalibPeb2": "L1_NIML1A"}
+# Define the "menu" - L1 items do not matter if we set ForceEnableAllChains = True,
+# but they have to be defined in the L1 menu xml
+chainCTPMap = {"HLT_MTCalibPeb1": "L1_RD0_FILLED",
+               "HLT_MTCalibPeb2": "L1_RD0_FILLED"}
 
 # Schedule the L1Decoder algo with the above tools
 from L1Decoder.L1DecoderConf import L1Decoder

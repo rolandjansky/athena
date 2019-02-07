@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LArBadFebMaskingTool_H
@@ -52,7 +52,8 @@ public:
 
   /** update theCellContainer, masking Feb with errors
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
+  virtual StatusCode process (CaloCellContainer * theCellContainer,
+                              const EventContext& ctx) const override;
 
  private:
 

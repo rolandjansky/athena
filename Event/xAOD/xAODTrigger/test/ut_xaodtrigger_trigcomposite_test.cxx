@@ -11,10 +11,12 @@
 // EDM include(s):
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
+#include "AthContainers/tools/copyAuxStoreThinned.h"
 
 // Local include(s):
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "xAODTrigger/versions/TrigCompositeAuxContainer_v1.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 
 /// Helper macro for testing the code
@@ -43,21 +45,12 @@ std::ostream& operator<< ( std::ostream& out, const std::vector< T >& vec ) {
    return out;
 }
 
-const unsigned uintTestConst = (1<<(sizeof(unsigned)*4-1)) + 41;
-
 int populateObject(xAOD::TrigComposite* obj) {
-   // Set some simple properties on it:
    obj->setName( "TestObj" );
    obj->setDetail( "IntValue", 12 );
-   obj->setDetail( "UnsignedIntValue", uintTestConst );
    obj->setDetail( "FloatValue", 3.14f );
    obj->setDetail( "IntVecValue", std::vector< int >( { 1, 2, 3 } ) );
-   obj->setDetail( "UnsignedIntVecValue", std::vector< unsigned int >( { uintTestConst, 2, 3 } ) );
-   obj->setDetail( "UnsignedShortVecValueEven", std::vector< uint16_t >( { 5, 10, 50, 100 } ) ); // Packs into two ints
-   obj->setDetail( "UnsignedShortVecValueOdd", std::vector< uint16_t >( { 1, 1, 3, 4, 7 } ) ); // Packs into three ints
    obj->setDetail( "FloatVecValue", std::vector< float >( { 1.23, 2.34 } ) );
-   obj->setDetail( "StringValue", std::string("I am a string"));
-   obj->setDetail( "StringVecValue", std::vector< std::string >( {"Hello", "I", "am", "a", "string", "vector"} ) );
 
    std::cout << "Set detail ok." << std::endl;
 
@@ -83,16 +76,9 @@ int populateObject(xAOD::TrigComposite* obj) {
 
 int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->hasDetail<int>("IntValue") );
-   SIMPLE_ASSERT( obj->hasDetail<unsigned int>("UnsignedIntValue") );
    SIMPLE_ASSERT( obj->hasDetail<float>("FloatValue") );
    SIMPLE_ASSERT( obj->hasDetail<std::vector<int> >("IntVecValue") );
-   SIMPLE_ASSERT( obj->hasDetail<std::vector<unsigned int> >("UnsignedIntVecValue") );
-   // These should work.... but they do not.... still being investigated
-   // SIMPLE_ASSERT( obj->hasDetail<std::vector<uint16_t> >("UnsignedShortVecValueEven") );
-   // SIMPLE_ASSERT( obj->hasDetail<std::vector<uint16_t> >("UnsignedShortVecValueOdd") );
    SIMPLE_ASSERT( obj->hasDetail<std::vector<float> >("FloatVecValue") );
-   // SIMPLE_ASSERT( obj->hasDetail<std::string>("StringValue") );
-   // SIMPLE_ASSERT( obj->hasDetail<std::vector<std::string> >("StringVecValue") );
 
    std::cout << "Has detail ok." << std::endl;
 
@@ -103,10 +89,6 @@ int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->getDetail( "IntValue", intValue ) );
    SIMPLE_ASSERT( intValue == 12 );
 
-   unsigned int unsignedIntValue = 0; // we want to use also the sin bit
-   SIMPLE_ASSERT( obj->getDetail( "UnsignedIntValue", unsignedIntValue ) );
-   SIMPLE_ASSERT( unsignedIntValue == uintTestConst );
-
    float floatValue = 0;
    SIMPLE_ASSERT( obj->getDetail( "FloatValue", floatValue ) );
    SIMPLE_ASSERT( std::abs( floatValue - 3.14 ) < 0.001 );
@@ -115,50 +97,19 @@ int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->getDetail( "IntVecValue", intVector ) );
    SIMPLE_ASSERT( intVector == std::vector< int >( { 1, 2, 3 } ) );
 
-   std::vector<unsigned int> unsignedIntVector;
-   SIMPLE_ASSERT( obj->getDetail("UnsignedIntVecValue", unsignedIntVector) );
-   SIMPLE_ASSERT( unsignedIntVector == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
-
-   std::vector<uint16_t> unsignedShortVectorEven;
-   SIMPLE_ASSERT( obj->getDetail("UnsignedShortVecValueEven", unsignedShortVectorEven) );
-   std::cout << "UnsignedShortVecValueEven = ";
-   for (auto v : unsignedShortVectorEven) std::cout << v << " ";
-   std::cout << std::endl;
-   SIMPLE_ASSERT( unsignedShortVectorEven == std::vector<uint16_t>( { 5, 10, 50, 100 } ) );
-
-   std::vector<uint16_t> unsignedShortVectorOdd;
-   SIMPLE_ASSERT( obj->getDetail("UnsignedShortVecValueOdd", unsignedShortVectorOdd) );
-   std::cout << "UnsignedShortVecValueOdd = ";
-   for (auto v : unsignedShortVectorOdd) std::cout << v << " ";
-   std::cout << std::endl;
-   SIMPLE_ASSERT( unsignedShortVectorOdd == std::vector<uint16_t>( { 1, 1, 3, 4, 7 } ) );
-
    std::vector< float > floatVector;
    SIMPLE_ASSERT( obj->getDetail( "FloatVecValue", floatVector ) );
    // Simply just print the last one:
    std::cout << "FloatVecValue = " << floatVector << std::endl;
 
-   std::string stringValue;
-   SIMPLE_ASSERT( obj->getDetail("StringValue", stringValue) );
-   SIMPLE_ASSERT( stringValue == std::string("I am a string") );
-
-   std::vector<std::string> stringVecValue;
-   SIMPLE_ASSERT( obj->getDetail("StringVecValue", stringVecValue) );
-   SIMPLE_ASSERT( stringVecValue == std::vector< std::string >( {"Hello", "I", "am", "a", "string", "vector"} ) );
-
    int intValue2 = obj->getDetail<int>("IntValue");
    SIMPLE_ASSERT( intValue2 == 12 );
-   unsigned int unsignedIntValue2 = obj->getDetail<unsigned int>("UnsignedIntValue");
-   SIMPLE_ASSERT( unsignedIntValue2 == uintTestConst);
    float floatValue2 = obj->getDetail<float>("FloatValue");
    SIMPLE_ASSERT( std::abs( floatValue2 - 3.14 ) < 0.001 );
    std::vector<int> intVector2 =  obj->getDetail<std::vector<int>>( "IntVecValue");
    SIMPLE_ASSERT( intVector2 == std::vector< int >( { 1, 2, 3 } ) );
    std::vector< float > floatVector2 = obj->getDetail<std::vector<float>>( "FloatVecValue");
    std::cout << "Simple getDetail API ok." << std::endl;
-
-   std::vector<unsigned int> unsignedIntVector2 = obj->getDetail<std::vector<unsigned int>>("UnsignedIntVecValue");
-   SIMPLE_ASSERT( unsignedIntVector2 == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
 
    try {
      obj->getDetail<int>("NonExistent");
@@ -242,6 +193,22 @@ int main() {
    c2.push_back( obj2 );
    *obj2 = *obj;
 
+   // Testing the v1 -> v2 EDM migration, change in Aux base class
+   xAOD::TrigCompositeAuxContainer_v1 aux_v1;
+   xAOD::TrigCompositeContainer c_edm_a;
+   c_edm_a.setStore( &aux_v1 );
+   xAOD::TrigComposite* obj_edm_a = new xAOD::TrigComposite();
+   c_edm_a.push_back(obj_edm_a); // Now has an old-style store
+   populateObject(obj_edm_a);
+   // Creating a new object in a new store
+   xAOD::TrigCompositeAuxContainer aux_vlatest;
+   xAOD::TrigCompositeContainer c_edm_b;
+   c_edm_b.setStore( &aux_vlatest );
+   xAOD::TrigComposite* obj_edm_b = new xAOD::TrigComposite();
+   c_edm_b.push_back(obj_edm_b);
+   // Copy
+   SG::copyAuxStoreThinned( aux_v1, aux_vlatest, 0 ); 
+
    std::cout << "Testing initial TC object" << std::endl;
    SIMPLE_ASSERT( testObject(obj) == 0 );
 
@@ -253,6 +220,9 @@ int main() {
 
    std::cout << "Testing assignment operator (object with store)" << std::endl;
    SIMPLE_ASSERT( testObject(obj2) == 0 );
+
+   std::cout << "Testing assignment operator (EDM migration - new aux)" << std::endl;
+   SIMPLE_ASSERT( testObject(obj_edm_b) == 0 );
 
    // Make new objects to test the link copy
    xAOD::TrigComposite* fullCopy = new xAOD::TrigComposite();

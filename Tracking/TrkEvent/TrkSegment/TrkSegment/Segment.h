@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,8 +78,12 @@ class FitQuality;
       Segment();
       /** Copy Constructor */
       Segment(const Segment& seg);
+      /** Move Constructor */   
+      Segment(Segment&&);      
       /** Assignment operator */
       Segment& operator=(const Segment& seg);
+      /** Move assignment operator*/
+      Segment& operator=(Segment&&);
 
       /** Constructor with parameters */
       Segment( const LocalParameters& locpars,
@@ -100,8 +104,7 @@ class FitQuality;
 
       const DataVector<const Trk::MeasurementBase>& containedMeasurementsDataVector() const;
 
-      bool hasContainedMeasurements() const;
-
+      bool hasContainedMeasurements() const; 
       /** Return the number of contained Trk::MeasurementBase (s)*/
       unsigned int numberOfMeasurementBases() const ;
 
@@ -125,21 +128,21 @@ class FitQuality;
       friend class ::SegmentCnv_p1;
       
       /** The fit quality of the Segment */
-      FitQuality*                           m_fitQuality;
-      
+      FitQuality* m_fitQuality;  
+       
       /** The vector of contained (generic) Trk::MeasurementBase objects */
-      DataVector<const MeasurementBase>*    m_containedMeasBases;
-     
+      DataVector<const MeasurementBase>* m_containedMeasBases;   
+  
       /** number of objects of this type in memory */
-      static unsigned int                   s_numberOfInstantiations;
+      static unsigned int  s_numberOfInstantiations;
 
       /** segment author */
-      Author                         m_author;
+      Author m_author;
 };
 
 inline const FitQuality* Segment::fitQuality() const 
 { 
-    return m_fitQuality; 
+    return m_fitQuality;  
 }
 
 inline const std::vector<const MeasurementBase*>& Segment::containedMeasurements() const

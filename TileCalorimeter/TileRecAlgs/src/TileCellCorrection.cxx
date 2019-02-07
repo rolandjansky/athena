@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -177,7 +177,7 @@ StatusCode TileCellCorrection::finalize() {
 /****************************************************************************
  * Implementation of Incident listener
  ****************************************************************************/
-void TileCellCorrection::handle(const Incident& /* inc */) {
+void TileCellCorrection::handle(const Incident& inc ) {
 
   bool verbose = msgLvl(MSG::VERBOSE);
 
@@ -458,7 +458,7 @@ void TileCellCorrection::handle(const Incident& /* inc */) {
       msg(MSG::VERBOSE) << "Before cell masking total energy = " << energy << endmsg;
     }
 
-    if (m_tileCellMaskingTool->process((CaloCellContainer *) caloCellContainer).isFailure()) {
+    if (m_tileCellMaskingTool->process((CaloCellContainer *) caloCellContainer, inc.context()).isFailure()) {
       ATH_MSG_ERROR( " failed to run TileCellMaskingTool " );
     }
   }
@@ -470,7 +470,7 @@ void TileCellCorrection::handle(const Incident& /* inc */) {
       msg(MSG::VERBOSE) << "Before noise filter total energy = " << energy << endmsg;
     }
 
-    if (m_tileCellNoiseFilter->process((CaloCellContainer*) caloCellContainer).isFailure()) {
+    if (m_tileCellNoiseFilter->process((CaloCellContainer*) caloCellContainer, inc.context()).isFailure()) {
       ATH_MSG_ERROR( " failed to run TileCellNoiseFilter " );
     }
   }
@@ -483,7 +483,7 @@ void TileCellCorrection::handle(const Incident& /* inc */) {
                         << " total energy = " << energy << endmsg;
     }
 
-    if (m_tileCellNeighborsTool->process((CaloCellContainer *) caloCellContainer).isFailure()) {
+    if (m_tileCellNeighborsTool->process((CaloCellContainer *) caloCellContainer, inc.context()).isFailure()) {
       ATH_MSG_ERROR( " failed to run CaloCellNeighborsAverageCorr " );
     }
   }

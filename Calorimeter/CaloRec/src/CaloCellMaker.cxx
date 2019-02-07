@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -102,7 +102,8 @@ StatusCode CaloCellMaker::initialize() {
 
 StatusCode CaloCellMaker::execute() {
 
-  SG::WriteHandle<CaloCellContainer> caloCellsOutput(m_caloCellsOutputKey);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::WriteHandle<CaloCellContainer> caloCellsOutput(m_caloCellsOutputKey, ctx);
 
   ATH_CHECK( caloCellsOutput.record(CxxUtils::make_unique<CaloCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
 
@@ -118,7 +119,7 @@ StatusCode CaloCellMaker::execute() {
     std::string chronoName = this->name() + "_" + itrTool->name();
 
     m_chrono->chronoStart(chronoName);
-    StatusCode sc = (*itrTool)->process(caloCellsOutput.ptr());
+    StatusCode sc = (*itrTool)->process(caloCellsOutput.ptr(), ctx);
     m_chrono->chronoStop(chronoName);
 
     ATH_MSG_DEBUG( "Chrono stop : delta "

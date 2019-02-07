@@ -21,13 +21,12 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class (type, name, parent),
     m_onlineID(nullptr),
     m_offlineID(nullptr)
 {
   m_mapInitialized = false;
 
-  declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.
   //Syntax: barrel_endcap pos_neg Feedthrough slot channel (integers separated by white space)
   //Feedthrough, slot, and channel can be left out. In this case all channels belonging to this 
@@ -156,10 +155,9 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cab
 
 
 
-StatusCode LArCellMaskingTool::process(CaloCellContainer * theCont )
+StatusCode LArCellMaskingTool::process (CaloCellContainer* theCont,
+                                        const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
   if (! m_mapInitialized) {
     // FIXME: Can we do this in start()?
     std::lock_guard<std::mutex> lock (m_mutex);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -28,14 +28,13 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class (type, name, parent),
    m_maskingTool(this),
    m_maskingSporadicTool(this),
    m_qualityCut(65536),
    m_maskNoise(true),
    m_maskSporadic(true)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
   declareProperty("MaskingTool",m_maskingTool,"Tool handle for noisy/dead channel masking");
   declareProperty("MaskingSporadicTool",m_maskingSporadicTool,"Tool handle for sporadic noisy channel masking");
   declareProperty("qualityCut",m_qualityCut,"Quality cut for sporadic noise channel");
@@ -77,7 +76,9 @@ StatusCode LArCellNoiseMaskingTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArCellNoiseMaskingTool::process(CaloCellContainer * theCont )
+StatusCode
+LArCellNoiseMaskingTool::process (CaloCellContainer * theCont,
+                                  const EventContext& /*ctx*/) const
 {
   StatusCode returnSc = StatusCode::SUCCESS ;
 

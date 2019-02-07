@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************************
@@ -31,12 +31,11 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
    m_calo_dd_man(nullptr),
    m_calo_id(nullptr),
    m_tile_id(nullptr)
 {
-  declareInterface<ICaloCellMakerTool>(this);
   declareProperty("testMode",m_testMode=false,"test mode");
   declareProperty("skipDeadFeb",    m_skipDeadFeb=true,     "Skip dead LAr Febs (default = true)");
   declareProperty("skipDeadLAr",    m_skipDeadLAr=false,    "Skip all dead LAr cells (default = false)");
@@ -78,7 +77,9 @@ StatusCode CaloCellNeighborsAverageCorr::initialize()
 
 // ============================================================================
 
-StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
+StatusCode
+CaloCellNeighborsAverageCorr::process (CaloCellContainer* theCont,
+                                       const EventContext& /*ctx*/) const
 {
   ATH_MSG_VERBOSE ( " in process " );
 
