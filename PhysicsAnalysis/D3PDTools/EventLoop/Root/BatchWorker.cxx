@@ -138,13 +138,9 @@ namespace EL
       std::ostringstream job_name;
       job_name << job_id;
       std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
-    } catch (std::exception& e)
+    } catch (...)
     {
-      std::cout << "exception caught: " << e.what() << std::endl;
-      exit (EXIT_FAILURE);
-    } catch (std::string& s)
-    {
-      std::cout << "exception caught: " << s << std::endl;
+      Detail::report_exception ();
       exit (EXIT_FAILURE);
     }
   }

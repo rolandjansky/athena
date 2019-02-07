@@ -200,19 +200,11 @@ namespace EL
 
       ANA_MSG_INFO ("EventLoop Grid worker finished");
       ANA_MSG_INFO ("Saving output");
-    }
-    catch (std::exception& e) {
-      std::cout << "Aborting job due to internal GridWorker error:\n" << e.what() 
-	   << "\nThe cause of this is probably a misconfigured job\n";
-      pandaTools.Abort();
-    }
-    catch (char const* e) {
-      std::cout << "Aborting job due to internal GridWorker error:\n"
-	   << e << "\nThe cause of this is probably a misconfigured job\n";
-      pandaTools.Abort();
-    }
-    catch (...) {
-      std::cout << "Unknown exception caught by EventLoop GridWorker.\n";
+    } catch (...)
+    {
+      Detail::report_exception ();
+      ANA_MSG_ERROR ("Aborting job due to internal GridWorker error");
+      ANA_MSG_ERROR ("The cause of this is probably a misconfigured job");
       pandaTools.Abort();
     }
   }
