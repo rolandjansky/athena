@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaBase.h 470529 2011-11-24 23:54:22Z ssnyder $
@@ -112,7 +112,7 @@ private:
    *
    * This should be called with m_mutex held.
    */
-  LockedAllocator makeAllocator (size_t i);
+  ArenaAllocatorBase* makeAllocator (size_t i);
 
 
   /// Our allocator vector.
