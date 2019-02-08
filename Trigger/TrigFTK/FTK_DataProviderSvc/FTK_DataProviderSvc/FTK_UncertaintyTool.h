@@ -32,7 +32,7 @@
 class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTool
 {
 
- private :
+private:
 
   enum hasBL {
     noBL      = 0,
@@ -47,7 +47,7 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
     linear      = 1
   };
   
- public:
+public:
 
   FTK_UncertaintyTool( const std::string&, const std::string&, const IInterface* );
   virtual ~FTK_UncertaintyTool(){};
@@ -58,7 +58,7 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //
   //  Get the element of the covariance matrix for id0th and id1th track parameter 
   //
-  virtual double getParamCovMtx    (const FTK_RawTrack& trk, bool hasIBL, int id0, int id1);
+  virtual double getParamCovMtx(const FTK_RawTrack& trk, bool hasIBL, int id0, int id1);
 
   //
   //  Initialize the constants
