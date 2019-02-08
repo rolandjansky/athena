@@ -416,8 +416,7 @@ def defineMenu():
         "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", "L1_EM7_MU11", "L1_EM7_MU20", "L1_EM8VH_MU20",
 
         # single tau
-        #"L1_TAU12", "L1_TAU12IM",  "L1_TAU20", "L1_TAU20IM",
-        "L1_TAU5", "L1_TAU12", "L1_TAU12IM", "L1_TAU20IM",
+        "L1_TAU5", "L1_TAU12", "L1_TAU12IM",  "L1_TAU20", "L1_TAU20IM",
         "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
@@ -983,8 +982,8 @@ def defineMenu():
         'L1_EM7_MU11' : 485,
         'L1_TAU12' : 45,
         'L1_TAU12IM' : 47,
-        'L1_TAU5' : 49,
-        #'L1_TAU20' : 49,
+        'L1_TAU5' : 102,
+        'L1_TAU20' : 49,
         'L1_TAU20IM' : 51,
         'L1_TAU30' : 53,
         'L1_TAU40' : 54,

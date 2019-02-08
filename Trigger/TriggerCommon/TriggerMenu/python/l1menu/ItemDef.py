@@ -367,8 +367,10 @@ class ItemDef:
         LVL1MenuItem('L1_TAU3'  ).setLogic( HA3   & physcond).setTriggerType( TT.calo )    # noqa: F821
         # ATR-19359 
         LVL1MenuItem('L1_TAU5'  ).setLogic( HA5   & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_2TAU5' ).setLogic( HA5.x(2)  & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_TAU6'  ).setLogic( HA6   & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU8'  ).setLogic( HA8   & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_2TAU8' ).setLogic( HA8.x(2)  & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         #LVL1MenuItem('L1_TAU10IM').setLogic( HA10IM  & physcond).setTriggerType( TT.calo )    # noqa: F821
 
