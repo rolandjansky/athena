@@ -20,6 +20,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
+export NAME="physics_pp_v7_tight_grid"
 export MENU="Physics_pp_v7_tight_physics_prescale"
 export EVENTS="500"
 
