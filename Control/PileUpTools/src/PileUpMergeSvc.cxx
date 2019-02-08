@@ -151,8 +151,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
          sg->tryConstRetrieve< ::EventInfo >()
          : sg->tryConstRetrieve< ::EventInfo >( einame );
       if( pEvent ) {
-         ATH_MSG_INFO("Found OverlayEvent old type EventInfo" );
-
          ATH_MSG_DEBUG("Converting (PileUp)EventInfo to xAOD::EventInfo");
          // Create the xAOD object(s):
          std::unique_ptr< xAOD::EventInfo >  pxAODEventInfo( new xAOD::EventInfo() );
@@ -163,9 +161,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
             ATH_MSG_ERROR("Failed to convert  xAOD::EventInfo in SG");
             return nullptr;
          }
-
-         //ATH_MSG_INFO ("Dumping xAOD::EventInfo prior to adding SubEvents");
-         //xAOD::dump( *xAODEventInfo );
 
          const PileUpEventInfo* pileupEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
          if( pileupEvent ) {

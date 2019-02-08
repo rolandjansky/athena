@@ -187,7 +187,7 @@ void BkgStreamsCache::newEvent()
 
 const xAOD::EventInfo* BkgStreamsCache::nextEvent(bool isCentralBunchCrossing)
 {
-  const xAOD::EventInfo* pNextEvt(0);
+  const xAOD::EventInfo* pNextEvt(nullptr);
   StreamVector::size_type iS(0);
   do {
     iS = (StreamVector::size_type)m_chooseEventRand->fire();
