@@ -49,6 +49,10 @@ namespace CP
     /// \brief th underlying accessor
   private:
     SG::AuxElement::Accessor<char> m_accessor;
+
+    /// \brief th underlying accessor
+  private:
+    SG::AuxElement::ConstAccessor<char> m_constAccessor;
   };
 }
 
