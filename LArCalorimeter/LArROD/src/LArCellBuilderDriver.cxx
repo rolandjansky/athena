@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,9 +30,7 @@ LArCellBuilderDriver::LArCellBuilderDriver(
   m_buildTools(),
   m_adc2eTools(),
   m_pedestalTools(),
-  m_oldPedestal(0.),
-  m_larCablingSvc("LArCablingService")
-  //m_roiMap("LArRoI_Map")
+  m_oldPedestal(0.)
 {
   //m_useIntercept={false,false,false,false};
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
@@ -59,17 +57,6 @@ StatusCode LArCellBuilderDriver::initialize()
   if (this->retrieveDetectorStore(m_onlineHelper, "LArOnlineID").isFailure())
     {
       ATH_MSG_ERROR( "Could not get LArOnlineID helper !"  );
-      return StatusCode::FAILURE;
-    }
-  // if (m_roiMap.retrieve().isFailure())
-//     {
-//       ATH_MSG_ERROR( "Unable to find tool LArRoI_Map"  );
-//       return StatusCode::FAILURE; 
-//     }
-  
-  if(m_larCablingSvc.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR( "Could not retrieve LArCablingService Tool"  );
       return StatusCode::FAILURE;
     }
   
@@ -164,7 +151,7 @@ bool LArCellBuilderDriver::buildLArCell(const LArDigit* digit,
       m_params->curr_chid=digit->channelID();
       m_params->curr_gain=digit->gain();
       
-      if(!m_buildDiscChannel && !m_larCablingSvc->isOnlineConnected(m_params->curr_chid))
+      if(!m_buildDiscChannel)
   	  return false;
 
       m_params->curr_sample0   = digit->samples()[0];

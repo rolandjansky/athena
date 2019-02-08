@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,7 +24,6 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "LArCabling/LArCablingService.h"
 #include <vector>
 
 #include "AthenaKernel/errorcheck.h"
@@ -68,7 +67,6 @@ LArDigitFillerTool::LArDigitFillerTool
         m_emId(0),
         m_hecId(0),
         m_fcalId(0),
-	m_larCablingSvc("LArCablingService"),
         m_cellIndex(0)
 {
   declareProperty("SaveDigit",m_savedigit);
@@ -123,7 +121,7 @@ StatusCode LArDigitFillerTool::book()
   m_fcalId=caloIdMgr->getFCAL_ID();
 
 
-  CHECK( m_larCablingSvc.retrieve() );
+  CHECK( m_cablingKey.initialize() );
   StoreGateSvc* detStore = 0;
   CHECK( service("DetectorStore", detStore) );
 
@@ -229,6 +227,12 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   //Check gain
   const long gain=digit.gain();
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
   /**   Don't do skipping yet.
   if (gain>=CaloGain::LARNGAIN || m_gains[gain]==false) continue;
 
@@ -239,7 +243,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   if (m_onlineHelper->isFCALchannel(chid) && !m_fcal) continue;
 
   //Check if connected
-  const bool connected=m_larCablingSvc->isOnlineConnected(chid);
+  const bool connected=cabling->isOnlineConnected(chid);
   if (!connected && !m_dumpDisc) continue;
 
 
@@ -268,7 +272,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   const HWIdentifier chid=digit.hardwareID();
   size_t n=vSamples.size();
   int nsamples=vSamples.size();
-  const bool connected=m_larCablingSvc->isOnlineConnected(chid);
+  const bool connected=cabling->isOnlineConnected(chid);
   ATH_MSG_DEBUG( " is connected " <<connected );
 
 
@@ -284,7 +288,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 
     //Add offline ID
     if (connected) {
-      const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+      const Identifier id=cabling->cnvToIdentifier(chid);
       if(m_storeId) *m_offId = id.get_identifier32().get_compact() ;
       if (m_emId->is_lar_em(id)) {
 	*m_calo = 0;

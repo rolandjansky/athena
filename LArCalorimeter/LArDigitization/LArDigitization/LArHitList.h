@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARHITLIST_H
 #define LARDIGITIZATION_LARHITLIST_H
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "Identifier/Identifier.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -24,7 +24,7 @@ class LArHitList {
 
  public:
 
-   LArHitList(Identifier id, const CaloDetDescrElement *calodde, ToolHandle<LArCablingService>& cablingService){
+   LArHitList(Identifier id, const CaloDetDescrElement *calodde, ToolHandle<LArCablingLegacyService>& cablingService){
      m_identifier = id;
      m_online =  cablingService->createSignalChannelID(id);
      m_caloDDE = calodde;

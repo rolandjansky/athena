@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INITTTMAP_ALGO_H
@@ -20,7 +20,6 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 //class LArOnlineID;
-class LArCablingService;
 class CaloTriggerTowerService;
 
 class initTTMap_Algo : public AthAlgorithm {
@@ -30,12 +29,10 @@ class initTTMap_Algo : public AthAlgorithm {
 
   /* property to select TT mapping input for FCAL
    * ON  = take FCAL mapping from G. Oakham's file
-   * OFF = take FCAL mapping from hard coded cabling svc
    */
   std::string m_initFromFile ; 
   bool m_dumpMap;
 
-  LArCablingService*      m_cablingSvc ; 
   CaloTriggerTowerService* m_triggertowerSvc ; 
   const CaloLVL1_ID*      m_lvl1Helper;
   const LArEM_ID*         m_emHelper;

@@ -5,8 +5,8 @@
 //Dear emacs, this is -*-c++-*-
 /* date of creation : 12/06/2001 */
 
-#ifndef LARCABLING_LARCABLINGSERVICE_H
-#define LARCABLING_LARCABLINGSERVICE_H
+#ifndef LARCABLING_LARCABLINGLEGACYSERVICE_H
+#define LARCABLING_LARCABLINGLEGACYSERVICE_H
 
 #include "LArCabling/LArCablingBase.h"
 
@@ -22,19 +22,19 @@
  
 */
 
-static const InterfaceID IID_LArCablingService("LArCablingService", 1 , 0); 
+static const InterfaceID IID_LArCablingLegacyService("LArCablingLegacyService", 1 , 0); 
 
-class LArCablingService : public LArCablingBase {
+class LArCablingLegacyService : public LArCablingBase {
 
 public:
   
   // Retrieve interface ID
-  static const InterfaceID& interfaceID() { return IID_LArCablingService; }
+  static const InterfaceID& interfaceID() { return IID_LArCablingLegacyService; }
   
   /** constructor */
-  LArCablingService( const std::string& type, const std::string& name, const IInterface* parent ) ;
+  LArCablingLegacyService( const std::string& type, const std::string& name, const IInterface* parent ) ;
 
-  ~LArCablingService();
+  ~LArCablingLegacyService();
   
   StatusCode initialize( );
 
@@ -55,7 +55,7 @@ public:
   /**
    *   "iterator" on LArReadoutModuleIDs  <p>
    */
-  const std::vector<HWIdentifier>& getLArRoModIDvec();
+  const std::vector<HWIdentifier>& getLArRoModIDvec() ;
 
 
   /**
@@ -87,9 +87,9 @@ private:
 };
 
 
-inline const std::vector<HWIdentifier>& LArCablingService::getLArRoModIDvec() {
+inline const std::vector<HWIdentifier>& LArCablingLegacyService::getLArRoModIDvec() {
   if (!m_febRodValid) readFebRodMap();
   return m_readoutModuleIDVec;
 }
 
-#endif // LARCABLING_LARCABLINGSERVICE_H
+#endif 

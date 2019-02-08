@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -22,7 +22,6 @@
 #include "CaloIdentifier/LArID_Exception.h"
 //#include "LArIdentifier/LArIdManager.h"
 //#include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
@@ -33,7 +32,6 @@ initTTMap_Algo::initTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocato
   AthAlgorithm( name , pSvcLocator) ,
   m_initFromFile("OFF"),
   m_dumpMap(false),
-  m_cablingSvc(0),
   m_triggertowerSvc(0),
   m_lvl1Helper(0),
   m_emHelper(0),
@@ -65,9 +63,6 @@ StatusCode initTTMap_Algo::initialize(){
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK( service( "ToolSvc",toolSvc ) );
  
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingService", m_cablingSvc) );
-  ATH_MSG_DEBUG ( "initialize() successfully retrieved LArCablingService" );
-
   ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService", m_triggertowerSvc) );
   ATH_MSG_DEBUG ( "initialize() successfully retrieved CaloTriggerTowerService" );
 
@@ -146,7 +141,6 @@ StatusCode initTTMap_Algo::initMap(){
   int nSkip=0;
   LArTTCell d;
 
-  // ....... init EM and HEC from hard coded mapping in LArCablingService
   // ....... loop on Trigger Towers
 
   ATH_MSG_DEBUG ( " Starting loop on Trigger Towers " );

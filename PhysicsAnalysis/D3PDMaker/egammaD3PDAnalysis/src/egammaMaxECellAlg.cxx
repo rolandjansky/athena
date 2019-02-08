@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: egammaMaxECellAlg.cxx 775884 2016-09-29 15:57:53Z ssnyder $
@@ -15,7 +15,6 @@
 #include "D3PDMakerInterfaces/ICollectionGetterTool.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "LArCabling/LArCablingService.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -25,8 +24,7 @@ namespace D3PD {
 egammaMaxECellAlg::egammaMaxECellAlg (const std::string& name,
                                       ISvcLocator* svcloc)
   : AthAlgorithm (name, svcloc),
-    m_getter (this),
-    m_larCablingSvc("LArCablingService",this)
+    m_getter (this)
 {
   declareProperty ("AuxPrefix", m_auxPrefix,
                    "Prefix to add to aux data items.");
@@ -45,6 +43,7 @@ StatusCode egammaMaxECellAlg::initialize()
   ATH_MSG_INFO(" Starting egammaMaxECellAlg"  );
     
   CHECK( AthAlgorithm::initialize() );
+  CHECK( m_cablingKey.initialize() );
   CHECK( m_getter.retrieve() );
   CHECK( m_getter->configureD3PD<xAOD::Egamma>() ); 
   return StatusCode::SUCCESS;
@@ -69,6 +68,12 @@ StatusCode egammaMaxECellAlg::execute()
 #undef DECOR
 
   CHECK( m_getter->reset (m_allowMissing) );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
   while (const xAOD::Egamma* eg = m_getter->next<xAOD::Egamma>())
   {
     const xAOD::CaloCluster *cluster = eg->caloCluster();
@@ -106,7 +111,7 @@ StatusCode egammaMaxECellAlg::execute()
           maxEcell_time(*eg)   = cell_maxE->time();
           maxEcell_energy(*eg) = cell_maxE->energy();
           maxEcell_gain(*eg)   = (int) cell_maxE->gain();
-          maxEcell_onlId(*eg)  = (unsigned int) (m_larCablingSvc->createSignalChannelID(caloDDEl->identify())).get_compact();
+          maxEcell_onlId(*eg)  = (unsigned int) (cabling->createSignalChannelID(caloDDEl->identify())).get_compact();
           
           maxEcell_x(*eg) = caloDDEl->x();
           maxEcell_y(*eg) = caloDDEl->y();

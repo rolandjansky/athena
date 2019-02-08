@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTCMPhysWavePredictor.h"
@@ -88,9 +88,12 @@ StatusCode LArTCMPhysWavePredictor::stop()
     return StatusCode::FAILURE;
   }   
   
-  // Retrieve LArCablingService
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK( larCablingSvc.retrieve() );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
 
   //open ouput file for dumping waves
   TFile f(m_rootoutputfile.c_str(),"recreate");	//need to implement: if (m_rootrawdump)
@@ -219,7 +222,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  }
 		
 	  Identifier id=emId->channel_id(+1,ilayer,+0,ieta,iphi);		
-	  HWIdentifier chID = larCablingSvc->createSignalChannelID(id);
+	  HWIdentifier chID = cabling->createSignalChannelID(id);
 	  //if ((ilayer==1)||(ilayer==2)) larPhysWave = new LArPhysWave(175,1,1); //gain 1 for debug	
 	  //else larPhysWave = new LArPhysWave(175,1,1);
 	  LArPhysWave larPhysWave (175, 1, 1);
@@ -227,7 +230,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 		
 	  // decode id to check if correct
 	  //HWIdentifier testchID = larPhysWave->channelID();
-	  //Identifier testid=larCablingSvc->cnvToIdentifier(testchID);
+	  //Identifier testid=cabling->cnvToIdentifier(testchID);
 	  //std::cout <<"physwave "<<" eta "<<emId->eta(testid)<<" phi "<< emId->phi(testid)<<" layer "<<emId->sampling(testid)<<" gain "<<larPhysWave->getGain()<<std::endl;
 		
 	  //Fill LArPhysWave
@@ -299,9 +302,9 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  Identifier id ;
 	  
 	  try {
-	    id = larCablingSvc->cnvToIdentifier(chID);   
+	    id = cabling->cnvToIdentifier(chID);   
 	  } catch ( const LArID_Exception& ) {
-	    ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel 0x" << MSG::hex << chID << MSG::dec );
+	    ATH_MSG_ERROR ( "Cabling exception caught for channel 0x" << MSG::hex << chID << MSG::dec );
 	  }
 	  int layer = emId->sampling(id);
           int eta   = emId->eta(id);

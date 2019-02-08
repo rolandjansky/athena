@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloLumiBCIDTool.h" 
@@ -17,7 +17,7 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
 				  const std::string& name, 
 				  const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_cablingService("LArCablingService"),
+    m_cablingService("LArCablingLegacyService"),
     m_larmcsym("LArMCSymTool"),
     m_OFCTool("LArOFCTool"),
     m_lumiTool("LuminosityTool"),

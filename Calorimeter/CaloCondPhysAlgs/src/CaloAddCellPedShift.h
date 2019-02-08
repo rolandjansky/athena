@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloAddCellPedShift.h
@@ -21,13 +21,13 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloCondBlobObjs/ICaloCoolIdTool.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
 class CaloCondBlobFlt;
 class CondAttrListCollection;
-class LArCablingService ;
 
 
 class CaloAddCellPedShift : public AthAlgorithm {
@@ -58,7 +58,7 @@ class CaloAddCellPedShift : public AthAlgorithm {
 
   ITHistSvc* m_thistSvc;
 
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const CaloCell_ID*       m_calo_id;
   const LArOnlineID*      m_onlineID;
 

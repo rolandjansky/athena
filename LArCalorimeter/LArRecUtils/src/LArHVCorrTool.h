@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -15,7 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
@@ -25,7 +25,6 @@
 #include "LArRawConditions/LArTdriftComplete.h"
 
 class StoreGateSvc; 
-class LArCablingService ;
 class LArElectrodeID;
 
 class LArHVCorrTool: public AthAlgTool,
@@ -74,7 +73,7 @@ class LArHVCorrTool: public AthAlgTool,
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
 
-  ToolHandle<LArCablingService>  m_cablingService;  
+  ToolHandle<LArCablingLegacyService>  m_cablingService;  
   ToolHandle<ILArHVTool> m_hvtool;
 
   float Scale_barrel(const float hv) const;

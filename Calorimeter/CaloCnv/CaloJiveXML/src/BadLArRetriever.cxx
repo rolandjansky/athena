@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/BadLArRetriever.h"
@@ -18,7 +18,6 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArCabling/LArCablingService.h"
 
 using Athena::Units::GeV;
 
@@ -32,8 +31,7 @@ namespace JiveXML {
    **/
   BadLArRetriever::BadLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("BadLAr"),
-    m_larCablingSvc("LArCablingService")
+    m_typeName("BadLAr")
   {
 
     //Only declare the interface
@@ -60,6 +58,8 @@ namespace JiveXML {
   StatusCode BadLArRetriever::initialize() {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+
+    ATH_CHECK( m_cablingKey.initialize() );
 
     return StatusCode::SUCCESS;	
   }
@@ -115,15 +115,15 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LAREM);
 
 
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
       
     const LArOnlineID* onlineId;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getBadLArData(),Could not get LArOnlineID!" << endmsg;
     }
 
-    if (m_doBadLAr==true) {
+    if (m_doBadLAr && cabling) {
 
       double energyGeV;
 
@@ -137,7 +137,7 @@ namespace JiveXML {
 	if ((((*it1)->provenance()&0xFF)!=0xA5)&&m_cellConditionCut) continue; // check full conditions for LAr
 	//Identifier cellid = (*it1)->ID(); 
 	
-	HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
+	HWIdentifier LArhwid = cabling->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
 	
 	energyGeV = (*it1)->energy()*(1./GeV);
         if (energyGeV == 0) energyGeV = 0.001; // 1 MeV due to LegoCut > 0.0 (couldn't be >= 0.0) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
@@ -174,7 +174,7 @@ namespace LVL1{
         sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
         if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve CaloTriggerTowerService Tool");return sc;}
         
-        sc = toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
+        sc = toolSvc->retrieveTool("LArCablingLegacyService", m_larCablingSvc);
         if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve LArCablingService");return sc;}
 
       }

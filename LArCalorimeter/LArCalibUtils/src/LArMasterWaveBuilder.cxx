@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -124,6 +123,9 @@ StatusCode LArMasterWaveBuilder::initialize() {
 
   m_waveHelper = new LArWaveHelper() ;
 
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
+
   return StatusCode::SUCCESS ;
 }
 
@@ -134,9 +136,18 @@ StatusCode LArMasterWaveBuilder::stop()
   const LArOnlineID*   onlineHelper;
   const LArEM_ID*      emId;
   
-  // Retrieve LArCablingService
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK( larCablingSvc.retrieve() );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont){
+     ATH_MSG_ERROR("Do not have calib mapping object " << m_CLKey.key() );
+     return StatusCode::FAILURE;
+  }
   ATH_CHECK(  detStore()->retrieve(onlineHelper, "LArOnlineID") );
   
   const CaloIdManager* caloIdMgr=CaloIdManager::instance();
@@ -263,11 +274,11 @@ StatusCode LArMasterWaveBuilder::stop()
       long region = -1;
 
       try {
-        Identifier id = larCablingSvc->cnvToIdentifier(chID);
+        Identifier id = cabling->cnvToIdentifier(chID);
         layer  = emId->sampling(id) ;
         region = emId->region(id) ;
       } catch ( LArID_Exception & except ) { 
-     	ATH_MSG_WARNING ( "A larCablingSvc exception was caught for channel 0x" 
+     	ATH_MSG_WARNING ( "A Cabling exception was caught for channel 0x" 
                           << MSG::hex << chID.get_compact() << MSG::dec 
                           << ". Skipping." );
      	continue ;
@@ -465,12 +476,12 @@ StatusCode LArMasterWaveBuilder::stop()
 
       if ( m_listAllAnalysedChannels || DACs.size()>0 ) {
         try {
-          Identifier id = larCablingSvc->cnvToIdentifier(chId);
+          Identifier id = cabling->cnvToIdentifier(chId);
           int region  = emId->region(id);
           int eta     = emId->eta(id); 
           int phi     = emId->phi(id);
           int layer   = emId->sampling(id);
-          const std::vector<HWIdentifier>& calibLineV=larCablingSvc->calibSlotLine(chId);
+          const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(chId);
           std::vector<HWIdentifier>::const_iterator calibLineIt=calibLineV.begin();
           int calibLine = 0;
           if ( calibLineV.size()>0 ) 

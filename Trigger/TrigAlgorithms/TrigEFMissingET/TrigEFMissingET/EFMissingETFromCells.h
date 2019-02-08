@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFMISSINGET_EFMISSINGETFROMCELLS_H
@@ -93,7 +93,6 @@ class EFMissingETFromCells : public EFMissingETBaseTool
     // use ToolHandle<ICaloNoiseTool> if extended interface is needed
     ToolHandle<ICalorimeterNoiseTool> m_noiseTool;   //<! noise suppression
 
-    LArCablingService* m_cablingSvc;
 
     // New way with TrigDataAccess doing BS conversion
     // iterators to LArCells. Note the different type from the above

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArDigitsAccumulator.h"
@@ -10,7 +10,6 @@
 
 LArDigitsAccumulator::LArDigitsAccumulator (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
   m_onlineHelper(0),
   m_AccuDigitContainerName("LArAccumulatedDigits"),
   m_NtriggersPerStep(100),
@@ -36,18 +35,6 @@ StatusCode LArDigitsAccumulator::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // retrieve cabling service
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  if (m_larCablingSvc.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-    return StatusCode::FAILURE;
-  }
 
   m_Accumulated.resize(m_onlineHelper->channelHashMax());
 

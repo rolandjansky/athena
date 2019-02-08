@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArCondSuperCellBase.h"
@@ -19,7 +19,6 @@
 LArCondSuperCellBase::LArCondSuperCellBase() :
   m_isInitialized(false),
   m_scOnlineID(NULL),
-  m_scCablingTool(NULL),
   m_log(NULL) {}
 
 LArCondSuperCellBase::~LArCondSuperCellBase() {

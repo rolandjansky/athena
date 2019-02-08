@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArDigitOscillationCorrTool.h"
@@ -33,8 +33,7 @@ LArDigitOscillationCorrTool::LArDigitOscillationCorrTool(const std::string& type
     m_nSigma(3.0), 
     m_eventPhase(0),
     m_omega(1.024e6*hertz),
-    m_emId(0), m_fcalId(0), m_hecId(0), m_lar_on_id(0),
-    m_cablingService("LArCablingService")
+    m_emId(0), m_fcalId(0), m_hecId(0), m_lar_on_id(0)
 {
   declareInterface<ILArDigitOscillationCorrTool>(this);
   declareProperty("BeginRunPriority",m_priority);
@@ -53,7 +52,7 @@ StatusCode LArDigitOscillationCorrTool::initialize()
   m_fcalId = caloIdMgr->getFCAL_ID();
   m_hecId  = caloIdMgr->getHEC_ID();
   
-  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
   
   IIncidentSvc* incSvc = nullptr;
   ATH_CHECK( service("IncidentSvc", incSvc) );
@@ -87,6 +86,14 @@ StatusCode LArDigitOscillationCorrTool::calculateEventPhase(const LArDigitContai
   
   //Now all data is available, start loop over Digit Container
   ATH_MSG_DEBUG ( "Loop over Digit Container with size <" << theDC.size() << ">"  );
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   
   for (unsigned int i=0;i<theDC.size();i++) {
     //Get data from LArDigit
@@ -96,7 +103,7 @@ StatusCode LArDigitOscillationCorrTool::calculateEventPhase(const LArDigitContai
     const CaloGain::CaloGain  gain     = theDigit->gain();
     
     // use only HEC channels
-    const Identifier id = m_cablingService->cnvToIdentifier(chid);    
+    const Identifier id = cabling->cnvToIdentifier(chid);    
     bool isHEC = false;
     
     if (m_hecId->is_lar_hec(id)) {
@@ -181,6 +188,13 @@ StatusCode LArDigitOscillationCorrTool::correctLArDigits(LArDigitContainer &theD
   //Now all data is available, start loop over Digit Container
   ATH_MSG_DEBUG ( "Loop over Digit Container " );
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   for (unsigned int i=0;i<theDC.size();i++) {
     //Get data from LArDigit
     LArDigit * theDigit = theDC[i];
@@ -190,7 +204,7 @@ StatusCode LArDigitOscillationCorrTool::correctLArDigits(LArDigitContainer &theD
     const CaloGain::CaloGain  gain     = theDigit->gain();
     
     // correct only HEC channels
-    const Identifier id = m_cablingService->cnvToIdentifier(chid);    
+    const Identifier id = cabling->cnvToIdentifier(chid);    
     bool isHEC = false;
     
     if (m_hecId->is_lar_hec(id)) {

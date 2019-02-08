@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArMinBiasAlg.h"
@@ -29,8 +29,7 @@
     m_datasetID_lowPt(119995),
     m_datasetID_highPt(119996),
     m_weight_lowPt(39.8606),
-    m_weight_highPt(0.138128),
-    m_cablingService("LArCablingService")
+    m_weight_highPt(0.138128)
   {
      declareProperty("datasetID_lowPt",m_datasetID_lowPt);
      declareProperty("datasetID_highPt",m_datasetID_highPt);
@@ -82,7 +81,7 @@
 
     ATH_CHECK(m_larmcsym.retrieve());
 
-    ATH_CHECK(m_cablingService.retrieve());
+    ATH_CHECK(m_cablingKey.initialize());
 
     m_n1=0;
     m_n2=0;
@@ -115,6 +114,14 @@
     ATH_MSG_DEBUG(" LArMinBiasAlg execute()");
 
     if (m_first) {
+
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+      const LArOnOffIdMapping* cabling{*cablingHdl};
+      if(!cabling) {
+         ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+         return StatusCode::FAILURE;
+      }
+
       m_ncell = m_calo_id->calo_cell_hash_max();
 
       std::cout << " --- first event " << m_ncell << std::endl;
@@ -136,7 +143,7 @@
         if (m_calo_id->is_tile(id)) continue;
         // convert cell id to symetric identifier
         HWIdentifier hwid2=m_larmcsym->symOnline(id);
-        Identifier id2 = m_cablingService->cnvToIdentifier(hwid2);
+        Identifier id2 = cabling->cnvToIdentifier(hwid2);
         int i2 = (int) (m_calo_id->calo_cell_hash(id2));
         if(i2>=m_ncell) {
            ATH_MSG_WARNING("problem: i2: "<<i2<<" for id: "<<m_calo_id->print_to_string(id)<<" symmetrized: "<<m_calo_id->print_to_string(id2));

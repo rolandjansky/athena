@@ -1,7 +1,7 @@
 //Dear emacs, this is  -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,10 +12,11 @@
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/Bootstrap.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
@@ -34,6 +35,7 @@ public:
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
 private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnlineID* m_onlineHelper;
   std::string m_DataLocation;
   std::string m_globalTimeOffsetOut, m_febTimeOffsetOut, m_cellTimeOffsetOut;
@@ -69,7 +71,6 @@ private:
   std::string m_scopeStr;
   
   // layer selection (use only cells from one layer)
-  LArCablingService *m_larCablingSvc;
   int m_layerSel;
   const LArEM_ID* m_emId;
   

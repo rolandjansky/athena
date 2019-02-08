@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRExtrapolate_H
@@ -21,6 +21,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 
 class LArOnlineID;
@@ -50,6 +51,7 @@ class LArAutoCorrExtrapolate : public AthAlgorithm
  private:
 
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey { this, "MissingFebsKey", "LArBadFeb", "SG Key of LArBadFebCont object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   // Container key list
   std::string m_keyoutput;
   std::string m_keyPedestal;

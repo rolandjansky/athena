@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParamsProperties.h"
@@ -40,7 +40,7 @@ unsigned LArParamsProperties::getClassIndex(const LArEMEC_HValphaComplete*)     
 unsigned LArParamsProperties::getClassIndex(const LArEMEC_HVbetaComplete*)       { return EMEC_HVbetaComplete ; } 
 unsigned LArParamsProperties::getClassIndex(const LArCableLengthComplete*)       { return CableLengthComplete ; } 
 unsigned LArParamsProperties::getClassIndex(const LArCableAttenuationComplete*)  { return CableAttenuationComplete ; } 
-unsigned LArParamsProperties::getClassIndex(const LArCaliPulseParamsVsCalib*)    { return CaliPulseParamsVsCalib ; } 
+//unsigned LArParamsProperties::getClassIndex(const LArCaliPulseParamsVsCalib*)    { return CaliPulseParamsVsCalib ; } 
 unsigned LArParamsProperties::getClassIndex(const LArOFCBinComplete*)    { return OFCBinComplete ; } 
 
 // vector of class names
@@ -62,7 +62,7 @@ const std::vector< std::string > & LArParamsProperties::ClassNames()
     names[EMEC_HVbetaComplete]        =  "LArEMEC_HVbetaComplete" ;
     names[CableLengthComplete]        =  "LArCableLengthComplete" ;
     names[CableAttenuationComplete]   =  "LArCableAttenuationComplete" ;
-    names[CaliPulseParamsVsCalib]     =  "LArCaliPulseParamsVsCalib" ;
+    //names[CaliPulseParamsVsCalib]     =  "LArCaliPulseParamsVsCalib" ;
     names[OFCBinComplete]             =  "LArOFCBinComplete" ;
     names[PhysCaliTdiffComplete]      =  "LArPhysCaliTdiffComplete" ;
   }
@@ -88,7 +88,7 @@ unsigned LArParamsProperties::numberOfParams(unsigned index)
     nOfPars[EMEC_HVbetaComplete]       = 1 ;
     nOfPars[CableLengthComplete]       = 1 ;
     nOfPars[CableAttenuationComplete]  = 1 ;
-    nOfPars[CaliPulseParamsVsCalib]    = 5 ; 
+    //nOfPars[CaliPulseParamsVsCalib]    = 5 ; 
     nOfPars[OFCBinComplete]            = 1 ; 
     nOfPars[PhysCaliTdiffComplete]     = 1 ; 
   }
@@ -115,7 +115,7 @@ bool LArParamsProperties::isGainDependent(unsigned index)
     useGain[EMEC_HVbetaComplete]       = false ;
     useGain[CableLengthComplete]       = false ;
     useGain[CableAttenuationComplete]  = false ;
-    useGain[CaliPulseParamsVsCalib]    = false ; 
+    //useGain[CaliPulseParamsVsCalib]    = false ; 
     useGain[OFCBinComplete]            = true ; 
     useGain[PhysCaliTdiffComplete]     = true ; 
   }

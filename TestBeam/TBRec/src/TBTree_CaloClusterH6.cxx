@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class TBTree_CaloClusterH6 // make ROOT Tree for H6 CaloCluster
@@ -34,7 +34,6 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArCabling/LArCablingService.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
@@ -127,7 +126,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_noiseTool(0),
   m_OFNoiseSupp(0),
   m_adc2mevTool(0),
-  m_larCablingSvc(0),
   m_txtFileWithXY("xcryo_ytable.txt")
 { 
   declareProperty("ClusterContainer",m_clusterContainerName);
@@ -324,7 +322,7 @@ StatusCode TBTree_CaloClusterH6::initialize()
     ATH_CHECK( toolSvc->retrieveTool(ntool.type(), ntool.name(), m_OFNoiseSupp) );
     ATH_MSG_INFO ("Noise Tool " << m_OFNoiseSuppToolName << " is selected!" );
     // Translate offline ID into online ID
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
+    ATH_CHECK( m_cablingKey.initialize() );
   }
   
   ATH_MSG_INFO ( "end of initialize()" );
@@ -901,6 +899,12 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
   
   ATH_CHECK( detStore()->retrieve(larPedestal) );
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+      ATH_MSG_ERROR ( "Do not have cabling mapping from key " << m_cablingKey.key() );
+      return StatusCode::FAILURE;
+  }
   // Loop over cluster cells
   CaloCluster::cell_iterator itc=cluster->cell_begin();
   for (; itc!=cluster->cell_end(); itc++) {
@@ -911,7 +915,7 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
     const CaloGain::CaloGain gain= cell->gain();
     HWIdentifier chid;
     try {
-      chid = m_larCablingSvc->createSignalChannelID(id);
+      chid = cabling->createSignalChannelID(id);
     }
     catch ( const LArID_Exception& except) {
       ATH_MSG_ERROR("HWId not found: "<<(const std::string&)except);

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include  "StoreGate/StoreGateSvc.h"
 #include "TBEvent/TBLArDigitContainer.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
@@ -36,7 +36,7 @@ class ReadTBLArDigits : public AthAlgorithm
 
  private:
   int m_count;
-  LArCablingService *m_larCablingSvc;
+  LArCablingLegacyService *m_larCablingSvc;
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;
   const LArHEC_ID*  m_hecId;

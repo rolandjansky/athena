@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -22,7 +22,7 @@ class StoreGateSvc;
 
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloIdentifier/LArID_Exception.h"
  
 #include "CaloIdentifier/CaloGain.h"
@@ -135,7 +135,7 @@ private:
   IdentifierHash m_CaloHashMax;
   IdentifierHash m_CaloHashMin;
 
-  ToolHandle<LArCablingService> m_cablingService;
+  ToolHandle<LArCablingLegacyService> m_cablingService;
 
   std::string     m_tileInfoName;
   const TileInfo* m_tileInfo;

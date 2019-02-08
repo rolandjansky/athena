@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWEVENT_LARROI_MAP_H
@@ -20,7 +20,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <map> 
 
-#include "LArCabling/LArCablingService.h" 
+#include "LArCabling/LArCablingLegacyService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 class LArOnlineID ; 
@@ -111,7 +111,7 @@ class LArRoI_Map : public AthAlgTool,
   ROIMAP m_roimap; 
  
 
-  ToolHandle<LArCablingService> m_cablingSvc{ this, "CablingSvc", "LArCablingService", "LAr cabling tool"};
+  ToolHandle<LArCablingLegacyService> m_cablingSvc{ this, "CablingSvc", "LArCablingLegacyService", "LAr cabling tool"};
   ToolHandle<CaloTriggerTowerService> m_ttSvc{ this, "TriggerTowerSvc", "CaloTriggerTowerService", "Towers tool"};   
 
   bool m_print; 

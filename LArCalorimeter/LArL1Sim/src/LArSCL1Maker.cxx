@@ -35,8 +35,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -78,7 +76,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_rndmEngineName("LArSCL1Maker")
   , m_rndmEngine(0)
   , p_triggerTimeTool()
-  , m_cablingSCSvc("LArSuperCellCablingTool")
   , m_scidtool("CaloSuperCellIDTool")
   , m_scHelper(0)
   , m_OnlSCHelper(0)
@@ -252,7 +249,7 @@ StatusCode LArSCL1Maker::initialize()
   // ..... need cabling services, to get channels associated to each SC
   //
 
-  CHECK( m_cablingSCSvc.retrieve() );
+  CHECK( m_cablingKeySC.initialize() );
   CHECK( m_scidtool.retrieve() );
 
   
@@ -335,6 +332,14 @@ StatusCode LArSCL1Maker::execute()
     return StatusCode::FAILURE;	  
   }
 
+  // .... get SC cabling map
+  //
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+  const LArOnOffIdMapping* cabling = *cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have SC cabling map !!!");
+     return StatusCode::FAILURE;	  
+  }
 
   // ...... register the TTL1 containers into the TES 
   //
@@ -402,7 +407,7 @@ StatusCode LArSCL1Maker::execute()
           Identifier scId = m_scidtool->offlineToSuperCellID(cellId);
           IdentifierHash scHash = m_scHelper->calo_cell_hash(scId) ;
 	  if ( scHash.value() == 999999 ) continue;
-	  HWIdentifier hwSC = m_cablingSCSvc->createSignalChannelID(scId);
+	  HWIdentifier hwSC = cabling->createSignalChannelID(scId);
 	  IdentifierHash scHWHash = m_OnlSCHelper->channel_Hash(hwSC);
 
          if(m_saveHitsContainer.size()>0) {
@@ -457,7 +462,7 @@ StatusCode LArSCL1Maker::execute()
 
       //record the truth hit information
       if(m_saveHitsContainer.size()>0) {
-            Identifier soft_id = m_cablingSCSvc->cnvToIdentifier(id);
+            Identifier soft_id = cabling->cnvToIdentifier(id);
             IdentifierHash idhash = m_sem_mgr->getCaloCell_ID()->calo_cell_hash(soft_id);
             const CaloDetDescrElement* dde = m_sem_mgr->get_element(idhash);
             CaloGain::CaloGain gain = (CaloGain::CaloGain)1;

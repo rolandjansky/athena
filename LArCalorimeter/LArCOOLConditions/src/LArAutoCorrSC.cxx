@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArAutoCorrSC.h" 
@@ -24,11 +24,5 @@ LArAutoCorrSC::LArAutoCorrSC(const CondAttrListCollection* attrList) {
 ILArAutoCorr::AutoCorrRef_t LArAutoCorrSC::autoCorr(const HWIdentifier& hwid, int /*gain*/) const { 
   const IdentifierHash hash=m_scOnlineID->channel_Hash(hwid);
   return this->autocorrByHash(hash,0);
-}
-
-ILArAutoCorr::AutoCorrRef_t LArAutoCorrSC::autoCorr(const Identifier&  CellID, int /*gain*/) const {
-   const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(CellID);
-   return LArAutoCorrSC::autoCorr(hwid,0);
-
 }
 

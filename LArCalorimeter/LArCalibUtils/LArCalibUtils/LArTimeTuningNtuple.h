@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,9 @@
 #include "LArRawConditions/LArFEBTimeOffset.h"
 #include "LArRawConditions/LArCellTimeOffset.h"
 #include "TBEvent/TBPhase.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 
@@ -35,6 +38,8 @@ class LArTimeTuningNtuple : public AthAlgorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
   std::string m_TBPhaseKey;
   std::string m_GlobalTimeKey;
   std::string m_FebTimeKey;

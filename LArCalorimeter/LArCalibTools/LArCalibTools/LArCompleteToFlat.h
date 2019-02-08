@@ -1,7 +1,7 @@
 //-*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,8 +12,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 #include "LArRawConditions/LArSingleFloatP.h"
-#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArOnlineID;
 class CondAttrListCollection;
@@ -67,7 +67,7 @@ class LArCompleteToFlat: public AthAlgorithm
   const LArOnlineID* m_onlineID;
 
 
-  ToolHandle<LArCablingService> m_cablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   ///InputSGKeys
   std::string m_uA2MeVInput;

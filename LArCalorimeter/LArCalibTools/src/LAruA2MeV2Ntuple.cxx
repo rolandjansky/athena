@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LAruA2MeV2Ntuple.h"
@@ -8,7 +8,6 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h"
 
 LAruA2MeV2Ntuple::LAruA2MeV2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator) { 
   declareProperty("uA2MeVKey",m_uA2MeVKey);

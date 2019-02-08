@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrNoiseTool.h"
@@ -17,8 +17,6 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
     m_Nsampl(5),m_MCSym(true), 
     m_lar_on_id(nullptr),
     m_lar_scon_id(nullptr),
-    m_cablingService("LArCablingService"),
-    m_cablingSCService("LArSuperCellCablingTool"),
     m_larmcsym("LArMCSymTool"),
     m_keyAutoCorr("LArAutoCorr"),
     m_cacheValid(false),m_loadAtBegin(true),
@@ -49,14 +47,10 @@ StatusCode LArAutoCorrNoiseTool::initialize()
   }
   
   if ( m_isSC ){
-    ATH_CHECK(  detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID") );
-    ATH_CHECK( m_cablingSCService.retrieve() );
-    m_cablingService.disable();
+    ATH_CHECK( m_cablingKeySC.initialize() );
   } // m_isSC
   else {
-    ATH_CHECK(  detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
-    ATH_CHECK( m_cablingService.retrieve() );
-    m_cablingSCService.disable();
+    ATH_CHECK( m_cablingKey.initialize() );
     if (m_MCSym) {
       ATH_CHECK( m_larmcsym.retrieve() );
     } else {
@@ -108,19 +102,23 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
   // get HWIdentifier iterator
   std::vector<HWIdentifier>::const_iterator it  ; 
   std::vector<HWIdentifier>::const_iterator it_e;
-  LArCablingBase* cable(0);
+  const LArOnOffIdMapping* cable(0);
   unsigned int ngains(3);
   if ( m_isSC ){
-  it   =m_lar_scon_id->channel_begin();
-  it_e =m_lar_scon_id->channel_end();
-  LArSuperCellCablingTool* tcable = &(*m_cablingSCService);
-  cable = (LArCablingBase*)tcable;
-  ngains=1;
+    it   =m_lar_scon_id->channel_begin();
+    it_e =m_lar_scon_id->channel_end();
+    ngains=1;
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cable = *cablingHdl;
   } else {
-  it   =m_lar_on_id->channel_begin();
-  it_e =m_lar_on_id->channel_end();
-  LArCablingService* tcable = &(*m_cablingService);
-  cable = (LArCablingService*)tcable;
+    it   =m_lar_on_id->channel_begin();
+    it_e =m_lar_on_id->channel_end();
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cable = *cablingHdl;
+  }
+  if(!cable) {
+     ATH_MSG_ERROR("Do not have proper cabling !!!");
+     return StatusCode::FAILURE;
   }
   
   // resize vector to #(gain) = 3
@@ -258,11 +256,19 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
 	throw LArConditionsException("Could not compute in LArAutoCorrNoiseTool::autoCorrSqrt");
       }
   }
+  const LArOnOffIdMapping* cable(0);
+  if ( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cable = *cablingHdl;
+  } else {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cable = *cablingHdl;
+  }
   HWIdentifier id;
   if (!m_isSC && m_MCSym)
     id = m_larmcsym->symOnline(CellID);
   else 
-    id = m_cablingService->createSignalChannelID(CellID);
+    id = cable->createSignalChannelID(CellID);
   unsigned int id32 = id.get_identifier32().get_compact();
 
   MAP::const_iterator it = (m_terms[gain]).find(id32) ; 

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,6 @@
 #include "LArRawConditions/LArEMEC_HVbetaComplete.h"
 #include "LArRawConditions/LArCableLengthComplete.h"
 #include "LArRawConditions/LArCableAttenuationComplete.h"
-#include "LArRawConditions/LArCaliPulseParamsVsCalib.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "LArRawConditions/LArPhysCaliTdiffComplete.h"
 
@@ -92,7 +91,7 @@ namespace LArParamsProperties {
     EMEC_HVbetaComplete ,
     CableLengthComplete ,
     CableAttenuationComplete ,
-    CaliPulseParamsVsCalib ,
+    //CaliPulseParamsVsCalib ,
     OFCBinComplete ,
     END_OF_LIST          // used to count allowed data classes
   } ;
@@ -111,7 +110,7 @@ namespace LArParamsProperties {
   unsigned getClassIndex(const LArEMEC_HVbetaComplete*);
   unsigned getClassIndex(const LArCableLengthComplete*);
   unsigned getClassIndex(const LArCableAttenuationComplete*);
-  unsigned getClassIndex(const LArCaliPulseParamsVsCalib*);
+  //unsigned getClassIndex(const LArCaliPulseParamsVsCalib*);
   unsigned getClassIndex(const LArOFCBinComplete*);
   unsigned getClassIndex(const LArPhysCaliTdiffComplete*);
 

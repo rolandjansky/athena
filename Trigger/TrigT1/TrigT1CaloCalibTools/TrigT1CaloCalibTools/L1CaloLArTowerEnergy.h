@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
@@ -18,7 +18,7 @@
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 // PABC interface include
@@ -77,7 +77,7 @@ private:
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
   ToolHandle< ILArBadChanTool > m_badChannelTool; // Handle to badChannelTool
-  ToolHandle<LArCablingService> m_larCablingSvc;  // Handle to LarCablingService
+  ToolHandle<LArCablingLegacyService> m_larCablingSvc;  // Handle to LarCablingService
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
 
 

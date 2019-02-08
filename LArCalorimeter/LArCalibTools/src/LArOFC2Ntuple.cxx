@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArOFC2Ntuple.h"
@@ -7,7 +7,6 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h"
 
 LArOFC2Ntuple::LArOFC2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   LArCond2NtupleBase(name, pSvcLocator)

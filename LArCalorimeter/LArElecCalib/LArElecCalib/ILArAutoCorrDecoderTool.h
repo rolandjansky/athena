@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -23,7 +23,7 @@ class ILArAutoCorrDecoderTool : virtual public IAlgTool  {
   virtual const Eigen::MatrixXd AutoCorr( const HWIdentifier&  CellID, int gain, unsigned nSamples=5) const=0 ;
 
   // offline ID
-  virtual const Eigen::MatrixXd AutoCorr( const Identifier&  CellID, int gain, unsigned nSamples=5) const = 0 ;
+  //virtual const Eigen::MatrixXd AutoCorr( const Identifier&  CellID, int gain, unsigned nSamples=5) const = 0 ;
 
   static const InterfaceID& interfaceID() { return IID_ILArAutoCorrDecoderTool; }
 

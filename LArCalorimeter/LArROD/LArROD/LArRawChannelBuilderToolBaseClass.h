@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear eamcs, this is -*-c++-*-as
@@ -26,8 +26,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
 					  public virtual ILArRawChannelBuilderToolBaseClass
@@ -47,15 +46,9 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
     {
       m_parent=myParent; 
       if ( m_isSC ) {
-           ToolHandle<LArSuperCellCablingTool> lscct("LArSuperCellCablingTool");
-           CHECK( lscct.retrieve() );
-           LArSuperCellCablingTool* plscct = &(*lscct);
-           m_larCablingSvc = (LArCablingBase*) plscct;
+         ATH_CHECK( m_cablingKeySC.initialize() );
       } else {
-           ToolHandle<LArCablingService> lcS("LArCablingService");
-           CHECK( lcS.retrieve() );
-           LArCablingService* plcS = &(*lcS);
-           m_larCablingSvc = (LArCablingBase*)plcS;
+         ATH_CHECK( m_cablingKey.initialize() );
       }
       return initTool();
     };
@@ -82,6 +75,9 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
   Identifier currentID();
   
  protected:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
   
   LArRawChannelBuilderParams *m_parent;
   
@@ -89,8 +85,6 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
   
   StoreGateSvc*  m_detStore;
   
-  LArCablingBase* m_larCablingSvc;
-
   bool m_isSC;
 };
 

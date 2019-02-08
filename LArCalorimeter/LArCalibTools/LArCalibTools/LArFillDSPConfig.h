@@ -1,7 +1,7 @@
 //-*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,6 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class LArOnlineID;
@@ -38,9 +37,6 @@ class LArFillDSPConfig: public AthAlgorithm
   /// Default constructor: 
   LArFillDSPConfig();
   const LArOnlineID* m_onlineID;
-
-  ToolHandle<LArCablingService> m_cablingSvc;
-
 
   std::string m_folderName;
   bool m_dump;

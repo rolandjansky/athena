@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -18,7 +18,7 @@
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-class LArCablingService;
+class LArCablingLegacyService;
 
 /** @brief Tool for converting LAr readout identifier to a subset of the identifiers.
 
@@ -62,7 +62,7 @@ class LArMCSymTool: public AthAlgTool, virtual public ILArMCSymTool
   // Disallow assignment.
   LArMCSymTool& operator= (const LArMCSymTool&);
 
-  ToolHandle<LArCablingService> m_cablingService;
+  ToolHandle<LArCablingLegacyService> m_cablingService;
     
   unsigned m_ncellem,m_ncellhec,m_ncellfcal;
   std::vector<HWIdentifier> m_listOnline;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARH6OSCILLATION_H
@@ -29,18 +29,12 @@ public:
   // online ID
   virtual  const double& channelPhase(const HWIdentifier& id) const =0;
   
-  // offline ID
-  virtual  const double& channelPhase(const Identifier& id) const = 0 ;
-  
 
   /** access to channel amplitude
   *   index by Identifier
   */ 
   // online ID
   virtual const double& channelAmplitude(const HWIdentifier& id) const =0;
-
-  // offline ID
-  virtual const double& channelAmplitude(const Identifier& id) const = 0 ;
 
 } ;
 

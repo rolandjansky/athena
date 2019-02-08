@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloClusterCorrection/CaloFillRectangularCluster.h"
-#include "LArCabling/LArCablingService.h"
 
 #include <vector>
 #include <string>
@@ -29,11 +28,9 @@ DerivationFramework::MaxCellDecorator::MaxCellDecorator(const std::string& t,
 							const IInterface* p) :
   AthAlgTool(t,n,p),
   m_SGKey_photons(""),
-  m_SGKey_electrons(""),
-  m_larCablingSvc("LArCablingService")
+  m_SGKey_electrons("")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("LArCablingService", m_larCablingSvc );
   declareProperty("SGKey_photons", m_SGKey_photons);
   declareProperty("SGKey_electrons", m_SGKey_electrons);
 }
@@ -47,8 +44,7 @@ StatusCode DerivationFramework::MaxCellDecorator::initialize(){
   // Decide which collections need to be checked for ID TrackParticles
   ATH_MSG_VERBOSE("initialize() ...");
   
-  CHECK( m_larCablingSvc.retrieve() );
-  ATH_MSG_INFO("Retrieved tool " << m_larCablingSvc); 
+  CHECK( m_cablingKey.initialize() );
   
   if(m_SGKey_photons == "" && m_SGKey_electrons == "" ){
     ATH_MSG_FATAL("No e-gamma collection provided. At least one egamma collection (photon/electrons) must be provided!");
@@ -118,6 +114,12 @@ void DerivationFramework::MaxCellDecorator::decorateObject(const xAOD::Egamma*& 
     if( !cluster->getCellLinks() ){
       ATH_MSG_WARNING("CellLinks not found");
     }
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return;
+    }
    
     float emax = -9999.;
 
@@ -139,7 +141,7 @@ void DerivationFramework::MaxCellDecorator::decorateObject(const xAOD::Egamma*& 
       maxEcell_time    = cell_maxE->time();
       maxEcell_energy = cell_maxE->energy();
       maxEcell_gain   = (int)cell_maxE->gain();
-      maxEcell_onlId  = (uint64_t)(m_larCablingSvc->createSignalChannelID(caloDDEl->identify())).get_compact();
+      maxEcell_onlId  = (uint64_t)(cabling->createSignalChannelID(caloDDEl->identify())).get_compact();
       maxEcell_x      = caloDDEl->x();
       maxEcell_y      = caloDDEl->y();
       maxEcell_z      = caloDDEl->z();
