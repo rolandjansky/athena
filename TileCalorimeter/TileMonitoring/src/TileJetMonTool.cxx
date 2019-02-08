@@ -23,6 +23,7 @@
 // ********************************************************************
 
 #include "xAODJet/JetContainer.h"
+#include <xAODCore/ShallowCopy.h>
 #include "JetUtils/JetCaloQualityUtils.h"
 #include "JetUtils/JetCellAccessor.h"
 
@@ -736,16 +737,20 @@ bool TileJetMonTool::isGoodEvent() {
     return true;
   }
 
+  auto jetsSC = xAOD::shallowCopyContainer(*jetContainer);
   int ijet=0;
-  for (const xAOD::Jet* jet : *jetContainer) {
+  for (auto jet : *jetsSC.first) {
     ATH_MSG_DEBUG("Jet " << ijet << ", pT " << jet->pt()/1000.0 << " GeV, eta " 
 		  << jet->eta());
-    jet->auxdecor<char>(m_JvtDecorator) = passesJvt(*jet);
-    jet->auxdecor<char>(m_OrDecorator) = true;
+    jet->auxdata<char>(m_JvtDecorator) = passesJvt(*jet);
+    jet->auxdata<char>(m_OrDecorator) = true;
     ATH_MSG_DEBUG("... done with jet " << ijet);
     ijet++;
   }
-  return m_ECTool->acceptEvent(jetContainer);
+  bool accept = m_ECTool->acceptEvent(jetsSC.first);
+  delete jetsSC.first;
+  delete jetsSC.second;
+  return accept;
 }
 
 bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
