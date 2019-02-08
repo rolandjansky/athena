@@ -156,7 +156,7 @@ if __name__ == "__main__":
  
 
     # Specify output
-    ConfigFlags.Output.HITFileName = "myHITS.pool.root" #todo change the flag name in AllConfigFlags
+    ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
 
     #set the source of vertex positioning
     #ConfigFlags.Vertex.Source = "VertexOverrideFile.txt"# Vertex.OverrideFile/Vertex.OverrideEventFile

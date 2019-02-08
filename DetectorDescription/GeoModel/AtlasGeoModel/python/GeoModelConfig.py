@@ -16,7 +16,9 @@ def GeoModelCfg(configFlags):
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     gms=GeoModelSvc(AtlasVersion=version,
                     SupportedGeometry = int(relversion[0]))
-
+    if configFlags.Detector.Simulate:
+        ## Protects GeoModelSvc in the simulation from the AlignCallbacks
+        gms.AlignCallbacks = False
     result.addService(gms)
     
     from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
