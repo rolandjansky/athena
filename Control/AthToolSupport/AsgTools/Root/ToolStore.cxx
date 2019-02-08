@@ -90,17 +90,22 @@ namespace asg {
    }
 
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
+      using namespace msgToolHandle;
 
-      std::lock_guard<std::mutex> lock (s_toolMutex);
       ToolMap_t::const_iterator itool = s_tools.find( name );
-      if( itool == s_tools.end() ) {
-         if( ! silent ) {
-            std::cout << "asg::ToolStore::get       WARNING Tool with name \""
-                      << name << "\" not found" << std::endl;
-         }
-         return 0;
+      if( itool != s_tools.end() )
+        return itool->second;
+
+      if (name.find ("ToolSvc.") != 0) {
+        itool = s_tools.find( "ToolSvc." + name );
+        if( itool != s_tools.end() )
+          return itool->second;
       }
-      return itool->second;
+
+      if( ! silent ) {
+        ANA_MSG_WARNING ("Tool with name \"" << name << "\" not found");
+      }
+      return nullptr;
    }
 
    StatusCode ToolStore::remove( const IAsgTool* tool ) {

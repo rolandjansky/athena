@@ -102,3 +102,9 @@ atlas_add_test( gt_AnaCheck
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_AnaCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
+
+atlas_add_test( gt_asgtools_toolstore
+   SOURCES test/gt_asgtools_toolstore.cxx
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+set_tests_properties (AsgExampleTools_gt_asgtools_toolstore_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
