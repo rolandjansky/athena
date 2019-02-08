@@ -9,11 +9,11 @@
 #define XAODTRIGGER_TRIGCOMPOSITEAUXCONTAINER_H
 
 // Local include(s):
-#include "xAODTrigger/versions/TrigCompositeAuxContainer_v1.h"
+#include "xAODTrigger/versions/TrigCompositeAuxContainer_v2.h"
 
 namespace xAOD{
    /// Declare the latest version of the container
-   typedef TrigCompositeAuxContainer_v1 TrigCompositeAuxContainer;
+   typedef TrigCompositeAuxContainer_v2 TrigCompositeAuxContainer;
 }
 
 namespace TrigCompositeUtils{ 

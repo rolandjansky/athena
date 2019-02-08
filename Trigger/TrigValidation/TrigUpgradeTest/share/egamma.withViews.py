@@ -430,7 +430,7 @@ hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerA
 
 topSequence += hltTop
 
-###### Begin Cost Monitoring block
+###### Begin Cost Monitoring block 
 ## TODO: Express this as a ComponentAccumulator
 
 from AthenaCommon.AppMgr import ServiceMgr
