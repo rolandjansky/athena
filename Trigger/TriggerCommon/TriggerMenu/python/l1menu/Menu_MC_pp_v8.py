@@ -421,7 +421,7 @@ def defineMenu():
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40",
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40", "L1_2TAU5", "L1_2TAU8",
 
         # combined tau - lepton
         "L1_EM15VHI_2TAU12IM",          
@@ -992,6 +992,8 @@ def defineMenu():
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
         'L1_TAU20IM_2TAU12IM' : 58,
+        'L1_2TAU5' : 365,
+        'L1_2TAU8' : 370,
         'L1_TAU20_2TAU12' : 59,
         'L1_EM15VHI_2TAU12IM' : 60,
         'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
