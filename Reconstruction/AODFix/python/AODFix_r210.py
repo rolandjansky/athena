@@ -119,7 +119,7 @@ class AODFix_r210(AODFix_base):
           """
           MC15.304784.Pythia8EvtGen_A14NNPDF23LO_jetjet_Powerlaw.py
           """
-          if input_mcChanHb==304784:
+          if input_mcChanNb==304784:
             schedule_evtRunNum = True
           """
           mc15_13TeV.364310.Sherpa_222_NNPDF30NNLO_Wenu_MAXHTPTV70_140.evgen.EVNT.e6209
@@ -170,7 +170,7 @@ class AODFix_r210(AODFix_base):
           if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
             runNumber = variables['runArgs'].runNumber
 
-          if runNumber != input_mcChanNb:
+          if runNumber and  runNumber != input_mcChanNb:
             from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
             EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
             topSequence+=EventInfoRunNumberFixAlg
