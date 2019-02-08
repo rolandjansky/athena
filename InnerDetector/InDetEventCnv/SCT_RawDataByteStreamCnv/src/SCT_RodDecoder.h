@@ -87,13 +87,20 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
                       InDetBSErrContainer* errs) const;
 
   /** Set first temporarily masked chip information from byte stream trailer */
-  void setFirstTempMaskedChip(const IdentifierHash& hashID, unsigned int firstTempMaskedChip, InDetBSErrContainer* errs) const;
+  void setFirstTempMaskedChip(const IdentifierHash& hashID, 
+                              unsigned int firstTempMaskedChip, 
+                              InDetBSErrContainer* errs) const;
 
   const SCT_ID* m_sctID;
   IdContext m_contextSCT;
-  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, "ConfigTool",
-      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
+  ToolHandle<ISCT_CablingTool> m_cabling{this, 
+                                         "SCT_CablingTool", 
+                                         "SCT_CablingTool", 
+                                         "Tool to retrieve SCT Cabling"};
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, 
+                                                            "ConfigTool",
+                                                            "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", 
+                                                            "Tool to retrieve SCT Configuration Tool"};
   /** Summary of the decoding process */
   mutable std::atomic_uint m_singleCondHitNumber;   //!< Total number of single hit decoded in condensed mode
   mutable std::atomic_uint m_pairedCondHitNumber;   //!< Total number of paired hit decoded in condensed mode
@@ -101,21 +108,21 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   mutable std::atomic_uint m_evenExpHitNumber;      //!< Total number of paired hit decoded in expanded mode
   mutable std::atomic_uint m_lastExpHitNumber;      //!< Total number of last hit decoded in expanded mode
   mutable std::atomic_uint m_headNumber;            //!< Total number of decoded header data
-  mutable std::atomic_uint m_trailerNumber;           //!< Total number of decoded trailer data
-  mutable std::atomic_uint m_headErrorBCID;       //!< Total number of bcid error in the header data
-  mutable std::atomic_uint m_headErrorLvl1ID;     //!< Total number of lvl1id error in the header data
-  mutable std::atomic_uint m_headErrorTimeout;    //!< Total number of timeout error in the header data
-  mutable std::atomic_uint m_headErrorFormatter;  //!< Total number of formatter error in the header data
+  mutable std::atomic_uint m_trailerNumber;         //!< Total number of decoded trailer data
+  mutable std::atomic_uint m_headErrorBCID;         //!< Total number of bcid error in the header data
+  mutable std::atomic_uint m_headErrorLvl1ID;       //!< Total number of lvl1id error in the header data
+  mutable std::atomic_uint m_headErrorTimeout;      //!< Total number of timeout error in the header data
+  mutable std::atomic_uint m_headErrorFormatter;    //!< Total number of formatter error in the header data
   mutable std::atomic_uint m_headErrorPreamble;     //!< Total number of preamble error in the header data
   mutable std::atomic_uint m_trailerErrorOverflow;  //!< Total number of overflow error in the trailer data
   mutable std::atomic_uint m_trailerErrorLimit;     //!< Total number of header trailer limit error in the trailer data
   mutable std::atomic_uint m_trailerErrorBit;       //!< Total number of trailer bit error
-  mutable std::atomic_uint m_configDataBit;       //!< Total number of configuration data
-  mutable std::atomic_uint m_flagErrorBit;        //!< Total number of flag error data
-  mutable std::atomic_uint m_condHit1Error;       //!< Total number of first hit data error
-  mutable std::atomic_uint m_condHit2Error;       //!< Total number second hit data errors
-  mutable std::atomic_uint m_chipNumberError;     //!< Total number of chip number error
-  mutable std::atomic_uint m_unknownDataFormat;   //!< Total number of unknown data format
+  mutable std::atomic_uint m_configDataBit;         //!< Total number of configuration data
+  mutable std::atomic_uint m_flagErrorBit;          //!< Total number of flag error data
+  mutable std::atomic_uint m_condHit1Error;         //!< Total number of first hit data error
+  mutable std::atomic_uint m_condHit2Error;         //!< Total number second hit data errors
+  mutable std::atomic_uint m_chipNumberError;       //!< Total number of chip number error
+  mutable std::atomic_uint m_unknownDataFormat;     //!< Total number of unknown data format
   mutable std::atomic_uint m_nHits;
   mutable std::atomic_uint m_nRDOs;
   mutable std::atomic_uint m_maskedLinkNumber;
