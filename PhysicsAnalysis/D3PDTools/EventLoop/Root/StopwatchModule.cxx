@@ -62,7 +62,7 @@ namespace EL
       m_runTime->Fill (3, m_stopwatch->CpuTime());
       m_runTime->Fill (4, m_stopwatch->RealTime());
       m_stopwatch->Continue ();
-      data.m_output->Add (m_runTime.release());
+      data.addOutput (std::move (m_runTime));
       return ::StatusCode::SUCCESS;
     }
 

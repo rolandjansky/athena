@@ -45,7 +45,7 @@ namespace EL
         eventCount->Fill (data.m_algs.size(), data.m_eventsProcessed);
       }
 
-      data.m_output->Add (eventCount.release());
+      data.addOutput (std::move (eventCount));
       return ::StatusCode::SUCCESS;
     }
   }
