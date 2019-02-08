@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file   BPhysHelper.cxx
@@ -20,6 +20,8 @@ typedef ElementLink<xAOD::VertexContainer> VertexLink;
 typedef std::vector<VertexLink> VertexLinkVector;
 typedef ElementLink<xAOD::MuonContainer> MuonLink;
 typedef std::vector<MuonLink> MuonLinkVector;
+typedef ElementLink<xAOD::ElectronContainer> ElectronLink;
+typedef std::vector<ElectronLink> ElectronLinkVector;
 
 /** @} */
 
@@ -289,7 +291,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<float>& px,
   if(px.size()!=py.size() || px.size()!=pz.size())
     return false;
   
-  // erase refitted track cache to preserve cosistency
+  // erase refitted track cache to preserve consistency
   m_refTracksCached = false;
   m_cachedRefTracks.clear();
   
@@ -505,6 +507,86 @@ bool xAOD::BPhysHelper::setMuons(const std::vector<const xAOD::Muon*>& muons,
   
   // all OK: store muon links in the aux store
   muonLinksDecor(*m_b) = muonLinks;
+  
+  return true;
+  
+}
+
+/*****************************************************************************/
+int xAOD::BPhysHelper::nElectrons()
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return -1;
+  
+  // all OK:
+  return m_cachedElectrons.size();
+}
+
+/*****************************************************************************/
+const xAOD::Electron* xAOD::BPhysHelper::electron(const size_t index)
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return 0;
+  
+  // range check
+  if(index>=m_cachedElectrons.size())
+    return 0;
+  
+  // all OK:
+  return m_cachedElectrons[index];
+  
+}
+
+/*****************************************************************************/
+const std::vector<const xAOD::Electron*>& xAOD::BPhysHelper::electrons()
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return xAOD::BPhysHelper::emptyVectorOfElectrons;
+  
+  // all OK:
+  return m_cachedElectrons;  
+}
+
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setElectrons(const std::vector<const xAOD::Electron*>& electrons,
+                                     const xAOD::ElectronContainer* electronContainer)
+{
+  // erase electron cache to preserve cosistency
+  m_electronsCached = false;
+  m_cachedElectrons.clear();
+  
+  // Create electron links decorator 
+  static SG::AuxElement::Decorator<ElectronLinkVector> electronLinksDecor("ElectronLinks"); 
+  
+  // create tmp vector of electron links
+  ElectronLinkVector electronLinks;
+
+  // loop over input electrons  
+  std::vector<const xAOD::Electron*>::const_iterator electronsItr = electrons.begin();
+  for(; electronsItr!=electrons.end(); ++electronsItr) {
+    // sanity check 1: protect against null pointers
+    if( !(*electronsItr) )
+      return false;
+    
+    // create element link
+    ElementLink<xAOD::ElectronContainer> elLink;
+    elLink.setElement(*electronsItr);
+    elLink.setStorableObject(*electronContainer);
+    
+    // sanity check 2: is the link valid?
+    if( !elLink.isValid() )
+      return false;
+    
+    // link is OK, store it in the tmp vector
+    electronLinks.push_back( elLink );
+    
+  } // end of loop over electrons
+  
+  // all OK: store electron links in the aux store
+  electronLinksDecor(*m_b) = electronLinks;
   
   return true;
   
@@ -1136,6 +1218,51 @@ bool xAOD::BPhysHelper::cacheMuons()
 }
 
 /*****************************************************************************/
+bool xAOD::BPhysHelper::cacheElectrons()
+{
+  // if linked electrons are already cached do nothing and return true 
+  if(m_electronsCached && !m_cachedElectrons.empty())
+    return true;
+  
+  // if linked electrons are cached but the cache is empty, return false (error)
+  if(m_electronsCached && m_cachedElectrons.empty())
+    return false;
+  
+  // Linked electrons are not cached, yet. Retrieve them from the aux store:
+  m_electronsCached = true;
+  m_cachedElectrons.clear();
+  
+  // Create auxiliary branches accessors 
+  static SG::AuxElement::Accessor<ElectronLinkVector> electronLinksAcc("ElectronLinks"); 
+  
+  // check if branch exists
+  if(!electronLinksAcc.isAvailable(*m_b)) {
+    return false;
+  }
+  
+  // retrieve the electron links...
+  const ElectronLinkVector& electronLinks = electronLinksAcc(*m_b);
+  
+  // ... and check if they are all valid
+  ElectronLinkVector::const_iterator electronLinksItr = electronLinks.begin();
+  for(; electronLinksItr!=electronLinks.end(); ++electronLinksItr) {
+    // check if links are valid
+    if(!(*electronLinksItr).isValid()) {
+      return false;
+    }
+  }
+  
+  // all OK, cache the electrons
+  electronLinksItr = electronLinks.begin();
+  for(; electronLinksItr!=electronLinks.end(); ++electronLinksItr) {
+    m_cachedElectrons.push_back(*(*electronLinksItr));
+  }
+  
+  return true;
+  
+}
+
+/*****************************************************************************/
 bool xAOD::BPhysHelper::cachePrecedingVertices()
 {
   // if linked preceding vertices are already cached do nothing and return true 
@@ -1228,6 +1355,7 @@ bool xAOD::BPhysHelper::cacheCascadeVertices()
 /*****************************************************************************/
 const std::vector<TVector3>            xAOD::BPhysHelper::emptyVectorOfTVector3(0);
 const std::vector<const xAOD::Muon*>   xAOD::BPhysHelper::emptyVectorOfMuons(0);
+const std::vector<const xAOD::Electron*>   xAOD::BPhysHelper::emptyVectorOfElectrons(0);
 const TMatrixTSym<double>              xAOD::BPhysHelper::emptyMatrix(0);
 const std::vector<const xAOD::Vertex*> xAOD::BPhysHelper::emptyVectorOfVertices(0);
 /*****************************************************************************/
