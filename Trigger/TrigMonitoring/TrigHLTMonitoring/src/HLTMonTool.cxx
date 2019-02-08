@@ -548,10 +548,11 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
 	  // ------------ Fill RoI Histograms ---------------
 	  if (rsIt->first=="RAW" && isHLTChain) {
 	    std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roiIt;
-      //Hack to avoid combinatorics from GSC chains ATR-16670
-      if (chain.find("gsc") != std::string::npos) {
-        continue;
-      }
+	    //Hack to avoid combinatorics from GSC chains ATR-16670
+	    //Removed in 2018/2019 pseudomerged following fix in jet trigger monitoring https://gitlab.cern.ch/atlas/athenaprivate1/merge_requests/16753
+	    //if (chain.find("gsc") != std::string::npos) {
+	    //continue;
+	    //}
 	    const std::vector<Trig::Feature<TrigRoiDescriptor> > rois = (getTDT()->features(chain)).get<TrigRoiDescriptor>("initialRoI"); 
 	    for (roiIt=rois.begin(); roiIt!=rois.end(); ++roiIt) {
 	      const TrigRoiDescriptor* roi = roiIt->cptr();

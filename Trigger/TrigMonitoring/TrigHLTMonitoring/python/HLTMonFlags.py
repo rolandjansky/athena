@@ -16,21 +16,42 @@ class doMonTier0(JobProperty):
 list+=[doMonTier0]
 
 class doGeneral(JobProperty):
-	""" switch for general HLTMon Tool"""
+	""" switch for general HLTMon Tool """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=True
 list+=[doGeneral]
 
 class doMaM(JobProperty):
-	""" Global switch for menu-aware monitoring"""
+	""" Global switch for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=True
+list+=[doMaM]
+
+class doMaM_ApplyMCK(JobProperty):
+	""" Switch for menu-aware monitoring: applying configurations defined by an MCK """
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=True
+list+=[doMaM_ApplyMCK]
+
+class MCK(JobProperty):
+	""" Monitoring Configuration Key (MCK) for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['int']
+	StoredValue=-1
+list+=[MCK]
+
+class doMaM_UseReproDB(JobProperty):
+	""" Switch for menu-aware monitoring: use MCKs in TRIGGERDBREPR, don't query COOL """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=False
-list+=[doMaM]
+list+=[doMaM_UseReproDB]
 
 class doMaM_ExtractAndDumpConfigs(JobProperty):
-	""" Switch for menu-aware monitoring: exctraction of tool configurations, and output to a json file"""
+	""" Switch for menu-aware monitoring: extraction of tool configurations, and output to a json file """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=False
@@ -42,20 +63,6 @@ class MaM_OutputJSON(JobProperty):
 	allowedTypes=['str']
 	StoredValue='mam_configs.json'
 list+=[MaM_OutputJSON]
-
-class doMaM_ApplyMCK(JobProperty):
-	""" Switch for menu-aware monitoring: applying configurations defined by an MCK"""
-	statusOn=True
-	allowedTypes=['bool']
-	StoredValue=False
-list+=[doMaM_ApplyMCK]
-
-class MCK(JobProperty):
-	""" Monitoring Configuration Key (MCK) for menu-aware monitoring """
-	statusOn=True
-	allowedTypes=['int']
-	StoredValue=-1
-list+=[MCK]
 
 class doEgamma(JobProperty):
 	""" Egamma switch for monitoring """
