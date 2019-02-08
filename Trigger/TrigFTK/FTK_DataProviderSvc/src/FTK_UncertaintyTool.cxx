@@ -28,22 +28,22 @@ using std::cout; using std::endl;
 namespace {
   struct FastSimParameters
   {
-    float amplCore;
-    float meanCore;
-    float aCore;
-    float bCore;
-    float amplTail;
-    float meanTail;
-    float aTail;
-    float bTail;
+    double amplCore;
+    double meanCore;
+    double aCore;
+    double bCore;
+    double amplTail;
+    double meanTail;
+    double aTail;
+    double bTail;
   };
 
   // Parameters in 2 IBL bins (hit/no hit) and 5 eta bins (0, 0.5, 1.0, 1.5, 2.0, 2.5)
   using FastSimParameterSet = const FastSimParameters[2][5];
 
-  inline int EtaBin(float eta)
+  inline int EtaBin(double eta)
   {
-    const float abseta = abs(eta);
+    const double abseta = abs(eta);
 
     if (abseta > 2.5)
       return 4;
@@ -56,6 +56,25 @@ namespace {
     return hasIBLHit ? 0 : 1;
   }
 
+  inline double sigma(double a, double b, double invPt2)
+  {
+    return sqrt(a + b * (invPt2*invPt2));
+  }
+
+  double GetError(bool hasIBLHit, double eta, double invPt, FastSimParameterSet& parameters)
+  {
+    const int etabin = EtaBin(eta);
+    const int iblbin = IBLBin(hasIBLHit);
+
+    auto& params = parameters[iblbin][etabin];
+
+    const double invPt2 = 0.5 * invPt;
+
+    const double sigmaCore = sigma(params.aCore, params.bCore, invPt2);
+    const double sigmaTail = sigma(params.aTail, params.bTail, invPt2);
+
+    return (params.amplCore * sigmaCore + params.amplTail * sigmaTail) / (params.amplCore + params.amplTail);
+  }
 
   const FastSimParameterSet FastSimParameters_d0 = {
     {
