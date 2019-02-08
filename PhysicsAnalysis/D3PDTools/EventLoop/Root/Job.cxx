@@ -107,6 +107,9 @@ namespace EL
   const std::string Job::optMemFailOnLeak = "nc_failOnMemLeak";
 
 
+  const std::string Job::histogramStreamName = "HISTOGRAM";
+
+
   void swap (Job& a, Job& b)
   {
     swap (a.m_sampleHandler, b.m_sampleHandler);

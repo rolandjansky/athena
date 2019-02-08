@@ -20,7 +20,7 @@ namespace SH
   ///
   /// \par Rationale
   ///   this is to be used when storing output n-tuples on xrootd servers
-  class DiskOutputXRD : public DiskOutput
+  class DiskOutputXRD final : public DiskOutput
   {
     //
     // public interface
@@ -51,7 +51,7 @@ namespace SH
     ///   out of memory II
     /// \pre val_prefix.find ("root://") == 0
   public:
-    DiskOutputXRD (const std::string& val_prefix);
+    explicit DiskOutputXRD (const std::string& val_prefix);
 
 
 
@@ -59,11 +59,17 @@ namespace SH
     // inherited interface
     //
 
-    /// \copydoc DiskOutput::doMakeWriter()
   protected:
-    virtual DiskWriter *
-    doMakeWriter (const std::string& sample, const std::string& name,
-		  int index, const std::string& suffix) const;
+    virtual std::unique_ptr<DiskWriter>
+    doMakeWriter (const std::string& sampleName,
+                  const std::string& segmentName,
+		  const std::string& suffix) const;
+
+  protected:
+    virtual std::string
+    getTargetURL (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const;
 
 
 

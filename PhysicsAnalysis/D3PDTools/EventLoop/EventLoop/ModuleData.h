@@ -78,18 +78,25 @@ namespace EL
       /// \brief the number of events that have been processed
       uint64_t m_eventsProcessed {0};
 
-      /// \brief the histogram output list
-      TList *m_output {nullptr};
+      /// \brief the histogram output stream
+      OutputStreamData *m_histOutput {nullptr};
 
       /// \brief Tree saving per-job statistics information
       std::unique_ptr<TTree> m_jobStats;
-
 
       /// \brief the TEvent structure, if we use one
       xAOD::TEvent *m_tevent {nullptr};
 
       /// \brief the TStore structure, if we use one
       xAOD::TStore *m_tstore {nullptr};
+
+
+      /// \brief add the given output object to the histogram output stream
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   out of memory II
+      void addOutput (std::unique_ptr<TObject> output);
     };
   }
 }

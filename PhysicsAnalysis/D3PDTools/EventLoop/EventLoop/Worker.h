@@ -19,10 +19,8 @@
 
 #include <EventLoop/IWorker.h>
 #include <EventLoop/ModuleData.h>
+#include <EventLoop/OutputStreamData.h>
 #include <map>
-#include <memory>
-
-class TList;
 
 namespace EL
 {
@@ -228,7 +226,28 @@ namespace EL
     /// warning: you have to keep the meta-data object around until
     ///   the worker object is destroyed.
   protected:
-    Worker (const SH::MetaObject *val_metaData, TList *output);
+    Worker ();
+
+
+    /// \brief set the \ref metaData
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setMetaData (const SH::MetaObject *val_metaData);
+
+
+    /// \brief set the histogram output list
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setOutputHist (const std::string& val_outputTarget);
+
+
+    /// \brief set the segment name
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setSegmentName (const std::string& val_segmentName);
 
 
     /// \brief set the \ref JobConfig
@@ -319,12 +338,9 @@ namespace EL
     /// guarantee: strong
     /// failures: low level errors II
     /// failures: label already used
-    /// requires: file_swallow != 0
   protected:
-    ::StatusCode addOutputFile (const std::string& label,
-                                std::unique_ptr<TFile> file);
-    ::StatusCode addOutputWriter (const std::string& label,
-                                  std::unique_ptr<SH::DiskWriter> writer);
+    ::StatusCode addOutputStream (const std::string& label,
+                                  Detail::OutputStreamData output);
 
 
     /// effects: tell all algorithms that they should process the next
@@ -363,23 +379,9 @@ namespace EL
     // private interface
     //
 
-    /// \brief the output map
-  private:
-    typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
-    std::map<std::string,TH1*> m_outputHistMap;
-
-
-    /// description: the list of output trees
-  private:
-    typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
-       OutputTreeMapIter;
-    std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
-
-
     /// description: the list of output files
   private:
-    typedef std::map<std::string,SH::DiskWriter*>::const_iterator outputFilesIter;
-    std::map<std::string,SH::DiskWriter*> m_outputFiles;
+    std::map<std::string,Detail::OutputStreamData> m_outputs; //!
 
 
     /// description: whether we are skipping the event
@@ -396,6 +398,16 @@ namespace EL
     /// yet been connected to the algorithms)
   private:
     bool m_newInputFile {false};
+
+
+    /// \brief the target file to which we will write the histogram output
+  private:
+    std::string m_outputTarget;
+
+
+    /// \brief the name of the segment we are processing
+  private:
+    std::string m_segmentName;
 
 
     /// \brief whether we are still to process the first event

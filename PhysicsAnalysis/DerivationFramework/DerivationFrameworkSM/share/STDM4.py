@@ -285,6 +285,10 @@ addHadRecoilMETMap(STDM4Sequence, STDM4Stream, "STDM4")
 #svcMgr += createThinningSvc( svcName="STDM4ThinningSvc", outStreams=[evtStream] )
 
 
+# Add fatjets (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets and AntiKt10TruthTrimmedPtFrac5SmallR20Jets)
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(STDM4Sequence, "STDM4")
+
 #====================================================================
 # Jet reconstruction/retagging
 #====================================================================
@@ -311,7 +315,9 @@ STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMPFlowJets",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices" ]
+                                        "PrimaryVertices",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        ]
 
 STDM4SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM4SlimmingHelper.IncludeMuonTriggerContent = True

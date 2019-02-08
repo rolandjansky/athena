@@ -118,7 +118,7 @@ namespace EL
           (new xAOD::ReadStats (xAOD::IOStats::instance().stats()));
         stats->SetName (Job::optXAODReadStats.c_str());
         stats->Print ();
-        data.m_output->Add (stats.release());
+        data.addOutput (std::move (stats));
       }
       data.m_tevent = nullptr;
       data.m_tstore = nullptr;

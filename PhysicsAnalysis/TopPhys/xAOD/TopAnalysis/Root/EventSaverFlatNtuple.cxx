@@ -235,21 +235,25 @@ namespace top {
     std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
     if (m_config->doTightEvents() && !m_config->HLLHC()) {
       for (auto treeName : *config->systAllTTreeNames()) {
-        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
-        m_treeManagers.back()->branchFilters() = branchFilters();
-        if (treeName.first == m_config->nominalHashValue()) {
-          nominalTTreeName = treeName.second;
-        }
+	if (treeName.first == m_config->nominalHashValue() || m_config->doTightSysts()){
+	  m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
+	  m_treeManagers.back()->branchFilters() = branchFilters();
+	  if (treeName.first == m_config->nominalHashValue()) {
+	    nominalTTreeName = treeName.second;
+	  }
+	}
       }
     }
 
     if (m_config->doLooseEvents()) {
       for (auto treeName : *config->systAllTTreeNames()) {
-        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
-        m_treeManagers.back()->branchFilters() = branchFilters();
-        if (treeName.first == m_config->nominalHashValue()) {
-          nominalLooseTTreeName = treeName.second+"_Loose";
-        }
+	if (treeName.first == m_config->nominalHashValue() || m_config->doLooseSysts()){
+	  m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
+	  m_treeManagers.back()->branchFilters() = branchFilters();
+	  if (treeName.first == m_config->nominalHashValue()) {
+	    nominalLooseTTreeName = treeName.second+"_Loose";
+	  }
+	}
       }
     }
 
@@ -2093,6 +2097,7 @@ namespace top {
         ++i;
       }
     }
+
 
     //jets
     if (m_config->useJets()) {

@@ -213,6 +213,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");
+    registerParameter("DoSysts","Run systematics on given selection: Both (default), Tight, Loose", "Both");
 
     registerParameter("OverlapRemovalLeptonDef","Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions", "Tight");
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");

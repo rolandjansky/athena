@@ -18,6 +18,7 @@
 #include <EventLoop/Driver.h>
 
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/RootUtils.h>
@@ -174,13 +175,15 @@ namespace EL
   bool Driver ::
   wait (const std::string& location, unsigned time)
   {
+    using namespace msgEventLoop;
+
     // no invariant used
 
     struct SigTrap {
       static void handler (int) 
       { 
 	EL::Driver::abortRetrieve = true; 
-	std::cout << "\nAborting..." << std::endl;
+	ANA_MSG_INFO ("\nAborting...");
       }
       SigTrap() { signal (SIGINT, &handler); }
       ~SigTrap() { signal (SIGINT, SIG_DFL); EL::Driver::abortRetrieve = false; }
@@ -189,13 +192,13 @@ namespace EL
     while (!retrieve (location))
     {
       if (abortRetrieve) { return false; }
-      std::cout << "not all worker jobs finished yet, waiting " << time << " seconds" << std::endl;
+      ANA_MSG_INFO ("not all worker jobs finished yet, waiting " << time << " seconds");
       for (unsigned i = 0; i != time; ++i) 
       {
 	if (abortRetrieve) { return false; }
 	sleep (1);
       }
-      std::cout << "rechecking jobs" << std::endl;
+      ANA_MSG_INFO ("rechecking jobs");
     }
     return true;
   }
@@ -234,54 +237,6 @@ namespace EL
     {
       std::ofstream file ((location + "/location").c_str());
       file << to << std::endl;
-    }
-  }
-
-
-
-  void Driver ::
-  saveOutput (const std::string& location, const std::string& name,
-	      TList& output)
-  {
-    try
-    {
-      std::unique_ptr<TFile> file (TFile::Open ((location + "/hist-" + name + ".root").c_str(), "RECREATE"));
-      TIter iter (&output);
-      TObject *object = 0;
-      while ((object = iter.Next()))
-      {
-	TDirectory *dir = file.get();
-	std::string path = object->GetName();
-	std::string name;
-	std::string::size_type split = path.rfind ("/");
-	if (split == std::string::npos)
-	{
-	  name = path;
-	} else
-	{
-	  std::string dirname = path.substr (0, split);
-	  name = path.substr (split + 1);
-	  TNamed *named = dynamic_cast<TNamed*>(object);
-	  if (named)
-	    named->SetName (name.c_str());
-	  dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
-	  if (!dir)
-	  {
-	    file->mkdir (dirname.c_str());
-	    dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
-	  }
-	  RCU_ASSERT (dir != 0);
-	}
-
-	if (!RCU::SetDirectory (object, dir))
-	  dir->WriteObject (object, name.c_str());
-      }
-      file->Write ();
-      output.Clear ("nodelete");
-    } catch (...)
-    {
-      output.Clear ("nodelete");
-      throw;
     }
   }
 
