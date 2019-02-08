@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -50,7 +50,7 @@ namespace Analysis
     public:
       MuonConstituent() ;      //!< constructor
       MuonConstituent(NameType& name) ;      //!< constructor
-      ~MuonConstituent() ;      //!< destructor
+      ~MuonConstituent() = default;
 
       virtual void setName(NameType& name);
       //!< to set the name

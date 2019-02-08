@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -18,11 +18,12 @@
 
 // Tile includes
 #include "TileSimAlgs/TileHitToRawChannel.h"
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileEvent/TileHitContainer.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -194,8 +195,8 @@ StatusCode TileHitToRawChannel::execute() {
   IdContext drawer_context = m_tileHWID->drawer_context();
 
   // step2: form raw channels, and put them in container
-  SG::WriteHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
-  ATH_CHECK( rawChannelContainer.record(std::make_unique<TileRawChannelContainer>(true, m_rChType, m_rChUnit)));
+  auto rawChannelContainer = std::make_unique<TileMutableRawChannelContainer>(true, m_rChType, m_rChUnit);
+  ATH_CHECK( rawChannelContainer->status() );
 
   // iterate over all collections in a container
   for (const TileHitCollection* hitCollection : *hitContainer) {
@@ -350,8 +351,8 @@ StatusCode TileHitToRawChannel::execute() {
 
         if (lrcGood) {
 
-          std::unique_ptr<TileRawChannel> rawChannel = std::make_unique<TileRawChannel>(adc_id, amp, adc_time[ch], adc_qual[ch]);
-          rawChannelContainer->push_back(rawChannel.release());
+          auto rawChannel = std::make_unique<TileRawChannel>(adc_id, amp, adc_time[ch], adc_qual[ch]);
+          ATH_CHECK( rawChannelContainer->push_back(std::move(rawChannel)) );
 
           if (TileID::HIGHGAIN == gain) {
             ++nChHG;
@@ -387,6 +388,10 @@ StatusCode TileHitToRawChannel::execute() {
                     << " nchHG=" << nChHG
                     << " eChHG=" << eChHG << endmsg;
   }
+
+
+  SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelCnt.record(std::move(rawChannelContainer)) );
 
   return StatusCode::SUCCESS;
 }

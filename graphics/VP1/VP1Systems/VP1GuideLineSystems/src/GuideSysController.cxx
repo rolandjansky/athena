@@ -23,11 +23,11 @@
 #include "ui_guides_settings_grid_form.h"
 #include "ui_guides_settings_idprojsurfs_form.h"
 #include "ui_guides_settings_trkvolumes_form.h"
+#include "ui_guides_settings_lines_form.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-
-//#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include <cmath>
 
 //____________________________________________________________________
 class GuideSysController::Imp {
@@ -40,6 +40,7 @@ public:
   Ui::VP1GuidesSysSettingsGridForm ui_grid;
   Ui::VP1GuidesSysSettingsIDProjSurfsForm ui_idprojsurfs;
   Ui::VP1TrackingVolumesForm ui_trkvolumes;
+  Ui::VP1LinesForm ui_lines;
 
   static SbColor4f color4f(const QColor& col, int transp_int) {
     return SbColor4f(std::max<float>(0.0f,std::min<float>(1.0f,col.redF())),
@@ -78,6 +79,9 @@ public:
   bool last_showInnerDetector;
   bool last_showCalorimeters;
   bool last_showMuonSpectrometer;
+  bool last_showLines;
+  SbVec3f last_lineDirection;
+  double last_line_eta; // This is needed to update the display in possibleChange_lineDirection
 
   InDetProjFlags::InDetProjPartsFlags last_applicablePixelProjParts;
   InDetProjFlags::InDetProjPartsFlags last_applicableSCTProjParts;
@@ -108,6 +112,7 @@ GuideSysController::GuideSysController(IVP1System * sys)
   initDialog(m_d->ui_grid, m_d->ui.pushButton_settings_grid,m_d->ui.checkBox_grid);
   initDialog(m_d->ui_idprojsurfs, m_d->ui.pushButton_settings_inDetProjSurfs,m_d->ui.checkBox_inDetProjSurfs);
   initDialog(m_d->ui_trkvolumes, m_d->ui.pushButton_settings_trkVolumes,m_d->ui.checkBox_trkVolumes);
+  initDialog(m_d->ui_lines, m_d->ui.pushButton_settings_lines,m_d->ui.checkBox_lines);
 
   //Hide SCT/Pixel projection surface controls for now:
   m_d->ui_idprojsurfs.groupBox_pixelproj->setVisible(false);
@@ -314,6 +319,16 @@ GuideSysController::GuideSysController(IVP1System * sys)
   addUpdateSlot(SLOT(possibleChange_showMuonSpectrometer()));
 	connectToLastUpdateSlot(m_d->ui_trkvolumes.checkBox_MS);
 
+  addUpdateSlot(SLOT(possibleChange_showLines()));
+  connectToLastUpdateSlot(m_d->ui.checkBox_lines);
+  
+  addUpdateSlot(SLOT(possibleChange_lineDirection()));
+  connectToLastUpdateSlot(m_d->ui_lines.doubleSpinBox_phi);
+  connectToLastUpdateSlot(m_d->ui_lines.doubleSpinBox_theta);
+  connectToLastUpdateSlot(m_d->ui_lines.doubleSpinBox_eta);
+  connectToLastUpdateSlot(m_d->ui_lines.doubleSpinBox_length);
+  
+
   initLastVars();
 }
 
@@ -500,6 +515,29 @@ double GuideSysController::etaExtent() const
 {
   return m_d->ui_etacones.doubleSpinBox_etaconeextent->value() * Gaudi::Units::m
     * (m_d->ui_etacones.radioButton_etaconeextentisr->isChecked() ? 1.0 : -1.0);
+}
+
+//____________________________________________________________________
+bool GuideSysController::showLines() const
+{
+  return m_d->ui.checkBox_lines->isChecked();
+}
+
+
+//____________________________________________________________________
+SbVec3f GuideSysController::lineDirection() const
+{
+  double r = lineLength();
+  double phi = m_d->ui_lines.doubleSpinBox_phi->value();
+  double theta = m_d->ui_lines.doubleSpinBox_theta->value();
+  SbVec3f direction(r*sin(theta)*cos(phi),r*sin(theta)*sin(phi), r*cos(theta));
+  return direction;
+}
+
+//____________________________________________________________________
+double GuideSysController::lineLength() const
+{
+  return m_d->ui_lines.doubleSpinBox_length->value() * Gaudi::Units::m;
 }
 
 //_____________________________________________________________________________________
@@ -726,7 +764,7 @@ bool GuideSysController::showMuonSpectrometer() const
 //____________________________________________________________________
 int GuideSysController::currentSettingsVersion() const
 {
-  return 2;
+  return 3;
 }
 
 //____________________________________________________________________
@@ -833,6 +871,13 @@ void GuideSysController::actualSaveSettings(VP1Serialise&s) const
   s.save(m_d->ui_trkvolumes.checkBox_ID);
   s.save(m_d->ui_trkvolumes.checkBox_Calo);
   s.save(m_d->ui_trkvolumes.checkBox_MS);
+  
+  // Line from origin
+  s.save(m_d->ui.checkBox_lines);
+  s.save(m_d->ui_lines.doubleSpinBox_phi); 
+  s.save(m_d->ui_lines.doubleSpinBox_phi);
+  s.save(m_d->ui_lines.doubleSpinBox_eta);
+  s.save(m_d->ui_lines.doubleSpinBox_length);
 }
 
 //____________________________________________________________________
@@ -946,8 +991,35 @@ void GuideSysController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(m_d->ui_trkvolumes.checkBox_Calo);
     s.restore(m_d->ui_trkvolumes.checkBox_MS);
   } 
-
+  if (s.version()>=3) {
+    s.restore(m_d->ui.checkBox_lines);
+    s.restore(m_d->ui_lines.doubleSpinBox_phi); 
+    s.restore(m_d->ui_lines.doubleSpinBox_phi);
+    s.restore(m_d->ui_lines.doubleSpinBox_eta);
+    s.restore(m_d->ui_lines.doubleSpinBox_length);
+  } 
 }
+
+void GuideSysController::possibleChange_lineDirection() {	
+  // Bit of a hack possibly to do this here, but I want to be able to update the direction by changing either theta or eta
+  double eta = m_d->ui_lines.doubleSpinBox_eta->value();
+  double theta = m_d->ui_lines.doubleSpinBox_theta->value();
+  
+  if (m_d->last_line_eta != eta){
+    // eta has changed, so update theta in the UI
+    theta = 2*std::atan(std::exp(-1.0 * eta));
+    m_d->ui_lines.doubleSpinBox_theta->setValue(theta);
+  } else if ( theta!= std::acos(m_d->last_lineDirection[2] / lineLength() ) ){
+    eta = -1.0 * std::log(std::tan(theta/2.0));
+    m_d->ui_lines.doubleSpinBox_eta->setValue(eta);  
+  }
+  m_d->last_line_eta = m_d->ui_lines.doubleSpinBox_eta->value();
+  if (changed( m_d->last_lineDirection , lineDirection() ) ) { 
+    if (verbose()&&!initVarsMode()) messageVerbose("Emitting "+QString()+"( lineDirectionChanged"+toString(m_d->last_lineDirection)+" )"); 
+    emit lineDirectionChanged(m_d->last_lineDirection); 
+  }  
+}
+
 
 ///////////////////////////////////////////////////////////////////////////
 // Test for possible changes in values and emit signals as appropriate:
@@ -988,3 +1060,5 @@ POSSIBLECHANGE_IMP(showTrackingVolumes)
 POSSIBLECHANGE_IMP(showInnerDetector)
 POSSIBLECHANGE_IMP(showCalorimeters)
 POSSIBLECHANGE_IMP(showMuonSpectrometer)
+POSSIBLECHANGE_IMP(showLines)  
+//POSSIBLECHANGE_IMP(lineDirection) Implemented this manually so we can update eta/theta

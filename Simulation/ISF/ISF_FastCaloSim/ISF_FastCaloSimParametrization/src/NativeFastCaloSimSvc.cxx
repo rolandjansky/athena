@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -156,6 +156,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
     m_theContainer = const_cast<CaloCellContainer *> (theConstContainer);
   }
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // loop on setup tools
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_setup.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_setup.end();
@@ -164,7 +165,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
     std::string chronoName=this->name()+"_"+ itrTool->name();
     
     if (m_chrono) m_chrono -> chronoStart( chronoName);
-    StatusCode sc = (*itrTool)->process(m_theContainer);
+    StatusCode sc = (*itrTool)->process(m_theContainer, ctx);
     if (m_chrono) {
       m_chrono -> chronoStop( chronoName );
       ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );

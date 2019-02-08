@@ -7,11 +7,6 @@
 
 #include "AthAllocators/DataPool.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h" 
-
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
@@ -43,22 +38,24 @@ StatusCode EmptyCellBuilderTool::initialize()
   return sc;
 }
 
-StatusCode EmptyCellBuilderTool::process(CaloCellContainer * theCellContainer)
+StatusCode
+EmptyCellBuilderTool::process (CaloCellContainer* theCellContainer,
+                               const EventContext& ctx) const
 {
   MsgStream log( msgSvc(), name() );
   
-  create_empty_calo(theCellContainer);
+  create_empty_calo(ctx, theCellContainer);
 
-  ++m_nEvent;
 //  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<< endmsg;
   return StatusCode::SUCCESS;
 }
 
-void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContainer)
+void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
+                                             CaloCellContainer * theCellContainer) const
 {
   MsgStream log( msgSvc(), name() );
   
-  ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<m_nEvent);
+  ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
   bool check_exist=false;
   if(theCellContainer->size()>0) {
     check_exist=true;

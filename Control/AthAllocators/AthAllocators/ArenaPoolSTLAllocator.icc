@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaPoolSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
@@ -425,6 +425,7 @@ ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
  *               allocator name.
  */
 template <class T>
+// cppcheck-suppress uninitMemberVar ; false positive
 ArenaPoolSTLAllocator<T, T>::ArenaPoolSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
     : m_nblock (nblock),

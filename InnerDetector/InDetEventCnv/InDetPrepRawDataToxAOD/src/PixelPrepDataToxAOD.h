@@ -21,7 +21,7 @@
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 

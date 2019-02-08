@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
@@ -25,6 +25,14 @@ def _createCfgFlags():
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
 
+    def _checkProject():
+        import os
+        if "AthSimulation_DIR" in os.environ:
+            return "AthSimulation"
+        #TODO expand this method.
+        return "Athena"
+    acf.addFlag('Common.Project', _checkProject())
+
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
     acf.addFlag("Beam.NumberOfCollisions",0) # former global.NumberOfCollisions
@@ -36,16 +44,36 @@ def _createCfgFlags():
 
     acf.addFlag('Output.doESD', False) # produce ESD containers
 
-    acf.addFlag('Output.HITFileName','myHIT.pool.root')
+    acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
+    acf.addFlag('Output.HITSFileName','myHITS.pool.root')
     acf.addFlag('Output.RDOFileName','myROD.pool.root')
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
+    acf.addFlag('Output.HISTFileName','myHIST.root')
 
+
+#Detector Flags:
+    acf.addFlag('Detector.SimulatePixel', False)
+    acf.addFlag("Detector.SimulateSCT",   False)
+    acf.addFlag("Detector.SimulateTRT",   False)
+    acf.addFlag("Detector.SimulateMuon",  False)
+    acf.addFlag("Detector.SimulateCavern",False)
+    acf.addFlag("Detector.Simulate", lambda prevFlags : (prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
+                                                         prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateMuon or
+                                                         prevFlags.Detector.SimulateCavern))
+    acf.addFlag("Detector.OverlayPixel", False)
+    acf.addFlag("Detector.OverlaySCT",   False)
+    acf.addFlag("Detector.OverlayTRT",   False)
+    acf.addFlag("Detector.OverlayMuon",  False)
+    acf.addFlag("Detector.Overlay", lambda prevFlags : (prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
+                                                        prevFlags.Detector.OverlayTRT or prevFlags.Detector.OverlayMuon ))
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
-
+    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
+    acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
+    acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
@@ -55,13 +83,13 @@ def _createCfgFlags():
 
 #LAr Flags:
     try:
-        import LArCellRec # Suppress flake8 unused import warning: # noqa: F401
-        haveLArCellRec = True
+        import LArConfiguration # Suppress flake8 unused import warning: # noqa: F401
+        haveLArConfiguration = True
     except ImportError:
-        haveLArCellRec = False
+        haveLArConfiguration = False
 
-    if haveLArCellRec:
-        from LArCellRec.LArConfigFlags import createLArConfigFlags
+    if haveLArConfiguration:
+        from LArConfiguration.LArConfigFlags import createLArConfigFlags
         lcf=createLArConfigFlags()
         acf.join(lcf)
 
@@ -96,6 +124,18 @@ def _createCfgFlags():
     if haveMuonConfig:
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         acf.join( createMuonConfigFlags() )
+
+# DQ
+    try:
+        import AthenaMonitoring # Suppress flake8 unused import warning: # noqa: F401
+        haveDQConfig = True
+    except ImportError:
+        haveDQConfig = False
+
+    if haveDQConfig:
+        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
+        acf.join( createDQConfigFlags() )
+        createComplexDQConfigFlags(acf)
 
     return acf
 

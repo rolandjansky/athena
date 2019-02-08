@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/DumpProperties.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -76,7 +76,7 @@ def pprint( obj, stream = sys.stdout ):
       if not obj._ip:
          try:
             value = eval( value )
-         except:
+         except Exception:
             pass
 
       if value and type(value) == list:

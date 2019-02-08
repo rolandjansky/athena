@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
@@ -56,7 +56,7 @@ StatusCode UnassociatedHitsGetterTool::initialize(){
   return StatusCode::SUCCESS;
 }
   
-const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissing*/){
+const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissing*/) const {
     
   // If we fail to find something we need in SG on the first call,
   // issue a warning and don't try again (this can happen if we're
@@ -229,7 +229,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
   return PRDAssociation;
 }
 
-void UnassociatedHitsGetterTool::releaseObject (const MinBiasPRDAssociation* p){
+void UnassociatedHitsGetterTool::releaseObject (const MinBiasPRDAssociation* p) const {
   if(p) delete p;
 }
 

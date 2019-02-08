@@ -30,7 +30,7 @@ namespace xAOD {
          typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
 
          /// A static accessor for the information
-         static SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
+         static const SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
 
          // Check if such a link exists on the object:
          if( ! acc.isAvailable( p ) ) {
@@ -56,7 +56,7 @@ namespace xAOD {
       int getParticleTruthType( const xAOD::IParticle& p ) {
 
          /// A static accessor for the information
-         static SG::AuxElement::ConstAccessor< int > acc( "truthType" );
+         static const SG::AuxElement::ConstAccessor< int > acc( "truthType" );
 
          // Check if such a variable exists on the object:
          if( ! acc.isAvailable( p ) ) {
@@ -74,7 +74,7 @@ namespace xAOD {
       int getParticleTruthOrigin( const xAOD::IParticle& p ) {
 
          /// A static accessor for the information
-         static SG::AuxElement::ConstAccessor< int > acc( "truthOrigin" );
+         static const SG::AuxElement::ConstAccessor< int > acc( "truthOrigin" );
 
          // Check if such a variable exists on the object:
          if( ! acc.isAvailable( p ) ) {

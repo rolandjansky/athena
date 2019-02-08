@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,7 +8,6 @@
 
 #include "CSC_RawDataProviderTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "EventInfo/EventInfo.h"
 #include "ByteStreamData/ROBData.h"
 
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -20,7 +19,8 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -31,7 +31,6 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_log(msgSvc(), n),
   m_decoder("Muon::CscROD_Decoder/CscROD_Decoder", this),
   m_muonMgr(0),
   m_robDataProvider("ROBDataProviderSvc",n),
@@ -39,6 +38,8 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
+  declareProperty ("CscContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSC container");
+
 }
 
 //================ Destructor =================================================
@@ -50,13 +51,6 @@ Muon::CSC_RawDataProviderTool::~CSC_RawDataProviderTool()
 
 StatusCode Muon::CSC_RawDataProviderTool::initialize()
 {
-  
-  m_log.setLevel(msgLevel());
-  
-  if ( service("ActiveStoreSvc", m_activeStore).isFailure() ) {
-    ATH_MSG_FATAL ( "Could not get active store service" );
-    return StatusCode::FAILURE;
-  }
   
   if (detStore()->retrieve( m_muonMgr ).isFailure()) {
     ATH_MSG_ERROR ( " Cannot retrieve MuonReadoutGeometry " );
@@ -148,9 +142,10 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
   
   
   // register the container only when the imput from ByteStream is set up     
-  m_activeStore->setStore( &*evtStore() );
   m_createContainerEachEvent = has_bytestream || m_containerKey.key() != "CSCRDO";
 
+  // Initialise the container cache if available  
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
   // Retrieve decoder
   if (m_decoder.retrieve().isFailure()) {
@@ -159,10 +154,10 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
   } else
     ATH_MSG_INFO ( "Retrieved tool " << m_decoder );
 
-  m_decoder->setGeoVersion( m_muonMgr->geometryVersion() );
   ATH_MSG_INFO ( "The Muon Geometry version is " << m_muonMgr->geometryVersion() );
 
   ATH_CHECK( m_containerKey.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   ATH_MSG_INFO ( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
@@ -196,7 +191,7 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHa
   return convert(vecOfRobf, rdoIdhVect);
 }
 
-StatusCode Muon::CSC_RawDataProviderTool::convert() {
+StatusCode Muon::CSC_RawDataProviderTool::convert(const EventContext& ctx) const {
   
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   const std::vector< uint32_t >& robIds = m_hid2re.allRobIds();
@@ -205,20 +200,20 @@ StatusCode Muon::CSC_RawDataProviderTool::convert() {
   m_robDataProvider->getROBData( robIds, vecOfRobf);
   ATH_MSG_VERBOSE ( "Number of ROB fragments " << vecOfRobf.size() );
 
-  return convert(vecOfRobf);
+  return convert(vecOfRobf, ctx);
 }
 
 
 StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
                                                   const std::vector<IdentifierHash>& /* collections */){
-    return convert(vecRobs);
+  const CSC_RawDataProviderTool* cthis = this;
+  return cthis->convert (vecRobs, Gaudi::Hive::currentContext());
 }
 
-StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs)
+StatusCode
+Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
+                                       const EventContext& ctx) const
 {
-  m_activeStore->setStore( &*evtStore() );
-
-      
   if(m_createContainerEachEvent==false)
   {
     ATH_MSG_DEBUG ( "Container " << m_containerKey.key()
@@ -228,43 +223,45 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     return StatusCode::SUCCESS;
   }
 
-  SG::WriteHandle<CscRawDataContainer> handle(m_containerKey);
-  if (handle.isPresent())
+  SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey, ctx);
+  if (rdoContainerHandle.isPresent())
     return StatusCode::SUCCESS;
-  ATH_CHECK( handle.record(std::unique_ptr<CscRawDataContainer>( 
-           new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
-  
-  CscRawDataContainer* container = handle.ptr();
 
-
-  m_activeStore->setStore( &*evtStore() );   
-  const EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve event info from TDS. - abort ..." );
-    return StatusCode::FAILURE;
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
+    //ATH_CHECK( handle.record(std::unique_ptr<CscRawDataContainer>( new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
+    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_muonMgr->cscIdHelper()->module_hash_max() )));
+    ATH_MSG_DEBUG( "Created CSCRawDataContainer" );
   }
-  m_decoder->setEventInfo(thisEventInfo);
+  else{
+    SG::UpdateHandle<CscRawDataCollection_Cache> update(m_rdoContainerCacheKey, ctx);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<CscRawDataContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+  
+  CscRawDataContainer* container = rdoContainerHandle.ptr();
 
-  m_robIdSet.clear();
+  std::set<uint32_t> robIdSet;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
 
   ATH_MSG_DEBUG ( "Before processing numColls="<<container->numberOfCollections() );
 
-  std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
-
   ATH_MSG_DEBUG ( "vector of ROB ID to decode: size = " << vecRobs.size() );
 
-  for(; rob_it!=vecRobs.end(); ++rob_it) {
-    uint32_t robid = (*rob_it)->rod_source_id();
+  for (const ROBFragment* frag : vecRobs) {
+    uint32_t robid = frag->rod_source_id();
 
     // check if this ROBFragment was already decoded (EF case in ROIs
-    if (!m_robIdSet.insert(robid).second) {
+    if (!robIdSet.insert(robid).second) {
       ATH_MSG_DEBUG ( " ROB Fragment with ID  " << std::hex<<robid<<std::dec<< " already decoded, skip" );
     } else {
-      m_decoder->fillCollection(**rob_it, *container, m_log);
+      m_decoder->fillCollection(*eventInfo, *frag, *container);
     }
   }
 
   ATH_MSG_DEBUG ( "After processing numColls="<<container->numberOfCollections() );
-  
+
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_SLTRUEINFO
@@ -16,7 +16,6 @@ namespace Analysis {
     public:
       SLTrueInfo();
       SLTrueInfo(int, int, int, bool, bool, bool, const Eigen::Vector3d&, const Eigen::Vector3d&);
-      virtual ~SLTrueInfo();
       inline int  barcode()         const { return m_barcode; }
       inline int  pdgId()           const { return m_pdgCode; } 
       inline int  pdgIdMother()     const { return m_pdgCodeMother; }

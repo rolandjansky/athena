@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -20,11 +20,6 @@
 #include "LArRawEvent/LArTTL1Container.h"
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
-//
-// ........ Event Header Files:
-//
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 //
 // ........ Gaudi needed includes
 //

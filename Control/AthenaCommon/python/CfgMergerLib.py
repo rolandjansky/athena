@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon/python/CfgMergerLib
 # @purpose a set of python tools to analyze configurables and find candidates
@@ -188,7 +188,7 @@ def dump_josvc_content(fname='josvc.ascii'):
 
     cfg = dict(cfg)
     print >> f, "# content of the joboptions-svc"
-    print >> f, "josvc_catalog = \ "
+    print >> f, "josvc_catalog = \\ "
 
     from pprint import pprint
     pprint(cfg, stream=f)

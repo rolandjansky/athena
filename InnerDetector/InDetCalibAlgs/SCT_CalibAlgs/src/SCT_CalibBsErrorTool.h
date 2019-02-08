@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,7 +38,7 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       //@name Tool methods, reimplemented
       //@{
       SCT_CalibBsErrorTool(const std::string&, const std::string&, const IInterface*);
-      virtual ~SCT_CalibBsErrorTool() {};
+      virtual ~SCT_CalibBsErrorTool() = default;
       virtual StatusCode initialize();
       virtual StatusCode finalize();
       //interfaceID() implementation is in the baseclass

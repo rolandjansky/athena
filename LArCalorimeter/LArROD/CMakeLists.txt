@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Commission/CommissionEvent
                           Control/AthContainers
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventInfo
                           LArCalorimeter/LArCOOLConditions )
 
 # External dependencies:
@@ -44,7 +43,7 @@ atlas_add_library( LArRODLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecConditions TBEvent StoreGateLib SGtests LArCablingLib LArRawUtilsLib LArRecUtilsLib CaloDetDescrLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CommissionEvent AthContainers AthenaPoolUtilities EventInfo LArCOOLConditions )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CommissionEvent AthContainers AthenaPoolUtilities LArCOOLConditions )
 
 atlas_add_component( LArROD
                      src/components/*.cxx

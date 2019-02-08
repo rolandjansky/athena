@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -320,6 +320,9 @@ inline
 uint64_t hightest (uint64_t x, uint64_t y)
 {
   // Relies on sign-extension of right-shift of a signed int.
+  // This is strictly speakign implementation-defined behavior.
+  // Since this code is anyway enabled only on x86_64, that's ok.
+  // cppcheck-suppress shiftTooManyBitsSigned
   return y & (static_cast<int64_t>(x)>>63);
 }
 

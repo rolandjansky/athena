@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Vertex_v1.h 575751 2013-12-16 16:45:36Z krasznaa $
 #ifndef XAODTRACKING_VERSIONS_VERTEX_V1_H
 #define XAODTRACKING_VERSIONS_VERTEX_V1_H
 
@@ -32,6 +31,9 @@
 
 // Local include(s):
 #include "xAODTracking/TrackingPrimitives.h"
+
+//MT CachedValue
+#include "CxxUtils/CachedValue.h"
 
 namespace xAOD {
 
@@ -179,13 +181,9 @@ namespace xAOD {
 
    private:
       /// Cached position of the vertex
-      mutable Amg::Vector3D m_position;
-      /// Cache status of the position object
-      mutable bool m_positionCached;
+      CxxUtils::CachedValue<Amg::Vector3D> m_position;
       /// Cached covariance of the vertex
-      mutable AmgSymMatrix(3) m_covariance;
-      /// Cache status of the covariance object
-      mutable bool m_covarianceCached;
+      CxxUtils::CachedValue<AmgSymMatrix(3)> m_covariance;
 
    }; // end of the Vertex_v1 class definitions
 

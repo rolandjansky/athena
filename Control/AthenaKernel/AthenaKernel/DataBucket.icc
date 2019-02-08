@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/IRegisterTransient.h"
@@ -65,6 +65,7 @@ SG::DataBucket<T>::DataBucket(T* data)
 
 template <typename T>
 template <typename U>
+// cppcheck-suppress uninitMemberVar ; false positive
 SG::DataBucket<T>::DataBucket(std::unique_ptr<U> data)
     // Rely on our caller to retain constness.
   : DataBucket (const_cast<typename std::remove_const<U>::type*> (data.release()))

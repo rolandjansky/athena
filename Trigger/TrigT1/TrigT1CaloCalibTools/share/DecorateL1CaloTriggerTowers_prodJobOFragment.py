@@ -7,6 +7,6 @@ include.block( "TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragmen
 
 include("TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py")
 
-ToolSvc += CfgMgr.LVL1__L1CaloxAODOfflineTriggerTowerTools( "LVL1__L1CaloxAODOfflineTriggerTowerTools" )
+triggerTowerTools = CfgMgr.LVL1__L1CaloxAODOfflineTriggerTowerTools( "LVL1__L1CaloxAODOfflineTriggerTowerTools" )
 # decorate L1Calo Trigger Towers
-topSequence += CfgMgr.LVL1__L1CaloTriggerTowerDecoratorAlg( TriggerTowerTools = ToolSvc.LVL1__L1CaloxAODOfflineTriggerTowerTools )
+topSequence += CfgMgr.LVL1__L1CaloTriggerTowerDecoratorAlg( TriggerTowerTools = triggerTowerTools )

@@ -33,16 +33,16 @@ StatusCode SCT_SensorsTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_SensorsTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_SensorsTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_INFO("Calling execute");
   std::vector<std::string> values;
-  m_SensorsTool->getSensorsData(values);
+  m_SensorsTool->getSensorsData(values, ctx);
   for (const std::string& value: values) {
     ATH_MSG_INFO("------------" << value << "------------");
   }
-  m_SensorsTool->printManufacturers();
+  m_SensorsTool->printManufacturers(ctx);
   return StatusCode::SUCCESS;
 }
 

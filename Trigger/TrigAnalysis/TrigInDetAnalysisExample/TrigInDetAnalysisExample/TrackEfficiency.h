@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*- 
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackEfficiency.h        
-//
-//                   
-// 
-//
-//   $Id: TrackEfficiency.h, v0.0   Sun 18 Jan 2009 19:08:11 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackEfficiency.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:08:11 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKEFFICIENCY_H 
-#define __TRACKEFFICIENCY_H 
+#ifndef TIDAEXAMPLE_TRACKEFFICIENCY_H 
+#define TIDAEXAMPLE_TRACKEFFICIENCY_H 
 
 
 #include <iostream>
@@ -26,6 +24,10 @@
 
 class TrackEfficiency : public TrackAnalysis { 
   
+public:
+
+  using TrackAnalysis::execute;
+
 public:
   
   TrackEfficiency( const std::string& name ) : 
@@ -71,4 +73,4 @@ private:
 };
 
 
-#endif // __TRACKEFFICIENCY_H 
+#endif // TIDAEXAMPLE_TRACKEFFICIENCY_H 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_ALGT_H
@@ -11,7 +11,7 @@
 #include "AthExHive/HiveDataObj.h"
 #include "AthExHive/IHiveTool.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -32,7 +32,7 @@ public:
   
 private:
 
-  SG::ReadHandleKey<EventInfo> m_evt{this, "EvtInfo", "McEventInfo", "EventInfo name"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt{this, "EvtInfo", "EventInfo", "EventInfo name"};
   SG::ReadHandleKey<HiveDataObj>  m_rdh1{this,"Key_R1","","read key"};
   SG::WriteHandleKey<HiveDataObj> m_wrh1{this,"Key_W1","t1","write key"};
 

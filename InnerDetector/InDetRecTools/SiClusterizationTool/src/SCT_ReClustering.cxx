@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Paul Bell 23/7/04
@@ -19,9 +19,6 @@
 
 // Constructor
 SCT_ReClustering::SCT_ReClustering()
-{}
-// virtual destructor
-SCT_ReClustering::~SCT_ReClustering()
 {}
 //--------------------------------------------------------------------------
 std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<std::vector<Identifier> > &idGroups, const SCT_ID& sctID)

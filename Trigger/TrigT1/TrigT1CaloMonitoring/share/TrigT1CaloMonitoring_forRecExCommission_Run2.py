@@ -3,7 +3,7 @@
 # Standard monitoring jobOptions - runs on Tier0 (Reco_tf.py) or online.
 #
 # @authors Johanna Fleckner, Andrea Neusiedl, Peter Faulkner
-#
+
 if not 'DQMonFlags' in dir():
     print "TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now"
     from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -73,7 +73,7 @@ if l1caloRawMon:
         #from AthenaServices.AthenaServicesConf import MetaDataSvc
         #svcMgr += MetaDataSvc("MetaDataSvc")
         #svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
-                
+
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder("TRIGGER","/TRIGGER/L1Calo/V1/References/FineTimeReferences")
         doFineTime = True
@@ -153,17 +153,42 @@ if l1caloRawMon:
         #ToolSvc += L1PPrMonTool
         L1CaloMan.AthenaMonTools += [L1PPrMonTool]
 
+
+        if isData and rec.triggerStream() == "Mistimed":
+
+            #======================================================================
+            #=================== Monitoring of the Mistimed Stream ================
+            #======================================================================
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__MistimedStreamMon
+
+            from AthenaCommon.JobProperties import jobproperties
+            L1MistimedStreamTool = LVL1__MistimedStreamMon(
+                name="L1MistimedStreamTool",
+                #OnlineTest = True,
+                #OutputLevel = DEBUG
+            )
+            # ToolSvc += L1MistimedStreamTool
+            L1CaloMan.AthenaMonTools += [L1MistimedStreamTool]
+
+            from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+            ServiceMgr += L1CaloCondSvc()
+            from IOVDbSvc.CondDB import conddb
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig","HEAD")
+
         if isData:
 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
             PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
             #ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [PPMSimBSMonTool]
-            #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool
             L1TriggerTowerTool = LVL1__L1TriggerTowerTool("L1TriggerTowerTool")
             ToolSvc += L1TriggerTowerTool
-            #ToolSvc.L1TriggerTowerTool.OutputLevel = DEBUG
+            from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+            ServiceMgr += L1CaloCondSvc()
+            from IOVDbSvc.CondDB import conddb
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
 
             #--------------------------------- PPM Spare Channels--------------
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrSpareMon
@@ -172,7 +197,7 @@ if l1caloRawMon:
                 ADCHitMap_Thresh=40,
                 PathInRootFile="L1Calo/PPM/SpareChannels",
                 ErrorPathInRootFile="L1Calo/PPM/SpareChannels/Errors",
-                #OutputLevel = DEBUG	
+                #OutputLevel = DEBUG
             )
             #ToolSvc += L1PPrSpareMonTool
             L1CaloMan.AthenaMonTools += [L1PPrSpareMonTool]
@@ -278,8 +303,8 @@ if l1caloRawMon:
 
             #==================================================================
             #===================== Tag & Probe Efficiencies  ==================
-            #==================================================================           
-            
+            #==================================================================
+
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__TagProbeEfficiencyMon
             TagProbeEfficiencyMonTool = LVL1__TagProbeEfficiencyMon("TagProbeEfficiencyMonTool")
             #ToolSvc += TagProbeEfficiencyMonTool

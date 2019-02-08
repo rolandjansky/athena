@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ public:
   const unsigned int EventCount, const int tbin, const int stream);
 
   // Destructor:
-  virtual ~SCT_TB03_RawData();
+  virtual ~SCT_TB03_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 

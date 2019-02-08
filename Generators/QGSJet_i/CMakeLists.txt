@@ -42,4 +42,5 @@ atlas_add_component( QGSJet_i
 # Install files from the package:
 atlas_install_runtime( share/qgsjet_crmc.param )
 
-atlas_install_runtime( ${CRMC_ROOT}/tabs/sectnu-II-04 ${CRMC_ROOT}/tabs/qgsdat-II-04.lzma)
+atlas_install_runtime( ${CRMC_LCGROOT}/tabs/sectnu-II-04
+   ${CRMC_LCGROOT}/tabs/qgsdat-II-04.lzma )

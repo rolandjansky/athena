@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.cxx Implementation file for SCT_ReadCalibDataTool.
@@ -58,7 +58,7 @@ bool SCT_ReadCalibDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
-bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   // Status of the compId
   bool status{true};
   // Extract the moduleId from the comp identifier
@@ -94,7 +94,6 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
       int strip{m_id_sct->strip(elementId)};
       // Retrieve isGood Wafer data
 
-      const EventContext& ctx{Gaudi::Hive::currentContext()};
       const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
       if (condDataInfo==nullptr) {
         ATH_MSG_ERROR("In isGood, SCT_AllGoodStripInfo cannot be retrieved");
@@ -115,10 +114,15 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
   return status;
 } //SCT_ReadCalibDataTool::summary()
 
+bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
 
 //----------------------------------------------------------------------
 // Returns a defect summary of a defect strip, scan, type and value
-SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) const {
+ISCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const Identifier& stripId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   // Print where you are
   ATH_MSG_DEBUG("in defectType()");
 
@@ -126,7 +130,6 @@ SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const I
   CalibDefectType theseSummaryDefects;
 
   // Retrieve defect data
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_CalibDefectData* condDataGain{getCondDataGain(ctx)};
   if (condDataGain==nullptr) {
     ATH_MSG_ERROR("In defectType, SCT_CalibDefectData (gain) cannot be retrieved.");
@@ -228,13 +231,15 @@ SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const I
   return theseSummaryDefects;
 } //SCT_ReadCalibDataTool::defectType()
 
+ISCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return defectType(stripId, ctx, h);
+}
 //----------------------------------------------------------------------
 // Returns a summary of all defects on a module for a given scan
-SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(const Identifier& moduleId, const std::string& scan) const {
+SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(const Identifier& moduleId, const std::string& scan, const EventContext& ctx) const {
   // Create pointer to the CalibDataDefect object 
   SCT_CalibDefectData::CalibModuleDefects wantedDefects;
-
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   // Retrieve the correct defect map
   if (scan == "NPtGain") {
@@ -258,14 +263,18 @@ SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(co
   return wantedDefects;
 } //SCT_ReadCalibDataTool::defectsSummary()
 
+SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(const Identifier& moduleId, const std::string& scan) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return defectsSummary(moduleId, scan, ctx);
+}
+
 //---------------------------------------------------------------------- 
 //----------------------------------------------------------------------
 // Returns a list of all strips with a certain defects
-std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defect) const {
+std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defect, const EventContext& ctx) const {
   std::list<Identifier> defectList;
 
   // Retrieve defect data
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_CalibDefectData* condDataGain{getCondDataGain(ctx)};
   if (condDataGain==nullptr) {
     ATH_MSG_ERROR("In defectType, SCT_CalibDefectData (gain) cannot be retrieved.");
@@ -291,12 +300,12 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
   
   //Loop over all wafers using hashIds from the cabling service
   std::vector<boost::uint32_t> listOfRODs;
-  m_cabling->getAllRods(listOfRODs);
+  m_cabling->getAllRods(listOfRODs, ctx);
   std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
   std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
   for (; rodIter!=rodEnd; ++rodIter) {
     std::vector<IdentifierHash> listOfHashes;
-    m_cabling->getHashesForRod(listOfHashes, *rodIter);
+    m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);
     std::vector<IdentifierHash>::iterator hashIt{listOfHashes.begin()};
     std::vector<IdentifierHash>::iterator hashEnd{listOfHashes.end()};
     for (; hashIt != hashEnd; ++hashIt) {
@@ -348,6 +357,11 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
   }
   return defectList;
 } //SCT_ReadCalibDataTool::defects()
+
+std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defect) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return defectList(defect, ctx);
+}
 //---------------------------------------------------------------------- 
 
 const SCT_CalibDefectData*

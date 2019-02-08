@@ -21,6 +21,8 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 
+#include "GaudiKernel/PhysicalConstants.h"
+
 using std::max;
 
 GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
@@ -37,7 +39,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   // Length of the ladder is in the db
   //
   double length = m_gmt_mgr->PixelLadderLength();
-  double safety = 0.01*GeoModelKernelUnits::mm; 
+  double safety = 0.01*Gaudi::Units::mm; 
 
   m_width = calcWidth();
   m_thicknessP = 0.5 * m_gmt_mgr->PixelLadderThickness();
@@ -58,7 +60,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   const GeoShape * ladderShape = 0;
 
   // If upper and lower thicknesses are within 100 um. Make them the same.
-  if (std::abs(m_thicknessP - m_thicknessN) < 0.1*GeoModelKernelUnits::mm) {
+  if (std::abs(m_thicknessP - m_thicknessN) < 0.1*Gaudi::Units::mm) {
     m_thicknessP = std::max(m_thicknessP,m_thicknessN); 
     m_thicknessN = m_thicknessP;
     double halfThickness = m_thicknessP;
@@ -67,7 +69,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   else if (m_gmt_mgr->PixelBentStaveNModule() != 0)
     {
       // Calculate thickness from bent stave part
-      double angle              = m_gmt_mgr->PixelLadderBentStaveAngle() * GeoModelKernelUnits::pi / 180.0;
+      double angle              = m_gmt_mgr->PixelLadderBentStaveAngle() * Gaudi::Units::pi / 180.0;
       double BentStaveThickness = double(m_gmt_mgr->PixelBentStaveNModule()) * m_gmt_mgr->PixelLadderModuleDeltaZ() * sin(angle);
       
       // Extend +ve or -ve ladder thickness according to stave angle
@@ -382,7 +384,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       //      const GeoMaterial* materialSup = m_mat_mgr->getMaterialForVolume(matName,shapeSupBent->volume());
       const GeoMaterial* materialSup = m_mat_mgr->getMaterial("pix::StaveSupportBase");
       
-      double ang = m_gmt_mgr->PixelLadderBentStaveAngle() * GeoModelKernelUnits::pi / 180.0;
+      double ang = m_gmt_mgr->PixelLadderBentStaveAngle() * Gaudi::Units::pi / 180.0;
       double xst = xOffset - (bentStaveHalfLength * sin(ang)); 
       
       // Construct bent stave at negative z
@@ -415,7 +417,7 @@ double GeoPixelLadder::calcThickness() {
   // to avoid duplication of code
   //
 
-  const double safety = 0.01*GeoModelKernelUnits::mm; 
+  const double safety = 0.01*Gaudi::Units::mm; 
   double clearance = m_gmt_mgr->PixelLadderThicknessClearance();
   clearance = std::max(clearance, safety);
 

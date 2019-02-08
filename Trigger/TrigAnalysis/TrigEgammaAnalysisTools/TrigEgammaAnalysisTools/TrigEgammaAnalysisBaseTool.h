@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaAnalysisBaseTool_H
@@ -7,7 +7,8 @@
 
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
@@ -49,12 +50,12 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
 public:
 
   TrigEgammaAnalysisBaseTool( const std::string& myname);
-  ~TrigEgammaAnalysisBaseTool() {};
+  virtual ~TrigEgammaAnalysisBaseTool() {};
 
-  StatusCode initialize();
-  StatusCode book();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode book() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   template<class T, class B> std::unique_ptr<xAOD::TrigPassBits> createBits(const T* CONT, const B* BITS);
   template<class T> std::unique_ptr<xAOD::TrigPassBits> getBits(const HLT::TriggerElement* te,const T* CONT);
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
@@ -62,14 +63,14 @@ public:
   template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
                                                         float &, bool usePassbits=true,const std::string key="");
   // Interface class methods needed to pass information to additional tools or to set common tools
-  void setParent(IHLTMonTool *parent){ m_parent = parent;};
-  void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
-  void setDetail(bool detail){m_detailedHists=detail;}
-  void setTP(bool tp){m_tp=tp;}
-  void setEmulation(bool doEmu){m_doEmulation=doEmu;}
-  void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool){m_emulationTool=tool;}
-  void setPVertex(const float onvertex, const float ngoodvertex){m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
-  void setAvgMu(const float onlmu, const float offmu){m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
+  virtual void setParent(IHLTMonTool *parent) override { m_parent = parent;};
+  virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool) override {m_plot=tool;}
+  virtual void setDetail(bool detail) override {m_detailedHists=detail;}
+  virtual void setTP(bool tp) override {m_tp=tp;}
+  virtual void setEmulation(bool doEmu) override {m_doEmulation=doEmu;}
+  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool) override {m_emulationTool=tool;}
+  virtual void setPVertex(const float onvertex, const float ngoodvertex) override {m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
+  virtual void setAvgMu(const float onlmu, const float offmu) override {m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
 
   // Set current MonGroup
   void cd(const std::string &dir);
@@ -100,8 +101,8 @@ private:
   std::map<std::string,TrigInfo> m_trigInfo;
   /*! Include more detailed histograms */
   bool m_detailedHists;
-  /*! TAccept to store TrigDecision */
-  Root::TAccept m_accept;
+  /*! AcceptInfo to store TrigDecision */
+  asg::AcceptInfo m_accept;
   /*! Helper strings for trigger level analysis */
   static const std::vector<std::string> m_trigLevel;
   static const std::map<std::string,std::string> m_trigLvlMap;
@@ -189,10 +190,9 @@ protected:
   bool getTP() const {return m_tp;}
   bool getEmulation() const {return m_doEmulation;}
 
-  // TAccept
-  Root::TAccept getAccept(){return m_accept;}
-  void setAccept(Root::TAccept accept){m_accept=accept;}
-  void setAccept(const HLT::TriggerElement *,const TrigInfo);
+  // AcceptInfo/Data
+  const asg::AcceptInfo& getAccept() const {return m_accept;}
+  asg::AcceptData setAccept(const HLT::TriggerElement *,const TrigInfo);
   
   //Class Members
   // Athena services

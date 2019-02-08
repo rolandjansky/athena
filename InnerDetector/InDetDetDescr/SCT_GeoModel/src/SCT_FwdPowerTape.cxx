@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <cmath>
 
@@ -45,11 +45,11 @@ GeoVPhysVol *
 SCT_FwdPowerTape::build() 
 {
   // Calculate the dimensions.
-  // The area = 2*GeoModelKernelUnits::pi*r_ave*delta_r approx= 2 * GeoModelKernelUnits::pi * rMin * delta_r
+  // The area = 2*Gaudi::Units::pi*r_ave*delta_r approx= 2 * Gaudi::Units::pi * rMin * delta_r
   // where m_thickness = delta_r
 
   double area = m_crossSectArea * m_numModules;
-  m_thickness = area/(2. * GeoModelKernelUnits::pi * m_innerRadius);
+  m_thickness = area/(2. * Gaudi::Units::pi * m_innerRadius);
   m_outerRadius = m_innerRadius +  m_thickness;
 
   // Make the support disk. A simple tube.

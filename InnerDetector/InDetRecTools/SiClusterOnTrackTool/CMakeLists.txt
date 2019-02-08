@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondServices
+                          InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetDetDescr/SCT_ModuleDistortions
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack

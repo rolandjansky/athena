@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
@@ -145,37 +145,34 @@ StatusCode BTaggingSelectionTool::initialize() {
 
   return StatusCode::SUCCESS;
 }
-const Root::TAccept& BTaggingSelectionTool::getTAccept() const {
+const asg::AcceptInfo& BTaggingSelectionTool::getAcceptInfo() const {
   return m_accept;
 }
 
-const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::IParticle* p ) const {
-  // Reset the result:
-  m_accept.clear();
-
+asg::AcceptData BTaggingSelectionTool::accept( const xAOD::IParticle* p ) const {
   // Check if this is a jet:
   if( p->type() != xAOD::Type::Jet ) {
     ATH_MSG_ERROR( "accept(...) Function received a non-jet" );
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
 
   // Cast it to a jet:
   const xAOD::Jet* jet = dynamic_cast< const xAOD::Jet* >( p );
   if( ! jet ) {
     ATH_MSG_FATAL( "accept(...) Failed to cast particle to jet" );
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
 
   // Let the specific function do the work:
   return accept( *jet );
 }
 
-const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const {
-  m_accept.clear();
+asg::AcceptData BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const {
+  asg::AcceptData acceptData (&m_accept);
 
   if (! m_initialised) {
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
-    return m_accept;
+    return acceptData;
   }
 
   if ("AntiKt2PV0TrackJets"== m_jetAuthor ||
@@ -183,7 +180,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
       "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor
       ){
     // We want at least 2 tracks in a track jet
-    m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
+    acceptData.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
   }
 
   double pT = jet.pt();
@@ -198,7 +195,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
       ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
     }
     ATH_MSG_VERBOSE( "MV2c20 " <<  weight_mv2 );
-    return accept(pT, eta, weight_mv2);
+    acceptData |= accept(pT, eta, weight_mv2);
   }
   else {
     double weight_mv2c100(-10.);
@@ -212,18 +209,18 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     }
     ATH_MSG_VERBOSE( "MV2cl100 "  <<  weight_mv2cl100 );
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
-    return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
-
+    acceptData |= accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
   }
+  return acceptData;
 }
 
-const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2) const
+asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2) const
 {
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   if (! m_initialised) {
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
-    return m_accept;
+    return acceptData;
   }
 
   // flat cut for out of range pTs
@@ -232,8 +229,8 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
   eta = std::fabs(eta);
 
-  if (! checkRange(pT, eta))
-    return m_accept;
+  if (! checkRange(pT, eta, acceptData))
+    return acceptData;
 
   // After initialization, either m_spline or m_constcut should be non-zero
   // Else, the initialization was incorrect and should be revisited
@@ -248,23 +245,23 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
   ATH_MSG_VERBOSE( "Cut value " << cutvalue );
 
   if (  weight_mv2 < cutvalue ){
-    return m_accept;
+    return acceptData;
   }
-  m_accept.setCutResult( "WorkingPoint", true );
+  acceptData.setCutResult( "WorkingPoint", true );
 
   // Return the result:
-  return m_accept;
+  return acceptData;
 }
 
 
 
-const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2cl100, double weight_mv2c100) const
+asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2cl100, double weight_mv2c100) const
 {
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   if (! m_initialised) {
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
-    return m_accept;
+    return acceptData;
   }
 
   // flat cut for out of range pTs
@@ -273,8 +270,8 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
   eta = std::fabs(eta);
 
-  if (! checkRange(pT, eta))
-    return m_accept;
+  if (! checkRange(pT, eta, acceptData))
+    return acceptData;
 
   // After initialization, either m_spline or m_constcut should be non-zero
   // Else, the initialization was incorrect and should be revisited
@@ -288,12 +285,12 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
   ATH_MSG_VERBOSE( "Cut values " << cutvalueA << " " << cutvalueB );
 
   if ( !(  weight_mv2cl100 > cutvalueA && weight_mv2c100 < cutvalueB )  ){
-    return m_accept;
+    return acceptData;
   }
-  m_accept.setCutResult( "WorkingPoint", true ); // IF we arrived here, the jet is tagged
+  acceptData.setCutResult( "WorkingPoint", true ); // IF we arrived here, the jet is tagged
 
   // Return the result:
-  return m_accept;
+  return acceptData;
 }
 
 
@@ -303,14 +300,14 @@ int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
   // Check if this is a jet:
   if( p->type() != xAOD::Type::Jet ) {
     ATH_MSG_ERROR( "accept(...) Function received a non-jet" );
-    return m_accept;
+    return -1;
   }
 
   // Cast it to a jet:
   const xAOD::Jet* jet = dynamic_cast< const xAOD::Jet* >( p );
   if( ! jet ) {
     ATH_MSG_FATAL( "accept(...) Failed to cast particle to jet" );
-    return m_accept;
+    return -1;
   }
 
   // Let the specific function do the work:
@@ -349,7 +346,8 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
 
   int bin_index(-1);
 
-  if (! checkRange(pT, eta)) return bin_index;
+  asg::AcceptData acceptData (&m_accept);
+  if (! checkRange(pT, eta, acceptData)) return bin_index;
 
   // If in b-tagging acceptance, cont.tagging
   for (int i=0; i<=5; ++i) {
@@ -364,20 +362,21 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
   return bin_index;
 }
 
-bool BTaggingSelectionTool::checkRange(double pT, double eta) const
+bool BTaggingSelectionTool::checkRange(double pT, double eta,
+                                       asg::AcceptData& acceptData) const
 {
   // Do the |eta| cut:
   if( eta > m_maxEta ) {
     return false;
   }
-  m_accept.setCutResult( "Eta", true );
+  acceptData.setCutResult( "Eta", true );
 
   // Do the pT cut:
   ATH_MSG_VERBOSE( "Jet pT: " << pT );
   if( pT < m_minPt ) {
     return false;
   }
-  m_accept.setCutResult( "Pt", true );
+  acceptData.setCutResult( "Pt", true );
 
   return true;
 }

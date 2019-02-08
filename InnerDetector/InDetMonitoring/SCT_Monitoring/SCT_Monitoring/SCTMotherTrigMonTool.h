@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCTMotherTrigMonTool.h
@@ -32,7 +32,7 @@ public:
   SCTMotherTrigMonTool( const std::string & type, const std::string & name,const IInterface* parent); 
 
   ///Destructor
-  virtual ~SCTMotherTrigMonTool() {/* nop */}
+  virtual ~SCTMotherTrigMonTool() = default;
 
   ///Tool initialization
   virtual StatusCode initialize();  

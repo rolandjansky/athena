@@ -32,12 +32,12 @@ SCT_RODVetoTestAlg::initialize() {
 
 //Execute
 StatusCode 
-SCT_RODVetoTestAlg::execute(const EventContext& /*ctx*/) const {
+SCT_RODVetoTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_INFO("Calling execute");
   for (unsigned int hash{0}; hash<8176; hash+=2) {
-    bool result{m_pRODVetoTool->isGood(IdentifierHash(hash))};//invented, no idea what this is
+    bool result{m_pRODVetoTool->isGood(IdentifierHash{hash}, ctx)};//invented, no idea what this is
     ATH_MSG_INFO("Call to module in ROD : Module (hash=" << hash << ") is " << (result?"good":"bad"));
   }
 

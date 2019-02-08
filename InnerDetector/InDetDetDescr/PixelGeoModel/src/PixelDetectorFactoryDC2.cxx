@@ -125,12 +125,12 @@ void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
     msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/GeoModelKernelUnits::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/Gaudi::Units::micrometer << "um" << endmsg;
   }  
   geometryManager->SetCurrentLD(0);
   geometryManager->SetBarrel();
   if(msgLvl(MSG::INFO)) 
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/Gaudi::Units::micrometer << "um" << endmsg;   
   
   //
   // Create the Pixel Envelope...

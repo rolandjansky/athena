@@ -13,7 +13,6 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel
    Control/StoreGate
-   Event/EventInfo
    GaudiKernel
    Simulation/Tools/AtlasCLHEP_RandomGenerators )
 
@@ -25,7 +24,7 @@ find_package( CLHEP )
 atlas_add_component( RngComps src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
-   AthenaBaseComps AthenaKernel StoreGateLib EventInfo GaudiKernel
+   AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel
    AtlasCLHEP_RandomGenerators )
 
 # Test(s) in the package:
@@ -70,8 +69,8 @@ atlas_add_test( RNGWrapper_test
    GaudiKernel AtlasCLHEP_RandomGenerators )
 
 atlas_add_test( RandomServices_test
-                SCRIPT python/RandomServices_test.py )
+                SCRIPT test/RandomServices_test.py )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.py test/*.py )

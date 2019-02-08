@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "DiTauRec/SeedJetBuilder.h"
 #include "DiTauRec/DiTauToolBase.h"
-
 #include "DiTauRec/DiTauCandidateData.h"
+#include "StoreGate/ReadHandle.h"
+
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
@@ -14,11 +15,9 @@
 SeedJetBuilder::SeedJetBuilder(const std::string& type,
     const std::string& name,
     const IInterface * parent) :
-    DiTauToolBase(type, name, parent),
-    m_jetContainerName("AntiKt10LCTopoJets")
+    DiTauToolBase(type, name, parent)
 {
 	declareInterface<DiTauToolBase > (this);
-	declareProperty("JetCollection", m_jetContainerName);
 }
 
 //-------------------------------------------------------------------------
@@ -33,22 +32,16 @@ SeedJetBuilder::~SeedJetBuilder() {
 //-------------------------------------------------------------------------
 
 StatusCode SeedJetBuilder::initialize() {
-	return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode SeedJetBuilder::eventFinalize(DiTauCandidateData *) {
-	return StatusCode::SUCCESS;
+  ATH_CHECK( m_jetContainerName.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode SeedJetBuilder::execute(DiTauCandidateData * data) {
+StatusCode SeedJetBuilder::execute(DiTauCandidateData * data,
+                                   const EventContext& ctx) const {
 
 	ATH_MSG_DEBUG("jet seed finder executing...");
 
@@ -75,11 +68,10 @@ StatusCode SeedJetBuilder::execute(DiTauCandidateData * data) {
 
 
 	// retrieve jet container
-	const xAOD::JetContainer* pJetCont = nullptr;
-	ATH_CHECK(evtStore()->retrieve(pJetCont, m_jetContainerName));
+        SG::ReadHandle<xAOD::JetContainer> pJetCont (m_jetContainerName, ctx);
 	
 
-	pDiTau->setJet(pJetCont, pSeed);
+	pDiTau->setJet(pJetCont.get(), pSeed);
 
 	if (pDiTau->jetLink().isValid()) {
 		ATH_MSG_DEBUG("assciated seed jet with"

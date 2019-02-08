@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,7 @@ namespace Analysis
     public:
       MuonAssociation() ;      //!< constructor
       MuonAssociation(const NameType& name) ;      //!< constructor
-      ~MuonAssociation() ;      //!< destructor
+      ~MuonAssociation() = default;
       
       virtual JetAssociationBase* clone() const; 
       //!< a clone method for the proper workings of the copy constructor

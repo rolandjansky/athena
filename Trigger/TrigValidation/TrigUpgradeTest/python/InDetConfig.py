@@ -439,17 +439,11 @@ def indetInViewRecoCfg( flags, viewMakerName ):
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
   algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs )
-  # TODO fixeme using getEventAlgs CA method
-  # this awkward line will be removed one CA gets appopriate method to get all algorithms  
-  reco.addRecoAlg( algAcc._sequence.getChildren() )
   from AthenaCommon.Constants import DEBUG
   for a in algAcc._sequence.getChildren():
     a.OutputLevel=DEBUG
-    
-  from AthenaCommon.AlgSequence import AthSequencer
-  algAcc._sequence = AthSequencer('AthAlgSeq') # empty the sequence, we need a better API for that
-  reco.merge( algAcc )
-  
+
+  reco.mergeReco( algAcc )  
   return reco
 
   

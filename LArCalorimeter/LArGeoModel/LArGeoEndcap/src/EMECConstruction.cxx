@@ -61,7 +61,6 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -69,7 +68,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
-
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -219,19 +218,19 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
   double phiPosition, phiSize;
 
   if(m_isTB) {
-    phiPosition = GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad;
-    phiSize = M_PI*GeoModelKernelUnits::rad / 8. + 0.065*GeoModelKernelUnits::rad; // half-angle of inner part of module
+    phiPosition = Gaudi::Units::halfpi*Gaudi::Units::rad;
+    phiSize = M_PI*Gaudi::Units::rad / 8. + 0.065*Gaudi::Units::rad; // half-angle of inner part of module
   }
   else {
-    phiPosition = M_PI*GeoModelKernelUnits::rad;
-    phiSize = M_PI*GeoModelKernelUnits::rad; // half-angle of a full wheel
+    phiPosition = M_PI*Gaudi::Units::rad;
+    phiSize = M_PI*Gaudi::Units::rad; // half-angle of a full wheel
   }
 
   // Define the mother volume for the emec.  Everything
   // else in the emec (wheels,structure, etc.) should be
   // placed inside here.
 
-   //double emecMotherZplan[] = {3641.*GeoModelKernelUnits::mm,4273.*GeoModelKernelUnits::mm};           //warm
+   //double emecMotherZplan[] = {3641.*Gaudi::Units::mm,4273.*Gaudi::Units::mm};           //warm
 
   // 21-Jul-2005, C.S. : above line valid in warm, below is in cold.
   // The latter one should apply, othervise SupportMotherVolumes cross
@@ -246,17 +245,17 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	  cryoPcons = pAccessSvc->getRecordsetPtr("CryoPcons", "CryoPcons-EMEC-00");
 	}
 
-  //double emecMotherZplan[] = {3639.5*GeoModelKernelUnits::mm,3639.5*GeoModelKernelUnits::mm+630.*GeoModelKernelUnits::mm};    //cold (J.T)
-  //                                  // Zplane[0]=endg_z0*GeoModelKernelUnits::cm-50*GeoModelKernelUnits::mm
-  //                                  // Zplane[1]=Zplane[0]+endg_dzende*GeoModelKernelUnits::cm-2.GeoModelKernelUnits::mm
-  //double emecMotherRin[]   = { 279.*GeoModelKernelUnits::mm, 324*GeoModelKernelUnits::mm};	//{  302.*GeoModelKernelUnits::mm,  302.*GeoModelKernelUnits::mm };
-  //double emecMotherRout[]  = {(2077.-7)*GeoModelKernelUnits::mm,(2077.-7)*GeoModelKernelUnits::mm};  	// -7 for cold
+  //double emecMotherZplan[] = {3639.5*Gaudi::Units::mm,3639.5*Gaudi::Units::mm+630.*Gaudi::Units::mm};    //cold (J.T)
+  //                                  // Zplane[0]=endg_z0*Gaudi::Units::cm-50*Gaudi::Units::mm
+  //                                  // Zplane[1]=Zplane[0]+endg_dzende*Gaudi::Units::cm-2.Gaudi::Units::mm
+  //double emecMotherRin[]   = { 279.*Gaudi::Units::mm, 324*Gaudi::Units::mm};	//{  302.*Gaudi::Units::mm,  302.*Gaudi::Units::mm };
+  //double emecMotherRout[]  = {(2077.-7)*Gaudi::Units::mm,(2077.-7)*Gaudi::Units::mm};  	// -7 for cold
   //int lastPlaneEmec = (sizeof(emecMotherZplan) / sizeof(double));
 
 	std::string emecMotherName = baseName + "::Mother"; //+ extension;
 
 	GeoTransform *refSystemTransform = 0;
-	double zTrans = 0.*GeoModelKernelUnits::mm, zMSTrans = 0.*GeoModelKernelUnits::mm;
+	double zTrans = 0.*Gaudi::Units::mm, zMSTrans = 0.*Gaudi::Units::mm;
 
 	GeoPcon* emecMotherShape = new GeoPcon(phiPosition - phiSize, 2.*phiSize);  //start phi,total phi
 	for(unsigned int i = 0; i < cryoPcons->size(); ++ i){
@@ -264,11 +263,11 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 		if(currentRecord->getString("PCON") == "EMEC::Mother"){
 			if(!refSystemTransform){
 				if(m_isTB){
-					zTrans = -3700.5*GeoModelKernelUnits::mm;
+					zTrans = -3700.5*Gaudi::Units::mm;
 					zMSTrans = zTrans;
 				} else {
-					zTrans = currentRecord->getDouble("ZPLANE") - 3639.5*GeoModelKernelUnits::mm;
-					zMSTrans = 0.*GeoModelKernelUnits::mm;
+					zTrans = currentRecord->getDouble("ZPLANE") - 3639.5*Gaudi::Units::mm;
+					zMSTrans = 0.*Gaudi::Units::mm;
 				}
 				refSystemTransform =  new GeoTransform(GeoTrf::TranslateZ3D(zTrans));
 			}
@@ -283,8 +282,8 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	if(DB_EmecGeometry->size() == 0){
 		DB_EmecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry", "EmecGeometry-00");
 	}
-	double zWheelRefPoint = (*DB_EmecGeometry)[0]->getDouble("Z0")*GeoModelKernelUnits::cm;
-	double LArTotalThickness = (*DB_EmecGeometry)[0]->getDouble("ETOT") *GeoModelKernelUnits::cm;
+	double zWheelRefPoint = (*DB_EmecGeometry)[0]->getDouble("Z0")*Gaudi::Units::cm;
+	double LArTotalThickness = (*DB_EmecGeometry)[0]->getDouble("ETOT") *Gaudi::Units::cm;
 
   const GeoLogVol* emecMotherLogical =
     new GeoLogVol(emecMotherName, emecMotherShape, LAr);
@@ -311,7 +310,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	double zWheelFrontFace = zWheelRefPoint + lwc->GetdWRPtoFrontFace();
 
     GeoPcon* innerShape= new GeoPcon(phiPosition - phiSize, 2.*phiSize);
-    innerShape->addPlane(   0.*GeoModelKernelUnits::mm, rMinInner[0], rMaxInner[0]);
+    innerShape->addPlane(   0.*Gaudi::Units::mm, rMinInner[0], rMaxInner[0]);
     innerShape->addPlane(zBack   , rMinInner[1], rMaxInner[1]);
 
     GeoLogVol*  innerLogical  = new GeoLogVol (innerName,innerShape, LAr);
@@ -387,7 +386,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	double zWheelFrontFace = zWheelRefPoint + lwc->GetdWRPtoFrontFace();
 
     GeoPcon* outerShape= new GeoPcon(phiPosition - phiSize, 2.*phiSize);
-    outerShape->addPlane(   0.*GeoModelKernelUnits::mm, rMinOuter[0], rMaxOuter[0]);
+    outerShape->addPlane(   0.*Gaudi::Units::mm, rMinOuter[0], rMaxOuter[0]);
     outerShape->addPlane( zMid   , rMinOuter[1], rMaxOuter[1]);
     outerShape->addPlane(zBack   , rMinOuter[2], rMaxOuter[2]);
 
@@ -471,36 +470,36 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	if(DB_EMECmn->size() == 0)
 		DB_EMECmn = pAccessSvc->getRecordsetPtr("EmecMagicNumbers","EMECMagigNumbers-00");
 
-	double front_shift = 0.*GeoModelKernelUnits::mm, back_shift = 0.*GeoModelKernelUnits::mm;
+	double front_shift = 0.*Gaudi::Units::mm, back_shift = 0.*Gaudi::Units::mm;
 	try {
 		for(unsigned int i = 0; i < DMpcons->size(); ++ i){
 			std::string object = (*DMpcons)[i]->getString("PCONNAME");
 			if(object == "FrontSupportMother"){
 				int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-				if(zplane == 0) front_shift += (*DMpcons)[i]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
-				else if(zplane == 1) front_shift -= (*DMpcons)[i]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
+				if(zplane == 0) front_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+				else if(zplane == 1) front_shift -= (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
 				else continue;
 			} else if(object == "BackSupportMother"){
 				int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-				if(zplane == 0) back_shift -= 0.;//(*DMpcons)[i]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
-				else if(zplane == 1) back_shift += (*DMpcons)[i]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
+				if(zplane == 0) back_shift -= 0.;//(*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+				else if(zplane == 1) back_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
 				else continue;
 			}
 		}
-		double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE")*GeoModelKernelUnits::mm;
+		double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE")*Gaudi::Units::mm;
 		front_shift += reftoactive;
 		back_shift += LArTotalThickness - reftoactive;
 	}
 	catch (...){
-		front_shift = -50.*GeoModelKernelUnits::mm; // start of EMEC envelop in the cryo.(length of env=630.)
-		back_shift = 580.*GeoModelKernelUnits::mm;
+		front_shift = -50.*Gaudi::Units::mm; // start of EMEC envelop in the cryo.(length of env=630.)
+		back_shift = 580.*Gaudi::Units::mm;
 		std::cout << "EMECConstruction: WARNING: cannot get front|back_shift from DB"
 		          << std::endl;
 	}
 //std::cout << "EMECConstruction : " << front_shift << " " << back_shift << std::endl;
     z0 = zWheelRefPoint + front_shift;
     EMECSupportConstruction *fsc = 0;
-    if(m_isTB) fsc = new EMECSupportConstruction(FrontIndx, true, "LAr::EMEC::", GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad);
+    if(m_isTB) fsc = new EMECSupportConstruction(FrontIndx, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
     else fsc = new EMECSupportConstruction(FrontIndx);
     GeoPhysVol* physicalFSM = fsc->GetEnvelope();
     emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
@@ -510,7 +509,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 
     z0 = zWheelRefPoint + back_shift; // end of EMEC envelop in the cryo.
     EMECSupportConstruction *bsc = 0;
-    if(m_isTB) bsc = new EMECSupportConstruction(BackIndx, true, "LAr::EMEC::", GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad);
+    if(m_isTB) bsc = new EMECSupportConstruction(BackIndx, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
     else bsc = new EMECSupportConstruction(BackIndx);
     GeoPhysVol *physicalBSM = bsc->GetEnvelope();
     GeoTrf::Transform3D rotBSM(GeoTrf::RotateX3D(-M_PI));
@@ -523,7 +522,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 
     z0 = zWheelRefPoint + LArTotalThickness * 0.5; //dist. to middle of sens vol. along z  from WRP
     EMECSupportConstruction *osc = 0;
-    if(m_isTB) osc = new EMECSupportConstruction(2, true, "LAr::EMEC::", GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad);
+    if(m_isTB) osc = new EMECSupportConstruction(2, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
     else osc = new EMECSupportConstruction(2);
     GeoPhysVol *physicalOSM = osc->GetEnvelope();
     emecMotherPhysical->add(refSystemTransform);
@@ -534,7 +533,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 
     z0 = zWheelRefPoint + LArTotalThickness * 0.5;
     EMECSupportConstruction *isc = 0;
-    if(m_isTB) isc = new EMECSupportConstruction(3, true, "LAr::EMEC::", GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad);
+    if(m_isTB) isc = new EMECSupportConstruction(3, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
     else isc = new EMECSupportConstruction(3);
     GeoPhysVol *physicalISM = isc->GetEnvelope();
     emecMotherPhysical->add(refSystemTransform);
@@ -544,7 +543,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 
     z0 = zWheelRefPoint + LArTotalThickness * 0.5;
     EMECSupportConstruction *msc = 0;
-    if(m_isTB) msc = new EMECSupportConstruction(4, true, "LAr::EMEC::", GeoModelKernelUnits::halfpi*GeoModelKernelUnits::rad);
+    if(m_isTB) msc = new EMECSupportConstruction(4, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
     else msc = new EMECSupportConstruction(4);
     GeoPhysVol *physicalMSM = msc->GetEnvelope();
     emecMotherPhysical->add(refSystemTransform);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetPhysValMonitoring includes
@@ -157,10 +157,10 @@ TrackSelectionTool::initialize() {
   // Example.
   // if (m_maxEta>-1) m_cuts.push_back(std::make_pair("eta", "Cut on (absolute) particle eta"));
 
-  // Add cuts to the TAccept.
+  // Add cuts to the AcceptInfo.
   for (const auto& cut : m_cuts) {
     if (m_accept.addCut(cut.first, cut.second) < 0) {
-      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the TAccept object is full.");
+      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the AcceptInfo object is full.");
       return StatusCode::FAILURE;
     }
   }
@@ -171,26 +171,23 @@ TrackSelectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept&
-TrackSelectionTool::getTAccept( ) const {
+const asg::AcceptInfo&
+TrackSelectionTool::getAcceptInfo( ) const {
   return m_accept;
 }
 
-const Root::TAccept&
+asg::AcceptData
 TrackSelectionTool::accept(const xAOD::IParticle* p) const {
   /*Is this perhaps supposed to be xAOD::TrackParticle? */
-
-  // Reset the result.
-  m_accept.clear();
 
   // Check if this is a track.
   if (!p) {
     ATH_MSG_ERROR("accept(...) Function received a null pointer");
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
   if (p->type() != xAOD::Type::TrackParticle) {
     ATH_MSG_ERROR("accept(...) Function received a non-TrackParticle");
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
 
   // Cast it to a track (we have already checked its type so we do not have to dynamic_cast).
@@ -200,10 +197,9 @@ TrackSelectionTool::accept(const xAOD::IParticle* p) const {
   return accept(track);
 }
 
-const Root::TAccept&
+asg::AcceptData
 TrackSelectionTool::accept(const xAOD::TrackParticle* p) const {
-  // Reset the TAccept.
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   uint8_t iBLayerHits(0), iBLayerOutliers(0), iBLayerSplitHits(0), iBLayerSharedHits(0);
   uint8_t iPixHits(0), iPixHoles(0), iPixSharedHits(0), iPixOutliers(0), iPixContribLayers(0), iPixSplitHits(0),
@@ -213,182 +209,182 @@ TrackSelectionTool::accept(const xAOD::TrackParticle* p) const {
   uint8_t iTRTHits(0), iTRTHTHits(0), iTRTOutliers(0), iTRTHTOutliers(0);
 
   if (!p->summaryValue(iBLayerHits, xAOD::numberOfInnermostPixelLayerHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iBLayerOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iBLayerSharedHits, xAOD::numberOfInnermostPixelLayerSharedHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iBLayerSplitHits, xAOD::numberOfInnermostPixelLayerSplitHits)) {
-    return m_accept;
+    return acceptData;
   }
 
   if (!p->summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixOutliers, xAOD::numberOfPixelOutliers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixContribLayers, xAOD::numberOfContribPixelLayers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixSharedHits, xAOD::numberOfPixelSharedHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixSplitHits, xAOD::numberOfPixelSplitHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iPixGangedHits, xAOD::numberOfGangedPixels)) {
-    return m_accept;
+    return acceptData;
   }
 
   if (!p->summaryValue(iSCTHits, xAOD::numberOfSCTHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iSCTSharedHits, xAOD::numberOfSCTSharedHits)) {
-    return m_accept;
+    return acceptData;
   }
 
   if (!p->summaryValue(iTRTOutliers, xAOD::numberOfTRTOutliers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iTRTHTOutliers, xAOD::numberOfTRTHighThresholdOutliers)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iTRTHits, xAOD::numberOfTRTHits)) {
-    return m_accept;
+    return acceptData;
   }
   if (!p->summaryValue(iTRTHTHits, xAOD::numberOfTRTHighThresholdHits)) {
-    return m_accept;
+    return acceptData;
   }
 
   // iSiHits = iPixHits + iSCTHits;
 
   // Check cuts.
   if (m_maxPt > -1) {
-    m_accept.setCutResult("maxPt", p->pt() < m_maxPt);
+    acceptData.setCutResult("maxPt", p->pt() < m_maxPt);
   }
   if (m_minPt > -1) {
-    m_accept.setCutResult("minPt", p->pt() > m_minPt);
+    acceptData.setCutResult("minPt", p->pt() > m_minPt);
   }
   if (m_maxEta > -1) {
-    m_accept.setCutResult("maxEta", p->pt() > 1E-07 ? std::fabs(p->eta()) < m_maxEta : false);
+    acceptData.setCutResult("maxEta", p->pt() > 1E-07 ? std::fabs(p->eta()) < m_maxEta : false);
   }
   if (m_minEta > -1) {
-    m_accept.setCutResult("minEta", p->pt() > 1E-07 ? std::fabs(p->eta()) > m_minEta : false);
+    acceptData.setCutResult("minEta", p->pt() > 1E-07 ? std::fabs(p->eta()) > m_minEta : false);
   }
   if (m_maxPrimaryImpact > -1) {
-    m_accept.setCutResult("maxPrimaryImpact", std::fabs(p->d0()) < m_maxPrimaryImpact);
+    acceptData.setCutResult("maxPrimaryImpact", std::fabs(p->d0()) < m_maxPrimaryImpact);
   }
   if (m_maxZImpact > -1) {
-    m_accept.setCutResult("maxZImpact", std::fabs(p->z0()) < m_maxZImpact);
+    acceptData.setCutResult("maxZImpact", std::fabs(p->z0()) < m_maxZImpact);
   }
   if (m_minPrimaryImpact > -1) {
-    m_accept.setCutResult("minPrimaryImpact", std::fabs(p->d0()) > m_minPrimaryImpact);
+    acceptData.setCutResult("minPrimaryImpact", std::fabs(p->d0()) > m_minPrimaryImpact);
   }
   if (m_minZImpact > -1) {
-    m_accept.setCutResult("minZImpact", std::fabs(p->z0()) > m_minZImpact);
+    acceptData.setCutResult("minZImpact", std::fabs(p->z0()) > m_minZImpact);
   }
   if (m_maxSecondaryImpact > -1) {
-    m_accept.setCutResult("maxSecondaryImpact", true /* nop */);
+    acceptData.setCutResult("maxSecondaryImpact", true /* nop */);
   }
   if (m_minSecondaryPt > -1) {
-    m_accept.setCutResult("minSecondaryPt", true /* nop */);
+    acceptData.setCutResult("minSecondaryPt", true /* nop */);
   }
   if (m_minClusters > -1) {
-    m_accept.setCutResult("minClusters", true /* nop */);
+    acceptData.setCutResult("minClusters", true /* nop */);
   }
   if (m_minSiNotShared > -1) {
-    m_accept.setCutResult("minSiNotShared",
+    acceptData.setCutResult("minSiNotShared",
                           (iBLayerHits + iPixHits + iSCTHits - iBLayerSharedHits - iPixSharedHits - iSCTSharedHits) >=
                           m_minSiNotShared);
   }
   if (m_maxShared > -1) {
-    m_accept.setCutResult("maxShared", iBLayerSharedHits + iPixSharedHits + iSCTSharedHits <= m_maxShared);
+    acceptData.setCutResult("maxShared", iBLayerSharedHits + iPixSharedHits + iSCTSharedHits <= m_maxShared);
   }
   if (m_minPixelHits > -1) {
-    m_accept.setCutResult("minPixelHits", iPixHits >= m_minPixelHits);
+    acceptData.setCutResult("minPixelHits", iPixHits >= m_minPixelHits);
   }
   if (m_maxHoles > -1) {
-    m_accept.setCutResult("maxHoles", iPixHoles + iSCTHoles <= m_maxHoles);
+    acceptData.setCutResult("maxHoles", iPixHoles + iSCTHoles <= m_maxHoles);
   }
   if (m_maxPixelHoles > -1) {
-    m_accept.setCutResult("maxPixelHoles", iPixHoles <= m_maxPixelHoles);
+    acceptData.setCutResult("maxPixelHoles", iPixHoles <= m_maxPixelHoles);
   }
   if (m_maxSctHoles > -1) {
-    m_accept.setCutResult("maxSctHoles", iSCTHoles <= m_maxSctHoles);
+    acceptData.setCutResult("maxSctHoles", iSCTHoles <= m_maxSctHoles);
   }
   if (m_maxDoubleHoles > -1) {
-    m_accept.setCutResult("maxDoubleHoles", iSCTDoubleHoles <= m_maxDoubleHoles);
+    acceptData.setCutResult("maxDoubleHoles", iSCTDoubleHoles <= m_maxDoubleHoles);
   }
   if (m_radMax > -1) {
-    m_accept.setCutResult("radMax", true /* nop */);
+    acceptData.setCutResult("radMax", true /* nop */);
   }
   if (m_nHolesMax > -1) {
-    m_accept.setCutResult("nHolesMax", true /* nop */);
+    acceptData.setCutResult("nHolesMax", true /* nop */);
   }
   if (m_nHolesGapMax > -1) {
-    m_accept.setCutResult("nHolesGapMax", true /* nop */);
+    acceptData.setCutResult("nHolesGapMax", true /* nop */);
   }
   if (m_seedFilterLevel > -1) {
-    m_accept.setCutResult("seedFilterLevel", true /* nop */);
+    acceptData.setCutResult("seedFilterLevel", true /* nop */);
   }
   if (m_maxTRTHighThresholdHits > -1) {
-    m_accept.setCutResult("maxTRTHighThresholdHits", iTRTHTHits <= m_maxTRTHighThresholdHits);
+    acceptData.setCutResult("maxTRTHighThresholdHits", iTRTHTHits <= m_maxTRTHighThresholdHits);
   }
   if (m_minTRTHighThresholdHits > -1) {
-    m_accept.setCutResult("minTRTHighThresholdHits", iTRTHTHits <= m_minTRTHighThresholdHits);
+    acceptData.setCutResult("minTRTHighThresholdHits", iTRTHTHits <= m_minTRTHighThresholdHits);
   }
   if (m_maxTRTHighThresholdOutliers > -1) {
-    m_accept.setCutResult("maxTRTHighThresholdOutliers", iTRTHTOutliers <= m_maxTRTHighThresholdOutliers);
+    acceptData.setCutResult("maxTRTHighThresholdOutliers", iTRTHTOutliers <= m_maxTRTHighThresholdOutliers);
   }
   if (m_maxSCTHits > -1) {
-    m_accept.setCutResult("maxSCTHits", iSCTHits <= m_maxSCTHits);
+    acceptData.setCutResult("maxSCTHits", iSCTHits <= m_maxSCTHits);
   }
   if (m_minSCTHits > -1) {
-    m_accept.setCutResult("minSCTHits", iSCTHits >= m_minSCTHits);
+    acceptData.setCutResult("minSCTHits", iSCTHits >= m_minSCTHits);
   }
   if (m_maxTRTOutliers > -1) {
-    m_accept.setCutResult("maxTRTOutliers", iTRTOutliers <= m_maxTRTOutliers);
+    acceptData.setCutResult("maxTRTOutliers", iTRTOutliers <= m_maxTRTOutliers);
   }
   if (m_maxBLayerSplitHits > -1) {
-    m_accept.setCutResult("maxBLayerSplitHits", iBLayerSplitHits <= m_maxBLayerSplitHits);
+    acceptData.setCutResult("maxBLayerSplitHits", iBLayerSplitHits <= m_maxBLayerSplitHits);
   }
   if (m_maxPixelOutliers > -1) {
-    m_accept.setCutResult("maxPixelOutliers", iPixOutliers <= m_maxPixelOutliers);
+    acceptData.setCutResult("maxPixelOutliers", iPixOutliers <= m_maxPixelOutliers);
   }
 
   // Example.
-  // if (m_maxEta>-1) m_accept.setCutResult("eta", (p->pt()>1e-7 ? (fabs(p->eta()) < m_maxEta) : false) );
+  // if (m_maxEta>-1) acceptData.setCutResult("eta", (p->pt()>1e-7 ? (fabs(p->eta()) < m_maxEta) : false) );
 
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numPassedCuts[pos]++;
     }
   }
 
   m_numProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 StatusCode

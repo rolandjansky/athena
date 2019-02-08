@@ -48,6 +48,7 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
 	counter=0
 
         for since, until, (state,) in events:
+            if state.Run == 0: continue
 	    #print state
             if state is not None:
                 deadfrac = 1-state.LiveFraction

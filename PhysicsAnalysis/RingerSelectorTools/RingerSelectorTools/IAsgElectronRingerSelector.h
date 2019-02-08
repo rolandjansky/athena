@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IAsgElectronRingerSelector.h 704615 2015-10-29 18:50:12Z wsfreund $
@@ -22,7 +22,8 @@
 #include "PATCore/IAsgSelectionTool.h"
 
 // Include the return object and the underlying ROOT tool
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 
 // Forward declarations:
 #include "xAODEgamma/EgammaFwd.h"
@@ -41,25 +42,27 @@ class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
   virtual ~IAsgElectronRingerSelector() {};
 
   /** The main accept method: using the generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
 
   /** The main accept method: using the generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::IParticle& part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron& part ) const = 0;
 
   /** The basic Ringer selector tool execution */
-  virtual StatusCode execute(const xAOD::Electron* eg) const = 0;
+  virtual StatusCode execute(const xAOD::Electron* eg,
+                             asg::AcceptData& acceptData) const = 0;
 
   /** The Ringer selector tool execution for HLT */
-  virtual StatusCode execute(const xAOD::Egamma* eg) const = 0;
+  virtual StatusCode execute(const xAOD::Egamma* eg,
+                             asg::AcceptData& acceptData) const = 0;
 
   /** Get last executed TAccept answer */
-  virtual const Root::TAccept& getTAccept() const = 0;
+  virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
 
   /** Get last executed TResult value */
   virtual const std::vector<float>& getOutputSpace() const = 0;

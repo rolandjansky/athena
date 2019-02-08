@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -21,7 +21,6 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
@@ -46,7 +45,6 @@ TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc)
   , m_tool("TileDigitsContByteStreamTool")
   , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
   , m_byteStreamCnvSvc(0)
-  , m_activeStore("ActiveStoreSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
@@ -74,7 +72,6 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
 
   ATH_CHECK( m_robSvc.retrieve() );
 
-  ATH_CHECK( m_activeStore.retrieve() );
   
   return StatusCode::SUCCESS;
 }
@@ -90,60 +87,57 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
     return StatusCode::FAILURE;    
   }
 
+  const std::string containerName(*(pRE_Addr->par()));
+  bool isTMDB(containerName == "MuRcvDigitsCnt");
+
   uint32_t newrob = 0x0;
 
-  for (int icnt = 0; icnt < 2; ++icnt) {
 
-    bool isTMDB(icnt == 1);
+  std::vector<uint32_t> robid(1);
+  robid[0] = 0;
+  std::vector<const ROBDataProviderSvc::ROBF*> robf;
 
-    std::vector<uint32_t> robid(1); 
-    robid[0] = 0;
-    std::vector<const ROBDataProviderSvc::ROBF*> robf;
-
-    TileMutableDigitsContainer* cont = m_queue.get (true);
-    ATH_CHECK( cont->status() );
+  TileMutableDigitsContainer* cont = m_queue.get (true);
+  ATH_CHECK( cont->status() );
     
-    // iterate over all collections in a container and fill them
-    //
-    for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
-      TileDigitsCollection* digitsCollection = cont->indexFindPtr (hash);
-      digitsCollection->clear();
-      TileDigitsCollection::ID collID = digitsCollection->identify();  
+  // iterate over all collections in a container and fill them
+  //
+  for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
+    TileDigitsCollection* digitsCollection = cont->indexFindPtr (hash);
+    digitsCollection->clear();
+    TileDigitsCollection::ID collID = digitsCollection->identify();
       
-      // find ROB
-      if (isTMDB) {
-        newrob = m_hid2re->getRobFromTileMuRcvFragID(collID);
-      } else {
-        newrob = m_hid2re->getRobFromFragID(collID);
-      }
-
-      if (newrob != robid[0]) {
-        robid[0] = newrob;
-        robf.clear();
-        m_robSvc->getROBData(robid, robf);
-      }
-      
-      if (robf.size() > 0 ) {
-        if (isTMDB) {// reid for TMDB 0x5x010x
-          ATH_MSG_DEBUG(" Decoding TMDB digits in ROD fragment ");
-          m_decoder->fillCollection_TileMuRcv_Digi(robf[0], *digitsCollection);
-        } else {
-          m_decoder->fillCollection(robf[0], *digitsCollection);
-        }
-      } else {
-        digitsCollection->setFragBCID((TileROD_Decoder::NO_ROB)<<16);
-      }
-    }
-
-    ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
-
-    TileDigitsContainer* basecont = cont;
+    // find ROB
     if (isTMDB) {
-      ATH_CHECK( m_activeStore->activeStore()->record( basecont, "MuRcvDigitsCnt" ) );
+      newrob = m_hid2re->getRobFromTileMuRcvFragID(collID);
     } else {
-      pObj = SG::asStorable( basecont ) ;
+      newrob = m_hid2re->getRobFromFragID(collID);
     }
+
+    if (newrob != robid[0]) {
+      robid[0] = newrob;
+      robf.clear();
+      m_robSvc->getROBData(robid, robf);
+    }
+      
+    if (robf.size() > 0 ) {
+      if (isTMDB) {// reid for TMDB 0x5x010x
+        ATH_MSG_DEBUG(" Decoding TMDB digits in ROD fragment ");
+        m_decoder->fillCollection_TileMuRcv_Digi(robf[0], *digitsCollection);
+      } else {
+        m_decoder->fillCollection(robf[0], *digitsCollection);
+      }
+    } else {
+      digitsCollection->setFragBCID((TileROD_Decoder::NO_ROB)<<16);
+    }
+
+
   }
+
+  ATH_MSG_DEBUG( "Creating digits container: " << containerName );
+
+  TileDigitsContainer* basecont = cont;
+  pObj = SG::asStorable( basecont ) ;
 
 
   return StatusCode::SUCCESS;  

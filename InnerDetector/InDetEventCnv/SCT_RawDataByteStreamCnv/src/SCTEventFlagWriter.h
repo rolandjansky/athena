@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -21,7 +21,7 @@ class ISCT_ByteStreamErrorsTool;
  * This algorithm flags an event bad if it has >500 LVL1ID errors or 
  * >1000 ROBFragment errors.
  */
-class SCTEventFlagWriter : public AthAlgorithm
+class SCTEventFlagWriter : public AthReentrantAlgorithm
 {
  public:
 
@@ -35,7 +35,7 @@ class SCTEventFlagWriter : public AthAlgorithm
   virtual StatusCode initialize() override;
 
   /** Execute */
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 

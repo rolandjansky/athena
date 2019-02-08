@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -351,6 +351,9 @@ StatusCode TauSelectionTool::initialize()
     ATH_CHECK(m_tTOELLHDecorator.initialize());
   }
 
+  for (auto entry : m_cMap)
+    entry.second->setAcceptInfo (m_aAccept);
+
   return StatusCode::SUCCESS;
 }
 
@@ -458,23 +461,20 @@ StatusCode TauSelectionTool::beginEvent()
 }
 
 //______________________________________________________________________________
-const Root::TAccept& TauSelectionTool::getTAccept() const
+const asg::AcceptInfo& TauSelectionTool::getAcceptInfo() const
 {
   return m_aAccept;
 }
 
 //______________________________________________________________________________
-const Root::TAccept&
+asg::AcceptData
 TauSelectionTool::accept( const xAOD::IParticle* xP ) const
 {
-  // Reset the result:
-  m_aAccept.clear();
-
   // Check if this is a tau:
   if( xP->type() != xAOD::Type::Tau )
   {
     ATH_MSG_ERROR( "accept(...) Function received a non-tau" );
-    return m_aAccept;
+    return asg::AcceptData (&m_aAccept);
   }
 
   // Cast it to a tau:
@@ -482,7 +482,7 @@ TauSelectionTool::accept( const xAOD::IParticle* xP ) const
   if( ! xTau )
   {
     ATH_MSG_FATAL( "accept(...) Failed to cast particle to tau" );
-    return m_aAccept;
+    return asg::AcceptData (&m_aAccept);
   }
 
   // Let the specific function do the work:
@@ -490,17 +490,18 @@ TauSelectionTool::accept( const xAOD::IParticle* xP ) const
 }
 
 //______________________________________________________________________________
-const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
+asg::AcceptData
+TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
 {
-  // Reset the result:
-  m_aAccept.clear();
+  asg::AcceptData acceptData (&m_aAccept);
+
   int iNBin = 0;
   if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
   {
     if (m_tTOELLHDecorator->decorate(xTau).isFailure())
     {
       ATH_MSG_ERROR("Failed decorating information for CutEleOLR");
-      return m_aAccept;
+      return acceptData;
     }
   }
 
@@ -518,8 +519,8 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
     {
       if (m_iSelectionCuts & entry.first)
       {
-        if (!entry.second->accept(xTau))
-          return m_aAccept;
+        if (!entry.second->accept(xTau, acceptData))
+          return acceptData;
         else
         {
           if (m_bCreateControlPlots)
@@ -545,7 +546,7 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   }
 
   // // Return the result:
-  return m_aAccept;
+  return acceptData;
 }
 
 //______________________________________________________________________________

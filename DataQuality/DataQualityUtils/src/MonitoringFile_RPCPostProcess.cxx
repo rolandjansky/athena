@@ -30,6 +30,13 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 {
  // std::cout << "Running RPC post processing \n" ;
   
+  bool  applyEffThreshold  =  true;
+  bool  EffThreshold       = false;
+  bool  printout           = true ;
+  float Minimum_efficiency =  0.5;
+  
+  
+  
   TFile* f = TFile::Open(inFilename.c_str(),"UPDATE");
   if (f == 0) {
     std::cerr << "MonitoringFile::RPCPostProcess(): "
@@ -602,7 +609,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	int countpanelindb = 0 ;
 	int countpaneleff0 = 0 ;
 	int countpaneltrack0 = 0 ;
-	for (int i_sec=0; i_sec!=15+1; i_sec++) {
+	for (int i_sec=0; i_sec!=15*1+1; i_sec++) {
 	  char sector_char[100]   ;
 	  std::string sector_name ;
           sprintf(sector_char,"_Sector%.2d",i_sec+1) ;  // sector number with 2 digits
@@ -1102,6 +1109,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	   float cl_sizeeta        = -9999;	  float cl_sizephi	  = -9999;  	 char arr_cl_sizeeta	  [10];      char arr_cl_sizephi        [10];	    
            float errcl_sizeeta     = -1; 	  float errcl_sizephi	  =-1;  	 char arr_errcl_sizeeta	  [10];      char arr_errcl_sizephi     [10];	    
   		
+           float eta_effphi        =  0;          float phi_effeta        = 0;      		
 	 
 	   int   PanelCode   = 0;
 	   int   Binposition   = 0;
@@ -1124,75 +1132,75 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
 	      if(n_tr_pphi <1000 ) continue;
 
-	      if ( h_Eff	 )effphi	      = h_Eff		  ->GetBinContent(ibin) ;
-              sprintf(arr_effphi		,    "%f ", effphi	      ) ;   arr_effphi	       [5]   =0;
-	      if ( h_Eff	 )erreffphi	      = h_Eff		  ->GetBinError  (ibin) ;
-              sprintf(arr_erreffphi	,    "%f ", erreffphi	      ) ;   arr_erreffphi        [5]   =0;
-	      if ( h_Res_CS1	 )resphi_cs1	      = h_Res_CS1	  ->GetBinContent(ibin) ;
-              sprintf(arr_resphi_cs1	,    "%f ", resphi_cs1        ) ;   arr_resphi_cs1       [5]   =0;
-	      if ( h_Res_CS1	 )errresphi_cs1       = h_Res_CS1	  ->GetBinError  (ibin) ;
-              sprintf(arr_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   arr_errresphi_cs1    [5]   =0;
-	      if ( h_Res_CS2	 )resphi_cs2	      = h_Res_CS2	  ->GetBinContent(ibin) ;
-              sprintf(arr_resphi_cs2	,    "%f ", resphi_cs2        ) ;   arr_resphi_cs2       [5]   =0;
-	      if ( h_Res_CS2	 )errresphi_cs2       = h_Res_CS2	  ->GetBinError  (ibin) ;
-              sprintf(arr_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   arr_errresphi_cs2    [5]   =0;
-	      if ( h_Res_CSmore2 )resphi_csother      = h_Res_CSmore2	  ->GetBinContent(ibin) ;
-              sprintf(arr_resphi_csother	,    "%f ", resphi_csother    ) ;   arr_resphi_csother   [5]   =0;
-	      if ( h_Res_CSmore2 )errresphi_csother   = h_Res_CSmore2	  ->GetBinError  (ibin) ;
-              sprintf(arr_errresphi_csother,    "%f ", errresphi_csother ) ;   arr_errresphi_csother[5]   =0;
-	      if ( h_Time	 )timephi	      = h_Time  	  ->GetBinContent(ibin) ;
-              sprintf(arr_timephi  	,    "%f ", timephi	      ) ;   arr_timephi	       [5]   =0;
-              if ( h_Time	 )errtimephi	      = h_Time  	  ->GetBinError  (ibin) ;
-              sprintf(arr_errtimephi	,    "%f ", errtimephi        ) ;   arr_errtimephi       [5]   =0;
-	      if ( h_NoiseTot	 )noisephi	      = h_NoiseTot	  ->GetBinContent(ibin) ;
-              sprintf(arr_noisephi 	,    "%f ", noisephi	      ) ;   arr_noisephi         [5]   =0;
-	      if ( h_NoiseTot	 )errnoisephi	      = h_NoiseTot	  ->GetBinError  (ibin) ;
-              sprintf(arr_errnoisephi	,    "%f ", errnoisephi       ) ;   arr_errnoisephi      [5]   =0;
-	      if ( h_NoiseCorr   )noisephi_cor        = h_NoiseCorr	  ->GetBinContent(ibin) ;
-              sprintf(arr_noisephi_cor	,    "%f ", noisephi_cor      ) ;   arr_noisephi_cor     [5]   =0;
-	      if ( h_NoiseCorr   )errnoisephi_cor     = h_NoiseCorr	  ->GetBinError  (ibin) ;
-              sprintf(arr_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   arr_errnoisephi_cor  [5]   =0;
-	      if ( h_CS 	 )cl_sizephi	      = h_CS		  ->GetBinContent(ibin) ;
-              sprintf(arr_cl_sizephi	,    "%f ", cl_sizephi        ) ;   arr_cl_sizephi       [5]   =0;
-	      if ( h_CS 	 )errcl_sizephi       = h_CS		  ->GetBinError  (ibin) ;
-              sprintf(arr_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   arr_errcl_sizephi    [5]   =0;
+	      if ( h_Eff	 )effphi	      = h_Eff		  ->GetBinContent(ibin) ;    
+	      sprintf(arr_effphi		,    "%f ", effphi	      ) ;   arr_effphi	       [5]   =0;
+	      if ( h_Eff	 )erreffphi	      = h_Eff		  ->GetBinError  (ibin) ;    
+	      sprintf(arr_erreffphi	,    "%f ", erreffphi	      ) ;   arr_erreffphi        [5]   =0;
+	      if ( h_Res_CS1	 )resphi_cs1	      = h_Res_CS1	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_resphi_cs1	,    "%f ", resphi_cs1        ) ;   arr_resphi_cs1       [5]   =0;
+	      if ( h_Res_CS1	 )errresphi_cs1       = h_Res_CS1	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   arr_errresphi_cs1    [5]   =0;
+	      if ( h_Res_CS2	 )resphi_cs2	      = h_Res_CS2	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_resphi_cs2	,    "%f ", resphi_cs2        ) ;   arr_resphi_cs2       [5]   =0;
+	      if ( h_Res_CS2	 )errresphi_cs2       = h_Res_CS2	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   arr_errresphi_cs2    [5]   =0;
+	      if ( h_Res_CSmore2 )resphi_csother      = h_Res_CSmore2	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_resphi_csother	,    "%f ", resphi_csother    ) ;   arr_resphi_csother   [5]   =0;
+	      if ( h_Res_CSmore2 )errresphi_csother   = h_Res_CSmore2	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errresphi_csother,    "%f ", errresphi_csother ) ;   arr_errresphi_csother[5]   =0;
+	      if ( h_Time	 )timephi	      = h_Time  	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_timephi  	,    "%f ", timephi	      ) ;   arr_timephi	       [5]   =0;
+              if ( h_Time	 )errtimephi	      = h_Time  	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errtimephi	,    "%f ", errtimephi        ) ;   arr_errtimephi       [5]   =0;
+	      if ( h_NoiseTot	 )noisephi	      = h_NoiseTot	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_noisephi 	,    "%f ", noisephi	      ) ;   arr_noisephi         [5]   =0;
+	      if ( h_NoiseTot	 )errnoisephi	      = h_NoiseTot	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errnoisephi	,    "%f ", errnoisephi       ) ;   arr_errnoisephi      [5]   =0;
+	      if ( h_NoiseCorr   )noisephi_cor        = h_NoiseCorr	  ->GetBinContent(ibin) ;    
+	      sprintf(arr_noisephi_cor	,    "%f ", noisephi_cor      ) ;   arr_noisephi_cor     [5]   =0;
+	      if ( h_NoiseCorr   )errnoisephi_cor     = h_NoiseCorr	  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   arr_errnoisephi_cor  [5]   =0;
+	      if ( h_CS 	 )cl_sizephi	      = h_CS		  ->GetBinContent(ibin) ;    
+	      sprintf(arr_cl_sizephi	,    "%f ", cl_sizephi        ) ;   arr_cl_sizephi       [5]   =0;
+	      if ( h_CS 	 )errcl_sizephi       = h_CS		  ->GetBinError  (ibin) ;    
+	      sprintf(arr_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   arr_errcl_sizephi    [5]   =0;
 	     
 	     }else{
 	      if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
               if(n_tr_peta <1000) continue;
 
- 	      if ( h_Eff	)effeta 	     = h_Eff		 ->GetBinContent(ibin) ;
-              sprintf(arr_effeta  	 ,    "%f ", effeta	       ) ;   arr_effeta		[5]   =0;
-	      if ( h_Eff	)erreffeta	     = h_Eff		 ->GetBinError  (ibin) ;
-              sprintf(arr_erreffeta	 ,    "%f ", erreffeta         ) ;   arr_erreffeta	[5]   =0;
-	      if ( h_Res_CS1	)reseta_cs1	     = h_Res_CS1	 ->GetBinContent(ibin) ;
-              sprintf(arr_reseta_cs1	 ,    "%f ", reseta_cs1        ) ;   arr_reseta_cs1	[5]   =0;
-	      if ( h_Res_CS1	)errreseta_cs1       = h_Res_CS1	 ->GetBinError  (ibin) ;
-              sprintf(arr_errreseta_cs1	 ,    "%f ", errreseta_cs1     ) ;   arr_errreseta_cs1	[5]   =0;
-	      if ( h_Res_CS2	)reseta_cs2	     = h_Res_CS2	 ->GetBinContent(ibin) ;
-              sprintf(arr_reseta_cs2	 ,    "%f ", reseta_cs2        ) ;   arr_reseta_cs2	[5]   =0;
-	      if ( h_Res_CS2	)errreseta_cs2       = h_Res_CS2	 ->GetBinError  (ibin) ;
-              sprintf(arr_errreseta_cs2	 ,    "%f ", errreseta_cs2     ) ;   arr_errreseta_cs2	[5]   =0;
-              if ( h_Res_CSmore2)reseta_csother      = h_Res_CSmore2	 ->GetBinContent(ibin) ;
-              sprintf(arr_reseta_csother   ,    "%f ", reseta_csother    ) ;   arr_reseta_csother	[5]   =0;
-	      if ( h_Res_CSmore2)errreseta_csother   = h_Res_CSmore2	 ->GetBinError  (ibin) ;
-              sprintf(arr_errreseta_csother,    "%f ", errreseta_csother ) ;   arr_errreseta_csother[5]   =0;
-	      if ( h_Time	)timeeta	     = h_Time		 ->GetBinContent(ibin) ;
-              sprintf(arr_timeeta 	 ,    "%f ", timeeta	       ) ;   arr_timeeta  	[5]   =0;
-	      if ( h_Time	)errtimeeta	     = h_Time		 ->GetBinError  (ibin) ;
-              sprintf(arr_errtimeeta	 ,    "%f ", errtimeeta        ) ;   arr_errtimeeta	[5]   =0;
-	      if ( h_NoiseTot	)noiseeta	     = h_NoiseTot	 ->GetBinContent(ibin) ;
-              sprintf(arr_noiseeta	 ,    "%f ", noiseeta	       ) ;   arr_noiseeta 	[5]   =0;
-	      if ( h_NoiseTot	)errnoiseeta	     = h_NoiseTot	 ->GetBinError  (ibin) ;
-              sprintf(arr_errnoiseeta	 ,    "%f ", errnoiseeta       ) ;   arr_errnoiseeta	[5]   =0;
-	      if ( h_NoiseCorr  )noiseeta_cor	     = h_NoiseCorr	 ->GetBinContent(ibin) ;
-              sprintf(arr_noiseeta_cor	 ,    "%f ", noiseeta_cor      ) ;   arr_noiseeta_cor	[5]   =0;
-	      if ( h_NoiseCorr  )errnoiseeta_cor     = h_NoiseCorr	 ->GetBinError  (ibin) ;
-              sprintf(arr_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   arr_errnoiseeta_cor  [5]   =0;
-	      if ( h_CS 	)cl_sizeeta	     = h_CS		 ->GetBinContent(ibin) ;
-              sprintf(arr_cl_sizeeta	 ,    "%f ", cl_sizeeta        ) ;   arr_cl_sizeeta	[5]   =0;
-	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;
-              sprintf(arr_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   arr_errcl_sizeeta	[5]   =0;	     
+ 	      if ( h_Eff	)effeta 	     = h_Eff		 ->GetBinContent(ibin) ;      
+	      sprintf(arr_effeta  	 ,    "%f ", effeta	       ) ;   arr_effeta		[5]   =0;
+	      if ( h_Eff	)erreffeta	     = h_Eff		 ->GetBinError  (ibin) ;      
+	      sprintf(arr_erreffeta	 ,    "%f ", erreffeta         ) ;   arr_erreffeta	[5]   =0;
+	      if ( h_Res_CS1	)reseta_cs1	     = h_Res_CS1	 ->GetBinContent(ibin) ;      
+	      sprintf(arr_reseta_cs1	 ,    "%f ", reseta_cs1        ) ;   arr_reseta_cs1	[5]   =0;
+	      if ( h_Res_CS1	)errreseta_cs1       = h_Res_CS1	 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errreseta_cs1	 ,    "%f ", errreseta_cs1     ) ;   arr_errreseta_cs1	[5]   =0;
+	      if ( h_Res_CS2	)reseta_cs2	     = h_Res_CS2	 ->GetBinContent(ibin) ;      
+	      sprintf(arr_reseta_cs2	 ,    "%f ", reseta_cs2        ) ;   arr_reseta_cs2	[5]   =0;
+	      if ( h_Res_CS2	)errreseta_cs2       = h_Res_CS2	 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errreseta_cs2	 ,    "%f ", errreseta_cs2     ) ;   arr_errreseta_cs2	[5]   =0;
+              if ( h_Res_CSmore2)reseta_csother      = h_Res_CSmore2	 ->GetBinContent(ibin) ;      
+	      sprintf(arr_reseta_csother   ,    "%f ", reseta_csother    ) ;   arr_reseta_csother	[5]   =0;
+	      if ( h_Res_CSmore2)errreseta_csother   = h_Res_CSmore2	 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errreseta_csother,    "%f ", errreseta_csother ) ;   arr_errreseta_csother[5]   =0;
+	      if ( h_Time	)timeeta	     = h_Time		 ->GetBinContent(ibin) ;      
+	      sprintf(arr_timeeta 	 ,    "%f ", timeeta	       ) ;   arr_timeeta  	[5]   =0;
+	      if ( h_Time	)errtimeeta	     = h_Time		 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errtimeeta	 ,    "%f ", errtimeeta        ) ;   arr_errtimeeta	[5]   =0;
+	      if ( h_NoiseTot	)noiseeta	     = h_NoiseTot	 ->GetBinContent(ibin) ;      
+	      sprintf(arr_noiseeta	 ,    "%f ", noiseeta	       ) ;   arr_noiseeta 	[5]   =0;
+	      if ( h_NoiseTot	)errnoiseeta	     = h_NoiseTot	 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errnoiseeta	 ,    "%f ", errnoiseeta       ) ;   arr_errnoiseeta	[5]   =0;
+	      if ( h_NoiseCorr  )noiseeta_cor	     = h_NoiseCorr	 ->GetBinContent(ibin) ;      
+	      sprintf(arr_noiseeta_cor	 ,    "%f ", noiseeta_cor      ) ;   arr_noiseeta_cor	[5]   =0;
+	      if ( h_NoiseCorr  )errnoiseeta_cor     = h_NoiseCorr	 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   arr_errnoiseeta_cor  [5]   =0;
+	      if ( h_CS 	)cl_sizeeta	     = h_CS		 ->GetBinContent(ibin) ;      
+	      sprintf(arr_cl_sizeeta	 ,    "%f ", cl_sizeeta        ) ;   arr_cl_sizeeta	[5]   =0;
+	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;      
+	      sprintf(arr_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   arr_errcl_sizeeta	[5]   =0;	     
 	     
 	    
               //std::cout<<"PanelCode  "<<PanelCode<<" etaprimo "<<"\n";
@@ -1220,10 +1228,10 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	   
             int   TableVersionCondDB  = 2 ;         //RPC conditionDB table versioning
-	    float effeleeta           = -9999;	       char arr_effeleeta 	 [10];  	   
-            float erreffeleeta        = -1;	       char arr_erreffeleeta	 [10];  	   
-            float effelephi	      = -9999;	       char arr_effelephi 	 [10];
-	    float erreffelephi        = -1;            char arr_erreffelephi	 [10];
+	    float gapeffeta           = -9999;	       char arr_gapeffeta 	 [10];  	   
+            float errgapeffeta        = -1;	       char arr_errgapeffeta	 [10];  	   
+            float gapeffphi	      = -9999;	       char arr_gapeffphi 	 [10];
+	    float errgapeffphi        = -1;            char arr_errgapeffphi	 [10];
 	    float gapeff              = -9999;			    
             float errgapeff           = -1;
 	    float entriesCSeta        = -1;
@@ -1238,6 +1246,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
             float rateCS1phi	      = -1;	       char arr_rateCS1phi	 [10]; 
             float rateCS2phi	      = -1;	       char arr_rateCS2phi	 [10]; 
             float rateCSmore2phi      = -1;	       char arr_rateCSmore2phi	 [10]; 
+	    
+	    
 
  	    coolrpc.coolDbFolder("sqlite://;schema=RPCConditionDB.db;dbname=RPC_DQA","/OFFLINE/FINAL");
   	    std::string dir_cool_raw = run_dir + "/Muon/MuonRawDataMonitoring/RPC/CoolDB/";
@@ -1257,7 +1267,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	    int StripProfileContenent = 0;
 	  
 	    for ( std::vector<std::string>::const_iterator iter=layerList.begin(); iter!=layerList.end(); iter++ ) {
-	      for ( int i_dblPhi=0; i_dblPhi!=2; i_dblPhi++ ) {
+	      for ( int i_dblPhi=0; i_dblPhi!=2*1+1; i_dblPhi++ ) {
 	        char coolName[40];
 		sprintf(coolName, "Sector%.2d_%s_dblPhi%d", i_sec+1, (*iter).c_str(), i_dblPhi+1 );
 		std::string stripId_name       = dir_cool_raw + coolName + "_PanelId" ;
@@ -1273,8 +1283,10 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		 
 		  int  SingleStripsValue    = 0;
 		  int  StripsOnPanel        = 1; //number of strip on panel
-		  char SingleStripsStatus[80]  ;
-		  std::string PanelStripsStatus;
+		  char SingleStripsStatus  [80]  ;
+		  char SingleStripsStatusOK[80]  ;
+		  std::string PanelStripsStatus  ;
+		  std::string PanelStripsStatusOK;
 		  
 		  NumberLayerStrip = h_stripProfile->GetNbinsX() ;
 		  for(int Nstrips=1 ; Nstrips!=NumberLayerStrip+1 ; Nstrips++){
@@ -1286,11 +1298,14 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		    if (StripOccupancy>0.9) SingleStripsValue=9;
 		    		    
 		    if(h_stripId-> GetBinCenter(Nstrips) > 0){ 
-		     sprintf(SingleStripsStatus, "%d 000.0 0.000|", SingleStripsValue );
+		     sprintf(SingleStripsStatus  , "%d 000.0 0.000|", SingleStripsValue );
+		     sprintf(SingleStripsStatusOK,  "5 000.0 0.000|"                    );
 		    }else{ 
 		     sprintf(SingleStripsStatus, "|000.0 0.000 %d", SingleStripsValue );
+		     sprintf(SingleStripsStatusOK, "|000.0 0.000 5"                   );
 		    }
-		    PanelStripsStatus = PanelStripsStatus + SingleStripsStatus;
+		    PanelStripsStatus   = PanelStripsStatus   +   SingleStripsStatus;
+		    PanelStripsStatusOK = PanelStripsStatusOK + SingleStripsStatusOK;
 		    
 		    
 
@@ -1302,7 +1317,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
   
 		    if(h_stripId-> GetBinCenter(Nstrips) < 0){		    		    
 		     //std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;		    
-		     std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());		
+		     std::reverse(PanelStripsStatus  .begin(), PanelStripsStatus  .end());				    
+		     std::reverse(PanelStripsStatusOK.begin(), PanelStripsStatusOK.end());		
 		    }
                        
 		      for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
@@ -1310,13 +1326,27 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	                if(PanelCode !=PanelStripId)continue;
 			  if(ibin%2!=0){
 			    if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
-			      //if(n_tr_peta >0){
-	 
+			      //if(n_tr_peta >0){				
+				if ( h_PanelId )Binposition = (int)h_PanelId-> GetBinCenter(ibin) ;
+				int ibin_perp=0;
+	                        if(Binposition>0){ 
+				 ibin_perp=ibin+1;
+			         if ( h_Eff 	)eta_effphi 	     = h_Eff		 ->GetBinContent(ibin+1) ;
+			        }else{
+				 ibin_perp=ibin-1;
+			         if ( h_Eff 	)eta_effphi 	     = h_Eff		 ->GetBinContent(ibin-1) ;
+ 			        }
 			    	if ( h_GapEff	  )gapeff	       = h_GapEff	   ->GetBinContent(ibin) ;
-			    	if ( h_GapEff	  )errgapeff	       = h_GapEff	   ->GetBinError  (ibin) ;
+			    	if ( h_GapEff	  )errgapeff	       = h_GapEff	   ->GetBinError  (ibin) ;				
  			    	if ( h_Eff	  )effeta	       = h_Eff  	   ->GetBinContent(ibin) ;
  			    	if ( h_Eff	  )erreffeta	       = h_Eff  	   ->GetBinError  (ibin) ;
-			    	if ( h_Res_CS1    )reseta_cs1	       = h_Res_CS1	   ->GetBinContent(ibin) ;
+				
+				gapeffeta   =               gapeff;
+				errgapeffeta=            errgapeff;
+				EffThreshold = (effeta<Minimum_efficiency)|| (eta_effphi<Minimum_efficiency);
+				
+				
+				if ( h_Res_CS1    )reseta_cs1	       = h_Res_CS1	   ->GetBinContent(ibin) ;
  			    	if ( h_Res_CS1    )errreseta_cs1       = h_Res_CS1	   ->GetBinError  (ibin) ;
  			    	if ( h_Res_CS2    )reseta_cs2	       = h_Res_CS2	   ->GetBinContent(ibin) ;
  			    	if ( h_Res_CS2    )errreseta_cs2       = h_Res_CS2	   ->GetBinError  (ibin) ;
@@ -1339,19 +1369,42 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
                                  rateCSmore2eta =(entriesCSeta-(entriesCS1eta+entriesCS2eta))/entriesCSeta;
                                 }
 
- 			    	if(gapeff!=0 && effeta !=0){
-			    	  effeleeta=effeta/gapeff;
-			    	  erreffeleeta=((erreffeta/effeta)+(errgapeff/gapeff))*effeleeta;
-			    	}else{
-			    	  effeleeta     =0.000;
- 			    	  erreffeleeta  =0.000;
-			    	}
-        		        //std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
+				if (applyEffThreshold){ 
+				 if(effeta<Minimum_efficiency&&eta_effphi<Minimum_efficiency){
+				   effeta      =Minimum_efficiency;
+				   gapeffeta   =Minimum_efficiency;
+				   erreffeta   =                 0.1;
+				   errgapeffeta=                 0.1;
+				   PanelStripsStatus   = PanelStripsStatusOK;
+				   cl_sizeeta     =   1;
+				   errcl_sizeeta  = 0.1,
+			           rateCS1eta     =   1;
+                                   rateCS2eta     =   0;
+                                   rateCSmore2eta =   0; 
+				 }
+				 else if(effeta<Minimum_efficiency&&eta_effphi>Minimum_efficiency){
+				   effeta      = Minimum_efficiency;
+				   gapeffeta   =            eta_effphi;
+				   erreffeta   =                   0.1;
+				   errgapeffeta=                   0.1;
+				   PanelStripsStatus   = PanelStripsStatusOK;
+				   cl_sizeeta     =   1;
+				   errcl_sizeeta  = 0.1,
+			           rateCS1eta     = 1;
+                                   rateCS2eta     = 0;
+                                   rateCSmore2eta = 0;
+				 }
+				 else if(effeta>Minimum_efficiency&&eta_effphi<Minimum_efficiency){
+				   gapeffeta   =              effeta;
+				   errgapeffeta=                 0.1;
+				 }
+				}
+        		        //std::cout << "  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
 	
 			    	sprintf(arr_effeta	   ,	"%f ", effeta		 ) ;   arr_effeta 	  [5]	=0;
 			    	sprintf(arr_erreffeta	   ,	"%f ", erreffeta	 ) ;   arr_erreffeta	  [5]	=0;
-			    	sprintf(arr_effeleeta	   ,	"%f ", effeleeta	 ) ;   arr_effeleeta	  [5]	=0;
-			    	sprintf(arr_erreffeleeta     ,	"%f ", erreffeleeta	 ) ;   arr_erreffeleeta	  [5]	=0;
+			    	sprintf(arr_gapeffeta	   ,	"%f ", gapeffeta	 ) ;   arr_gapeffeta	  [5]	=0;
+			    	sprintf(arr_errgapeffeta     ,	"%f ", errgapeffeta	 ) ;   arr_errgapeffeta	  [5]	=0;
 			    	sprintf(arr_reseta_cs1	   ,	"%f ", reseta_cs1	 ) ;   arr_reseta_cs1	  [5]	=0;
 			    	sprintf(arr_errreseta_cs1    ,	"%f ", errreseta_cs1	 ) ;   arr_errreseta_cs1    [5]	=0;
 			    	sprintf(arr_reseta_cs2	   ,	"%f ", reseta_cs2	 ) ;   arr_reseta_cs2	  [5]	=0;
@@ -1371,31 +1424,45 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			        char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 			        char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
 				
- 			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  arr_effeta, arr_erreffeta,  arr_effeleeta, arr_erreffeleeta, arr_reseta_cs1, arr_errreseta_cs1, arr_reseta_cs2, arr_errreseta_cs2, arr_reseta_csother, arr_errreseta_csother, arr_noiseeta, arr_errnoiseeta, arr_noiseeta_cor, arr_errnoiseeta_cor, arr_cl_sizeeta, arr_errcl_sizeeta, arr_rateCS1eta, arr_rateCS2eta, arr_rateCSmore2eta) ;
+ 			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  arr_effeta, arr_erreffeta,  arr_gapeffeta, arr_errgapeffeta, arr_reseta_cs1, arr_errreseta_cs1, arr_reseta_cs2, arr_errreseta_cs2, arr_reseta_csother, arr_errreseta_csother, arr_noiseeta, arr_errnoiseeta, arr_noiseeta_cor, arr_errnoiseeta_cor, arr_cl_sizeeta, arr_errcl_sizeeta, arr_rateCS1eta, arr_rateCS2eta, arr_rateCSmore2eta) ;
  			        sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
 				std::string cool_tagCondDB="RecoCondDB";		        
                                 coolrpc.setSince(0U,0U);		
                                 coolrpc.setUntil(4294967295U,0U);	
  			        coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tagCondDB);
-			        //std::cout <<"Eta " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+			        if(printout&&EffThreshold)std::cout << stripProfile_name << " under THR "<< EffThreshold <<" "<< PanelCode << " ibin " << ibin << " h_EffEta " << h_Eff->GetBinContent(ibin) <<" h_EffPhi " << h_Eff->GetBinContent(ibin_perp) << " h_GapEffEta " << h_GapEff->GetBinContent(ibin) <<" h_GapEffPhi " << h_GapEff->GetBinContent(ibin_perp) << " cool_EtaEff "<< effeta <<" cool_GapEffEta "<< gapeffeta <<" --- Eta Summary " << PanelRes<< " --- StripStatus " << StripStatus << std::endl;
+				if(printout&&EffThreshold)std::cout<<"inCOOL_ETA_id_ntrk_panelEff_gapEff "<<PanelCode<<" "<<n_tr_peta<<" "<<(int)(n_tr_peta*effeta)<<" "<<(int)(n_tr_peta*gapeffeta)<<std::endl;	
 			        countpanelindb++;
 			        if(effeta==0.0)countpaneleff0++;
 			        if(n_tr_peta==0)countpaneltrack0++;
-			      //}
+			      
 			    }else{
 			     if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
  			     //if(n_tr_pphi >0){
  
 			     if ( h_PanelId )Binposition = (int)h_PanelId-> GetBinCenter(ibin) ;
+			     int ibin_perp=0;
 			     if(Binposition>0){
+			       ibin_perp=ibin-1;
 			       if ( h_GapEff	)gapeff 	     = h_GapEff 	 ->GetBinContent(ibin-1) ;
 			       if ( h_GapEff	)errgapeff	     = h_GapEff 	 ->GetBinError  (ibin-1) ;
+			       if ( h_Eff 	)phi_effeta 	     = h_Eff		 ->GetBinContent(ibin-1) ;
+			       
 			     }else{
+			       ibin_perp=ibin+1;
 			       if ( h_GapEff	)gapeff 	     = h_GapEff 	 ->GetBinContent(ibin+1) ;
  			       if ( h_GapEff	)errgapeff	     = h_GapEff 	 ->GetBinError  (ibin+1) ;
+			       if ( h_Eff 	)phi_effeta 	     = h_Eff		 ->GetBinContent(ibin+1) ;
  			     }
 			     if ( h_Eff 	)effphi 	     = h_Eff		 ->GetBinContent(ibin) ;
  			     if ( h_Eff 	)erreffphi	     = h_Eff		 ->GetBinError  (ibin) ;
+			     
+
+			     gapeffphi   =               gapeff;
+			     errgapeffphi=            errgapeff;
+			     EffThreshold = (effphi<Minimum_efficiency)|| (phi_effeta<Minimum_efficiency);
+			     
+			     
 			     if ( h_Res_CS1	)resphi_cs1	     = h_Res_CS1	 ->GetBinContent(ibin) ;
 			     if ( h_Res_CS1	)errresphi_cs1       = h_Res_CS1	 ->GetBinError  (ibin) ;
  			     if ( h_Res_CS2	)resphi_cs2	     = h_Res_CS2	 ->GetBinContent(ibin) ;
@@ -1415,21 +1482,54 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			      rateCS1phi     =entriesCS1phi/entriesCSphi;
                               rateCS2phi     =entriesCS2phi/entriesCSphi;
                               rateCSmore2phi =(entriesCSphi-(entriesCS1phi+entriesCS2phi))/entriesCSphi;
- 			     }
- 			     if(gapeff !=0 && effphi !=0){
- 			       effelephi=effphi/gapeff;
-			       erreffelephi=((erreffphi/effphi)+(errgapeff/gapeff))*effelephi;
- 			     }else{
-			       effelephi     = 0.000;
-			       erreffelephi  = 0.000;
- 			     }			    
-        		     //std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
+ 			     }	
+			     
+			     
+			     if (applyEffThreshold){ 
+			      if(effphi<Minimum_efficiency&&phi_effeta<Minimum_efficiency){
+				  effphi      =Minimum_efficiency;
+				  gapeffphi   =Minimum_efficiency;
+				  erreffphi   =                 0.1;
+				  errgapeffphi=                 0.1;
+				  PanelStripsStatus   = PanelStripsStatusOK;
+				  cl_sizephi     =   1;
+				  errcl_sizephi  = 0.1,
+			          rateCS1phi     = 1;
+                                  rateCS2phi     = 0;
+                                  rateCSmore2phi = 0;
+			      }
+			      else if(effphi<Minimum_efficiency&&phi_effeta>Minimum_efficiency){
+				  effphi      =       Minimum_efficiency;
+				  gapeffphi   =                 phi_effeta;
+				  erreffphi   =                        0.1;
+				  errgapeffphi=                        0.1;
+				  PanelStripsStatus   = PanelStripsStatusOK;
+				  cl_sizephi     =   1;
+				  errcl_sizephi  = 0.1,
+			          rateCS1phi     = 1;
+                                  rateCS2phi     = 0;
+                                  rateCSmore2phi = 0;
+			      }
+			      else if(effphi>Minimum_efficiency&&phi_effeta<Minimum_efficiency){   
+				  gapeffphi   =              effphi; 
+				  errgapeffphi=                 0.1;
+				  PanelStripsStatus   = PanelStripsStatusOK;
+			      }  
+			     }
+			     
+			     
+			     
+			     
+			     
+			     
+			     	    
+        		     //std::cout << "  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
 			     
 			     
 			     sprintf(arr_effphi		,    "%f ", effphi	      ) ;   arr_effphi	       [5]   =0;
 			     sprintf(arr_erreffphi	,    "%f ", erreffphi	      ) ;   arr_erreffphi        [5]   =0;
- 			     sprintf(arr_effelephi	,    "%f ", effelephi	      ) ;   arr_effelephi        [5]   =0;
-			     sprintf(arr_erreffelephi	,    "%f ", erreffelephi      ) ;   arr_erreffelephi     [5]   =0;
+ 			     sprintf(arr_gapeffphi	,    "%f ", gapeffphi	      ) ;   arr_gapeffphi        [5]   =0;
+			     sprintf(arr_errgapeffphi	,    "%f ", errgapeffphi      ) ;   arr_errgapeffphi     [5]   =0;
 			     sprintf(arr_resphi_cs1	,    "%f ", resphi_cs1        ) ;   arr_resphi_cs1       [5]   =0;
 			     sprintf(arr_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   arr_errresphi_cs1    [5]   =0;
 			     sprintf(arr_resphi_cs2	,    "%f ", resphi_cs2        ) ;   arr_resphi_cs2       [5]   =0;
@@ -1448,24 +1548,26 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    		
 			     char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 			     char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
- 			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  arr_effphi, arr_erreffphi,  arr_effelephi, arr_erreffelephi, arr_resphi_cs1, arr_errresphi_cs1, arr_resphi_cs2, arr_errresphi_cs2, arr_resphi_csother, arr_errresphi_csother, arr_noisephi, arr_errnoisephi, arr_noisephi_cor, arr_errnoisephi_cor, arr_cl_sizephi, arr_errcl_sizephi, arr_rateCS1phi, arr_rateCS2phi, arr_rateCSmore2phi) ;
+ 			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  arr_effphi, arr_erreffphi,  arr_gapeffphi, arr_errgapeffphi, arr_resphi_cs1, arr_errresphi_cs1, arr_resphi_cs2, arr_errresphi_cs2, arr_resphi_csother, arr_errresphi_csother, arr_noisephi, arr_errnoisephi, arr_noisephi_cor, arr_errnoisephi_cor, arr_cl_sizephi, arr_errcl_sizephi, arr_rateCS1phi, arr_rateCS2phi, arr_rateCSmore2phi) ;
  			     sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
  			     std::string cool_tag="RecoCondDB";		        
                              coolrpc.setSince(0U,0U);		
                              coolrpc.setUntil(4294967295U,0U);	
  			     coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tag);
-			     //std::cout <<"Phi " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
-			    //}	
+			     if(printout&&EffThreshold)std::cout << stripProfile_name << " under THR "<< EffThreshold <<" " << PanelCode << " ibin " << ibin << " h_EffPhi " << h_Eff->GetBinContent(ibin) <<" h_EffEta " << h_Eff->GetBinContent(ibin_perp) << " h_GapEffPhi " << h_GapEff->GetBinContent(ibin) <<" h_GapEffEta " << h_GapEff->GetBinContent(ibin_perp) << " cool_PhiEff "<< effphi <<" cool_GapEffPhi "<< gapeffphi <<" --- Phi Summary " << PanelRes<< " --- StripStatus " << StripStatus << std::endl;
+			     if(printout&&EffThreshold)std::cout<<"inCOOL_PHI_id_ntrk_panelEff_gapEff "<<PanelCode<<" "<<n_tr_pphi<<" "<<(int)(n_tr_pphi*effphi)<<" "<<(int)(n_tr_pphi*gapeffphi)<<std::endl;
 			    countpanelindb++;
 			    if(effphi==0.0)countpaneleff0++;
 			    if(n_tr_pphi==0)countpaneltrack0++;
 			  }		
 	    	          StripsOnPanel=1;
 	      	          PanelStripsStatus.clear();
+	      	          PanelStripsStatusOK.clear();
  		        }
 			//if(StripsOnPanel>1) std::cout<<stripProfile_name<< " bin " << Nstrips << " Not found PanelStripId " << PanelStripId<< std::endl;		
 	    	        StripsOnPanel=1;
-	      	        PanelStripsStatus.clear();			
+	      	        PanelStripsStatus.clear();
+	      	        PanelStripsStatusOK.clear();			
 		      }
                     }		  
 		  }				

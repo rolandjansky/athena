@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,11 +48,13 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const override;
   virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const override;
+  virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2, const EventContext& ctx) const override;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
   
  private:
-  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, double pos) const;
+  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const;
   double induced(int istrip, double x, double y) const;
   double getPotentialValue(int& ix, int& iy);
   void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const;
@@ -90,7 +92,7 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
   // Pointer of InDetDD::SiDetectorElementCollection
   mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
-  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 };
 
 #endif // SCT_ChargeTrappingTool_h

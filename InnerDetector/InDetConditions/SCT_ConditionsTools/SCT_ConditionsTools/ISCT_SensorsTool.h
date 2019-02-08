@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,7 @@
 #include <vector>
 
 //Gaudi Includes
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
 
 //fwd declarations
@@ -35,9 +36,13 @@ class ISCT_SensorsTool: virtual public IAlgTool {
   DeclareInterfaceID(ISCT_SensorsTool, 1, 0);
 
   ///Fill vector with sensors info
+  virtual void getSensorsData(std::vector<std::string>& userVector, const EventContext& ctx) const =0;
   virtual void getSensorsData(std::vector<std::string>& userVector) const =0;
+  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber, const EventContext& ctx) const =0;
   virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const =0;
+  virtual std::string getManufacturer(unsigned int truncatedSerialNumber, const EventContext& ctx) const =0;
   virtual std::string getManufacturer(unsigned int truncatedSerialNumber) const =0;
+  virtual void printManufacturers(const EventContext& ctx) const =0;
   virtual void printManufacturers() const =0;
 };
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 792230 2017-01-15 06:03:39Z ssnyder $
 // Misc includes
 #include <vector>
 
@@ -67,9 +66,9 @@ namespace xAOD {
   }
 
   void Muon_v1::setP4(double pt, double eta, double phi)  {
-    static Accessor< float > acc1( "pt" );
-    static Accessor< float > acc2( "eta" );
-    static Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc1( "pt" );
+    static const Accessor< float > acc2( "eta" );
+    static const Accessor< float > acc3( "phi" );
     acc1( *this )=pt;
     acc2( *this )=eta;
     acc3( *this )=phi;
@@ -107,12 +106,12 @@ namespace xAOD {
 
 
   void Muon_v1::addAllAuthor ( const Author author ){
-    static Accessor< uint16_t > acc( "allAuthors" );
+    static const Accessor< uint16_t > acc( "allAuthors" );
     acc(*this) |= 1<<static_cast<unsigned int>(author);
   }
 
   bool Muon_v1::isAuthor ( const Author author ) const{
-    static Accessor< uint16_t > acc( "allAuthors" );
+    static const Accessor< uint16_t > acc( "allAuthors" );
     return (acc(*this)& (1<<static_cast<unsigned int>(author)));
   }
 
@@ -124,7 +123,7 @@ namespace xAOD {
     // @todo ?Could further optimise the below, to see first if the SummaryType value is one of the ones we write to Muons?
     // @todo ?Is there a better way than catching the exception?
     try {
-      Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); 
+      const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); 
       value = ( *acc )( *this );
       return true;
     } catch ( SG::ExcBadAuxVar& ) {}
@@ -136,7 +135,7 @@ namespace xAOD {
   }  
 
   void Muon_v1::setSummaryValue( uint8_t  value, const SummaryType 	information ) {
-    Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); ///FIXME!
+    const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); ///FIXME!
     // Set the value:
     ( *acc )( *this ) = value;
   }
@@ -150,17 +149,17 @@ namespace xAOD {
   }  
   
   float Muon_v1::floatSummaryValue(const SummaryType information) const {
-    Muon_v1::Accessor< float >* acc = trackSummaryAccessorV1< float >( information );
+    const Muon_v1::Accessor< float >* acc = trackSummaryAccessorV1< float >( information );
   	return ( *acc )( *this );
   }
 
   uint8_t Muon_v1::uint8SummaryValue(const SummaryType information) const{
-    Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1< uint8_t >( information );
+    const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1< uint8_t >( information );
     return ( *acc )( *this );  	
   }
   
   bool Muon_v1::summaryValue(uint8_t& value, const MuonSummaryType information)  const {
-    Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
+    const Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;
     
@@ -170,19 +169,19 @@ namespace xAOD {
   }
   
   float Muon_v1::uint8MuonSummaryValue(const MuonSummaryType information) const{
-	  Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
+	  const Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
 	  return ( *acc )( *this );
   }
   
 
   void Muon_v1::setSummaryValue(uint8_t value, const MuonSummaryType information) {
-    Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
+    const Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
     // Set the value:
     ( *acc )( *this ) =  value;
   }
   
   bool Muon_v1::parameter(float& value, const Muon_v1::ParamDef information)  const {
-    xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
+    const xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;
     
@@ -192,12 +191,12 @@ namespace xAOD {
   }
 	
   float xAOD::Muon_v1::floatParameter(xAOD::Muon_v1::ParamDef information) const{
-    xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
+    const xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
     return ( *acc )( *this );
   }
 
   void Muon_v1::setParameter(float value, const Muon_v1::ParamDef information){
-    xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
+    const xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
     if( ! acc ) throw std::runtime_error("Muon_v1::setParameter - no float accessor for paramdef number: "+std::to_string(information));
     
     // Set the value:
@@ -205,7 +204,7 @@ namespace xAOD {
   }
   
   bool Muon_v1::parameter(int& value, const Muon_v1::ParamDef information)  const {
-    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    const xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;
     
@@ -215,12 +214,12 @@ namespace xAOD {
   }
 	
   int xAOD::Muon_v1::intParameter(xAOD::Muon_v1::ParamDef information) const{
-    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    const xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
     return ( *acc )( *this );
   }
 
   void Muon_v1::setParameter(int value, const Muon_v1::ParamDef information){
-    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    const xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
     if( ! acc ) throw std::runtime_error("Muon_v1::setParameter - no int accessor for paramdef number: "+std::to_string(information));
     
     // Set the value:
@@ -228,13 +227,13 @@ namespace xAOD {
   }
 
   xAOD::Muon_v1::Quality Muon_v1::quality() const {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     uint8_t temp =  acc( *this );
     return static_cast<Quality>(temp&3);     
   }
   
   void Muon_v1::setQuality(xAOD::Muon_v1::Quality value) {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     uint8_t temp = static_cast< uint8_t >(value);
     acc( *this ) = acc( *this ) & ~(0x7); // Reset the first 3 bits.
     acc( *this ) |= temp;
@@ -242,14 +241,14 @@ namespace xAOD {
   }
   
   bool Muon_v1::passesIDCuts() const {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     uint8_t temp =  acc( *this );
     // We use 4th bit for 'passesIDCuts'
     return temp&8;     
   }
   
   void Muon_v1::setPassesIDCuts(bool value) {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     // We use 4th bit for 'passesIDCuts'
     if (value) acc( *this ) |= 8;
     else       acc( *this ) &= 247;
@@ -257,14 +256,14 @@ namespace xAOD {
   }
   
   bool Muon_v1::passesHighPtCuts() const {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     uint8_t temp =  acc( *this );
     // We use 5th bit for 'passesHighPtCuts'
     return temp&16;    
   }
   
   void Muon_v1::setPassesHighPtCuts(bool value) {
-    static Accessor< uint8_t > acc( "quality" );
+    static const Accessor< uint8_t > acc( "quality" );
     // We use 5th bit for 'passesHighPtCuts'
     if (value) acc( *this ) |= 16;
     else       acc( *this ) &= 239;
@@ -394,17 +393,17 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
           // Not checking if links are valid here - this is the job of the client (as per the cases above).
           // But we DO check that the link is available, so we can check for both types of links.
           
-          static Accessor< ElementLink< TrackParticleContainer > > acc1( "extrapolatedMuonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc1( "extrapolatedMuonSpectrometerTrackParticleLink" );
           if ( acc1.isAvailable( *this ) && acc1( *this ).isValid() ) {
             return acc1( *this );
           }
 
-          static Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
           if ( acc2.isAvailable( *this ) && acc2( *this ).isValid() ) {
             return acc2( *this );
           }
           
-          static Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
           if ( acc3.isAvailable( *this ) && acc3( *this ).isValid()) {            
             return acc3( *this );
           }
@@ -425,7 +424,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case Combined:
       case SiliconAssociatedForwardMuon :
          {
-            static Accessor< ElementLink< TrackParticleContainer > > acc( "combinedTrackParticleLink" );
+            static const Accessor< ElementLink< TrackParticleContainer > > acc( "combinedTrackParticleLink" );
             if( ! acc.isAvailable( *this ) ) return 0;
           
             const ElementLink< TrackParticleContainer >& link = acc( *this );
@@ -436,7 +435,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case SegmentTagged:
       case CaloTagged :
         {
-           static Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
+           static const Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
            if( ! acc.isAvailable( *this ) ) return 0;
            
            const ElementLink< TrackParticleContainer >& link = acc( *this );
@@ -447,21 +446,21 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case MuonStandAlone :
         {
           // Want to return link to extrapolated MS track particle if possible.
-          static Accessor< ElementLink< TrackParticleContainer > > acc1( "extrapolatedMuonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc1( "extrapolatedMuonSpectrometerTrackParticleLink" );
           if ( acc1.isAvailable( *this ) ) {            
             const ElementLink< TrackParticleContainer >& link = acc1( *this );
             if ( link.isValid() ) return *link;
           }
 
 	  //if no, maybe the MS-only extrapolated track particle?
-          static Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc2( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
           if ( acc2.isAvailable( *this ) ) {
             const ElementLink< TrackParticleContainer >& link = acc2( *this );
             if ( link.isValid() ) return *link;
           }
           
           // Try fallback (non-extrapolated MS track particle)...
-          static Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
+          static const Accessor< ElementLink< TrackParticleContainer > > acc3( "muonSpectrometerTrackParticleLink" );
           if ( acc3.isAvailable( *this ) ) {            
             const ElementLink< TrackParticleContainer >& link = acc3( *this );
             if ( link.isValid() ) return *link;
@@ -526,23 +525,23 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
   void Muon_v1::setTrackParticleLink(TrackParticleType type, const ElementLink< TrackParticleContainer >& link){
     switch ( type ) {
       case InnerDetectorTrackParticle :
-        static Accessor< ElementLink< TrackParticleContainer > > acc1( "inDetTrackParticleLink" );
+        static const Accessor< ElementLink< TrackParticleContainer > > acc1( "inDetTrackParticleLink" );
         acc1(*this)=link;
         break;
       case MuonSpectrometerTrackParticle :
-        static Accessor< ElementLink< TrackParticleContainer > > acc2( "muonSpectrometerTrackParticleLink" );
+        static const Accessor< ElementLink< TrackParticleContainer > > acc2( "muonSpectrometerTrackParticleLink" );
         acc2(*this)=link;
         break;
       case CombinedTrackParticle :
-        static Accessor< ElementLink< TrackParticleContainer > > acc3( "combinedTrackParticleLink" );
+        static const Accessor< ElementLink< TrackParticleContainer > > acc3( "combinedTrackParticleLink" );
         acc3(*this)=link;          
         break;
       case ExtrapolatedMuonSpectrometerTrackParticle :
-        static Accessor< ElementLink< TrackParticleContainer > > acc4( "extrapolatedMuonSpectrometerTrackParticleLink" );
+        static const Accessor< ElementLink< TrackParticleContainer > > acc4( "extrapolatedMuonSpectrometerTrackParticleLink" );
         acc4(*this)=link;
         break;
       case MSOnlyExtrapolatedMuonSpectrometerTrackParticle :
-	static Accessor< ElementLink< TrackParticleContainer > > acc5( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
+        static const Accessor< ElementLink< TrackParticleContainer > > acc5( "msOnlyExtrapolatedMuonSpectrometerTrackParticleLink" );
 	acc5(*this)=link;
 	break;
       case Primary :
@@ -554,7 +553,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
   AUXSTORE_OBJECT_SETTER_AND_GETTER( Muon_v1, ElementLink<CaloClusterContainer>, clusterLink, setClusterLink)
   const CaloCluster* Muon_v1::cluster() const { 
     
-    static Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
+    static const Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
     if( ! acc.isAvailable( *this ) ) {
        return 0;
     }
@@ -580,7 +579,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
 
   AUXSTORE_OBJECT_SETTER_AND_GETTER( Muon_v1, std::vector< ElementLink< xAOD::MuonSegmentContainer > >, muonSegmentLinks, setMuonSegmentLinks)
 
-  static SG::AuxElement::Accessor< std::vector< ElementLink< MuonSegmentContainer > > > muonSegmentsAcc( "muonSegmentLinks" ); 
+  static const SG::AuxElement::Accessor< std::vector< ElementLink< MuonSegmentContainer > > > muonSegmentsAcc( "muonSegmentLinks" ); 
   size_t Muon_v1::nMuonSegments() const {
         // If a link was not set (yet), return zero.
     if( ! muonSegmentsAcc.isAvailable( *this ) ) {

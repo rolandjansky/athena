@@ -24,7 +24,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 InDetServMatFactoryDC2::InDetServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
@@ -95,42 +95,42 @@ void InDetServMatFactoryDC2::create(GeoPhysVol *world)
 
 //  double epsilon = 0.001;
 
-  double endZOfBTRT =                (*trtb)[0]->getDouble("ZLEN")*GeoModelKernelUnits::cm;
-  double endZOfBSCT =                (*sctg)[0]->getDouble("HLEN")*GeoModelKernelUnits::cm;
-  double begZOfFSCT =                (*zscg)[0]->getDouble("ZLOEND")*GeoModelKernelUnits::cm;
-  double endZOfFSCT =                (*zscg)[0]->getDouble("ZHIEND")*GeoModelKernelUnits::cm;
+  double endZOfBTRT =                (*trtb)[0]->getDouble("ZLEN")*Gaudi::Units::cm;
+  double endZOfBSCT =                (*sctg)[0]->getDouble("HLEN")*Gaudi::Units::cm;
+  double begZOfFSCT =                (*zscg)[0]->getDouble("ZLOEND")*Gaudi::Units::cm;
+  double endZOfFSCT =                (*zscg)[0]->getDouble("ZHIEND")*Gaudi::Units::cm;
   double endZOfFTRT =                ((*trtb)[15]->getDouble("ZPOSA") +
 				      ((*trtb)[15]->getDouble("ZLEN")+(*trtb)[15]->getDouble("ZGAP"))/2.
 				      + ((*trtb)[2]->getDouble("ZPOSA")-(*trtb)[1]->getDouble("ZPOSA"))*3 
-				      + (*trtb)[1]->getDouble("ZLEN")/2.)*GeoModelKernelUnits::cm;
+				      + (*trtb)[1]->getDouble("ZLEN")/2.)*Gaudi::Units::cm;
  
-  double endZOfIDet =                (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
+  double endZOfIDet =                (*atls)[0]->getDouble("IDETZMX")*Gaudi::Units::cm;
 
   // This is endOfEndCapVolumeAB 
   //double begZOfSCTServInTRT = ((trtb[7].zposa + (trtb[7].zlen + trtb[7].zgap)/2.) +
-  //			       (trtb[8].zposa - trtb[7].zposa)*7 + trtb[7].zlen/2.)*GeoModelKernelUnits::cm;
+  //			       (trtb[8].zposa - trtb[7].zposa)*7 + trtb[7].zlen/2.)*Gaudi::Units::cm;
 
   // This is beginningOfEndCapVolumeC 
   //  double endZOfSCTServInTRT = (trtb[15].zposa + (trtb[15].zlen + trtb[15].zgap)/2. - 
-  //			       trtb[1].zlen/2.)*GeoModelKernelUnits::cm;
+  //			       trtb[1].zlen/2.)*Gaudi::Units::cm;
 
-  // The SCT services go from 2755.306 to 2775.306 GeoModelKernelUnits::mm 
+  // The SCT services go from 2755.306 to 2775.306 Gaudi::Units::mm 
   // The TRT has a gap from 2712.25 to 2829.75 mm
   // We hard wire an envelope for these services instead.
-  double begZOfSCTServInTRT = 2755. * GeoModelKernelUnits::mm;
-  double endZOfSCTServInTRT = 2776. * GeoModelKernelUnits::mm;
+  double begZOfSCTServInTRT = 2755. * Gaudi::Units::mm;
+  double endZOfSCTServInTRT = 2776. * Gaudi::Units::mm;
 
   //std::cout << "Begin SCT services " << begZOfSCTServInTRT << std::endl;
   //std::cout << "End SCT services " << endZOfSCTServInTRT << std::endl;
 
 
-  double outROfPixel =               (*zscg)[0]->getDouble("RINEND")*GeoModelKernelUnits::cm;
-  double inROfFTRT  =                (*trtb)[15]->getDouble("RI")*GeoModelKernelUnits::cm;
-  double outROfFSCT =                (*zscg)[0]->getDouble("ROUEND")*GeoModelKernelUnits::cm;
-  double outROfBSCT =                (*sctg)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
-  double outROfPixelCables =         (*pbfi)[0]->getFloat("ROUT")*GeoModelKernelUnits::cm;
-  double outROfIDet =                (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
-  double outROfTRT =                 (*trtg)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
+  double outROfPixel =               (*zscg)[0]->getDouble("RINEND")*Gaudi::Units::cm;
+  double inROfFTRT  =                (*trtb)[15]->getDouble("RI")*Gaudi::Units::cm;
+  double outROfFSCT =                (*zscg)[0]->getDouble("ROUEND")*Gaudi::Units::cm;
+  double outROfBSCT =                (*sctg)[0]->getDouble("RMAX")*Gaudi::Units::cm;
+  double outROfPixelCables =         (*pbfi)[0]->getFloat("ROUT")*Gaudi::Units::cm;
+  double outROfIDet =                (*atls)[0]->getDouble("IDETOR")*Gaudi::Units::cm;
+  double outROfTRT =                 (*trtg)[0]->getDouble("RMAX")*Gaudi::Units::cm;
 
   //
   // Create the envelope for the Pixel Services:

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackSummaryAccessors_v1.h 574227 2013-12-06 14:20:39Z emoyse $
 #ifndef XAOD_TRACKSUMMARYACCESSORS_V1_H
 #define XAOD_TRACKSUMMARYACCESSORS_V1_H
 
@@ -22,7 +21,7 @@ namespace xAOD {
    /// TrackParticle_v1 object at runtime to get/set summary values on themselves.
    ///
    template <class T>
-   SG::AuxElement::Accessor< T >*
+   const SG::AuxElement::Accessor< T >*
    trackSummaryAccessorV1( xAOD::SummaryType type );
 
 } // namespace xAOD

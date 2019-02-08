@@ -35,6 +35,7 @@
 //#include "TruthHelper/IsGenNonInteracting.h"
 
 #include "PathResolver/PathResolver.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -115,7 +116,7 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   , m_DB_dirname(0)
   , m_coolhistsvc("CoolHistSvc", name)
   , m_partPropSvc("PartPropSvc", name)
-  , m_rndmSvc("AtDSFMTGenSvc", name)
+  , m_rndmSvc("AthRNGSvc", name)
   , m_extrapolator("")
   , m_caloSurfaceHelper("")
   , m_calo_tb_coord("TBCaloCoordinate")
@@ -381,7 +382,7 @@ StatusCode FastShowerCellBuilderTool::initialize()
   ATH_CHECK(m_rndmSvc.retrieve());
 
   //Get own engine with own seeds:
-  m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);
+  m_randomEngine = m_rndmSvc->getEngine(this, m_randomEngineName);
   if (!m_randomEngine) {
     ATH_MSG_ERROR("Could not get random engine '" << m_randomEngineName << "'");
     return StatusCode::FAILURE;
@@ -1169,14 +1170,14 @@ FastShowerCellBuilderTool::get_calo_surface(std::vector<Trk::HitInfo>* hitVector
 StatusCode
 FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                                             std::vector<Trk::HitInfo>* hitVector,
-                                            Amg::Vector3D initMom,
+                                            const Amg::Vector3D& initMom,
                                             double mass,
                                             int pdgid,
                                             int barcode,
                                             FastShowerInfoContainer* fastShowerInfoContainer,
                                             TRandom3& rndm,
                                             Stats& stats,
-                                            const EventContext& /*ctx*/) const
+                                            const EventContext& ctx) const
 {
   // no intersections with Calo layers found : abort;
   if(!hitVector || !hitVector->size())  {
@@ -1874,8 +1875,9 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
             }
           */
 
+          CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine (ctx);
           double rndfactor=-1;
-          while(rndfactor<=0) rndfactor=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,1.0,smaple_err/sqrt(ecell/1000));
+          while(rndfactor<=0) rndfactor=CLHEP::RandGaussZiggurat::shoot(engine,1.0,smaple_err/sqrt(ecell/1000));
           ecell*=rndfactor;
           //          if(ecell<0) ecell=0;
           //          log<<" Esmear="<<ecell<<endmsg;
@@ -1892,8 +1894,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
           if(ecell==0) continue;
           elayertot3+=ecell;
 
-          // is there a other way to get a non const pointer?
-          CaloCell* theCaloCell=(CaloCell*)(theCellContainer->findCell(cell->calo_hash()));
+          CaloCell* theCaloCell=theCellContainer->findCell(cell->calo_hash());
           if(theCaloCell) {
             //            log << MSG::VERBOSE << "found calo cell : eta=" <<theCaloCell->caloDDE()->eta()<<" phi="<<theCaloCell->caloDDE()->phi()<<" overlap="<<iter->second<<"old e=" <<theCaloCell->energy()<< " ; new e=" <<theCaloCell->energy()+energy*iter->second<< endmsg;
             theCaloCell->setEnergy(theCaloCell->energy()+ecell);
@@ -2288,10 +2289,10 @@ void FastShowerCellBuilderTool::init_shape_correction()
   }
 }
 
-StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContainer)
+StatusCode
+FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
+                                    const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
 
   TRandom3 rndm;
@@ -2553,19 +2554,18 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   return StatusCode::SUCCESS;
 }
 
-StatusCode FastShowerCellBuilderTool::setupEvent (const EventContext& /*ctx*/,
+StatusCode FastShowerCellBuilderTool::setupEvent (const EventContext& ctx,
                                                   TRandom3& rndm) const
 {
-  m_rndmSvc->print(m_randomEngineName);
+  m_rndmSvc->printEngineState(this,m_randomEngineName);
   unsigned int rseed=0;
+  CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine(ctx);
   while(rseed==0) {
-    rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
+    rseed=(unsigned int)( CLHEP::RandFlat::shoot(engine) * std::numeric_limits<unsigned int>::max() );
   }
-  gRandom->SetSeed(rseed);
   rndm.SetSeed(rseed);
 
-  //if(gRandom) log<<" seed(gRandom="<<gRandom->ClassName()<<")="<<gRandom->GetSeed();
-  //            log<<" seed(rndm="<<rndm.ClassName()<<")="<<rndm.GetSeed();
+  //log<<" seed(rndm="<<rndm.ClassName()<<")="<<rndm.GetSeed();
   //log<< endmsg;
 
   return StatusCode::SUCCESS;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProvider.h"
@@ -17,7 +17,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 // Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
   m_sctID{nullptr},
@@ -63,41 +63,40 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawD
 
 // Execute
 
-StatusCode SCTRawDataProvider::execute()
+StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 {
   m_rawDataTool->beginNewEvent();
 
-  SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
+  SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if (not externalCacheRDO) {
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
     ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
   else {
-    SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
+    SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey, ctx);
     ATH_CHECK(update.isValid());
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
     ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
   }
 
-  
-  SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey);
+  SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey, ctx);
   ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
 
-  SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey);
+  SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey, ctx);
   ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
 
   // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
-    m_cabling->getAllRods(rodList);
+    m_cabling->getAllRods(rodList, ctx);
     m_robDataProvider->getROBData(rodList , vecROBFrags);
   } 
   else {
     // Only load ROBs from RoI
     std::vector<uint32_t> listOfROBs;
-    SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
+    SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey, ctx};
     ATH_CHECK(roiCollection.isValid());
     TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
     superRoI.setComposite(true);
@@ -109,14 +108,13 @@ StatusCode SCTRawDataProvider::execute()
     m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
-
   ATH_MSG_DEBUG("Number of ROB fragments " << vecROBFrags.size());
 
-  SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey};
+  SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey, ctx};
   lvl1Collection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
-  SG::WriteHandle<InDetTimeCollection> bcIDCollection{m_bcIDCollectionKey};
+  SG::WriteHandle<InDetTimeCollection> bcIDCollection{m_bcIDCollectionKey, ctx};
   bcIDCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(bcIDCollection.isValid());
 
@@ -151,8 +149,7 @@ StatusCode SCTRawDataProvider::execute()
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
                              bsErrContainer.ptr(), 
-                             bsFracContainer.ptr()).isFailure()) 
-  {
+                             bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 

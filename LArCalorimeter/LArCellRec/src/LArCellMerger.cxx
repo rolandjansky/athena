@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -31,13 +31,11 @@ LArCellMerger::LArCellMerger(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class (type, name, parent),
    m_cablingKey("LArOnOffIdMap"),
    m_rawChannelContainerName("LArRawChannels_digits"),
    m_calo_id(nullptr)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
-
   declareProperty("RawChannelsName",m_rawChannelContainerName,"Name of raw channel container");
 }
 
@@ -61,12 +59,12 @@ StatusCode LArCellMerger::finalize(){
    return StatusCode::SUCCESS;
 }
 
-StatusCode LArCellMerger::process(CaloCellContainer * theCont ) {
-	
+StatusCode LArCellMerger::process (CaloCellContainer* theCont,
+                                   const EventContext& ctx) const
+{
   ATH_MSG_DEBUG("in  LArCellMerger::process");
   
-  
-  SG::ReadHandle<LArRawChannelContainer> rawColl(m_rawChannelContainerName);
+  SG::ReadHandle<LArRawChannelContainer> rawColl(m_rawChannelContainerName, ctx);
   if (!rawColl.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve LArRawChannelContainer with key " << 
 		  rawColl.name());

@@ -14,14 +14,14 @@
 #define DEFINE_ACCESSOR( PARENT, TYPE, NAME )                \
    case PARENT::NAME:                                        \
       {                                                      \
-         static SG::AuxElement::Accessor< TYPE > a( #NAME ); \
+         static const SG::AuxElement::Accessor< TYPE > a( #NAME ); \
          return &a;                                          \
       }                                                      \
       break
 
 namespace xAOD {
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    polarizationAccessorV1( TruthParticle_v1::PolParam type ) {
 
       switch( type ) {
@@ -38,7 +38,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< int >*
+   const SG::AuxElement::Accessor< int >*
    pdfInfoAccessorV1Int( TruthEvent_v1::PdfParam type ) {
 
       switch( type ) {
@@ -57,7 +57,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    pdfInfoAccessorV1Float( TruthEvent_v1::PdfParam type ) {
 
       switch( type ) {
@@ -77,7 +77,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< int >*
+   const SG::AuxElement::Accessor< int >*
    heavyIonAccessorV1Int( TruthEvent_v1::HIParam type ) {
 
       switch( type ) {
@@ -101,7 +101,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    heavyIonAccessorV1Float( TruthEvent_v1::HIParam type ) {
 
       switch( type ) {

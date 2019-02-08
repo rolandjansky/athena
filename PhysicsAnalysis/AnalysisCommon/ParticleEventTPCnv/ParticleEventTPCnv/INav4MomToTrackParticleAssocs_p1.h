@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomToTrackParticleAssocs_p1.h 
@@ -53,7 +53,7 @@ public:
 
   /** Destructor: 
    */
-  ~INav4MomToTrackParticleAssocs_p1(); 
+  ~INav4MomToTrackParticleAssocs_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -80,9 +80,6 @@ inline
 INav4MomToTrackParticleAssocs_p1::INav4MomToTrackParticleAssocs_p1() :
   m_assocs(),
   m_assocStores()
-{}
-
-inline INav4MomToTrackParticleAssocs_p1::~INav4MomToTrackParticleAssocs_p1()
 {}
 
 #endif //> PARTICLEEVENTTPCNV_INAV4MOMTOTRACKPARTICLEASSOCS_p1_H

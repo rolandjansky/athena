@@ -20,7 +20,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
@@ -135,7 +135,7 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
 
     for (int k1 = 0; k1 < 2; k1++){
       for (int k = 0; k < 2; k++){
-        GeoTransform* ttube = new GeoTransform(GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg)* GeoTrf::Translate3D(
+        GeoTransform* ttube = new GeoTransform(GeoTrf::RotateX3D(-90*Gaudi::Units::deg)* GeoTrf::Translate3D(
                                                0.,
                                                -(vtubl+tckibeam)/2.-(k-1)*(vtubl+tckibeam),
                                                -length/4.-(k1-1)*length/2));

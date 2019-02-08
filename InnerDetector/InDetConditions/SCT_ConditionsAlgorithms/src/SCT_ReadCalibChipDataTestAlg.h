@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTestAlg.h Header file for SCT_ReadCalibDataTestAlg.
@@ -12,7 +12,7 @@
 #define SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 
 // Include Athena stuff
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
@@ -28,7 +28,7 @@
 class SCT_ID;
 
 /** This class acts as a test/sample client to the SCT_ReadSCalibChipDataSvc class.*/
-class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm 
+class SCT_ReadCalibChipDataTestAlg : public AthReentrantAlgorithm 
 {
  public:
   //----------Public Member Functions----------//
@@ -38,7 +38,7 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   
   // Standard Gaudi functions
   StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
   StatusCode finalize() override;   //!< Gaudi finaliser
   
  private:

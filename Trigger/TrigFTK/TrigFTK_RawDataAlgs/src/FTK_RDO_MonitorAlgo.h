@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_RDO_MonitorAlgo_h
@@ -13,7 +13,7 @@
 #include "TrkTrack/TrackCollection.h" //
 #include "InDetPrepRawData/SiClusterContainer.h"
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 

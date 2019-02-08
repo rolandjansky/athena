@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_SLHC_GeoModel_SCT_FORWARD_H
@@ -19,7 +19,7 @@ class SCT_Forward : public SCT_UniqueComponentFactory{
  public:
   
   SCT_Forward(const std::string & name);
-  ~SCT_Forward();
+  virtual ~SCT_Forward() = default;
 
   int    numWheels()    const {return m_numWheels;}
   double innerRadius()  const {return m_innerRadius;} 

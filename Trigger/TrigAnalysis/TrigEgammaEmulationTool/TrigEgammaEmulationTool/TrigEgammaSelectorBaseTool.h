@@ -8,7 +8,6 @@
 
 
 #include "AsgTools/AsgTool.h"
-#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
@@ -44,10 +43,10 @@ namespace Trig{
 
       //using ITrigEgammaSelectorBaseTool::emulation;
       TrigEgammaSelectorBaseTool(const std::string& myname);
-      ~TrigEgammaSelectorBaseTool(){;}
+      virtual ~TrigEgammaSelectorBaseTool(){;}
 
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
       //FIXME: static_cast for IParticleContainer to EmTau and emCluster
       //doent work. Because this I add these extra methods. Need to check

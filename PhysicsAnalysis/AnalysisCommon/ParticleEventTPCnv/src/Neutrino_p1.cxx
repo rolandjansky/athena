@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Neutrino_p1.cxx 
@@ -13,9 +13,3 @@
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/Neutrino_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-Neutrino_p1::~Neutrino_p1()
-{}

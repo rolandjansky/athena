@@ -15,9 +15,6 @@
 
 #include "LArGeoCode/VDetectorParameters.h"
 
-//#include "LArDetDescr/LArDetDescrManager.h"
-//#include "CaloDetDescr/CaloSubdetNames.h"
-
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -55,7 +52,7 @@
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/FixedConstant.h"
 // For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -201,7 +198,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   GeoGenfun::Sqrt Sqrt;
   GeoGenfun::ATan ATan;
 
-  double twopi64 = GeoModelKernelUnits::pi/32.;
+  double twopi64 = Gaudi::Units::pi/32.;
   double twopi32 = 2.*twopi64;  
 
 
@@ -316,13 +313,13 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   double Moth_outer_radius = m_parameters->GetValue("LArEMBMotherRmax");
 
   double Moth_Phi_Min = 0.;
-  double Moth_Phi_Max = m_parameters->GetValue("LArEMBphiMaxBarrel")*GeoModelKernelUnits::deg;
+  double Moth_Phi_Max = m_parameters->GetValue("LArEMBphiMaxBarrel")*Gaudi::Units::deg;
 
 #ifdef DEBUGGEO
   std::cout << " *** Mother volume (Ecam) parameters " << std::endl;
   std::cout << "  Rmin/Rmax " << Moth_inner_radius << " " << Moth_outer_radius << std::endl;
   std::cout << "  Zmin/Zmax " << Moth_Z_min << " " << Moth_Z_max << std::endl;
-  std::cout << "  phi1,Dphi (GeoModelKernelUnits::deg)" << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+  std::cout << "  phi1,Dphi (Gaudi::Units::deg)" << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
 #endif
 
   // number of zigs for accordion
@@ -371,9 +368,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	(double) (m_parameters->GetValue("LArEMBPhiAtCurvature",idat));
       Delta[idat]  =
 	(double) (m_parameters->GetValue("LArEMBDeltaZigAngle",idat));
-      if(idat == 14) Delta[idat]  = (90.0) * GeoModelKernelUnits::deg; 
+      if(idat == 14) Delta[idat]  = (90.0) * Gaudi::Units::deg; 
 
-  // Maximum SAGGING displacement for each of the fifteen folds in GeoModelKernelUnits::mm
+  // Maximum SAGGING displacement for each of the fifteen folds in Gaudi::Units::mm
   // (should be 0.0, 0.17, 0.30, 0.63, 0.78, 1.06, 1.09, 1.21, 1.07, 1.03, 0.74, 0.61, 0.27, 0.20, 0.0)
 //GUtmp sagging amplied by 10
       if (m_A_SAGGING)  {
@@ -393,8 +390,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
 // #ifdef DEBUGGEO
        log << MSG::DEBUG << "idat " << idat << " Rhocen/Phice/Delta/deltay/deltax/etatrans "
-	   << Rhocen[idat] << " " << Phicen[idat]*(1./GeoModelKernelUnits::deg) << " "
-	   << Delta[idat]*(1./GeoModelKernelUnits::deg) << " " << deltay[idat] << " " << deltax[idat]
+	   << Rhocen[idat] << " " << Phicen[idat]*(1./Gaudi::Units::deg) << " "
+	   << Delta[idat]*(1./Gaudi::Units::deg) << " " << deltay[idat] << " " << deltax[idat]
 	   << " " << etaTrans << endmsg;
 // #endif
 
@@ -452,10 +449,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  very confused at the common surface between ECAM and STAC)
   //-----------------ECAM---------------------------------------------------------//
   {                                                                               //
-    double Moth_Phi_Min2 = (Ncell == 64) ? -1.555*GeoModelKernelUnits::deg : 0.;                       //
-    double Moth_Phi_Max2 = (Ncell == 64) ? 25.61*GeoModelKernelUnits::deg  : 2*M_PI;                   //
+    double Moth_Phi_Min2 = (Ncell == 64) ? -1.555*Gaudi::Units::deg : 0.;                       //
+    double Moth_Phi_Max2 = (Ncell == 64) ? 25.61*Gaudi::Units::deg  : 2*M_PI;                   //
                                                                                   //
-    double safety_rhocen1 = 0.040*GeoModelKernelUnits::mm;                                             //
+    double safety_rhocen1 = 0.040*Gaudi::Units::mm;                                             //
     double Zplan[] = {Bar_Z_min-Zp0,Bar_Z_cut-Zp0,Bar_Z_max-Zp0};                 //
     double Riacc[] = {Moth_inner_radius,Moth_inner_radius, Rhocen1-safety_rhocen1};  //
     double Roacc[] = {Moth_outer_radius,Moth_outer_radius,Moth_outer_radius};     //
@@ -465,7 +462,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
      std::cout << "  Zplan " << Zplan[0] << " " << Zplan[1] << " " << Zplan[2] << std::endl;
      std::cout << "  Rin   " << Riacc[0] << " " << Riacc[1] << " " << Riacc[2] << std::endl;
      std::cout << "  Rout  " << Roacc[0] << " " << Roacc[1] << " " << Roacc[2] << std::endl;
-     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/GeoModelKernelUnits::deg << " " << Moth_Phi_Max2/GeoModelKernelUnits::deg << std::endl;
+     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/Gaudi::Units::deg << " " << Moth_Phi_Max2/Gaudi::Units::deg << std::endl;
 #endif
     int ecamArraySize = sizeof(Zplan) / sizeof(double);                           //
     std::string name = baseName + "ECAM";                                         //
@@ -510,19 +507,19 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   GeoPhysVol *Elnicsf_phys=NULL;
   double Xel1f;
   {
-    // WARNING : this "hard_coded" 0.010*GeoModelKernelUnits::mm is a "security" to avoid
+    // WARNING : this "hard_coded" 0.010*Gaudi::Units::mm is a "security" to avoid
     //           fake "overlapping" diagnostics with "DAVID"
-    Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");       // 23.*GeoModelKernelUnits::mm
+    Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");       // 23.*Gaudi::Units::mm
     double DeltaZ = Zhalfc;
     double Zpos = Zhalfc+Bar_Z_min; 
-    double Rmini =  Moth_inner_radius + 0.010*GeoModelKernelUnits::mm;
-    double Rmaxi = Rmini+Xel1f - 0.010*GeoModelKernelUnits::mm;
+    double Rmini =  Moth_inner_radius + 0.010*Gaudi::Units::mm;
+    double Rmaxi = Rmini+Xel1f - 0.010*Gaudi::Units::mm;
     std::string name = baseName + "TELF";
 #ifdef DEBUGGEO
     std::cout << " *** parameters for TELF tubs " << std::endl;
     std::cout << " DeltaZ      " << DeltaZ << std::endl;
     std::cout << " Rmin/Rmax   " << Rmini << " " << Rmaxi << std::endl,
-    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
     std::cout << " Zpos in ECAM " << Zpos << std::endl;
 #endif
     GeoTubs* tubs = new GeoTubs(Rmini,          // rmin
@@ -545,9 +542,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  (follow mixture described in Pascal Perrodo note
   GeoPhysVol *Sumb_phys=NULL;
   {
-    double ThickSum = 10.*GeoModelKernelUnits::mm;    // FIXME should be in geometry database
+    double ThickSum = 10.*Gaudi::Units::mm;    // FIXME should be in geometry database
     double Rmini = Moth_inner_radius+Xel1f-ThickSum;
-    double Rmaxi = Moth_inner_radius+Xel1f -0.020*GeoModelKernelUnits::mm;    // safety margin
+    double Rmaxi = Moth_inner_radius+Xel1f -0.020*Gaudi::Units::mm;    // safety margin
     double DeltaZ = Zhalfc;
     double Zpos=0.;
     std::string name = baseName + "SUMB";
@@ -555,7 +552,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     std::cout << " *** parameters for SUMB tubs " << std::endl;
     std::cout << " DeltaZ      " << DeltaZ << std::endl;
     std::cout << " Rmin/Rmax   " << Rmini << " " << Rmaxi << std::endl,
-    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
     std::cout << " Zpos in TELF " << Zpos << std::endl;
 #endif
 
@@ -571,9 +568,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   {
     double ClearancePS = m_parameters->GetValue("LArEMBMoBoclearfrPS");
     double RhoPosB = Moth_inner_radius + ClearancePS;
-    double bdx = .5*(m_parameters->GetValue("LArEMBMoBoTchickness")); // 4.3/2.*GeoModelKernelUnits::mm
-    double bdy = .5*(m_parameters->GetValue("LArEMBMoBoHeight"));     // 72.3/2.*GeoModelKernelUnits::mm;
-    double bdz = Zhalfc - 0.007*GeoModelKernelUnits::mm;
+    double bdx = .5*(m_parameters->GetValue("LArEMBMoBoTchickness")); // 4.3/2.*Gaudi::Units::mm
+    double bdy = .5*(m_parameters->GetValue("LArEMBMoBoHeight"));     // 72.3/2.*Gaudi::Units::mm;
+    double bdz = Zhalfc - 0.007*Gaudi::Units::mm;
     
     //------------------------MOTHERBOARDS--------------------------------------------//
     // JFB Make & Place the motherboards inside overall tube                          //
@@ -587,7 +584,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
       std::cout << " *** parameters for MotherBoard (box)" << std::endl;
       std::cout << "  dx,dy,dz  " << bdx << " " << bdy << " " << bdz << std::endl;
       std::cout << " Radius pos " << RhoPosB << std::endl;
-      std::cout << " Phi0,Dphi  " << PhiPos0/GeoModelKernelUnits::deg << " " << twopi32/GeoModelKernelUnits::deg << std::endl;
+      std::cout << " Phi0,Dphi  " << PhiPos0/Gaudi::Units::deg << " " << twopi32/Gaudi::Units::deg << std::endl;
 #endif
       GeoBox               * box    = new GeoBox(bdx,bdy,bdz);                        //
       const GeoLogVol      * logVol = new GeoLogVol(name,box,Moth_elect);             //
@@ -616,11 +613,11 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     // JFB Place the cables                                                           //
     {                                                                                 //
       //                                                                              //
-      double Dzc = Zhalfc - 0.007*GeoModelKernelUnits::mm;                                                 //
-      double Dx1 = .5*(m_parameters->GetValue("LArEMBCablethickat0"));                // 1./2.*GeoModelKernelUnits::mm
+      double Dzc = Zhalfc - 0.007*Gaudi::Units::mm;                                                 //
+      double Dx1 = .5*(m_parameters->GetValue("LArEMBCablethickat0"));                // 1./2.*Gaudi::Units::mm
       double Dx2 = .5*Bar_Eta_cut*(m_parameters->GetValue("LArEMBthickincrfac"));     //
-      // Dx2 should be  5.17/2.*Bar_Eta_cut*GeoModelKernelUnits::mm Trapezoid's side linear with Eta       //
-      double Dy1 = .5*(m_parameters->GetValue("LArEMBCableEtaheight"));               // 70./2.*GeoModelKernelUnits::mm
+      // Dx2 should be  5.17/2.*Bar_Eta_cut*Gaudi::Units::mm Trapezoid's side linear with Eta       //
+      double Dy1 = .5*(m_parameters->GetValue("LArEMBCableEtaheight"));               // 70./2.*Gaudi::Units::mm
       double Dy2 = Dy1;                                                               //
       //                                                                              //
       int NoOFcable = (int) m_parameters->GetValue("LArEMBnoOFcableBundle");          // 64
@@ -658,7 +655,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
       GeoGenfun::Mod Mod1(1.0),Mod2(2.0),Mod4(4.0);                                      //
       GeoGenfun::GENFUNCTION Int = I - Mod1;                                             //
       GeoGenfun::GENFUNCTION Ccopy    = Int(I + 0.5);                                    //
-      GeoGenfun::GENFUNCTION PhiOrig  = 22.5*GeoModelKernelUnits::deg*Int(Ccopy/4);                           //
+      GeoGenfun::GENFUNCTION PhiOrig  = 22.5*Gaudi::Units::deg*Int(Ccopy/4);                           //
       GeoGenfun::GENFUNCTION PhiPos1  = PhiPos0 + PhiOrig;                               //
       GeoGenfun::GENFUNCTION PhiPos2  = twopi32 - PhiPos0 + PhiOrig;                     //
       GeoGenfun::GENFUNCTION PhiPos00 =                                                  //
@@ -672,7 +669,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
       GeoSerialTransformer *st = new GeoSerialTransformer(pV, &TX, NoOFcable);        //
 #ifdef DEBUGGEO
       for (int ii=0;ii<NoOFcable;ii++) {
-       std::cout << "copy, phi " << ii << " " << PhiPos(ii)/GeoModelKernelUnits::deg << std::endl;
+       std::cout << "copy, phi " << ii << " " << PhiPos(ii)/Gaudi::Units::deg << std::endl;
       }
 #endif
       Elnicsf_phys->add(iD);                                                          //
@@ -683,10 +680,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   }
 #endif // BUILD_FRONT_ELECTRONICS
 
-    // add 1.3 GeoModelKernelUnits::mm in z to allow cleareance for absorber with non                    //
+    // add 1.3 Gaudi::Units::mm in z to allow cleareance for absorber with non                    //
     // 0 thickness, at eta=1.475, low r part of the barrel                          //
     // this affects STAC and TELB volumes                                           //
-    double clearance = 1.3*GeoModelKernelUnits::mm;     
+    double clearance = 1.3*Gaudi::Units::mm;     
 
 #ifdef BUILD_HIGHETA_ELECTRONICS
 
@@ -702,20 +699,20 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     // GU fix of TELB                                                               //
     double ze1=  zmax1_Stac+clearance;                                              //
     double ze2 = Bar_Z_max;                                                         //
-    double safety = 0.05*GeoModelKernelUnits::mm;
+    double safety = 0.05*Gaudi::Units::mm;
     double DeltaZ = 0.5*(ze2-ze1)-safety;                           // 50 micron for safety.
     double Zpos = ze1+DeltaZ+0.5*safety;                                            // 
-    double Rmini1 = Rhocen[0] - .030*GeoModelKernelUnits::mm;                                            //
-    double Rmaxi1 = Rhocen[0] - .020*GeoModelKernelUnits::mm;                                            //
-    double Rmini2 = Rhocen[0] - .030*GeoModelKernelUnits::mm;                                            //
-    double Rmaxi2 = Bar_Rcmx - clearance - .070*GeoModelKernelUnits::mm;                                 //
+    double Rmini1 = Rhocen[0] - .030*Gaudi::Units::mm;                                            //
+    double Rmaxi1 = Rhocen[0] - .020*Gaudi::Units::mm;                                            //
+    double Rmini2 = Rhocen[0] - .030*Gaudi::Units::mm;                                            //
+    double Rmaxi2 = Bar_Rcmx - clearance - .070*Gaudi::Units::mm;                                 //
     std::string name = baseName + "TELB";                                           //
 #ifdef DEBUGGEO
     std::cout << " *** Parameters for high eta electronics (Cons) " <<std::endl;
     std::cout << " Rmini1,Rmini2,Rmaxi1,Rmaxi2 " << Rmini1 << " " << Rmini2 << " "
        << Rmaxi1 << " " << Rmaxi2 << std::endl,
     std::cout << " DeltaZ " << DeltaZ << std::endl;
-    std::cout << " Phi_Min,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+    std::cout << " Phi_Min,Dphi " << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
     GeoCons* cons = new GeoCons(Rmini1,Rmini2,Rmaxi1,Rmaxi2,                        //
@@ -742,8 +739,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   
   //---------------------------------FRONT G10-------------------------------------//
   {                                                                                //
-    double Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");               // 23.*GeoModelKernelUnits::mm
-    double Xg10f = m_parameters->GetValue("LArEMBG10SupportBarsIn");               // 20.*GeoModelKernelUnits::mm
+    double Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");               // 23.*Gaudi::Units::mm
+    double Xg10f = m_parameters->GetValue("LArEMBG10SupportBarsIn");               // 20.*Gaudi::Units::mm
     double DeltaZ = 0.5* m_parameters->GetValue("LArEMBG10FrontDeltaZ");           //
     double Zpos = DeltaZ+Bar_Z_min;                                                //
     double Rmini = Moth_inner_radius + Xel1f;                                      //
@@ -753,7 +750,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     std::cout << " *** parameters for front G10 ring (tubs) " << std::endl;
     std::cout << " Rmini,Rmaxi " << Rmini << " " << Rmaxi << std::endl;
     std::cout << " DeltaZ " << DeltaZ << std::endl;
-    std::cout << " phimin,dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+    std::cout << " phimin,dphi " << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
     GeoTubs* tubs = new GeoTubs(Rmini,Rmaxi,DeltaZ,Moth_Phi_Min,Moth_Phi_Max);     //
@@ -806,18 +803,18 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   {                                                                               //
     double DeltaZ = Zhalf;                                                        //
     double Zpos = Zhalf+Bar_Z_min;                                                //
-    double Xtal  = m_parameters->GetValue("LArEMBLArGapTail")+ 0.1*GeoModelKernelUnits::mm;            // 13.*GeoModelKernelUnits::mm
+    double Xtal  = m_parameters->GetValue("LArEMBLArGapTail")+ 0.1*Gaudi::Units::mm;            // 13.*Gaudi::Units::mm
     double Rmini = Rhocen[Nbrt]+Xtal; //                                          //
     // GU to be sure that GTENB does not go outside mother ECAM volume            //
     //  Rmaxi = Rmini+Xg10b;                                                      //
-    double   Rmaxi = Moth_outer_radius-0.01*GeoModelKernelUnits::mm;   // 10 microns for more safety.. //
+    double   Rmaxi = Moth_outer_radius-0.01*Gaudi::Units::mm;   // 10 microns for more safety.. //
     //                                                                            //
     std::string name = baseName +"GTENB";                                         //
 #ifdef DEBUGGEO 
     std::cout << " *** parameters for back G10 ring (tubs) " << std::endl;
     std::cout << " Rmini,Rmaxi " << Rmini << " " << Rmaxi << std::endl;
     std::cout << " DeltaZ  " << DeltaZ << std::endl;
-    std::cout << " phimin,dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
+    std::cout << " phimin,dphi " << Moth_Phi_Min/Gaudi::Units::deg << " " << Moth_Phi_Max/Gaudi::Units::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
 
@@ -841,8 +838,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  (i.e. a little bit wider than one calorimeter module)
   {                                                                             //
 
-    double Moth_Phi_Min2 = (Ncell == 64) ? -1.055*GeoModelKernelUnits::deg : 0.;                     //
-    double Moth_Phi_Max2 = (Ncell == 64) ? 24.61*GeoModelKernelUnits::deg  : 2*M_PI;                 //
+    double Moth_Phi_Min2 = (Ncell == 64) ? -1.055*Gaudi::Units::deg : 0.;                     //
+    double Moth_Phi_Max2 = (Ncell == 64) ? 24.61*Gaudi::Units::deg  : 2*M_PI;                 //
 
     double Zplan1[] = {Bar_Z_min,zmax1_Stac+clearance,Bar_Z_max};                //
     double Riacc1[] = {Rhocen[0],Rhocen[0], Bar_Rcmx-clearance};                //
@@ -854,7 +851,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
      std::cout << "  Zplan " << Zplan1[0] << " " << Zplan1[1] << " " << Zplan1[2] << std::endl;
      std::cout << "  Rin   " << Riacc1[0] << " " << Riacc1[1] << " " << Riacc1[2] << std::endl;
      std::cout << "  Rout  " << Roacc1[0] << " " << Roacc1[1] << " " << Roacc1[2] << std::endl;
-     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/GeoModelKernelUnits::deg << " " << Moth_Phi_Max2/GeoModelKernelUnits::deg << std::endl;
+     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/Gaudi::Units::deg << " " << Moth_Phi_Max2/Gaudi::Units::deg << std::endl;
      std::cout << " Zpos " << -Zp0 << std::endl;
 #endif
     GeoPcon* pCone = new GeoPcon(Moth_Phi_Min2,Moth_Phi_Max2);                  //
@@ -882,7 +879,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     double Thpb_thin  = m_parameters->GetValue("LArEMBThinAbsLead");
     double Thcu       = m_parameters->GetValue("LArEMBThickElecCopper");
     double Thfg       = m_parameters->GetValue("LArEMBThickElecKapton");
-    double Psi        = m_parameters->GetValue("LArEMBPhiGapAperture");   // 360.*GeoModelKernelUnits::deg/1024
+    double Psi        = m_parameters->GetValue("LArEMBPhiGapAperture");   // 360.*Gaudi::Units::deg/1024
     double Contract   = m_parameters->GetValue("LArEMBAbsorberContraction");
 
     double Thce = (Thpb+Thgl+Thfe)*Contract;
@@ -906,7 +903,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     double Zcp1l[14],Zcp1h[14],Zcp2l[14],Zcp2h[14];
     double Rhol[14],Rhoh[14];
 
-    double safety_along = 0.007*GeoModelKernelUnits::mm;
+    double safety_along = 0.007*Gaudi::Units::mm;
  
    
     // Compute centers of curvature coordinates in a local frame.
@@ -999,7 +996,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	// Absorber (thick, thin)
 	{
 	  double radius =  fb==FRONT ? Cenx[0] - Xtip_pb/2    : Cenx[Nbrt] + Xtipt/2;
-	  double Xhalfb  = fb==FRONT ? Xtip_pb/2 -0.002*GeoModelKernelUnits::mm    : Xtipt/2 - .004*GeoModelKernelUnits::mm;
+	  double Xhalfb  = fb==FRONT ? Xtip_pb/2 -0.002*Gaudi::Units::mm    : Xtipt/2 - .004*Gaudi::Units::mm;
 	  double Zhalfb  = fb==FRONT ? (Bar_Z_cut-Zmin)/2. : (Zmax-Zmin)/2.;
 	  double dz01 = (std::min(Zcp1[irl],Zmax)-Zmin)/2.;  // half lenght for thick lead
 
@@ -1032,14 +1029,14 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
           std::cout << " Thick Abs Box " << Xhalfb << " " << Thce/2. << " " << dz01 << std::endl;
           std::cout << " Z position thick in thin " << dz01-Zhalfb << std::endl;
           std::cout << " Radial position " << radius << std::endl;
-          std::cout << " Phi0 (GeoModelKernelUnits::deg) " << Gama(0)/GeoModelKernelUnits::deg << std::endl;
+          std::cout << " Phi0 (Gaudi::Units::deg) " << Gama(0)/Gaudi::Units::deg << std::endl;
           std::cout << " Z position in ECAM " << Zmin+Zhalfb << std::endl;
 #endif
 	}
 	// G10 (only for front part)
 	if (fb==FRONT)
 	{
-	  double Xhalfbg = Xtip_gt/2-0.002*GeoModelKernelUnits::mm;
+	  double Xhalfbg = Xtip_gt/2-0.002*Gaudi::Units::mm;
 	  double radiusg = Cenx[0]-Xtip_pb/2. - Xtips/2   ;   
 	  double Zhalfbg = (Bar_Z_cut-Zmin)/2.    ;
 	  std::string name        = baseName + "FrontBack::G10";
@@ -1086,14 +1083,14 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	  m_ecamPhysicalNeg->add(st);
 #ifdef DEBUGGEO
           std::cout << "  Radial position G10 tip " << radiusg << std::endl;
-          std::cout << "  Phi0 (GeoModelKernelUnits::deg)" << Gama(0)/GeoModelKernelUnits::deg << std::endl;
+          std::cout << "  Phi0 (Gaudi::Units::deg)" << Gama(0)/Gaudi::Units::deg << std::endl;
           std::cout << "  Zposition in ECAM " << Zmin+Zhalfbg << std::endl;
 #endif
 
 	}
 	// Electrode
 	{
-	  double Xhalfbe = fb==FRONT ? Xtips/2 -0.002*GeoModelKernelUnits::mm      : Xtipt/2 - .004*GeoModelKernelUnits::mm;
+	  double Xhalfbe = fb==FRONT ? Xtips/2 -0.002*Gaudi::Units::mm      : Xtipt/2 - .004*Gaudi::Units::mm;
 	  double Zhalfbe = fb==FRONT ? (Bar_Z_cut-Zmin)/2.    : (Zmax - Zmin)/2;
 	  double radiuse = fb==FRONT ? Cenx[0] - Xtips/2   : Cenx[Nbrt] + Xtipt/2;
 	  std::string name        = baseName + "FrontBack::Electrode";
@@ -1119,7 +1116,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
           else           std::cout << " *** Back  tip electrode " << std::endl;
           std::cout << " Box " << Xhalfbe << " " << Thel/2. << " " << Zhalfbe << std::endl;
           std::cout << " Radial position " << radiuse << std::endl;
-          std::cout << " Phi0 (GeoModelKernelUnits::deg)" << Game(0)/GeoModelKernelUnits::deg << std::endl;
+          std::cout << " Phi0 (Gaudi::Units::deg)" << Game(0)/Gaudi::Units::deg << std::endl;
           std::cout << " Z position in ECAM " << Zmin+Zhalfbe << std::endl;
 #endif
 
@@ -1136,7 +1133,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     //
 
 // GU 09/06/2004 add some safety in z size
-    double safety_zlen=0.050*GeoModelKernelUnits::mm;
+    double safety_zlen=0.050*Gaudi::Units::mm;
    
     for(int irl=0; irl<Nbrt; irl++)   // loop over zig-zag in radius
       {
@@ -1237,7 +1234,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      GeoGenfun::GENFUNCTION sinalfa = (da*dy +iparit*2.*Rint*dx)/Da/Da;
 	      GeoGenfun::GENFUNCTION newalpha = ATan2(sinalfa,cosalfa);       
 	   
-	      GeoGenfun::GENFUNCTION h1 = da/2. * frac  - .007*GeoModelKernelUnits::mm;
+	      GeoGenfun::GENFUNCTION h1 = da/2. * frac  - .007*Gaudi::Units::mm;
 	   
 	      double Zx0 = (tl1+bl1)/2.;
 // thick absorber pieces
@@ -1259,7 +1256,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                 } 
               }
 	    // translation in x to include thick absorber into thin absorber
-	      double Xtrans = (Xb1+Xt1)/2.-Zx0 + .007*GeoModelKernelUnits::mm;    
+	      double Xtrans = (Xb1+Xt1)/2.-Zx0 + .007*Gaudi::Units::mm;    
 
             // lengths that remain to be covered with the thin absorber
               double Xt2 = tl1-Xt1;
@@ -1267,8 +1264,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
              // trabslation that would be needed to include think absorber only into overall thin+thick volume
               double Xtrans2 =  Zx0 - (Xb2+Xt2)/2.;
-              Xt2 = Xt2 -0.007*GeoModelKernelUnits::mm;
-              Xb2 = Xb2 -0.007*GeoModelKernelUnits::mm;
+              Xt2 = Xt2 -0.007*Gaudi::Units::mm;
+              Xb2 = Xb2 -0.007*Gaudi::Units::mm;
            
 	   
 	      GeoGenfun::GENFUNCTION alpha = ATan(0.5*(bl1-tl1)/h1);
@@ -1301,7 +1298,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	        GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycd) *
 	        GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcd) * 
 	        GeoXF::Pow(GeoTrf::RotateZ3D(1.0),-alfrot)*
-	        GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);                    
+	        GeoTrf::RotateY3D(-90*Gaudi::Units::deg);                    
 
 	    // 
 
@@ -1739,7 +1736,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      GeoGenfun::GENFUNCTION Zcde       = GeoGenfun::FixedConstant(Zmin+(tl1+bl1)/2.+safety_zlen);
 	   
 	   
-	      GeoGenfun::GENFUNCTION h1e      = de/2.*frac - .007*GeoModelKernelUnits::mm;
+	      GeoGenfun::GENFUNCTION h1e      = de/2.*frac - .007*Gaudi::Units::mm;
 	      GeoGenfun::GENFUNCTION alpha_e  = ATan(0.5*(bl1-tl1)/h1e); 
 	   
 	   
@@ -1748,7 +1745,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	        GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycde) *
 	        GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcde) * 
 	        GeoXF::Pow(GeoTrf::RotateZ3D(1.0),-alfrote)*
-	        GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);                    
+	        GeoTrf::RotateY3D(-90*Gaudi::Units::deg);                    
 	   
 	   
 	      for (int instance = 0; instance < Nelectrode; instance++) 
@@ -2111,7 +2108,7 @@ void LArGeo::BarrelConstruction::printParams()
        m_parameters->GetValue("LArEMBphiMaxBarrel") << std::endl;
   std::cout << "Number of zigs          " <<  
      m_parameters->GetValue("LArEMBnoOFAccZigs") << std::endl;
-  std::cout << "Fold GeoModelKernelUnits::rad of curvature   " << 
+  std::cout << "Fold Gaudi::Units::rad of curvature   " << 
      m_parameters->GetValue("LArEMBNeutFiberRadius") << std::endl;
   for (int i=0;i<15;i++) {
     std::cout << "Fold " << i << " radius " <<  

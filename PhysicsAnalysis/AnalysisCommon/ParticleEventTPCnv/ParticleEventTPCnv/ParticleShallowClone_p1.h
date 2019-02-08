@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowClone_p1.h 
@@ -47,7 +47,7 @@ public:
 
   /** Destructor: 
    */
-  ~ParticleShallowClone_p1();
+  ~ParticleShallowClone_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

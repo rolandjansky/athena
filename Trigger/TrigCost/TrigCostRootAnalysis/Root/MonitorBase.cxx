@@ -97,7 +97,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @ param _pass Set which pass through the input files are we on.
+   * @ param pass Set which pass through the input files are we on.
    */
   void MonitorBase::setPass(UInt_t pass) {
     m_pass = pass;
@@ -253,7 +253,7 @@ namespace TrigCostRootAnalysis {
    * @param name reference to the name of counter collection to add (will be created if does not exist)
    * @param lumiBlockNumber Current LB, used for bookkeeping for this CounterCollection
    * @param lumiLength Length of current LB, used for bookkeeping for this CounterCollection
-   * @param _type Conf key specifying the type of this CounterCollection which may be queried later.
+   * @param type Conf key specifying the type of this CounterCollection which may be queried later.
    */
   void MonitorBase::addToCollectionsToProcess(const std::string& name, UInt_t lumiBlockNumber, Float_t lumiLength,
                                               const ConfKey_t type) {

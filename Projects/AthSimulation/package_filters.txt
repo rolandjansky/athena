@@ -163,7 +163,7 @@
 + InnerDetector/InDetConditions/BeamSpotConditions
 + InnerDetector/InDetConditions/BeamSpotConditionsData
 + InnerDetector/InDetConditions/InDetCondFolders
-+ InnerDetector/InDetConditions/InDetCondServices
++ InnerDetector/InDetConditions/InDetCondTools
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool
 + InnerDetector/InDetConditions/InDetConditionsSummaryService
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
@@ -202,6 +202,7 @@
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArSimEventAthenaPool
 + LArCalorimeter/LArCnv/LArSimEventTPCnv
++ LArCalorimeter/LArConfiguration
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
 + LArCalorimeter/LArExample/LArConditionsCommon
@@ -237,6 +238,7 @@
 + MuonSpectrometer/MuonCnv/MuonIdCnv
 + MuonSpectrometer/MuonCnv/MuonSimEventAthenaPool
 + MuonSpectrometer/MuonCnv/MuonSimEventTPCnv
++ MuonSpectrometer/MuonConfig
 + MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
 + MuonSpectrometer/MuonDetDescr/MuonAGDD
 + MuonSpectrometer/MuonDetDescr/MuonAGDDBase

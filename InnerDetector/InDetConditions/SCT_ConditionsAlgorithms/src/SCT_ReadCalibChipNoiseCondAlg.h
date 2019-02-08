@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_ReadCalibChipNoiseCondAlg_h
 #define SCT_ReadCalibChipNoiseCondAlg_h
 
 // Include parent class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // Include Athena classes
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -25,17 +25,17 @@
 // Forward declarations
 class SCT_ID;
 
-class SCT_ReadCalibChipNoiseCondAlg : public AthAlgorithm 
+class SCT_ReadCalibChipNoiseCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ReadCalibChipNoiseCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:
-  void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData);
+  void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) const;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipNoise", "Key of input (raw) noise conditions folder"};
   SG::WriteCondHandleKey<SCT_NoiseCalibData> m_writeKey{this, "WriteKey", "SCT_NoiseCalibData", "Key of output (derived) noise conditions data"};

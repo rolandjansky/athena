@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,10 +25,6 @@ namespace Analysis
 
   TrackConstituents::TrackConstituents(NameType& name)
   { m_name = name; }  
-  
-  TrackConstituents::~TrackConstituents()
-  {  }  
-  
   
   void TrackConstituents::setName(NameType& name) {m_name = name;}      
   

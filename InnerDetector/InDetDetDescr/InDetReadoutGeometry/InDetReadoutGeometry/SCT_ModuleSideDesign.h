@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ public:
                          const SiDetectorDesign::Axis thicknessDirection);
 
     /** Destructor: */
-    virtual ~SCT_ModuleSideDesign();
+    virtual ~SCT_ModuleSideDesign() = default;
 
     /** readout id -> id of connected diodes
         Not particularly useful for the SCT but implemented to keep a uniform interface.

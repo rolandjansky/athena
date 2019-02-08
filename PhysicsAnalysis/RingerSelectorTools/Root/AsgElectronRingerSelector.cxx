@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AsgElectronRingerSelector.cxx 791627 2017-01-10 04:45:53Z wsfreund $
@@ -13,7 +13,8 @@
 #ifndef RINGER_STANDALONE
 // Athena framework includes:
 # include "AsgTools/AsgTool.h"
-# include "PATCore/TAccept.h"
+# include "PATCore/AcceptInfo.h"
+# include "PATCore/AcceptData.h"
 # include "PathResolver/PathResolver.h"
 # include "AthContainers/exceptions.h"
 
@@ -107,7 +108,6 @@ AsgElectronRingerSelector::AsgElectronRingerSelector(std::string asgToolName) :
   m_thresWrapper(nullptr),
   m_ringSelCommon(nullptr),
   m_trackPat(nullptr),
-  m_partDecMsk(Ringer::ElectronTAccept::retrieveTAcceptTemplate()),
   m_accept(Ringer::ElectronTAccept::retrieveTAcceptTemplate()),
   m_useCutIDDecision(false),
   m_metaDataCached(false),
@@ -289,7 +289,6 @@ StatusCode AsgElectronRingerSelector::configureFromStruct(RingerConfStruct &file
   m_ringSelCommon = new Ringer::RingerCommonSelector(
       &m_discrWrapperCol,
       m_thresWrapper,
-      &m_partDecMsk,
       fileConf);
 
   // Set RingerCommonSelector message stream:
@@ -327,7 +326,7 @@ StatusCode AsgElectronRingerSelector::configureFromStruct(RingerConfStruct &file
 
 
 //=============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::IParticle* part ) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
@@ -344,74 +343,63 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 
 // =============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::Electron* el, const double mu) const
 {
   ATH_MSG_DEBUG("Entering accept( const xAOD::Electron* el)");
 
-  StatusCode sc = execute(el, mu);
+  asg::AcceptData acceptData (&m_accept);
+  StatusCode sc = execute(el, mu, acceptData);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Error while on particle AsgSelector execution.");
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 
 // =============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept(
+asg::AcceptData AsgElectronRingerSelector::accept(
     const xAOD::Egamma* eg, const double mu ) const
 {
   ATH_MSG_DEBUG("Entering accept( const xAOD::Egamma* part )");
 
-  StatusCode sc = execute(eg, mu);
+  asg::AcceptData acceptData (&m_accept);
+  StatusCode sc = execute(eg, mu, acceptData);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Error while on particle AsgSelector execution.");
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 
 // =============================================================================
 StatusCode AsgElectronRingerSelector::execute(
-    const xAOD::Electron* el, const double mu) const
+    const xAOD::Electron* el, const double mu,
+    asg::AcceptData& acceptData) const
 {
 
   ATH_MSG_DEBUG("Entering execute(const xAOD::Electron* el...)");
 
-#if RINGER_USE_NEW_CPP_FEATURES
-  // In this case, we only do this to have a more harmonic code:
-  Root::TAccept &partDecMsk_ref = m_partDecMsk;
-#else
-  // Well, since we do not have mutable properties, we need to do this ugly
-  // things...
-  Root::TAccept &partDecMsk_ref =
-    const_cast<Root::TAccept&>(m_partDecMsk);
-#endif
-
-  // Clear particle decision mask and previous result (set everything as if it
-  // was passed), prepare to refill it:
-  partDecMsk_ref.clear();
-
   m_ringSelCommon->clear();
 
   // No error occurred so far, flag it:
-  partDecMsk_ref.setCutResult(
+  acceptData.setCutResult(
       BitdefElectron::NoErrorBit,
       true);
 
   // Set if it was requested to execute CutID:
-  partDecMsk_ref.setCutResult(
+  acceptData.setCutResult(
       BitdefElectron::ExecCutID,
       m_useCutIDDecision );
 
   if (!el){
     ATH_MSG_ERROR("Invalid electron pointer.");
 
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::NoErrorBit,
         false);
 
@@ -431,7 +419,7 @@ StatusCode AsgElectronRingerSelector::execute(
 
     ATH_MSG_ERROR("Particle does not have CaloRings decoratorion.");
 
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::NoErrorBit,
         false);
 
@@ -443,7 +431,7 @@ StatusCode AsgElectronRingerSelector::execute(
   if ( !caloRingsLinks->at(0).isValid() ){
     ATH_MSG_DEBUG("Ignoring candidate with invalid ElementLink.");
 
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::NoErrorBit,
         false);
 
@@ -459,7 +447,7 @@ StatusCode AsgElectronRingerSelector::execute(
     ATH_MSG_ERROR("There isn't CaloRings Decoration available"
         " for input particle." );
 
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::NoErrorBit,
         false );
 
@@ -496,13 +484,14 @@ StatusCode AsgElectronRingerSelector::execute(
     if ( m_ringSelCommon->execute(
           depVar,
           clrings,
-          trackPat_ref).isFailure() )
+          trackPat_ref,
+          acceptData).isFailure() )
     {
 
       ATH_MSG_ERROR("Error while executing "
           "RingerCommonSelector.");
 
-      partDecMsk_ref.setCutResult(
+      acceptData.setCutResult(
           BitdefElectron::NoErrorBit,
           false);
 
@@ -512,7 +501,7 @@ StatusCode AsgElectronRingerSelector::execute(
     ATH_MSG_ERROR("Error while executing "
         "RingerCommonSelector. Reason: " << e.what() );
 
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::NoErrorBit,
         false);
 
@@ -521,7 +510,7 @@ StatusCode AsgElectronRingerSelector::execute(
   // Add the CutID track decision bit (if requested):
   if ( m_useCutIDDecision ) {
     try {
-      partDecMsk_ref.setCutResult(
+      acceptData.setCutResult(
           BitdefElectron::CutIDDec,
           static_cast<bool>(m_cutIDSelector->accept(el)) );
 
@@ -530,11 +519,11 @@ StatusCode AsgElectronRingerSelector::execute(
       ATH_MSG_ERROR("Error while executing "
           "AsgElectronRingerSelector. Reason:" << e.what() );
 
-      partDecMsk_ref.setCutResult(
+      acceptData.setCutResult(
           BitdefElectron::NoErrorBit,
           false );
 
-      partDecMsk_ref.setCutResult(
+      acceptData.setCutResult(
           BitdefElectron::CutIDDec ,
           false );
 
@@ -542,17 +531,23 @@ StatusCode AsgElectronRingerSelector::execute(
   } else {
 
     // If we do not run it, set track decision to true:
-    partDecMsk_ref.setCutResult(
+    acceptData.setCutResult(
         BitdefElectron::CutIDDec ,
         true );
 
   }
 
-  // We have finished, then fill decision mask:
-  fillTAccept();
+  // Clear unused bits.
+  for (unsigned bit = 0; bit < BitdefElectron::NUsedBits(); ++bit ){
+    // m_partDec mask is set to true if passed cut.
+    // m_cutsToUse is set to true if cut is to be used.
+    if (!m_cutsToUse[bit]) {
+      acceptData.setCutResult (bit, false);
+    }
+  }
 
   // Check if an error occurred, and flag it:
-  if ( partDecMsk_ref.getCutResult(
+  if ( acceptData.getCutResult(
         BitdefElectron::NoErrorBit ) )
   {
     return StatusCode::SUCCESS;
@@ -562,40 +557,20 @@ StatusCode AsgElectronRingerSelector::execute(
 }
 
 //==============================================================================
-StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg, const double mu) const
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg, const double mu,
+                                              asg::AcceptData& acceptData) const
 {
   ATH_MSG_DEBUG("entering execute(const xAOD::Egamma* eg...)");
 
   if (eg){
     // We cast it to electron and use xAOD::type to determine whether it is an electron or not
-    this->execute( static_cast<const xAOD::Electron*>(eg), mu );
+    this->execute( static_cast<const xAOD::Electron*>(eg), mu, acceptData );
   } else {
     ATH_MSG_ERROR("Egamma pointer is null.");
     return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
-}
-
-//=============================================================================
-// Fill the m_accept from the m_partDecMsk mask using the m_cutsToUse
-//=============================================================================
-void AsgElectronRingerSelector::fillTAccept() const
-{
-#if RINGER_USE_NEW_CPP_FEATURES
-  // In this case, we only do this to have a more harmonic code:
-  Root::TAccept &accept_ref = m_accept;
-#else
-  // Well, since we do not have mutable properties, we need to do this ugly
-  // things...
-  Root::TAccept &accept_ref = const_cast<Root::TAccept&>(m_accept);
-#endif
-  for (unsigned bit = 0; bit < BitdefElectron::NUsedBits(); ++bit ){
-    // m_partDec mask is set to true if passed cut.
-    // m_cutsToUse is set to true if cut is to be used.
-    accept_ref.setCutResult( bit,
-        (m_partDecMsk.getCutResult(bit)) || !m_cutsToUse[bit] );
-  }
 }
 
 //==============================================================================

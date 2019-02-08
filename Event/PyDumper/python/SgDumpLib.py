@@ -73,6 +73,7 @@ def _gen_jobo(dct):
                      'doAOD',
                      'doDPD',
                      'doEgamma',  # avoid dict clash
+                     'doCaloRinger', # avoid loading Ath libs too early
                      ):
             getattr (rec, item).set_Value_and_Lock(False)
 

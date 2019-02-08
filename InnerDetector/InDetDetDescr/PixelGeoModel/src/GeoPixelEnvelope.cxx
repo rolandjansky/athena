@@ -11,6 +11,7 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "GeoPixelBarrel.h"
 #include "GeoPixelEndCap.h"
@@ -59,7 +60,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     envelopeShape = new GeoTube(rmin,rmax,halflength);
     pixZone = new InDetDD::TubeZone("Pixel",-halflength,halflength,rmin,rmax);
   } else {
-    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*Gaudi::Units::pi);
     // table contains +ve z values only and envelope is assumed to be symmetric around z.
     int numPlanes = m_gmt_mgr->PixelEnvelopeNumPlanes();
     for (int i = 0; i < numPlanes * 2; i++) {
@@ -135,7 +136,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
       
       m_gmt_mgr->SetEndcap();
       m_gmt_mgr->SetNeg();
-      GeoTransform* xform = new GeoTransform(endcapCTransform * GeoTrf::TranslateZ3D(-zpos) *  GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
+      GeoTransform* xform = new GeoTransform(endcapCTransform * GeoTrf::TranslateZ3D(-zpos) *  GeoTrf::RotateY3D(180*Gaudi::Units::deg));
       GeoNameTag* tag  = new GeoNameTag("EndCapC");
       envelopePhys->add(tag);
       envelopePhys->add(new GeoIdentifierTag(-2));
@@ -237,7 +238,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   // so if change then change in DBM_module too
 
   if (m_gmt_mgr->dbm()) {
-    GeoTrf::Translate3D dbmTransform1( 0, 0, 887.002*GeoModelKernelUnits::mm + ( m_gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
+    GeoTrf::Translate3D dbmTransform1( 0, 0, 887.002*Gaudi::Units::mm + ( m_gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
 
     //m_DDmgr->numerology().addEndcap(4);
     m_gmt_mgr->SetPartsDBM();
@@ -253,7 +254,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //m_DDmgr->numerology().addEndcap(-4);
     m_gmt_mgr->SetNeg();
     GeoNameTag* tag2 = new GeoNameTag("DBMC");
-    GeoTransform* dbmTransform2 = new GeoTransform(GeoTrf::TranslateZ3D(-887.002*GeoModelKernelUnits::mm - ( m_gmt_mgr->DBMTelescopeZ() )/2.) *  GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
+    GeoTransform* dbmTransform2 = new GeoTransform(GeoTrf::TranslateZ3D(-887.002*Gaudi::Units::mm - ( m_gmt_mgr->DBMTelescopeZ() )/2.) *  GeoTrf::RotateY3D(180*Gaudi::Units::deg));
     envelopePhys->add(tag2);
     envelopePhys->add(new GeoIdentifierTag(-4));
     envelopePhys->add(dbmTransform2);

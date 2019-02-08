@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: RingerCommonSelector.cxx 668868 2015-05-20 20:26:18Z wsfreund $
@@ -27,11 +27,9 @@ namespace Ringer {
 RingerCommonSelector::RingerCommonSelector(
     const Ringer::IDiscrWrapperCollection *discrWrapperCol,
     const Ringer::IThresWrapper *thresWrapper,
-    Root::TAccept *partDecMsk,
     const RingerConfStruct &fileConf)
   : m_discrWrapperCol(discrWrapperCol),
     m_thresWrapper(thresWrapper),
-    m_partDecMsk(partDecMsk),
     m_useTrackPat(fileConf.useTrackPat),
     m_useRawTrackPat(fileConf.useRawTrackPat),
     m_useCaloCommittee(fileConf.useCaloCommittee),
@@ -48,11 +46,6 @@ RingerCommonSelector::RingerCommonSelector(
         "without threshold wrapper.");
   }
 
-  if ( !m_partDecMsk ) {
-    throw std::runtime_error("Cannot create RingerCommonSelector"
-        "without a decision mask.");
-  }
-
   m_discrWrapperColSize = discrWrapperCol->size();
 
   m_fstDiscrLayer  = (*m_discrWrapperCol)[0];
@@ -66,7 +59,8 @@ RingerCommonSelector::RingerCommonSelector(
 StatusCode RingerCommonSelector::execute(
     const DepVarStruct &depVar,
     const xAOD::CaloRings* clRings,
-    const TrackPatternsHolder* trackPat)
+    const TrackPatternsHolder* trackPat,
+    asg::AcceptData& acceptData)
 {
   ATH_MSG_DEBUG( "Starting executing RingerCommonSelector.");
 
@@ -197,7 +191,7 @@ StatusCode RingerCommonSelector::execute(
 
   // Save discrimination into particle decision mask. We only use the first
   // decision vector output:
-  m_partDecMsk->setCutResult( BitdefElectron_v1::RingerChainDec, m_decVec[0] );
+  acceptData.setCutResult( BitdefElectron_v1::RingerChainDec, m_decVec[0] );
 
   return StatusCode::SUCCESS;
 

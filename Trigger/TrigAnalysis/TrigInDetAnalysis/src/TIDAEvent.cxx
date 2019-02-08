@@ -1,15 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDA::Event.cxx         
-//   
-//            Basic event class to contain a vector of
-//            chains for trigger analysis      
-//                   
-// 
-//
-//   $Id: TIDA::Event.cxx, v0.0   Tue  2 Feb 2010 00:09:33 GMT sutt $
+/**
+ **     @file    TIDAEvent.cxx
+ **
+ **     @brief   Basic event class to contain a vector of
+ **              chains for trigger analysis      
+ **
+ **     @author  mark sutton
+ **     @date    Tue  2 Feb 2010 00:09:33 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeutralParticle_v1.cxx 573493 2013-12-03 13:05:51Z emoyse $
 // Misc includes
 #include <bitset>
 #include <vector>
@@ -18,18 +17,12 @@
 namespace xAOD {
 
   NeutralParticle_v1::NeutralParticle_v1()
-  : IParticle(), m_perigeeCached(false) {
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters=0;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+  : IParticle(){
   }
   
   NeutralParticle_v1::NeutralParticle_v1(const NeutralParticle_v1& tp ) 
-  : IParticle( tp ), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ) {
     makePrivateStore( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   
   NeutralParticle_v1& NeutralParticle_v1::operator=(const NeutralParticle_v1& tp ){
@@ -38,15 +31,12 @@ namespace xAOD {
     if(!hasStore() ) makePrivateStore();
     this->IParticle::operator=( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
+    m_perigeeParameters.reset();
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     return *this;
   }
 
   NeutralParticle_v1::~NeutralParticle_v1(){
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   
   double NeutralParticle_v1::pt() const {
@@ -73,7 +63,6 @@ namespace xAOD {
 
   NeutralParticle_v1::GenVecFourMom_t NeutralParticle_v1::genvecP4() const {
     using namespace std;
-    // Check if we need to reset the cached object:
     float p = 1/fabs(oneOverP());
     float thetaT = theta();
     float phiT = phi();
@@ -87,7 +76,6 @@ namespace xAOD {
   NeutralParticle_v1::FourMom_t NeutralParticle_v1::p4() const {
     using namespace std;
     FourMom_t p4;
-    // Check if we need to reset the cached object:
     float p = 1/fabs(oneOverP());
     float thetaT = theta();
     float phiT = phi();
@@ -112,44 +100,44 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, theta)
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, oneOverP)
 
-  const DefiningParameters_t& NeutralParticle_v1::definingParameters() const{
-    static DefiningParameters_t tmp;
-    tmp << d0(),z0(),phi0(),theta(),oneOverP();
-    return tmp;
+  const DefiningParameters_t NeutralParticle_v1::definingParameters() const{
+      DefiningParameters_t tmp;
+      tmp << d0(),z0(),phi0(),theta(),oneOverP();
+      return tmp;
   }
 
   void NeutralParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float oneOverP) {
-    m_perigeeCached=false;
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
-    static Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
-    static Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc2( "z0" );
     acc2( *this ) = z0;
 
-    static Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc3( "phi" );
     acc3( *this ) = phi0;
 
-    static Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc4( "theta" );
     acc4( *this ) = theta;
 
-    static Accessor< float > acc5( "oneOverP" );
+    static const Accessor< float > acc5( "oneOverP" );
     acc5( *this ) = oneOverP;
 
     return;
   }
 
   void NeutralParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
-    m_perigeeCached=false;
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+   if(m_perigeeParameters.isValid()) {
+     m_perigeeParameters.reset();
+   }
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float>& v = acc(*this);
     v.reserve(15);
     for (size_t irow = 0; irow<5; ++irow)
@@ -157,24 +145,27 @@ namespace xAOD {
             v.push_back(cov(icol,irow));
   }
 
-  const xAOD::ParametersCovMatrix_t& NeutralParticle_v1::definingParametersCovMatrix() const {
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+  const xAOD::ParametersCovMatrix_t NeutralParticle_v1::definingParametersCovMatrix() const {
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float> v = acc(*this);
     std::vector<float>::const_iterator it = v.begin();
-    static xAOD::ParametersCovMatrix_t cov; cov.setZero();
-    for (size_t irow = 0; irow<5; ++irow)
-        for (size_t icol =0; icol<=irow; ++icol)
+    xAOD::ParametersCovMatrix_t cov; 
+    cov.setZero();
+    for (size_t irow = 0; irow<5; ++irow){
+        for (size_t icol =0; icol<=irow; ++icol){
             cov.fillSymmetric(icol,irow, *it++);
+        }
+    }
     return cov;
   }
 
   const std::vector<float>& NeutralParticle_v1::definingParametersCovMatrixVec() const {
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     return acc(*this);
   }
 
   void NeutralParticle_v1::setDefiningParametersCovMatrixVec(const std::vector<float>& cov){
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     acc(*this)=cov;
   }
 
@@ -183,34 +174,41 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, vz)
 
   void NeutralParticle_v1::setParametersOrigin(float x, float y, float z){
-    static Accessor< float > acc1( "vx" );
+    static const Accessor< float > acc1( "vx" );
     acc1( *this ) = x;
 
-    static Accessor< float > acc2( "vy" );
+    static const Accessor< float > acc2( "vy" );
     acc2( *this ) = y;
 
-    static Accessor< float > acc3( "vz" );
+    static const Accessor< float > acc3( "vz" );
     acc3( *this ) = z;
   }
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   const Trk::NeutralPerigee& NeutralParticle_v1::perigeeParameters() const {
-    
-    static Accessor< float > acc1( "d0" );
-    static Accessor< float > acc2( "z0" );
-    static Accessor< float > acc3( "phi" );
-    static Accessor< float > acc4( "theta" );
-    static Accessor< float > acc5( "oneOverP" );
-    static Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
+   
+    // Require the cache to be valid and check if the cached pointer has been set
+    if(m_perigeeParameters.isValid()){
+          return *(m_perigeeParameters.ptr());
+    }
+    static const Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc5( "oneOverP" );
+    static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t;
     cov->setZero();
     auto it= acc6(*this).begin();
-    for (size_t irow = 0; irow<5; ++irow)
-      for (size_t icol =0; icol<=irow; ++icol)
+    for (size_t irow = 0; irow<5; ++irow){
+      for (size_t icol =0; icol<=irow; ++icol){
           cov->fillSymmetric(irow,icol,*it++) ;
-    m_perigeeParameters = new Trk::NeutralPerigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);    
-    return *m_perigeeParameters;
-    
+      }
+    }
+    Trk::NeutralPerigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),
+                                             Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov); 
+    m_perigeeParameters.set(tmpPerigeeParameters);
+    return *(m_perigeeParameters.ptr());
   }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 

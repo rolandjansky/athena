@@ -137,7 +137,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute(const EventContext& ctx) cons
   for (; modItr != modEnd; modItr += nChipsPerModule) {
     // Get SN and identifiers (the channel number is serial number+1)
     const unsigned int truncatedSerialNumber{modItr->first - 1};
-    const IdentifierHash& moduleHash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& moduleHash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx)};
     if (not moduleHash.is_valid()) continue;
     // Loop over chips within module
    

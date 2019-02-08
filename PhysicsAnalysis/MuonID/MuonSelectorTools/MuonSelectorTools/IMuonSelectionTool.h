@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IMuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
@@ -10,7 +10,8 @@
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
@@ -34,7 +35,10 @@ namespace CP {
 
    public:
       /// Decide whether the muon in question is a "good muon" or not
-      virtual const Root::TAccept& accept( const xAOD::Muon& mu ) const = 0;
+      virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
+
+      /// Decide whether the muon in question is a "good muon" or not
+      virtual asg::AcceptData accept( const xAOD::Muon& mu ) const = 0;
 
       /// set the passes ID cuts variable of the muon 
       virtual void setPassesIDCuts( xAOD::Muon& mu ) const = 0;

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1CaloTriggerTowerDecoratorAlg.h 728363 2016-03-08 12:45:29Z amazurov $
@@ -9,11 +9,14 @@
 #define TRIGGER_TRIGT1_TRIGT1CALOXAODCALIBTOOLS_DECORATETRIGGERTOWERSALG_H
 
 // Gaudi/Athena include(s):
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Local include(s):
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloxAODOfflineTriggerTowerTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 namespace LVL1 {
 class L1CaloTriggerTowerDecoratorAlg : public AthAlgorithm {
@@ -28,6 +31,8 @@ class L1CaloTriggerTowerDecoratorAlg : public AthAlgorithm {
   virtual StatusCode execute();
 
  private:
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerContainerKey
+  { this, "sgKey_TriggerTowers", LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation, "" };
   std::string m_sgKey_TriggerTowers;
 
   /// Decoration strings (leave empty to disable the decoration)

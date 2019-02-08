@@ -34,7 +34,7 @@
 #include "CLHEP/Vector/Rotation.h"
 
 // For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -123,17 +123,17 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
 
   const GeoMaterial *ConnecMat  = materialManager->getMaterial("LAr::ConnecMat");
   if (!ConnecMat) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::ConnecMat is not found.");
-  //  double rMinPresamplerMother   =1385*GeoModelKernelUnits::mm;
-  double rMinPresamplerMother   =1410*GeoModelKernelUnits::mm;
-  double rMaxPresamplerMother   =1447*GeoModelKernelUnits::mm-0.001*GeoModelKernelUnits::mm;
-  double presamplerMother_length=1549*GeoModelKernelUnits::mm;
-  double Phi_min=0.*GeoModelKernelUnits::deg;
-  double Phi_span=360.*GeoModelKernelUnits::deg;
+  //  double rMinPresamplerMother   =1385*Gaudi::Units::mm;
+  double rMinPresamplerMother   =1410*Gaudi::Units::mm;
+  double rMaxPresamplerMother   =1447*Gaudi::Units::mm-0.001*Gaudi::Units::mm;
+  double presamplerMother_length=1549*Gaudi::Units::mm;
+  double Phi_min=0.*Gaudi::Units::deg;
+  double Phi_span=360.*Gaudi::Units::deg;
   int nbsectors=32;
 
   if (itb==1) {
-     Phi_min=-0.5*GeoModelKernelUnits::deg;
-     Phi_span=23.5*GeoModelKernelUnits::deg;
+     Phi_min=-0.5*Gaudi::Units::deg;
+     Phi_span=23.5*Gaudi::Units::deg;
      nbsectors=2;
   }
 
@@ -209,42 +209,42 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
   // Make a presampler sector:
   if(m_fullGeo){
     // ?    
-    double  epsil = 0.007*GeoModelKernelUnits::mm;
+    double  epsil = 0.007*Gaudi::Units::mm;
 
     //  contraction factor 
-    double  cmm = (1-0.0026)*GeoModelKernelUnits::mm;
+    double  cmm = (1-0.0026)*Gaudi::Units::mm;
  
     double  mod_leng[8];
     for(int ii=0; ii<8; ii++ ) mod_leng[ii]=mod[ii][0]*cmm+2*epsil;
 
     double  mod_heig[8];
-    double larheight = 13*GeoModelKernelUnits::mm;
+    double larheight = 13*Gaudi::Units::mm;
 
-    double prep1_th = 1.*GeoModelKernelUnits::mm;                 // bottom prepreg layer 
-    double prep2_th = 4.5*GeoModelKernelUnits::mm;   
-    double smallLength = 275.6*GeoModelKernelUnits::mm;
+    double prep1_th = 1.*Gaudi::Units::mm;                 // bottom prepreg layer 
+    double prep2_th = 4.5*Gaudi::Units::mm;   
+    double smallLength = 275.6*Gaudi::Units::mm;
     double bigLength = 277.5;
     double prep1_height = (smallLength/2+1.)*cmm;
-    double larheight2 = larheight*cos(-mod[1][3]*GeoModelKernelUnits::deg)*GeoModelKernelUnits::mm;
+    double larheight2 = larheight*cos(-mod[1][3]*Gaudi::Units::deg)*Gaudi::Units::mm;
     mod_heig[0]= (larheight+prep1_th+prep2_th)*cmm+4*epsil;
     mod_heig[1]= (larheight2+prep1_th+prep2_th)*cmm+5.*epsil;
     for(int  i=2; i<8; i++ ) mod_heig[i] = mod_heig[0];
 
-    double shell_th = 0.4*GeoModelKernelUnits::mm; 
-    double rail_th  = 8.6*GeoModelKernelUnits::mm;
-    double mech_clear = 0.5*GeoModelKernelUnits::mm;
+    double shell_th = 0.4*Gaudi::Units::mm; 
+    double rail_th  = 8.6*Gaudi::Units::mm;
+    double mech_clear = 0.5*Gaudi::Units::mm;
 
 
     double  mb_length = 3100.3;
     double  sector_length =  mb_length*cmm +9.*epsil;
-    double  sector_height =  mod_heig[0]+(shell_th+rail_th)*cmm+mech_clear*GeoModelKernelUnits::mm+3*epsil; 
+    double  sector_height =  mod_heig[0]+(shell_th+rail_th)*cmm+mech_clear*Gaudi::Units::mm+3*epsil; 
 
     unsigned int nsectors=32;
     double mod_xm = prep1_height+epsil;
-    double mod_xp = (bigLength/2+1.+prep2_th*tan((360./(2*nsectors))*GeoModelKernelUnits::deg))*cmm;
+    double mod_xp = (bigLength/2+1.+prep2_th*tan((360./(2*nsectors))*Gaudi::Units::deg))*cmm;
     double sect_xm = mod_xm+epsil;
-    double sect_xp = sect_xm+sector_height*tan((360./(2*nsectors))*GeoModelKernelUnits::deg);	    
-    double rpres = 1426.*GeoModelKernelUnits::mm;
+    double sect_xp = sect_xm+sector_height*tan((360./(2*nsectors))*Gaudi::Units::deg);	    
+    double rpres = 1426.*Gaudi::Units::mm;
 
     double zpres = -presamplerMother_length+sector_length/2+epsil;
 
@@ -254,9 +254,9 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
     GeoPhysVol  *sectorPhysVol = new GeoPhysVol(logVol);
 
     GeoGenfun::Variable I;
-    double dphiSector = (360.*GeoModelKernelUnits::deg)/nsectors;
+    double dphiSector = (360.*Gaudi::Units::deg)/nsectors;
     GeoGenfun::GENFUNCTION  f = dphiSector*I+0.5*dphiSector;
-    GeoXF::TRANSFUNCTION t = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(rpres)*GeoTrf::TranslateZ3D(zpres)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg);
+    GeoXF::TRANSFUNCTION t = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(rpres)*GeoTrf::TranslateZ3D(zpres)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg);
     GeoSerialTransformer *st = new GeoSerialTransformer(sectorPhysVol,&t, nbsectors);
 
     m_psPhysicalPos->add(st);
@@ -271,7 +271,7 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
     // recompute length of module 0 and 1 to have avoid overshoorting of first cathode of module 1
     // into module 0  => reduce module 0 length by 0.5*lar_height*tan(tilt angle)
     //                    and increase module 1 length by same amount
-    double delta01 =  0.5*larheight*tan(-mod[1][3]*GeoModelKernelUnits::deg);   // delta01 is >0
+    double delta01 =  0.5*larheight*tan(-mod[1][3]*Gaudi::Units::deg);   // delta01 is >0
     mod_leng[0]=mod_leng[0]-delta01; 
     mod_leng[1]=mod_leng[1]+delta01; 
     GeoPhysVol* pvModule[8];
@@ -303,7 +303,7 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
 
     double shell_leng = mod[0][0]+mod[1][0]+mod[2][0]+mod[3][0]+mod[4][0]+mod[5][0]+mod[6][0]+mod[7][0];
     double prot_y = (shell_leng/2)*cmm;
-    double glX = 0.*GeoModelKernelUnits::mm;
+    double glX = 0.*Gaudi::Units::mm;
     double glY = -sector_length/2+prot_y+epsil;
 
     //-----------------------------A Protection Shell--------------------------//
@@ -379,7 +379,7 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
 
       double connZ = mbZ+(mb_th/2+heightOut/2)*cmm+epsil;
       GeoTransform* xf1 = new GeoTransform(GeoTrf::TranslateZ3D(connZ));
-      GeoTransform* xf2 = new GeoTransform(GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg));
+      GeoTransform* xf2 = new GeoTransform(GeoTrf::RotateX3D(-90*Gaudi::Units::deg));
 
       sectorPhysVol->add(xf1);
       sectorPhysVol->add(xf2);
@@ -413,8 +413,8 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
     double anode_th = 0.330;
     double cathode_th = 0.270;
 
-    double heig_elec1 = (larheight/cos(-mod[0][3]*GeoModelKernelUnits::deg)-0.5*anode_th/cos(mod[0][3]*GeoModelKernelUnits::deg))*cmm;
-    double heig_elec3 = (larheight-0.5*cathode_th/cos(mod[1][3]*GeoModelKernelUnits::deg))*cmm;
+    double heig_elec1 = (larheight/cos(-mod[0][3]*Gaudi::Units::deg)-0.5*anode_th/cos(mod[0][3]*Gaudi::Units::deg))*cmm;
+    double heig_elec3 = (larheight-0.5*cathode_th/cos(mod[1][3]*Gaudi::Units::deg))*cmm;
 
     GeoTrd* catho1 = new GeoTrd(smallLength/2*cmm,bigLength/2*cmm,cathode_th/2*cmm,cathode_th/2*cmm,heig_elec1/2*cmm);
     GeoLogVol* LV_catho1 = new GeoLogVol(basename+"::Cathode1",catho1,CathodeMat);
@@ -492,8 +492,8 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
       GeoGenfun::GENFUNCTION cathoGF = YStartC[i]+I*mod[i][4]*cmm;
       GeoGenfun::GENFUNCTION anoGF = YStartA[i]+I*mod[i][4]*cmm;
 
-      GeoXF::TRANSFUNCTION cathoTF = GeoXF::Pow(GeoTrf::TranslateY3D(1.),cathoGF)*GeoTrf::TranslateZ3D(elec_trans)*GeoTrf::RotateX3D(-mod[i][3]*GeoModelKernelUnits::deg);
-      GeoXF::TRANSFUNCTION anoTF = GeoXF::Pow(GeoTrf::TranslateY3D(1.),anoGF)*GeoTrf::TranslateZ3D(elec_trans)*GeoTrf::RotateX3D(-mod[i][3]*GeoModelKernelUnits::deg);
+      GeoXF::TRANSFUNCTION cathoTF = GeoXF::Pow(GeoTrf::TranslateY3D(1.),cathoGF)*GeoTrf::TranslateZ3D(elec_trans)*GeoTrf::RotateX3D(-mod[i][3]*Gaudi::Units::deg);
+      GeoXF::TRANSFUNCTION anoTF = GeoXF::Pow(GeoTrf::TranslateY3D(1.),anoGF)*GeoTrf::TranslateZ3D(elec_trans)*GeoTrf::RotateX3D(-mod[i][3]*Gaudi::Units::deg);
 
 
       GeoSerialTransformer *cathoST,*anoST;

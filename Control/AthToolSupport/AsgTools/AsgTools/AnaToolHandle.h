@@ -1,15 +1,13 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 #ifndef ASG_TOOLS__ANA_TOOL_HANDLE_H
 #define ASG_TOOLS__ANA_TOOL_HANDLE_H
-
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 // Author: Will Buttinger
 
@@ -24,7 +22,7 @@
 
 namespace asg
 {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
    typedef INamedInterface parentType_t;
    typedef IAsgTool interfaceType_t;
 #else
@@ -99,7 +97,7 @@ namespace asg
     public:
       virtual ~AnaToolProperty () noexcept = default;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       /// \brief apply the property to the given tool in RootCore
       /// \par Guarantee
       ///   basic
@@ -114,7 +112,7 @@ namespace asg
 	const = 0;
 #endif
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       /// \brief store the property in the configuration service in
       /// Athena
       /// \par Guarantee
@@ -171,7 +169,7 @@ namespace asg
     public:
       void setType (std::string type) noexcept;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       /// \brief register the new of the given type as factory
       ///
       /// If this is set, it is used instead of \ref type to allocate
@@ -206,7 +204,7 @@ namespace asg
       setProperty (const std::string& val_name,
 		   const AnaToolHandle<Type>& val_value);
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       /// \copydoc setProperty
     public:
       template<typename Type> StatusCode
@@ -264,7 +262,7 @@ namespace asg
                     AnaToolCleanup& cleanup) const;
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       /// \brief store the properties in the configuration service in
       /// Athena
       /// \par Guarantee
@@ -296,7 +294,7 @@ namespace asg
       std::map<std::string,std::shared_ptr<AnaToolProperty> > m_properties;
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       /// \brief create, configure and initialize the tool (in
       /// RootCore)
       /// \par Guarantee
@@ -310,7 +308,7 @@ namespace asg
 #endif
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       /// \brief allocate the tool
       /// \par Guarantee
       ///   basic
@@ -610,7 +608,7 @@ namespace asg
   public:
     void setType (std::string val_type) noexcept;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief set the value of \ref type and a factory based on the
     /// standard tool constructor
     ///
@@ -855,7 +853,7 @@ namespace asg
   //   ToolHandle<T>& handle () {
   //     return *m_handleUser;};
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   public:
     template<class T2>
     ASG_DEPRECATED ("please use setTypeRegisterNew() instead")
@@ -884,10 +882,6 @@ namespace asg
     /// \brief the value of \ref name
   private:
     std::string m_name;
-
-    /// \brief the name of the parent
-  private:
-    std::string m_parentName;
 
     /// \brief the pointer to the parent
   private:
@@ -990,7 +984,7 @@ namespace asg
   (ASG_SET_ANA_TOOL_TYPE(handle,type), StatusCode (StatusCode::SUCCESS))
 
 /// \brief set the tool type on the tool handle, using new in rootcore
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #define ASG_SET_ANA_TOOL_TYPE(handle,type)	\
   (handle).template setTypeRegisterNew<type> (#type)
 #else

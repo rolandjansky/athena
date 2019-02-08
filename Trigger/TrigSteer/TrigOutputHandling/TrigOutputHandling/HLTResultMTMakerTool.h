@@ -8,15 +8,15 @@
 #include "TrigSteeringEvent/HLTResultMT.h"
 /**
  * @class HLTResultMTMakerTool
- * @brief 
+ * @brief Base class for AlgTools filling information in an HLTResultMT object
  **/
 class HLTResultMTMakerTool : virtual public IAlgTool {
 public: 
   DeclareInterfaceID(HLTResultMTMakerTool, 1, 0);
 
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const = 0;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const = 0; //TODO: pass EventContext& explicitly as argument
   
   virtual ~HLTResultMTMakerTool() override {}
 }; 
 
-#endif // TRIGOUTPUTHANDLING_HLRESULTMTMAKERTOOL_H
+#endif // TRIGOUTPUTHANDLING_HLTRESULTMTMAKERTOOL_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -43,25 +43,31 @@ public:
   
   /**Is the detector element good?*/
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
   /**Get the reason why the wafer is bad (by Identifier)*/ 
   virtual const std::string& details(const Identifier& id) const override;
+  virtual const std::string& details(const Identifier& id, const EventContext& ctx) const override;
   /**Get the reason why the wafer is bad (by IdentifierHash)*/ 
   virtual const std::string& details(const IdentifierHash& id) const override;
+  virtual const std::string& details(const IdentifierHash& id, const EventContext& ctx) const override;
 
   /**Get number flagged as bad (per event)*/
   virtual int numBadIds() const override;
+  virtual int numBadIds(const EventContext& ctx) const override;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
   virtual const SCT_FlaggedCondData* getBadIds() const override;
+  virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const override;
 
  private:
   SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds;
 
   const SCT_ID* m_sctID; //!< ID helper for SCT
 
-  const SCT_FlaggedCondData* getCondData() const;
+  const SCT_FlaggedCondData* getCondData(const EventContext& ctx) const;
 };
 
 #endif // SCT_FlaggedConditionTool_h

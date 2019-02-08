@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
@@ -10,11 +10,6 @@ SCT_ModuleVetoCondData::SCT_ModuleVetoCondData():
   m_badWaferId{},
   m_isFilled{false}
 {
-}
-
-//////////////////////////////////
-// destructor
-SCT_ModuleVetoCondData::~SCT_ModuleVetoCondData() {
 }
 
 //////////////////////////////////

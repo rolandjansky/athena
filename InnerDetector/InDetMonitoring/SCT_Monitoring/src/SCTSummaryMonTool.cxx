@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTSummaryMonTool.cxx
@@ -22,12 +22,6 @@
 SCTSummaryMonTool::SCTSummaryMonTool(const std::string &type, const std::string &name,
                                      const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent) {
   m_numberOfEvents = 0;
-}
-
-// ====================================================================================================
-// ====================================================================================================
-SCTSummaryMonTool::~SCTSummaryMonTool() {
-  // nada
 }
 
 // ====================================================================================================

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,15 +46,42 @@ Trk::Segment(locpars, locerr, crots, fqual,author),
 {
 }
 
+
+// move constructor
+Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg)
+     : Trk::Segment(tseg)
+{
+     m_associatedSurface = tseg.m_associatedSurface;
+     tseg.m_associatedSurface = nullptr;
+     m_globalPosition = tseg.m_globalPosition;
+     tseg.m_globalPosition = nullptr;
+}
+
+
+// move assignment operator
+Trk::TrackSegment& Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg) {
+   if (this!=&tseg){
+     Trk::Segment::operator=(tseg);
+     delete m_associatedSurface;
+     m_associatedSurface = tseg.m_associatedSurface;
+     tseg.m_associatedSurface = nullptr;
+     delete m_globalPosition;
+     m_globalPosition = tseg.m_globalPosition;
+     tseg.m_globalPosition = nullptr;
+   }
+   return (*this);
+ }
+
+
+
 Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
 {
    if (this!=&tseg){
     // assingment operator of base class
-    Trk::Segment::operator=(tseg);
-    delete m_containedMeasBases;
+    Trk::Segment::operator=(tseg); 
     if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) delete m_associatedSurface;
     delete m_globalPosition;
-    m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
+    
     if (tseg.m_associatedSurface){
        // copy only if surface is not one owned by a detector Element
        m_associatedSurface = (!tseg.m_associatedSurface->associatedDetectorElement()) ? tseg.m_associatedSurface->clone() : tseg.m_associatedSurface;
@@ -95,3 +122,4 @@ std::ostream& Trk::TrackSegment::dump( std::ostream& out ) const
     //TODO - out proper output (see MuonSegment) EJWM
     return out;
  }
+

@@ -67,8 +67,18 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
    SCRIPT test/test_egamma_run_data.sh
-   PROPERTIES TIMEOUT 1000
+   PROPERTIES TIMEOUT 1000   
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Payload size after inserting"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_decodeBS )
+atlas_add_test( decodeBS
+   SCRIPT test/test_decodeBS.sh
+   PROPERTIES TIMEOUT 1000
+   EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)"
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_decodeBS
+   DEPENDS egammaRunData
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
@@ -168,6 +178,14 @@ atlas_add_test( NewJO
    EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest )
+atlas_add_test( pebTest
+   SCRIPT test/test_peb.sh
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest
+   EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_"
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )

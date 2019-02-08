@@ -17,26 +17,28 @@
 //
 //*****************************************************************************
 
-#include "TileEvent/TileDigits.h"
-
-#include "AthAllocators/DataPool.h"
-#include "PathResolver/PathResolver.h"
-
 // Tile includes
+#include "TileSimAlgs/TileDigitsFromPulse.h"
+#include "TileEvent/TileDigits.h"
+#include "TileEvent/TileMutableDigitsContainer.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileSimAlgs/TileDigitsFromPulse.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-
-//C++ STL includes
-#include <vector>
 
 //Simulator includes
 #include "TilePulseSimulator/TileSampleGenerator.h"
 #include "TilePulseSimulator/TileSampleBuffer.h"
 #include "TilePulseSimulator/TilePulseShape.h"
+
+// Athena includes
+#include "AthAllocators/DataPool.h"
+#include "PathResolver/PathResolver.h"
+//Random number service
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 //Root includes
 #include "TRandom3.h"
@@ -45,10 +47,9 @@
 #include "TKey.h"
 #include "TF1.h"
 
-//Random number service
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include <CLHEP/Random/Randomize.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//C++ STL includes
+#include <vector>
+
 
 using CLHEP::RandGaussQ;
 using CLHEP::RandFlat;
@@ -67,7 +68,6 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
 	m_rChUnit = TileRawChannelUnit::ADCcounts;
 	m_rChType = TileFragHash::Default;
 
-	declareProperty("OutputContainer", m_outputContainer = "TileDigitsCnt");
 	declareProperty("ImperfectionMean", m_imperfectionMean = 1.01);
 	declareProperty("ImperfectionRms", m_imperfectionRms = 0.02);
 	declareProperty("InTimeAmp", m_inTimeAmp = 300.);
@@ -146,7 +146,12 @@ StatusCode TileDigitsFromPulse::initialize() {
 
         ATH_CHECK(m_tileToolNoiseSample.retrieve());
 
-	ATH_MSG_INFO("output container: " << m_outputContainer);
+        ATH_CHECK(m_digitsContainerKey.initialize());
+        ATH_MSG_INFO("Output digits container: " <<  m_digitsContainerKey.key());
+
+        ATH_CHECK(m_rawChannelContainerKey.initialize());
+	ATH_MSG_INFO("Output raw channel container: " << m_rawChannelContainerKey.key());
+
 
 	//Build pulse shapes
 	m_ps[0]->setPulseShape(m_tileInfo->digitsFullShapeLo());
@@ -219,16 +224,17 @@ StatusCode TileDigitsFromPulse::execute() {
 	ATH_MSG_DEBUG("in execute()");
 
 	// Create new container for digits
-	TileDigitsContainer* outputCont = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
-	if (!outputCont) {
-		ATH_MSG_FATAL("Could not create a new TileDigitsContainer");
-		return StatusCode::FAILURE;
-	}
+	auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                            TileFragHash::Digitizer,
+                                                                            TileRawChannelUnit::ADCcounts,
+                                                                            SG::VIEW_ELEMENTS);
+
+        ATH_CHECK( digitsContainer->status() );
 
 	//Create RawChannel for truth values.
-	TileRawChannel * pRawChannel;
-	TileRawChannelContainer * pRawChannelContainer;
-	pRawChannelContainer = new TileRawChannelContainer(true, m_rChType, m_rChUnit);
+	auto rawChannelContainer = std::make_unique<TileMutableRawChannelContainer>(true, m_rChType, m_rChUnit);
+        ATH_CHECK( rawChannelContainer->status() );
+
 	DataPool < TileDigits > tileDigitsPool(m_tileHWID->adc_hash_max());
 
 	TRandom3 *random = new TRandom3(m_seed); //Randomizer for pulse-shape imperfection
@@ -375,25 +381,25 @@ StatusCode TileDigitsFromPulse::execute() {
 				TileDigits * digit = tileDigitsPool.nextElementPtr();
                                 *digit = TileDigits (m_tileHWID->adc_id(ros, drawer, channel, gain),
                                                      std::move(samples));
-				outputCont->push_back(digit);
 
-				pRawChannel = new TileRawChannel(digit->adc_HWID(), n_inTimeAmp, tFit, m_ootAmp, m_ootOffset);
-				pRawChannelContainer->push_back(pRawChannel);
+				ATH_CHECK( digitsContainer->push_back(digit) );
+
+				auto rawChannel = std::make_unique<TileRawChannel>(digit->adc_HWID(),
+                                                                                   n_inTimeAmp,
+                                                                                   tFit,
+                                                                                   m_ootAmp,
+                                                                                   m_ootOffset);
+
+				ATH_CHECK( rawChannelContainer->push_back(std::move(rawChannel)) );
 			}
 		}
 	}
 
-	CHECK(evtStore()->record(pRawChannelContainer, "TrueAmp", false));
+        SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey);
+        ATH_CHECK( rawChannelCnt.record(std::move(rawChannelContainer)) );
 
-	if (m_outputContainer.size() > 0) {
-
-		CHECK(evtStore()->record(outputCont, m_outputContainer, false));
-
-	} else if (outputCont) {
-
-		ATH_MSG_DEBUG("Deleting filtered digits container");
-		delete outputCont;
-	}
+        SG::WriteHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey);
+        ATH_CHECK( digitsCnt.record(std::move(digitsContainer)) );
 
 	if (!m_simQIE) {
 		delete pdf;

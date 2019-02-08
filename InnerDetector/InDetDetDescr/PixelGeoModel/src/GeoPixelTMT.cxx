@@ -18,7 +18,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <utility> //std::swap
 #include <cmath>
 
@@ -51,7 +51,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   GeoNameTag* tag = new GeoNameTag("TMT");
 
   // this part is unchanged: reading the DB, creating the shapes of the volumes and defining their position
-  GeoTrf::RotateX3D traprot(180.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D traprot(180.*Gaudi::Units::deg);
 
   int halfNModule = m_gmt_mgr->PixelNModule()/2;
 
@@ -129,7 +129,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
         theTMT->add(transPos);
         theTMT->add(tmpPhysVol);
 
-        GeoTransform* transNeg = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,-(zpos+zshift))*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+        GeoTransform* transNeg = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,-(zpos+zshift))*GeoTrf::RotateX3D(180*Gaudi::Units::deg));
         theTMT->add(tag);
         theTMT->add(transNeg);
         theTMT->add(tmpPhysVol);

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,6 +22,7 @@
 
 
 class CaloConstCellContainer;
+class EventContext;
 
 
 /**
@@ -37,8 +38,9 @@ class ICaloConstCellMakerTool
 public:
   DeclareInterfaceID (ICaloConstCellMakerTool, 1, 0);
 
-  // update theCellContainer, fill more cells for example
-  virtual StatusCode process( CaloConstCellContainer* theCellContainer) = 0;
+  // FIXME: Remove default value from second arg.
+  virtual StatusCode process ( CaloConstCellContainer* theCellContainer,
+                               const EventContext& ctx = Gaudi::Hive::currentContext() ) const = 0;
 };
 
 

@@ -21,8 +21,6 @@
 
 #include "DBDataModel/CollectionMetadata.h"
 
-//#include "EventInfo/EventIncident.h"
-
 #include "AthenaPoolUtilities/TagMetadataKey.h"
 
 #include "TPython.h"

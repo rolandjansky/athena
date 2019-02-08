@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -107,10 +107,15 @@ void SelectionCutPt::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutPt::accept(const xAOD::TauJet& xTau)
+void SelectionCutPt::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  m_tTST->m_aAccept.addCut( "Pt",
-                            "Selection of taus according to their transverse momentum" );
+  info.addCut( "Pt",
+               "Selection of taus according to their transverse momentum" );
+}
+//______________________________________________________________________________
+bool SelectionCutPt::accept(const xAOD::TauJet& xTau,
+                            asg::AcceptData& acceptData)
+{
   // save tau pt in GeV
   double pt = xTau.pt() / 1000.;
   // in case of only one entry in vector, run for lower limits
@@ -118,7 +123,7 @@ bool SelectionCutPt::accept(const xAOD::TauJet& xTau)
   {
     if ( pt >= m_tTST->m_vPtRegion.at(0) )
     {
-      m_tTST->m_aAccept.setCutResult( "Pt", true );
+      acceptData.setCutResult( "Pt", true );
       return true;
     }
   }
@@ -127,7 +132,7 @@ bool SelectionCutPt::accept(const xAOD::TauJet& xTau)
   {
     if ( pt >= m_tTST->m_vPtRegion.at(iPtRegion*2) and pt <= m_tTST->m_vPtRegion.at(iPtRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult( "Pt", true );
+      acceptData.setCutResult( "Pt", true );
       return true;
     }
   }
@@ -151,17 +156,22 @@ void SelectionCutAbsEta::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutAbsEta::accept(const xAOD::TauJet& xTau)
+void SelectionCutAbsEta::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "AbsEta",
+               "Selection of taus according to their absolute pseudorapidity" );
+}
+//______________________________________________________________________________
+bool SelectionCutAbsEta::accept(const xAOD::TauJet& xTau,
+                                asg::AcceptData& acceptData)
 {
   // check regions of eta, if tau is in one region then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "AbsEta",
-                            "Selection of taus according to their absolute pseudorapidity" );
   unsigned int iNumEtaRegion = m_tTST->m_vAbsEtaRegion.size()/2;
   for( unsigned int iEtaRegion = 0; iEtaRegion < iNumEtaRegion; iEtaRegion++ )
   {
     if ( std::abs( xTau.eta() ) >= m_tTST->m_vAbsEtaRegion.at(iEtaRegion*2) and std::abs( xTau.eta() ) <= m_tTST->m_vAbsEtaRegion.at(iEtaRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult( "AbsEta", true );
+      acceptData.setCutResult( "AbsEta", true );
       return true;
     }
   }
@@ -185,16 +195,21 @@ void SelectionCutAbsCharge::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutAbsCharge::accept(const xAOD::TauJet& xTau)
+void SelectionCutAbsCharge::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "AbsCharge",
+               "Selection of taus according to their absolute charge" );
+}
+//______________________________________________________________________________
+bool SelectionCutAbsCharge::accept(const xAOD::TauJet& xTau,
+                            asg::AcceptData& acceptData)
 {
   // check charge, if tau has one of the charges requiered then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "AbsCharge",
-                            "Selection of taus according to their absolute charge" );
   for( unsigned int iCharge = 0; iCharge < m_tTST->m_vAbsCharges.size(); iCharge++ )
   {
     if ( std::abs( xTau.charge() ) == m_tTST->m_vAbsCharges.at(iCharge) )
     {
-      m_tTST->m_aAccept.setCutResult( "AbsCharge", true );
+      acceptData.setCutResult( "AbsCharge", true );
       return true;
     }
   }
@@ -218,16 +233,21 @@ void SelectionCutNTracks::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau)
+void SelectionCutNTracks::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "NTrack",
+               "Selection of taus according to their number of associated tracks" );
+}
+//______________________________________________________________________________
+bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau,
+                                 asg::AcceptData& acceptData)
 {
   // check track multiplicity, if tau has one of the number of tracks requiered then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "NTrack",
-                            "Selection of taus according to their number of associated tracks" );
   for( size_t iNumTrack = 0; iNumTrack < m_tTST->m_vNTracks.size(); iNumTrack++ )
   {
     if ( xTau.nTracks() == m_tTST->m_vNTracks.at(iNumTrack) )
     {
-      m_tTST->m_aAccept.setCutResult( "NTrack", true );
+      acceptData.setCutResult( "NTrack", true );
       return true;
     }
   }
@@ -251,18 +271,23 @@ void SelectionCutBDTJetScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHis
 }
 
 //______________________________________________________________________________
-bool SelectionCutBDTJetScore::accept(const xAOD::TauJet& xTau)
+void SelectionCutBDTJetScore::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "JetBDTScore",
+               "Selection of taus according to their JetBDTScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutBDTJetScore::accept(const xAOD::TauJet& xTau,
+                                     asg::AcceptData& acceptData)
 {
   // check JetBDTscore, if tau has a JetBDT score in one of the regions requiered then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "JetBDTScore",
-                            "Selection of taus according to their JetBDTScore" );
   double dJetBDTScore = xTau.discriminant(xAOD::TauJetParameters::BDTJetScore);
   unsigned int iNumJetBDTRegion = m_tTST->m_vJetBDTRegion.size()/2;
   for( unsigned int iJetBDTRegion = 0; iJetBDTRegion < iNumJetBDTRegion; iJetBDTRegion++ )
   {
     if ( dJetBDTScore >= m_tTST->m_vJetBDTRegion.at(iJetBDTRegion*2) and dJetBDTScore <= m_tTST->m_vJetBDTRegion.at(iJetBDTRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult( "JetBDTScore", true );
+      acceptData.setCutResult( "JetBDTScore", true );
       return true;
     }
   }
@@ -303,11 +328,16 @@ void SelectionCutJetIDWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
+void SelectionCutJetIDWP::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "JetIDWP",
+               "Selection of taus according to their JetIDScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
+                                 asg::AcceptData& acceptData)
 {
   // check Jet ID working point, if tau passes JetID working point then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "JetIDWP",
-                            "Selection of taus according to their JetIDScore" );
   bool bPass = false;
   switch (m_tTST->m_iJetIDWP)
   {
@@ -358,7 +388,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
   }
   if (bPass)
   {
-    m_tTST->m_aAccept.setCutResult( "JetIDWP", true );
+    acceptData.setCutResult( "JetIDWP", true );
     return true;
   }
   m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau JetBDTScore: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScore) << endmsg;
@@ -388,11 +418,16 @@ void SelectionCutBDTEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHis
 }
 
 //______________________________________________________________________________
-bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
+void SelectionCutBDTEleScore::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "EleBDTScore",
+               "Selection of taus according to their EleBDTScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
+                                     asg::AcceptData& acceptData)
 {
   // check EleBDTscore, if tau has a EleBDT score in one of the regions requiered then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "EleBDTScore",
-                            "Selection of taus according to their EleBDTScore" );
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
   unsigned int iNumEleBDTRegion = m_tTST->m_vEleBDTRegion.size()/2;
@@ -400,7 +435,7 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
   {
     if ( fEleBDTScore >= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2) and fEleBDTScore <= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult("EleBDTScore", true );
+      acceptData.setCutResult("EleBDTScore", true );
       return true;
     }
   }
@@ -448,11 +483,16 @@ void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
+void SelectionCutEleBDTWP::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "EleBDTWP",
+               "Selection of taus according to their EleBDTScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau,
+                                  asg::AcceptData& acceptData)
 {
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "EleBDTWP",
-                            "Selection of taus according to their EleBDTScore" );
 
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
@@ -478,7 +518,7 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   }
   if (bPass)
   {
-    m_tTST->m_aAccept.setCutResult( "EleBDTWP", true );
+    acceptData.setCutResult( "EleBDTWP", true );
     return true;
   }
   m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDT requirement, tau EleBDTScore: " << fEleBDTScore << endmsg;
@@ -515,20 +555,25 @@ void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
+void SelectionCutEleOLR::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  m_tTST->m_aAccept.addCut( "EleOLR",
-                            "Selection of taus according to the LH score of a matched electron" );
+  info.addCut( "EleOLR",
+               "Selection of taus according to the LH score of a matched electron" );
+}
+//______________________________________________________________________________
+bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau,
+                                asg::AcceptData& acceptData)
+{
 
   if (!m_tTST->m_bEleOLR)
   {
-    m_tTST->m_aAccept.setCutResult( "EleOLR", true );
+    acceptData.setCutResult( "EleOLR", true );
     return true;
   }
 
   if (getEvetoPass(xTau))
   {
-    m_tTST->m_aAccept.setCutResult( "EleOLR", true );
+    acceptData.setCutResult( "EleOLR", true );
     return true;
   }
 
@@ -584,20 +629,25 @@ void SelectionCutMuonVeto::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutMuonVeto::accept(const xAOD::TauJet& xTau)
+void SelectionCutMuonVeto::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "MuonVeto",
+               "Selection of taus according to their MuonVeto" );
+}
+//______________________________________________________________________________
+bool SelectionCutMuonVeto::accept(const xAOD::TauJet& xTau,
+                                  asg::AcceptData& acceptData)
 {
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
-  m_tTST->m_aAccept.addCut( "MuonVeto",
-                            "Selection of taus according to their MuonVeto" );
   if (!m_tTST->m_bMuonVeto)
   {
-    m_tTST->m_aAccept.setCutResult( "MuonVeto", true );
+    acceptData.setCutResult( "MuonVeto", true );
     return true;
   }
 
   if (!xTau.isTau(xAOD::TauJetParameters::MuonVeto ))
   {
-    m_tTST->m_aAccept.setCutResult( "MuonVeto", true );
+    acceptData.setCutResult( "MuonVeto", true );
     return true;
   }
   m_tTST->msg() << MSG::VERBOSE << "Tau failed MuonVeto requirement" << endmsg;
@@ -632,13 +682,18 @@ void SelectionCutMuonOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau)
+void SelectionCutMuonOLR::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  m_tTST->m_aAccept.addCut( "MuonOLR",
-                            "Selection of taus according to their MuonOLR" );
+  info.addCut( "MuonOLR",
+               "Selection of taus according to their MuonOLR" );
+}
+//______________________________________________________________________________
+bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau,
+                                 asg::AcceptData& acceptData)
+{
   if (!m_tTST->m_bMuonOLR)
   {
-    m_tTST->m_aAccept.setCutResult( "MuonOLR", true );
+    acceptData.setCutResult( "MuonOLR", true );
     return true;
   }
   // MuonOLR : removing tau overlapped with muon satisfying pt>2GeV and not calo-tagged
@@ -660,7 +715,7 @@ bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau)
   }
   if(m_bTauMuonOLR == true)
   {
-    m_tTST->m_aAccept.setCutResult( "MuonOLR", true );
+    acceptData.setCutResult( "MuonOLR", true );
     return true;
   }
 

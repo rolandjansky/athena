@@ -10,10 +10,6 @@
   Converted to base class JetElementKeyBase by Alan Watson, 20/01/06
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
 #ifndef  TRIGGERSPACE
 // running in Athena
 #include "TrigT1CaloUtils/JetElementKeyBase.h"

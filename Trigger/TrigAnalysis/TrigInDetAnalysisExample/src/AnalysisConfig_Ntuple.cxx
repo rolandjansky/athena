@@ -1,12 +1,10 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    AnalysisConfig_Ntuple.cxx         
-//   
-//
-//   @author M.Sutton
-// 
+/**
+ **     @file    AnalysisConfig_Ntuple.cxx
+ **
+ **     @author  mark sutton
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <cstdio>
@@ -76,7 +74,7 @@ std::string date() {
   time_t t;
   time(&t);
   std::string mtime = ctime(&t);
-  mtime.erase( std::remove( mtime.begin(), mtime.end(), '\n'), mtime.end() );
+  mtime.erase( std::remove(mtime.begin(), mtime.end(), '\n'), mtime.end() );
   return mtime;
 }
 
@@ -667,7 +665,6 @@ void AnalysisConfig_Ntuple::loop() {
 		/// of "processes" with *no* particles in them for some 
 		/// reason, whoever programed this f**cked up structure 
 		/// that needs this sort of fannying around to navigate 
-		/// through is a complete arse
 
 		//      DataVector<HepMC::GenEvent>::iterator 
 		McEventCollection::const_iterator evitr(mcevent->begin());
@@ -1101,6 +1098,7 @@ void AnalysisConfig_Ntuple::loop() {
 	/// new tau selection 
 	std::string TauRef[4] = { "", "Tight", "Medium", "Loose" };
 	
+
 	for ( size_t itau=0 ; itau<m_tauType.size() ; itau++ ) {
 	  /// hmm, if we stored the types as a map it would be more 
 	  /// straightforward than having to stick all this in a loop
@@ -1130,7 +1128,6 @@ void AnalysisConfig_Ntuple::loop() {
 	    m_event->addChain( tchain );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorRef.tracks());
-
 	    m_event->back().back().addObjects( tauvec ) ; 
 
 	    // leave this in util fully validated ...

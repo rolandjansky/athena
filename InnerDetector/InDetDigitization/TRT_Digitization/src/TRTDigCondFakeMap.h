@@ -7,8 +7,6 @@
 
 #include "TRTDigCondBase.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "GaudiKernel/ServiceHandle.h"
-class IAtRndmGenSvc;
 
 /**
  * "Fake" straw map until "real" map is known.
@@ -19,7 +17,6 @@ public:
   /** Constructor */
   TRTDigCondFakeMap( const TRTDigSettings*,
 		     const InDetDD::TRT_DetectorManager*,
-		     ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 		     const TRT_ID* trt_id,
 		     int UseGasMix,
 		     ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
@@ -28,13 +25,12 @@ public:
 protected:
 
   void setStrawStateInfo(Identifier& TRT_Identifier,
-			  const double& strawlength,
-			  double& noiselevel,
-			  double& relative_noiseamplitude );
+                         const double& strawlength,
+                         double& noiselevel,
+                         double& relative_noiseamplitude,
+                         CLHEP::HepRandomEngine *rndmEngine);
 
 private:
-
-  CLHEP::HepRandomEngine* m_pHRengine;
 
   float m_average_noiselevel; /**< Average noise level     */
 

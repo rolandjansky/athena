@@ -13,7 +13,6 @@
 #include "GeoModelKernel/GeoNameTag.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -23,6 +22,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // For the database:
 
@@ -103,14 +103,14 @@ GeoFullPhysVol* EndcapPresamplerConstruction::Envelope()
   ///////////////////////////////////////////////////////////////////
   // LAr Endcap Presampler GEOMETRY
   ///////////////////////////////////////////////////////////////////
-  double Rmin = 1231.74*GeoModelKernelUnits::mm;
-  double Rmax = 1701.98*GeoModelKernelUnits::mm;
-  double HalfZ = ((*presamplerPosition)[0]->getDouble("TCK")/2.)*GeoModelKernelUnits::cm;  
+  double Rmin = 1231.74*Gaudi::Units::mm;
+  double Rmax = 1701.98*Gaudi::Units::mm;
+  double HalfZ = ((*presamplerPosition)[0]->getDouble("TCK")/2.)*Gaudi::Units::cm;  
 
 
   std::string name = "LAr::Endcap::Presampler::LiquidArgon";
 
-  double phi_size = 360.*GeoModelKernelUnits::deg;
+  double phi_size = 360.*Gaudi::Units::deg;
   double start_phi = 0.;
   
   if( m_isModule ){

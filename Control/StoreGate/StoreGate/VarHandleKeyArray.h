@@ -28,7 +28,7 @@ namespace SG {
   class VarHandleKeyArray {
   public:
     VarHandleKeyArray(){};
-    virtual ~VarHandleKeyArray(){};
+    virtual ~VarHandleKeyArray() = default;
     virtual StatusCode assign(const std::vector<std::string>& vs)=0;
     virtual std::string toString() const = 0;
     virtual Gaudi::DataHandle::Mode mode() const = 0;

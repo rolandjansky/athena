@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_CONFIGURATIONCONDALG
 #define SCT_CONFIGURATIONCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/Identifier.h"
@@ -25,24 +25,24 @@
 class EventIDRange;
 class SCT_ID;
 
-class SCT_ConfigurationCondAlg : public AthAlgorithm 
+class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ConfigurationCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};
 
-  StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle);
-  StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule);
-  StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur);
+  StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle, const EventContext& ctx) const;
+  StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule, const EventContext& ctx) const;
+  StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur, const EventContext& ctx) const;
   Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
-                        const InDetDD::SiDetectorElementCollection* elements) const;
+                        const InDetDD::SiDetectorElementCollection* elements, const EventContext& ctx) const;
 
   static const std::string s_coolChannelFolderName;
   static const std::string s_coolChannelFolderName2;

@@ -26,7 +26,7 @@ namespace xAOD {
                                       setTruthParticleLinks )
 
    /// Accessor for the truth particles
-   static SG::AuxElement::Accessor< TruthEventBase_v1::TruthParticleLinks_t >
+   static const SG::AuxElement::Accessor< TruthEventBase_v1::TruthParticleLinks_t >
       truthParticleLinksAcc( "truthParticleLinks" );
 
    size_t TruthEventBase_v1::nTruthParticles() const {
@@ -88,7 +88,7 @@ namespace xAOD {
                                       setTruthVertexLinks )
 
    /// Accessor for the truth vertices
-   static SG::AuxElement::Accessor< TruthEventBase_v1::TruthVertexLinks_t >
+   static const SG::AuxElement::Accessor< TruthEventBase_v1::TruthVertexLinks_t >
       truthVertexLinksAcc( "truthVertexLinks" );
 
    size_t TruthEventBase_v1::nTruthVertices() const {

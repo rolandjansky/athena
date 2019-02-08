@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEMECXTALKTOYMODEL_H
@@ -16,9 +16,8 @@ class StoreGateSvc;
 class CaloDetDescrManager;
 
 
-class TBEMECXTalkToyModel: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class TBEMECXTalkToyModel
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:    
   TBEMECXTalkToyModel(const std::string& type, 
@@ -27,7 +26,8 @@ public:
 
   virtual StatusCode initialize() override;
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 
  private:
@@ -46,7 +46,7 @@ public:
   float m_xtalkScaleEta;
   float m_xtalkScaleEMEC2Eta;
 
-  StatusCode processOnCellIterators(const CaloCellContainer::iterator  &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd );
+  StatusCode processOnCellIterators(const CaloCellContainer::iterator  &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd ) const;
   
 
 };

@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlgT.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -77,15 +75,15 @@ StatusCode AlgT::execute() {
 
   ATH_MSG_DEBUG("execute " << name());
 
-  SG::ReadHandle<EventInfo> evt(m_evt);
-  ATH_MSG_INFO("   EventInfo:  r: " << evt->event_ID()->run_number()
-               << " e: " << evt->event_ID()->event_number() );
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
+               << " e: " << evt->eventNumber() );
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
-                                       evt->event_ID()->event_number()) ) )
+                                       evt->eventNumber()) ) )
              );
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 

@@ -49,24 +49,6 @@ def BasicTRTDigitizationTool(name, **kwargs):
        kwargs.setdefault("Override_jitterTimeOffset", 0.)
        kwargs.setdefault("Override_timeCorrection", 0)
 
-    #choose random number service
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_DigitizationTool"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_DigitizationTool", 123456, 345123 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ElectronicsNoise"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_ElectronicsNoise", 123, 345 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_Noise"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_Noise", 1234, 3456 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ThresholdFluctuations"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ProcessStraw"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_ProcessStraw", 123456, 345678 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_PAI"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_PAI", 12345678, 34567890 )
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_FakeConditions"):
-        digitizationFlags.rndmSeedList.addSeed( "TRT_FakeConditions", 123456789, 345678901 )
-    #This last one should, however, never be changed (unless you want a different layout of noisy channels etc.):
-
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing",  TRT_LastXing())

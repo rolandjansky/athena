@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IAsgSelectionTool.h 
@@ -18,7 +18,8 @@
 #include "AsgTools/IAsgTool.h"
 
 // Include the return object
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 // Forward declaration
 namespace xAOD{
@@ -26,11 +27,7 @@ namespace xAOD{
 }
 
 
-//static const InterfaceID IID_IAsgSelectionTool("IAsgSelectionTool", 1, 0);
-
-// this ought to be deprecated, but we have so many clients, that we
-// are not doing it yet.
-class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
+class  IAsgSelectionTool
   : virtual public asg::IAsgTool
 { 
   /// Declare the interface ID for this pure-virtual interface class to the Athena framework
@@ -46,15 +43,12 @@ class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
-  /** Method to get the plain TAccept.
-      This is needed so that one can already get the TAccept 
-      and query what cuts are defined before the first object 
-      is passed to the tool. */
-  virtual const Root::TAccept& getTAccept( ) const = 0;
+  /** Method to get the AcceptInfo to query what cuts are defined. */
+  virtual const asg::AcceptInfo& getAcceptInfo( ) const = 0;
 
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* /*part*/ ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::IParticle* /*part*/ ) const = 0;
 
 
 }; 

@@ -25,7 +25,7 @@ size_t page_protect(T* addr, int prot) {
   int rc=mprotect(pageAddr, lProtected, prot);
   if (rc) printf("page_protect WARNING: mprotect heap failed for address %p\n", (void*)addr);
 #ifdef DEBUG
-  else printf("page_protect DEBUG: set protection @%i for range @%lx - @%lx containing addr=%p\n",
+  else printf("page_protect DEBUG: set protection @%i for range @%lx - @%zx containing addr=%p\n",
 	      prot,(long unsigned int)page_address(addr),(long unsigned int)addr+sizeof(T), (void*)addr);
 #endif
   return (rc == 0 ? lProtected : 0);

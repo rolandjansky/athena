@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 #define SCT_TdaqEnabledTestAlg_H 
 
 //Athena
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 //Gaudi
@@ -24,13 +24,13 @@
 #include <string>
 
 ///Example algorithm to show calling the SCT_ModuleVeto to exclude bad components
-class SCT_TdaqEnabledTestAlg : public AthAlgorithm {
+class SCT_TdaqEnabledTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLocator *pSvcLocator);
   virtual ~SCT_TdaqEnabledTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

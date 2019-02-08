@@ -14,7 +14,6 @@
 
 #include <string>
 #include <vector>
-
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -80,8 +79,8 @@ protected:
 
   /// Reference to the Event Selector
   IEvtSelector*     m_evtSelector;
-  /// Gaudi event selector Context (may be used as a cursor by the evt selector)
-  EvtContext*       m_evtContext;
+  /// Gaudi EventSelector Context (may be used as a cursor by the evt selector)
+  IEvtSelector::Context* m_evtSelCtxt;
   /// @property Event selector Name. If empty string (default) take value from ApplicationMgr
   StringProperty    m_evtsel;
 
@@ -149,8 +148,8 @@ protected:
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms(const EventContext&);
 
-  /// Fire BeginRun EventIncident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms(const EventInfo&);
+  /// Fire BeginRun Incident, run the algorithms beginRun hook
+  StatusCode beginRunAlgorithms();
 
   /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
   StatusCode endRunAlgorithms();

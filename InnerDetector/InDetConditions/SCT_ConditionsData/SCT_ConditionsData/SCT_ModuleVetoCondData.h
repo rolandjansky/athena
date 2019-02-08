@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,7 @@ public:
   /// constructor
   SCT_ModuleVetoCondData();
   /// destructor
-  virtual ~SCT_ModuleVetoCondData();
+  virtual ~SCT_ModuleVetoCondData() = default;
   /// set a bad wafer ID
   bool setBadWaferId(const Identifier waferId);
   /// check if a wafer ID is bad or not

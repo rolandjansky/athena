@@ -1,65 +1,59 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-/**
- * @file TrigSORFromPtreeHelper.h
- * @author Ricardo Abreu
- *
- * @brief Helper class to retrieve the Start Of Run parameters from the
- * prepareForRun ptree and put them into the detector store with whole-run
- * validity. This class replaces it's old analogous TrigSORFromISHelper.
- */
-
 #ifndef TRIGSORFROMPTREEHELPER_H_
 #define TRIGSORFROMPTREEHELPER_H_
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/StatusCode.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <boost/property_tree/ptree.hpp>
-#include <utility>
 
 class CondAttrListCollection;
+class IMessageSvc;
 
-////////////////////////////////////////////////////////////////////////////////
-class TrigSORFromPtreeHelper
-{
+/**
+ * @brief Helper class for Start Of Run (SOR) record
+ * @author Ricardo Abreu
+ *
+ * Helper class to retrieve the Start Of Run parameters from the
+ * prepareForRun ptree and put them into the detector store with whole-run
+ * validity.
+ */
+class TrigSORFromPtreeHelper : public AthMessaging {
 public:
   typedef CondAttrListCollection SOR;
 
-  explicit TrigSORFromPtreeHelper(const MsgStream & log);
+  /**
+   * Create the SOR helper
+   * @params msgSvc    Pointer to MessageSvc
+   * @params detStore  Handle to DetectorStore
+   * @params sorpath   COOL folder path of SOR record (e.g. /TDAQ/RunCtrl/SOR_Params)
+   */
+  TrigSORFromPtreeHelper(IMessageSvc* msgSvc, const ServiceHandle<StoreGateSvc>& detStore, const std::string& sorpath);
 
-  /*
+  /**
    * Fill SOR record in Detector Store, reusing if present or creating new one
    * otherwise. SOR contents filled according to what is specified by rparams.
    * Validity of SOR set to this run
    */
-  const SOR * fillSOR(const boost::property_tree::ptree & rparams, const EventContext& ctx) const;
+  StatusCode fillSOR(const boost::property_tree::ptree& rparams, const EventContext& ctx) const;
+
+  /**
+   * Create an EventIDBase filled with the value from rparams
+   */
+  EventIDBase eventID(const boost::property_tree::ptree& rparams) const;
 
 private:
-  typedef ServiceHandle<StoreGateSvc> SG;
-  typedef boost::property_tree::ptree PT;
+  StatusCode createSOR(const boost::property_tree::ptree& rparams) const;
+  coral::AttributeList getAttrList(const boost::property_tree::ptree& rparams) const;
+  StatusCode setIOVRange(IOVRange& iovRange) const;
+  StatusCode updateProxy(SOR* sor) const;
 
-  SOR * getSOR(const SG & dstore) const;
-  coral::AttributeList getAttrList(const PT & rparams) const;
-  std::pair<uint64_t, uint64_t> getDetMask(const PT & rparams) const;
-
-  StatusCode fillSor(const PT & rparams, SOR * sor) const;
-  StatusCode setIOVRange(IOVRange & iovRange) const;
-  StatusCode updateProxy(const SG & dstore, SOR * sor) const;
-
-  mutable MsgStream m_log;
+  ServiceHandle<StoreGateSvc> m_detStore;
+  std::string m_sorpath;
 };
-
-////////////////////////////////////////////////////////////////////////////////
-inline TrigSORFromPtreeHelper::
-TrigSORFromPtreeHelper(const MsgStream & log)
-  : m_log(log)
-{
-}
-
 
 #endif /* TRIGSORFROMPTREEHELPER_H_ */

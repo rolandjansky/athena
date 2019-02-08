@@ -22,6 +22,12 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "LWHists/TProfile_LW.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "InDetRawData/InDetTimeCollection.h"
+#include "TileEvent/TileDigitsContainer.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
+#include "MuonRDO/RpcPadContainer.h"
 
 namespace Trk {
    //REL18 class IMagneticFieldTool; 
@@ -40,7 +46,7 @@ class DQTDetSynchMonTool: public DataQualityFatherMonTool
 
   ~DQTDetSynchMonTool();
 
-  //StatusCode initialize();
+  StatusCode initialize();
     
   StatusCode bookHistograms( );
   //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
@@ -254,7 +260,22 @@ private:
   bool m_printedErrorLAr;
   bool m_printedErrorTile;
   bool m_printedErrorTileCtr;
-  bool m_printedErrorRPC;     
+  bool m_printedErrorRPC;
+
+  // detector indices
+  //std::map<int, std::string>
+  
+  // storegate keys
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { "EventInfo" };
+  SG::ReadHandleKeyArray<InDetTimeCollection> m_InDetTimeCollectionKeys
+    { "TRT_BCID", "SCT_BCID", "PixelBCID", "TRT_LVL1ID", "SCT_LVL1ID", "PixelLVL1ID" } ;
+  SG::ReadHandleKey<LArFebHeaderContainer> m_LArFebHeaderContainerKey
+    { "LArFebHeader" };
+  SG::ReadHandleKey<TileDigitsContainer> m_TileDigitsContainerKey
+    { "TileDigitsFlt" };
+  SG::ReadHandleKey<RpcPadContainer> m_RpcPadContainerKey
+    { "RPCPAD" };
 };
 
 #endif

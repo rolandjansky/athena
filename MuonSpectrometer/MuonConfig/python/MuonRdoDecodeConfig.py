@@ -1,8 +1,8 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
@@ -148,7 +148,8 @@ def CscClusterBuildCfg(flags, forTrigger=False):
 
 
 # This function runs the decoding on a data file
-def muonRdoDecodeTestData():
+def muonRdoDecodeTestData( forTrigger = False ):
+    # Add a flag, forTrigger, which will initially put the ByteStreamDecodeCfg code into "Cached Container" mode
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
@@ -180,18 +181,25 @@ def muonRdoDecodeTestData():
     cfg.merge( rpcdecodingAcc )
     cfg.addEventAlgo( rpcdecodingAlg )
 
+    # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcdecodingAcc, tgcdecodingAlg = TgcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( tgcdecodingAcc )
     cfg.addEventAlgo( tgcdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags ) 
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
+    # Put into a verbose logging mode to check the caching
+    if forTrigger:
+        mdtdecodingAlg.ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
+    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
+    # Put into a verbose logging mode to check the caching
+    if forTrigger:
+        cscdecodingAlg.ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
     cfg.addEventAlgo( cscdecodingAlg )
 
@@ -225,9 +233,14 @@ def muonRdoDecodeTestData():
     log.info('Print Config')
     cfg.printConfig(withDetails=True)
 
+    if forTrigger:
+        pklName = 'MuonRdoDecode_Cache.pkl'
+    else:
+        pklName = 'MuonRdoDecode.pkl'
+
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonRdoDecode.pkl','w') as f:
+    with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
 

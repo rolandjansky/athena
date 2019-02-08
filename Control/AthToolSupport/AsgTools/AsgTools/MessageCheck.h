@@ -1,15 +1,13 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 #ifndef ASG_TOOLS__MESSAGE_CHECK_H
 #define ASG_TOOLS__MESSAGE_CHECK_H
-
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 /// \file MessageCheck.h
 /// \brief macros for messaging and checking status codes
@@ -79,7 +77,7 @@
 #include <type_traits>
 
 #include <xAODRootAccess/tools/TReturnCode.h>
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <AsgTools/MsgStream.h>
 #else
 #include "AthenaBaseComps/AthMessaging.h"
@@ -118,7 +116,7 @@
   void setMsgLevel (MSG::Level level); }
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #define ASG_TOOLS_MSG_STREAM(NAME,TITLE)	\
   static MsgStream NAME (TITLE);
 #else
@@ -254,7 +252,7 @@ namespace asg
 
   namespace detail
   {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// Get the Athena message service
     /// TODO: Look into using AthenaKernel/MsgStreamMember.h
     IMessageSvc* getMessageSvcAthena();

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
@@ -53,23 +53,24 @@ class ZdcModuleGetter ( Configured ) :
 
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
-        mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
+        #mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
         #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
-        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
+        zdcAnalysisTool = CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
         
-        ToolSvc.ZdcAnalysisTool.FixTau1=True
-        ToolSvc.ZdcAnalysisTool.FixTau2=True
-        ToolSvc.ZdcAnalysisTool.Tau1=5
-        ToolSvc.ZdcAnalysisTool.Tau2=21
-        ToolSvc.ZdcAnalysisTool.Peak2ndDerivThresh=15
+        zdcAnalysisTool.FixTau1=True
+        zdcAnalysisTool.FixTau2=True
+        zdcAnalysisTool.Tau1=5
+        zdcAnalysisTool.Tau2=21
+        zdcAnalysisTool.Peak2ndDerivThresh=15
 
         try:
             from ZdcRec.ZdcRecConf import ZdcRecV3
             mlog.info("got ZdcRecV2")
-            self._zdcRecHandle = ZdcRecV3()
+            self._zdcRecHandle = ZdcRecV3(ZdcAnalysisTool = zdcAnalysisTool)
         except Exception:
             mlog.error("could not get handle to ZdcRecV3")
-            print traceback.format_exc()
+            import traceback
+            traceback.print_exc()
             return False
 
 

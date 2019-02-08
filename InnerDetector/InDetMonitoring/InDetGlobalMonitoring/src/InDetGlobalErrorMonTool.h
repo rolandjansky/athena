@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGlobalErrorMonTool_H
@@ -17,7 +17,6 @@
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 namespace InDetDD

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// **********************************************************************
-// $Id: AthenaMonManager.cxx,v 1.36 2009-05-08 09:50:05 sschaetz Exp $
-// **********************************************************************
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
@@ -32,7 +28,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 
 #include "SGAudCore/ISGAudSvc.h"
 
@@ -107,6 +102,9 @@ public:
     bool m_forkedProcess;
     pid_t m_lastPID;
 
+    // Retrieval key
+    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+      { "EventInfo" };
 
     //NB: The LW hist leak checker is now also looking for
     //inappropriate usage of MonGroup copy constructors (temporary
@@ -394,6 +392,8 @@ initialize()
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::initialize():" << endmsg;
 
+    ATH_CHECK( m_d->m_EventInfoKey.initialize() );
+
     if (Imp::s_svcLocator->service("SGAudSvc", m_d->m_sgAudSvc, false/*do not create*/).isFailure())
         m_d->m_sgAudSvc=0;
 
@@ -556,40 +556,6 @@ execute()
         if (m_d->m_doResourceMon)
             bench_tmp.startMeasurement();
         if( tool->preSelector() ) {
-            //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> The tool is preSelector" << endmsg;
-
-            // Uncomment to test luminosity tools
-            // I don't know where exactly it must be placed exactly
-            // Yuriy - start
-            /*
-            IMonitorToolBase* mon = tool.operator->();
-            ManagedMonitorToolBase* managed = dynamic_cast<ManagedMonitorToolBase*>( mon );
-
-            float avgmu = managed->lbAverageInteractionsPerCrossing();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average mu: " << avgmu << endmsg;
-
-            float instmu = managed->lbInteractionsPerCrossing();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous mu: " << instmu << endmsg;
-
-            float avglumi = managed->lbAverageLuminosity();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average lumi: " << avglumi << endmsg;
-
-            float instlumi = managed->lbLuminosityPerBCID();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous lumi: " << instlumi << endmsg;
-
-            double duration = managed->lbDuration();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock duration: " << duration << endmsg;
-
-            double live = managed->livefractionPerBCID();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiinst livefraction: " << live << endmsg;
-
-            float lumilive = managed->lbAverageLivefraction();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiavg livefraction: " << lumilive << endmsg;
-
-            double lumiweight = managed->lbLumiWeight();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock weight: " << lumiweight << endmsg;
-            */
-            // Yuriy - end
 
             sc = tool->fillHists();
 
@@ -980,17 +946,13 @@ AthenaMonManager::
 setEventInfo()
 {
     if( m_d->m_isPrimaryManager ) {
-        const DataHandle<EventInfo> evt;
-        const DataHandle<EventInfo> evtEnd;
-        StatusCode sc = evtStore()->retrieve( evt, evtEnd );
+        SG::ReadHandle<xAOD::EventInfo> evt(m_d->m_EventInfoKey);
+	if (! evt.isValid()) {
+	  ATH_MSG_ERROR("!! Unable to retrieve Event from StoreGate !!");
+	}
 
-        if( !sc.isSuccess() ) {
-            msg(MSG::ERROR) << "!! Unable to retrieve Event from StoreGate !!" << endmsg;
-            return;
-        }
-
-        Imp::s_run = evt->event_ID()->run_number();
-        Imp::s_lumiBlock = evt->event_ID()->lumi_block();
+        Imp::s_run = evt->runNumber();
+        Imp::s_lumiBlock = evt->lumiBlock();
 
         if (msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "          --> setEventInfo: run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;

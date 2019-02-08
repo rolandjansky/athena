@@ -1,6 +1,6 @@
 
 # Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.6 )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
@@ -11,14 +11,18 @@ set( ATHDATAQUALITY_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "02-04-00" )
-set( TDAQ-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
+set( TDAQ-COMMON_VERSION "02-09-00" CACHE STRING
+   "The version of tdaq-common to use for the build" )
+set( TDAQ-COMMON_ATROOT
+   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
+   CACHE PATH "The directory to pick up tdaq-common from" )
 
 # Set the version of dqm-common to use for the build:
-set( DQM-COMMON_VERSION "01-04-00" )
-set( DQM-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
+set( DQM-COMMON_VERSION "01-09-00" CACHE STRING
+   "The version of dqm-common to use for the build" )
+set( DQM-COMMON_ATROOT
+   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}"
+   CACHE PATH "The directory to pick up dqm-common from" )
 
 # Pick up the AtlasCMake code:
 find_package( AtlasCMake REQUIRED )
@@ -26,7 +30,7 @@ find_package( AtlasCMake REQUIRED )
 # Build the project against LCG:
 set( LCG_VERSION_POSTFIX ""
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 91
+set( LCG_VERSION_NUMBER 94
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
@@ -52,11 +56,12 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir} "\${Athena_DIR}/../../../.." )
+   list( APPEND _replacements ${_buildDir}
+      "\${AthDataQuality_DIR}/../../../.." )
 endif()
 if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
    list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${Athena_VERSION}" )
+      "\${AthDataQuality_VERSION}" )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}
@@ -72,13 +77,13 @@ install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
 
 # Configure and install the post-configuration file:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake

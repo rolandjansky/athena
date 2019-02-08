@@ -29,13 +29,13 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( SlowMuon_v1, int, rpcBetaDof )
   
   void SlowMuon_v1::setRpcInfo(float rpcBetaAvg, float rpcBetaRms, float rpcBetaChi2, int rpcBetaDof) {
-    static Accessor< float > acc1( "rpcBetaAvg" );
+    static const Accessor< float > acc1( "rpcBetaAvg" );
     acc1( *this ) = rpcBetaAvg;
-    static Accessor< float > acc2( "rpcBetaRms" );
+    static const Accessor< float > acc2( "rpcBetaRms" );
     acc2( *this ) = rpcBetaRms;
-    static Accessor< float > acc3( "rpcBetaChi2" );
+    static const Accessor< float > acc3( "rpcBetaChi2" );
     acc3( *this ) = rpcBetaChi2;
-    static Accessor< int > acc4( "rpcBetaDof" );
+    static const Accessor< int > acc4( "rpcBetaDof" );
     acc4( *this ) = rpcBetaDof;
   }
 
@@ -45,13 +45,13 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( SlowMuon_v1, int, mdtBetaDof )
   
   void SlowMuon_v1::setMdtInfo(float mdtBetaAvg, float mdtBetaRms, float mdtBetaChi2, int mdtBetaDof) {
-    static Accessor< float > acc1( "mdtBetaAvg" );
+    static const Accessor< float > acc1( "mdtBetaAvg" );
     acc1( *this ) = mdtBetaAvg;
-    static Accessor< float > acc2( "mdtBetaRms" );
+    static const Accessor< float > acc2( "mdtBetaRms" );
     acc2( *this ) = mdtBetaRms;
-    static Accessor< float > acc3( "mdtBetaChi2" );
+    static const Accessor< float > acc3( "mdtBetaChi2" );
     acc3( *this ) = mdtBetaChi2;
-    static Accessor< int > acc4( "mdtBetaDof" );
+    static const Accessor< int > acc4( "mdtBetaDof" );
     acc4( *this ) = mdtBetaDof;
   }
 
@@ -61,13 +61,13 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( SlowMuon_v1, int, caloBetaDof )
   
   void SlowMuon_v1::setCaloInfo(float caloBetaAvg, float caloBetaRms, float caloBetaChi2, int caloBetaDof) {
-    static Accessor< float > acc1( "caloBetaAvg" );
+    static const Accessor< float > acc1( "caloBetaAvg" );
     acc1( *this ) = caloBetaAvg;
-    static Accessor< float > acc2( "caloBetaRms" );
+    static const Accessor< float > acc2( "caloBetaRms" );
     acc2( *this ) = caloBetaRms;
-    static Accessor< float > acc3( "caloBetaChi2" );
+    static const Accessor< float > acc3( "caloBetaChi2" );
     acc3( *this ) = caloBetaChi2;
-    static Accessor< int > acc4( "caloBetaDof" );
+    static const Accessor< int > acc4( "caloBetaDof" );
     acc4( *this ) = caloBetaDof;
   }
 

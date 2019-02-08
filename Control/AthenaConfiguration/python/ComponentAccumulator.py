@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,checkSequenceConsistency
 from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -11,23 +11,23 @@ from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, Se
 import ast
 import collections
 
-from UnifyProperties import unifyProperty, unifySet
+from UnifyProperties import unifyProperty, unifySet, matchProperty
 
 
 class DeduplicationFailed(RuntimeError):
     pass
 
 class ConfigurationError(RuntimeError):
-    pass 
+    pass
 
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
-class ComponentAccumulator(object): 
+class ComponentAccumulator(object):
 
-    def __init__(self,sequenceName='AthAlgSeq'):        
+    def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._sequence=AthSequencer(sequenceName)    #(Nested) sequence of event processing algorithms per sequence + their private tools 
-        self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
+        self._sequence=AthSequencer(sequenceName)    #(Nested) sequence of event processing algorithms per sequence + their private tools
+        self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
         self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
@@ -44,7 +44,7 @@ class ComponentAccumulator(object):
 
     def empty(self):
         return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
-            len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0 
+            len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0
 
     def __del__(self):
         if not self._wasMerged and not self.empty():
@@ -52,7 +52,7 @@ class ComponentAccumulator(object):
             #log = logging.getLogger("ComponentAccumulator")
             #log.error("The ComponentAccumulator listed below was never merged!")
         #pass
-    
+
 
 
     def printConfig(self, withDetails=False, summariseProps=False):
@@ -82,24 +82,24 @@ class ComponentAccumulator(object):
             return
 
         if withDetails:
-            self._msg.info( self._sequence )     
+            self._msg.info( self._sequence )
         else:
             def printSeqAndAlgs(seq, nestLevel = 0):
                 def __prop(name):
                     if name in seq.getValuedProperties():
-                        return seq.getValuedProperties()[name]                    
+                        return seq.getValuedProperties()[name]
                     return seq.getDefaultProperties()[name]
 
-                self._msg.info( " "*nestLevel +"\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
+                self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
                 nestLevel += 3
                 for c in seq.getChildren():
                     if isSequence(c):
                         printSeqAndAlgs(c, nestLevel )
                     else:
-                        self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
+                        self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
                         if summariseProps:
                             printProperties(c, nestLevel)
-            printSeqAndAlgs(self._sequence) 
+            printSeqAndAlgs(self._sequence)
 
         self._msg.info( "Condition Algorithms" )
         self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
@@ -126,10 +126,10 @@ class ComponentAccumulator(object):
             if parent is None:
                 raise ConfigurationError("Missing sequence %s to add new sequence to" % parentName )
 
-        if findSubSequence( parent, newseq.name() ):
-            raise ConfigurationError("Sequence %s already present" % newseq.name() )
         parent += newseq
+        checkSequenceConsistency(self._sequence)
         return newseq 
+
 
 
     def moveSequence(self, sequence, destination ):
@@ -148,26 +148,27 @@ class ComponentAccumulator(object):
 
         owner.remove( seq )
         dest += seq
+        checkSequenceConsistency(self._sequence)
         return seq
 
 
-    def getSequence(self,sequenceName=None): 
+    def getSequence(self,sequenceName=None):
         if sequenceName is None:
             return self._sequence
         else:
             return findSubSequence(self._sequence,sequenceName)
 
-        
+
 
     def addEventAlgo(self, algorithms,sequenceName=None):
-        if not isinstance(algorithms,collections.Sequence): 
+        if not isinstance(algorithms,collections.Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
             algorithms=[algorithms,]
 
         if sequenceName is None:
             seq=self._sequence
         else:
-            seq = findSubSequence(self._sequence, sequenceName )            
+            seq = findSubSequence(self._sequence, sequenceName )
         if seq is None:
             raise ConfigurationError("Can not find sequence %s" % sequenceName )
 
@@ -175,8 +176,12 @@ class ComponentAccumulator(object):
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-             
-            seq+=algo #TODO: Deduplication necessary?
+
+            existingAlg = findAlgorithm(seq, algo.getName())
+            if existingAlg:
+                self._deduplicateComponent(algo, existingAlg)
+            else:
+                seq+=algo #TODO: Deduplication necessary?
             pass
         return None
 
@@ -186,9 +191,9 @@ class ComponentAccumulator(object):
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
-            
+
         algo = findAlgorithm( seq, name )
-        if algo is None:            
+        if algo is None:
             raise ConfigurationError("Can not find an algorithm of name %s "% name)
         return algo
 
@@ -199,7 +204,7 @@ class ComponentAccumulator(object):
             pass
         self._deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         return algo
-        
+
 
     def getCondAlgo(self,name):
         hits=[a for a in self._conditionsAlgs if a.getName()==name]
@@ -224,7 +229,7 @@ class ComponentAccumulator(object):
         return
 
 
-        
+
 
 
     def _deduplicate(self,newComp,compList):
@@ -241,17 +246,17 @@ class ComponentAccumulator(object):
             #end if same name & type
         #end loop over existing components
 
-        #No component of the same type & name found, simply append 
+        #No component of the same type & name found, simply append
         self._msg.debug("Adding component %s to the job", newComp.getFullName())
 
         #The following is to work with internal list of service as well as gobal svcMgr as second parameter
         try:
             compList.append(newComp)
-        except:
+        except Exception:
             compList+=newComp
             pass
         return True #True means something got added
-    
+
 
 
     def _deduplicateComponent(self,newComp,comp):
@@ -269,13 +274,15 @@ class ComponentAccumulator(object):
                     newprop=None
 
                 if type(oldprop) != type(newprop):
-                    raise DeduplicationFailed(" '%s' defined multiple times with conflicting types %s and %s" % \
-                                                      (comp.getJobOptName(),type(oldprop),type(newprop)))
-                
+                    raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
+                                                  (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
+
+                propid = "%s.%s" % (comp.getType(), str(prop))
+
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): 
+                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle):
                         if oldprop.getFullName()==newprop.getFullName():
                             # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
                             continue
@@ -283,24 +290,29 @@ class ComponentAccumulator(object):
                             raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
                                                               (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                     elif isinstance(oldprop,PublicToolHandleArray):
-                            for newtool in newprop:
-                                if newtool not in oldprop: 
-                                    oldprop+=[newtool,]
-                            continue
+                        for newtool in newprop:
+                            if newtool not in oldprop:
+                                oldprop+=[newtool,]
+                        continue
                     elif isinstance(oldprop,ConfigurableAlgTool):
                         self._deduplicateComponent(oldprop,newprop)
                         pass
                     elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
+
+                        if matchProperty(propid):
+                            mergeprop = unifyProperty(propid, oldprop, newprop)
+                            setattr(comp, prop, mergeprop)
+                            continue
+
                         for newTool in newprop:
                             self._deduplicate(newTool,oldprop)
                         pass
                     elif isinstance(oldprop,list): #if properties are mergeable, do that!
-                        propid="%s.%s" % (comp.getType(),str(prop))
                         #Try merging this property. Will raise on failure
                         mergeprop=unifyProperty(propid,oldprop,newprop)
                         setattr(comp,prop,mergeprop)
                     elif isinstance(oldprop,dict): #Dicts/maps can be unified
-                        #find conflicting keys 
+                        #find conflicting keys
                         doubleKeys= set(oldprop.keys()) & set(prop.keys())
                         for k in doubleKeys():
                             if oldprop[k]!= prop[k]:
@@ -317,15 +329,15 @@ class ComponentAccumulator(object):
                         #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                         raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
                                                       (comp.getJobOptName(),str(prop)))
-                pass 
+                pass
                 #end if prop-mismatch
             pass
         #end if startswith("_")
         pass
-      
-    
+
+
     def getService(self,name):
-        for svc in self._services: 
+        for svc in self._services:
             if svc.getName()==name:
                 return svc
         raise KeyError("No service with name %s known" % name)
@@ -349,7 +361,7 @@ class ComponentAccumulator(object):
             self._outputsPerStream[streamName].update(set(outputs))
         else:
             self._outputsPerStream[streamName]=set(outputs)
-            
+
         pass
 
 
@@ -358,7 +370,7 @@ class ComponentAccumulator(object):
             self._theAppProps[key]=value
         else:
             if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
-                value=unifySet(self._theAppProps[key],value) 
+                value=unifySet(self._theAppProps[key],value)
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
@@ -371,7 +383,7 @@ class ComponentAccumulator(object):
     def mergeAll(self,others, sequenceName=None):
         if isinstance(others,ComponentAccumulator):
             return self.merge(others)
-        
+
         elif isinstance(others,collections.Sequence):
             for other in others:
                 if isinstance (other,ComponentAccumulator):
@@ -392,7 +404,7 @@ class ComponentAccumulator(object):
 
     def merge(self,other, sequenceName=None):
         """ Merging in the other accumulator """
-        if other is None: 
+        if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
 
         if isinstance(other,collections.Sequence):
@@ -403,18 +415,18 @@ class ComponentAccumulator(object):
                 raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +", call mergeAll instead" )
             else:
                 raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +"" )
-            
+
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
-                
-        
+
+
         if not Configurable.configurableRun3Behavior:
             raise ConfigurationError("discoverd Configurable.configurableRun3Behavior=False while working woth ComponentAccumulator")
 
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
-        #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #     
-        def mergeSequences( dest, src ):        
+        #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
+        def mergeSequences( dest, src ):
             for c in src.getChildren():
                 if isSequence( c ):
                     sub = findSubSequence( dest, c.name() ) #depth=1 ???
@@ -426,11 +438,13 @@ class ComponentAccumulator(object):
                 else: # an algorithm
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
-                        if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
-                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )
+                        if existingAlg != c:
+                            self._deduplicate(c, existingAlg)
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
+
+            checkSequenceConsistency(self._sequence)
                         
 
         #Merge sequences:
@@ -440,7 +454,7 @@ class ComponentAccumulator(object):
         else:
             destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
         mergeSequences(destSeq,other._sequence)
-            
+
 
 
         #self._conditionsAlgs+=other._conditionsAlgs
@@ -459,14 +473,14 @@ class ComponentAccumulator(object):
                 self._outputPerStream[k].update(other._outputPerStream[k])
             else: #New stream type
                 self._outputPerStream[k]=other._outputPerStream[k]
-                
+
         #Merge AppMgr properties:
         for (k,v) in other._theAppProps.iteritems():
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
-    
-        
+
+
 
     def appendToGlobals(self):
 
@@ -476,19 +490,19 @@ class ComponentAccumulator(object):
         #Turn configurable behavior to old-style (eg return pre-existing instances instead of new'ing them)
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
-        
+
         for s in self._services:
             self._deduplicate(s,ServiceMgr)
-            
+
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
-        
+
 
         for t in self._publicTools:
             self._deduplicate(t,ToolSvc)
-   
+
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
             self._deduplicate(c,condseq)
@@ -497,7 +511,7 @@ class ComponentAccumulator(object):
             seq=AthSequencer(seqName)
             for alg in algoList:
                 seq+=alg
-                
+
 
         for (k,v) in self._theAppProps.iteritems():
             if k not in [ 'CreateSvc', 'ExtSvc']:
@@ -513,8 +527,8 @@ class ComponentAccumulator(object):
         # if self._jocat.has_key(name):
         #     self._msg.info("Not adding duplicate configurable: %s" % name )
         #     return
-            
-        #Hack for public Alg tools, drop multiple mentions of ToolSvc 
+
+        #Hack for public Alg tools, drop multiple mentions of ToolSvc
         nTS=0
         for n in name.split("."):
             if n=="ToolSvc":
@@ -523,7 +537,7 @@ class ComponentAccumulator(object):
                 break
         if nTS>2:
             name=".".join(name.split(".")[nTS-1:])
-        for k, v in confElem.getValuedProperties().items():            
+        for k, v in confElem.getValuedProperties().items():
             if isinstance(v,Configurable):
                 self._jocat[name][k]=v.getFullName()
             elif isinstance(v,GaudiHandles.GaudiHandleArray):
@@ -543,7 +557,7 @@ class ComponentAccumulator(object):
         import glob
         # first load basics from the bootstrap-pickle
         # a better solution to be discussed
-        # prefer local file 
+        # prefer local file
         localbs = glob.glob("bootstrap.pkl")
         if len( localbs ) == 0:
             # if local bootstrap is missing, use one from the release
@@ -566,11 +580,11 @@ class ComponentAccumulator(object):
                 evtalgseq.append( alg.getFullName() )
 
 
-        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():            
+        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
-            mergedSequence = ast.literal_eval(self._jocat[seqName]["Members"]) +  [alg.getFullName() for alg in algoList] 
+            mergedSequence = ast.literal_eval(self._jocat[seqName]["Members"]) +  [alg.getFullName() for alg in algoList]
             self._jocat[seqName]["Members"] = str( mergedSequence )
-                
+
 
         #Conditions Algorithms:
         condalgseq=[]
@@ -587,11 +601,11 @@ class ComponentAccumulator(object):
 
 
 
-        #Hack for now:   
+        #Hack for now:
         self._jocfg["ApplicationMgr"]["CreateSvc"]=['ToolSvc/ToolSvc', 'AthDictLoaderSvc/AthDictLoaderSvc', 'AthenaSealSvc/AthenaSealSvc', 'CoreDumpSvc/CoreDumpSvc']
-       
+
         svcList=ast.literal_eval(self._jocfg["ApplicationMgr"]["ExtSvc"])
-        
+
         for svc in self._services:
             if svc.getJobOptName() in _servicesToCreate:
                 self._jocfg["ApplicationMgr"]["CreateSvc"].append( svc.getFullName() )
@@ -612,11 +626,17 @@ class ComponentAccumulator(object):
         #from pprint import pprint
         #pprint (self._jocat)
 
-        pickle.dump( self._jocat, outfile ) 
-        pickle.dump( self._jocfg, outfile ) 
-        pickle.dump( self._pycomps, outfile )     
+        pickle.dump( self._jocat, outfile )
+        pickle.dump( self._jocfg, outfile )
+        pickle.dump( self._pycomps, outfile )
         self._wasMerged=True
 
+    def wasMerged(self):
+        """ Declares CA as merged
+
+        This is temporarily needed by HLT and should not be used elsewhere
+        """
+        self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
         log = logging.getLogger("ComponentAccumulator")
@@ -624,7 +644,7 @@ class ComponentAccumulator(object):
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
         app=bsh.createApplicationMgr()
-   
+
         for (k,v) in self._theAppProps.iteritems():
             app.setProperty(k,str(v))
 
@@ -636,13 +656,13 @@ class ComponentAccumulator(object):
             extSvc+=[svc.getFullName(),]
             if svc.getJobOptName() in _servicesToCreate:
                 svcToCreate+=[svc.getFullName(),]
-    
+
         #print self._services
         #print extSvc
-        #print svcToCreate        
+        #print svcToCreate
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
-    
+
         print "CONFIGURE STEP"
         app.configure()
 
@@ -650,7 +670,7 @@ class ComponentAccumulator(object):
         bsh.setProperty(msp,"OutputLevel",str(OutputLevel))
         #Feed the jobO service with the remaining options
         jos=app.getService("JobOptionsSvc")
-    
+
         def addCompToJos(comp):
             name=comp.getJobOptName()
             for k, v in comp.getValuedProperties().items():
@@ -675,7 +695,7 @@ class ComponentAccumulator(object):
             addCompToJos(svc)
             pass
 
-        #Add tree of algorithm sequences: 
+        #Add tree of algorithm sequences:
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
             log.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
             bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
@@ -692,7 +712,7 @@ class ComponentAccumulator(object):
             bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
             pass
 
-    
+
         #Public Tools:
         for pt in self._publicTools:
             addCompToJos(pt)
@@ -704,7 +724,7 @@ class ComponentAccumulator(object):
     def run(self,maxEvents=None,OutputLevel=3):
         log = logging.getLogger("ComponentAccumulator")
         app = self.createApp (OutputLevel)
-        
+
         #Determine maxEvents
         if maxEvents is None:
             if "EvtMax" in self._theAppProps:
@@ -714,24 +734,24 @@ class ComponentAccumulator(object):
 
         print "INITIALIZE STEP"
         sc = app.initialize()
-        if not sc.isSuccess(): 
+        if not sc.isSuccess():
             log.error("Failed to initialize AppMgr")
             return sc
-            
+
         app.printAlgsSequences() #could be removed later ....
 
         sc = app.start()
-        if not sc.isSuccess(): 
+        if not sc.isSuccess():
             log.error("Failed to start AppMgr")
             return sc
 
         sc = app.run(maxEvents)
-        if not sc.isSuccess(): 
+        if not sc.isSuccess():
             log.error("Failure running application")
             return sc
 
         app.stop().ignore()
-        
+
         app.finalize().ignore()
 
         sc1 = app.terminate()
@@ -749,12 +769,12 @@ def CAtoGlobalWrapper(cfgmethod,flags):
 
 
 
-# self test            
+# self test
 import unittest
 
 class TestComponentAccumulator( unittest.TestCase ):
     def setUp(self):
-    
+
         Configurable.configurableRun3Behavior+=1
         # trivial case without any nested sequences
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
@@ -763,10 +783,10 @@ class TestComponentAccumulator( unittest.TestCase ):
         from AthenaCommon.Constants import DEBUG
 
         log.setLevel(DEBUG)
-        
+
         dummyCfgFlags=AthConfigFlags()
         dummyCfgFlags.lock()
-        
+
         class Algo(ConfigurablePyAlgorithm):
             def __init__(self, name):
                 super( ConfigurablePyAlgorithm, self ).__init__( name )
@@ -786,7 +806,7 @@ class TestComponentAccumulator( unittest.TestCase ):
             return acc,algs
 
         acc = ComponentAccumulator()
-    
+
         # top level algs
         acc1,algs=AlgsConf2(dummyCfgFlags)
         acc.merge(acc1)
@@ -794,7 +814,7 @@ class TestComponentAccumulator( unittest.TestCase ):
 
         def AlgsConf3(flags):
             acc = ComponentAccumulator()
-            na1=Algo("NestedAlgo1") 
+            na1=Algo("NestedAlgo1")
             return acc,na1
 
         def AlgsConf4(flags):
@@ -815,7 +835,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.merge(accNA1[0])
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
         acc.store(open("testFile.pkl", "w"))
-        self.acc = acc 
+        self.acc = acc
 
 
     def test_algorihmsAreAdded( self ):
@@ -823,7 +843,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo2", 1).name(),  "Algo2", "Algorithm not added to a top sequence" )
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo3", 1).name(), "Algo3", "Algorithm not added to a top sequence" )
 
-    def test_sequencesAreAdded( self ):    
+    def test_sequencesAreAdded( self ):
         self.assertIsNotNone( self.acc.getSequence("subSequence1" ), "Adding sub-sequence failed" )
         self.assertIsNotNone( self.acc.getSequence("subSequence2" ), "Adding sub-sequence failed" )
         self.assertIsNotNone( self.acc.getSequence("sub2Sequence1"), "Adding sub-sequence failed" )
@@ -843,8 +863,8 @@ class TestComponentAccumulator( unittest.TestCase ):
 
 class TestHLTCF( unittest.TestCase ):
     def runTest( self ):
-        # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the 
-        # some of them (in this case hltSteps) did not have properties recorded 
+        # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the
+        # some of them (in this case hltSteps) did not have properties recorded
         from AthenaCommon.CFElements import seqAND, seqOR, parOR
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
         Configurable.configurableRun3Behavior=1
@@ -857,7 +877,7 @@ class TestHLTCF( unittest.TestCase ):
         acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
         acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
         acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
-        
+
         acc.store(open("testFile2.pkl", "w"))
         import pickle
         f = open("testFile2.pkl")
@@ -866,29 +886,29 @@ class TestHLTCF( unittest.TestCase ):
         self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
 
 
-class MultipleParrentsInSequences( unittest.TestCase ):
+class MultipleParentsInSequences( unittest.TestCase ):
     def runTest( self ):
        # test if an algorithm (or sequence) can be controlled by more than one sequence
         Configurable.configurableRun3Behavior=1
         from AthenaCommon.CFElements import seqAND
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
         accTop = ComponentAccumulator()
-                
+
         recoSeq = seqAND("seqReco")
         recoAlg = ConfigurablePyAlgorithm( "recoAlg" )
         recoSeq += recoAlg
-        
+
         acc1 = ComponentAccumulator()
         acc1.addSequence( seqAND("seq1") )
         acc1.addSequence( recoSeq, parentName="seq1" )
-        
+
         acc2 = ComponentAccumulator()
         acc2.addSequence( seqAND("seq2") )
         acc2.addSequence( recoSeq, parentName="seq2" )
-        
+
         accTop.merge( acc1 )
         accTop.merge( acc2 )
-                
+
         accTop.printConfig()
 
         self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), "Algorithm missing in the first sequence" )
@@ -907,16 +927,92 @@ class MultipleParrentsInSequences( unittest.TestCase ):
             self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
             self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
 
+class ForbidRecursiveSequences( unittest.TestCase ):
+    def runTest( self ):
+        #Can't add a sequence with the same name below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq1 (seq: SEQ AND)
+        def selfSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.wasMerged()
+            seq1 = seqAND("seq1")
+            seq1_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq1_again, parentName = "seq1")
+
+        #Allowed to add a sequence with the same name at same depth, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        # should not raise any exceptions
+        def selfTwinSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.wasMerged()
+            seq1 = seqAND("seq1")
+            seq2 = seqAND("seq2")
+            seq2_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq2, parentName = "seq1")
+            accTop.addSequence(seq2_again, parentName = "seq1")
+            accTop.wasMerged()
+            
+
+        #Can't add a sequence with the same name two steps below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #          \__ seq1 (seq: SEQ AND)
+        def selfGrandParentSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.store( open("test.pkl", "w") )#silence RuntimeError
+            seq1 = seqAND("seq1")
+            seq2 = seqAND("seq2")
+            seq1_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq2, parentName = "seq1")
+            accTop.addSequence(seq1_again, parentName = "seq2")
+            accTop.wasMerged()
+
+        #Can't merge sequences with the same name two steps below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #          \__ seq1 (seq: SEQ AND)
+        def selfMergedGrandParentSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            acc1=ComponentAccumulator()
+            acc1.wasMerged()
+            acc1.addSequence(seqAND("seq1"))
+            acc2=ComponentAccumulator()
+            acc2.wasMerged()
+            acc2.addSequence(seqAND("seq2"))
+            acc2.addSequence(seqAND("seq1"), "seq2")
+            acc1.merge(acc2)
+
+        self.assertRaises(RuntimeError, selfSequence )
+        self.assertRaises(RuntimeError, selfGrandParentSequence )
+        self.assertRaises(RuntimeError, selfMergedGrandParentSequence )
+
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):
         topCA = ComponentAccumulator()
-        
+
         def badMerge():
             someCA = ComponentAccumulator()
             topCA.merge(  (someCA, 1, "hello")  )
         self.assertRaises(RuntimeError, badMerge )
-    
-    
+        topCA.wasMerged()
+
+
 class MergeMovingAlgorithms( unittest.TestCase ):
     def runTest( self ):
         Configurable.configurableRun3Behavior=1
@@ -932,9 +1028,15 @@ class MergeMovingAlgorithms( unittest.TestCase ):
         sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg3"), sequenceName="innerSeq" )
 
         destinationCA.merge( sourceCA, sequenceName="dest"  )
-        #destinationCA.merge( sourceCA ) 
+
+        #destinationCA.merge( sourceCA )
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg1" ), "Algorithm not placed in sub-sequence" )
         self.assertIsNotNone( findSubSequence( destinationCA.getSequence(), "innerSeq" ), "The sequence is not added" )
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
+        destinationCA.wasMerged()
+        sourceCA.wasMerged()
+
+if __name__ == "__main__":
+    unittest.main()
 
         

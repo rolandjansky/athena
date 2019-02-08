@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetPhysValMonitoring includes
@@ -66,10 +66,10 @@ TrackTruthSelectionTool::initialize() {
   if (m_pdgId > -1) {
     m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut")); // 3-18-16 normally enabled, disabled for testing
   }
-  // Add cuts to the TAccept
+  // Add cuts to the AcceptInfo
   for (const auto& cut : m_cuts) {
     if (m_accept.addCut(cut.first, cut.second) < 0) {
-      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the TAccept object is full.");
+      ATH_MSG_ERROR("Failed to add cut " << cut.first << " because the AcceptInfo object is full.");
       return StatusCode::FAILURE;
     }
   }
@@ -80,25 +80,22 @@ TrackTruthSelectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept&
-TrackTruthSelectionTool::getTAccept( ) const {
+const asg::AcceptInfo&
+TrackTruthSelectionTool::getAcceptInfo( ) const {
   return m_accept;
 }
 
-const Root::TAccept&
+asg::AcceptData
 TrackTruthSelectionTool::accept(const xAOD::IParticle* p) const// Is this perhaps supposed to be xAOD::TruthParticle?
 {
-  // Reset the result:
-  m_accept.clear();
-
   // Check if this is a track:
   if (!p) {
     ATH_MSG_ERROR("accept(...) Function received a null pointer");
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
   if (p->type() != xAOD::Type::TruthParticle) {
     ATH_MSG_ERROR("accept(...) Function received a non-TruthParticle");
-    return m_accept;
+    return asg::AcceptData (&m_accept);
   }
 
   // Cast it to a track (we have already checked its type so we do not have to dynamic_cast):
@@ -108,50 +105,49 @@ TrackTruthSelectionTool::accept(const xAOD::IParticle* p) const// Is this perhap
   return accept(truth);
 }
 
-const Root::TAccept&
+asg::AcceptData
 TrackTruthSelectionTool::accept(const xAOD::TruthParticle* p) const {
-  // Reset the TAccept
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
 
   // Check cuts
   if (m_maxEta > -1) {
-    m_accept.setCutResult("eta", (p->pt() > 1e-7 ? (std::fabs(p->eta()) < m_maxEta) : false));
+    acceptData.setCutResult("eta", (p->pt() > 1e-7 ? (std::fabs(p->eta()) < m_maxEta) : false));
   }
   if (m_minPt > -1) {
-    m_accept.setCutResult("min_pt", (p->pt() > m_minPt));
+    acceptData.setCutResult("min_pt", (p->pt() > m_minPt));
   }
   if (m_maxPt > -1) {
-    m_accept.setCutResult("max_pt", (p->pt() < m_maxPt));
+    acceptData.setCutResult("max_pt", (p->pt() < m_maxPt));
   }
   if ((m_maxBarcode > -1)) {
-    m_accept.setCutResult("barcode", (p->barcode() < m_maxBarcode));
+    acceptData.setCutResult("barcode", (p->barcode() < m_maxBarcode));
   }
 
   if (m_requireCharged) {
-    m_accept.setCutResult("charged", (not (p->isNeutral())));
+    acceptData.setCutResult("charged", (not (p->isNeutral())));
   }
   if (m_requireStatus1) {
-    m_accept.setCutResult("status_1", (p->status() == 1));
+    acceptData.setCutResult("status_1", (p->status() == 1));
   }
   if (m_maxProdVertRadius > 0.) {
-    m_accept.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < m_maxProdVertRadius));
+    acceptData.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < m_maxProdVertRadius));
   }
   if (m_pdgId > -1) {
-    m_accept.setCutResult("pdgId", (std::fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
+    acceptData.setCutResult("pdgId", (std::fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
   }
   // Book keep cuts
   for (const auto& cut : m_cuts) {
-    unsigned int pos = m_accept.getCutPosition(cut.first);
-    if (m_accept.getCutResult(pos)) {
+    unsigned int pos = acceptData.getCutPosition(cut.first);
+    if (acceptData.getCutResult(pos)) {
       m_numTruthPassedCuts[pos]++;
     }
   }
   m_numTruthProcessed++;
-  if (m_accept) {
+  if (acceptData) {
     m_numTruthPassed++;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 StatusCode
