@@ -43,6 +43,7 @@ import HipsFlags
 import HVFlags
 import SmpCaloIdFlags
 import SmpMsFlags
+import VHFlags
 
 #===============================================================
 # Set specific properties for each of the analysis selections
@@ -72,7 +73,7 @@ primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 class doEmerging(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = True
+    StoredValue = True 
     pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
@@ -91,7 +92,7 @@ class doVH_DV(JobProperty):
 primRPVLLDESDM.add_JobProperty(doVH_DV)
 
 class doQuirks(JobProperty):
-    statusOn=True
+    statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
     pass
@@ -132,6 +133,13 @@ class doSmpMs(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(doSmpMs)
 
+class doVH(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+primRPVLLDESDM.add_JobProperty(doVH)
+
 class prescaleFlags(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
@@ -139,3 +147,4 @@ class prescaleFlags(JobProperty):
     applyPrescale = False
     prescaleFactor = 1.0
 primRPVLLDESDM.add_JobProperty(prescaleFlags)
+

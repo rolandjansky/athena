@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -53,6 +53,10 @@ def getDefaultLegacyAFIIFastCaloSimSelector(name="ISF_DefaultLegacyAFIIFastCaloS
 
 def getDefaultFastCaloSimV2Selector(name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvcV2')
+    return getDefaultSimSelector(name, **kwargs )
+
+def getDefaultDNNCaloSimSelector(name="ISF_DefaultDNNCaloSimSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , 'ISF_DNNCaloSimSvc')
     return getDefaultSimSelector(name, **kwargs )
 
 def getFastHitConvAlgFastCaloSimSelector(name="ISF_FastHitConvAlgFastCaloSimSelector", **kwargs):

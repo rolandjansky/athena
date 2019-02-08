@@ -23,10 +23,9 @@ HITowerWeightTool::HITowerWeightTool(const std::string& n) : asg::AsgTool(n),
 							     m_run_index(0)
 
 {
-  declareProperty("InputFile",m_input_file="cluster.geo.root","File containing cluster geometric moments.");
-  declareProperty("ConfigDir",m_config_dir="HIEventUtils/","Directory containing configuration file.");
-  if(initialize().isFailure()) ATH_MSG_WARNING("Initial configuration of tool failed");
-
+  declareProperty("ApplyCorrection",m_applycorrection=true,"If false unit weigts are applied");
+  declareProperty("InputFile",m_input_file="cluster.geo.HIJING_2018.root","File containing cluster geometric moments.");
+  declareProperty("ConfigDir",m_config_dir="HIJetCorrection/","Directory containing configuration file.");
 }
 
 
@@ -67,6 +66,12 @@ float HITowerWeightTool::getEtaPhiOffset(float eta, float phi) const
 
 StatusCode HITowerWeightTool::configureEvent()
 {
+  if (!m_applycorrection){
+    m_run_index=0;
+    ATH_MSG_DEBUG("Using unit weights and doing no eta-phi correction.");
+    return StatusCode::SUCCESS;
+  }
+
   const xAOD::EventInfo* ei=nullptr;
   if(evtStore()->retrieve(ei,"EventInfo").isFailure())
   {
@@ -74,6 +79,7 @@ StatusCode HITowerWeightTool::configureEvent()
     return StatusCode::FAILURE;
   } 
   unsigned int run_number=ei->runNumber();
+  
   if(m_run_number!=run_number)
   {
     auto itr=m_run_map.find(run_number);
@@ -102,6 +108,7 @@ StatusCode HITowerWeightTool::initialize()
   if(m_init) return StatusCode::SUCCESS;
   std::string local_path=m_config_dir+m_input_file;
   std::string full_path=PathResolverFindCalibFile(local_path);
+  ATH_MSG_INFO("Reading input file "<< m_input_file << " from " << full_path);
   TFile* f=TFile::Open(full_path.c_str());
   if(f==nullptr) 
   {

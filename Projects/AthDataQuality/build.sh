@@ -3,6 +3,7 @@
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
+_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
 
 # Function printing the usage information for the script
 usage() {
@@ -98,7 +99,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    _time_ cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthDataQualitySrcDir} 2>&1 | tee cmake_config.log
 fi
@@ -111,18 +112,18 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    _time_ make -k 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time make install/fast \
+    _time_ make install/fast \
         DESTDIR=${BUILDDIR}/install/AthDataQuality/${NICOS_PROJECT_VERSION} \
         2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack 2>&1 | tee cmake_cpack.log
+    _time_ cpack 2>&1 | tee cmake_cpack.log
     cp AthDataQuality*.rpm ${BUILDDIR}/
 fi
