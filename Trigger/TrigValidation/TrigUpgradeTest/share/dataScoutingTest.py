@@ -2,23 +2,29 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-# This file is based on fullMenu.py
+# This file is based on pebTest.py
 
 # Import flags
 include("TrigUpgradeTest/testHLT_MT.py")
 doElectron = True
 doPhoton = False
-doMuon   = True
+doMuon   = False
 doJet    = False
 doCombo  = False
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 testChains = []
 
 ##################################################################
-# PEB Info Writer step
+# PEB Info writer step for data scouting
 ##################################################################
-from TrigUpgradeTest.pebMenuDefs import pebInfoWriterSequence
+from TrigUpgradeTest.pebMenuDefs import pebInfoWriterSequence,dataScoutingSequence
+
+##################################################################
+# SignatureDicts addition
+##################################################################
+from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import AllowedEventBuildingIdentifiers
+AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree'])
 
 ##################################################################
 # egamma chains
@@ -33,30 +39,24 @@ if (doElectron):
 
     step1=ChainStep("Step1_etcut", [fastCaloStep])
     step2=ChainStep("Step2_etcut", [electronStep])
-    step3=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
+    step3_PEB1=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")]) # adds some LAr ROBs and the full HLT result
+    step3_DS=ChainStep("Step3_dataScoutingElectronTest", [dataScoutingSequence("dataScoutingElectronTest")]) # adds the special HLT result
+    step4_PEB3=ChainStep("Step3_pebtestthree", [pebInfoWriterSequence("pebtestthree")]) # same as pebtestone but without any HLT result
 
     egammaChains = [
-        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        # DS+PEB chain (special HLT result and subset of detector data saved)
+        Chain(name='HLT_e3_etcut_dataScoutingElectronTest_pebtestthree',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_DS, step4_PEB3]  ),
+
+        # Pure DS chain (only special HLT result saved and no detector data saved)
+        Chain(name='HLT_e5_etcut_dataScoutingElectronTest',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_DS]  ),
+
+        # PEB chain (full HLT result and subset of detector data saved)
+        Chain(name='HLT_e7_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_PEB1]  ),
+
+        # Standard chain (full HLT result and full detector data saved)
+        Chain(name='HLT_e12_etcut',  Seed="L1_EM3",  ChainSteps=[step1, step2]  )
     ]
     testChains += egammaChains
-
-##################################################################
-# muon chains
-##################################################################
-if (doMuon):
-    from TrigUpgradeTest.muMenuDefs import muFastStep
-    muFastStep1 = muFastStep()
-
-    step1mufast=ChainStep("Step1_mufast", [ muFastStep1 ])
-    step2peb=ChainStep("Step2_pebtesttwo", [pebInfoWriterSequence("pebtesttwo")])
-
-    muonChains = [
-        Chain(name='HLT_mu6_pebtesttwo',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2peb]  ),
-        Chain(name='HLT_2mu6',        Seed="L1_MU6",  ChainSteps=[step1mufast]  )
-    ]
-    testChains += muonChains
 
 #################################
 # Configure L1Decoder
@@ -85,7 +85,7 @@ def getSequence(name):
 # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
 ##########################################
 import AthenaCommon.AlgSequence as acas
-summaryMakerAlg = [s for s in acas.iter_algseq(topSequence) if s.getName() == "DecisionSummaryMakerAlg"][0]
+summaryMakerAlg = getSequence("DecisionSummaryMakerAlg")
 chainToDecisionKeyDict = summaryMakerAlg.getProperties()['FinalStepDecisions']
 
 pebDecisionKeys = []
@@ -133,31 +133,43 @@ from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserTool
 serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
 serialiser.OutputLevel=VERBOSE
 
-# Serialise HLT decision objects
+# Serialise HLT decision objects (in full result)
 serialiser.addCollectionListToMainResult(decisionObjectsToRecord)
 
-# Serialise L2 calo clusters and electrons
+# Serialise L2 calo clusters (in full result)
 serialiser.addCollectionListToMainResult([
     "xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters",
     "xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+])
+
+# This is the Data Scouting part! Let's add L2 electrons to the main result AND to the "electron DS" result
+from TrigUpgradeTest.pebMenuDefs import dataScoutingResultIDFromName
+electronDSModuleIDs = [serialiser.fullResultID(), dataScoutingResultIDFromName('dataScoutingElectronTest')] # 0 is main (full) result; we get the other ID from the EDM configuration
+serialiser.addCollectionListToResults([
     "xAOD::TrigElectronContainer_v1#Electrons",
     "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot",
-])
+], electronDSModuleIDs)
 
 ##### Result maker part 2 - stream tags #####
 
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhysicsPebtestone = ['pebtestone', 'physics', "True", "False"]
-streamCalibPebtesttwo = ['pebtesttwo', 'calibration', "True", "False"]
+streamDataScoutingElectron = ['dataScoutingElectronTest', 'physics', "True", "False"]
+streamDSPEBElectron = ['DSElectronWithPEB', 'physics', "True", "False"]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
 stmaker.ChainDecisions = "HLTSummary"
 stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
-stmaker.ChainToStream["HLT_e3_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_e5_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_mu6_pebtesttwo"] = streamCalibPebtesttwo
+stmaker.ChainToStream["HLT_e3_etcut_dataScoutingElectronTest_pebtestthree"] = streamDSPEBElectron
+stmaker.ChainToStream["HLT_e5_etcut_dataScoutingElectronTest"] = streamDataScoutingElectron
+stmaker.ChainToStream["HLT_e7_etcut_pebtestone"] = streamPhysicsPebtestone
+# The configuration above means:
+# stream physics_Main is produced when the e12 chain passes and it includes full events
+# stream physics_pebtestone is produced when the e7 chain passes and it includes the main HLT result and some detector ROBs
+# stream physics_dataScoutingElectronTest is produced when the e5 chain passes and it includes only the special HLT DS result
+# stream physics_DSElectronWithPEB is produced when the e3 chain passes and it includes the special HLT DS result and some detector ROBs
 
 ##### Result maker part 3 - HLT bits #####
 
