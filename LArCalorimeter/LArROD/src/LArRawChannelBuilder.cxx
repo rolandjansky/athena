@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilder.h"
@@ -58,7 +58,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
   m_SamplingPeriodeUpperLimit(0),
   m_SamplingPeriodeLowerLimit(0),
   m_emId(NULL),
-  m_larCablingSvc("LArCablingService"),
   m_firstSample(0)
   , m_pedestalKey("LArPedestal")
   , m_shapesKey("LArShape")
@@ -105,13 +104,7 @@ StatusCode LArRawChannelBuilder::initialize(){
     log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
-  /*
- sc = m_roiMap.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endmsg;
-    return StatusCode::FAILURE; 
-  }
-  */
+
   if (m_useOFCTool) {
     sc = m_OFCTool.retrieve();
     if (sc.isFailure()) {
@@ -126,8 +119,6 @@ StatusCode LArRawChannelBuilder::initialize(){
     return StatusCode::FAILURE;
   }
   
-  // ***
-  
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
   if (!m_emId) {
@@ -135,14 +126,7 @@ StatusCode LArRawChannelBuilder::initialize(){
     return StatusCode::FAILURE;
   }
   
-  // translate offline ID into online ID
-  sc = m_larCablingSvc.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  // ***
+  ATH_CHECK( m_cablingKey.initialize() );
 
   if (m_hvcorr) {
     sc = m_hvCorrTool.retrieve();
@@ -152,8 +136,6 @@ StatusCode LArRawChannelBuilder::initialize(){
     }
   }
 
-
-  //m_larRawOrdering.setMap(&(*m_roiMap)); 
 
   //Set counters for errors and warnings to zero
   m_noEnergy   = 0; // Number of events with at least completly failed channel
@@ -230,6 +212,13 @@ StatusCode LArRawChannelBuilder::execute()
   const ILArOFC* larOFC=NULL;
   const ILArShape* larShape=NULL;
   //Retrieve Digit Container
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+    return StatusCode::FAILURE;
+  }
 
   sc=evtStore()->retrieve(digitContainer,m_DataLocation);
   if(sc.isFailure()) {
@@ -331,9 +320,9 @@ StatusCode LArRawChannelBuilder::execute()
     if (debugPrint) {
       Identifier id ;
       try {
-        id = m_larCablingSvc->cnvToIdentifier(chid);
+        id = cabling->cnvToIdentifier(chid);
       } catch ( LArID_Exception & except ) {
-        log << MSG::DEBUG << "A larCablingSvc exception was caught for channel 0x!" 
+        log << MSG::DEBUG << "A Cabling exception was caught for channel 0x!" 
   	    << MSG::hex << chid.get_compact() << MSG::dec << endmsg;
         continue ;
       }
@@ -545,17 +534,6 @@ StatusCode LArRawChannelBuilder::execute()
     if (m_hvcorr) {
 // HV tool
        float hvCorr = m_hvCorrTool->Scale(chid);
-// debug printout
- //      const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
- //      if (m_emId->is_lar_em(id) && abs(m_emId->barrel_ec(id))==1 && 
- //          m_emId->sampling(id)>0) {
- //        layer  = m_emId->sampling(id);
- //        eta    = m_emId->eta(id); 
- //        phi    = m_emId->phi(id);
- //        region = m_emId->region(id);  
- //        std::cout << "side,sampling,region,eta,phi,corr " << m_emId->barrel_ec(id) << " " << layer << " " << region << " "
- //                 << eta << " " << phi << " " << hvCorr << std::endl;
- //      }
        energy = energy*hvCorr;
     }
   
@@ -601,13 +579,13 @@ StatusCode LArRawChannelBuilder::execute()
         if(nSamples == 4 && m_firstSample == 0 ){
           Identifier id ;
           try {
-               id = m_larCablingSvc->cnvToIdentifier(chid); 
+               id = cabling->cnvToIdentifier(chid); 
                if(m_emId->is_lar_hec(id)) {
                   ihecshift=1;
                   log << MSG::DEBUG << "Setting firstSample to 1 for HEC channel "<< chid.get_compact() << endmsg;
                }
           } catch ( LArID_Exception & except ) {
-               log << MSG::DEBUG << "A larCablingSvc exception was caught for channel 0x!"
+               log << MSG::DEBUG << "A Cabling exception was caught for channel 0x!"
                    << MSG::hex << chid.get_compact() << MSG::dec << endmsg;
           }
         }

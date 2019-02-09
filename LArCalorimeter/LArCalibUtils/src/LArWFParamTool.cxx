@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArWFParamTool.h" 
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include <math.h>
 #ifndef __APPLE__
@@ -32,7 +32,6 @@ const double LArWFParamTool::m_EPSILON=2.22045e-16;
 
 LArWFParamTool::LArWFParamTool ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
-    m_larCablingSvc("LArCablingService"),
     m_NBaseline(0),
     m_ShiftToStart(false),
     m_SubtractBaseline(false),
@@ -150,24 +149,9 @@ StatusCode LArWFParamTool::initialize()
 
   }
 
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArOnlineID helper" );
-    return sc;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
-  sc = detStore()->retrieve(m_emId, "LArEM_ID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArOnlineID helper" );
-    return sc;
-  } 
-
-  sc= m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArCablingService" );
-    return sc;
-  } 
-
+  ATH_CHECK( detStore()->retrieve(m_emId, "LArEM_ID") );
 
   return StatusCode::SUCCESS;
 }
@@ -177,6 +161,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
                                             const HWIdentifier chid, 
 					    const CaloGain::CaloGain gain,
                                             LArWFParams& wfParams,
+                                            const LArOnOffIdMapping *cabling,
 					    LArCaliWave* omegaScanWave,
 					    LArCaliWave* resOscill0,
 					    LArCaliWave* resOscill1)  const
@@ -219,7 +204,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
 
   // find m_Omega0 using RTM
   if ( wfParams.omega0() == DoExtract ) {
-    StatusCode sc = RTM_Omega0(gCali,chid,wfParams,waveTiming,omegaScanWave);
+    StatusCode sc = RTM_Omega0(gCali,chid,wfParams,waveTiming,cabling,omegaScanWave);
     if ( sc.isFailure() ) {
       ATH_MSG_WARNING( "Could not extract Omega0 for ChID=" << chid.get_compact() 
 			<< " gain=" << (int)gain ); 
@@ -231,7 +216,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   }
 
 
-  const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+  const Identifier id = cabling->cnvToIdentifier(chid);
   const unsigned layer=m_emId->sampling(id);
   if ( m_storeResOscill[ layer ] && resOscill0) {
     LArWave injres0 = injRespRes(gCali,wfParams.omega0(),0);
@@ -401,11 +386,11 @@ LArWave LArWFParamTool::dstepCorrDfstep(const LArWave& gCali, const double& fste
   return w ;
 }
 
-StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, LArCaliWave* omegaScanWave) const
+StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, LArCaliWave* omegaScanWave) const
 {
   /*  begin of the COSINE RESPONSE analysis */
    
-  const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+  const Identifier id = cabling->cnvToIdentifier(chid);
   // Define the (raw) minimum research interval (if the Layer card is not set,
   // uses the wider interval, and default value for the first minimum scan)
 

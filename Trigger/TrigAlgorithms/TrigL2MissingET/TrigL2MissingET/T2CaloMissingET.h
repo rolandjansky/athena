@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -25,12 +25,15 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "IRegionSelector/RegSelEnums.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
+
 
 #include "xAODTrigMissingET/TrigMissingET.h"
 
@@ -75,6 +78,10 @@ class T2CaloMissingET : public HLT::AllTEAlgo
     HLT::ErrorCode prepareRobRequests(const std::vector<HLT::TEConstVec>& inputs );
 
   private:
+
+     SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+     SG::ReadCondHandleKey<LArFebRodMapping>  m_RodKey{this, "FebRodKey", "LArFebRodMap", "SG ROD mapping key"};
+
      bool m_useCachedResult;
 
      std::string m_featureLabel; //!< label for the MET feature in the HLT Navigation
@@ -95,7 +102,6 @@ class T2CaloMissingET : public HLT::AllTEAlgo
      xAOD::TrigMissingET* m_met_feature;    //!< internal caching: missing E_T feature of the first execution
      HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
-     LArCablingService *m_cablingSvc;
      const LArOnlineID *m_LArOnlineID;
      const CaloCell_ID *m_CaloCell_ID;
      LArReadoutModuleService m_larROModSvc;

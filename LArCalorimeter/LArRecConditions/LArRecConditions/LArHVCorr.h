@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,7 @@ class LArHVCorr : public ILArHVScaleCorr {
    virtual const float& HVScaleCorr(const HWIdentifier& chid) const override final;
 
    // retrieving HVScaleCorr using offline ID  
-   virtual const float& HVScaleCorr(const Identifier& id) const override final;
+   virtual const float& HVScaleCorr(const Identifier& chid) const;
 
 
   private:

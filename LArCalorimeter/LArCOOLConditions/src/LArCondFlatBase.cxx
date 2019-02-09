@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArCondFlatBase.h"
@@ -7,7 +7,6 @@
 
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h" 
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
@@ -20,7 +19,6 @@
 LArCondFlatBase::LArCondFlatBase() :
   m_isInitialized(false),
   m_onlineHelper(NULL),
-  m_larCablingSvc(NULL),
   m_log(NULL) {}
 
 LArCondFlatBase::~LArCondFlatBase() {
@@ -59,12 +57,6 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
   sc = svcLoc->service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
     (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endmsg;
-    return sc;
-  }
-
-  sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endmsg;
     return sc;
   }
 

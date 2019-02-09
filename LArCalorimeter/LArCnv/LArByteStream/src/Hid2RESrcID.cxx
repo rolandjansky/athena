@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/Hid2RESrcID.h" 
@@ -47,9 +47,9 @@ StatusCode Hid2RESrcID::initialize()
   sc   = Gaudi::svcLocator()->service("ToolSvc",toolSvc  );
   if(sc.isSuccess())
     {
-      sc = toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
+      sc = toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
       if (sc.isFailure()) {
-	log << MSG::FATAL << "Could not get LArCablingService !" << endmsg;
+	log << MSG::FATAL << "Could not get LArCablingLegacyService !" << endmsg;
 	exit(1);
       }
     } else {  // check if it fails

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class LArCablingService ;
 
 class LArADC2MeVTool: public AthAlgTool,
 		      virtual public ILArADC2MeVTool,

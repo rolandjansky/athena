@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -25,7 +25,7 @@ class CaloDetDescrElement;
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
@@ -49,7 +49,7 @@ private:
   const DataHandle<ILArShape> m_dd_shape;
   const DataHandle<ILArMinBiasAverage> m_dd_minbiasAverage; 
   const DataHandle<ILArOFC> m_dd_ofc;
-  ToolHandle<LArCablingService> m_cablingService;
+  ToolHandle<LArCablingLegacyService> m_cablingService;
   ToolHandle<ILArMCSymTool>  m_larmcsym;
   ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILuminosityTool> m_lumiTool;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_SUPERCELLVSCALOCELLTESTALG_H
@@ -13,6 +13,8 @@
 
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -35,7 +37,7 @@ class SuperCellVsCaloCellTestAlg: public ::AthAlgorithm {
    
 
  private: 
-
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of LArOnOffIdMapping object"};
    ToolHandle<ICaloSuperCellIDTool> m_sc2ccMappingTool;
    const CaloCell_ID* m_ccIdHelper;
 

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArOFC: Algorithm to calculate optimal filtering constants.
@@ -19,7 +19,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -33,7 +32,6 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-          m_cablingService("LArCablingService"),
           m_onlineID(nullptr),
           m_calo_dd_man(nullptr),
 	  m_larPhysWaveBin(nullptr),
@@ -127,12 +125,7 @@ StatusCode LArOFCAlg::initialize(){
     return sc;
   }
 
-  sc = m_cablingService.retrieve() ;
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "failed to retrieve LArCablingService " );
-    return sc;
-  }
-  ATH_MSG_INFO( " retrieved LArCablingService " );
+  ATH_CHECK(m_cablingKey.initialize());
 
   ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {
@@ -154,6 +147,12 @@ StatusCode LArOFCAlg::stop()
   ATH_MSG_INFO( "Number of phases in OFC      : " << m_nPhases  ) ;
   ATH_MSG_INFO( "Spacing between two phases   : " << m_dPhases  ) ;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
 
   StatusCode sc;
   if (m_useDelta == 3 || m_useDeltaV2==3){
@@ -185,7 +184,7 @@ StatusCode LArOFCAlg::stop()
     sc=this->initCaliWaveContainer();
   }
   else {
-    sc=this->initPhysWaveContainer();
+    sc=this->initPhysWaveContainer(cabling);
   }
 
   if (m_readDSPConfig) {
@@ -222,8 +221,7 @@ StatusCode LArOFCAlg::stop()
     if (m_computeV2)
       m_AutoCorrDecoderV2->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples);
       
-    //ToolHandle<LArCablingService> m_cablingService;
-    Identifier id=m_cablingService->cnvToIdentifier(chanData.chid);
+    Identifier id=cabling->cnvToIdentifier(chanData.chid);
     if (m_useDelta==3 || m_useDeltaV2) {
       //const CaloDetDescrManager* m_calo_dd_man;
       m_calo_dd_man->get_element(id);
@@ -236,7 +234,7 @@ StatusCode LArOFCAlg::stop()
     m_larPhysWaveBin->bin(chanData.chid,(CaloGain::CaloGain)chanData.gain);
 
     //Instanciated the functor and start parallel_for
-    Looper looper(&m_allChannelData,this);
+    Looper looper(&m_allChannelData,cabling, this);
     tbb::blocked_range<size_t> range(0, m_allChannelData.size());
     ATH_MSG_INFO( "Starting parallel execution" );
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_allChannelData.size()),looper);
@@ -247,7 +245,7 @@ StatusCode LArOFCAlg::stop()
   else {
     ATH_MSG_INFO( "Single threaded execution" );
     for (perChannelData_t& chanData : m_allChannelData) {
-      this->process(chanData);
+      this->process(chanData,cabling);
     }
   }
 
@@ -414,7 +412,7 @@ StatusCode LArOFCAlg::stop()
 }
 
 
-void LArOFCAlg::process(perChannelData_t& chanData) const {
+void LArOFCAlg::process(perChannelData_t& chanData, const LArOnOffIdMapping* cabling) const {
 
   LArWaveHelper larWaveHelper;
   const LArWaveCumul* nextWave=chanData.inputWave;
@@ -536,8 +534,8 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
       chanData.phasewMaxAt3=iPhase;
     }
 
-    bool thisChanUseDelta=useDelta(ch_id,m_useDelta);
-    bool thisChanUseDeltaV2=m_computeV2 && useDelta(ch_id,m_useDeltaV2);
+    bool thisChanUseDelta=useDelta(ch_id,m_useDelta,cabling);
+    bool thisChanUseDeltaV2=m_computeV2 && useDelta(ch_id,m_useDeltaV2,cabling);
     Eigen::VectorXd delta;
 
     if (thisChanUseDelta || thisChanUseDeltaV2) { // will need delta for at least one of the two versions
@@ -601,7 +599,7 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
 
 
 
-StatusCode LArOFCAlg::initPhysWaveContainer() {
+StatusCode LArOFCAlg::initPhysWaveContainer(const LArOnOffIdMapping* cabling) {
 
   typedef LArPhysWaveContainer::ConstConditionsMapIterator WAVEIT;
 
@@ -622,7 +620,7 @@ StatusCode LArOFCAlg::initPhysWaveContainer() {
       WAVEIT it_e=waveCnt->end(gain);
       for (;it!=it_e;++it) {
 	const HWIdentifier chid=it.channelId();
-	if (m_cablingService->isOnlineConnected (chid)){
+	if (cabling->isOnlineConnected (chid)){
 	  const LArWaveCumul* wave= &(*it); //down-cast
 	  if (!wave->isEmpty()) {
 	    m_allChannelData.emplace_back(wave, chid,gain);
@@ -873,7 +871,7 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 
 }
 
- bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag) const {
+ bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const {
 
   if (jobOFlag==2){
       return true;
@@ -891,8 +889,8 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
     }
     else if (m_onlineID->isFCALchannel(chid) ){
 
-      if (m_cablingService->isOnlineConnected (chid)){
-	Identifier ofl_id = m_cablingService->cnvToIdentifier(chid);
+      if (cabling->isOnlineConnected (chid)){
+	Identifier ofl_id = cabling->cnvToIdentifier(chid);
 	const CaloDetDescrElement* dde = m_calo_dd_man->get_element(ofl_id);
 	if (! dde) {
 	  ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< chid<<" "<<ofl_id );

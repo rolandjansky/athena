@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARROD_ENCODER_H
@@ -41,7 +41,7 @@
 #include "LArRawEvent/LArCalibDigit.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 //#include "LArByteStream/LArRodBlockStructure_0.h"
 //#include "LArByteStream/LArRodBlockStructure_1.h"
@@ -112,7 +112,7 @@ private:
 
   //Static members;
   static LArRodBlockStructure* m_BlStruct;
-  static LArCablingService*    m_cablingSvc; 
+  static LArCablingLegacyService*    m_cablingSvc; 
   static const CaloDetDescrManager* m_CaloDetDescrManager;
   static const LArOnlineID*    m_onlineHelper; 
   /*

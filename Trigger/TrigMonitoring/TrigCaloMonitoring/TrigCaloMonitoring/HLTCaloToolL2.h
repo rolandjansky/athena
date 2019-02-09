@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,7 @@
 // Simple description to come
 
 class StoreGateSvc;
-class LArCablingService;
+class LArCablingLegacyService;
 class LArOnlineID;
 class TileID;
 
@@ -40,7 +40,7 @@ private:
         /** List of keys to search for cell containers */
 	std::vector<std::string > m_listOfCellsKeys;
         const LArOnlineID * m_onlineHelper;
-        ToolHandle<LArCablingService>     m_cablingSvc;
+        ToolHandle<LArCablingLegacyService>     m_cablingSvc;
         const TileID* m_tileID;
 
 

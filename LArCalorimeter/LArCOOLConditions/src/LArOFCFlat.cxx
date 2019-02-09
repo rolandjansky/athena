@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArOFCFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
 
 LArOFCFlat::LArOFCFlat():
   m_nChannels(0),
@@ -76,15 +75,6 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
 }
 
-LArOFCFlat::OFCRef_t LArOFCFlat::OFC_a(const Identifier&  CellID, int gain, int tbin) const {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(CellID);
-  return OFC_a(OnId,gain,tbin);
-}
-LArOFCFlat::OFCRef_t LArOFCFlat::OFC_b(const Identifier&  CellID, int gain, int tbin) const {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(CellID);
-  return OFC_b(OnId,gain,tbin);
-}
-
 LArOFCFlat::OFCRef_t LArOFCFlat::OFC_a(const HWIdentifier&  onId, int gain, int tbin) const {
   if (tbin!=0) return OFCRef_t(NULL,NULL);
   return this->OFC_a(m_onlineHelper->channel_Hash(onId),gain);  
@@ -101,25 +91,12 @@ float LArOFCFlat::timeOffset(const HWIdentifier&  CellID, int gain) const {
 }
 
 
-float LArOFCFlat::timeOffset(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(CellID);
-  return timeOffset(OnId,gain);
-}
-  
-
 unsigned LArOFCFlat::nTimeBins(const HWIdentifier&, int) const {
   return 1;
 }
 
-unsigned LArOFCFlat::nTimeBins(const Identifier&, int) const {
-  return 1;
-}
- 
 
 float LArOFCFlat::timeBinWidth(const HWIdentifier&, int ) const {
   return (25./24.);
 }
 
-float LArOFCFlat::timeBinWidth(const Identifier&, int) const {
-  return (25./24.);
-}

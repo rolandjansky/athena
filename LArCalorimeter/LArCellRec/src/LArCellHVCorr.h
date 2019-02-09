@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -14,6 +14,8 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArCellHVCorrTool.h"
 #include "StoreGate/DataHandle.h"  
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCell;
 
@@ -50,7 +52,9 @@ public:
   virtual bool updateOnLastCallback() override {return m_updateOnLastCallback;}
 
  private: 
-  float getCorrection(const Identifier id) const;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
+ float getCorrection(const Identifier id) const;
 
  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
  std::string m_keyHVScaleCorr;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArRegionSelector_LArRegionSelectorCheckOL_h
@@ -14,7 +14,6 @@
 class CaloDetDescrManager;
 class CaloTTDescrManager;
 class CaloLVL1_ID;
-class LArCablingService; 
 class CaloTriggerTowerService; 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -46,8 +45,8 @@ private:
   const CaloTTDescrManager*      m_ttman; 
   const CaloLVL1_ID*             m_TT_ID; 
         IToolSvc*                m_toolSvc;
-        LArCablingService*       m_cablingSvc; 
         CaloTriggerTowerService*  m_ttSvc; 
+
 };
 
 #endif // LArRegionSelector_LArRegionSelectorCheckOL_h

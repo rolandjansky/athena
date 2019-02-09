@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDPHYSALGS_FCAL_HV_ENERGY_RESCALE_H
@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class FCAL_HV_Energy_Rescale: public AthAlgorithm
 { 
@@ -36,7 +36,8 @@ class FCAL_HV_Energy_Rescale: public AthAlgorithm
 
 private:
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
-  ToolHandle<LArCablingService> m_cabling;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   std::string m_folder;
 
 }; 

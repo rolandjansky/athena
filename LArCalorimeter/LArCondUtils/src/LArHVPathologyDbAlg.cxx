@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbAlg.h"
@@ -13,7 +13,7 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -47,7 +47,7 @@ LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* p
   , m_regSvc("IOVRegistrationSvc",name)
   , m_pathologyTool("LArHVPathologyDbTool")
   , m_mode(0)
-  , m_cablingService("LArCablingService")
+  , m_cablingService("LArCablingLegacyService")
   , m_larem_id(0)
   , m_larhec_id(0)
   , m_larfcal_id(0)

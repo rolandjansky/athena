@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LArFill_H
@@ -16,7 +16,6 @@ CREATED:  Jan. 2004
 #include "AthenaBaseComps/AthAlgorithm.h" 
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArDAC2uAComplete.h"

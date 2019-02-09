@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/LArDigitsToNtuple.h"
@@ -21,7 +21,6 @@
 LArDigitsToNtuple::LArDigitsToNtuple(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0),
-    m_larCablingSvc(0),
     m_emId(0),
     m_hecId(0),
     m_fcalId(0),
@@ -73,7 +72,7 @@ StatusCode LArDigitsToNtuple::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
@@ -219,6 +218,12 @@ StatusCode LArDigitsToNtuple::execute()
   if(m_sca) {
     ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
   }
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  const LArOnOffIdMapping* cabling=*larCablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
+     return StatusCode::FAILURE;
+  }
 
   // Fill ntuple
   LArDigitContainer::const_iterator it = digit_cont->begin(); 
@@ -234,7 +239,7 @@ StatusCode LArDigitsToNtuple::execute()
     if(m_trigger) m_nt_trigger = triggerword;
     if(m_scint)   m_nt_S1      = S1Adc;
     try {
-      Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+      Identifier id=cabling->cnvToIdentifier(hwid);
       if (m_emId->is_lar_em(id)) {
 	m_nt_eta       = m_emId->eta(id);
 	m_nt_phi       = m_emId->phi(id);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -81,8 +81,8 @@ StatusCode EFMissingETFromFEBHeader::initialize()
     return StatusCode::FAILURE;
   }
 
-  if(toolSvc()->retrieveTool("LArCablingService",m_cablingSvc).isFailure()) {
-    ATH_MSG_FATAL( "Could not get LArCablingService" );
+  if(toolSvc()->retrieveTool("LArCablingLegacyService",m_cablingSvc).isFailure()) {
+    ATH_MSG_FATAL( "Could not get LArCablingLegacyService" );
     return StatusCode::FAILURE;
   }
 

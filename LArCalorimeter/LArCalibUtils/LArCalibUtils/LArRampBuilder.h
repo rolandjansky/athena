@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,12 +37,14 @@
 #include "LArRecUtils/LArShapePeakRecoTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArRinj.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
+
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //#include "LArCalibTriggerAccumulator.h"
 
@@ -72,13 +74,14 @@ public:
 
 
 private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   //Private member functions
   // choose reconstruction mode (i.e. OF or Parabola)
   void chooseRecoMode() ;
   //Does the fitting of the raw ramp. Result is returned as LArRampDB_t.
   StatusCode rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 		     std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
-		     const HWIdentifier chid);
+		     const HWIdentifier chid, const LArOnOffIdMapping* cabling);
 
   //Private data memebers:
   //typedef std::map<HWIdentifier, std::map<uint16_t,RAWRAMP> >  RAWRAMPMAP;
@@ -144,7 +147,6 @@ private:
   //  hashID     sample
   std::vector<std::vector<short> > m_adc0;
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
   ToolHandle< ILArBadChannelMasker> m_badChannelMask;
   bool m_doBadChannelMask;
 

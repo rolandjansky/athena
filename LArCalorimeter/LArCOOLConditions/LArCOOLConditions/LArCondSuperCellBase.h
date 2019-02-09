@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -8,7 +8,6 @@
 
 #include <string>
 #include "GaudiKernel/StatusCode.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
 // Forward delcarations
@@ -24,7 +23,6 @@ class LArCondSuperCellBase {
  protected:
   bool 	                       m_isInitialized;
   const LArOnline_SuperCellID* m_scOnlineID;
-  LArSuperCellCablingTool*     m_scCablingTool;
   MsgStream*                   m_log;
 
 };

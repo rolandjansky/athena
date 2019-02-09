@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,6 +22,8 @@
 
 #include "LArCalibUtils/LArWFParamTool.h"
 #include "LArCalibUtils/LArPhysWaveTool.h" 
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -37,9 +39,11 @@ class LArTCMPhysWavePredictor : public AthAlgorithm
   StatusCode initialize() ; 
   StatusCode execute() {return StatusCode::SUCCESS;} //empty method
   StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  StatusCode finalize(){ATH_CHECK(m_cablingKey.initialize()); return StatusCode::SUCCESS;}
  private:
-  
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+
   bool        m_testmode;
   bool	      m_datafromfile; //switch to take data from file/db
   int         m_minuitoutputlevel;

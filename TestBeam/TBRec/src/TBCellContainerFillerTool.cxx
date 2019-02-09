@@ -8,7 +8,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 
@@ -36,7 +35,6 @@ StatusCode TBCellContainerFillerTool::initialize()
 
   m_hashMax = m_theCaloCCIDM->calo_cell_hash_max();
 
-  ATH_CHECK( m_cablingService.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   return StatusCode::SUCCESS;
@@ -76,7 +74,6 @@ TBCellContainerFillerTool::process (CaloCellContainer* theCont,
        Identifier cellid = m_theCaloCCIDM->cell_id(theHash);
        HWIdentifier chid = m_onlineHelper->channel_Id(m_theCaloCCIDM->calo_cell_hash(cellid));
        if(!chid.get_identifier32().get_compact()) continue;
-//       if(m_cablingService->isOnlineConnected(chid)) {
           const CaloDetDescrElement* cDDE = m_theCaloDDM->get_element(cellid);
           if(!cDDE) { continue; }
           if(cDDE->is_lar_hec())

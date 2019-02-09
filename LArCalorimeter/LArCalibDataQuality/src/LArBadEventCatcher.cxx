@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDataQuality/LArBadEventCatcher.h"
@@ -11,12 +11,9 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-#include "LArCabling/LArCablingService.h"
-
 LArBadEventCatcher::LArBadEventCatcher(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator), 
   m_onlineID(0),
-  m_larCablingSvc("LArCablingService"),
   m_thisSize(0)
 {
   m_keyList.push_back("HIGH");
@@ -62,14 +59,6 @@ StatusCode LArBadEventCatcher::initialize() {
     return StatusCode::FAILURE;
   }
   
-
-
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("Failed to retrieve LArCablingService");
-      return sc;
-  }
-
   return StatusCode::SUCCESS;
 }
 

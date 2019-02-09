@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNT_Timing.h"
@@ -12,7 +12,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBPhase.h"
@@ -68,7 +67,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
 
-  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
     addBranch ("TDC_TimeCell",m_time_cell);
@@ -149,6 +148,13 @@ StatusCode CBNT_Timing::CBNT_execute()
   // Data Access //
   /////////////////
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   // CaloCells
   const CaloCellContainer* cellContainer = nullptr;
   ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellName ) );
@@ -191,7 +197,7 @@ StatusCode CBNT_Timing::CBNT_execute()
           // here you have the CaloCell with idCalo, idSample, **cell
           // find the hardware ID and the corresponding febID
 
-          HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+          HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
           HWIdentifier febID = m_onlineHelper->feb_Id(id);
 
           // store it if you don't have it already
@@ -256,7 +262,7 @@ StatusCode CBNT_Timing::CBNT_execute()
         // here you have the CaloCell with idCalo, idSample, **cell
         // find the hardware ID and the corresponding febID
 
-        HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+        HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
         HWIdentifier febID = m_onlineHelper->feb_Id(id);
        
         // gather sums for energy weighted cubic peaking time
@@ -295,7 +301,7 @@ StatusCode CBNT_Timing::CBNT_execute()
 	
 	m_febId_cell->push_back(febID.get_identifier32().get_compact());
 	//try {
-	//const Identifier ident = m_cablingService->cnvToIdentifier(id);
+	//const Identifier ident = cabling->cnvToIdentifier(id);
 	if ( m_emId->is_lar_em((*cell)->ID()) ) { 
 	  m_eta_cell->push_back(m_emId->eta((*cell)->ID()));
 	  m_phi_cell->push_back(m_emId->phi((*cell)->ID()));

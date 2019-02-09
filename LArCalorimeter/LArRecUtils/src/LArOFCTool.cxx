@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOFCTool.h"
@@ -15,8 +15,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
@@ -97,11 +96,10 @@ StatusCode LArOFCTool::initialize()
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK(  service( "ToolSvc",toolSvc ) );
   if ( m_isSC ) {
-    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
-    ATH_CHECK( tool.retrieve() );
-    m_cablingService = (LArCablingBase*)& (*tool);
+     ATH_MSG_ERROR("LArOFCTool deprecated, not working for SC");
+     return StatusCode::FAILURE;
   } else {
-    ToolHandle<LArCablingService> tool("LArCablingService");
+    ToolHandle<LArCablingLegacyService> tool("LArCablingLegacyService");
     ATH_CHECK( tool.retrieve() );
     m_cablingService = (LArCablingBase*)& (*tool);
   }

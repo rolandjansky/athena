@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FIXLARELECCALIB_H
@@ -8,6 +8,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include <string>
 
 class  LArEM_ID ;
@@ -15,7 +18,6 @@ class  LArHEC_ID;
 class  LArFCAL_ID;
 class  LArOnlineID;
 class  LArOnline_SuperCellID;
-class  LArCablingService;
 class  CaloCell_SuperCell_ID;
 
 #include "LArRawConditions/LArDAC2uAMC.h"
@@ -109,8 +111,8 @@ class FixLArElecCalib : public AthAlgorithm
   const LArFCAL_SuperCell_ID* m_sfcal_idhelper;
   const LArOnline_SuperCellID* m_sonline_idhelper;
   const CaloCell_SuperCell_ID* m_scell_idhelper;
-  LArCablingService* m_cablingSvc ;
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
 
   typedef std::pair<HWIdentifier,std::vector<float> > ROW ;

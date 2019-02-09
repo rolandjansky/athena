@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRIGGERTOWERSERVICE_H
@@ -34,7 +34,7 @@ class LArOnlineID;
 class LArEM_ID;
 class TTOnlineID;
 class CaloLVL1_ID;
-class LArCablingService;
+class LArCablingLegacyService;
 
 static const InterfaceID IID_CaloTriggerTowerService("CaloTriggerTowerService", 1 , 0);
 
@@ -202,7 +202,7 @@ class CaloTriggerTowerService : public AthAlgTool
  private:
 
     /** pointer to the LArCablingSvc tool */
-    LArCablingService   * m_larcablingSvc;
+    LArCablingLegacyService   * m_larcablingSvc;
     /** pointer to the LAr Online Id helper */
     const LArOnlineID   * m_onlineHelper ;
     /** pointer to the LArEM  offline Id helper */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLHVCORRALG_H
@@ -10,6 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArCellHVCorrTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"  
 
 class CaloCell;
@@ -31,13 +32,14 @@ public:
   //Implements the CaloCellCorrection interface    
   virtual void MakeCorrection (CaloCell* /*theCell*/, const EventContext& /*ctx*/) const override final; 
   void MakeCorrection (CaloCell* theCell,
-                               const EventContext& ctx, const ILArHVScaleCorr* ofl=nullptr) const;
+                               const EventContext& ctx, const ILArHVScaleCorr* ofl=nullptr, const LArOnOffIdMapping* cabling=nullptr) const;
 
 
 
  private: 
 
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_offlineHVScaleCorrKey{this, "keyOfflineHVCorr", "LArHVScaleCorrRecomputed","Key for LArHVScaleCorr"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
 };
 

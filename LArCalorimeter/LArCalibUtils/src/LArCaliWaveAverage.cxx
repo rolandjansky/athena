@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveAverage.h"
@@ -18,15 +18,12 @@ typedef std::map<int, LArCaliWave> WaveMap;
   
 LArCaliWaveAverage::LArCaliWaveAverage(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc(0),
   m_onlineHelper(0),
   m_emId(0),
   m_hecId(0),
-  m_fcalId(0)
+  m_fcalId(0),
+  m_condSvc("CondSvc",name)
 {  
-  declareProperty("KeyInput",       m_keyInput      = "LArCaliWave");
-  declareProperty("KeyOutputCorr",  m_keyOutputCorr = "LArCaliWaveCorr");  
-  declareProperty("KeyOutputSymm",  m_keyOutputSymm = "LArCaliWaveSymm");  
   m_chids.clear();
   declareProperty("ChannelIDs",     m_chids);
   declareProperty("GroupingType",   m_groupingType  = "ExtendedFeedThrough"); // SubDetector, Single, FeedThrough, ExtendedFeedThrough
@@ -54,8 +51,10 @@ StatusCode LArCaliWaveAverage::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK( larCablingSvc.retrieve() );
+  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_keyInput.initialize());
+  ATH_CHECK(m_keyOutputCorr.initialize());
+  ATH_CHECK(m_keyOutputSymm.initialize());
 
   if ( m_chids.size() > 0 ) {
     ATH_MSG_INFO ( m_chids.size() << " channels selected for averaging." );
@@ -64,6 +63,16 @@ StatusCode LArCaliWaveAverage::initialize() {
     return StatusCode::FAILURE;
   }
 
+  // Register write handle
+  ATH_CHECK( m_condSvc.retrieve() );
+  if (m_condSvc->regHandle(this, m_keyOutputCorr).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_keyOutputCorr.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
+  }
+  if (m_condSvc->regHandle(this, m_keyOutputSymm).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_keyOutputSymm.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -76,9 +85,9 @@ StatusCode LArCaliWaveAverage::stop() {
   ATH_MSG_INFO ( "stop()" );
   
   // Get input LArCaliWaveContainer
-  const LArCaliWaveContainer* theLArCaliWaveContainer;
-  ATH_CHECK( detStore()->retrieve(theLArCaliWaveContainer,m_keyInput) );
-  if ( theLArCaliWaveContainer == NULL ) {
+  SG::ReadCondHandle<LArCaliWaveContainer> inHdl(m_keyInput);
+  const LArCaliWaveContainer* theLArCaliWaveContainer = *inHdl;
+  if (! theLArCaliWaveContainer ) {
     ATH_MSG_ERROR ( "LArCaliWaveContainer (key = " << m_keyInput << ") is empty" );
     return StatusCode::FAILURE;
   }
@@ -96,12 +105,19 @@ StatusCode LArCaliWaveAverage::stop() {
     ATH_MSG_ERROR ( "Failed to initialize LArCaliWaveContainer object" );
     return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
   
   for ( unsigned i=0; i<m_chids.size();++i) { // loop over selected channels
     
     const HWIdentifier chid(m_chids[i]);
 
-    std::vector<HWIdentifier> theSymmetricChannels = SymmetricChannels(chid,m_chids);
+    std::vector<HWIdentifier> theSymmetricChannels = SymmetricChannels(chid,m_chids,cabling);
     
     if ( theSymmetricChannels.size() == 0) {
       ATH_MSG_WARNING ( "No symmetric channels found for channel 0x" << MSG::hex << chid << MSG::dec << ". Cannot average." );
@@ -191,8 +207,25 @@ StatusCode LArCaliWaveAverage::stop() {
   } // end of loop over selected channels
   
   // Record average LArCaliWaveContainer to DetectorStore
-  ATH_CHECK( detStore()->record(std::move(larCaliWaveContainerCorr),m_keyOutputCorr) );
-  ATH_CHECK( detStore()->record(std::move(larCaliWaveContainerSymm),m_keyOutputSymm) );
+  // Define validity of the output cond object 
+  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  EventIDRange rangeW{start, stop};
+  SG::WriteCondHandle<LArCaliWaveContainer> corrHdl(m_keyOutputCorr);
+  const EventIDRange crangeW(rangeW);
+  if(corrHdl.record(crangeW,larCaliWaveContainerCorr.release()).isFailure()) {
+    ATH_MSG_ERROR("Could not record LArCaliWaveContainer  object with " << m_keyOutputCorr.key()
+                  << " with EventRange " << crangeW << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("recorded new " << m_keyOutputCorr.key() << " with range " << crangeW << " into Conditions Store");
+  SG::WriteCondHandle<LArCaliWaveContainer> symHdl(m_keyOutputSymm);
+  if(symHdl.record(crangeW,larCaliWaveContainerSymm.release()).isFailure()) {
+    ATH_MSG_ERROR("Could not record LArCaliWaveContainer  object with " << m_keyOutputSymm.key()
+                  << " with EventRange " << crangeW << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("recorded new " << m_keyOutputCorr.key() << " with range " << crangeW << " into Conditions Store");
   return StatusCode::SUCCESS;
 }
 
@@ -200,7 +233,7 @@ StatusCode LArCaliWaveAverage::stop() {
   SymmetricChannels() returns a vector of HWIdentifier corresponding 
   to the list of channels in the same et/phi position in all other FTs
 */
-std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChID, std::vector<unsigned> ChannelsNotToUse) 
+std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChID, std::vector<unsigned> ChannelsNotToUse, const LArOnOffIdMapping* cabling) 
 {
   ATH_MSG_VERBOSE ( "Seeking symmetric cells for channel 0x" << MSG::hex << ChID << MSG::dec );
   
@@ -209,7 +242,7 @@ std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChI
     
   Identifier id;
   try {
-    id = m_larCablingSvc->cnvToIdentifier(ChID);
+    id = cabling->cnvToIdentifier(ChID);
   } catch (LArID_Exception & execpt) {
     ATH_MSG_ERROR ( "LArCabling exception caught for channel 0x" << MSG::hex << ChID << MSG::dec );
     return theSymmetricChannels;

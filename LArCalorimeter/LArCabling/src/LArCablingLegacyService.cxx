@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include <set>
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/Blob.h"
@@ -10,25 +10,25 @@
 #include "LArIdentifier/LArOnlineID.h"
 
 //-------------------------------------------------------------
-LArCablingService::LArCablingService( const std::string& type, 
+LArCablingLegacyService::LArCablingLegacyService( const std::string& type, 
 				      const std::string& name, 
 				      const IInterface* parent ) 
   : LArCablingBase(type,name,parent),
     m_calibValid(false),
     m_febRodValid(false) {
 
-  declareInterface<LArCablingService>(this);
+  declareInterface<LArCablingLegacyService>(this);
   declareProperty("LArFebRodMapKey",m_febRodMapKey="/LAR/Identifier/FebRodMap");
   declareProperty("LArCalibIDFolder",m_calibIdKey="/LAR/Identifier/CalibIdMap");
 }
 
 
-LArCablingService::~LArCablingService() { } 
+LArCablingLegacyService::~LArCablingLegacyService() { } 
 
 //---------------------------------------------------------
-StatusCode LArCablingService::initialize ()
+StatusCode LArCablingLegacyService::initialize ()
 {
-  ATH_MSG_DEBUG("Initializing LArCablingService");
+  ATH_MSG_DEBUG("Initializing LArCablingLegacyService");
 
   const LArOnlineID* onlineId;
   StatusCode sc=detStore()->retrieve(onlineId, "LArOnlineID");
@@ -50,7 +50,7 @@ StatusCode LArCablingService::initialize ()
   unsigned nCallbacks=0;
 
   if (m_onOffIdKey.size()) {
-    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrOnOff,m_onOffIdKey,true);
+    sc=detStore()->regFcn(&LArCablingLegacyService::iovCallBack,this,m_attrOnOff,m_onOffIdKey,true);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endmsg;
     }
@@ -61,7 +61,7 @@ StatusCode LArCablingService::initialize ()
   }
  
   if (m_calibIdKey.size()) {
-    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrCalib,m_calibIdKey);
+    sc=detStore()->regFcn(&LArCablingLegacyService::iovCallBack,this,m_attrCalib,m_calibIdKey);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Failed to register callback on SG key" << m_calibIdKey << endmsg;
     }
@@ -71,7 +71,7 @@ StatusCode LArCablingService::initialize ()
     }
   }
   if (m_febRodMapKey.size()) {
-    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this, m_attrFebRod,m_febRodMapKey); 
+    sc=detStore()->regFcn(&LArCablingLegacyService::iovCallBack,this, m_attrFebRod,m_febRodMapKey); 
     if (sc.isFailure()) {
       msg() <<MSG::ERROR<<"Failed to register callback on SG key" << m_febRodMapKey << endmsg;
     }
@@ -85,13 +85,13 @@ StatusCode LArCablingService::initialize ()
     msg(MSG::ERROR) << "No callback was sucessfully installed! Configuration problem?" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO)<< "Sucessfully initialized LArCablingService with " << nCallbacks << " callbacks." << endmsg; 
+  msg(MSG::INFO)<< "Sucessfully initialized LArCablingLegacyService with " << nCallbacks << " callbacks." << endmsg; 
   return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
+StatusCode LArCablingLegacyService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
   msg() << MSG::INFO<<" ====> iovCallBack " << endmsg;
   
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
@@ -117,7 +117,7 @@ StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 
 
-bool LArCablingService::readCalibMap() {
+bool LArCablingLegacyService::readCalibMap() {
   msg(MSG::DEBUG) << "Start reading calibration line mapping" << endmsg;
   m_calibValid=false;
   m_onlHashToCalibLines.clear();
@@ -157,7 +157,7 @@ bool LArCablingService::readCalibMap() {
 }
 
 
-bool LArCablingService::readFebRodMap() {
+bool LArCablingLegacyService::readFebRodMap() {
   ATH_MSG_DEBUG("Start reading Feb/Rod mapping");
   m_febRodValid=false;
   m_pFebHashtoROD=NULL;
@@ -189,7 +189,7 @@ bool LArCablingService::readFebRodMap() {
 
 
 
-const std::vector<HWIdentifier>& LArCablingService::calibSlotLine(const HWIdentifier & sid) { 
+const std::vector<HWIdentifier>& LArCablingLegacyService::calibSlotLine(const HWIdentifier & sid) { 
   if (m_calibValid || readCalibMap()) {
     const IdentifierHash sid_hash=m_onlineId->channel_Hash(sid); 
     return m_onlHashToCalibLines[sid_hash];
@@ -202,16 +202,15 @@ const std::vector<HWIdentifier>& LArCablingService::calibSlotLine(const HWIdenti
 
 
 
-HWIdentifier LArCablingService::getReadoutModuleID(const HWIdentifier& febId) {
+HWIdentifier LArCablingLegacyService::getReadoutModuleID(const HWIdentifier& febId) {
   const IdentifierHash fHash=m_onlineId->feb_Hash(febId);
   return getReadoutModuleIDByHash(fHash);
 }
 
 
-HWIdentifier LArCablingService::getReadoutModuleIDByHash(const IdentifierHash& febIdHash) {
+HWIdentifier LArCablingLegacyService::getReadoutModuleIDByHash(const IdentifierHash& febIdHash) {
   if (m_febRodValid || readFebRodMap()) {
     //Check range?
-    //std::cout<< "getReadoutModuleIDByHash " << std::hex << m_pFebHashtoROD[febIdHash] << std::dec << std::endl;
     return HWIdentifier(m_pFebHashtoROD[febIdHash]);
   }
   else
@@ -222,7 +221,7 @@ HWIdentifier LArCablingService::getReadoutModuleIDByHash(const IdentifierHash& f
 /**
  * @brief Make sure the onOff map is initialized.
  */
-StatusCode LArCablingService::checkOnOff()
+StatusCode LArCablingLegacyService::checkOnOff()
 {
   if (!m_onOffValid) {
     readOnlOffMap();

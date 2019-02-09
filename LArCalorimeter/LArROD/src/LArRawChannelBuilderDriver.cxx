@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,9 +21,7 @@ LArRawChannelBuilderDriver::LArRawChannelBuilderDriver(const std::string& name,
   m_buildTools(this),
   m_adc2eTools(this),
   m_pedestalTools(this),
-  m_oldPedestal(0),
-  m_larCablingSvc("LArCablingService")
-  //m_roiMap("LArRoI_Map")
+  m_oldPedestal(0)
 {
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
   declareProperty("DataLocation",                 m_DataLocation );
@@ -47,11 +45,8 @@ StatusCode LArRawChannelBuilderDriver::initialize()
   }
   
   
-  if(m_larCablingSvc.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( m_cablingKey.initialize() );
+
   if ( m_buildTools.retrieve().isFailure() ){
     msg(MSG::ERROR) << "Unable to find Builder Tools " << m_buildTools << endmsg;
     return StatusCode::FAILURE; 
@@ -132,6 +127,13 @@ StatusCode LArRawChannelBuilderDriver::execute()
     return StatusCode::SUCCESS;
   }
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   // declare all variables first ...
   builderToolVector::iterator itStart = m_buildTools.begin();
   builderToolVector::iterator itEnd   = m_buildTools.end();
@@ -157,7 +159,7 @@ StatusCode LArRawChannelBuilderDriver::execute()
 	m_params->curr_gain = CaloGain::UNKNOWNGAIN;
       }
       
-      if(!m_buildDiscChannel && !m_larCablingSvc->isOnlineConnected(m_params->curr_chid))
+      if(!m_buildDiscChannel && !cabling->isOnlineConnected(m_params->curr_chid))
 	continue;
       
       m_params->curr_sample0   = (*cont_it)->samples()[0];

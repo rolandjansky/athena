@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECLArRawChannelBuilder.h"
@@ -30,7 +30,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
   AthAlgorithm(name, pSvcLocator),
   m_OFCTool("LArOFCTool"),
   m_adc2mevTool("LArADC2MeVTool"),
-  m_hvCorrTool("LArHVCorrTool"),
   m_onlineHelper(0),
   m_calo_id(0),
   m_calo_dd_man(0),
@@ -136,12 +135,12 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
   }
   
   // translate offline ID into online ID
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
   
   // ***
 
   if (m_hvcorr) {
-    ATH_CHECK( m_hvCorrTool.retrieve() );
+    ATH_CHECK( m_offlineHVScaleCorrKey.initialize() );
   }
 
 
@@ -208,6 +207,22 @@ StatusCode TBECLArRawChannelBuilder::execute()
   int highE      = 0; // Number of channels with 'high' (above threshold) energy in a given event 
   int saturation = 0; // Number of saturating channels in a given event   
   
+  const ILArHVScaleCorr *oflHVCorr=nullptr;
+  if(m_hvcorr) {
+     SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey);
+     oflHVCorr = *oflHVCorrHdl;
+     if(!oflHVCorr) {
+        ATH_MSG_ERROR( "Could not get the HVScaleCorr from key " << m_offlineHVScaleCorrKey.key() );
+        return StatusCode::FAILURE;
+     }
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+        ATH_MSG_ERROR( "Could not get the cabling mapping from key " << m_cablingKey.key() );
+        return StatusCode::FAILURE;
+     }
+
   //Pointer to input data container
   const LArDigitContainer* digitContainer=NULL;//Pointer to LArDigitContainer
   //const TBPhase* theTBPhase; //Pointer to Testbeam TDC-Phase object (if needed)
@@ -304,9 +319,9 @@ StatusCode TBECLArRawChannelBuilder::execute()
     if (msgLvl(MSG::DEBUG) ) {
       Identifier id ;
       try {
-        id = m_larCablingSvc->cnvToIdentifier(chid);
+        id = cabling->cnvToIdentifier(chid);
       } catch ( LArID_Exception & except ) {
-        ATH_MSG_DEBUG ( "A larCablingSvc exception was caught for channel 0x!" 
+        ATH_MSG_DEBUG ( "A Cabling exception was caught for channel 0x!" 
                         << MSG::hex << chid.get_compact() << MSG::dec );
         continue ;
       }
@@ -485,8 +500,6 @@ StatusCode TBECLArRawChannelBuilder::execute()
       } 
       
       // temporalery fix for bad ramps... should be done in the DB
-      // if(ramp[1]>500 || ramp[1]<0) {
-      
       if(ramp[1]>m_ramp_max[gain] || ramp[1]<0) {
 	noEnergy++;
 	ATH_MSG_DEBUG ( "Bad ramp for channel " << chid << " (ramp[1] = " << ramp[1] << "): skip this channel" );
@@ -500,14 +513,13 @@ StatusCode TBECLArRawChannelBuilder::execute()
       //otherwise ignore intercept, E=0;
       for (unsigned i=1;i<ramp.size();i++)
 	{energy+=ramp[i]*ADCPeakPower; //pow(ADCPeak,i);
-	//std::cout << "Step "<< i <<":" << ramp[i] << " * " << pow(ADCPeak,i) << "Sum=" << energy << std::endl;
 	ADCPeakPower*=ADCPeak;
 	}
     } else {
       energy = ADCPeak;
       if (m_ConvertADCToHighGain && gain == CaloGain::LARMEDIUMGAIN) 
 	energy *= 9.5;
-      Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+      Identifier id = cabling->cnvToIdentifier(chid);
       int is = m_calo_id->calo_sample(id);
       energy *= m_adc2mev[is];                // Ramp for h.g. scale
     }
@@ -516,18 +528,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 
     if (m_hvcorr) {
 // HV tool
-       float hvCorr = m_hvCorrTool->Scale(chid);
-// debug printout
- //      const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
- //      if (m_emId->is_lar_em(id) && abs(m_emId->barrel_ec(id))==1 && 
- //          m_emId->sampling(id)>0) {
- //        layer  = m_emId->sampling(id);
- //        eta    = m_emId->eta(id); 
- //        phi    = m_emId->phi(id);
- //        region = m_emId->region(id);  
- //        std::cout << "side,sampling,region,eta,phi,corr " << m_emId->barrel_ec(id) << " " << layer << " " << region << " "
- //                 << eta << " " << phi << " " << hvCorr << std::endl;
- //      }
+       float hvCorr = oflHVCorr-> HVScaleCorr(chid);
        energy = energy*hvCorr;
     }
   

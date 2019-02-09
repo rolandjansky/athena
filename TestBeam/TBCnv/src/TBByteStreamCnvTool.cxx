@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCnv/TBByteStreamCnvTool.h"
@@ -77,7 +77,7 @@ StatusCode TBByteStreamCnvTool::initialize()
    return StatusCode::FAILURE;
  }
  
- sc=toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
+ sc=toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
  if (sc.isFailure()) {
    logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
    return StatusCode::FAILURE;

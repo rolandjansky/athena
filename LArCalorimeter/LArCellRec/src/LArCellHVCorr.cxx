@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCellHVCorr.h" 
@@ -51,6 +51,8 @@ StatusCode LArCellHVCorr::initialize() {
 
   ATH_CHECK( m_hvCorrTool.retrieve() );
 
+  ATH_CHECK( m_cablingKey.initialize() );
+
   // if (m_undoHVonline) {
   //   sc = detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
   //   if (sc.isFailure()) {
@@ -87,10 +89,17 @@ float LArCellHVCorr::getCorrection(const Identifier id)
 
 float LArCellHVCorr::getCorrection(const Identifier id) const
 {
- float hvcorr = m_hvCorrTool->Scale(id);
+  // this is highly ineffective, but this tool will be soon decommissioned, so could live with this for some time...
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+      ATH_MSG_WARNING("Do not have mapping object " << m_cablingKey.key() << " returning 1.");
+      return 1.;
+  }
+ float hvcorr = m_hvCorrTool->Scale(cabling->createSignalChannelID(id));
 
  if (m_undoHVonline) {
-    float hvonline = m_dd_HVScaleCorr->HVScaleCorr(id);
+    float hvonline = m_dd_HVScaleCorr->HVScaleCorr(cabling->createSignalChannelID(id));
     if (hvonline>0. && hvonline<100.) hvcorr = hvcorr/hvonline;
   }
 
@@ -110,7 +119,8 @@ float LArCellHVCorr::getCorrection(const Identifier id) const
 void LArCellHVCorr::MakeCorrection (CaloCell* theCell,
                                     const EventContext& /*ctx*/) const
 {
-  const float hvcorr=getCorrection(theCell->ID());
+  const Identifier id=theCell->ID();
+  const float hvcorr=getCorrection(id);
   theCell->setEnergy(theCell->energy()*hvcorr);
 }  
 

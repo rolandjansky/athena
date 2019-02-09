@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTests/Analysis.h"
@@ -26,7 +26,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRawUtils/LArRawDetSelector.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/ReadHandle.h"
 #include "HepMC/GenEvent.h"
@@ -72,7 +71,6 @@ namespace MyAnalysis {
     m_hist_cal1(0),
     m_hist_cal2(0),
     m_hist_cal3(0),
-    m_cablingService(0),
     m_triggerTimeTool(0),
     m_larem_id(0),
     m_calodm_id(0),
@@ -254,11 +252,9 @@ namespace MyAnalysis {
        }
     }   // m_check
 
-    IToolSvc* toolSvc = nullptr;
-    ATH_CHECK( service( "ToolSvc",toolSvc  ) );
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingService) );
+    ATH_CHECK( m_cablingKey.initialize() );
     ATH_CHECK( service("THistSvc",m_thistSvc) );
-    std::cout << " retrieved THistSvc" << std::endl;
+    ATH_MSG_INFO( " retrieved THistSvc" );
 
     StatusCode sc;
     m_hist_etraw_emb_s0 = new TH1D("m_hist_etraw_emb_s0","E EMB S0",4000,-100.,100.);
@@ -695,8 +691,11 @@ namespace MyAnalysis {
   }     // m_cell
 //
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+
   double etot_raw[4]={0.,0.,0.,0.};
-  if (m_raw) {
+  if (m_raw && cabling) {
 // Loop over LArRawChannel
     int nraw=0;
     SG::ReadHandle<LArRawChannelContainer> rawchannel_container(m_rawChannelName, ctx);
@@ -710,7 +709,7 @@ namespace MyAnalysis {
 
        const HWIdentifier ch_id = hit.channelID();
        Identifier  cellID =
-        m_cablingService->cnvToIdentifier(ch_id);
+        cabling->cnvToIdentifier(ch_id);
 // fill list
        if (m_larem_id->is_lar_em(cellID)) {
         if (m_check) {

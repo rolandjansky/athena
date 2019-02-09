@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBLArRawChannelBuilder.h"
@@ -15,7 +15,6 @@ using CLHEP::nanosecond;
 TBLArRawChannelBuilder::TBLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_roiMap(0),
-  m_larCablingSvc(0),
   m_emId(0),
   m_fcalId(0),
   m_hecId(0),
@@ -56,7 +55,7 @@ StatusCode TBLArRawChannelBuilder::initialize(){
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
 
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
@@ -79,6 +78,13 @@ StatusCode TBLArRawChannelBuilder::initialize(){
 StatusCode TBLArRawChannelBuilder::execute() {
   ATH_MSG_DEBUG ( "In execute" );
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not hame cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   //Pointer to input data container
   const LArDigitContainer* digitContainer;//Pointer to LArDigitContainer
 
@@ -231,7 +237,7 @@ StatusCode TBLArRawChannelBuilder::execute() {
 
     // Now must get subdetector ID and feed in here ...
     float ADCtoMeV      = 10.0;
-    const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+    const Identifier id = cabling->cnvToIdentifier(chid);
     if (m_emId->is_em_barrel(id)) {
       // m_emId->sampling(id);
       ADCtoMeV = m_ADCtoMeVEMB[0];
