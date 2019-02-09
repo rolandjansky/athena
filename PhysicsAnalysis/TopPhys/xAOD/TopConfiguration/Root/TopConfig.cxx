@@ -1034,8 +1034,6 @@ namespace top{
         throw std::invalid_argument("TopConfig: Option PRWPeriodAssignments requires values in the form of \'value:value:value\'. The number of values needs to be divisible by 3.");
       }
       try {
-        // need to clear the default values first
-        m_pileup_reweighting.periodAssignments.clear();
         for (const std::string& per : period_tokens){
           m_pileup_reweighting.periodAssignments.emplace_back(std::stoi(per));
         }

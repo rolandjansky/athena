@@ -1351,9 +1351,7 @@ class TopConfig final {
 
     std::vector<double> custom_SF = {};
 
-    // Default values are taken from the default values of the PRW tool
-    // these corresponds to 13 TeV mc16a, mc16d and mc16e campaigns
-    std::vector<int> periodAssignments = {284500,222222,324300,300000,324300,344495,310000,344496,999999};
+    std::vector<int> periodAssignments = {};
 
   } m_pileup_reweighting;
 
