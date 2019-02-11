@@ -10,7 +10,7 @@ svcMgr.AvalancheSchedulerSvc.ShowControlFlow=True
 svcMgr.AvalancheSchedulerSvc.ShowDataDependencies=True
 EOF
 
-athena --threads=1 --config-only=bootstrap.pkl bootstrap.py
+athena --threads=5 --config-only=bootstrap.pkl bootstrap.py
 
 get_files -jo SCT_Cabling/TestSCT_CablingCfg.py
  
@@ -24,5 +24,5 @@ else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
     echo 
-    athena --evtMax=2 TestSCT_CablingCfg.pkl 2>&1
+    athena --evtMax=20 TestSCT_CablingCfg.pkl 2>&1
 fi

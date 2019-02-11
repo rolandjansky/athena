@@ -15,13 +15,6 @@
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_mutex{},
-  m_cacheGain{},
-  m_cacheNoise{},
-  m_cacheInfo{},
-  m_condDataGain{},
-  m_condDataNoise{},
-  m_condDataInfo{},
   m_id_sct{nullptr} {
   }
 
@@ -366,92 +359,33 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
 
 const SCT_CalibDefectData*
 SCT_ReadCalibDataTool::getCondDataGain(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheGain.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheGain.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheGain[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyGain};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyGain.key());
-    }
-    m_condDataGain.set(*condData);
-    m_cacheGain[slot] = evt;
-  }
-  return m_condDataGain.get();
+  SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyGain, ctx};
+  return condData.retrieve();
 }
 
 //----------------------------------------------------------------------
 
 const SCT_CalibDefectData*
 SCT_ReadCalibDataTool::getCondDataNoise(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheNoise.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheNoise.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheNoise[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyNoise};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyNoise.key());
-    }
-    m_condDataNoise.set(*condData);
-    m_cacheNoise[slot] = evt;
-  }
-  return m_condDataNoise.get();
+  SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyNoise, ctx};
+  return condData.retrieve();
 }
 
 //----------------------------------------------------------------------
 
 const SCT_AllGoodStripInfo*
 SCT_ReadCalibDataTool::getCondDataInfo(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheInfo.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheInfo.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheInfo[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_AllGoodStripInfo> condData{m_condKeyInfo};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyInfo.key());
-    }
-    m_condDataInfo.set(*condData);
-    m_cacheInfo[slot] = evt;
-  }
-  return m_condDataInfo.get();
+  SG::ReadCondHandle<SCT_AllGoodStripInfo> condData{m_condKeyInfo, ctx};
+  return condData.retrieve();
 }
 
 //----------------------------------------------------------------------
 
 const InDetDD::SiDetectorElement*
 SCT_ReadCalibDataTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }
 
 //----------------------------------------------------------------------

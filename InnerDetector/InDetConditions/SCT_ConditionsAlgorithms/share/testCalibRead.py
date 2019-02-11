@@ -142,7 +142,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr.EventSelector.FirstEvent = 1
 #ServiceMgr.EventSelector.EventsPerRun = 5
 #ServiceMgr.EventSelector.RunNumber = 0
-theApp.EvtMax                    = 1
+theApp.EvtMax                    = 20
 
 #For real data, earliest timestamp is 0
 #ServiceMgr.EventSelector.InitialTimeStamp = 1228950000

@@ -19,7 +19,6 @@
 
 //Athena includes
 #include "Identifier/Identifier.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"

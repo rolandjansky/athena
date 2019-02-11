@@ -10,7 +10,6 @@
 
 // Include Athena classes
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
