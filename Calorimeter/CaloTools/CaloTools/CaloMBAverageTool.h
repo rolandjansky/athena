@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -30,7 +30,7 @@ class CaloDetDescrElement;
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class LArCablingService;
+class LArCablingLegacyService;
 
 class CaloMBAverageTool
   : public extends<AthAlgTool, ICaloMBAverageTool>
@@ -51,7 +51,7 @@ private:
   int m_deltaBunch;
   std::string m_keyShape, m_keyfSampl, m_keyMinBiasAverage;
 
-  ToolHandle<LArCablingService> m_cabling;
+  ToolHandle<LArCablingLegacyService> m_cabling;
   unsigned int m_ncell;
   std::vector<float> m_shift;
 

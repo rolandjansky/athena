@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBECLARRAWCHANNELBUILDER_H
@@ -21,7 +21,9 @@
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingService.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
 
 class CaloCell_ID;
 class CaloDetDescrManager;
@@ -38,12 +40,12 @@ private:
   //Services & Tools 
   ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
   const LArOnlineID* m_onlineHelper;
-  //LArRoI_Map* m_roiMap;
-  //LArRawOrdering m_larRawOrdering; 
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"} ;
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_offlineHVScaleCorrKey{this, "keyOfflineHVCorr", "LArHVScaleCorrRecomputed","Key for LArHVScaleCorr"};
 
   //Algo-properties 
   std::string m_DataLocation, m_ChannelContainerName;
@@ -101,7 +103,6 @@ private:
  
   // to be used for detailed DEBUG output only
   const LArEM_ID* m_emId;
-  ToolHandle<LArCablingService> m_larCablingSvc;
 
   // For useRamp = False
   float m_adc2mev[30];

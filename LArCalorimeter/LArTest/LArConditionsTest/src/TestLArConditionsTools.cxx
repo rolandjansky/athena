@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArConditionsTest/TestLArConditionsTools.h"
@@ -57,6 +57,7 @@ StatusCode TestLArConditionsTools::initialize() {
 
   ATH_CHECK( retrieveTools() );
   ATH_CHECK( detStore()->retrieve( m_idHelper) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   const xAOD::EventInfo* evtInfo = 0;
   StatusCode sc = evtStore()->retrieve( evtInfo);
@@ -134,6 +135,8 @@ StatusCode TestLArConditionsTools::testCaloNoiseDDE() {
 
     const CaloDetDescrManager*  dd_man = nullptr;
     ATH_CHECK( detStore()->retrieve( dd_man) );
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling = *cablingHdl;
 
     std::vector<Identifier>::const_iterator cell_it  = m_idHelper->cell_begin();
     std::vector<Identifier>::const_iterator cell_it_e  = m_idHelper->cell_end();
@@ -176,7 +179,7 @@ StatusCode TestLArConditionsTools::testCaloNoiseDDE() {
                           m_idHelper->print_to_string(id));
 	}
 	
-	const std::vector<double> acTotal  =  m_acTotalTool->autoCorrTotal(id,0); 
+	const std::vector<double> acTotal  =  m_acTotalTool->autoCorrTotal(cabling->createSignalChannelID(id),0); 
 	if(acTotal.size()==0){
 	  ATH_MSG_ERROR ( " fail to get AutoCorrTotal " << 
                           m_idHelper->print_to_string(id));

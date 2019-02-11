@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBMONITORING_TBPHASEMONTOOL_H
@@ -30,7 +30,7 @@
 class StoreGateSvc;
 class IToolSvc;
 class LArOnlineID;
-class LArCablingService;
+class LArCablingLegacyService;
 
 #include <map>
 #include <string>
@@ -58,7 +58,7 @@ class TBPhaseMonTool: public MonitorToolBase
 
  protected:
 
-  ServiceHandle<LArCablingService> m_cablingService;
+  ServiceHandle<LArCablingLegacyService> m_cablingService;
   const LArOnlineID* m_onlineHelper;
 
   /*! \brief properties */

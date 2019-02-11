@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,6 @@ LArReadParamsFromFile<DATA>::LArReadParamsFromFile(const std::string& name, ISvc
   m_emId(0),
   m_hecId(0),
   m_fcalId(0),
-  m_larCablingSvc(0),
   m_groupingType(LArConditionsContainerBase::SingleGroup),
   m_useCalibLines(false),
   m_dataclass(0)
@@ -79,7 +78,7 @@ StatusCode LArReadParamsFromFile<DATA>::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   if ( m_chIdType == std::string("UNKNOWN") ) {
     // use jO specification (default=false) for m_useOfflineIdentifier 
@@ -154,6 +153,13 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
   int det, subdet, barrel_ec, posneg, ft, slot, channel, region, layer, eta, phi ;
   std::vector<float> pRead ;
   HWIdentifier chID ;
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   std::ifstream f(m_file.c_str()) ; // open input file
   if ( ! f.good() ) {
@@ -241,7 +247,7 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
 	}
 	if ( good_chID ) {
 	  try {
-	    chID = m_larCablingSvc->createSignalChannelID(id) ;
+	    chID = cabling->createSignalChannelID(id) ;
 	  } catch ( LArID_Exception & except ) {
 	    ATH_MSG_WARNING ( "Could not get HWId for offline Id " << id );
 	    good_chID = false ;

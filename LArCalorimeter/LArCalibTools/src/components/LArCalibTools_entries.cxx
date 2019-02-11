@@ -52,7 +52,7 @@ typedef LArReadParamsFromFile<LArEMEC_HValphaComplete>      LArReadEMEC_HValpha 
 typedef LArReadParamsFromFile<LArEMEC_HVbetaComplete>       LArReadEMEC_HVbeta ;
 typedef LArReadParamsFromFile<LArCableLengthComplete>       LArReadCableLength ;
 typedef LArReadParamsFromFile<LArCableAttenuationComplete>  LArReadCableAttenuation ;
-typedef LArReadParamsFromFile<LArCaliPulseParamsVsCalib>    LArReadCaliPulseParams_Calib ;
+//typedef LArReadParamsFromFile<LArCaliPulseParamsVsCalib>    LArReadCaliPulseParams_Calib ;
 
 DECLARE_COMPONENT( LArAutoCorr2Ntuple )
 DECLARE_COMPONENT( LArAverages2Ntuple )
@@ -63,7 +63,7 @@ DECLARE_COMPONENT( LArShape2Ntuple )
 DECLARE_COMPONENT( LArPedestals2Ntuple )
 DECLARE_COMPONENT( LArRamps2Ntuple )
 DECLARE_COMPONENT( LArReadCaliPulseParams ) 
-DECLARE_COMPONENT( LArReadCaliPulseParams_Calib ) 
+//DECLARE_COMPONENT( LArReadCaliPulseParams_Calib ) 
 DECLARE_COMPONENT( LArReadDetCellParams )
 DECLARE_COMPONENT( LArReadPhysCaliTdiff )
 DECLARE_COMPONENT( LArReadTdrift )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgSequence import AthSequencer
 from IOVDbSvc.CondDB import conddb
@@ -19,6 +19,21 @@ def LArOnOffIdMapping():
     folder="/LAR/Identifier/OnOffIdMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")
     condSequence+=LArOnOffMappingAlg(ReadKey=folder)
+    return
+
+def LArOnOffIdMappingSC():
+    condSequence = AthSequencer("AthCondSeq")
+    if hasattr(condSequence,"LArOnOffMappingAlg"):
+        return #Already there....
+
+    if conddb.isMC:
+        dbname="LAR_OFL"
+    else:
+        dbname="LAR"
+
+    folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
+    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    condSequence+=LArOnOffMappingAlg(ReadKey=folder, WriteKey="LArOnOffIdMapSC", isSuperCell=True)
     return
 
 

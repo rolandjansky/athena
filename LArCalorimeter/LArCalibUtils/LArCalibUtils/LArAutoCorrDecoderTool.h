@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 #include <Eigen/Dense>
 
 #include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "LArRawConditions/LArConditionsContainer.h"
@@ -25,7 +24,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class StoreGateSvc;
-class LArCablingService;
 
 class LArAutoCorrDecoderTool: public AthAlgTool,
 			      virtual public ILArAutoCorrDecoderTool
@@ -43,8 +41,6 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   
   // retrieve methods 
   const Eigen::MatrixXd AutoCorr( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
-  const Eigen::MatrixXd AutoCorr( const Identifier&  CellID, int gain, unsigned nSamples) const;
-
   // initialize and finalize methods
   virtual StatusCode initialize();
   virtual StatusCode finalize(){return StatusCode::SUCCESS;}
@@ -63,7 +59,6 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   const Eigen::MatrixXd ACPhysics( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
 
   const LArOnlineID*  m_onlineID;
-  ToolHandle<LArCablingService> m_cablingService;
 
   std::string m_keyAutoCorr;
 

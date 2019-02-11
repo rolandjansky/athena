@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DUMPLARRAWCHANNEL_H
 #define DUMPLARRAWCHANNEL_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -29,10 +30,10 @@ class DumpLArRawChannels : public AthAlgorithm
   StatusCode execute();
   StatusCode finalize();
  private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"};
   int m_count, m_chan;
   //LArRawChannelContainer* m_larChannelCont;
   const LArOnlineID*       m_onlineHelper; 
-  LArCablingService *m_larCablingSvc;
   const LArEM_ID* m_emId;
   std::ofstream m_outfile;
   std::string m_key, m_FileName;

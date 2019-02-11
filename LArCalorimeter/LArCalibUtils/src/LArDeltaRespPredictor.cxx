@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArDeltaRespPredictor.h"
@@ -28,6 +28,8 @@ LArDeltaRespPredictor::~LArDeltaRespPredictor()
 
 StatusCode LArDeltaRespPredictor::initialize() 
 {
+  ATH_CHECK(m_cablingKey.initialize());
+
   return StatusCode::SUCCESS ;
 }
 
@@ -44,6 +46,12 @@ StatusCode LArDeltaRespPredictor::stop()
   ATH_CHECK( detStore()->retrieve(caliWaveContainer,keyCali) );
   ATH_MSG_INFO ( "Processing LArCaliWaveContainer from StoreGate, key='CaliWave'" );
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   // Create new LArCaliWaveContainer for DeltaResp(s)
   LArCaliWaveContainer* larDeltaRespContainer = 0;
@@ -96,7 +104,7 @@ StatusCode LArDeltaRespPredictor::stop()
           StatusCode sc = larWFParamTool->getLArWaveParams(larCaliWave,
                                                            itVec.channelId(),
                                                            (CaloGain::CaloGain)gain,
-                                                           wfParams);
+                                                           wfParams, cabling);
           if (sc.isFailure()) { // bad parameters
             ATH_MSG_INFO ( "Bad parameters for channel " << 
                            (itVec.channelId()) );

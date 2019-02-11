@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRegionSelector/LArRegionSelectorTable.h"
@@ -84,7 +84,7 @@ StatusCode LArRegionSelectorTable::initialize(){
   ATH_CHECK( detStore()->retrieve(m_TT_ID) );
   ATH_MSG_DEBUG ( "CaloLVL1_ID helper found" );
 
-  // Retrieve needed tools: LArRoI_Map, LArCablingSvc 
+  // Retrieve needed tools: LArRoI_Map 
 
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK( service( "ToolSvc",toolSvc) );

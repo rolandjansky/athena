@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -42,7 +42,7 @@ LArCoverage::LArCoverage(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
-    m_larCablingService("LArCablingService"),
+    m_larCablingService("LArCablingLegacyService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_hCoverageEMBA(),
     m_hCoverageEMBC(),

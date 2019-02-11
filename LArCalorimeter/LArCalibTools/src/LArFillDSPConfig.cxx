@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArFillDSPConfig.h"
@@ -17,8 +17,7 @@
 LArFillDSPConfig::LArFillDSPConfig( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_onlineID(0),
-  m_cablingSvc("LArCablingService")
+  m_onlineID(0)
 {
   declareProperty("Foldername",m_folderName="/LAR/Configuraton/DSPConfiguration");
   declareProperty("Dump",m_dump=true);
@@ -32,7 +31,6 @@ LArFillDSPConfig::~LArFillDSPConfig() {}
 ////////////////////////////
 StatusCode LArFillDSPConfig::initialize()
 {
-  CHECK(m_cablingSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 

@@ -20,7 +20,7 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="mc_pp_v7_rdotoesdaodslim_build"
+export NAME="mc_pp_v7_rdotoaodslim_build"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v7"

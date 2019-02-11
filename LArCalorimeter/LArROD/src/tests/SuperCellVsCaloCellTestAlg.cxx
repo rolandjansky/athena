@@ -16,7 +16,6 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 
 //needed for linker ...
@@ -82,7 +81,7 @@ StatusCode SuperCellVsCaloCellTestAlg::initialize() {
    ServiceHandle<ITHistSvc> histSvc("THistSvc",name());
    CHECK( histSvc->regTree(TString::Format("/%s/debug",m_stream.c_str()).Data(),m_tree) );
 
-
+   ATH_CHECK( m_cablingKey.initialize() );
 
 
    return StatusCode::SUCCESS;
@@ -125,8 +124,12 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
 
    const CaloCellContainer* tscells=0;if(!m_tscKey.empty()) CHECK( evtStore()->retrieve(tscells,m_tscKey) );
 
-   
-
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey}; 
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling) {
+      ATH_MSG_ERROR("Do not have SC mapping object " << m_cablingKey.key() );
+      return StatusCode::FAILURE;
+   }
 
    //iterate over supercells, and build up a histogram of the resolution
    for(auto scell : *scells) {
@@ -166,8 +169,7 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
          if( (tscellEt>1. && scellEt/tscellEt<0.25) || (scellEt>1. && tscellEt/scellEt<0.25) ) {
 	    m_eventNumber = getContext().eventID().event_number();
 
-            ToolHandle<LArSuperCellCablingTool> larCablingTool;
-            HWIdentifier hwid = larCablingTool->createSignalChannelID(scell->ID());
+            HWIdentifier hwid = cabling->createSignalChannelID(scell->ID());
             m_treeChannel = hwid.get_identifier32().get_compact();
             m_treeSampling = samplingEnum;
             m_treeEta = scell->caloDDE()->eta();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAREMEC_CPHICOMPLETE_H
@@ -37,8 +37,6 @@ class LArEMEC_CphiComplete: public ILArEMEC_Cphi,
   // retrieving EMEC_Cphi using online ID
   
   virtual const float& EMEC_Cphi(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& EMEC_Cphi(const Identifier&  CellID) const;
   
   static float dummy;
 

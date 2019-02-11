@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArCalibDigitsAccumulator.h"
@@ -12,7 +12,6 @@ using CLHEP::ns;
 
 LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
   m_onlineHelper(0),
   m_calibAccuDigitContainerName("LArAccumulatedCalibDigits"),
   m_nStepTrigger(1),
@@ -32,28 +31,10 @@ LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, I
 
 StatusCode LArCalibDigitsAccumulator::initialize(){
   
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
   // retrieve online ID helper
-  sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  // retrieve cabling service
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  if (m_larCablingSvc.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_calibMapKey.initialize() );
 
   m_Accumulated.resize(m_onlineHelper->channelHashMax());
 
@@ -66,12 +47,17 @@ StatusCode LArCalibDigitsAccumulator::execute()
 {
   
   StatusCode sc;
-  MsgStream log(msgSvc(), name());
 
   if ( m_event_counter < 100 || m_event_counter%100==0 )
-    log << MSG::INFO << "Processing event " << m_event_counter << endmsg;
+    ATH_MSG_INFO( "Processing event " << m_event_counter );
   ++m_event_counter;
 
+   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+   const LArCalibLineMapping *clcabling {*clHdl};
+   if(!clcabling) {
+      ATH_MSG_WARNING( "Do not have calib line mapping from key " << m_calibMapKey.key() );
+      return StatusCode::FAILURE;
+   }
   
   // pointer to input container
   const LArCalibDigitContainer* calibDigitContainer=NULL;
@@ -80,7 +66,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
   const LArCalibParams* calibParams;
   sc=detStore()->retrieve(calibParams,"LArCalibParams");
   if (sc.isFailure())
-    {log << MSG::ERROR << "Cannot load LArCalibParams from DetStore." << endmsg;
+    {ATH_MSG_ERROR( "Cannot load LArCalibParams from DetStore." );
       return StatusCode::FAILURE;
     }
 
@@ -96,10 +82,10 @@ StatusCode LArCalibDigitsAccumulator::execute()
     
     sc=evtStore()->retrieve(calibDigitContainer,*key_it);
     if(sc.isFailure()) {
-      log << MSG::ERROR << "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." << endmsg;
+      ATH_MSG_ERROR( "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." );
       return StatusCode::SUCCESS;
     }else{
-      log << MSG::DEBUG << "Retrieved LArCalibDigitContainer with key " << *key_it << " from StoreGate." << endmsg;
+      ATH_MSG_DEBUG( "Retrieved LArCalibDigitContainer with key " << *key_it << " from StoreGate." );
     }
 
     // store LArAccumulatedDigits
@@ -111,9 +97,9 @@ StatusCode LArCalibDigitsAccumulator::execute()
     LArCalibDigitContainer::const_iterator it_end=calibDigitContainer->end();
 
     if(it == it_end) {
-      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " is empty " << endmsg;
+      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << *key_it << " is empty " );
     }else{
-      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " has size =  " << calibDigitContainer->size() <<  endmsg;
+      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << *key_it << " has size =  " << calibDigitContainer->size() );
     }
 
     // counter of triggers 
@@ -142,12 +128,12 @@ StatusCode LArCalibDigitsAccumulator::execute()
       // BELOW: DIRTY HACK BECAUSE THERE SEEMS TO BE A BUG IN THE CABLINGSVC CONCERNING THE CALIBLINES.
 
       // get calibration settings
-      const std::vector<HWIdentifier>& calibLineID=m_larCablingSvc->calibSlotLine(chid);
+      const std::vector<HWIdentifier>& calibLineID=clcabling->calibSlotLine(chid);
       HWIdentifier calibModuleID;
       if(calibLineID.size()>0){
 	calibModuleID=m_onlineHelper->calib_module_Id(calibLineID[0]);
 	nTriggerPerStep[febhash] = calibParams->NTrigger(calibModuleID);
-	log << MSG::DEBUG << "Ntrigger per step = " << nTriggerPerStep[febhash] << endmsg;
+	ATH_MSG_DEBUG( "Ntrigger per step = " << nTriggerPerStep[febhash] );
 	if(nTriggerPerStep[febhash] > 1000) nTriggerPerStep[febhash]=100; // very dirty !!! 
       }else{
 
@@ -164,13 +150,13 @@ StatusCode LArCalibDigitsAccumulator::execute()
       else
 	// next cells: should be the same delay
 	if (m_delay!=(*it)->delay()) {
-	  log << MSG::DEBUG << "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" << endmsg;
+	  ATH_MSG_DEBUG( "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" );
 	  m_delay=(*it)->delay();
 	}
 
       CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
-	{log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endmsg;
+	{ATH_MSG_ERROR( "Found not-matching gain number ("<< (int)gain <<")" );
           delete larAccuCalibDigitContainer;
 	  return StatusCode::FAILURE;
 	}
@@ -181,11 +167,11 @@ StatusCode LArCalibDigitsAccumulator::execute()
       // trigger counter for each cell
       cellAccumulated.m_ntrigger++;
 
-      log << MSG::DEBUG << "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() << endmsg;
+      ATH_MSG_DEBUG( "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() );
 
       // at first trigger, initialize vectors
       unsigned int sizeSamples = (*it)->samples().size();
-      log << MSG::DEBUG << "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples << endmsg;
+      ATH_MSG_DEBUG( "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples );
 
       LArAccumulatedCalibDigit* accuCalibDigit;
 
@@ -214,14 +200,14 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	cellAccumulated.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
       }
 
-      log << MSG::DEBUG << "Sum = " << cellAccumulated.m_sum[0] << endmsg;
-      log << MSG::DEBUG << "Sum2 = " << cellAccumulated.m_sum2[0] << endmsg;
+      ATH_MSG_DEBUG( "Sum = " << cellAccumulated.m_sum[0] );
+      ATH_MSG_DEBUG( "Sum2 = " << cellAccumulated.m_sum2[0] );
 
       // when reached total number of triggers for this step, fill LArAccumulatedCalibDigit and reset number of triggers
 
       if(cellAccumulated.m_ntrigger==nTriggerPerStep[febhash]){
-	log << MSG::DEBUG << "filling LArAccumulatedCalibDigit " << endmsg;
-	log << MSG::DEBUG << "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] << endmsg;
+	ATH_MSG_DEBUG( "filling LArAccumulatedCalibDigit " );
+	ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] );
 	
 	accuCalibDigit->setAddSubStep(cellAccumulated.m_sum,cellAccumulated.m_sum2,nTriggerPerStep[febhash]);
 	iStepTrigger[febhash]++;
@@ -232,8 +218,8 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	std::vector<float> RMS =  accuCalibDigit->RMS();
 
 	for(unsigned int i=0;i<mean.size();i++){
-	  log << MSG::DEBUG << "mean["<<i<<"] = " << mean[i] << endmsg;
-	  log << MSG::DEBUG << "RMS["<<i<<"] = " << RMS[i] << endmsg;
+	  ATH_MSG_DEBUG( "mean["<<i<<"] = " << mean[i] );
+	  ATH_MSG_DEBUG( "RMS["<<i<<"] = " << RMS[i] );
 	}
 
 	larAccuCalibDigitContainer->push_back(accuCalibDigit);
@@ -248,14 +234,14 @@ StatusCode LArCalibDigitsAccumulator::execute()
     larAccuCalibDigitContainer->setDelayScale(m_delayScale);
     sc = evtStore()->record(larAccuCalibDigitContainer,*key_it);
     if (sc!=StatusCode::SUCCESS)
-      {log << MSG::WARNING << "Unable to record LArAccumulatedCalibDigitContainer with key " << *key_it << " from DetectorStore. " << endmsg;
+      {ATH_MSG_WARNING( "Unable to record LArAccumulatedCalibDigitContainer with key " << *key_it << " from DetectorStore. " );
       } 
     else
-      log << MSG::DEBUG << "Recorded succesfully LArAccumulatedCalibDigitContainer with key " << *key_it  << endmsg;
+      ATH_MSG_DEBUG( "Recorded succesfully LArAccumulatedCalibDigitContainer with key " << *key_it  );
     
     sc = evtStore()->setConst(larAccuCalibDigitContainer);
     if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot lock LArAccumulatedCalibDigitContainer " << endmsg;
+      ATH_MSG_ERROR( " Cannot lock LArAccumulatedCalibDigitContainer " );
       return(StatusCode::FAILURE);
     }
 

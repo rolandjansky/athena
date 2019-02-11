@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArOFCBinAlg.h"
@@ -31,6 +31,7 @@ StatusCode LArOFCBinAlg::initialize() {
   //}
   m_ntTitle="Bin";
   m_ntpath=std::string("/NTUPLES/FILE1/OFCBINDIFF");
+  ATH_CHECK( m_cablingKey.initialize() );
   return LArCond2NtupleBase::initialize();
 }
 
@@ -97,13 +98,12 @@ StatusCode LArOFCBinAlg::execute() {
     msg(MSG::ERROR) << "Failed to register container with key " << m_outputContainer << " to StoreGate" << endmsg;
   }
 
-  LArCablingBase* larCablingSvc;
-  ToolHandle<LArCablingService> tool("LArCablingService");
-  sc = tool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
-    return sc;
-  } else larCablingSvc = (LArCablingBase*)&(*tool);
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
   const LArEM_Base_ID* emId;
   const LArHEC_Base_ID* hecId;
   const LArFCAL_Base_ID* fcalId;
@@ -138,8 +138,8 @@ StatusCode LArOFCBinAlg::execute() {
          // Do not make corrections for back layer 
          int barrel_ec = onlineID->barrel_ec(chid);
          int layer=-1;
-         if (larCablingSvc->isOnlineConnected(chid)) {
-            Identifier id=larCablingSvc->cnvToIdentifier(chid);
+         if (cabling->isOnlineConnected(chid)) {
+            Identifier id=cabling->cnvToIdentifier(chid);
             if (emId->is_lar_em(id)) {
                layer     = emId->sampling(id);
             } else if (hecId->is_lar_hec(id)) {

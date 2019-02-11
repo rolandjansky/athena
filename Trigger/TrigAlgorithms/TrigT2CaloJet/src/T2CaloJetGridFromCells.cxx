@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -34,7 +34,7 @@ T2CaloJetGridFromCells::T2CaloJetGridFromCells(const std::string& type,
 				     const IInterface* parent):
   T2CaloJetBaseTool(type, name, parent),
   m_noiseCutValue(2.) ,
-  m_cablingSvc("LArCablingService"),
+  m_cablingSvc("LArCablingLegacyService"),
   m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault"),
   m_forbiddenRegions(0),
   m_timerSvc(0)

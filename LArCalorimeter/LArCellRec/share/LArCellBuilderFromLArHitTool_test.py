@@ -28,6 +28,12 @@ from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetupRecoGeometry
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 
+from McEventSelector import McEventSelectorConf
+svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',
+                                             RunNumber=999999,
+                                             EventsPerLB=3,
+                                             TimeStampInterval=1)
+
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 ServiceMgr += GeoModelSvc()
 theApp.CreateSvc += [ "GeoModelSvc"]
@@ -43,13 +49,11 @@ topSequence = AlgSequence()
 
 theApp.EvtMax=5
 
-
 import ROOT
 from LArCellRec.LArCellDeadOTXCorrToolDefault import LArCellDeadOTXCorrToolDefault
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
 
 ###########################################################################
 

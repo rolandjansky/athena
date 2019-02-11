@@ -45,5 +45,10 @@ atlas_add_component( PixelGeoModel
    src/components/*.cxx
    LINK_LIBRARIES GaudiKernel PixelGeoModelLib )
 
+atlas_add_test( PixelGMConfig_test
+                SCRIPT test/PixelGMConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/*.py )

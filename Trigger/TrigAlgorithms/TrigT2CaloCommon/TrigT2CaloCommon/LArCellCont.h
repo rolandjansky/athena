@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -19,7 +19,7 @@
 
 #include "LArRecEvent/LArCellCollection.h"
 #include "TrigT2CaloCommon/LArRodIdHash.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloInterface/ICaloLumiBCIDTool.h"
@@ -29,7 +29,6 @@ class EventInfo;
 //class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadChanTool;
-class LArCablingService;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -127,7 +126,7 @@ private:
 	unsigned int m_bcid;
 	
 	/** Needs also the LArCablingSvc */
-	LArCablingService* m_larCablingSvc;  
+	LArCablingLegacyService* m_larCablingSvc;  
 	/** flag to only update cache when trying to apply corrections */
 	bool m_BCIDcache;
 };

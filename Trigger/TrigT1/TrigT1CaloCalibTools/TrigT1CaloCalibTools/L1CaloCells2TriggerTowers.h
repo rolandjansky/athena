@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H_
@@ -21,7 +21,7 @@
 // LAr includes
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArDigit.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
@@ -125,7 +125,7 @@ private:
   const CaloCell_ID* m_caloCellHelper;
 
   // Services
-  LArCablingService* m_larCablingSvc;
+  LArCablingLegacyService* m_larCablingSvc;
   const TileCablingService * m_tileCablingService;
   CaloTriggerTowerService* m_ttSvc;
 

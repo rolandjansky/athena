@@ -17,7 +17,7 @@ atlas_add_library( TrigPartialEventBuildingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigPartialEventBuilding
                    LINK_LIBRARIES DecisionHandlingLib TrigSteeringEvent
-                   PRIVATE AthViews )
+                   PRIVATE_LINK_LIBRARIES AthViews )
 
 atlas_add_component( TrigPartialEventBuilding
                      src/components/*.cxx

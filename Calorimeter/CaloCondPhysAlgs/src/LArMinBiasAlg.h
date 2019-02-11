@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArMinBiasAlg.h
@@ -23,7 +23,7 @@
 
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArElecCalib/ILArMinBias.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
@@ -60,7 +60,8 @@
   int m_datasetID_highPt;
   double m_weight_lowPt;
   double m_weight_highPt;
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   const CaloDetDescrManager* m_calodetdescrmgr = nullptr;
   const LArEM_ID*        m_larem_id = nullptr;
   const CaloCell_ID*       m_calo_id = nullptr;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArHVScaleCorrFlat.h"
@@ -33,8 +33,3 @@ const float& LArHVScaleCorrFlat::HVScaleCorr(const HWIdentifier& chid) const {
 
 }
 
-// retrieving HVScaleCorr using offline ID  
-const float& LArHVScaleCorrFlat::HVScaleCorr(const Identifier& id) const  {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(id);
-  return HVScaleCorr(OnId);
-}

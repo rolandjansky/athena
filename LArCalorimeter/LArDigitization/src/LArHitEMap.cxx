@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
@@ -32,7 +32,7 @@ LArHitEMap::LArHitEMap(void):
   m_larem_id(0),
   m_larhec_id(0),
   m_larfcal_id(0),
-  m_cablingService("LArCablingService"),
+  m_cablingService("LArCablingLegacyService"),
   m_initialized(false)
 {
         m_ncellem=0;

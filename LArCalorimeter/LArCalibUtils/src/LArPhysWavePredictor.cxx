@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArPhysWavePredictor.h"
@@ -33,8 +33,6 @@
 #include "LArCalibUtils/LArPhysWaveHECTool.h"  // added by FT
 
 #include "LArCalibUtils/LArPhysWaveTool.h"
-
-#include "LArCabling/LArCablingService.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -130,6 +128,7 @@ StatusCode LArPhysWavePredictor::initialize()
   
 
   ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   sc=m_maskingTool.retrieve(); 
   if (sc.isFailure()) {
@@ -195,17 +194,12 @@ StatusCode LArPhysWavePredictor::stop()
       return StatusCode::FAILURE;
   }   
   
-  // Retrieve LArCablingService
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArCablingSvc " );
-    return sc;
-  }
-
-  if(sc.isFailure()){
-      ATH_MSG_ERROR( "Could not retrieve LArCablingService Tool" );
-      return StatusCode::FAILURE;
+  // Retrieve cabling
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if (!cabling) {
+    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
+    return StatusCode::FAILURE;
   }
 
   // Get parameters from detStore (access through abtract interfaces)
@@ -419,14 +413,14 @@ StatusCode LArPhysWavePredictor::stop()
 	  // region and layer information are needed
 	  Identifier id;
 	  try {
-            id = larCablingSvc->cnvToIdentifier(chid);
+            id = cabling->cnvToIdentifier(chid);
           } catch (LArID_Exception & execpt) {
 	    ATH_MSG_ERROR( "LArCabling exception caught for channel 0x" << MSG::hex << chid << MSG::dec 
 	        << ". Skipping channel." ) ;
             continue ;
 	  }
 
-	  if ( !larCablingSvc->isOnlineConnected(chid)  ) { // unconnected channel : skipping ...          
+	  if ( !cabling->isOnlineConnected(chid)  ) { // unconnected channel : skipping ...          
 	    ATH_MSG_VERBOSE("Unconnected channel 0x" << MSG::hex << chid << MSG::dec 
 			    << ". Skipping channel.");
 	    continue ; 	  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArPedestalFlat.h"
@@ -8,7 +8,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
-#include "LArCabling/LArCablingService.h"
 
 LArPedestalFlat::LArPedestalFlat()  {}
 
@@ -20,17 +19,6 @@ LArPedestalFlat::LArPedestalFlat(const CondAttrListCollection* attrList) {
  
   readBlob(attrList,*m_log);
   return;
-}
-
-
-float LArPedestalFlat::pedestal(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(CellID);
-  return this->pedestal(OnId,gain);
-}
-
-float LArPedestalFlat::pedestalRMS(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(CellID);
-  return this->pedestalRMS(OnId,gain);
 }
 
 

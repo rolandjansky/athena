@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrTotalTool.h"
@@ -7,8 +7,7 @@
 #include "LArElecCalib/LArConditionsException.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include <cmath>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -67,19 +66,14 @@ StatusCode LArAutoCorrTotalTool::initialize()
     ATH_CHECK(  detStore()->retrieve(laron,"LArOnlineID") );
     m_lar_on_id = (LArOnlineID_Base*) laron;
 
-    ToolHandle<LArCablingService> larcab("LArCablingService");
+    ToolHandle<LArCablingLegacyService> larcab("LArCablingLegacyService");
     ATH_CHECK( larcab.retrieve() );
     m_cablingService = (LArCablingBase*) &(*larcab);
 
   } else {
 
-    const LArOnline_SuperCellID* laron = nullptr;
-    ATH_CHECK(  detStore()->retrieve(laron,"LArOnline_SuperCellID") );
-    m_lar_on_id = (LArOnlineID_Base*) laron;
-
-    ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
-    ATH_CHECK( larcab.retrieve() );
-    m_cablingService = (LArCablingBase*) &(*larcab);
+     ATH_MSG_ERROR("LArAutoCorrTotalTool deprecated, not working for SC");
+     return StatusCode::FAILURE;
   }
 
   //retrieves helpers for LArCalorimeter

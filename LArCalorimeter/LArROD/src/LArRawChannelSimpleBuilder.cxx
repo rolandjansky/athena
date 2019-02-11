@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelSimpleBuilder.h"
@@ -20,7 +20,6 @@ using CLHEP::MeV;
 LArRawChannelSimpleBuilder::LArRawChannelSimpleBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   //  m_roiMap("LArRoI_Map"),
-  m_larCablingSvc("LArCablingService"),
   m_emId(0),
   m_fcalId(0),
   m_hecId(0),
@@ -106,16 +105,14 @@ StatusCode LArRawChannelSimpleBuilder::initialize(){
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
 
-  if (m_larCablingSvc.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_cablingKey.initialize());
 
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
+
   
   return StatusCode::SUCCESS;
 }
@@ -167,6 +164,13 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       larPedestal=NULL;
       log << MSG::DEBUG << "No pedestal found in database. Use default values." << endmsg;
     }
+  }
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
   }
 
   //loop twice over the digits. In the first pass the best window is
@@ -249,7 +253,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
       unsigned int nAverage = 1;
       float myScale = 1;
       try {
-	const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);    
+	const Identifier id = cabling->cnvToIdentifier(chid);    
 	if (m_fcalId->is_lar_fcal(id)) {
 	  isFCAL = true;
 	  nMin = nMinFCAL;
@@ -407,7 +411,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	      if( m_peakParabolaTool) {
 		int layer = 0;
 		try {
-		  const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+		  const Identifier id = cabling->cnvToIdentifier(chid);
 		  MSG::hex(log) << MSG::DEBUG << "     id = " << id << endmsg;
 		  if (m_emId->is_em_barrel(id)) {
 		    layer= m_emId->sampling(id);
@@ -526,7 +530,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	  //                   << " FebID / chid / channel = " << FebID << " / " << chid << " / " << channel << endmsg;
 	
 	  try {
-	    const Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+	    const Identifier id = cabling->cnvToIdentifier(chid);
 	  
 	    MSG::hex(log) << MSG::DEBUG << "     id = " << id << endmsg;
 	  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,7 @@ PURPOSE:  Scales down the energy of cells due to simulated
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 
@@ -57,7 +57,7 @@ StatusCode LArCellFakeProbElectronics::initialize()
 
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK(  service( "ToolSvc",toolSvc  ) );
-  ATH_CHECK(  toolSvc->retrieveTool("LArCablingService",m_cablingService) );
+  ATH_CHECK(  toolSvc->retrieveTool("LArCablingLegacyService",m_cablingService) );
 
   // convert string identifiers m_inputStringIDs into identifiers m_inputIDs
   ATH_CHECK( read_problems() );

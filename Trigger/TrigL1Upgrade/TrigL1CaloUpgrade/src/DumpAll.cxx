@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,6 @@
 #include "DumpAll.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "xAODTracking/VertexContainer.h"
@@ -31,7 +30,7 @@
 #include "TNtuple.h"
 #include <math.h>
 
-DumpAll::DumpAll( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_cabling("LArSuperCellCablingTool")  {
+DumpAll::DumpAll( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator)  {
        declareProperty("InputClusterName", m_inputClusterName = "SCluster" );
        declareProperty("InputLvl1Name", m_inputLvl1Name = "LVL1EmTauRoIs" );
 }
@@ -115,11 +114,6 @@ StatusCode DumpAll::initialize(){
 	m_allcell_infront->Branch("quality",&m_allcell_infront_quality);
 
 	m_file->cd("/");
-
-	// for cell <-> SCell comparison
-	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endmsg;
-	}
 
 	return StatusCode::SUCCESS;
 }

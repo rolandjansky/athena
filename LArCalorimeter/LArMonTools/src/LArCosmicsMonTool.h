@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
@@ -93,7 +93,7 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   //LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_larCablingService;  
+  ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel mask */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
   

@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBDIGITMAKER
 #define LARCALIBDIGITMAKER
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "GaudiKernel/ToolHandle.h"	// Modif J. Labbe from JF Marchand - Nov. 2009
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 #include <fstream>
 
 class LArCalibDigitMaker : public AthAlgorithm
@@ -23,11 +22,8 @@ class LArCalibDigitMaker : public AthAlgorithm
   StatusCode execute();
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  ToolHandle<LArCablingService> m_larCablingSvc; //   LArCablingService *m_larCablingSvc; 	// Modif J. Labbe from JF Marchand - Nov. 2009
-  //const LArOnlineID* m_onlineHelper;
-  //JobOpts:
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
   std::vector<std::string> m_keylist;
-  //std::string m_key;
   std::vector<unsigned> m_vPattern;
   std::vector<unsigned> m_vDAC;
   std::vector<unsigned> m_vDelay;

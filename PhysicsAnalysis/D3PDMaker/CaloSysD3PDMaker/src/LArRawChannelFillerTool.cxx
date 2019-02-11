@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -12,14 +12,12 @@
 #include "LArRawChannelFillerTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
-#include "LArCabling/LArCablingService.h"
 
 namespace D3PD {
 
     LArRawChannelFillerTool::LArRawChannelFillerTool(const std::string& type,
                 const std::string& name,
-                const IInterface* parent):Base(type, name,parent),
-		m_larCablingSvc("LArCablingService")
+                const IInterface* parent):Base(type, name,parent)
     {
       book().ignore();  // Avoid coverity warnings.
     }
@@ -33,7 +31,7 @@ namespace D3PD {
      */
     StatusCode LArRawChannelFillerTool::initialize()
     {
-      CHECK( m_larCablingSvc.retrieve() );
+      CHECK( m_cablingKey.initialize()  );
       return StatusCode::SUCCESS;
     }
 
@@ -51,7 +49,13 @@ namespace D3PD {
 	
         const LArRawChannel* larR=&p;
 	if ( larR ) {
-		const Identifier id=m_larCablingSvc->cnvToIdentifier(larR->identify());
+                SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+                const LArOnOffIdMapping* cabling{*cablingHdl};
+                if(!cabling){
+                   ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+                   return StatusCode::FAILURE;
+                }
+		const Identifier id=cabling->cnvToIdentifier(larR->identify());
 		*m_offId = id.get_identifier32().get_compact();
 		*m_onlId = larR->identify().get_identifier32().get_compact();
 		*m_energy = larR->energy();

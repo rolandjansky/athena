@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilder.h"
@@ -13,7 +13,6 @@
 
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArCabling/LArCablingService.h"
 
 #include <fstream>
 
@@ -26,7 +25,6 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  : AthAlgorithm(name, pSvcLocator),
    m_groupingType("ExtendedFeedThrough"), // SubDetector, Single, FeedThrough
    m_onlineID(0),
-   m_cablingSvc("LArCablingService"),
    m_event_counter(0)
 {
  declareProperty("UseAccumulatedDigits",   m_useAccumulatedDigits=true);
@@ -101,14 +99,8 @@ StatusCode LArCaliWaveBuilder::initialize()
       return sc;
   }
 
-
-  sc=m_cablingSvc.retrieve();
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve LArCablingService!" );
-      return sc;
-  }
-
-
+  ATH_CHECK(m_cablingKey.initialize());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -344,6 +336,13 @@ StatusCode LArCaliWaveBuilder::stop()
       return sc;
     }
     
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling) {
+        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+        return StatusCode::FAILURE;
+    }
+
     LArWaveHelper wHelper;
     int NCaliWave=0;
 
@@ -369,7 +368,7 @@ StatusCode LArCaliWaveBuilder::stop()
 	    //
 
 	    const HWIdentifier hwId = cell_it.channelId();
-	    if ((!m_recAll) && (!m_cablingSvc->isOnlineConnected(hwId))) {
+	    if ((!m_recAll) && (!cabling->isOnlineConnected(hwId))) {
                
                 //ATH_MSG_INFO( "Skipping disconnected channel: "<<MSG::hex<<hwId<<MSG::dec );
                continue; //Ignore disconnected channels

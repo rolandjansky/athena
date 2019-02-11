@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,10 +19,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloGain.h"
 
 #include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArROD/LArRawChannelBuilderParams.h"
 #include "LArROD/ILArRawChannelBuilderToolBase.h"
@@ -83,6 +83,7 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   IToolSvc*                   m_toolSvc;
   
   const LArOnline_SuperCellID*          m_onlineHelper;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
   
   std::string m_DataLocation, m_ChannelContainerName;
   
@@ -97,7 +98,7 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   
   int                         m_checkSamples;
   
-  ToolHandle<LArSuperCellCablingTool> m_larCablingSvc;
+
   
   std::vector<float>          m_ramps;
   

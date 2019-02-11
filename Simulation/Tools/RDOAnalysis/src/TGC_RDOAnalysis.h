@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,7 @@ class TGC_RDOAnalysis : public AthAlgorithm {
 
 public:
   TGC_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TGC_RDOAnalysis(){}
+  virtual ~TGC_RDOAnalysis(){}
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
@@ -113,34 +113,34 @@ private:
   std::vector< std::vector<float> >* m_localZ_vec;
 
   // HISTOGRAMS
-  TH1* h_tgcID;
-  TH1* h_tgcSubDetID;
-  TH1* h_tgcRodID;
-  TH1* h_tgcTrigType;
-  TH1* h_tgcBcID;
-  TH1* h_tgcL1ID;
-  TH1* h_bcTag;
-  TH1* h_subDetID;
-  TH1* h_rodID;
-  TH1* h_sswID;
-  TH1* h_slbID;
-  TH1* h_bcID;
-  TH1* h_l1ID;
-  TH1* h_type;
-  TH1* h_slbType;
-  TH1* h_bitPos;
-  TH1* h_track;
-  TH1* h_adj;
+  TH1* m_h_tgcID;
+  TH1* m_h_tgcSubDetID;
+  TH1* m_h_tgcRodID;
+  TH1* m_h_tgcTrigType;
+  TH1* m_h_tgcBcID;
+  TH1* m_h_tgcL1ID;
+  TH1* m_h_bcTag;
+  TH1* m_h_subDetID;
+  TH1* m_h_rodID;
+  TH1* m_h_sswID;
+  TH1* m_h_slbID;
+  TH1* m_h_bcID;
+  TH1* m_h_l1ID;
+  TH1* m_h_type;
+  TH1* m_h_slbType;
+  TH1* m_h_bitPos;
+  TH1* m_h_track;
+  TH1* m_h_adj;
 
-  TH1* h_sdoID;
-  TH1* h_sdoWord;
-  TH1* h_xPos;
-  TH1* h_yPos;
-  TH1* h_zPos;
-  TH1* h_barcode;
-  TH1* h_eventIndex;
-  TH1* h_radius;
-  TH1* h_localZ;
+  TH1* m_h_sdoID;
+  TH1* m_h_sdoWord;
+  TH1* m_h_xPos;
+  TH1* m_h_yPos;
+  TH1* m_h_zPos;
+  TH1* m_h_barcode;
+  TH1* m_h_eventIndex;
+  TH1* m_h_radius;
+  TH1* m_h_localZ;
 
   TTree* m_tree;
   std::string m_ntupleFileName;

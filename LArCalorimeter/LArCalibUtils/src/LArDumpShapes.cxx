@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArDumpShapes.cxx,v 1.3 2007-12-03 10:02:56 wlampl Exp $
@@ -12,7 +12,6 @@
 
 #include "LArCalibUtils/LArDumpShapes.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -44,6 +43,8 @@ LArDumpShapes::LArDumpShapes (const std::string& name, ISvcLocator* svcloc)
  */
 StatusCode LArDumpShapes::initialize()
 {
+   ATH_CHECK( m_cablingKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -61,10 +62,12 @@ StatusCode LArDumpShapes::execute()
   const DataHandle<ILArShape> dd_shape;
   CHECK( detStore()->retrieve (dd_shape) );
 
-  // Get the cabling service.
-  LArCablingService * cabling = 0;
-  CHECK( toolSvc()->retrieveTool("LArCablingService",cabling) );
-
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
   // Get the calorimeter identifier helper.
   const LArEM_ID* em_id = CaloIdManager::instance()->getEM_ID();
 

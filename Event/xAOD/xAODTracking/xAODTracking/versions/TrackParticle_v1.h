@@ -316,7 +316,11 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
         
       /// @}
-    private:
+
+      /// Reset the internal cache of the object
+      void resetCache();
+ 
+private:
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
       /// @brief Cached MeasuredPerigee, built from this object.

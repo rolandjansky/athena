@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigComposite_v1.h 784388 2016-11-15 17:08:58Z tamartin $
@@ -183,15 +183,15 @@ namespace xAOD {
 
    }; // class TrigComposite_v1
 
-} // namespace xAOD
-
-// Include the template implementation:
-#include "TrigComposite_v1.icc"
-
 /**
  * @brief print helper for TrigComposite
  */
 std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc);
 
+
+} // namespace xAOD
+
+// Include the template implementation:
+#include "TrigComposite_v1.icc"
 
 #endif // XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H

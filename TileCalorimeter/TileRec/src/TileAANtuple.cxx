@@ -104,75 +104,8 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_las_ReqAmp(0)
 , m_las_MeasAmp(0)
 , m_las_Temperature(0)
+, m_arrays (std::make_unique<Arrays>())
 , m_daqtype(0)
-, m_sampleFlt()
-, m_gainFlt()
-, m_sample()
-, m_gain()
-, m_rodBCID()
-, m_fragSize()
-, m_dmuMask()
-, m_slinkCRC()
-, m_DMUheader()
-, m_DMUbcid()
-, m_DMUformatErr()
-, m_DMUparityErr()
-, m_DMUmemoryErr()
-, m_DMUDstrobeErr()
-, m_DMUSstrobeErr()
-, m_feCRC()
-, m_rodCRC()
-, m_ene()
-, m_time()
-, m_ped()
-, m_chi2()
-, m_eFit()
-, m_tFit()
-, m_pedFit()
-, m_chi2Fit()
-, m_eFitc()
-, m_tFitc()
-, m_pedFitc()
-, m_chi2Fitc()
-, m_eOpt()
-, m_tOpt()
-, m_pedOpt()
-, m_chi2Opt()
-, m_eOF1()
-, m_tOF1()
-, m_pedOF1()
-, m_chi2OF1()
-, m_eDsp()
-, m_tDsp()
-, m_pedDsp()
-, m_chi2Dsp()
-, m_eMF()
-, m_tMF()
-, m_chi2MF()
-, m_pedMF()
-, m_ROD_GlobalCRC()
-, m_ROD_BCID()
-, m_ROD_DMUBCIDErr()
-, m_ROD_DMUmemoryErr()
-, m_ROD_DMUSstrobeErr()
-, m_ROD_DMUDstrobeErr()
-, m_ROD_DMUHeadformatErr()
-, m_ROD_DMUHeadparityErr()
-, m_ROD_DMUDataformatErr()
-, m_ROD_DMUDataparityErr()
-, m_ROD_DMUfeCRC()
-, m_ROD_DMUrodCRC()
-, m_ROD_DMUMask()
-, m_eTMDB()
-, m_sampleTMDB()
-, m_decisionTMDB()
-, m_TEMP()
-, m_HV()
-, m_HVSET()
-, m_DRSTATES()
-, m_HVSTATUS()
-, m_DRSTATUS()
-, m_CHSTATUS()
 , m_nBadDr(0)
 , m_nBadHV(0)
 , m_nBadDCS(0)
@@ -237,36 +170,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("SkipEvents", m_skipEvents = 0);
   
   m_evtNr = -1;
-  
-  // LASERII
-  memset(m_chan, 0, sizeof(m_chan));
-  memset(m_chan_Ped, 0, sizeof(m_chan_Ped));
-  memset(m_chan_Led, 0, sizeof(m_chan_Led));
-  memset(m_chan_Lin, 0, sizeof(m_chan_Lin));
-  memset(m_chan_Alpha, 0, sizeof(m_chan_Alpha));
-  memset(m_chan_SPed, 0, sizeof(m_chan_SPed));
-  memset(m_chan_SLed, 0, sizeof(m_chan_SLed));
-  memset(m_chan_SLin, 0, sizeof(m_chan_SLin));
-  memset(m_chan_SAlpha, 0, sizeof(m_chan_SAlpha));
-  
-  // LASERI
-  memset(m_las_D_ADC,          0, sizeof(m_las_D_ADC));
-  memset(m_las_D_Ped,          0, sizeof(m_las_D_Ped));
-  memset(m_las_D_Ped_RMS,      0, sizeof(m_las_D_Ped_RMS));
-  memset(m_las_D_Alpha,        0, sizeof(m_las_D_Alpha));
-  memset(m_las_D_Alpha_RMS,    0, sizeof(m_las_D_Alpha_RMS));
-  memset(m_las_D_AlphaPed,     0, sizeof(m_las_D_AlphaPed));
-  memset(m_las_D_AlphaPed_RMS, 0, sizeof(m_las_D_AlphaPed_RMS));
-  
-  memset(m_las_PMT_ADC,        0, sizeof(m_las_PMT_ADC));
-  memset(m_las_PMT_TDC,        0, sizeof(m_las_PMT_TDC));
-  memset(m_las_PMT_Ped,        0, sizeof(m_las_PMT_Ped));
-  memset(m_las_PMT_Ped_RMS,    0, sizeof(m_las_PMT_Ped_RMS));
-
-  // TMDB
-  memset(m_eTMDB,0,sizeof(m_eTMDB));
-  memset(m_sampleTMDB,0,sizeof(m_sampleTMDB));
-  memset(m_decisionTMDB,0,sizeof(m_decisionTMDB));
 }
 
 TileAANtuple::~TileAANtuple() {
@@ -428,19 +331,19 @@ StatusCode TileAANtuple::execute() {
   }
   
   // store TileDigits
-  empty &= storeDigits(ctx, m_fltDigitsContainerKey,m_sampleFlt,m_gainFlt,false).isFailure();
-  empty &= storeDigits(ctx, m_digitsContainerKey,   m_sample,   m_gain,   true ).isFailure();
+  empty &= storeDigits(ctx, m_fltDigitsContainerKey,m_arrays->m_sampleFlt,m_arrays->m_gainFlt,false).isFailure();
+  empty &= storeDigits(ctx, m_digitsContainerKey,   m_arrays->m_sample,   m_arrays->m_gain,   true ).isFailure();
   
   // store TileRawChannels
   // start from DSP channels - so we can find out what is the DSP units
-  empty &= storeRawChannels(ctx, m_dspRawChannelContainerKey,  m_eDsp,  m_tDsp,  m_chi2Dsp, m_pedDsp, true ).isFailure();
-  empty &= storeRawChannels(ctx, m_rawChannelContainerKey,     m_ene,   m_time,  m_chi2,    m_ped,    false).isFailure();
-  empty &= storeMFRawChannels(ctx, m_mfRawChannelContainerKey, m_eMF,   m_tMF,   m_chi2MF,  m_pedMF,  false).isFailure();
-  empty &= storeRawChannels(ctx, m_fitRawChannelContainerKey,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
-  empty &= storeRawChannels(ctx, m_fitcRawChannelContainerKey, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
-  empty &= storeRawChannels(ctx, m_optRawChannelContainerKey,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
-  empty &= storeRawChannels(ctx, m_qieRawChannelContainerKey,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
-  empty &= storeRawChannels(ctx, m_of1RawChannelContainerKey,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
+  empty &= storeRawChannels(ctx, m_dspRawChannelContainerKey,  m_arrays->m_eDsp,  m_arrays->m_tDsp,  m_arrays->m_chi2Dsp, m_arrays->m_pedDsp, true ).isFailure();
+  empty &= storeRawChannels(ctx, m_rawChannelContainerKey,     m_arrays->m_ene,   m_arrays->m_time,  m_arrays->m_chi2,    m_arrays->m_ped,    false).isFailure();
+  empty &= storeMFRawChannels(ctx, m_mfRawChannelContainerKey, m_arrays->m_eMF,   m_arrays->m_tMF,   m_arrays->m_chi2MF,  m_arrays->m_pedMF,  false).isFailure();
+  empty &= storeRawChannels(ctx, m_fitRawChannelContainerKey,  m_arrays->m_eFit,  m_arrays->m_tFit,  m_arrays->m_chi2Fit, m_arrays->m_pedFit, false).isFailure();
+  empty &= storeRawChannels(ctx, m_fitcRawChannelContainerKey, m_arrays->m_eFitc, m_arrays->m_tFitc, m_arrays->m_chi2Fitc,m_arrays->m_pedFitc,false).isFailure();
+  empty &= storeRawChannels(ctx, m_optRawChannelContainerKey,  m_arrays->m_eOpt,  m_arrays->m_tOpt,  m_arrays->m_chi2Opt, m_arrays->m_pedOpt, false).isFailure();
+  empty &= storeRawChannels(ctx, m_qieRawChannelContainerKey,  m_arrays->m_eQIE,  m_arrays->m_tQIE,  m_arrays->m_chi2QIE, m_arrays->m_pedQIE, false).isFailure();
+  empty &= storeRawChannels(ctx, m_of1RawChannelContainerKey,  m_arrays->m_eOF1,  m_arrays->m_tOF1,  m_arrays->m_chi2OF1, m_arrays->m_pedOF1, false).isFailure();
   
   // store TMDB data
   //
@@ -571,81 +474,81 @@ StatusCode TileAANtuple::storeLaser (const EventContext& ctx) {
     // RETRIEVE SIGNAL IN ADC COUNTS
     for(int i=0; i<14; ++i){
       // MONITORING DIODES
-      m_chan[i*2+0] = laserObj->getDiodeADC(i,0);
-      m_chan[i*2+1] = laserObj->getDiodeADC(i,1);
+      m_arrays->m_chan[i*2+0] = laserObj->getDiodeADC(i,0);
+      m_arrays->m_chan[i*2+1] = laserObj->getDiodeADC(i,1);
       
-      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+0]  );
-      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+1]  );
+      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (LG) " << m_arrays->m_chan[i*2+0]  );
+      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (HG) " << m_arrays->m_chan[i*2+1]  );
       
       // MONITORING PMTS
       if(i<2){
-        m_chan[i*2+0+14*2] = laserObj->getPMADC(i,0);
-        m_chan[i*2+1+14*2] = laserObj->getPMADC(i,1);
+        m_arrays->m_chan[i*2+0+14*2] = laserObj->getPMADC(i,0);
+        m_arrays->m_chan[i*2+1+14*2] = laserObj->getPMADC(i,1);
         
-        ATH_MSG_DEBUG( "LASERII PMT " << i << " (LG) " << m_chan[i*2+0+14*2]  );
-        ATH_MSG_DEBUG( "LASERII PMT " << i << " (HG) " << m_chan[i*2+1+14*2]  );
+        ATH_MSG_DEBUG( "LASERII PMT " << i << " (LG) " << m_arrays->m_chan[i*2+0+14*2]  );
+        ATH_MSG_DEBUG( "LASERII PMT " << i << " (HG) " << m_arrays->m_chan[i*2+1+14*2]  );
       } // IF
     } // FOR
     
     // RETRIEVE PEDESTALS IF NOT ALREADY SET
     for(int chan=0;chan<32;++chan){
-      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getMean (chan/2,chan%2,0)>0) m_chan_Ped[chan]    = laserObj->getMean(chan/2,chan%2,0);
-      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getMean (chan/2,chan%2,2)>0) m_chan_Led[chan]    = laserObj->getMean(chan/2,chan%2,2);
-      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getMean (chan/2,chan%2,3)>0) m_chan_Alpha[chan]  = laserObj->getMean(chan/2,chan%2,3);
-      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_chan_Lin[chan]    = laserObj->getMean(chan/2,chan%2,1);
-      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getSigma(chan/2,chan%2,0)>0) m_chan_SPed[chan]   = laserObj->getSigma(chan/2,chan%2,0);
-      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getSigma(chan/2,chan%2,2)>0) m_chan_SLed[chan]   = laserObj->getSigma(chan/2,chan%2,2);
-      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getSigma(chan/2,chan%2,3)>0) m_chan_SAlpha[chan] = laserObj->getSigma(chan/2,chan%2,3);
-      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getSigma(chan/2,chan%2,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
+      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getMean (chan/2,chan%2,0)>0) m_arrays->m_chan_Ped[chan]    = laserObj->getMean(chan/2,chan%2,0);
+      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getMean (chan/2,chan%2,2)>0) m_arrays->m_chan_Led[chan]    = laserObj->getMean(chan/2,chan%2,2);
+      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getMean (chan/2,chan%2,3)>0) m_arrays->m_chan_Alpha[chan]  = laserObj->getMean(chan/2,chan%2,3);
+      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_arrays->m_chan_Lin[chan]    = laserObj->getMean(chan/2,chan%2,1);
+      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getSigma(chan/2,chan%2,0)>0) m_arrays->m_chan_SPed[chan]   = laserObj->getSigma(chan/2,chan%2,0);
+      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getSigma(chan/2,chan%2,2)>0) m_arrays->m_chan_SLed[chan]   = laserObj->getSigma(chan/2,chan%2,2);
+      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getSigma(chan/2,chan%2,3)>0) m_arrays->m_chan_SAlpha[chan] = laserObj->getSigma(chan/2,chan%2,3);
+      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getSigma(chan/2,chan%2,1)>0) m_arrays->m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
       
       // DEBUG OUTPUT
       if(chan%2==1){
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " SIG= " << m_chan[chan]  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
+        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " SIG= " << m_arrays->m_chan[chan]  );
+        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_arrays->m_chan_Ped[chan]   << "+/-" << m_arrays->m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
+        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_arrays->m_chan_Lin[chan]   << "+/-" << m_arrays->m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
+        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " LED= " << m_arrays->m_chan_Led[chan]   << "+/-" << m_arrays->m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
+        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " ALP= " << m_arrays->m_chan_Alpha[chan] << "+/-" << m_arrays->m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
       } // IF
       if(chan%2==0){
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " SIG= " << m_chan[chan]  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
+        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " SIG= " << m_arrays->m_chan[chan]  );
+        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_arrays->m_chan_Ped[chan]   << "+/-" << m_arrays->m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
+        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_arrays->m_chan_Lin[chan]   << "+/-" << m_arrays->m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
+        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " LED= " << m_arrays->m_chan_Led[chan]   << "+/-" << m_arrays->m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
+        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " ALP= " << m_arrays->m_chan_Alpha[chan] << "+/-" << m_arrays->m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
       } // IF
     } // FOR
   } // IF
   else{
     for (unsigned int gn=0; gn<TileLaserObject::nbGains; ++gn) {
       for (unsigned int i=0; i<TileLaserObject::nbPmts; ++i) {
-        m_las_PMT_ADC[gn][i] = laserObj->getPMADC(i,gn);
-        m_las_PMT_TDC[gn][i] = laserObj->getTDC(i,gn);
-        m_las_PMT_Ped[gn][i] = laserObj->getPMPedestal(i,gn);
-        m_las_PMT_Ped_RMS[gn][i] = laserObj->getPMSigmaPedestal(i,gn);
+        m_arrays->m_las_PMT_ADC[gn][i] = laserObj->getPMADC(i,gn);
+        m_arrays->m_las_PMT_TDC[gn][i] = laserObj->getTDC(i,gn);
+        m_arrays->m_las_PMT_Ped[gn][i] = laserObj->getPMPedestal(i,gn);
+        m_arrays->m_las_PMT_Ped_RMS[gn][i] = laserObj->getPMSigmaPedestal(i,gn);
         ATH_MSG_VERBOSE( "LasPMT" << i << " g " << gn
-                         << " adc " << m_las_PMT_ADC[gn][i]
-                         << " ped " << m_las_PMT_Ped[gn][i]
-                         << " rms " << m_las_PMT_Ped_RMS[gn][i]
-                         << " tdc " << m_las_PMT_TDC[gn][i] );
+                         << " adc " << m_arrays->m_las_PMT_ADC[gn][i]
+                         << " ped " << m_arrays->m_las_PMT_Ped[gn][i]
+                         << " rms " << m_arrays->m_las_PMT_Ped_RMS[gn][i]
+                         << " tdc " << m_arrays->m_las_PMT_TDC[gn][i] );
       } // FOR
       
       for (unsigned int i=0; i<14; ++i) {
-        m_las_D_ADC[gn][i] = laserObj->getDiodeADC(i,gn);
-        m_las_D_Ped[gn][i] = laserObj->getDiodePedestal(i,gn);
-        m_las_D_Ped_RMS[gn][i] = laserObj->getDiodeSigmaPedestal(i,gn);
-        m_las_D_Alpha[gn][i] = laserObj->getAlpha(i,gn);
-        m_las_D_Alpha_RMS[gn][i] = laserObj->getSigmaAlpha(i,gn);
-        m_las_D_AlphaPed[gn][i] = laserObj->getPedestalAlpha(i,gn);
-        m_las_D_AlphaPed_RMS[gn][i] = laserObj->getSigmaPedAlpha(i,gn);
+        m_arrays->m_las_D_ADC[gn][i] = laserObj->getDiodeADC(i,gn);
+        m_arrays->m_las_D_Ped[gn][i] = laserObj->getDiodePedestal(i,gn);
+        m_arrays->m_las_D_Ped_RMS[gn][i] = laserObj->getDiodeSigmaPedestal(i,gn);
+        m_arrays->m_las_D_Alpha[gn][i] = laserObj->getAlpha(i,gn);
+        m_arrays->m_las_D_Alpha_RMS[gn][i] = laserObj->getSigmaAlpha(i,gn);
+        m_arrays->m_las_D_AlphaPed[gn][i] = laserObj->getPedestalAlpha(i,gn);
+        m_arrays->m_las_D_AlphaPed_RMS[gn][i] = laserObj->getSigmaPedAlpha(i,gn);
         
         ATH_MSG_VERBOSE( "LasD" << i << " g " << gn
-                         << " adc " << m_las_D_ADC[gn][i]
-                         << " ped " << m_las_D_Ped[gn][i]
-                         << " rms " << m_las_D_Ped_RMS[gn][i]
-                         << " alp " << m_las_D_Alpha[gn][i]
-                         << " rms " << m_las_D_Alpha_RMS[gn][i]
-                         << " ape " << m_las_D_AlphaPed[gn][i]
-                         << " rms " << m_las_D_AlphaPed_RMS[gn][i] );
+                         << " adc " << m_arrays->m_las_D_ADC[gn][i]
+                         << " ped " << m_arrays->m_las_D_Ped[gn][i]
+                         << " rms " << m_arrays->m_las_D_Ped_RMS[gn][i]
+                         << " alp " << m_arrays->m_las_D_Alpha[gn][i]
+                         << " rms " << m_arrays->m_las_D_Alpha_RMS[gn][i]
+                         << " ape " << m_arrays->m_las_D_AlphaPed[gn][i]
+                         << " rms " << m_arrays->m_las_D_AlphaPed_RMS[gn][i] );
       } // FOR
     } // FOR
   } // ELSE
@@ -824,8 +727,8 @@ TileAANtuple::storeRawChannels(const EventContext& ctx
       time[rosI][drawer][channel] = rch->time();
       chi2[rosI][drawer][channel] = rch->quality();
       ped[rosI][drawer][channel] = rch->pedestal();
-      if (m_gain[rosI][drawer][channel] < 0)
-        m_gain[rosI][drawer][channel] = adc;
+      if (m_arrays->m_gain[rosI][drawer][channel] < 0)
+        m_arrays->m_gain[rosI][drawer][channel] = adc;
       
       if (m_compareMode) { // filling array for SumEt calculations
         E[channel] = energy;
@@ -852,23 +755,23 @@ TileAANtuple::storeRawChannels(const EventContext& ctx
     
     if (fillAll) {
       
-      m_ROD_GlobalCRC[rosL][drawer] = (*itColl)->getFragGlobalCRC() & 1;
-      m_ROD_BCID[rosL][drawer] = (*itColl)->getFragDSPBCID();
-      m_ROD_DMUMask[rosL][drawer][0] = (*itColl)->getFragRODChipMask();
-      m_ROD_DMUMask[rosL][drawer][1] = (*itColl)->getFragFEChipMask();
+      m_arrays->m_ROD_GlobalCRC[rosL][drawer] = (*itColl)->getFragGlobalCRC() & 1;
+      m_arrays->m_ROD_BCID[rosL][drawer] = (*itColl)->getFragDSPBCID();
+      m_arrays->m_ROD_DMUMask[rosL][drawer][0] = (*itColl)->getFragRODChipMask();
+      m_arrays->m_ROD_DMUMask[rosL][drawer][1] = (*itColl)->getFragFEChipMask();
       
       for(unsigned int dmu=0;dmu<N_DMUS;dmu++) {
         
-        m_ROD_DMUBCIDErr[rosL][drawer][dmu] = ((*itColl)->getFragBCID() >> dmu) & 1;
-        m_ROD_DMUmemoryErr[rosL][drawer][dmu] = ((*itColl)->getFragMemoryPar() >> dmu) & 1;
-        m_ROD_DMUSstrobeErr[rosL][drawer][dmu] = ((*itColl)->getFragSstrobe() >> dmu) & 1;
-        m_ROD_DMUDstrobeErr[rosL][drawer][dmu]    = ((*itColl)->getFragDstrobe() >> dmu) & 1;
-        m_ROD_DMUHeadformatErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderBit() >> dmu) & 1;
-        m_ROD_DMUHeadparityErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderPar() >> dmu) & 1;
-        m_ROD_DMUDataformatErr[rosL][drawer][dmu] = ((*itColl)->getFragSampleBit() >> dmu) & 1;
-        m_ROD_DMUDataparityErr[rosL][drawer][dmu] = ((*itColl)->getFragSamplePar() >> dmu) & 1;
-        m_ROD_DMUfeCRC[rosL][drawer][dmu] = ((*itColl)->getFragFEChipMask() >> dmu) & 1;
-        m_ROD_DMUrodCRC[rosL][drawer][dmu] = ((*itColl)->getFragRODChipMask() >> dmu) & 1;
+        m_arrays->m_ROD_DMUBCIDErr[rosL][drawer][dmu] = ((*itColl)->getFragBCID() >> dmu) & 1;
+        m_arrays->m_ROD_DMUmemoryErr[rosL][drawer][dmu] = ((*itColl)->getFragMemoryPar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUSstrobeErr[rosL][drawer][dmu] = ((*itColl)->getFragSstrobe() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDstrobeErr[rosL][drawer][dmu]    = ((*itColl)->getFragDstrobe() >> dmu) & 1;
+        m_arrays->m_ROD_DMUHeadformatErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderBit() >> dmu) & 1;
+        m_arrays->m_ROD_DMUHeadparityErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderPar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDataformatErr[rosL][drawer][dmu] = ((*itColl)->getFragSampleBit() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDataparityErr[rosL][drawer][dmu] = ((*itColl)->getFragSamplePar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUfeCRC[rosL][drawer][dmu] = ((*itColl)->getFragFEChipMask() >> dmu) & 1;
+        m_arrays->m_ROD_DMUrodCRC[rosL][drawer][dmu] = ((*itColl)->getFragRODChipMask() >> dmu) & 1;
       }
     }
     
@@ -1024,8 +927,8 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
       chi2[rosI][drawer][channel] = rch->quality();
       ped[rosI][drawer][channel] = rch->pedestal();
       
-      if (m_gain[rosI][drawer][channel] < 0)
-        m_gain[rosI][drawer][channel] = adc;
+      if (m_arrays->m_gain[rosI][drawer][channel] < 0)
+        m_arrays->m_gain[rosI][drawer][channel] = adc;
       
       if (m_compareMode) { // filling array for SumEt calculations
         E[channel] = ene[rosI][drawer][channel][0];
@@ -1052,23 +955,23 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
     
     if (fillAll) {
       
-      m_ROD_GlobalCRC[rosL][drawer] = (*itColl)->getFragGlobalCRC() & 1;
-      m_ROD_BCID[rosL][drawer] = (*itColl)->getFragDSPBCID();
-      m_ROD_DMUMask[rosL][drawer][0] = (*itColl)->getFragRODChipMask();
-      m_ROD_DMUMask[rosL][drawer][1] = (*itColl)->getFragFEChipMask();
+      m_arrays->m_ROD_GlobalCRC[rosL][drawer] = (*itColl)->getFragGlobalCRC() & 1;
+      m_arrays->m_ROD_BCID[rosL][drawer] = (*itColl)->getFragDSPBCID();
+      m_arrays->m_ROD_DMUMask[rosL][drawer][0] = (*itColl)->getFragRODChipMask();
+      m_arrays->m_ROD_DMUMask[rosL][drawer][1] = (*itColl)->getFragFEChipMask();
       
       for(unsigned int dmu=0;dmu<N_DMUS;dmu++) {
         
-        m_ROD_DMUBCIDErr[rosL][drawer][dmu] = ((*itColl)->getFragBCID() >> dmu) & 1;
-        m_ROD_DMUmemoryErr[rosL][drawer][dmu] = ((*itColl)->getFragMemoryPar() >> dmu) & 1;
-        m_ROD_DMUSstrobeErr[rosL][drawer][dmu] = ((*itColl)->getFragSstrobe() >> dmu) & 1;
-        m_ROD_DMUDstrobeErr[rosL][drawer][dmu]    = ((*itColl)->getFragDstrobe() >> dmu) & 1;
-        m_ROD_DMUHeadformatErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderBit() >> dmu) & 1;
-        m_ROD_DMUHeadparityErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderPar() >> dmu) & 1;
-        m_ROD_DMUDataformatErr[rosL][drawer][dmu] = ((*itColl)->getFragSampleBit() >> dmu) & 1;
-        m_ROD_DMUDataparityErr[rosL][drawer][dmu] = ((*itColl)->getFragSamplePar() >> dmu) & 1;
-        m_ROD_DMUfeCRC[rosL][drawer][dmu] = ((*itColl)->getFragFEChipMask() >> dmu) & 1;
-        m_ROD_DMUrodCRC[rosL][drawer][dmu] = ((*itColl)->getFragRODChipMask() >> dmu) & 1;
+        m_arrays->m_ROD_DMUBCIDErr[rosL][drawer][dmu] = ((*itColl)->getFragBCID() >> dmu) & 1;
+        m_arrays->m_ROD_DMUmemoryErr[rosL][drawer][dmu] = ((*itColl)->getFragMemoryPar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUSstrobeErr[rosL][drawer][dmu] = ((*itColl)->getFragSstrobe() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDstrobeErr[rosL][drawer][dmu]    = ((*itColl)->getFragDstrobe() >> dmu) & 1;
+        m_arrays->m_ROD_DMUHeadformatErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderBit() >> dmu) & 1;
+        m_arrays->m_ROD_DMUHeadparityErr[rosL][drawer][dmu] = ((*itColl)->getFragHeaderPar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDataformatErr[rosL][drawer][dmu] = ((*itColl)->getFragSampleBit() >> dmu) & 1;
+        m_arrays->m_ROD_DMUDataparityErr[rosL][drawer][dmu] = ((*itColl)->getFragSamplePar() >> dmu) & 1;
+        m_arrays->m_ROD_DMUfeCRC[rosL][drawer][dmu] = ((*itColl)->getFragFEChipMask() >> dmu) & 1;
+        m_arrays->m_ROD_DMUrodCRC[rosL][drawer][dmu] = ((*itColl)->getFragRODChipMask() >> dmu) & 1;
       }
     }
     
@@ -1181,13 +1084,13 @@ TileAANtuple::storeDigits(const EventContext& ctx
         // store evtnr, bcid,crc, size
         // Same for lo and hi, because they come from the same fragment
         
-        m_rodBCID[rosL][drawer] = (*itColl)->getRODBCID();
-        m_fragSize[rosL][drawer]=(*itColl)->getFragSize();
+        m_arrays->m_rodBCID[rosL][drawer] = (*itColl)->getRODBCID();
+        m_arrays->m_fragSize[rosL][drawer]=(*itColl)->getFragSize();
         
-        m_slinkCRC[rosL][drawer][0] = ((*itColl)->getFragCRC()>>16) & 0xffff;
-        m_dmuMask[rosL][drawer][0] = ((*itColl)->getFragDMUMask()>>16) & 0xffff;
-        m_slinkCRC[rosL][drawer][1] = (*itColl)->getFragCRC() & 0xffff;
-        m_dmuMask[rosL][drawer][1] = (*itColl)->getFragDMUMask() & 0xffff;
+        m_arrays->m_slinkCRC[rosL][drawer][0] = ((*itColl)->getFragCRC()>>16) & 0xffff;
+        m_arrays->m_dmuMask[rosL][drawer][0] = ((*itColl)->getFragDMUMask()>>16) & 0xffff;
+        m_arrays->m_slinkCRC[rosL][drawer][1] = (*itColl)->getFragCRC() & 0xffff;
+        m_arrays->m_dmuMask[rosL][drawer][1] = (*itColl)->getFragDMUMask() & 0xffff;
         
         uint32_t CRCmask = (*itColl)->getFragDMUMask(); //mask of FE+ROD DMU crc check (16bit+16bit) 0xffffffff == All ok
         uint32_t fe_crc = CRCmask & 0xFFFF;
@@ -1198,16 +1101,16 @@ TileAANtuple::storeDigits(const EventContext& ctx
         
         for (unsigned int ih = 0; ih < headsize; ++ih) {
           
-          m_DMUheader[rosL][drawer][ih] = headerVec[ih];   /// Full DMU header, stored for debugging
-          m_DMUbcid[rosL][drawer][ih] = (headerVec[ih] & 0xFFF);             /// BCID in DMU header
-          m_DMUformatErr[rosL][drawer][ih] = CheckDMUFormat(headerVec[ih]); /// bit_31==1 and bit_17==0
-          m_DMUparityErr[rosL][drawer][ih] = CheckDMUParity(headerVec[ih]); /// parity must be an odd number
-          m_DMUmemoryErr[rosL][drawer][ih] = (headerVec[ih] >> 25 & 0x1); /// memory parity error bit_25
-          m_DMUSstrobeErr[rosL][drawer][ih] = (headerVec[ih] >> 24 & 0x1); /// single strobe error bit_24 (it is recovered)
-          m_DMUDstrobeErr[rosL][drawer][ih] = (headerVec[ih] >> 23 & 0x1); /// double strobe error bit_23 (cannot be recovered)
+          m_arrays->m_DMUheader[rosL][drawer][ih] = headerVec[ih];   /// Full DMU header, stored for debugging
+          m_arrays->m_DMUbcid[rosL][drawer][ih] = (headerVec[ih] & 0xFFF);             /// BCID in DMU header
+          m_arrays->m_DMUformatErr[rosL][drawer][ih] = CheckDMUFormat(headerVec[ih]); /// bit_31==1 and bit_17==0
+          m_arrays->m_DMUparityErr[rosL][drawer][ih] = CheckDMUParity(headerVec[ih]); /// parity must be an odd number
+          m_arrays->m_DMUmemoryErr[rosL][drawer][ih] = (headerVec[ih] >> 25 & 0x1); /// memory parity error bit_25
+          m_arrays->m_DMUSstrobeErr[rosL][drawer][ih] = (headerVec[ih] >> 24 & 0x1); /// single strobe error bit_24 (it is recovered)
+          m_arrays->m_DMUDstrobeErr[rosL][drawer][ih] = (headerVec[ih] >> 23 & 0x1); /// double strobe error bit_23 (cannot be recovered)
           
-          m_feCRC[rosL][drawer][ih] = (fe_crc >> ih & 0x1);
-          m_rodCRC[rosL][drawer][ih] = (rod_crc >> ih & 0x1);
+          m_arrays->m_feCRC[rosL][drawer][ih] = (fe_crc >> ih & 0x1);
+          m_arrays->m_rodCRC[rosL][drawer][ih] = (rod_crc >> ih & 0x1);
         }
         
         if (m_calibMode) {
@@ -1216,16 +1119,16 @@ TileAANtuple::storeDigits(const EventContext& ctx
           
           for (unsigned int ih = 0; ih < headsizehi; ++ih) {
             
-            m_DMUheader[rosH][drawer][ih] = headerVecHi[ih];                    /// Full DMU header, stored for debugging
-            m_DMUbcid[rosH][drawer][ih] = (headerVecHi[ih] & 0xFFF);            /// BCID in DMU header
-            m_DMUformatErr[rosH][drawer][ih] = CheckDMUFormat(headerVecHi[ih]); /// bit_31==1 and bit_17==0
-            m_DMUparityErr[rosH][drawer][ih] = CheckDMUParity(headerVecHi[ih]); /// parity must be an odd number
-            m_DMUmemoryErr[rosH][drawer][ih]  = (headerVecHi[ih] >> 25 & 0x1);  /// memory parity error bit_25
-            m_DMUSstrobeErr[rosH][drawer][ih] = (headerVecHi[ih] >> 24 & 0x1);  /// single strobe error bit_24 (it is recovered)
-            m_DMUDstrobeErr[rosH][drawer][ih] = (headerVecHi[ih] >> 23 & 0x1);  /// double strobe error bit_23 (cannot be recovered)
+            m_arrays->m_DMUheader[rosH][drawer][ih] = headerVecHi[ih];                    /// Full DMU header, stored for debugging
+            m_arrays->m_DMUbcid[rosH][drawer][ih] = (headerVecHi[ih] & 0xFFF);            /// BCID in DMU header
+            m_arrays->m_DMUformatErr[rosH][drawer][ih] = CheckDMUFormat(headerVecHi[ih]); /// bit_31==1 and bit_17==0
+            m_arrays->m_DMUparityErr[rosH][drawer][ih] = CheckDMUParity(headerVecHi[ih]); /// parity must be an odd number
+            m_arrays->m_DMUmemoryErr[rosH][drawer][ih]  = (headerVecHi[ih] >> 25 & 0x1);  /// memory parity error bit_25
+            m_arrays->m_DMUSstrobeErr[rosH][drawer][ih] = (headerVecHi[ih] >> 24 & 0x1);  /// single strobe error bit_24 (it is recovered)
+            m_arrays->m_DMUDstrobeErr[rosH][drawer][ih] = (headerVecHi[ih] >> 23 & 0x1);  /// double strobe error bit_23 (cannot be recovered)
             
-            m_feCRC[rosH][drawer][ih]  = -1 ; //Variables must be filled anyway, empty variables are not allowed
-            m_rodCRC[rosH][drawer][ih] = -1;  //Variables must be filled anyway, empty variables are not allowed
+            m_arrays->m_feCRC[rosH][drawer][ih]  = -1 ; //Variables must be filled anyway, empty variables are not allowed
+            m_arrays->m_rodCRC[rosH][drawer][ih] = -1;  //Variables must be filled anyway, empty variables are not allowed
           }
         }
       }
@@ -1325,13 +1228,13 @@ StatusCode TileAANtuple::storeTMDBDecision(const EventContext& ctx) {
         }
 
         for (int n = 0; n < siz; ++n) {
-          m_decisionTMDB[ros][drawer][n] = (unsigned char) decision[n];
+          m_arrays->m_decisionTMDB[ros][drawer][n] = (unsigned char) decision[n];
         }
 
         if (msgLvl(MSG::VERBOSE)) {
           std::stringstream ss;
           for (int n = 0; n < siz; ++n) {
-            ss<<std::setw(5)<<(int)m_decisionTMDB[ros][drawer][n];
+            ss<<std::setw(5)<<(int)m_arrays->m_decisionTMDB[ros][drawer][n];
           }
           ATH_MSG_VERBOSE( "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros] 
                            << std::setfill('0') << std::setw(2)
@@ -1397,13 +1300,13 @@ StatusCode TileAANtuple::storeTMDBDigits(const EventContext& ctx) {
           }
 
           for (int n = 0; n < siz; ++n) {
-            m_sampleTMDB[ros][drawer][ichannel][n] = (unsigned char) sampleVec[n];
+            m_arrays->m_sampleTMDB[ros][drawer][ichannel][n] = (unsigned char) sampleVec[n];
           }
 
           if (msgLvl(MSG::VERBOSE)) {
             std::stringstream ss;
             for (int n = 0; n < siz; ++n) {
-              ss<<std::setw(5)<<(int)m_sampleTMDB[ros][drawer][ichannel][n];
+              ss<<std::setw(5)<<(int)m_arrays->m_sampleTMDB[ros][drawer][ichannel][n];
             }
             ATH_MSG_VERBOSE( "      dig: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(digit->adc_HWID())<<": "<<ss.str()  );
           }
@@ -1459,9 +1362,9 @@ StatusCode TileAANtuple::storeTMDBRawChannel(const EventContext& ctx) {
 
           const TileRawChannel* rc = (*it2);
         
-          m_eTMDB[ros][drawer][ichannel] =  rc -> amplitude();
+          m_arrays->m_eTMDB[ros][drawer][ichannel] =  rc -> amplitude();
 
-          ATH_MSG_VERBOSE( "      rc: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(rc->adc_HWID())<< ": " << m_eTMDB[ros][drawer][ichannel] );
+          ATH_MSG_VERBOSE( "      rc: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(rc->adc_HWID())<< ": " << m_arrays->m_eTMDB[ros][drawer][ichannel] );
 
           ++ichannel;
         }
@@ -1758,245 +1661,245 @@ void TileAANtuple::LASER_addBranch(void) {
       
       m_ntuplePtr->Branch(Form("LASER_DAQTYPE"),&(m_daqtype),Form("LASER_DAQTYPE/I"));
       for(int chan=0;chan<32;++chan){
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[chan%2],channames[chan/2]),&(m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped",gainnames[chan%2],channames[chan/2]),&(m_chan_Ped[chan]),Form("LASER_%s_%s_Ped/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Led",gainnames[chan%2],channames[chan/2]),&(m_chan_Led[chan]),Form("LASER_%s_%s_Led/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped1",gainnames[chan%2],channames[chan/2]),&(m_chan_Lin[chan]),Form("LASER_%s_%s_Ped1/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Alpha",gainnames[chan%2],channames[chan/2]),&(m_chan_Alpha[chan]),Form("LASER_%s_%s_Alpha/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped",gainnames[chan%2],channames[chan/2]),&(m_chan_SPed[chan]),Form("LASER_%s_%s_Sigma_Ped/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Led",gainnames[chan%2],channames[chan/2]),&(m_chan_SLed[chan]),Form("LASER_%s_%s_Sigma_Led/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped1",gainnames[chan%2],channames[chan/2]),&(m_chan_SLin[chan]),Form("LASER_%s_%s_Sigma_Ped1/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Alpha",gainnames[chan%2],channames[chan/2]),&(m_chan_SAlpha[chan]),Form("LASER_%s_%s_Sigma_Alpha/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_Ped[chan]),Form("LASER_%s_%s_Ped/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Led",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_Led[chan]),Form("LASER_%s_%s_Led/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped1",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_Lin[chan]),Form("LASER_%s_%s_Ped1/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Alpha",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_Alpha[chan]),Form("LASER_%s_%s_Alpha/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_SPed[chan]),Form("LASER_%s_%s_Sigma_Ped/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Led",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_SLed[chan]),Form("LASER_%s_%s_Sigma_Led/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped1",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_SLin[chan]),Form("LASER_%s_%s_Sigma_Ped1/F",gainnames[chan%2],channames[chan/2]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Alpha",gainnames[chan%2],channames[chan/2]),&(m_arrays->m_chan_SAlpha[chan]),Form("LASER_%s_%s_Sigma_Alpha/F",gainnames[chan%2],channames[chan/2]));
       } // FOR
       
-      /*m_ntuplePtr->Branch("LASER_LG_Diode_0_ADC", &(m_las_D_ADC[0][0]), "LASER_LG_Diode_0_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_ADC", &(m_las_D_ADC[0][1]), "LASER_LG_Diode_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_ADC", &(m_las_D_ADC[0][2]), "LASER_LG_Diode_2_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_ADC", &(m_las_D_ADC[0][3]), "LASER_LG_Diode_3_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_ADC", &(m_las_D_ADC[0][4]), "LASER_LG_Diode_4_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_ADC", &(m_las_D_ADC[0][5]), "LASER_LG_Diode_5_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_ADC", &(m_las_D_ADC[0][6]), "LASER_LG_Diode_6_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_ADC", &(m_las_D_ADC[0][7]), "LASER_LG_Diode_7_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_ADC", &(m_las_D_ADC[0][8]), "LASER_LG_Diode_8_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_ADC", &(m_las_D_ADC[0][9]), "LASER_LG_Diode_9_ADC/I");
+      /*m_ntuplePtr->Branch("LASER_LG_Diode_0_ADC", &(m_arrays->m_las_D_ADC[0][0]), "LASER_LG_Diode_0_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_ADC", &(m_arrays->m_las_D_ADC[0][1]), "LASER_LG_Diode_1_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_ADC", &(m_arrays->m_las_D_ADC[0][2]), "LASER_LG_Diode_2_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_ADC", &(m_arrays->m_las_D_ADC[0][3]), "LASER_LG_Diode_3_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_ADC", &(m_arrays->m_las_D_ADC[0][4]), "LASER_LG_Diode_4_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_ADC", &(m_arrays->m_las_D_ADC[0][5]), "LASER_LG_Diode_5_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_ADC", &(m_arrays->m_las_D_ADC[0][6]), "LASER_LG_Diode_6_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_ADC", &(m_arrays->m_las_D_ADC[0][7]), "LASER_LG_Diode_7_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_ADC", &(m_arrays->m_las_D_ADC[0][8]), "LASER_LG_Diode_8_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_ADC", &(m_arrays->m_las_D_ADC[0][9]), "LASER_LG_Diode_9_ADC/I");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped", &(m_las_D_Ped[0][0]), "LASER_LG_Diode_0_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped", &(m_las_D_Ped[0][1]), "LASER_LG_Diode_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped", &(m_las_D_Ped[0][2]), "LASER_LG_Diode_2_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped", &(m_las_D_Ped[0][3]), "LASER_LG_Diode_3_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped", &(m_las_D_Ped[0][4]), "LASER_LG_Diode_4_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped", &(m_las_D_Ped[0][5]), "LASER_LG_Diode_5_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped", &(m_las_D_Ped[0][6]), "LASER_LG_Diode_6_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped", &(m_las_D_Ped[0][7]), "LASER_LG_Diode_7_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped", &(m_las_D_Ped[0][8]), "LASER_LG_Diode_8_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped", &(m_las_D_Ped[0][9]), "LASER_LG_Diode_9_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped", &(m_arrays->m_las_D_Ped[0][0]), "LASER_LG_Diode_0_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped", &(m_arrays->m_las_D_Ped[0][1]), "LASER_LG_Diode_1_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped", &(m_arrays->m_las_D_Ped[0][2]), "LASER_LG_Diode_2_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped", &(m_arrays->m_las_D_Ped[0][3]), "LASER_LG_Diode_3_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped", &(m_arrays->m_las_D_Ped[0][4]), "LASER_LG_Diode_4_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped", &(m_arrays->m_las_D_Ped[0][5]), "LASER_LG_Diode_5_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped", &(m_arrays->m_las_D_Ped[0][6]), "LASER_LG_Diode_6_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped", &(m_arrays->m_las_D_Ped[0][7]), "LASER_LG_Diode_7_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped", &(m_arrays->m_las_D_Ped[0][8]), "LASER_LG_Diode_8_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped", &(m_arrays->m_las_D_Ped[0][9]), "LASER_LG_Diode_9_Ped/F");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped_RMS", &(m_las_D_Ped_RMS[0][0]), "LASER_LG_Diode_0_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped_RMS", &(m_las_D_Ped_RMS[0][1]), "LASER_LG_Diode_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped_RMS", &(m_las_D_Ped_RMS[0][2]), "LASER_LG_Diode_2_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped_RMS", &(m_las_D_Ped_RMS[0][3]), "LASER_LG_Diode_3_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped_RMS", &(m_las_D_Ped_RMS[0][4]), "LASER_LG_Diode_4_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped_RMS", &(m_las_D_Ped_RMS[0][5]), "LASER_LG_Diode_5_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped_RMS", &(m_las_D_Ped_RMS[0][6]), "LASER_LG_Diode_6_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped_RMS", &(m_las_D_Ped_RMS[0][7]), "LASER_LG_Diode_7_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped_RMS", &(m_las_D_Ped_RMS[0][8]), "LASER_LG_Diode_8_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped_RMS", &(m_las_D_Ped_RMS[0][9]), "LASER_LG_Diode_9_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][0]), "LASER_LG_Diode_0_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][1]), "LASER_LG_Diode_1_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][2]), "LASER_LG_Diode_2_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][3]), "LASER_LG_Diode_3_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][4]), "LASER_LG_Diode_4_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][5]), "LASER_LG_Diode_5_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][6]), "LASER_LG_Diode_6_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][7]), "LASER_LG_Diode_7_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][8]), "LASER_LG_Diode_8_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][9]), "LASER_LG_Diode_9_Ped_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha", &(m_las_D_Alpha[0][0]), "LASER_LG_Diode_0_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha", &(m_las_D_Alpha[0][1]), "LASER_LG_Diode_1_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha", &(m_las_D_Alpha[0][2]), "LASER_LG_Diode_2_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha", &(m_las_D_Alpha[0][3]), "LASER_LG_Diode_3_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha", &(m_las_D_Alpha[0][4]), "LASER_LG_Diode_4_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha", &(m_las_D_Alpha[0][5]), "LASER_LG_Diode_5_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha", &(m_las_D_Alpha[0][6]), "LASER_LG_Diode_6_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha", &(m_las_D_Alpha[0][7]), "LASER_LG_Diode_7_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha", &(m_las_D_Alpha[0][8]), "LASER_LG_Diode_8_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha", &(m_las_D_Alpha[0][9]), "LASER_LG_Diode_9_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha", &(m_arrays->m_las_D_Alpha[0][0]), "LASER_LG_Diode_0_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha", &(m_arrays->m_las_D_Alpha[0][1]), "LASER_LG_Diode_1_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha", &(m_arrays->m_las_D_Alpha[0][2]), "LASER_LG_Diode_2_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha", &(m_arrays->m_las_D_Alpha[0][3]), "LASER_LG_Diode_3_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha", &(m_arrays->m_las_D_Alpha[0][4]), "LASER_LG_Diode_4_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha", &(m_arrays->m_las_D_Alpha[0][5]), "LASER_LG_Diode_5_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha", &(m_arrays->m_las_D_Alpha[0][6]), "LASER_LG_Diode_6_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha", &(m_arrays->m_las_D_Alpha[0][7]), "LASER_LG_Diode_7_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha", &(m_arrays->m_las_D_Alpha[0][8]), "LASER_LG_Diode_8_Alpha/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha", &(m_arrays->m_las_D_Alpha[0][9]), "LASER_LG_Diode_9_Alpha/F");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha_RMS", &(m_las_D_Alpha_RMS[0][0]), "LASER_LG_Diode_0_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha_RMS", &(m_las_D_Alpha_RMS[0][1]), "LASER_LG_Diode_1_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha_RMS", &(m_las_D_Alpha_RMS[0][2]), "LASER_LG_Diode_2_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha_RMS", &(m_las_D_Alpha_RMS[0][3]), "LASER_LG_Diode_3_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha_RMS", &(m_las_D_Alpha_RMS[0][4]), "LASER_LG_Diode_4_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha_RMS", &(m_las_D_Alpha_RMS[0][5]), "LASER_LG_Diode_5_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha_RMS", &(m_las_D_Alpha_RMS[0][6]), "LASER_LG_Diode_6_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha_RMS", &(m_las_D_Alpha_RMS[0][7]), "LASER_LG_Diode_7_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha_RMS", &(m_las_D_Alpha_RMS[0][8]), "LASER_LG_Diode_8_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha_RMS", &(m_las_D_Alpha_RMS[0][9]), "LASER_LG_Diode_9_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][0]), "LASER_LG_Diode_0_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][1]), "LASER_LG_Diode_1_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][2]), "LASER_LG_Diode_2_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][3]), "LASER_LG_Diode_3_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][4]), "LASER_LG_Diode_4_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][5]), "LASER_LG_Diode_5_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][6]), "LASER_LG_Diode_6_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][7]), "LASER_LG_Diode_7_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][8]), "LASER_LG_Diode_8_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][9]), "LASER_LG_Diode_9_Alpha_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed", &(m_las_D_AlphaPed[0][0]), "LASER_LG_Diode_0_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed", &(m_las_D_AlphaPed[0][1]), "LASER_LG_Diode_1_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed", &(m_las_D_AlphaPed[0][2]), "LASER_LG_Diode_2_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed", &(m_las_D_AlphaPed[0][3]), "LASER_LG_Diode_3_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed", &(m_las_D_AlphaPed[0][4]), "LASER_LG_Diode_4_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed", &(m_las_D_AlphaPed[0][5]), "LASER_LG_Diode_5_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed", &(m_las_D_AlphaPed[0][6]), "LASER_LG_Diode_6_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed", &(m_las_D_AlphaPed[0][7]), "LASER_LG_Diode_7_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed", &(m_las_D_AlphaPed[0][8]), "LASER_LG_Diode_8_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed", &(m_las_D_AlphaPed[0][9]), "LASER_LG_Diode_9_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][0]), "LASER_LG_Diode_0_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][1]), "LASER_LG_Diode_1_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][2]), "LASER_LG_Diode_2_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][3]), "LASER_LG_Diode_3_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][4]), "LASER_LG_Diode_4_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][5]), "LASER_LG_Diode_5_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][6]), "LASER_LG_Diode_6_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][7]), "LASER_LG_Diode_7_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][8]), "LASER_LG_Diode_8_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][9]), "LASER_LG_Diode_9_AlphaPed/F");
        
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][0]), "LASER_LG_Diode_0_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][1]), "LASER_LG_Diode_1_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][2]), "LASER_LG_Diode_2_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][3]), "LASER_LG_Diode_3_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][4]), "LASER_LG_Diode_4_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][5]), "LASER_LG_Diode_5_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][6]), "LASER_LG_Diode_6_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][7]), "LASER_LG_Diode_7_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][8]), "LASER_LG_Diode_8_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][9]), "LASER_LG_Diode_9_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][0]), "LASER_LG_Diode_0_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][1]), "LASER_LG_Diode_1_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][2]), "LASER_LG_Diode_2_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][3]), "LASER_LG_Diode_3_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][4]), "LASER_LG_Diode_4_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][5]), "LASER_LG_Diode_5_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][6]), "LASER_LG_Diode_6_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][7]), "LASER_LG_Diode_7_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][8]), "LASER_LG_Diode_8_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][9]), "LASER_LG_Diode_9_AlphaPed_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_ADC", &(m_las_D_ADC[1][0]), "LASER_HG_Diode_0_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_ADC", &(m_las_D_ADC[1][1]), "LASER_HG_Diode_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_ADC", &(m_las_D_ADC[1][2]), "LASER_HG_Diode_2_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_ADC", &(m_las_D_ADC[1][3]), "LASER_HG_Diode_3_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_ADC", &(m_las_D_ADC[1][4]), "LASER_HG_Diode_4_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_ADC", &(m_las_D_ADC[1][5]), "LASER_HG_Diode_5_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_ADC", &(m_las_D_ADC[1][6]), "LASER_HG_Diode_6_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_ADC", &(m_las_D_ADC[1][7]), "LASER_HG_Diode_7_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_ADC", &(m_las_D_ADC[1][8]), "LASER_HG_Diode_8_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_ADC", &(m_las_D_ADC[1][9]), "LASER_HG_Diode_9_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_ADC", &(m_arrays->m_las_D_ADC[1][0]), "LASER_HG_Diode_0_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_ADC", &(m_arrays->m_las_D_ADC[1][1]), "LASER_HG_Diode_1_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_ADC", &(m_arrays->m_las_D_ADC[1][2]), "LASER_HG_Diode_2_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_ADC", &(m_arrays->m_las_D_ADC[1][3]), "LASER_HG_Diode_3_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_ADC", &(m_arrays->m_las_D_ADC[1][4]), "LASER_HG_Diode_4_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_ADC", &(m_arrays->m_las_D_ADC[1][5]), "LASER_HG_Diode_5_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_ADC", &(m_arrays->m_las_D_ADC[1][6]), "LASER_HG_Diode_6_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_ADC", &(m_arrays->m_las_D_ADC[1][7]), "LASER_HG_Diode_7_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_ADC", &(m_arrays->m_las_D_ADC[1][8]), "LASER_HG_Diode_8_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_ADC", &(m_arrays->m_las_D_ADC[1][9]), "LASER_HG_Diode_9_ADC/I");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped", &(m_las_D_Ped[1][0]), "LASER_HG_Diode_0_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped", &(m_las_D_Ped[1][1]), "LASER_HG_Diode_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped", &(m_las_D_Ped[1][2]), "LASER_HG_Diode_2_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped", &(m_las_D_Ped[1][3]), "LASER_HG_Diode_3_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped", &(m_las_D_Ped[1][4]), "LASER_HG_Diode_4_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped", &(m_las_D_Ped[1][5]), "LASER_HG_Diode_5_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped", &(m_las_D_Ped[1][6]), "LASER_HG_Diode_6_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped", &(m_las_D_Ped[1][7]), "LASER_HG_Diode_7_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped", &(m_las_D_Ped[1][8]), "LASER_HG_Diode_8_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped", &(m_las_D_Ped[1][9]), "LASER_HG_Diode_9_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped", &(m_arrays->m_las_D_Ped[1][0]), "LASER_HG_Diode_0_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped", &(m_arrays->m_las_D_Ped[1][1]), "LASER_HG_Diode_1_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped", &(m_arrays->m_las_D_Ped[1][2]), "LASER_HG_Diode_2_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped", &(m_arrays->m_las_D_Ped[1][3]), "LASER_HG_Diode_3_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped", &(m_arrays->m_las_D_Ped[1][4]), "LASER_HG_Diode_4_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped", &(m_arrays->m_las_D_Ped[1][5]), "LASER_HG_Diode_5_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped", &(m_arrays->m_las_D_Ped[1][6]), "LASER_HG_Diode_6_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped", &(m_arrays->m_las_D_Ped[1][7]), "LASER_HG_Diode_7_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped", &(m_arrays->m_las_D_Ped[1][8]), "LASER_HG_Diode_8_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped", &(m_arrays->m_las_D_Ped[1][9]), "LASER_HG_Diode_9_Ped/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped_RMS", &(m_las_D_Ped_RMS[1][0]), "LASER_HG_Diode_0_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped_RMS", &(m_las_D_Ped_RMS[1][1]), "LASER_HG_Diode_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped_RMS", &(m_las_D_Ped_RMS[1][2]), "LASER_HG_Diode_2_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped_RMS", &(m_las_D_Ped_RMS[1][3]), "LASER_HG_Diode_3_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped_RMS", &(m_las_D_Ped_RMS[1][4]), "LASER_HG_Diode_4_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped_RMS", &(m_las_D_Ped_RMS[1][5]), "LASER_HG_Diode_5_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped_RMS", &(m_las_D_Ped_RMS[1][6]), "LASER_HG_Diode_6_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped_RMS", &(m_las_D_Ped_RMS[1][7]), "LASER_HG_Diode_7_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped_RMS", &(m_las_D_Ped_RMS[1][8]), "LASER_HG_Diode_8_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped_RMS", &(m_las_D_Ped_RMS[1][9]), "LASER_HG_Diode_9_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][0]), "LASER_HG_Diode_0_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][1]), "LASER_HG_Diode_1_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][2]), "LASER_HG_Diode_2_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][3]), "LASER_HG_Diode_3_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][4]), "LASER_HG_Diode_4_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][5]), "LASER_HG_Diode_5_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][6]), "LASER_HG_Diode_6_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][7]), "LASER_HG_Diode_7_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][8]), "LASER_HG_Diode_8_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[1][9]), "LASER_HG_Diode_9_Ped_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha", &(m_las_D_Alpha[1][0]), "LASER_HG_Diode_0_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha", &(m_las_D_Alpha[1][1]), "LASER_HG_Diode_1_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha", &(m_las_D_Alpha[1][2]), "LASER_HG_Diode_2_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha", &(m_las_D_Alpha[1][3]), "LASER_HG_Diode_3_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha", &(m_las_D_Alpha[1][4]), "LASER_HG_Diode_4_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha", &(m_las_D_Alpha[1][5]), "LASER_HG_Diode_5_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha", &(m_las_D_Alpha[1][6]), "LASER_HG_Diode_6_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha", &(m_las_D_Alpha[1][7]), "LASER_HG_Diode_7_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha", &(m_las_D_Alpha[1][8]), "LASER_HG_Diode_8_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha", &(m_las_D_Alpha[1][9]), "LASER_HG_Diode_9_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha", &(m_arrays->m_las_D_Alpha[1][0]), "LASER_HG_Diode_0_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha", &(m_arrays->m_las_D_Alpha[1][1]), "LASER_HG_Diode_1_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha", &(m_arrays->m_las_D_Alpha[1][2]), "LASER_HG_Diode_2_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha", &(m_arrays->m_las_D_Alpha[1][3]), "LASER_HG_Diode_3_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha", &(m_arrays->m_las_D_Alpha[1][4]), "LASER_HG_Diode_4_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha", &(m_arrays->m_las_D_Alpha[1][5]), "LASER_HG_Diode_5_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha", &(m_arrays->m_las_D_Alpha[1][6]), "LASER_HG_Diode_6_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha", &(m_arrays->m_las_D_Alpha[1][7]), "LASER_HG_Diode_7_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha", &(m_arrays->m_las_D_Alpha[1][8]), "LASER_HG_Diode_8_Alpha/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha", &(m_arrays->m_las_D_Alpha[1][9]), "LASER_HG_Diode_9_Alpha/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha_RMS", &(m_las_D_Alpha_RMS[1][0]), "LASER_HG_Diode_0_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha_RMS", &(m_las_D_Alpha_RMS[1][1]), "LASER_HG_Diode_1_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha_RMS", &(m_las_D_Alpha_RMS[1][2]), "LASER_HG_Diode_2_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha_RMS", &(m_las_D_Alpha_RMS[1][3]), "LASER_HG_Diode_3_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha_RMS", &(m_las_D_Alpha_RMS[1][4]), "LASER_HG_Diode_4_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha_RMS", &(m_las_D_Alpha_RMS[1][5]), "LASER_HG_Diode_5_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha_RMS", &(m_las_D_Alpha_RMS[1][6]), "LASER_HG_Diode_6_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha_RMS", &(m_las_D_Alpha_RMS[1][7]), "LASER_HG_Diode_7_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha_RMS", &(m_las_D_Alpha_RMS[1][8]), "LASER_HG_Diode_8_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha_RMS", &(m_las_D_Alpha_RMS[1][9]), "LASER_HG_Diode_9_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][0]), "LASER_HG_Diode_0_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][1]), "LASER_HG_Diode_1_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][2]), "LASER_HG_Diode_2_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][3]), "LASER_HG_Diode_3_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][4]), "LASER_HG_Diode_4_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][5]), "LASER_HG_Diode_5_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][6]), "LASER_HG_Diode_6_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][7]), "LASER_HG_Diode_7_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][8]), "LASER_HG_Diode_8_Alpha_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[1][9]), "LASER_HG_Diode_9_Alpha_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed", &(m_las_D_AlphaPed[1][0]), "LASER_HG_Diode_0_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed", &(m_las_D_AlphaPed[1][1]), "LASER_HG_Diode_1_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed", &(m_las_D_AlphaPed[1][2]), "LASER_HG_Diode_2_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed", &(m_las_D_AlphaPed[1][3]), "LASER_HG_Diode_3_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed", &(m_las_D_AlphaPed[1][4]), "LASER_HG_Diode_4_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed", &(m_las_D_AlphaPed[1][5]), "LASER_HG_Diode_5_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed", &(m_las_D_AlphaPed[1][6]), "LASER_HG_Diode_6_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed", &(m_las_D_AlphaPed[1][7]), "LASER_HG_Diode_7_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed", &(m_las_D_AlphaPed[1][8]), "LASER_HG_Diode_8_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed", &(m_las_D_AlphaPed[1][9]), "LASER_HG_Diode_9_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][0]), "LASER_HG_Diode_0_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][1]), "LASER_HG_Diode_1_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][2]), "LASER_HG_Diode_2_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][3]), "LASER_HG_Diode_3_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][4]), "LASER_HG_Diode_4_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][5]), "LASER_HG_Diode_5_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][6]), "LASER_HG_Diode_6_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][7]), "LASER_HG_Diode_7_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][8]), "LASER_HG_Diode_8_AlphaPed/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed", &(m_arrays->m_las_D_AlphaPed[1][9]), "LASER_HG_Diode_9_AlphaPed/F");
        
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][0]), "LASER_HG_Diode_0_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][1]), "LASER_HG_Diode_1_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][2]), "LASER_HG_Diode_2_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][3]), "LASER_HG_Diode_3_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][4]), "LASER_HG_Diode_4_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][5]), "LASER_HG_Diode_5_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][6]), "LASER_HG_Diode_6_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][7]), "LASER_HG_Diode_7_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][8]), "LASER_HG_Diode_8_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][9]), "LASER_HG_Diode_9_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][0]), "LASER_HG_Diode_0_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][1]), "LASER_HG_Diode_1_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][2]), "LASER_HG_Diode_2_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][3]), "LASER_HG_Diode_3_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][4]), "LASER_HG_Diode_4_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][5]), "LASER_HG_Diode_5_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][6]), "LASER_HG_Diode_6_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][7]), "LASER_HG_Diode_7_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][8]), "LASER_HG_Diode_8_AlphaPed_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[1][9]), "LASER_HG_Diode_9_AlphaPed_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_ADC", &(m_las_PMT_ADC[0][0]), "LASER_LG_PMT_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_ADC", &(m_las_PMT_ADC[0][1]), "LASER_LG_PMT_2_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_PMT_1_ADC", &(m_arrays->m_las_PMT_ADC[0][0]), "LASER_LG_PMT_1_ADC/I");
+       m_ntuplePtr->Branch("LASER_LG_PMT_2_ADC", &(m_arrays->m_las_PMT_ADC[0][1]), "LASER_LG_PMT_2_ADC/I");
        
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_TDC", &(m_las_PMT_TDC[0][0]), "LASER_LG_PMT_1_TDC/I");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_TDC", &(m_las_PMT_TDC[0][1]), "LASER_LG_PMT_2_TDC/I");
+       m_ntuplePtr->Branch("LASER_LG_PMT_1_TDC", &(m_arrays->m_las_PMT_TDC[0][0]), "LASER_LG_PMT_1_TDC/I");
+       m_ntuplePtr->Branch("LASER_LG_PMT_2_TDC", &(m_arrays->m_las_PMT_TDC[0][1]), "LASER_LG_PMT_2_TDC/I");
        
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped", &(m_las_PMT_Ped[0][0]), "LASER_LG_PMT_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped", &(m_las_PMT_Ped[0][1]), "LASER_LG_PMT_2_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped", &(m_arrays->m_las_PMT_Ped[0][0]), "LASER_LG_PMT_1_Ped/F");
+       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped", &(m_arrays->m_las_PMT_Ped[0][1]), "LASER_LG_PMT_2_Ped/F");
        
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped_RMS", &(m_las_PMT_Ped_RMS[0][0]), "LASER_LG_PMT_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped_RMS", &(m_las_PMT_Ped_RMS[0][1]), "LASER_LG_PMT_2_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[0][0]), "LASER_LG_PMT_1_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[0][1]), "LASER_LG_PMT_2_Ped_RMS/F");
        
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_ADC", &(m_las_PMT_ADC[1][0]), "LASER_HG_PMT_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_ADC", &(m_las_PMT_ADC[1][1]), "LASER_HG_PMT_2_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_PMT_1_ADC", &(m_arrays->m_las_PMT_ADC[1][0]), "LASER_HG_PMT_1_ADC/I");
+       m_ntuplePtr->Branch("LASER_HG_PMT_2_ADC", &(m_arrays->m_las_PMT_ADC[1][1]), "LASER_HG_PMT_2_ADC/I");
        
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_TDC", &(m_las_PMT_TDC[1][0]), "LASER_HG_PMT_1_TDC/I");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_TDC", &(m_las_PMT_TDC[1][1]), "LASER_HG_PMT_2_TDC/I");
+       m_ntuplePtr->Branch("LASER_HG_PMT_1_TDC", &(m_arrays->m_las_PMT_TDC[1][0]), "LASER_HG_PMT_1_TDC/I");
+       m_ntuplePtr->Branch("LASER_HG_PMT_2_TDC", &(m_arrays->m_las_PMT_TDC[1][1]), "LASER_HG_PMT_2_TDC/I");
        
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped", &(m_las_PMT_Ped[1][0]), "LASER_HG_PMT_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped", &(m_las_PMT_Ped[1][1]), "LASER_HG_PMT_2_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped", &(m_arrays->m_las_PMT_Ped[1][0]), "LASER_HG_PMT_1_Ped/F");
+       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped", &(m_arrays->m_las_PMT_Ped[1][1]), "LASER_HG_PMT_2_Ped/F");
        
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped_RMS", &(m_las_PMT_Ped_RMS[1][0]), "LASER_HG_PMT_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped_RMS", &(m_las_PMT_Ped_RMS[1][1]), "LASER_HG_PMT_2_Ped_RMS/F");*/
+       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[1][0]), "LASER_HG_PMT_1_Ped_RMS/F");
+       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[1][1]), "LASER_HG_PMT_2_Ped_RMS/F");*/
       
     } else {
       
       ATH_MSG_DEBUG("LASERI BRANCHING..");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_ADC", &(m_las_D_ADC[0][0]), "LASER_Diode_1_ADC/I");
-      m_ntuplePtr->Branch("LASER_Diode_2_ADC", &(m_las_D_ADC[0][1]), "LASER_Diode_2_ADC/I");
-      m_ntuplePtr->Branch("LASER_Diode_3_ADC", &(m_las_D_ADC[0][2]), "LASER_Diode_3_ADC/I");
-      m_ntuplePtr->Branch("LASER_Diode_4_ADC", &(m_las_D_ADC[0][3]), "LASER_Diode_4_ADC/I");
+      m_ntuplePtr->Branch("LASER_Diode_1_ADC", &(m_arrays->m_las_D_ADC[0][0]), "LASER_Diode_1_ADC/I");
+      m_ntuplePtr->Branch("LASER_Diode_2_ADC", &(m_arrays->m_las_D_ADC[0][1]), "LASER_Diode_2_ADC/I");
+      m_ntuplePtr->Branch("LASER_Diode_3_ADC", &(m_arrays->m_las_D_ADC[0][2]), "LASER_Diode_3_ADC/I");
+      m_ntuplePtr->Branch("LASER_Diode_4_ADC", &(m_arrays->m_las_D_ADC[0][3]), "LASER_Diode_4_ADC/I");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_Ped", &(m_las_D_Ped[0][0]), "LASER_Diode_1_Ped/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_Ped", &(m_las_D_Ped[0][1]), "LASER_Diode_2_Ped/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_Ped", &(m_las_D_Ped[0][2]), "LASER_Diode_3_Ped/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_Ped", &(m_las_D_Ped[0][3]), "LASER_Diode_4_Ped/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_Ped", &(m_arrays->m_las_D_Ped[0][0]), "LASER_Diode_1_Ped/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_Ped", &(m_arrays->m_las_D_Ped[0][1]), "LASER_Diode_2_Ped/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_Ped", &(m_arrays->m_las_D_Ped[0][2]), "LASER_Diode_3_Ped/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_Ped", &(m_arrays->m_las_D_Ped[0][3]), "LASER_Diode_4_Ped/F");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_Ped_RMS", &(m_las_D_Ped_RMS[0][0]), "LASER_Diode_1_Ped_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_Ped_RMS", &(m_las_D_Ped_RMS[0][1]), "LASER_Diode_2_Ped_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_Ped_RMS", &(m_las_D_Ped_RMS[0][2]), "LASER_Diode_3_Ped_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_Ped_RMS", &(m_las_D_Ped_RMS[0][3]), "LASER_Diode_4_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][0]), "LASER_Diode_1_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][1]), "LASER_Diode_2_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][2]), "LASER_Diode_3_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_Ped_RMS", &(m_arrays->m_las_D_Ped_RMS[0][3]), "LASER_Diode_4_Ped_RMS/F");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_Alpha", &(m_las_D_Alpha[0][0]), "LASER_Diode_1_Alpha/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_Alpha", &(m_las_D_Alpha[0][1]), "LASER_Diode_2_Alpha/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_Alpha", &(m_las_D_Alpha[0][2]), "LASER_Diode_3_Alpha/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_Alpha", &(m_las_D_Alpha[0][3]), "LASER_Diode_4_Alpha/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_Alpha", &(m_arrays->m_las_D_Alpha[0][0]), "LASER_Diode_1_Alpha/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_Alpha", &(m_arrays->m_las_D_Alpha[0][1]), "LASER_Diode_2_Alpha/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_Alpha", &(m_arrays->m_las_D_Alpha[0][2]), "LASER_Diode_3_Alpha/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_Alpha", &(m_arrays->m_las_D_Alpha[0][3]), "LASER_Diode_4_Alpha/F");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_Alpha_RMS", &(m_las_D_Alpha_RMS[0][0]), "LASER_Diode_1_Alpha_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_Alpha_RMS", &(m_las_D_Alpha_RMS[0][1]), "LASER_Diode_2_Alpha_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_Alpha_RMS", &(m_las_D_Alpha_RMS[0][2]), "LASER_Diode_3_Alpha_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_Alpha_RMS", &(m_las_D_Alpha_RMS[0][3]), "LASER_Diode_4_Alpha_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][0]), "LASER_Diode_1_Alpha_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][1]), "LASER_Diode_2_Alpha_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][2]), "LASER_Diode_3_Alpha_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_Alpha_RMS", &(m_arrays->m_las_D_Alpha_RMS[0][3]), "LASER_Diode_4_Alpha_RMS/F");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_AlphaPed", &(m_las_D_AlphaPed[0][0]), "LASER_Diode_1_AlphaPed/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_AlphaPed", &(m_las_D_AlphaPed[0][1]), "LASER_Diode_2_AlphaPed/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_AlphaPed", &(m_las_D_AlphaPed[0][2]), "LASER_Diode_3_AlphaPed/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_AlphaPed", &(m_las_D_AlphaPed[0][3]), "LASER_Diode_4_AlphaPed/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][0]), "LASER_Diode_1_AlphaPed/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][1]), "LASER_Diode_2_AlphaPed/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][2]), "LASER_Diode_3_AlphaPed/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_AlphaPed", &(m_arrays->m_las_D_AlphaPed[0][3]), "LASER_Diode_4_AlphaPed/F");
       
-      m_ntuplePtr->Branch("LASER_Diode_1_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][0]), "LASER_Diode_1_AlphaPed_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_2_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][1]), "LASER_Diode_2_AlphaPed_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_3_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][2]), "LASER_Diode_3_AlphaPed_RMS/F");
-      m_ntuplePtr->Branch("LASER_Diode_4_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][3]), "LASER_Diode_4_AlphaPed_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_1_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][0]), "LASER_Diode_1_AlphaPed_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_2_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][1]), "LASER_Diode_2_AlphaPed_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_3_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][2]), "LASER_Diode_3_AlphaPed_RMS/F");
+      m_ntuplePtr->Branch("LASER_Diode_4_AlphaPed_RMS", &(m_arrays->m_las_D_AlphaPed_RMS[0][3]), "LASER_Diode_4_AlphaPed_RMS/F");
       
-      m_ntuplePtr->Branch("LASER_PMT_1_ADC", &(m_las_PMT_ADC[0][0]), "LASER_PMT_1_ADC/I");
-      m_ntuplePtr->Branch("LASER_PMT_2_ADC", &(m_las_PMT_ADC[0][1]), "LASER_PMT_2_ADC/I");
+      m_ntuplePtr->Branch("LASER_PMT_1_ADC", &(m_arrays->m_las_PMT_ADC[0][0]), "LASER_PMT_1_ADC/I");
+      m_ntuplePtr->Branch("LASER_PMT_2_ADC", &(m_arrays->m_las_PMT_ADC[0][1]), "LASER_PMT_2_ADC/I");
       
-      m_ntuplePtr->Branch("LASER_PMT_1_TDC", &(m_las_PMT_TDC[0][0]), "LASER_PMT_1_TDC/I");
-      m_ntuplePtr->Branch("LASER_PMT_2_TDC", &(m_las_PMT_TDC[0][1]), "LASER_PMT_2_TDC/I");
+      m_ntuplePtr->Branch("LASER_PMT_1_TDC", &(m_arrays->m_las_PMT_TDC[0][0]), "LASER_PMT_1_TDC/I");
+      m_ntuplePtr->Branch("LASER_PMT_2_TDC", &(m_arrays->m_las_PMT_TDC[0][1]), "LASER_PMT_2_TDC/I");
       
-      m_ntuplePtr->Branch("LASER_PMT_1_Ped", &(m_las_PMT_Ped[0][0]), "LASER_PMT_1_Ped/F");
-      m_ntuplePtr->Branch("LASER_PMT_2_Ped", &(m_las_PMT_Ped[0][1]), "LASER_PMT_2_Ped/F");
+      m_ntuplePtr->Branch("LASER_PMT_1_Ped", &(m_arrays->m_las_PMT_Ped[0][0]), "LASER_PMT_1_Ped/F");
+      m_ntuplePtr->Branch("LASER_PMT_2_Ped", &(m_arrays->m_las_PMT_Ped[0][1]), "LASER_PMT_2_Ped/F");
       
-      m_ntuplePtr->Branch("LASER_PMT_1_Ped_RMS", &(m_las_PMT_Ped_RMS[0][0]), "LASER_PMT_1_Ped_RMS/F");
-      m_ntuplePtr->Branch("LASER_PMT_2_Ped_RMS", &(m_las_PMT_Ped_RMS[0][1]), "LASER_PMT_2_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_PMT_1_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[0][0]), "LASER_PMT_1_Ped_RMS/F");
+      m_ntuplePtr->Branch("LASER_PMT_2_Ped_RMS", &(m_arrays->m_las_PMT_Ped_RMS[0][1]), "LASER_PMT_2_Ped_RMS/F");
       
     }
     
@@ -2023,29 +1926,29 @@ void TileAANtuple::LASER_clearBranch(void) {
     m_las_Temperature = 0.0;
     
     // LASERII
-    //    memset(m_chan, 0, sizeof(m_chan));
-    //    memset(m_chan_Ped, 0, sizeof(m_chan_Ped));
-    //    memset(m_chan_Led, 0, sizeof(m_chan_Led));
-    //    memset(m_chan_Lin, 0, sizeof(m_chan_Lin));
-    //    memset(m_chan_Alpha, 0, sizeof(m_chan_Alpha));
-    //    memset(m_chan_SPed, 0, sizeof(m_chan_SPed));
-    //    memset(m_chan_SLed, 0, sizeof(m_chan_SLed));
-    //    memset(m_chan_SLin, 0, sizeof(m_chan_SLin));
-    //    memset(m_chan_SAlpha, 0, sizeof(m_chan_SAlpha));
+    //    memset(m_arrays->m_chan, 0, sizeof(m_arrays->m_chan));
+    //    memset(m_arrays->m_chan_Ped, 0, sizeof(m_arrays->m_chan_Ped));
+    //    memset(m_arrays->m_chan_Led, 0, sizeof(m_arrays->m_chan_Led));
+    //    memset(m_arrays->m_chan_Lin, 0, sizeof(m_arrays->m_chan_Lin));
+    //    memset(m_arrays->m_chan_Alpha, 0, sizeof(m_arrays->m_chan_Alpha));
+    //    memset(m_arrays->m_chan_SPed, 0, sizeof(m_arrays->m_chan_SPed));
+    //    memset(m_arrays->m_chan_SLed, 0, sizeof(m_arrays->m_chan_SLed));
+    //    memset(m_arrays->m_chan_SLin, 0, sizeof(m_arrays->m_chan_SLin));
+    //    memset(m_arrays->m_chan_SAlpha, 0, sizeof(m_arrays->m_chan_SAlpha));
     
     // LASERI
-    memset(m_las_D_ADC,          0, sizeof(m_las_D_ADC));
-    memset(m_las_D_Ped,          0, sizeof(m_las_D_Ped));
-    memset(m_las_D_Ped_RMS,      0, sizeof(m_las_D_Ped_RMS));
-    memset(m_las_D_Alpha,        0, sizeof(m_las_D_Alpha));
-    memset(m_las_D_Alpha_RMS,    0, sizeof(m_las_D_Alpha_RMS));
-    memset(m_las_D_AlphaPed,     0, sizeof(m_las_D_AlphaPed));
-    memset(m_las_D_AlphaPed_RMS, 0, sizeof(m_las_D_AlphaPed_RMS));
+    memset(m_arrays->m_las_D_ADC,          0, sizeof(m_arrays->m_las_D_ADC));
+    memset(m_arrays->m_las_D_Ped,          0, sizeof(m_arrays->m_las_D_Ped));
+    memset(m_arrays->m_las_D_Ped_RMS,      0, sizeof(m_arrays->m_las_D_Ped_RMS));
+    memset(m_arrays->m_las_D_Alpha,        0, sizeof(m_arrays->m_las_D_Alpha));
+    memset(m_arrays->m_las_D_Alpha_RMS,    0, sizeof(m_arrays->m_las_D_Alpha_RMS));
+    memset(m_arrays->m_las_D_AlphaPed,     0, sizeof(m_arrays->m_las_D_AlphaPed));
+    memset(m_arrays->m_las_D_AlphaPed_RMS, 0, sizeof(m_arrays->m_las_D_AlphaPed_RMS));
     
-    memset(m_las_PMT_ADC,        0, sizeof(m_las_PMT_ADC));
-    memset(m_las_PMT_TDC,        0, sizeof(m_las_PMT_TDC));
-    memset(m_las_PMT_Ped,        0, sizeof(m_las_PMT_Ped));
-    memset(m_las_PMT_Ped_RMS,    0, sizeof(m_las_PMT_Ped_RMS));
+    memset(m_arrays->m_las_PMT_ADC,        0, sizeof(m_arrays->m_las_PMT_ADC));
+    memset(m_arrays->m_las_PMT_TDC,        0, sizeof(m_arrays->m_las_PMT_TDC));
+    memset(m_arrays->m_las_PMT_Ped,        0, sizeof(m_arrays->m_las_PMT_Ped));
+    memset(m_arrays->m_las_PMT_Ped_RMS,    0, sizeof(m_arrays->m_las_PMT_Ped_RMS));
     
   }
 }
@@ -2097,17 +2000,17 @@ void TileAANtuple::DIGI_addBranch(void)
             || !m_of1RawChannelContainerKey.empty()
             || !m_bsInput) ) {
           
-          m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
+          m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
           
         } else {
           
           if (!m_fltDigitsContainerKey.empty()) {
             if (!m_digitsContainerKey.empty()) { // should use different names for two containers
               
-              m_ntuplePtr->Branch(NAME2("sampleFlt",f_suf),   m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
-              m_ntuplePtr->Branch(NAME2("gainFlt",f_suf),     m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
+              m_ntuplePtr->Branch(NAME2("sampleFlt",f_suf),   m_arrays->m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
+              m_ntuplePtr->Branch(NAME2("gainFlt",f_suf),     m_arrays->m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
             } else {
-              m_ntuplePtr->Branch(NAME2("sample",f_suf),      m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
+              m_ntuplePtr->Branch(NAME2("sample",f_suf),      m_arrays->m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
               if (!m_rawChannelContainerKey.empty()
                   || !m_fitRawChannelContainerKey.empty()
                   || !m_fitcRawChannelContainerKey.empty()
@@ -2117,111 +2020,111 @@ void TileAANtuple::DIGI_addBranch(void)
                   || !m_dspRawChannelContainerKey.empty()
                   || m_bsInput) {
                 
-                m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
+                m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
               } else {
-                m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
+                m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_arrays->m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
               }
             }
           }
           
           if (!m_digitsContainerKey.empty()) {
-            m_ntuplePtr->Branch(NAME2("sample",f_suf),          m_sample[ir],        NAME3("sample",       f_suf,"[4][64][48][7]/S")); // short
-            m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
+            m_ntuplePtr->Branch(NAME2("sample",f_suf),          m_arrays->m_sample[ir],        NAME3("sample",       f_suf,"[4][64][48][7]/S")); // short
+            m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
             
             if (m_bsInput) {
-              m_ntuplePtr->Branch(NAME2("DMUheader",f_suf),       m_DMUheader[ir],     NAME3("DMUheader",        f_suf,"[4][64][16]/i")); // uint32
-              m_ntuplePtr->Branch(NAME2("DMUBCID",f_suf),         m_DMUbcid[ir],       NAME3("DMUBCID",          f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("DMUmemoryErr",f_suf),    m_DMUmemoryErr[ir],  NAME3("DMUmemoryErr",     f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("DMUSstrobeErr",f_suf),   m_DMUSstrobeErr[ir], NAME3("DMUSstrobeErr",    f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("DMUDstrobeErr",f_suf),   m_DMUDstrobeErr[ir], NAME3("DMUDstrobeErr",    f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("DMUheadformatErr",f_suf),m_DMUformatErr[ir],  NAME3("DMUheadformatErr", f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("DMUheadparityErr",f_suf),m_DMUparityErr[ir],  NAME3("DMUheadparityErr", f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUheader",f_suf),       m_arrays->m_DMUheader[ir],     NAME3("DMUheader",        f_suf,"[4][64][16]/i")); // uint32
+              m_ntuplePtr->Branch(NAME2("DMUBCID",f_suf),         m_arrays->m_DMUbcid[ir],       NAME3("DMUBCID",          f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUmemoryErr",f_suf),    m_arrays->m_DMUmemoryErr[ir],  NAME3("DMUmemoryErr",     f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUSstrobeErr",f_suf),   m_arrays->m_DMUSstrobeErr[ir], NAME3("DMUSstrobeErr",    f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUDstrobeErr",f_suf),   m_arrays->m_DMUDstrobeErr[ir], NAME3("DMUDstrobeErr",    f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUheadformatErr",f_suf),m_arrays->m_DMUformatErr[ir],  NAME3("DMUheadformatErr", f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("DMUheadparityErr",f_suf),m_arrays->m_DMUparityErr[ir],  NAME3("DMUheadparityErr", f_suf,"[4][64][16]/S")); // short
               
-              m_ntuplePtr->Branch(NAME2("feCRC",f_suf),         m_feCRC[ir],         NAME3("feCRC",        f_suf,"[4][64][16]/S")); // short
-              m_ntuplePtr->Branch(NAME2("rodCRC",f_suf),        m_rodCRC[ir],        NAME3("rodCRC",       f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("feCRC",f_suf),         m_arrays->m_feCRC[ir],         NAME3("feCRC",        f_suf,"[4][64][16]/S")); // short
+              m_ntuplePtr->Branch(NAME2("rodCRC",f_suf),        m_arrays->m_rodCRC[ir],        NAME3("rodCRC",       f_suf,"[4][64][16]/S")); // short
               
               if (i == imin) { // common for low and high gain
-                m_ntuplePtr->Branch("rodBCID",  m_rodBCID,  "rodBCID[4][64]/S");    // short
-                m_ntuplePtr->Branch("fragSize", m_fragSize,"fragSize[4][64]/S");    // short
-                m_ntuplePtr->Branch("DMUmask",  m_dmuMask,  "DMUmask[4][64][2]/s"); // unsigned short
-                m_ntuplePtr->Branch("slinkCRC", m_slinkCRC,"slinkCRC[4][64][2]/s"); // unsigned short
+                m_ntuplePtr->Branch("rodBCID",  m_arrays->m_rodBCID,  "rodBCID[4][64]/S");    // short
+                m_ntuplePtr->Branch("fragSize", m_arrays->m_fragSize,"fragSize[4][64]/S");    // short
+                m_ntuplePtr->Branch("DMUmask",  m_arrays->m_dmuMask,  "DMUmask[4][64][2]/s"); // unsigned short
+                m_ntuplePtr->Branch("slinkCRC", m_arrays->m_slinkCRC,"slinkCRC[4][64][2]/s"); // unsigned short
               }
             }
           }
         }
     
     if (!m_rawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("ene",f_suf),     m_ene[ir],          NAME3("ene",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("time",f_suf),    m_time[ir],        NAME3("time",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("ped",f_suf),     m_ped[ir],          NAME3("ped",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2",f_suf),    m_chi2[ir],        NAME3("chi2",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("ene",f_suf),     m_arrays->m_ene[ir],          NAME3("ene",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("time",f_suf),    m_arrays->m_time[ir],        NAME3("time",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("ped",f_suf),     m_arrays->m_ped[ir],          NAME3("ped",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2",f_suf),    m_arrays->m_chi2[ir],        NAME3("chi2",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_fitRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eFit",f_suf),    m_eFit[ir],        NAME3("eFit",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tFit",f_suf),    m_tFit[ir],        NAME3("tFit",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedFit",f_suf),  m_pedFit[ir],    NAME3("pedFit",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2Fit",f_suf), m_chi2Fit[ir],  NAME3("chi2Fit",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eFit",f_suf),    m_arrays->m_eFit[ir],        NAME3("eFit",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tFit",f_suf),    m_arrays->m_tFit[ir],        NAME3("tFit",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedFit",f_suf),  m_arrays->m_pedFit[ir],    NAME3("pedFit",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Fit",f_suf), m_arrays->m_chi2Fit[ir],  NAME3("chi2Fit",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_fitcRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eFitc",f_suf),   m_eFitc[ir],      NAME3("eFitc",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tFitc",f_suf),   m_tFitc[ir],      NAME3("tFitc",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedFitc",f_suf), m_pedFitc[ir],  NAME3("pedFitc",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2Fitc",f_suf),m_chi2Fitc[ir],NAME3("chi2Fitc",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eFitc",f_suf),   m_arrays->m_eFitc[ir],      NAME3("eFitc",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tFitc",f_suf),   m_arrays->m_tFitc[ir],      NAME3("tFitc",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedFitc",f_suf), m_arrays->m_pedFitc[ir],  NAME3("pedFitc",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Fitc",f_suf),m_arrays->m_chi2Fitc[ir],NAME3("chi2Fitc",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_optRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eOpt",f_suf),    m_eOpt[ir],        NAME3("eOpt",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tOpt",f_suf),    m_tOpt[ir],        NAME3("tOpt",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedOpt",f_suf),  m_pedOpt[ir],    NAME3("pedOpt",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2Opt",f_suf), m_chi2Opt[ir],  NAME3("chi2Opt",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eOpt",f_suf),    m_arrays->m_eOpt[ir],        NAME3("eOpt",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tOpt",f_suf),    m_arrays->m_tOpt[ir],        NAME3("tOpt",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedOpt",f_suf),  m_arrays->m_pedOpt[ir],    NAME3("pedOpt",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Opt",f_suf), m_arrays->m_chi2Opt[ir],  NAME3("chi2Opt",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_qieRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_arrays->m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_arrays->m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_arrays->m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_arrays->m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
     }
 
     if (!m_of1RawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedOF1",f_suf),  m_pedOF1[ir],    NAME3("pedOF1",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf), m_chi2OF1[ir],  NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_arrays->m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_arrays->m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedOF1",f_suf),  m_arrays->m_pedOF1[ir],    NAME3("pedOF1",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf), m_arrays->m_chi2OF1[ir],  NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_dspRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eDsp",f_suf),    m_eDsp[ir],        NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tDsp",f_suf),    m_tDsp[ir],        NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),  m_pedDsp[ir],    NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2Dsp",f_suf), m_chi2Dsp[ir],  NAME3("chi2Dsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eDsp",f_suf),    m_arrays->m_eDsp[ir],        NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tDsp",f_suf),    m_arrays->m_tDsp[ir],        NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),  m_arrays->m_pedDsp[ir],    NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Dsp",f_suf), m_arrays->m_chi2Dsp[ir],  NAME3("chi2Dsp",f_suf,"[4][64][48]/F")); // float
     }
     
     if (!m_mfRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eMF",f_suf),    m_eMF[ir],        NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tMF",f_suf),    m_tMF[ir],        NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2MF",f_suf), m_chi2MF[ir],     NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedMF",f_suf),  m_pedMF[ir],      NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eMF",f_suf),    m_arrays->m_eMF[ir],        NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tMF",f_suf),    m_arrays->m_tMF[ir],        NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2MF",f_suf), m_arrays->m_chi2MF[ir],     NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedMF",f_suf),  m_arrays->m_pedMF[ir],      NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
     }
     
     if (m_bsInput) {
       if (i == imin) { // common for low and high gain
-        m_ntuplePtr->Branch("ROD_GlobalCRC",       m_ROD_GlobalCRC,        "ROD_GlobalCRC[4][64]/S");            // short
-        m_ntuplePtr->Branch("ROD_BCID",            m_ROD_BCID,             "ROD_BCID[4][64]/S");                 // short
-        m_ntuplePtr->Branch("ROD_DMUBCIDErr",      m_ROD_DMUBCIDErr,       "ROD_DMUBCIDErr[4][64][16]/S");       // short
-        m_ntuplePtr->Branch("ROD_DMUmemoryErr",    m_ROD_DMUmemoryErr,     "ROD_DMUmemoryErr[4][64][16]/S");     // short
-        m_ntuplePtr->Branch("ROD_DMUSstrobeErr",   m_ROD_DMUSstrobeErr,    "ROD_DMUSstrobeErr[4][64][16]/S");    // short
-        m_ntuplePtr->Branch("ROD_DMUDstrobeErr",   m_ROD_DMUDstrobeErr,    "ROD_DMUDstrobeErr[4][64][16]/S");    // short
-        m_ntuplePtr->Branch("ROD_DMUheadformatErr",m_ROD_DMUHeadformatErr, "ROD_DMUheadformatErr[4][64][16]/S"); // short
-        m_ntuplePtr->Branch("ROD_DMUheadparityErr",m_ROD_DMUHeadparityErr, "ROD_DMUheadparityErr[4][64][16]/S"); // short
-        m_ntuplePtr->Branch("ROD_DMUdataformatErr",m_ROD_DMUDataformatErr, "ROD_DMUdataformatErr[4][64][16]/S"); // short
-        m_ntuplePtr->Branch("ROD_DMUdataparityErr",m_ROD_DMUDataparityErr, "ROD_DMUdataparityErr[4][64][16]/S"); // short
+        m_ntuplePtr->Branch("ROD_GlobalCRC",       m_arrays->m_ROD_GlobalCRC,        "ROD_GlobalCRC[4][64]/S");            // short
+        m_ntuplePtr->Branch("ROD_BCID",            m_arrays->m_ROD_BCID,             "ROD_BCID[4][64]/S");                 // short
+        m_ntuplePtr->Branch("ROD_DMUBCIDErr",      m_arrays->m_ROD_DMUBCIDErr,       "ROD_DMUBCIDErr[4][64][16]/S");       // short
+        m_ntuplePtr->Branch("ROD_DMUmemoryErr",    m_arrays->m_ROD_DMUmemoryErr,     "ROD_DMUmemoryErr[4][64][16]/S");     // short
+        m_ntuplePtr->Branch("ROD_DMUSstrobeErr",   m_arrays->m_ROD_DMUSstrobeErr,    "ROD_DMUSstrobeErr[4][64][16]/S");    // short
+        m_ntuplePtr->Branch("ROD_DMUDstrobeErr",   m_arrays->m_ROD_DMUDstrobeErr,    "ROD_DMUDstrobeErr[4][64][16]/S");    // short
+        m_ntuplePtr->Branch("ROD_DMUheadformatErr",m_arrays->m_ROD_DMUHeadformatErr, "ROD_DMUheadformatErr[4][64][16]/S"); // short
+        m_ntuplePtr->Branch("ROD_DMUheadparityErr",m_arrays->m_ROD_DMUHeadparityErr, "ROD_DMUheadparityErr[4][64][16]/S"); // short
+        m_ntuplePtr->Branch("ROD_DMUdataformatErr",m_arrays->m_ROD_DMUDataformatErr, "ROD_DMUdataformatErr[4][64][16]/S"); // short
+        m_ntuplePtr->Branch("ROD_DMUdataparityErr",m_arrays->m_ROD_DMUDataparityErr, "ROD_DMUdataparityErr[4][64][16]/S"); // short
         
-        m_ntuplePtr->Branch("ROD_feCRC",           m_ROD_DMUfeCRC,         "ROD_feCRC[4][64][16]/S");            // short
-        m_ntuplePtr->Branch("ROD_rodCRC",          m_ROD_DMUrodCRC,        "ROD_rodCRC[4][64][16]/S");           // short
-        m_ntuplePtr->Branch("ROD_DMUmask",         m_ROD_DMUMask,          "ROD_DMUmask[4][64][2]/s");           // unsigned short
+        m_ntuplePtr->Branch("ROD_feCRC",           m_arrays->m_ROD_DMUfeCRC,         "ROD_feCRC[4][64][16]/S");            // short
+        m_ntuplePtr->Branch("ROD_rodCRC",          m_arrays->m_ROD_DMUrodCRC,        "ROD_rodCRC[4][64][16]/S");           // short
+        m_ntuplePtr->Branch("ROD_DMUmask",         m_arrays->m_ROD_DMUMask,          "ROD_DMUmask[4][64][2]/s");           // unsigned short
       }
     }
     ir += N_ROS;
@@ -2248,107 +2151,107 @@ void TileAANtuple::DIGI_clearBranch(void) {
     CLEAR(m_sumE_zz);
   }
   
-  CLEAR3(m_gain, size);
+  CLEAR3(m_arrays->m_gain, size);
   
   if (!m_fltDigitsContainerKey.empty()) {
-    CLEAR3(m_sampleFlt, size);
-    CLEAR3(m_gainFlt, size);
+    CLEAR3(m_arrays->m_sampleFlt, size);
+    CLEAR3(m_arrays->m_gainFlt, size);
   }
   
   if (!m_digitsContainerKey.empty()) {
-    CLEAR3(m_sample, size);
+    CLEAR3(m_arrays->m_sample, size);
     
     if (m_bsInput) {
-      CLEAR2(m_DMUheader, size);
-      CLEAR3(m_DMUbcid, size);
-      CLEAR3(m_DMUformatErr, size);
-      CLEAR3(m_DMUparityErr, size);
-      CLEAR3(m_DMUmemoryErr, size);
-      CLEAR3(m_DMUSstrobeErr, size);
-      CLEAR3(m_DMUDstrobeErr, size);
+      CLEAR2(m_arrays->m_DMUheader, size);
+      CLEAR3(m_arrays->m_DMUbcid, size);
+      CLEAR3(m_arrays->m_DMUformatErr, size);
+      CLEAR3(m_arrays->m_DMUparityErr, size);
+      CLEAR3(m_arrays->m_DMUmemoryErr, size);
+      CLEAR3(m_arrays->m_DMUSstrobeErr, size);
+      CLEAR3(m_arrays->m_DMUDstrobeErr, size);
       
-      CLEAR3(m_feCRC, size);
-      CLEAR3(m_rodCRC, size);
+      CLEAR3(m_arrays->m_feCRC, size);
+      CLEAR3(m_arrays->m_rodCRC, size);
       
-      CLEAR1(m_rodBCID);
-      CLEAR1(m_fragSize);
-      CLEAR(m_dmuMask);
-      CLEAR(m_slinkCRC);
+      CLEAR1(m_arrays->m_rodBCID);
+      CLEAR1(m_arrays->m_fragSize);
+      CLEAR(m_arrays->m_dmuMask);
+      CLEAR(m_arrays->m_slinkCRC);
     }
     
   }
   
   if (!m_rawChannelContainerKey.empty()) {
-    CLEAR2(m_ene, size);
-    CLEAR2(m_time, size);
-    CLEAR2(m_ped, size);
-    CLEAR2(m_chi2, size);
+    CLEAR2(m_arrays->m_ene, size);
+    CLEAR2(m_arrays->m_time, size);
+    CLEAR2(m_arrays->m_ped, size);
+    CLEAR2(m_arrays->m_chi2, size);
   }
   
   if (!m_fitRawChannelContainerKey.empty()) {
-    CLEAR2(m_eFit, size);
-    CLEAR2(m_tFit, size);
-    CLEAR2(m_pedFit, size);
-    CLEAR2(m_chi2Fit, size);
+    CLEAR2(m_arrays->m_eFit, size);
+    CLEAR2(m_arrays->m_tFit, size);
+    CLEAR2(m_arrays->m_pedFit, size);
+    CLEAR2(m_arrays->m_chi2Fit, size);
   }
   
   if (!m_fitcRawChannelContainerKey.empty()) {
-    CLEAR2(m_eFitc, size);
-    CLEAR2(m_tFitc, size);
-    CLEAR2(m_pedFitc, size);
-    CLEAR2(m_chi2Fitc, size);
+    CLEAR2(m_arrays->m_eFitc, size);
+    CLEAR2(m_arrays->m_tFitc, size);
+    CLEAR2(m_arrays->m_pedFitc, size);
+    CLEAR2(m_arrays->m_chi2Fitc, size);
   }
   
   if (!m_optRawChannelContainerKey.empty()) {
-    CLEAR2(m_eOpt, size);
-    CLEAR2(m_tOpt, size);
-    CLEAR2(m_pedOpt, size);
-    CLEAR2(m_chi2Opt, size);
+    CLEAR2(m_arrays->m_eOpt, size);
+    CLEAR2(m_arrays->m_tOpt, size);
+    CLEAR2(m_arrays->m_pedOpt, size);
+    CLEAR2(m_arrays->m_chi2Opt, size);
   }
   
 
   if (!m_qieRawChannelContainerKey.empty()) {
-    CLEAR2(m_eQIE, size);
-    CLEAR2(m_tQIE, size);
-    CLEAR2(m_pedQIE, size);
-    CLEAR2(m_chi2QIE, size);
+    CLEAR2(m_arrays->m_eQIE, size);
+    CLEAR2(m_arrays->m_tQIE, size);
+    CLEAR2(m_arrays->m_pedQIE, size);
+    CLEAR2(m_arrays->m_chi2QIE, size);
   }
 
   if (!m_of1RawChannelContainerKey.empty()) {
-    CLEAR2(m_eOF1, size);
-    CLEAR2(m_tOF1, size);
-    CLEAR2(m_pedOF1, size);
-    CLEAR2(m_chi2OF1, size);
+    CLEAR2(m_arrays->m_eOF1, size);
+    CLEAR2(m_arrays->m_tOF1, size);
+    CLEAR2(m_arrays->m_pedOF1, size);
+    CLEAR2(m_arrays->m_chi2OF1, size);
   }
   
   if (!m_dspRawChannelContainerKey.empty()) {
-    CLEAR2(m_eDsp, size);
-    CLEAR2(m_tDsp, size);
-    CLEAR2(m_pedDsp, size);
-    CLEAR2(m_chi2Dsp, size);
+    CLEAR2(m_arrays->m_eDsp, size);
+    CLEAR2(m_arrays->m_tDsp, size);
+    CLEAR2(m_arrays->m_pedDsp, size);
+    CLEAR2(m_arrays->m_chi2Dsp, size);
   }
   
   if (!m_mfRawChannelContainerKey.empty()) {
-    CLEAR2(m_eMF, size);
-    CLEAR2(m_tMF, size);
-    CLEAR2(m_chi2MF, size);
-    CLEAR2(m_pedMF, size);
+    CLEAR2(m_arrays->m_eMF, size);
+    CLEAR2(m_arrays->m_tMF, size);
+    CLEAR2(m_arrays->m_chi2MF, size);
+    CLEAR2(m_arrays->m_pedMF, size);
   }
   
   if (m_bsInput) {
-    CLEAR1(m_ROD_GlobalCRC);
-    CLEAR1(m_ROD_BCID);
-    CLEAR1(m_ROD_DMUBCIDErr);
-    CLEAR1(m_ROD_DMUmemoryErr);
-    CLEAR1(m_ROD_DMUSstrobeErr);
-    CLEAR1(m_ROD_DMUDstrobeErr);
-    CLEAR1(m_ROD_DMUHeadformatErr);
-    CLEAR1(m_ROD_DMUHeadparityErr);
-    CLEAR1(m_ROD_DMUDataformatErr);
-    CLEAR1(m_ROD_DMUDataparityErr);
-    CLEAR1(m_ROD_DMUfeCRC);
-    CLEAR1(m_ROD_DMUrodCRC);
-    CLEAR(m_ROD_DMUMask);
+    CLEAR1(m_arrays->m_ROD_GlobalCRC);
+    CLEAR1(m_arrays->m_ROD_BCID);
+    CLEAR1(m_arrays->m_ROD_DMUBCIDErr);
+    CLEAR1(m_arrays->m_ROD_DMUmemoryErr);
+    CLEAR1(m_arrays->m_ROD_DMUSstrobeErr);
+    CLEAR1(m_arrays->m_ROD_DMUDstrobeErr);
+    CLEAR1(m_arrays->m_ROD_DMUHeadformatErr);
+    CLEAR1(m_arrays->m_ROD_DMUHeadparityErr);
+    CLEAR1(m_arrays->m_ROD_DMUDataformatErr);
+    CLEAR1(m_arrays->m_ROD_DMUDataparityErr);
+    CLEAR1(m_arrays->m_ROD_DMUfeCRC);
+    CLEAR1(m_arrays->m_ROD_DMUrodCRC);
+    CLEAR(m_arrays->m_ROD_DMUMask);
   }
   
 }
@@ -2362,24 +2265,24 @@ void TileAANtuple::TMDB_addBranch(void)
 {
 
   if (!m_tileMuRcvRawChannelContainerKey.empty()) {
-    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][8]/F");  // float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]
+    m_ntuplePtr->Branch("eTMDB", m_arrays->m_eTMDB, "eTMDB[4][64][8]/F");  // float m_arrays->m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]
   }
 
   if (!m_tileMuRcvDigitsContainerKey.empty()) {
-    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
+    m_ntuplePtr->Branch("sampleTMDB", m_arrays->m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_arrays->m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
   }
 
   if (!m_tileMuRcvContainerKey.empty()) {
-    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
+    m_ntuplePtr->Branch("decisionTMDB", m_arrays->m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_arrays->m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
   }
 
 }
 
 void TileAANtuple::TMDB_clearBranch(void)
 {
-  if (!m_tileMuRcvRawChannelContainerKey.empty()) CLEAR(m_eTMDB);
-  if (!m_tileMuRcvDigitsContainerKey.empty()) CLEAR(m_sampleTMDB);
-  if (!m_tileMuRcvContainerKey.empty()) CLEAR(m_decisionTMDB);
+  if (!m_tileMuRcvRawChannelContainerKey.empty()) CLEAR(m_arrays->m_eTMDB);
+  if (!m_tileMuRcvDigitsContainerKey.empty()) CLEAR(m_arrays->m_sampleTMDB);
+  if (!m_tileMuRcvContainerKey.empty()) CLEAR(m_arrays->m_decisionTMDB);
 }
 
 /*/////////////////////////////////////////////////////////////////////////////
@@ -2405,13 +2308,13 @@ void TileAANtuple::DCS_addBranch() {
     m_DCSntuplePtr->Branch("EvtNr",  &m_evtNr,   "EvtNr/I");
   }
   
-  if (br[1]) m_DCSntuplePtr->Branch("TEMP",    m_TEMP,    "TEMP[4][64][7]/F");
-  if (br[2]) m_DCSntuplePtr->Branch("HV",      m_HV,      "HV[4][64][48]/F");
-  if (br[3]) m_DCSntuplePtr->Branch("HVSET",   m_HVSET,   "HVSET[4][64][48]/F");
-  if (br[4]) m_DCSntuplePtr->Branch("DRSTATES",m_DRSTATES,"DRSTATES[4][64]/I");
-  if (br[5]) m_DCSntuplePtr->Branch("HVSTATUS",m_HVSTATUS,"HVSTATUS[4][64][48]/S");
-  if (br[6]) m_DCSntuplePtr->Branch("DRSTATUS",m_DRSTATUS,"DRSTATUS[4][64]/S");
-  if (br[7]) m_DCSntuplePtr->Branch("CHSTATUS",m_CHSTATUS,"CHSTATUS[4][64][48]/S");
+  if (br[1]) m_DCSntuplePtr->Branch("TEMP",    m_arrays->m_TEMP,    "TEMP[4][64][7]/F");
+  if (br[2]) m_DCSntuplePtr->Branch("HV",      m_arrays->m_HV,      "HV[4][64][48]/F");
+  if (br[3]) m_DCSntuplePtr->Branch("HVSET",   m_arrays->m_HVSET,   "HVSET[4][64][48]/F");
+  if (br[4]) m_DCSntuplePtr->Branch("DRSTATES",m_arrays->m_DRSTATES,"DRSTATES[4][64]/I");
+  if (br[5]) m_DCSntuplePtr->Branch("HVSTATUS",m_arrays->m_HVSTATUS,"HVSTATUS[4][64][48]/S");
+  if (br[6]) m_DCSntuplePtr->Branch("DRSTATUS",m_arrays->m_DRSTATUS,"DRSTATUS[4][64]/S");
+  if (br[7]) m_DCSntuplePtr->Branch("CHSTATUS",m_arrays->m_CHSTATUS,"CHSTATUS[4][64][48]/S");
   if (br[8]) {
     m_DCSntuplePtr->Branch("nBadDr",    &m_nBadDr,    "nBadDr/I");
     m_DCSntuplePtr->Branch("nBadHV",    &m_nBadHV,    "nBadHV/I");
@@ -2428,13 +2331,13 @@ StatusCode TileAANtuple::storeDCS() {
                  << " evt=" << m_evt
                  << " lumi=" << m_lumiBlock << "  " << m_dateTime );
 
-  CLEAR(m_TEMP);
-  CLEAR(m_HV);
-  CLEAR(m_HVSET);
-  CLEAR(m_DRSTATES);
-  CLEAR(m_HVSTATUS);
-  CLEAR(m_DRSTATUS);
-  CLEAR(m_CHSTATUS);
+  CLEAR(m_arrays->m_TEMP);
+  CLEAR(m_arrays->m_HV);
+  CLEAR(m_arrays->m_HVSET);
+  CLEAR(m_arrays->m_DRSTATES);
+  CLEAR(m_arrays->m_HVSTATUS);
+  CLEAR(m_arrays->m_DRSTATUS);
+  CLEAR(m_arrays->m_CHSTATUS);
 
   m_nBadDr = 0;
   m_nBadHV = 0;
@@ -2445,18 +2348,18 @@ StatusCode TileAANtuple::storeDCS() {
     int rosI = ROS - 1;
       
     for (int drawer = 0; drawer < 64; ++drawer) {
-      m_DRSTATES[rosI][drawer] = m_tileDCS->getDrawerStates(ROS, drawer);
-      m_DRSTATUS[rosI][drawer] = m_tileDCS->getDCSStatus(ROS, drawer);
+      m_arrays->m_DRSTATES[rosI][drawer] = m_tileDCS->getDrawerStates(ROS, drawer);
+      m_arrays->m_DRSTATUS[rosI][drawer] = m_tileDCS->getDCSStatus(ROS, drawer);
       bool drbad = m_tileDCS->isStatusBad(ROS, drawer);
         
       if (drbad) {
         ++m_nBadDr;
       }
         
-      if (msgLvl(MSG::VERBOSE) || m_DRSTATUS[rosI][drawer] != TileDCSState::OK_DRAWER) {
+      if (msgLvl(MSG::VERBOSE) || m_arrays->m_DRSTATUS[rosI][drawer] != TileDCSState::OK_DRAWER) {
         ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
-                         << " DRSTATES=" << m_DRSTATES[rosI][drawer]
-                         << " DRSTATUS=" << m_DRSTATUS[rosI][drawer]
+                         << " DRSTATES=" << m_arrays->m_DRSTATES[rosI][drawer]
+                         << " DRSTATUS=" << m_arrays->m_DRSTATUS[rosI][drawer]
                          << " => " << ((drbad) ? "bad" : "good")  );
       }
         
@@ -2464,10 +2367,10 @@ StatusCode TileAANtuple::storeDCS() {
       for (int channel=0; channel<48; ++channel){
         TileBchStatus chStat = m_tileBadChanTool->getChannelStatus(drawerIdx,channel);
         int pmt=abs(m_cabling->channel2hole(ROS,channel));
-        m_HV[rosI][drawer][channel]       = m_tileDCS->getChannelHV(ROS, drawer, channel);
-        m_HVSET[rosI][drawer][channel]    = m_tileDCS->getChannelHVSet(ROS, drawer, channel);
-        m_HVSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSHVStatus(ROS, drawer, channel);
-        m_CHSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSStatus(ROS, drawer, channel)
+        m_arrays->m_HV[rosI][drawer][channel]       = m_tileDCS->getChannelHV(ROS, drawer, channel);
+        m_arrays->m_HVSET[rosI][drawer][channel]    = m_tileDCS->getChannelHVSet(ROS, drawer, channel);
+        m_arrays->m_HVSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSHVStatus(ROS, drawer, channel);
+        m_arrays->m_CHSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSStatus(ROS, drawer, channel)
           + 100 * m_tileBadChanTool->encodeStatus(chStat);
         bool chbad = m_tileDCS->isStatusBad(ROS, drawer, channel);
           
@@ -2484,18 +2387,18 @@ StatusCode TileAANtuple::storeDCS() {
         if (msgLvl(MSG::VERBOSE) || (chbad && !drbad)) {
           ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
                            << " channel=" << channel << " pmt=" << pmt
-                           << " HV=" << m_HV[rosI][drawer][channel]
-                           << " HVSET=" << m_HVSET[rosI][drawer][channel]
-                           << " HVSTATUS=" << m_HVSTATUS[rosI][drawer][channel]
-                           << " CHSTATUS=" << m_CHSTATUS[rosI][drawer][channel]
+                           << " HV=" << m_arrays->m_HV[rosI][drawer][channel]
+                           << " HVSET=" << m_arrays->m_HVSET[rosI][drawer][channel]
+                           << " HVSTATUS=" << m_arrays->m_HVSTATUS[rosI][drawer][channel]
+                           << " CHSTATUS=" << m_arrays->m_CHSTATUS[rosI][drawer][channel]
                            << " => " << ((chbad) ? "bad" : "good")  );
         }
       }
         
       for (int ind=0; ind<7; ++ind){
-        m_TEMP[rosI][drawer][ind] = m_tileDCS->getChannelHV(ROS, drawer, ind+49);
+        m_arrays->m_TEMP[rosI][drawer][ind] = m_tileDCS->getChannelHV(ROS, drawer, ind+49);
         ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
-                         << " TEMP" << ind+1 << "=" << m_TEMP[rosI][drawer][ind] );
+                         << " TEMP" << ind+1 << "=" << m_arrays->m_TEMP[rosI][drawer][ind] );
           
       }
     }

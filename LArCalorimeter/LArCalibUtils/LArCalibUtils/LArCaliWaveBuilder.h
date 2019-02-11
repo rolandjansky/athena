@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,10 +17,11 @@
 #include <map>
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 
 class ILArPedestal;
-class LArCablingService;
 
 class LArCaliWaveBuilder : public AthAlgorithm
 {
@@ -35,6 +36,8 @@ class LArCaliWaveBuilder : public AthAlgorithm
     
  private:
   
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   bool       m_useAccumulatedDigits;
   StatusCode executeWithAccumulatedDigits();
   StatusCode executeWithStandardDigits();
@@ -68,7 +71,6 @@ class LArCaliWaveBuilder : public AthAlgorithm
   bool            m_checkEmptyPhases;
 
   const LArOnlineID*   m_onlineID;
-  ToolHandle<LArCablingService> m_cablingSvc;
   
   unsigned m_event_counter; 
   int      m_NStep;

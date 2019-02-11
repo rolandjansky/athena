@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -23,20 +23,13 @@
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
-
-// sandrine
-//#include "LArCabling/LArCablingService.h"
-//#include "CaloIdentifier/LArEM_ID.h"
-
-//#include "LArRawUtils/LArRoI_Map.h"
-//#include "LArRawUtils/LArRawOrdering.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArRawEvent/LArRawChannelContainer.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingService.h"
 
 class LArRawChannelBuilder : public AthAlgorithm
 {
@@ -112,7 +105,7 @@ private:
 
   // to be used for detailed DEBUG output only
   const LArEM_ID* m_emId;
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   int m_firstSample;  // shift to apply to Shape from DB to match digitized samples
   std::string m_pedestalKey;
