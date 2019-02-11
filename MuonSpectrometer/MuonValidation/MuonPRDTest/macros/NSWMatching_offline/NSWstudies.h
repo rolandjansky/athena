@@ -30,7 +30,6 @@ public :
    void match_Hits_Digits (Flocalize_collection&, Flocalize_collection&);
    void fillHists (Flocalize_collection& oData, vector< TH1I* >& hist_vec);
    void plotError (Flocalize_collection oPRD, vector<TH1F*> hists_pull);
-
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -184,9 +183,14 @@ public :
    vector<int>     *RDO_sTGC_channel;
    vector<int>     *RDO_sTGC_channel_type;
    vector<double>  *RDO_sTGC_time;
-   vector<double>  *RDO_sTGC_charge;
+   vector<unsigned short> *RDO_sTGC_charge;
    vector<unsigned short> *RDO_sTGC_bcTag;
    vector<bool>    *RDO_sTGC_isDead;
+   vector<double>  *RDO_sTGC_localPosX;
+   vector<double>  *RDO_sTGC_localPosY;
+   vector<double>  *RDO_sTGC_globalPosX;
+   vector<double>  *RDO_sTGC_globalPosY;
+   vector<double>  *RDO_sTGC_globalPosZ;
    UInt_t          PRD_sTGC;
    vector<string>  *PRD_sTGC_stationName;
    vector<int>     *PRD_sTGC_stationEta;
@@ -195,6 +199,8 @@ public :
    vector<int>     *PRD_sTGC_gas_gap;
    vector<int>     *PRD_sTGC_channel_type;
    vector<int>     *PRD_sTGC_channel;
+   vector<int>     *PRD_sTGC_charge;
+   vector<unsigned short> *PRD_sTGC_bcTag;
    vector<double>  *PRD_sTGC_globalPosX;
    vector<double>  *PRD_sTGC_globalPosY;
    vector<double>  *PRD_sTGC_globalPosZ;
@@ -298,6 +304,11 @@ public :
    vector<int>     *RDO_MM_channel;
    vector<int>     *RDO_MM_time;
    vector<int>     *RDO_MM_charge;
+   vector<double>  *RDO_MM_localPosX;
+   vector<double>  *RDO_MM_localPosY;
+   vector<double>  *RDO_MM_globalPosX;
+   vector<double>  *RDO_MM_globalPosY;
+   vector<double>  *RDO_MM_globalPosZ;
    UInt_t          PRD_MM;
    vector<string>  *PRD_MM_stationName;
    vector<int>     *PRD_MM_stationEta;
@@ -305,6 +316,7 @@ public :
    vector<int>     *PRD_MM_multiplet;
    vector<int>     *PRD_MM_gas_gap;
    vector<int>     *PRD_MM_channel;
+   vector<int>     *PRD_MM_time;
    vector<double>  *PRD_MM_globalPosX;
    vector<double>  *PRD_MM_globalPosY;
    vector<double>  *PRD_MM_globalPosZ;
@@ -463,6 +475,11 @@ public :
    TBranch        *b_RDO_sTGC_charge;   //!
    TBranch        *b_RDO_sTGC_bcTag;   //!
    TBranch        *b_RDO_sTGC_isDead;   //!
+   TBranch        *b_RDO_sTGC_localPosX;   //!
+   TBranch        *b_RDO_sTGC_localPosY;   //!
+   TBranch        *b_RDO_sTGC_globalPosX;   //!
+   TBranch        *b_RDO_sTGC_globalPosY;   //!
+   TBranch        *b_RDO_sTGC_globalPosZ;   //!
    TBranch        *b_PRDs_sTGC_n;   //!
    TBranch        *b_PRD_sTGC_stationName;   //!
    TBranch        *b_PRD_sTGC_stationEta;   //!
@@ -471,6 +488,8 @@ public :
    TBranch        *b_PRD_sTGC_gas_gap;   //!
    TBranch        *b_PRD_sTGC_channel_type;   //!
    TBranch        *b_PRD_sTGC_channel;   //!
+   TBranch        *b_PRD_sTGC_charge;   //!
+   TBranch        *b_PRD_sTGC_bcTag;   //!
    TBranch        *b_PRD_sTGC_globalPosX;   //!
    TBranch        *b_PRD_sTGC_globalPosY;   //!
    TBranch        *b_PRD_sTGC_globalPosZ;   //!
@@ -574,6 +593,11 @@ public :
    TBranch        *b_RDO_MM_channel;   //!
    TBranch        *b_RDO_MM_time;   //!
    TBranch        *b_RDO_MM_charge;   //!
+   TBranch        *b_RDO_MM_localPosX;   //!
+   TBranch        *b_RDO_MM_localPosY;   //!
+   TBranch        *b_RDO_MM_globalPosX;   //!
+   TBranch        *b_RDO_MM_globalPosY;   //!
+   TBranch        *b_RDO_MM_globalPosZ;   //!
    TBranch        *b_PRDs_MM_n;   //!
    TBranch        *b_PRD_MM_stationName;   //!
    TBranch        *b_PRD_MM_stationEta;   //!
@@ -581,6 +605,7 @@ public :
    TBranch        *b_PRD_MM_multiplet;   //!
    TBranch        *b_PRD_MM_gas_gap;   //!
    TBranch        *b_PRD_MM_channel;   //!
+   TBranch        *b_PRD_MM_time;   //!
    TBranch        *b_PRD_MM_globalPosX;   //!
    TBranch        *b_PRD_MM_globalPosY;   //!
    TBranch        *b_PRD_MM_globalPosZ;   //!
@@ -793,6 +818,11 @@ void NSWstudies::Init(TTree *tree)
    RDO_sTGC_charge = 0;
    RDO_sTGC_bcTag = 0;
    RDO_sTGC_isDead = 0;
+   RDO_sTGC_localPosX = 0;
+   RDO_sTGC_localPosY = 0;
+   RDO_sTGC_globalPosX = 0;
+   RDO_sTGC_globalPosY = 0;
+   RDO_sTGC_globalPosZ = 0;
    PRD_sTGC_stationName = 0;
    PRD_sTGC_stationEta = 0;
    PRD_sTGC_stationPhi = 0;
@@ -800,6 +830,8 @@ void NSWstudies::Init(TTree *tree)
    PRD_sTGC_gas_gap = 0;
    PRD_sTGC_channel_type = 0;
    PRD_sTGC_channel = 0;
+   PRD_sTGC_charge = 0;
+   PRD_sTGC_bcTag = 0;
    PRD_sTGC_globalPosX = 0;
    PRD_sTGC_globalPosY = 0;
    PRD_sTGC_globalPosZ = 0;
@@ -899,12 +931,18 @@ void NSWstudies::Init(TTree *tree)
    RDO_MM_channel = 0;
    RDO_MM_time = 0;
    RDO_MM_charge = 0;
+   RDO_MM_localPosX = 0;
+   RDO_MM_localPosY = 0;
+   RDO_MM_globalPosX = 0;
+   RDO_MM_globalPosY = 0;
+   RDO_MM_globalPosZ = 0;
    PRD_MM_stationName = 0;
    PRD_MM_stationEta = 0;
    PRD_MM_stationPhi = 0;
    PRD_MM_multiplet = 0;
    PRD_MM_gas_gap = 0;
    PRD_MM_channel = 0;
+   PRD_MM_time = 0;
    PRD_MM_globalPosX = 0;
    PRD_MM_globalPosY = 0;
    PRD_MM_globalPosZ = 0;
@@ -1067,6 +1105,11 @@ void NSWstudies::Init(TTree *tree)
    fChain->SetBranchAddress("RDO_sTGC_charge", &RDO_sTGC_charge, &b_RDO_sTGC_charge);
    fChain->SetBranchAddress("RDO_sTGC_bcTag", &RDO_sTGC_bcTag, &b_RDO_sTGC_bcTag);
    fChain->SetBranchAddress("RDO_sTGC_isDead", &RDO_sTGC_isDead, &b_RDO_sTGC_isDead);
+   fChain->SetBranchAddress("RDO_sTGC_localPosX", &RDO_sTGC_localPosX, &b_RDO_sTGC_localPosX);
+   fChain->SetBranchAddress("RDO_sTGC_localPosY", &RDO_sTGC_localPosY, &b_RDO_sTGC_localPosY);
+   fChain->SetBranchAddress("RDO_sTGC_globalPosX", &RDO_sTGC_globalPosX, &b_RDO_sTGC_globalPosX);
+   fChain->SetBranchAddress("RDO_sTGC_globalPosY", &RDO_sTGC_globalPosY, &b_RDO_sTGC_globalPosY);
+   fChain->SetBranchAddress("RDO_sTGC_globalPosZ", &RDO_sTGC_globalPosZ, &b_RDO_sTGC_globalPosZ);
    fChain->SetBranchAddress("PRD_sTGC", &PRD_sTGC, &b_PRDs_sTGC_n);
    fChain->SetBranchAddress("PRD_sTGC_stationName", &PRD_sTGC_stationName, &b_PRD_sTGC_stationName);
    fChain->SetBranchAddress("PRD_sTGC_stationEta", &PRD_sTGC_stationEta, &b_PRD_sTGC_stationEta);
@@ -1075,6 +1118,8 @@ void NSWstudies::Init(TTree *tree)
    fChain->SetBranchAddress("PRD_sTGC_gas_gap", &PRD_sTGC_gas_gap, &b_PRD_sTGC_gas_gap);
    fChain->SetBranchAddress("PRD_sTGC_channel_type", &PRD_sTGC_channel_type, &b_PRD_sTGC_channel_type);
    fChain->SetBranchAddress("PRD_sTGC_channel", &PRD_sTGC_channel, &b_PRD_sTGC_channel);
+   fChain->SetBranchAddress("PRD_sTGC_charge", &PRD_sTGC_charge, &b_PRD_sTGC_charge);
+   fChain->SetBranchAddress("PRD_sTGC_bcTag", &PRD_sTGC_bcTag, &b_PRD_sTGC_bcTag);
    fChain->SetBranchAddress("PRD_sTGC_globalPosX", &PRD_sTGC_globalPosX, &b_PRD_sTGC_globalPosX);
    fChain->SetBranchAddress("PRD_sTGC_globalPosY", &PRD_sTGC_globalPosY, &b_PRD_sTGC_globalPosY);
    fChain->SetBranchAddress("PRD_sTGC_globalPosZ", &PRD_sTGC_globalPosZ, &b_PRD_sTGC_globalPosZ);
@@ -1178,6 +1223,11 @@ void NSWstudies::Init(TTree *tree)
    fChain->SetBranchAddress("RDO_MM_channel", &RDO_MM_channel, &b_RDO_MM_channel);
    fChain->SetBranchAddress("RDO_MM_time", &RDO_MM_time, &b_RDO_MM_time);
    fChain->SetBranchAddress("RDO_MM_charge", &RDO_MM_charge, &b_RDO_MM_charge);
+   fChain->SetBranchAddress("RDO_MM_localPosX", &RDO_MM_localPosX, &b_RDO_MM_localPosX);
+   fChain->SetBranchAddress("RDO_MM_localPosY", &RDO_MM_localPosY, &b_RDO_MM_localPosY);
+   fChain->SetBranchAddress("RDO_MM_globalPosX", &RDO_MM_globalPosX, &b_RDO_MM_globalPosX);
+   fChain->SetBranchAddress("RDO_MM_globalPosY", &RDO_MM_globalPosY, &b_RDO_MM_globalPosY);
+   fChain->SetBranchAddress("RDO_MM_globalPosZ", &RDO_MM_globalPosZ, &b_RDO_MM_globalPosZ);
    fChain->SetBranchAddress("PRD_MM", &PRD_MM, &b_PRDs_MM_n);
    fChain->SetBranchAddress("PRD_MM_stationName", &PRD_MM_stationName, &b_PRD_MM_stationName);
    fChain->SetBranchAddress("PRD_MM_stationEta", &PRD_MM_stationEta, &b_PRD_MM_stationEta);
@@ -1185,6 +1235,7 @@ void NSWstudies::Init(TTree *tree)
    fChain->SetBranchAddress("PRD_MM_multiplet", &PRD_MM_multiplet, &b_PRD_MM_multiplet);
    fChain->SetBranchAddress("PRD_MM_gas_gap", &PRD_MM_gas_gap, &b_PRD_MM_gas_gap);
    fChain->SetBranchAddress("PRD_MM_channel", &PRD_MM_channel, &b_PRD_MM_channel);
+   fChain->SetBranchAddress("PRD_MM_time", &PRD_MM_time, &b_PRD_MM_time);
    fChain->SetBranchAddress("PRD_MM_globalPosX", &PRD_MM_globalPosX, &b_PRD_MM_globalPosX);
    fChain->SetBranchAddress("PRD_MM_globalPosY", &PRD_MM_globalPosY, &b_PRD_MM_globalPosY);
    fChain->SetBranchAddress("PRD_MM_globalPosZ", &PRD_MM_globalPosZ, &b_PRD_MM_globalPosZ);

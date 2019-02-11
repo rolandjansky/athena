@@ -1,16 +1,3 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-#include "TROOT.h"
-
-void run_matching () {
-	gROOT->ProcessLine(".L NSWstudies_match.C++");
-	gROOT->ProcessLine("NSWstudies t;");
-	gROOT->ProcessLine("t.Loop()");
-}
-
-/*
 This folder contains files used to makes histograms comparing various EDM objects of the NSW digitization chain. 
 The underlying matching method is integrated in the NSW PRD Test, these files are to document the histogram production. 
 This is to allow others to reproduce results produced with these files.
@@ -26,4 +13,3 @@ To test other objects, change the input of the match_Hits_Digits and fillHists i
 
 In the beginning of the "NSWstudies_match.C" file, the input variables of the NSW Matching algorithm can be set.
 (These have the same default values as the NSWPRDTest version)
-*/
