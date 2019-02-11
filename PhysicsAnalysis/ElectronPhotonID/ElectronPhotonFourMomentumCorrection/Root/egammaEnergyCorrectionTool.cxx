@@ -989,74 +989,74 @@ namespace AtlasRoot {
 
     // ... material distortions
 
-    m_matUnconvertedScale.emplace_back(std::move(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigA") )));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigA") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::move(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigCpDp") )));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigCpDp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::move(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigEpLp") )));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigEpLp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::move(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigFpMX") )));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigFpMX") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::move(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigGp") )));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigGp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
   
-    m_matConvertedScale.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigA") )));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigA") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigCpDp") )));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigCpDp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigEpLp") )));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigEpLp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") )));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") )));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
     
-    m_matElectronCstTerm.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigA") )));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigA") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") )));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") )));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") )));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") )));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
     
     if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
      // update dX0 plots for distorted geometry for case A, EL, FMX and N
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigA") ))); 
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigA") )); 
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigEpLp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigEpLp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigFpMX") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigFpMX") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
     }
     else {
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigA") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigA") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::move(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") )));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
     }
 
     
     m_matElectronEtaBins.reset( dynamic_cast<TAxis*>(m_rootFile->Get("Material/LinearityEtaBins")));
-    m_matElectronGraphs.emplace_back( std::move(std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA")) ));
-    m_matElectronGraphs.emplace_back( std::move(std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigCpDp")) ));
-    m_matElectronGraphs.emplace_back( std::move(std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigEpLp")) ));
-    m_matElectronGraphs.emplace_back( std::move(std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigFpMX")) ));
-    m_matElectronGraphs.emplace_back( std::move(std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigGp")) ));
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigCpDp")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigEpLp")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigFpMX")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigGp")) );
 
 
     for (auto &mat: m_matElectronGraphs) {
