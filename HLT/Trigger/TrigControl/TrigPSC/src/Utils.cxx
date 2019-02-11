@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -59,9 +59,11 @@ psc::Utils::ScopeTimer::ScopeTimer (const std::string& descr) :
   m_descr(descr),
   m_running(true)
 {
+  std::tm lt;
   m_t1 = std::chrono::system_clock::now();
   auto t = std::chrono::system_clock::to_time_t(m_t1);
-  ERS_LOG( m_descr << " started at time: " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") );
+  localtime_r(&t, &lt);
+  ERS_LOG( m_descr << " started at time: " << std::put_time(&lt, "%Y-%m-%d %H:%M:%S") );
 }
 
 void psc::Utils::ScopeTimer::stop()

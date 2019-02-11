@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,11 +24,9 @@
 #include <Python.h>
 
 // Include files for Gaudi
-#include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/IEventProcessor.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -417,6 +415,13 @@ bool psc::Psc::doAppMgrInit()
     return false;
   }
 
+  // Handle to service locator
+  m_svcLoc = SmartIF<ISvcLocator>( m_pesaAppMgr );
+  if ( !m_svcLoc.isValid() ) {
+    ERS_PSC_ERROR("Error retrieving Service Locator:") ;
+    return false;
+  }
+
   SmartIF<IProperty> propMgr ( m_pesaAppMgr );
   if( !propMgr.isValid() ) {
     ERS_PSC_ERROR("Error retrieving IProperty interface of ApplicationMgr");
@@ -645,13 +650,6 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
                         {"DF_ApplicationName", "DF_APPLICATIONNAME"}})
                        ) return false;
 
-  // find all available EventLoopMgr and call hltUpdateAfterFork 
-  SmartIF<ISvcLocator> svcLoc( m_pesaAppMgr );
-  if ( !svcLoc.isValid() ) {
-    ERS_PSC_ERROR("Error retrieving Service Locator:") ;
-    return false;
-  }
-
   // bind args to hltUpdateAfterFork
   auto upd = [&args](ITrigEventLoopMgr * mgr)
              {return mgr->hltUpdateAfterFork(args);};
@@ -814,25 +812,11 @@ StatusCode psc::Psc::callOnEventLoopMgr(std::function<StatusCode (T*)> func,
                                         const std::string& name) const
 {
   // FIXME static variables are dangerous when forking
-  static T* processingMgr = 0;
-  StatusCode sc;
-  if(!processingMgr) // if we already got it, no need to find it again
-  {
-    SmartIF<ISvcLocator> svcLoc(m_pesaAppMgr);
-    if(!svcLoc.isValid())
-    {
-      ERS_PSC_ERROR("Error retrieving Service Locator") ;
-      return StatusCode::FAILURE;
-    }
-
-    // Retrieve the EventLoopMgr
-    sc = svcLoc->service(m_nameEventLoopMgr, processingMgr);
-    if(!sc.isSuccess())
-    {
-      ERS_PSC_ERROR("Error retrieving EventLoopMgr = '"
-          << m_nameEventLoopMgr << "'" );
-      return sc;
-    }
+  T* processingMgr{nullptr};
+  StatusCode sc = m_svcLoc->service(m_nameEventLoopMgr, processingMgr);
+  if(!sc.isSuccess()) {
+    ERS_PSC_ERROR("Error retrieving EventLoopMgr = '" << m_nameEventLoopMgr << "'" );
+    return sc;
   }
 
   // Call the given function of the EventLoopMgr
