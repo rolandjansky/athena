@@ -42,13 +42,13 @@ atlas_add_test( TestCalibChipRead
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestCalibRead
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testCalibRead.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibRead.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestConfig
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testConfig.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testConfig.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestDCSConditions
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testDCSConditions.py
                 PROPERTIES TIMEOUT 300
@@ -66,21 +66,21 @@ atlas_add_test( TestModuleVeto
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestMonRead
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testMonRead.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testMonRead.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestParameters
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testParameters.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testParameters.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestReadout
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testReadout.py
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestRodVeto
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testRodVeto.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testRodVeto.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestSensors
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testSensors.py
                 PROPERTIES TIMEOUT 300
@@ -94,9 +94,9 @@ atlas_add_test( TestStripVeto
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestSummary
-                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testSummary.py
+                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testSummary.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=1 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestTdaqEnabled
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testTdaqEnabled.py
                 PROPERTIES TIMEOUT 300

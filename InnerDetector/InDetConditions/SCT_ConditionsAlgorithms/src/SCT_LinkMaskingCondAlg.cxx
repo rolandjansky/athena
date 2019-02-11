@@ -58,7 +58,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in

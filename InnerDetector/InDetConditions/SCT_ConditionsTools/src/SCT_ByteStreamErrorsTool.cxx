@@ -468,23 +468,9 @@ const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData(con
 }
 
 const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }
 
 const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaskedChips(const EventContext& ctx) const { 

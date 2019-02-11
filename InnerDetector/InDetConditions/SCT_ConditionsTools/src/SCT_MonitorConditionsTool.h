@@ -5,16 +5,6 @@
 #ifndef SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
 #define SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
 
-//STL
-#include <map>
-#include <set>
-#include <list>
-#include <mutex>
-
-// Gaudi includes
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
@@ -23,6 +13,12 @@
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/EventContext.h"
+
+//STL
+#include <set>
 
 //forward declarations
 class SCT_ID;
@@ -103,17 +99,10 @@ private:
 
   static std::string s_separator;
 
-  IntegerProperty              m_nhits_noisychip;
-  IntegerProperty              m_nhits_noisywafer;
-  IntegerProperty              m_nhits_noisymodule;
+  IntegerProperty              m_nhits_noisychip{this, "Nnoisychip", 64};
+  IntegerProperty              m_nhits_noisywafer{this, "Nnoisywafer", 384};
+  IntegerProperty              m_nhits_noisymodule{this, "Nnoisycmodule", 768};
   const SCT_ID*                m_pHelper;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_MonitorCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorCondData> m_condData;
 
   SG::ReadCondHandleKey<SCT_MonitorCondData> m_condKey{this, "CondKey", "SCT_MonitorCondData", "SCT noisy strips"};
   const SCT_MonitorCondData* getCondData(const EventContext& ctx) const;

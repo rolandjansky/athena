@@ -17,7 +17,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
