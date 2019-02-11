@@ -20,7 +20,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="physics_pp_v7_grid_primaries"
+export NAME="physics_pp_v7_primaries_grid"
 export MENU="Physics_pp_v7_primaries"
 export EVENTS="500"
 
