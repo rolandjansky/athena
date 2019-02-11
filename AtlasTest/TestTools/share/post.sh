@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
@@ -216,6 +216,9 @@ PP="$PP"'|Disconnecting input sourceID'
 # Printouts from new-style job configuration.
 PP="$PP"'|Py:ComponentAccumulator +INFO '
 PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
+
+# xAODMaker::EventInfoCnvAlg
+PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
