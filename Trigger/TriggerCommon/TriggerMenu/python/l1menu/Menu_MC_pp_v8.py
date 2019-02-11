@@ -67,7 +67,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100', 
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -416,12 +416,12 @@ def defineMenu():
         "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", "L1_EM7_MU11", "L1_EM7_MU20", "L1_EM8VH_MU20",
 
         # single tau
-        "L1_TAU12", "L1_TAU12IM",  "L1_TAU20", "L1_TAU20IM",
+        "L1_TAU5", "L1_TAU12", "L1_TAU12IM",  "L1_TAU20", "L1_TAU20IM",
         "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40",
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40", "L1_2TAU5", "L1_2TAU8",
 
         # combined tau - lepton
         "L1_EM15VHI_2TAU12IM",          
@@ -982,6 +982,7 @@ def defineMenu():
         'L1_EM7_MU11' : 485,
         'L1_TAU12' : 45,
         'L1_TAU12IM' : 47,
+        'L1_TAU5' : 102,
         'L1_TAU20' : 49,
         'L1_TAU20IM' : 51,
         'L1_TAU30' : 53,
@@ -991,6 +992,8 @@ def defineMenu():
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
         'L1_TAU20IM_2TAU12IM' : 58,
+        'L1_2TAU5' : 365,
+        'L1_2TAU8' : 370,
         'L1_TAU20_2TAU12' : 59,
         'L1_EM15VHI_2TAU12IM' : 60,
         'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,

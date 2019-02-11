@@ -8356,7 +8356,7 @@
       <Parametrization isobit="5" offset="30" slope="100" mincut="0" upperlimit="60" etamin="-49" etamax="49" priority="0"/>
     </Isolation>
     <MinimumTOBPt thrtype="EM" ptmin="3" etamin="-49" etamax="49" priority="0"/>
-    <MinimumTOBPt thrtype="TAU" ptmin="8" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="TAU" ptmin="5" etamin="-49" etamax="49" priority="0"/>
     <MinimumTOBPt thrtype="JETS" window="4" ptmin="12" etamin="-49" etamax="49" priority="0"/>
     <MinimumTOBPt thrtype="JETL" window="8" ptmin="12" etamin="-49" etamax="49" priority="0"/>
   </CaloInfo>
