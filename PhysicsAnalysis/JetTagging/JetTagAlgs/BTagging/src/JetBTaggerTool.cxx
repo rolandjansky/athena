@@ -332,9 +332,15 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
       }
     }
+    for (const auto& tool: m_preBtagToolModifiers) {
+      tool->modifyJet(jetToTag);
+    }
     StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag );
     if (sc.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+    }
+    for (const auto& tool: m_postBtagToolModifiers) {
+      tool->modifyJet(jetToTag);
     }
   }
 
