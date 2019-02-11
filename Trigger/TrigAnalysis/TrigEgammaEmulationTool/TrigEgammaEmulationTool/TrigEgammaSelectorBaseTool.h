@@ -51,17 +51,17 @@ namespace Trig{
       //FIXME: static_cast for IParticleContainer to EmTau and emCluster
       //doent work. Because this I add these extra methods. Need to check
       //how generate this for these levels.
-      bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
-      bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
-      bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &){return true;};
-      bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
+      virtual bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &) override {return true;}
+      virtual bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &) override {return true;}
+      virtual bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &) override {return true;}
+      virtual bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &) override {return true;}
       
       //parser TDT tool as a pointer
-      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s)
-      { m_trigdec=&(*t); m_storeGate=s;};
-      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s)
-      { m_trigdec=t; m_storeGate=s;};
-      void setTe(const HLT::TriggerElement *te){m_te=te;}; 
+      virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s) override
+      { m_trigdec=&(*t); m_storeGate=s;}
+      virtual void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s) override
+      { m_trigdec=t; m_storeGate=s;}
+      virtual void setTe(const HLT::TriggerElement *te) override {m_te=te;}
 
     protected:
       /* dress decision */
