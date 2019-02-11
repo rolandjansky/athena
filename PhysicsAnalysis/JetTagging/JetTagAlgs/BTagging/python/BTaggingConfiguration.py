@@ -491,6 +491,15 @@ class Configuration:
 
           self._BTaggingConfig_MainAssociatorTools[jetcol] = assoc
           options.setdefault('BTagTrackAssocTool', assoc)
+
+          from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
+              FlavorTagDiscriminants__DL2Tool as DL2Tool)
+          rnn = DL2Tool(
+              name='bobo',
+              nnFile='neuralNetwork.json')
+          ToolSvc += rnn
+          options.setdefault("preBtagToolModifiers", [rnn])
+
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
           # setup the secondary vertexing tool
