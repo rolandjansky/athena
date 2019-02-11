@@ -19,6 +19,7 @@ find_package( lwtnn )
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthToolSupport/AsgTools
+  Reconstruction/Jet/JetInterface
   Event/xAOD/xAODBase
   Event/xAOD/xAODJet
   Event/xAOD/xAODEventInfo)
@@ -32,6 +33,21 @@ atlas_add_library( FlavorTagDiscriminants
   Root/customGetter.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
-  LINK_LIBRARIES xAODBase xAODJet xAODEventInfo ${LWTNN_LIBRARIES})
+  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo ${LWTNN_LIBRARIES})
+
+if (NOT XAOD_STANDALONE)
+  atlas_add_component( FlavorTagDiscriminantsLib
+    src/components/FlavorTagDiscriminants_entries.cxx
+    src/components/FlavorTagDiscriminants_load.cxx
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES}
+    )
+endif()
+
+atlas_add_dictionary( FlavorTagDiscriminantsDict
+   FlavorTagDiscriminants/FlavorTagDiscriminantsDict.h
+   FlavorTagDiscriminants/selection.xml
+   LINK_LIBRARIES FlavorTagDiscriminants )
+
 
 atlas_install_python_modules( python/*.py )
