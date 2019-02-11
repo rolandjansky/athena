@@ -3,6 +3,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon import CfgMgr
+from AthenaCommon.GlobalFlags import globalflags
 import PyJobTransforms.trfJobOptions
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
@@ -170,7 +171,11 @@ class AODFix_r210(AODFix_base):
           if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
             runNumber = variables['runArgs'].runNumber
 
-          if runNumber and  runNumber != input_mcChanNb:
+          isSimulation = False
+          if (globalflags.DataSource() == 'geant4'):
+            isSimulation = True
+
+          if isSimulation and runNumber and runNumber != input_mcChanNb:
             from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
             EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
             topSequence+=EventInfoRunNumberFixAlg
