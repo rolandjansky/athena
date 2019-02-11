@@ -706,8 +706,6 @@ BTaggingEfficiencyTool::getInefficiencyScaleFactor( const xAOD::Jet & jet, float
   // get the btag label
   int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
-  CalibResult result;
-
   Analysis::CalibrationDataVariables vars;
   if (! fillVariables(jet, vars)) {
     ATH_MSG_ERROR("unable to fill variables required for scale factor evaluation");
@@ -783,8 +781,6 @@ BTaggingEfficiencyTool::getMCEfficiency( const xAOD::Jet & jet, float & eff) con
 
   // get the btag label
   int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
-
-  CalibResult result;
 
   Analysis::CalibrationDataVariables vars;
   if (! fillVariables(jet, vars)) {
