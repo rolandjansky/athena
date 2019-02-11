@@ -400,7 +400,10 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
 
   // Prepare Muon only check
   std::vector<int>* TruthParticle_Pdg;
-  if ( m_doNSWMatchingMuon ) { m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); }
+  if ( m_doNSWMatchingMuon ) { 
+    TruthParticle_Pdg = 0;
+    m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); 
+  }
 
   Long64_t nEntries = m_tree->GetEntriesFast();
   for (Long64_t i_entry = 0; i_entry < nEntries; ++i_entry) {
