@@ -329,7 +329,7 @@ namespace EL
     ///   algorithm.  this allows it to do it without having to
     ///   duplicate most of the interface.
     friend class Worker;
-    friend class Detail::AlgorithmStateModule;
+    friend struct Detail::AlgorithmStateModule;
 
     // description: members directly corresponding to accessors
   private:

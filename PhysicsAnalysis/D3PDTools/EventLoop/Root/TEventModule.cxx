@@ -146,7 +146,7 @@ namespace EL
 
 
     ::StatusCode TEventModule ::
-    postCloseInputFile (ModuleData& data)
+    postCloseInputFile (ModuleData& /*data*/)
     {
       using namespace msgEventLoop;
       if (m_event == nullptr || m_store == nullptr)
