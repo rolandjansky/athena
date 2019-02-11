@@ -1,7 +1,10 @@
-////
-//// 	GUI for TriggerHLTMonitoring MenuAwareMonitoring
-////	built by Xanthe Hoad (xhoad@cern.ch)
-////
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// GUI for TriggerHLTMonitoring MenuAwareMonitoring
+// Author: Xanthe Hoad (xanthe.hoad@cern.ch)
+// See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import java.awt.*;
 import java.awt.event.*;
@@ -92,10 +95,10 @@ public class TrigMaMGUI extends JFrame {
       JScrollPane scrollPane = new JScrollPane(linkComment);
       scrollPane.setPreferredSize(new Dimension(200, 30));
       SMK_MCK_link_subpanel_1.add(scrollPane);
-      JButton SMK_MCK_link_button = new JButton("Make SMK-MCK link");
 
       JPanel SMK_MCK_link_subpanel_2 = new JPanel(new FlowLayout(FlowLayout.CENTER,1,1));
       SMK_MCK_link_panel.add(SMK_MCK_link_subpanel_2);
+      JButton SMK_MCK_link_button = new JButton("Make SMK-MCK link");
       SMK_MCK_link_subpanel_2.add(SMK_MCK_link_button);
       final JCheckBox force_link_checkbox = new JCheckBox("Force link upload (only tick if you are certain you want to do this)");
       SMK_MCK_link_subpanel_2.add(force_link_checkbox);
@@ -370,6 +373,11 @@ public class TrigMaMGUI extends JFrame {
       JButton ViewSMCKbutton = new JButton("View SMCK");
       View_keys_subpanel_2.add(ViewSMCKbutton);
 
+      JPanel View_keys_subpanel_3 = new JPanel(new FlowLayout(FlowLayout.CENTER,1,1));
+      View_keys_panel.add(View_keys_subpanel_3);
+      JButton ViewLinksButton = new JButton("View all SMK-MCK links");
+      View_keys_subpanel_3.add(ViewLinksButton);
+
       ViewSMKbutton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           //Get the selected SMK info
@@ -394,6 +402,14 @@ public class TrigMaMGUI extends JFrame {
           Integer view_SMCK_ID = (Integer)ViewSMCKbox.getSelectedItem();
           String viewSMCKcommand = "from TrigHLTMonitoring.MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;ms = MenuAwareMonitoringStandalone('"+dbalias+"');ms.search('SMCK_ID','"+view_SMCK_ID+"');";
           RunProcess(viewSMCKcommand);
+        }
+      });
+
+      ViewLinksButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          //Get the selected MCK info
+          String viewLinksCommand = "from TrigHLTMonitoring.MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;ms = MenuAwareMonitoringStandalone('"+dbalias+"');ms.print_all_mck_to_smk_links();";
+          RunProcess(viewLinksCommand);
         }
       });
     }

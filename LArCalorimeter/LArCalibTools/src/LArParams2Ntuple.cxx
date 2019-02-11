@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParams2Ntuple.h"
@@ -14,7 +14,7 @@ LArParams2Ntuple::LArParams2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
    m_completeCaliPulseParams(0), m_completeDetCellParams(0), m_completePhysCaliTdiff(0),
    m_completeTdrift(0), m_completeMphysOverMcal(0), m_completeRinj(0), m_completeTshaper(0),
    m_completeEMEC_Cphi(0), m_completeEMEC_HValpha(0), m_completeEMEC_HVbeta(0),
-   m_completeCableLength(0), m_completeCableAttenuation(0), m_calibCaliPulseParams(0),
+   m_completeCableLength(0), m_completeCableAttenuation(0),
    m_completeOFCBin(0)
 { 
   //declareProperty("DumpAllOnlineChannels",m_dumpAllOnlineChannels=std::string("")) ;
@@ -120,7 +120,7 @@ StatusCode LArParams2Ntuple::stop() {
     return StatusCode::FAILURE;
   }
 
-  if ( m_dumpFlags[CaliPulseParamsComplete] || m_dumpFlags[CaliPulseParamsVsCalib] ) {
+  if ( m_dumpFlags[CaliPulseParamsComplete] ) {
     sc=m_nt->addItem("Tcal",ntTcal);
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'Tcal' failed" << endmsg;
@@ -313,10 +313,10 @@ StatusCode LArParams2Ntuple::stop() {
       sc = retrieveFromDetStore(m_completeCableAttenuation) ;
       if ( sc.isFailure() )  m_dumpFlags.clear(CableAttenuationComplete) ;
     }
-    if ( m_dumpFlags[CaliPulseParamsVsCalib] ) {
-      sc = retrieveFromDetStore(m_calibCaliPulseParams) ;
-      if ( sc.isFailure() )  m_dumpFlags.clear(CaliPulseParamsVsCalib) ;
-    }
+    //if ( m_dumpFlags[CaliPulseParamsVsCalib] ) {
+    //  sc = retrieveFromDetStore(m_calibCaliPulseParams) ;
+    //  if ( sc.isFailure() )  m_dumpFlags.clear(CaliPulseParamsVsCalib) ;
+    //}
     if ( m_dumpFlags[OFCBinComplete] ) {
       sc = retrieveFromDetStore(m_completeOFCBin) ;
       if ( sc.isFailure() )  m_dumpFlags.clear(OFCBinComplete) ;
@@ -400,10 +400,10 @@ StatusCode LArParams2Ntuple::stop() {
 	sc = scanReadoutChannels(m_completeCableAttenuation) ;
 	break ;
       }
-      case CaliPulseParamsVsCalib: {
-	sc = scanCalibChannels(m_calibCaliPulseParams) ; 
-	break ;
-      }
+      //case CaliPulseParamsVsCalib: {
+      //sc = scanCalibChannels(m_calibCaliPulseParams) ; 
+      //break ;
+      //}
       case OFCBinComplete: {
 	sc = scanReadoutChannels(m_completeOFCBin) ; 
 	break ;
@@ -478,7 +478,7 @@ StatusCode LArParams2Ntuple::stop() {
       if ( flags[CableAttenuationComplete] ) {
 	ntCableAttenuation = m_completeCableAttenuation->CableAttenuation(chid) ;
       }
-
+      /*
       if ( flags[CaliPulseParamsVsCalib] ) {
 	ntTcal     = m_calibCaliPulseParams->Tcal(chid,gain) ;
 	ntFstep    = m_calibCaliPulseParams->Fstep(chid,gain) ;
@@ -486,7 +486,7 @@ StatusCode LArParams2Ntuple::stop() {
 	ntdTimeCal = m_calibCaliPulseParams->dTimeCal(chid,gain) ;
 	ntnCB      = m_calibCaliPulseParams->nCB(chid,gain) ;
       }
-
+      */
       if ( flags[OFCBinComplete] ) {
 	ntbin  = m_completeOFCBin->bin(chid,gain) ;
       }
@@ -695,12 +695,12 @@ inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCaliPulse
   data_object = dynamic_cast<const LArCaliPulseParamsComplete*>(abstract_object) ;
   return sc ;
 }
-inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCaliPulseParamsVsCalib*& data_object) {
-  const ILArCaliPulseParams* abstract_object ;
-  StatusCode sc = m_detStore->retrieve(abstract_object) ;
-  data_object = dynamic_cast<const LArCaliPulseParamsVsCalib*>(abstract_object) ;
-  return sc ;
-}
+//inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCaliPulseParamsVsCalib*& data_object) {
+//  const ILArCaliPulseParams* abstract_object ;
+//  StatusCode sc = m_detStore->retrieve(abstract_object) ;
+//  data_object = dynamic_cast<const LArCaliPulseParamsVsCalib*>(abstract_object) ;
+//  return sc ;
+//}
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArDetCellParamsComplete*& data_object) {
   const ILArDetCellParams* abstract_object = nullptr;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;

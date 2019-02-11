@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -28,7 +28,6 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "LArCabling/LArCablingService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 // Instantiation of a static factory class used by clients to create
@@ -153,16 +152,12 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
       if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Retrieved CaloDetDescr Manager " << endmsg;
     }
 
-    // Retrieve LArCablingSvc also needed to build TT geometry
     IToolSvc* toolSvc;
     status   = service( "ToolSvc",toolSvc  );
     if(! status.isSuccess()) { 
       return status;
     }  
-    LArCablingService*    cablingSvc; 
-    status =toolSvc->retrieveTool("LArCablingService",cablingSvc);
-    if(!status.isSuccess() ) return status;
-    
+
     CaloTriggerTowerService*    ttSvc; 
     status =toolSvc->retrieveTool("CaloTriggerTowerService",ttSvc);
     if(!status.isSuccess() ) return status;

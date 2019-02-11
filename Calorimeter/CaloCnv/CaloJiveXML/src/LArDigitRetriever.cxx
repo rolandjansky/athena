@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/LArDigitRetriever.h"
@@ -19,7 +19,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/TileID.h"
-#include "LArCabling/LArCablingService.h"
 
 using CLHEP::GeV;
 
@@ -33,8 +32,7 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("LArDigit"),
-    m_larCablingSvc("LArCablingService")
+    m_typeName("LArDigit")
   {
 
     //Only declare the interface
@@ -73,6 +71,8 @@ namespace JiveXML {
   StatusCode LArDigitRetriever::initialize() {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+
+    ATH_CHECK( m_cablingKey.initialize() );
 
     return StatusCode::SUCCESS;        
   }
@@ -183,11 +183,6 @@ namespace JiveXML {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDigits" << endmsg;
     }
 
-//--- initialize the LArCablingService tool, which can be 
-//--- used to convert between online and hardware ID--
-
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
 
     const ILArPedestal* larPedestal;
     if ( detStore()->retrieve(larPedestal).isFailure()){
@@ -212,6 +207,12 @@ namespace JiveXML {
 //Loop over the digits and find Cell (LAr,HEC, FCAL)
 //------------------------------------------------------
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+       return DataMap;
+    }
       
     
     if (!scLArDigit.isFailure() && m_doDigit==true) {
@@ -228,9 +229,9 @@ namespace JiveXML {
       for (;itLAr!=itLArEnd;itLAr++){
         
         LArHardwareId = (*itLAr)->hardwareID();
-        if (!m_larCablingSvc->isOnlineConnected(LArHardwareId))continue;
+        if (!cabling->isOnlineConnected(LArHardwareId))continue;
         
-        LArId = m_larCablingSvc->cnvToIdentifier(LArHardwareId); //converter
+        LArId = cabling->cnvToIdentifier(LArHardwareId); //converter
         const IdentifierHash cellhash=m_calocell_id->calo_cell_hash(LArId); //fast method to find cell         
 
         int Index = cellContainer->findIndex(cellhash);  //find Cell Index
@@ -386,7 +387,7 @@ namespace JiveXML {
           if (Index >= 0 && cellIndex[Index] == Index)
             continue; //test whether this cell was already retrieved
 
-          HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
+          HWIdentifier LArhwid = cabling->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
       
           if (m_calocell_id->is_tile(cellid) ) continue;
           if (((((*it1)->provenance())&0xFF)!=0xA5)&&m_cellConditionCut) continue; // check full condition for LAr cells 

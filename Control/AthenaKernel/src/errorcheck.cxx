@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: errorcheck.cxx,v 1.5 2009-04-09 15:11:17 ssnyder Exp $
@@ -104,8 +104,8 @@ std::string munge_punct (const std::string& str_in)
 
 
 std::string do_replace (std::string s,
-                        const std::string pat,
-                        const std::string rep)
+                        const std::string& pat,
+                        const std::string& rep)
 {
   std::string::size_type ipos = 0;
   while ((ipos = s.find (pat, ipos)) != std::string::npos)
@@ -124,7 +124,7 @@ std::string munge_names (const std::string& str_in)
   s = do_replace (s, "void* ", "void*");
   s = do_replace (s, "CLID", "unsigned int");
 
-  if (s.find ("virtual ") == 0)
+  if (s.compare (0, 8, "virtual ") == 0)
     s.erase (0, 8);
   return s;
 }

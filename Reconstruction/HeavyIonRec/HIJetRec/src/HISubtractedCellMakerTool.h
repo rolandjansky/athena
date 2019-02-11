@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HISUBTRACTEDCELLMAKERTOOL_H__
-#define __HISUBTRACTEDCELLMAKERTOOL_H__
+#ifndef HIJETREC_HISUBTRACTEDCELLMAKERTOOL_H
+#define HIJETREC_HISUBTRACTEDCELLMAKERTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -20,8 +20,9 @@ class HISubtractedCellMakerTool : public AthAlgTool, virtual ICaloCellMakerTool
 public:
 
   HISubtractedCellMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
-  StatusCode initialize();
-  StatusCode process(CaloCellContainer* theCellContainer);
+  virtual StatusCode initialize() override;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
   
 
 private:

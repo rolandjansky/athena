@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -59,7 +59,6 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-    m_cablingSvc(0),
     m_mergeSvc(0),
     m_caloMgr(0), 
     m_lvl1Helper(0), 

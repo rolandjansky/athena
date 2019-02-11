@@ -107,7 +107,7 @@ class TestTestBeam(unittest.TestCase):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[0]
+        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[1] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "PyAthena::Alg/ParticleGun"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
@@ -117,7 +117,7 @@ class TestTestBeam(unittest.TestCase):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[1]
+        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[2] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "CopyEventWeight/CopyEventWeight"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
@@ -127,7 +127,7 @@ class TestTestBeam(unittest.TestCase):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[2]
+        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[3] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)

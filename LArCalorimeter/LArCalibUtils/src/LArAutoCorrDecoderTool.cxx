@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArAutoCorrDecoderTool.h"
@@ -17,8 +17,7 @@ LArAutoCorrDecoderTool::LArAutoCorrDecoderTool(const std::string& type,
 					       const IInterface* parent) 
   : 
   AthAlgTool(type, name, parent),
-  m_onlineID(0),
-  m_cablingService("LArCablingService")
+  m_onlineID(0)
 {
   declareInterface<ILArAutoCorrDecoderTool>(this);
   declareProperty("KeyAutoCorr",m_keyAutoCorr="LArAutoCorr");
@@ -37,11 +36,6 @@ StatusCode LArAutoCorrDecoderTool::initialize()
   StatusCode sc = detStore()->retrieve(m_onlineID,"LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Unable to retrieve  LArOnlineID from DetectorStore" );
-    return StatusCode::FAILURE;
-  }
-
-  if(m_cablingService.retrieve().isFailure()){
-    ATH_MSG_ERROR( "Unable to get CablingService " );
     return StatusCode::FAILURE;
   }
 
@@ -67,12 +61,6 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::AutoCorr( const HWIdentifier&  Cel
     return ACPhysics(CellID,gain,nSamples);
   else
     return ACDiagonal(CellID,gain,nSamples);
-}
-
-const Eigen::MatrixXd LArAutoCorrDecoderTool::AutoCorr( const Identifier&  CellID, int gain, unsigned nSamples=5 ) const
-{
-  const HWIdentifier OnId = m_cablingService->createSignalChannelID(CellID);
-  return AutoCorr(OnId,gain,nSamples);
 }
 
 

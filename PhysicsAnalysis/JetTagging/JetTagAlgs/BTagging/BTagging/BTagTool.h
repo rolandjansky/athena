@@ -28,9 +28,6 @@
 namespace Analysis
 {
   class ITagTool;
-  class IBTagLabeling;
-  // class IBTagSecVertexing;
-  //class IBTagRemoving;
 
   /**  \class BTagTool
   The BTagTool class is a prototype implementation of a general jet tag strategy
@@ -93,8 +90,6 @@ namespace Analysis
 
 
       std::string m_runModus;                //!< the run modus of the btagger (reference or analysis)
-
-      ToolHandle< IBTagLabeling > m_BTagLabelingTool;        //!< pointer to the labeling tool
 
   }; // End class
 } // End namespace

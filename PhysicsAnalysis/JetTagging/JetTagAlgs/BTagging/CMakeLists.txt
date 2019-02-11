@@ -41,7 +41,6 @@ atlas_add_library( BTaggingLib
                    src/BTagSecVertexing.cxx
                    src/JetBTaggerTool.cxx
                    src/JetBTaggerAlg.cxx
-                   src/BTagLabeling.cxx
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
                    PUBLIC_HEADERS BTagging

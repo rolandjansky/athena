@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARHITEMAP_H
@@ -20,7 +20,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 
 class ISvcLocator;
-class LArCablingService;
+class LArCablingLegacyService;
 
 class LArHitEMap
 {
@@ -46,7 +46,7 @@ private:
  const LArHEC_ID*  m_larhec_id;
  const LArFCAL_ID* m_larfcal_id;
  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
- ToolHandle<LArCablingService> m_cablingService;
+ ToolHandle<LArCablingLegacyService> m_cablingService;
 
  bool m_initialized; 
   

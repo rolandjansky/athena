@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOWEIGHTSFILL_H
@@ -7,7 +7,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 
 class StoreGateSvc;
@@ -22,6 +23,8 @@ class LArGeoWeightsFill:public AthAlgorithm {
   StatusCode stop();
 
  private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+
   const LArOnlineID* m_onlineID;
 
   std::string m_nameOfSet;
@@ -30,7 +33,6 @@ class LArGeoWeightsFill:public AthAlgorithm {
   bool m_fill, m_dump;
   std::string m_outFileName;
 
-  ToolHandle < LArCablingService > m_cablingSvc;
   ToolHandle < CaloTriggerTowerService > m_ttService;
 
 };

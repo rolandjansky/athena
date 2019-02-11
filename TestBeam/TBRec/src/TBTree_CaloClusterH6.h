@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBTREE_CALOCLUSTERH6_H
@@ -10,6 +10,8 @@
 // Make ROOT TTree for CaloClusters for H6 CBT
 //
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include <TRandom.h>
 
 class StoreGateSvc;
@@ -23,7 +25,6 @@ class ICaloNoiseTool;
 class LArDigitContainer;
 class ILArPedestal;
 class ILArADC2MeVTool;
-class LArCablingService;
 
 class TBTree_CaloClusterH6: public AthAlgorithm {
  public:    
@@ -145,7 +146,7 @@ class TBTree_CaloClusterH6: public AthAlgorithm {
   ICaloNoiseTool* m_noiseTool;
   ICaloNoiseTool* m_OFNoiseSupp;
   const ILArADC2MeVTool* m_adc2mevTool;
-  LArCablingService* m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   /** Text file containing xCryo and yTable */
   std::string m_txtFileWithXY;

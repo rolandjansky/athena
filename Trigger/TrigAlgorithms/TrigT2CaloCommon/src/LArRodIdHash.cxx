@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT2CaloCommon/LArRodIdHash.h" 
-#include "LArCabling/LArCablingService.h" 
+#include "LArCabling/LArCablingLegacyService.h" 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -42,10 +42,10 @@ void LArRodIdHash::initialize( int offset )  {
      return;
     }
 
-  LArCablingService *larCablingSvc;
-  sc = toolSvc->retrieveTool("LArCablingService",larCablingSvc);
+  LArCablingLegacyService *larCablingSvc;
+  sc = toolSvc->retrieveTool("LArCablingLegacyService",larCablingSvc);
   if(sc.isFailure())
-    {std::cerr << "LArRawChannelContainer::add ERROR: Can not retrieve LArCablingSvc" << std::endl;
+    {std::cerr << "LArRawChannelContainer::add ERROR: Can not retrieve LArCablingLegacyService" << std::endl;
      return;
     }
 

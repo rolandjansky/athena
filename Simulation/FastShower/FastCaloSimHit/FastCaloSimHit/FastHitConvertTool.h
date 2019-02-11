@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,9 +56,12 @@ public:
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize() override final;
   /** standard Athena-Algorithm method */
-  virtual StatusCode process(CaloCellContainer *theCellContainer) override;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
 private:
+  StatusCode process_nc (CaloCellContainer *theCellContainer);
+
   StatusCode initEvent();
   StatusCode finaliseEvent();
   StatusCode hitConstruction(CaloCellContainer *theCellCont);

@@ -134,12 +134,10 @@ namespace xAOD {
       const Trk::NeutralPerigee& perigeeParameters() const;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
-      // /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this NeutralParticle.
-      // const ElementLink< VertexContainer >& vertex() const;
-      // /// @brief Set the link to the vertex
-      //  void setVertex(const ElementLink< VertexContainer >& vertex);
-
-    private:
+      /// Reset the internal cache of the object
+      void resetCache();
+ 
+  private:
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.

@@ -27,13 +27,14 @@ public:
                           const std::string& type,
                           const std::string& name,
                           const IInterface* parent);
-  ~AddNoiseCellBuilderTool();
+  virtual ~AddNoiseCellBuilderTool();
 
 
   virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 private:
 
   ToolHandle<ICaloNoiseTool> m_noiseTool;   //NoiseTool - public

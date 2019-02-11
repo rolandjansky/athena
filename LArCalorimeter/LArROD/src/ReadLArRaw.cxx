@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -22,7 +22,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -51,7 +50,6 @@ using namespace std ;
 ReadLArRaw::ReadLArRaw(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_ChannelContainerName("LArRawChannelContainer"), 
-  m_cablingService("LArCablingService"),
   m_onlineID(0),
   m_larem_id(0)
 {
@@ -67,13 +65,8 @@ StatusCode ReadLArRaw::initialize(){
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "in initialize()" << endmsg;
   
-  if (m_cablingService.retrieve().isFailure()) {
-    log << MSG::FATAL
-	<< " CablingService not found " 
-	<< endmsg; 
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(m_cablingKey.initialize());
+
   StoreGateSvc* detStore;
    if (service("DetectorStore", detStore).isFailure()) {
      log << MSG::ERROR
@@ -125,12 +118,19 @@ StatusCode ReadLArRaw::execute() {
  int emax= 0; 
  HWIdentifier maxId;
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling{*cablingHdl};
+ if(!cabling) {
+    ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+    return StatusCode::FAILURE;
+ }
+
  LArRawChannelContainer::const_iterator it1 = LArRaw->begin(); 
  LArRawChannelContainer::const_iterator it2 = LArRaw->end(); 
  for(; it1!=it2; ++it1){
    HWIdentifier ch_id=it1->identify();
    if (m_outFile.is_open()) {
-     if(m_cablingService->isOnlineConnected(ch_id))
+     if(cabling->isOnlineConnected(ch_id))
        m_outFile << "LArRawChannelDump: 0x" << std::hex << ch_id.get_compact() << std::dec << " E=" << it1->energy() 
 		 << " t="  << it1->time() << " g=" << (int)it1->gain()  << " Q=" << it1->quality() << std::endl;
    }

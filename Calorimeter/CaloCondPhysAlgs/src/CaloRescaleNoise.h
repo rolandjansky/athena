@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloRescaleNoise.h
@@ -24,7 +24,8 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "StoreGate/DataHandle.h"  
 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
@@ -57,7 +58,7 @@ class CaloRescaleNoise : public AthAlgorithm {
 
   ToolHandle<ICaloNoiseTool> m_noiseTool;
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
-  ToolHandle<LArCablingService> m_cabling;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   std::string m_keyHVScaleCorr;
   const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 

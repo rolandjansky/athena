@@ -15,7 +15,6 @@
 #include "TileConditions/ITileBadChanTool.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,24 +56,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_tileID(nullptr)
   , m_tileCablingService(nullptr)
   , m_tileToolEmscale("TileCondToolEmscale")
-  , m_meanTile()
-  , m_rmsTile()
-  , m_meanTileDAC()
-  , m_rmsTileDAC()
-  , m_ietaTile()
-  , m_iphiTile()
-  , m_ipmtTile()
-  , m_nEvtTile()
-  , m_meanL1Calo()
-  , m_rmsL1Calo()
-  , m_meanL1CaloDAC()
-  , m_rmsL1CaloDAC()
-  , m_ietaL1Calo()
-  , m_iphiL1Calo()
-  , m_ipmtL1Calo()
-  , m_nEvtL1Calo()
-  , m_meanTileL1Calo()
-  , m_rmsTileL1Calo()
   , m_DACvalue(0)
   , m_charge(0)
   , m_ipmt(0)
@@ -88,19 +70,57 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_beamElemCnt(nullptr)
 {
   declareInterface<ITileCalibTool>( this );
-  declareProperty("TriggerTowerLocation", m_triggerTowerLocation="xAODTriggerTowers");
   declareProperty("MaxNTriggerTowers", m_maxNTT=7200);
-  declareProperty("rawChannelContainer", m_rawChannelContainerName="TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID="h3000");
   declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
+  
+  m_meanTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_meanTileDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTileDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ietaTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_iphiTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ipmtTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_nEvtTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+
+  m_meanL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_meanL1CaloDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsL1CaloDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ietaL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_iphiL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ipmtL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_nEvtL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+
+  m_meanTileL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTileL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
 }
 
 TileTriggerDefaultCalibTool::~TileTriggerDefaultCalibTool()
-{}      
+{
+  delete[] m_meanTile;
+  delete[] m_rmsTile;
+  delete[] m_meanTileDAC;
+  delete[] m_rmsTileDAC;
+  delete[] m_ietaTile;
+  delete[] m_iphiTile;
+  delete[] m_ipmtTile;
+  delete[] m_nEvtTile;
+  delete[] m_meanL1Calo;
+  delete[] m_rmsL1Calo;
+  delete[] m_meanL1CaloDAC;
+  delete[] m_rmsL1CaloDAC;
+  delete[] m_ietaL1Calo;
+  delete[] m_iphiL1Calo;
+  delete[] m_ipmtL1Calo;
+  delete[] m_nEvtL1Calo;
+  delete[] m_meanTileL1Calo;
+  delete[] m_rmsTileL1Calo;
+}      
 
 StatusCode TileTriggerDefaultCalibTool::initialize()
 {
@@ -111,6 +131,9 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
   m_ipmt = 0;
   m_ipmtOld = 0;
   m_ipmtCount = 0;
+
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_triggerTowerContainerKey.initialize() );
 
   ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
   ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
@@ -143,8 +166,8 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
 
   // Get TileRawChannelContainer
-  const TileRawChannelContainer *container;
-  ATH_CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> container(m_rawChannelContainerKey);
+         ATH_CHECK( container.isValid() );
 
   ATH_MSG_DEBUG ( "second executeTrigger()" );
   // declare an array of pmt id for the trigger tower loop
@@ -278,8 +301,8 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   } // end of loop over raw channels for Tile
   
   // loop over all L1Calo trigger channels, calculate the average and RMS
-  const xAOD::TriggerTowerContainer* triggerTowers = 0;
-  CHECK(evtStore()->retrieve(triggerTowers, m_triggerTowerLocation));
+  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowers(m_triggerTowerContainerKey);
+  ATH_CHECK( triggerTowers.isValid() );
 
   int ntt = 0;
  

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventShape_v1.cxx 639015 2015-01-12 21:15:26Z delsart $
 
 // System include(s):
 #include <iostream>
@@ -15,7 +14,7 @@
 #define DEFINE_ACCESSOR( NAME )                                   \
   case xAOD::EventShape_v1::NAME:                                 \
      {                                                            \
-        static SG::AuxElement::Accessor< float > a( #NAME );      \
+        static const SG::AuxElement::Accessor< float > a( #NAME );      \
         return &a;                                                \
      }                                                            \
      break
@@ -23,7 +22,7 @@
 namespace {
 
    /// Helper function for getting the Accessor for a given EventShapeID
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    eventShapeAccessor( xAOD::EventShape_v1::EventShapeID id ) {
 
       switch( id ) {
@@ -44,7 +43,7 @@ namespace {
    }
 
    /// Helper function for getting the Accessor for a given EventDensityID
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    eventDensityAccessor( xAOD::EventShape_v1::EventDensityID id ) {
 
       switch( id ) {
@@ -63,7 +62,7 @@ namespace {
    }
 
    /// Helper function retrieving a float variable from the EventShape object
-   bool getAttribute( SG::AuxElement::Accessor< float >* acc,
+   bool getAttribute( const SG::AuxElement::Accessor< float >* acc,
                       const xAOD::EventShape_v1& es, double &v ) {
 
       if( acc && acc->isAvailable( es ) ) {
@@ -75,7 +74,7 @@ namespace {
    }
 
    /// Helper function retrieving a float variable from the EventShape object
-   double getAttribute( SG::AuxElement::Accessor< float >* acc,
+   double getAttribute( const SG::AuxElement::Accessor< float >* acc,
                         const xAOD::EventShape_v1& es ) {
 
       if( acc ) {
@@ -87,7 +86,7 @@ namespace {
    }
 
    /// Helper function setting a float variable on the EventShape object
-   bool setAttribute( SG::AuxElement::Accessor< float >* acc,
+   bool setAttribute( const SG::AuxElement::Accessor< float >* acc,
                       xAOD::EventShape_v1& es, double v ) {
 
       if( acc ) {

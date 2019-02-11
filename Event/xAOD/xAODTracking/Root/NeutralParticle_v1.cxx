@@ -212,6 +212,7 @@ namespace xAOD {
   }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
-  // AUXSTORE_OBJECT_SETTER_AND_GETTER(NeutralParticle_v1, ElementLink< VertexContainer >, vertex, setVertex)
-
+  void NeutralParticle_v1::resetCache(){
+     m_perigeeParameters.reset();
+   }
 } // namespace xAOD

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -108,7 +108,8 @@ StatusCode CaloCellFastCopyTool::initialize() {
 }
 
 
-StatusCode CaloCellFastCopyTool::process(CaloCellContainer* theCont)
+StatusCode CaloCellFastCopyTool::process (CaloCellContainer* theCont,
+                                          const EventContext& /*ctx*/) const
 {
   // Retrieve source cell container
   SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
@@ -124,7 +125,8 @@ StatusCode CaloCellFastCopyTool::process(CaloCellContainer* theCont)
 }
 
 
-StatusCode CaloCellFastCopyTool::process(CaloConstCellContainer* theCont)
+StatusCode CaloCellFastCopyTool::process (CaloConstCellContainer* theCont,
+                                          const EventContext& /*ctx*/) const
 {
   // Retrieve source cell container
   SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);

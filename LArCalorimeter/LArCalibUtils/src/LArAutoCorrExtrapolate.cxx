@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,7 +20,6 @@
 // Include files
 #include "LArCalibUtils/LArAutoCorrExtrapolate.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArElecCalib/ILArRamp.h"
 
 #include "LArRawConditions/LArAutoCorrComplete.h"
@@ -55,6 +54,8 @@ StatusCode LArAutoCorrExtrapolate::initialize()
     m_useBad=false;
   }
   
+  ATH_CHECK(m_cablingKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -72,8 +73,12 @@ StatusCode LArAutoCorrExtrapolate::stop()
   ATH_MSG_INFO ( ">>> stop()" );
 
   ATH_CHECK( detStore()->retrieve(m_onlineId, "LArOnlineID") );
-  LArCablingService * larCabling = nullptr;
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",larCabling) );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   LArAutoCorrComplete* larAutoCorrComplete  = nullptr;
   ATH_CHECK( detStore()->retrieve(larAutoCorrComplete,m_keyoutput) );
@@ -106,7 +111,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
 
 // skip disconnected channels
 
-      if (!(larCabling->isOnlineConnected(hwid))) continue; 
+      if (!(cabling->isOnlineConnected(hwid))) continue; 
 
 // if HEC  , correct low gain, otherwise correct Medium and Low
       CaloGain::CaloGain gain0 = CaloGain::LARHIGHGAIN;

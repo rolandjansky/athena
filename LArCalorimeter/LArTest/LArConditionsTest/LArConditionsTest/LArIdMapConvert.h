@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONSTEST_LARIDMAPCONVERT_H
@@ -12,11 +12,12 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include <iostream>
 
@@ -39,14 +40,16 @@ class LArIdMapConvert
 
  private: 
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+
   /// Default constructor: 
   LArIdMapConvert();
-  void print (const HWIdentifier& hwid, std::ostream& out=std::cout); 
+  void print (const HWIdentifier& hwid, std::ostream& out, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont); 
 
   const LArOnlineID* m_onlineID;
   const CaloCell_ID* m_caloCellID;
 
-  ToolHandle<LArCablingService> m_cablingSvc;
 
 }; 
 

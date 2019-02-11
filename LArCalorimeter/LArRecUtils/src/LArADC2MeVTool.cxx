@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArADC2MeVTool.h"
@@ -7,8 +7,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingLegacyService.h"
+//#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 
@@ -72,9 +72,9 @@ StatusCode LArADC2MeVTool::initialize() {
       return StatusCode::FAILURE;
     } else m_lar_on_id = (LArOnlineID_Base*) laron;
     
-    ToolHandle<LArCablingService> larcab("LArCablingService");
+    ToolHandle<LArCablingLegacyService> larcab("LArCablingLegacyService");
     if(larcab.retrieve().isFailure()){
-      ATH_MSG_ERROR("Unable to get CablingService");
+      ATH_MSG_ERROR("Unable to get CablingLegacyService");
       return StatusCode::FAILURE;
     } else m_cablingService = (LArCablingBase*) &(*larcab);
     
@@ -91,11 +91,11 @@ StatusCode LArADC2MeVTool::initialize() {
       return StatusCode::FAILURE;
     } else m_lar_on_id = (LArOnlineID_Base*) laron;
     
-    ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
-    if(larcab.retrieve().isFailure()){
-      ATH_MSG_ERROR("Unable to get CablingService");
+    //ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
+    //if(larcab.retrieve().isFailure()){
+      ATH_MSG_ERROR("Not working for SC, use the conditions Alg");
       return StatusCode::FAILURE;
-    } else m_cablingService = (LArCablingBase*) &(*larcab);
+    //} else m_cablingService = (LArCablingBase*) &(*larcab);
     
   }
 

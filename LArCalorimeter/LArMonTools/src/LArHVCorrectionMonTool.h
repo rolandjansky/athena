@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,7 +27,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 
@@ -82,7 +82,7 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_larCablingService;  
+  ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to hv tools */
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
   const DataHandle<ILArHVScaleCorr>  m_dd_HVScaleCorr;

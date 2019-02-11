@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
@@ -53,12 +52,14 @@ class HLTMonTriggerList:
 	monitoring_jet = []
 	primary_l1jet = []
 	primary_jet = []
-	monitoring_met = []
+	monitoring_met_shifter = []
+	monitoring_met_expert = []
 	monitoring_minbias = []
 	monitoring_muonNonIso = []
 	monitoring_muonIso = []
 	monitoring_MSonly = []
 	monitoring_muonEFFS = []
+	monitoring_muonLowpt = []
 	monitoring_muon_Support = []
 	monitoring_tau = []
 	monitoring_singleTau = []
@@ -159,7 +160,8 @@ class HLTMonTriggerList:
 		self.primary_jet = jets.primary_jet
 
 		# set the met triggers to the default values
-		self.monitoring_met = met.monitoring_met
+		self.monitoring_met_shifter = met.monitoring_met_shifter
+		self.monitoring_met_expert = met.monitoring_met_expert
 
 		# set the minbias triggers to the default values
 		self.monitoring_minbias = minbias.monitoring_minbias
@@ -169,6 +171,7 @@ class HLTMonTriggerList:
 		self.monitoring_muonIso = muon.monitoring_muonIso
 		self.monitoring_MSonly = muon.monitoring_MSonly
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support
 
 		# set the tau triggers to the default values
@@ -188,12 +191,14 @@ class HLTMonTriggerList:
 		self.primary_l1jet = jets.primary_l1jet_pp
 		self.primary_jet = jets.primary_jet_pp
 
-		self.monitoring_met = met.monitoring_met_pp
+		self.monitoring_met_shifter = met.monitoring_met_shifter_pp
+		self.monitoring_met_expert = met.monitoring_met_expert_pp
 
 		self.monitoring_muonNonIso = muon.monitoring_muonNonIso_pp
 		self.monitoring_muonIso = muon.monitoring_muonIso_pp
 		self.monitoring_MSonly = muon.monitoring_MSonly_pp
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_pp
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support_pp
 
 		self.monitoring_tau = tau.monitoring_tau_pp
@@ -209,12 +214,14 @@ class HLTMonTriggerList:
 		self.primary_l1jet = jets.primary_l1jet_hi
 		self.primary_jet = jets.primary_jet_hi
 
-		self.monitoring_met = []
+		self.monitoring_met_shifter = []
+		self.monitoring_met_expert = []
 
 		self.monitoring_muonNonIso = muon.monitoring_muonNonIso_HI
 		self.monitoring_muonIso = muon.monitoring_muonIso_HI
 		self.monitoring_MSonly = muon.monitoring_MSonly_HI
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_HI
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support_HI
 
 	def set_HLTMonTrigList_cosmic (self):
@@ -225,7 +232,8 @@ class HLTMonTriggerList:
 		self.primary_l1jet = jets.primary_l1jet_cosmic
 		self.primary_jet = jets.primary_jet_cosmic
 
-		self.monitoring_met = met.monitoring_met_cosmic
+		self.monitoring_met_shifter = met.monitoring_met_shifter_cosmic
+		self.monitoring_met_expert = met.monitoring_met_expert_cosmic
 
 		self.monitoring_tau = tau.monitoring_tau_cosmic
 		self.monitoring_singleTau = tau.monitoring_singleTau_cosmic

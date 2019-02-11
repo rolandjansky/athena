@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARTSHAPERCOMPLETE_H
@@ -8,8 +8,6 @@
 #include "LArElecCalib/ILArTshaper.h" 
 #include "LArRawConditions/LArTshaperP.h"
 #include "LArRawConditions/LArConditionsContainer.h"
-
-class LArCablingService ;
 
 /** This class implements the ILArTshaper interface
  *

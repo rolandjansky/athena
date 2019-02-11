@@ -1,712 +1,460 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-# JetRecStandardTools.py
+########################################################################
+#                                                                      #
+# JetRecConfig: A helper module for configuring jet reconstruction     #
+# Author: TJ Khoo                                                      #
+#                                                                      #
+########################################################################
+
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRecConfig')
+
+from ROOT import xAOD
+xAOD.Type.ObjectType
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+# CfgMgr is more convenient but it helps to be explicit about where
+# things are defined.
+# So, import package conf modules rather than a dozen individual classes
+from JetRec import JetRecConf
+
+__all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
+
+########################################################################
+# Top-level function for running jet finding
+# (i.e. clustering from inputs)
+# This returns a ComponentAccumulator that can be merged with others
+# from elsewhere in the job, but will provide everything needed to
+# reconstruct one jet collection.
+# This could still be modularised further into the subcomponents of the
+# jet reconstruction job. For now, based on public tools, as private
+# tool migration has not been completed.
 #
-# David Adams
-# March 2014
-#
-# Define the low-level tools used in jet reconstruction.
-#
-# Tools are configured and put in the global jet tool manager so
-# they can be accessed when configuring JetRec tools.
-#
-# Execute this file to add the definitions to
-# JetRecStandardToolManager.jtm, e.g.
-#   import JetRecConfig.JetRecStandardTools
+# Receives the jet definition and input flags, mainly for input file
+# peeking such that we don't attempt to reproduce stuff that's already
+# in the input file
+def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
+    components = ComponentAccumulator()
 
-# Import the jet flags.
-# from JetRecFlags import jetFlags
+    jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
+    jetlog.info("Setting up to find {0}".format(jetsfullname))
 
-# if not "UseTriggerStore " in locals():
-#   UseTriggerStore = False
-
-# # get levels defined VERBOSE=1 etc.
-# from GaudiKernel.Constants import *
-
-# from eflowRec.eflowRecFlags import jobproperties
-
-# from JetRecStandardToolManager import jtm
-# from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-# from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-
-# from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-# from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
-# from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-# from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
-# from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-# try:
-#   from JetRecCalo.JetRecCaloConf import MissingCellListTool
-#   jtm.haveJetRecCalo = True
-# except ImportError:
-#   jtm.haveJetRecCalo = False
-# from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
-# from JetRec.JetRecConf import JetPseudojetRetriever
-# from JetRec.JetRecConf import JetConstituentsRetriever
-# from JetRec.JetRecConf import JetRecTool
-# from JetRec.JetRecConf import PseudoJetGetter
-# from JetRec.JetRecConf import MuonSegmentPseudoJetGetter
-# from JetRec.JetRecConf import JetFromPseudojet
-# from JetRec.JetRecConf import JetConstitRemover
-# from JetRec.JetRecConf import JetSorter
-# from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
-# try:
-#   from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
-#   jtm.haveJetCaloCellQualityTool = True
-# except ImportError:
-#   jtm.haveJetCaloCellQualityTool = False
-# from JetMomentTools.JetMomentToolsConf import JetWidthTool
-# from JetMomentTools.JetMomentToolsConf import JetCaloEnergies
-# try:
-#   from JetMomentTools.JetMomentToolsConf import JetJetBadChanCorrTool
-#   jtm.haveJetBadChanCorrTool = True
-# except ImportError:
-#   jtm.haveJetBadChanCorrTool = False
-# from JetMomentTools.JetMomentToolsConf import JetECPSFractionTool
-# from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
-# from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
-# from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
-# from JetMomentTools.JetMomentToolsConf import JetTrackSumMomentsTool
-# from JetMomentTools.JetMomentToolsConf import JetClusterMomentsTool
-# from JetMomentTools.JetMomentToolsConf import JetVoronoiMomentsTool
-# from JetMomentTools.JetMomentToolsConf import JetIsolationTool
-# from JetMomentTools.JetMomentToolsConf import JetLArHVTool
-# from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import AngularityTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import DipolarityTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
-# from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
-# try:
-#   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
-#   jtm.haveShowerDeconstructionTool = True
-# except ImportError:
-#   jtm.haveShowerDeconstructionTool = False
-# try:
-#   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
-#   jtm.haveParticleJetTools = True
-# except:
-#   jtm.haveParticleJetTools = False
-# if jtm.haveParticleJetTools:
-#   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
-#   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
-#   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-#   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
-
-# #--------------------------------------------------------------
-# # Track selection.
-# #--------------------------------------------------------------
-
-# # This is the InDet loose selection from
-# # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackingPerformanceGuidelines
-# # October 28, 2014
-# #jtm += InDet__InDetDetailedTrackSelectionTool(
-# jtm += InDet__InDetTrackSelectionTool(
-#   "trk_trackselloose",
-#   minPt                = 400.0,
-#   maxAbsEta            = 2.5,
-#   minNSiHits           = 7,
-#   maxNPixelSharedHits  = 1,
-#   maxOneSharedModule   = True,
-#   maxNSiHoles          = 2,
-#   maxNPixelHoles       = 1,
-# )
-
-# jtm += JetTrackSelectionTool(
-#   "trackselloose",
-#   InputContainer  = jtm.trackContainer,
-#   OutputContainer = "JetSelectedTracks",
-#   Selector        = jtm.trk_trackselloose
-# )
-
-# jtm += InDet__InDetTrackSelectionTool(
-#   "trk_trackselloose_trackjets",
-#   CutLevel                = "Loose"
-# )
-
-# jtm += JetTrackSelectionTool(
-#    "trackselloose_trackjets",
-#   InputContainer  = jtm.trackContainer,
-#   OutputContainer = "JetSelectedTracks_LooseTrackJets",
-#   Selector        = jtm.trk_trackselloose_trackjets
-# )
-
-# if jetFlags.useInDetTrackSelection():
-#   jtm += JetTrackSelectionTool(
-#     "tracksel",
-#     InputContainer  = jtm.trackContainer,
-#     OutputContainer = "JetSelectedTracks",
-#     Selector        = jtm.trk_trackselloose
-#   )
-# else:
-#   jtm += SimpleJetTrackSelectionTool(
-#     "tracksel",
-#     PtMin = 500.0,
-#     InputContainer  = jtm.trackContainer,
-#     OutputContainer = "JetSelectedTracks",
-#   )
-
-# #--------------------------------------------------------------
-# # Track-vertex association.
-# #--------------------------------------------------------------
-# from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-# jtm += CP__TightTrackVertexAssociationTool("jetTighTVAtool", dzSinTheta_cut=3, doPV=True)
-
-# jtm += TrackVertexAssociationTool(
-#   "tvassoc",
-#   TrackParticleContainer  = jtm.trackContainer,
-#   TrackVertexAssociation  = "JetTrackVtxAssoc",
-#   VertexContainer         = jtm.vertexContainer,
-#   TrackVertexAssoTool     = jtm.jetTighTVAtool,
-# )
-
-# jtm += TrackVertexAssociationTool(
-#   "tvassoc_old",
-#   TrackParticleContainer  = jtm.trackContainer,
-#   TrackVertexAssociation  = "JetTrackVtxAssoc_old",
-#   VertexContainer         = jtm.vertexContainer,
-#   MaxTransverseDistance   = 1.5,
-#   MaxLongitudinalDistance = 1.0e7,
-#   MaxZ0SinTheta = 1.5
-# )
-
-# #--------------------------------------------------------------
-# # Truth selection.
-# #--------------------------------------------------------------
-
-# if jetFlags.useTruth:
-#     truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
-#                                        ParticleCaloExtensionTool="")
-#     jtm += truthClassifier
-
-#     jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles",
-#                                  MCTruthClassifier=truthClassifier)
-#     jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
-#                                  MCTruthClassifier=truthClassifier,
-#                                  IncludeWZLeptons=False, #IncludeTauLeptons=False,
-#                                  IncludeMuons=True,IncludeNeutrinos=True)
-
-
-# #--------------------------------------------------------------
-# # Jet reco infrastructure.
-# #--------------------------------------------------------------
-
-# # Jet pseudojet retriever.
-# jtm += JetPseudojetRetriever("jpjretriever")
-
-# # Jet constituent retriever.
-# labs = []
-# if jetFlags.useTracks():
-#   labs += ["Track"]
-#   labs += ["AntiKt3TrackJet", "AntiKt3TrackJet"]
-# if jetFlags.useMuonSegments():
-#   labs += ["MuonSegment",]
-# if jetFlags.useTruth():
-#   labs += ["Truth"]
-#   for lab in jetFlags.truthFlavorTags():
-#     labs += [lab]
-# jtm += JetConstituentsRetriever(
-#   "jconretriever",
-#   UsePseudojet = True,
-#   UseJetConstituents = True,
-#   PseudojetRetriever = jtm.jpjretriever,
-#   GhostLabels = labs,
-#   GhostScale = 1.e-20
-# )
-
-# #--------------------------------------------------------------
-# # Pseudojet builders.
-# #--------------------------------------------------------------
-
-# # Clusters.
-# jtm += PseudoJetGetter(
-#   "lcget",
-#   InputContainer = "CaloCalTopoClusters",
-#   Label = "LCTopo",
-#   OutputContainer = "PseudoJetLCTopo",
-#   SkipNegativeEnergy = True,
-#   GhostScale = 0.0
-# )
-
-# # EM clusters.
-# jtm += PseudoJetGetter(
-#   "emget",
-#   InputContainer = "CaloCalTopoClusters",
-#   Label = "EMTopo",
-#   OutputContainer = "PseudoJetEMTopo",
-#   SkipNegativeEnergy = True,
-#   GhostScale = 0.0
-# )
-
-# # Tracks.
-# jtm += TrackPseudoJetGetter(
-#   "trackget",
-#   InputContainer = jtm.trackselloose_trackjets.OutputContainer,
-#   Label = "Track",
-#   OutputContainer = "PseudoJetTracks",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   SkipNegativeEnergy = True,
-#   GhostScale = 0.0
-# )
-
-# # Ghost tracks.
-# jtm += TrackPseudoJetGetter(
-#   "gtrackget",
-#   InputContainer = jtm.tracksel.OutputContainer,
-#   Label = "GhostTrack",
-#   OutputContainer = "PseudoJetGhostTracks",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   SkipNegativeEnergy = True,
-#   GhostScale = 1e-20
-# )
-
-# # Muon segments
-# jtm += MuonSegmentPseudoJetGetter(
-#   "gmusegget",
-#   InputContainer = "MuonSegments",
-#   Label = "GhostMuonSegment",
-#   OutputContainer = "PseudoJetGhostMuonSegment",
-#   Pt = 1.e-20
-# )
-
-# # Retriever for pflow objects.
-# jtm += RetrievePFOTool("pflowretriever")
-
-# useVertices = True
-# if False == jetFlags.useVertices:
-#   useVertices = False
-
-# if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
-#   useChargedWeights = True
-# else:
-#   useChargedWeights = False
-
-# useTrackVertexTool = False
-# if True == jetFlags.useTrackVertexTool:
-#   useTrackVertexTool = True
-
-# # EM-scale pflow.
-# jtm += PFlowPseudoJetGetter(
-#   "empflowget",
-#   Label = "EMPFlow",
-#   OutputContainer = "PseudoJetEMPFlow",
-#   RetrievePFOTool = jtm.pflowretriever,
-#   InputIsEM = True,
-#   CalibratePFO = False,
-#   SkipNegativeEnergy = True,
-#   UseChargedWeights = useChargedWeights,
-#   UseVertices = useVertices,
-#   UseTrackToVertexTool = useTrackVertexTool
-# )
-
-# # Calibrated EM-scale pflow.
-# jtm += PFlowPseudoJetGetter(
-#   "emcpflowget",
-#   Label = "EMCPFlow",
-#   OutputContainer = "PseudoJetEMCPFlow",
-#   RetrievePFOTool = jtm.pflowretriever,
-#   InputIsEM = True,
-#   CalibratePFO = True,
-#   SkipNegativeEnergy = True,
-#   UseChargedWeights = useChargedWeights,
-#   UseVertices = useVertices,
-#   UseTrackToVertexTool = useTrackVertexTool
-# )
-
-# # LC-scale pflow.
-# jtm += PFlowPseudoJetGetter(
-#   "lcpflowget",
-#   Label = "LCPFlow",
-#   OutputContainer = "PseudoJetLCPFlow",
-#   RetrievePFOTool = jtm.pflowretriever,
-#   InputIsEM = False,
-#   CalibratePFO = False,
-#   SkipNegativeEnergy = True,
-#   UseChargedWeights = useChargedWeights,
-#   UseVertices = useVertices,
-#   UseTrackToVertexTool = useTrackVertexTool
-# )
-
-# # AntiKt2 track jets.
-# jtm += PseudoJetGetter(
-#   "gakt2trackget", # give a unique name
-#   InputContainer = jetFlags.containerNamePrefix() + "AntiKt2PV0TrackJets", # SG key
-#   Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
-#   OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
-#   SkipNegativeEnergy = True,
-#   GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-# )
-
-# # AntiKt3 track jets.
-# jtm += PseudoJetGetter(
-#   "gakt3trackget", # give a unique name
-#   InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
-#   Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
-#   OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
-#   SkipNegativeEnergy = True,
-#   GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-# )
-
-# # AntiKt4 track jets.
-# jtm += PseudoJetGetter(
-#   "gakt4trackget", # give a unique name
-#   InputContainer = jetFlags.containerNamePrefix() + "AntiKt4PV0TrackJets", # SG key
-#   Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
-#   OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
-#   SkipNegativeEnergy = True,
-#   GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-# )
-
-# # Truth.
-# if jetFlags.useTruth and jtm.haveParticleJetTools:
-#   jtm += PseudoJetGetter(
-#     "truthget",
-#     Label = "Truth",
-#     InputContainer = jtm.truthpartcopy.OutputName,
-#     OutputContainer = "PseudoJetTruth",
-#     GhostScale = 0.0,
-#     SkipNegativeEnergy = True,
-
-#   )
-#   jtm += PseudoJetGetter(
-#     "truthwzget",
-#     Label = "TruthWZ",
-#     InputContainer = jtm.truthpartcopywz.OutputName,
-#     OutputContainer = "PseudoJetTruthWZ",
-#     GhostScale = 0.0,
-#     SkipNegativeEnergy = True,
+    deps = resolveDependencies( jetdef )
     
-#   )
-#   jtm += PseudoJetGetter(
-#     "gtruthget",
-#     Label = "GhostTruth",
-#     InputContainer = jtm.truthpartcopy.OutputName,
-#     OutputContainer = "PseudoJetGhostTruth",
-#     GhostScale = 1.e-20,
-#     SkipNegativeEnergy = True,
-#   )
+    # Schedule the various input collections.
+    # We don't have to worry about ordering, as the scheduler
+    # will handle the details. Just merge the components.
+    # 
+    # To facilitate running in serial mode, we also prepare
+    # the constituent PseudoJetGetter here (needed for rho)
+    inputcomps, constitpjkey = JetInputCfgAndConstitPJName(deps["inputs"], configFlags)
+    components.merge(inputcomps)
+    pjs = [constitpjkey]
 
-#   # Truth flavor tags.
-#   for ptype in jetFlags.truthFlavorTags():
-#     jtm += PseudoJetGetter(
-#       "gtruthget_" + ptype,
-#       InputContainer = "TruthLabel" + ptype,
-#       Label = "Ghost" + ptype,
-#       OutputContainer = "PseudoJetGhost" + ptype,
-#       SkipNegativeEnergy = True,
-#       GhostScale = 1e-20
-#     )
+    # Schedule the ghost PseudoJetGetterAlgs
+    for ghostdef in deps["ghosts"]:
+        ghostpjcomps, ghostpjkey = GhostPJGCfgAndOutputName( ghostdef )
+        components.merge( ghostpjcomps )
+        pjs.append( ghostpjkey )
 
-#   # ParticleJetTools tools may be omitted in analysi releases.
-#   #ift jtm.haveParticleJetTools:
-#   # Delta-R truth parton label: truthpartondr.
-#   jtm += Analysis__JetQuarkLabel(
-#       "jetquarklabel",
-#       McEventCollection = "TruthEvents"
-#     )
-#   jtm += Analysis__JetConeLabeling(
-#       "truthpartondr",
-#       JetTruthMatchTool = jtm.jetquarklabel
-#       )
-  
-#   # Parton truth label.
-#   jtm += Analysis__JetPartonTruthLabel("partontruthlabel")
+    # Generate a JetAlgorithm to run the jet finding and modifiers
+    # (via a JetRecTool instance).
+    reccomps = JetAlgorithmCfg(jetsfullname, jetdef, pjs, deps["mods"])
+    components.merge(reccomps)
 
-#   # Cone matching for B, C and tau truth for all but track jets.
-#   jtm += ParticleJetDeltaRLabelTool(
-#     "jetdrlabeler",
-#     LabelName = "HadronConeExclTruthLabelID",
-#     BLabelName = "ConeExclBHadronsFinal",
-#     CLabelName = "ConeExclCHadronsFinal",
-#     TauLabelName = "ConeExclTausFinal",
-#     BParticleCollection = "TruthLabelBHadronsFinal",
-#     CParticleCollection = "TruthLabelCHadronsFinal",
-#     TauParticleCollection = "TruthLabelTausFinal",
-#     PartPtMin = 5000.0,
-#     JetPtMin =     0.0,
-#     DRMax = 0.3,
-#     MatchMode = "MinDR"
-#   )
+    jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetsfullname))
+    return components
 
-#   # Cone matching for B, C and tau truth for track jets.
-#   jtm += ParticleJetDeltaRLabelTool(
-#     "trackjetdrlabeler",
-#     LabelName = "HadronConeExclTruthLabelID",
-#     BLabelName = "ConeExclBHadronsFinal",
-#     CLabelName = "ConeExclCHadronsFinal",
-#     TauLabelName = "ConeExclTausFinal",
-#     BParticleCollection = "TruthLabelBHadronsFinal",
-#     CParticleCollection = "TruthLabelCHadronsFinal",
-#     TauParticleCollection = "TruthLabelTausFinal",
-#     PartPtMin = 5000.0,
-#     JetPtMin = 4500.0,
-#     DRMax = 0.3,
-#     MatchMode = "MinDR"
-#   )
+########################################################################
+# The real workhorse -- establishes the full sequence of jet reco,
+# recursively expanding the prerequisites
+#
+# Avoids constructing any configurables at this stage, the goal being
+# to produce a human-readable job description.
+def resolveDependencies(jetdef):
 
-# #--------------------------------------------------------------
-# # Jet builder.
-# # The tool manager must have one jet builder.
-# #--------------------------------------------------------------
+    jetlog.info("Resolving dependencies for {0} definition".format(jetdef.basename))
 
-# jtm.addJetBuilderWithArea(JetFromPseudojet(
-#   "jblda",
-#   Attributes = ["ActiveArea", "ActiveArea4vec"]
-# ))
+    # Accumulate prerequisites of the base constituent type
+    # We just collect everything and sort out the types later
+    prereqs = set() # Resolve duplication as we go
+    prereqs.update( getConstitPrereqs( jetdef.inputdef ) )
 
-# jtm.addJetBuilderWithoutArea(JetFromPseudojet(
-#   "jbldna",
-#   Attributes = []
-# ))
+    # Add the Filter modifier if desired (usually it is)
+    # It might be simpler to just eliminate ptminfilter
+    # and always make this an explicit modifier
+    mods_initial = list(jetdef.modifiers)
+    if jetdef.ptminfilter>1e-9:
+        filtstr = "Filter:{0:.0f}".format(jetdef.ptminfilter)
+        # Insert pt filter after calibration if present
+        idx=-1
+        for imod, mod in enumerate(mods_initial):
+            if mod.startswith("Calib"):
+                idx = imod+1
+                break
+        mods_initial.insert(idx,filtstr)
 
-# #--------------------------------------------------------------
-# # Non-substructure moment builders.
-# #--------------------------------------------------------------
+    # Accumulate prerequisites of the modifiers, as these are
+    # the most extensive. Internally resolves modifier chains,
+    # returning an updated modifiers list
+    # Need to use a list, as the order matters.
+    # The elements of the "final" list are tuples extracting
+    # the modifier specification.
+    import JetModConfig
+    mods_final, modprereqs = JetModConfig.getFinalModifierListAndPrereqs( mods_initial, jetdef )
 
-# # Quality from clusters.
-# jtm += JetCaloQualityTool(
-#   "caloqual_cluster",
-#   TimingCuts = [5, 10],
-#   Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],
-# )
+    # Remove the duplicates in the mod list -- just do this
+    # once at the end and preserve ordering.
+    def dedupe(mylist):
+        outlist = []
+        usedset = set()
+        for item in mylist:
+            if not (item in usedset):
+                outlist.append(item)
+                usedset.add(item)
+        return outlist
+    mods_final = dedupe( mods_final )
 
-# # Quality from cells.
-# if jtm.haveJetCaloCellQualityTool:
-#   jtm += JetCaloCellQualityTool(
-#     "caloqual_cell",
-#     LArQualityCut = 4000,
-#     TileQualityCut = 254,
-#     TimingCuts = [5, 10],
-#     Calculations = ["LArQuality", "N90Cells", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF"]
-#   )
+    prereqs.update( modprereqs )
 
-# # Jet width.
-# jtm += JetWidthTool("width")
+    # Ghost prerequisites are only of type input, so we can
+    # afford to sort now.
+    prereqdict = {"ghost":set(), "input":set()}
+    prereqdict.update( classifyPrereqs(prereqs) )
 
-# # Calo layer energies.
-# jtm += JetCaloEnergies("jetens")
+    # Copy the explicitly requested ghost defs and add to
+    # these those required by modifiers.
+    ghostdefs = set(jetdef.ghostdefs).union(prereqdict["ghost"])
+    # Expand from strings to JetGhost objects where needed.
+    ghostdefs = expandPrereqs( "ghost",ghostdefs )
+    
+    # Accumulate prerequisites of the ghost-associated types
+    jetlog.info("  Full list of ghosts: ")
+    for ghostdef in sorted(list(ghostdefs)):
+        jetlog.info("    " + str(ghostdef))
+        gprereqs = getGhostPrereqs(ghostdef)
+        prereqdict["input"].update( [req.split(':',1)[1] for req in gprereqs] )
 
-# # Read in missing cell map (needed for the following)
-# # commented out : incompatible with trigger : ATR-9696
-# ## if jtm.haveJetRecCalo:
-# ##     def missingCellFileReader(): 
-# ##       import os
-# ##       dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
-# ##       dataPathList.insert(0, os.curdir)
-# ##       from AthenaCommon.Utils.unixtools import FindFile
-# ##       RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
-# ##       from AthenaCommon.AppMgr import ServiceMgr
-# ##       if not hasattr(ServiceMgr, 'THistSvc'):
-# ##         from GaudiSvc.GaudiSvcConf import THistSvc
-# ##         ServiceMgr += THistSvc()
-# ##       ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
-# ##       missingCellFileReader.called = True 
+    jetlog.info("  Full list of mods: ")
+    for mod, modspec in mods_final:
+        jetlog.info("    " + str(mod) + ("" if not modspec else ": \"{0}\"".format(modspec)))
 
-# ##     missingCellFileReader()
+    # Return a dict of the dependencies, converting sets to lists.
+    # May want to further separate input deps.
+    dependencies = {
+        "inputs":  [jetdef.inputdef] + sorted(list( prereqdict["input"] )),
+        "ghosts":  list( ghostdefs ),
+        "mods":    mods_final
+        }
 
-# ##     jtm += MissingCellListTool(
-# ##       "missingcells",
-# ##       AddCellList = [],
-# ##       RemoveCellList = [],
-# ##       AddBadCells = True,
-# ##       DeltaRmax = 1.0,
-# ##       AddCellFromTool = False,
-# ##       LArMaskBit = 608517,
-# ##       TileMaskBit = 1,
-# ##       MissingCellMapName = "MissingCaloCellsMap"
-# ## )
+    # We don't expand the inputs at this stage, as they are diverse
+    # and don't have a dedicated config class.
+    # Doing so may trigger another level of expansion if the inputs
+    # include a jet collection.
+    return dependencies
+    
+########################################################################
+# Function for classifying prerequisites
+#
+def classifyPrereqs(prereqs):
+    prereqdict = {}
+    for req in prereqs:
+        key,val = req.split(":",1)
+        jetlog.verbose( "Interpreted prereqs: {0} --> {1}".format(key,val) )
+        if not key in prereqdict.keys():
+            prereqdict[key] = set()
+        prereqdict[key].add(val)
+            
+    return prereqdict
 
-# ## # Bad channel corrections from cells
-# ## if jtm.haveJetBadChanCorrTool:
-# ##   jtm += JetBadChanCorrTool(
-# ##     "bchcorrcell",
-# ##     NBadCellLimit = 10000,
-# ##     StreamName = "/JetBadChanCorrTool/",
-# ##     ProfileName = "JetBadChanCorrTool.root",
-# ##     ProfileTag = "",
-# ##     UseCone = True,
-# ##     UseCalibScale = False,
-# ##     MissingCellMap = "MissingCaloCellsMap",
-# ##     ForceMissingCellCheck = False,
-# ##     UseClusters = False,
-# ##   )
-  
-# ##   # Bad channel corrections from clusters
-# ##   jtm += JetBadChanCorrTool(
-# ##     "bchcorrclus",
-# ##     NBadCellLimit = 0,
-# ##     StreamName = "",
-# ##     ProfileName = "",
-# ##     ProfileTag = "",
-# ##     UseCone = True,
-# ##     UseCalibScale = False,
-# ##     MissingCellMap = "",
-# ##     ForceMissingCellCheck = False,
-# ##     UseClusters = True
-# ##   )
+########################################################################
+# Function for expanding prerequisites into definitions
+# Only supporting ghosts for now, but could be extended
+#
+def expandPrereqs(reqtype,prereqs):
+    reqdefs = set()
+    from JetDefinition import JetGhost
+    for req in prereqs:
+        if reqtype=="ghost":
+            if req.__class__ == JetGhost:
+                reqdefs.add( req )
+            else:
+                ghostdef = JetGhost(req)
+                reqdefs.add( ghostdef )
+                jetlog.debug("Expanded prereq {0} to {1}".format(req,ghostdef))
+        else:
+            jetlog.error("Prereqs \"{0}\" unsupported!".format(reqtype))
+            return None              
+    return reqdefs
 
-# # Jet vertex fraction.
-# jtm += JetVertexFractionTool(
-#   "jvfold",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   JVFName = "JVFOld"
-# )
 
-# # Jet vertex fraction with selection.
-# jtm += JetVertexFractionTool(
-#   "jvf",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   TrackSelector = jtm.trackselloose,
-#   JVFName = "JVF"
-# )
+########################################################################
+# Function for setting up inputs to jet finding
+#
+# This includes constituent modifications, track selection, copying of
+# input truth particles and event density calculations
+def JetInputCfgAndConstitPJName(inputdeps, configFlags):
+    jetlog.info("Setting up jet inputs.")
+    components = ComponentAccumulator()
 
-# # Jet vertex tagger.
-# jtm += JetVertexTaggerTool(
-#   "jvt",
-#   VertexContainer = jtm.vertexContainer,
-#   TrackParticleContainer  = jtm.trackContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   TrackSelector = jtm.trackselloose,
-#   JVTName = "Jvt",
-#   K_JVFCorrScale = 0.01,
-#   Z0Cut = 3.0,
-#   PUTrkPtCut = 30000.0
-# )
+    jetlog.info("Inspecting first input file")
+    # Get the list of SG keys for the first input file
+    # I consider it silly to run on a set of mixed file types
+    firstinput = configFlags.Input.Files[0]
+    import os, pickle
+    # Cache details in a pickle file
+    cachename = "fpcache.{0}.pkl".format(firstinput)
+    fileinfo = None
+    if os.path.isfile(cachename):
+        jetlog.debug("Reading file info from cache \"{0}\"".format(cachename))
+        fpcache = open(cachename)
+        fileinfo = pickle.load(fpcache)
+    else:
+        from FilePeeker.FilePeeker import PeekFiles
+        fileinfo = PeekFiles([firstinput])[firstinput]
+        fpcache = open(cachename,'w')
+        pickle.dump(fileinfo,fpcache)
+        jetlog.debug("Wrote file info to cache \"{0}\"".format(cachename))
+    # PeekFiles returns a dict for each input file
+    filecontents = fileinfo["SGKeys"].split(' ')
+    
+    constit = inputdeps[0]
+    # Truth and track particle inputs are handled later
+    if constit.basetype not in [xAOD.Type.TruthParticle, xAOD.Type.TrackParticle]:
+        # Protection against reproduction of existing containers
+        if constit.inputname in filecontents:
+            jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))
+        else:
+            jetlog.debug("Preparing Constit Mods for label {0} from {1}".format(constit.label,constit.inputname))
+            # May need to generate constituent modifier sequences to
+            # produce the input collection
+            import ConstModHelpers
+            constitcomps = ConstModHelpers.ConstitModCfg(constit.basetype,constit.modifiers)
+            components.merge( constitcomps )
 
-# # Jet track info.
-# jtm += JetTrackMomentsTool(
-#   "trkmoms",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   TrackMinPtCuts = [500, 1000],
-#   TrackSelector = jtm.trackselloose
-# )
+    # Schedule the constituent PseudoJetGetterAlg
+    constitpjcomps, constitpjkey = ConstitPJGCfgAndOutputName( constit )
+    components.merge( constitpjcomps )
 
-# # Jet track vector sum info
-# jtm += JetTrackSumMomentsTool(
-#   "trksummoms",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   RequireTrackPV = True,
-#   TrackSelector = jtm.trackselloose
-# )
+    # Track selection and vertex association kind of go hand in hand, though it's not
+    # completely impossible that one might want one and not the other
+    if "JetSelectedTracks" in inputdeps or "JetTrackVtxAssoc" in inputdeps:
+        jetlog.debug("Setting up input track containers and track-vertex association")
+        from JetRecTools import JetRecToolsConfig
+        # Jet track selection
+        jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+        jettvassoc = JetRecToolsConfig.getTrackVertexAssocTool()
 
-# # Jet cluster info.
-# jtm += JetClusterMomentsTool(
-#   "clsmoms",
-#   DoClsPt = True,
-#   DoClsSecondLambda = True,
-#   DoClsCenterLambda = True,
-#   DoClsSecondR = True
-# )
+        jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+        jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
+        components.addEventAlgo( jettrkprepalg )
 
-# jtm += JetVoronoiMomentsTool(
-#   "voromoms",
-#   AreaXmin= -5.,
-#   AreaXmax=  5.,
-#   AreaYmin= -3.141592,
-#   AreaYmax=  3.141592
-# )
+    # Resolve the rest of the input dependencies
+    for dep in inputdeps[1:]:
+        # Generate prequisite truth particle collections
+        # There may be more than one.
+        if dep.startswith("JetInputTruthParticles"):
+            # Special conditions e.g. "WZ" are set as a suffix preceded by ":"
+            truthmod = ''
+            if ":" in dep:
+                truthmod = dep.split(':')[1]
+            tpcname = "truthpartcopy"+truthmod
+            jetlog.debug("Setting up input truth particle container JetInputTruthParticles{0}".format(truthmod))
 
-# # Number of associated muon segments.
-# #jtm += JetMuonSegmentMomentsTool("muonsegs")
+            from ParticleJetTools.ParticleJetToolsConfig import getCopyTruthJetParticles
+            tpc = getCopyTruthJetParticles(truthmod)
 
-# # Isolations.
-# # Note absence of PseudoJetGetter property means the jet inputs
-# # are obtained according to the InputType property of the jet.
-# jtm += JetIsolationTool(
-#   "jetisol",
-#   IsolationCalculations = ["IsoDelta:2:SumPt", "IsoDelta:3:SumPt"],
-# )
-# jtm += JetIsolationTool(
-#   "run1jetisol",
-#   IsolationCalculations = ["IsoKR:11:Perp", "IsoKR:11:Par", "IsoFixedCone:6:SumPt",],
-# )
+            tpcalg = JetRecConf.JetAlgorithm("jetalg_{0}".format(tpcname))
+            tpcalg.Tools = [tpc]
+            components.addEventAlgo(tpcalg)
 
-# # Bad LAr fractions.
-# jtm += JetLArHVTool("larhvcorr")
+        # Truth particles specifically for truth labels
+        elif dep.startswith("TruthLabel"):
+            truthlabel = dep[10:]
+            tpcname = "truthpartcopy_"+truthlabel
 
-# # Bad LAr fractions.
-# jtm += JetECPSFractionTool(
-#   "ecpsfrac",
-#   ECPSFractionThreshold = 0.80
-# )
+            jetlog.debug("Setting up input truth particle container TruthLabel{0}".format(truthlabel))
+            from ParticleJetTools.ParticleJetToolsConfig import getCopyTruthLabelParticles
+            tpc = getCopyTruthLabelParticles(truthlabel)
 
-# # Jet origin correction.
-# jtm += JetOriginCorrectionTool(
-#   "jetorigincorr",
-#   VertexContainer = jtm.vertexContainer,
-#   OriginCorrectedName = "JetOriginConstitScaleMomentum"
-# )
+            tpcalg = JetRecConf.JetAlgorithm("jetalg_{0}".format(tpcname))
+            tpcalg.Tools = [tpc]
+            components.addEventAlgo(tpcalg)
 
-# #--------------------------------------------------------------
-# # Substructure moment builders.
-# #--------------------------------------------------------------
+        # Calculate the event density for jet area subtraction taking the
+        # jet constituents as input
+        # Possibly not needed if constituent suppression has been applied.
+        # Will want to update the standalone ED python for other uses,
+        # e.g. isolation or rho from constituents that are not used to
+        # build a particular jet collection (e.g. neutral PFOs)
+        #
+        # Needs protection against reproduction of existing containers
+        elif dep == "EventDensity":
+            rhokey = "Kt4"+constit.label+"EventShape"
+            if rhokey in filecontents:
+                jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
+            else:
+                rhotoolname = "EventDensity_Kt4"+constit.label
 
-# # Nsubjettiness
-# jtm += NSubjettinessTool(
-#   "nsubjettiness",
-#   Alpha = 1.0
-# )
+                jetlog.debug("Setting up event density calculation Kt4{0}".format(constit.label))
+                from EventShapeTools import EventShapeToolsConf
+                rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
+                rhotool.InputContainer = constitpjkey
+                rhotool.OutputContainer = rhokey
 
-# # KtDR
-# jtm += KtDeltaRTool(
-#   "ktdr",
-#   JetRadius = 0.4
-# )
+                eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}Alg".format(rhotoolname))
+                eventshapealg.EventDensityTool = rhotool
+                components.addEventAlgo(eventshapealg)
 
-# # Kt-splitter
-# jtm += KTSplittingScaleTool("ktsplitter")
+    return components, constitpjkey
 
-# # Angularity.
-# jtm += AngularityTool("angularity")
+########################################################################
+# Functions for generating PseudoJetGetters, including determining
+# the prerequisites for their operation
+#
+def getConstitPrereqs(basedef):
+    prereqs = []
+    if basedef.basetype==xAOD.Type.TrackParticle:
+        prereqs = ["input:JetSelectedTracks","input:JetTrackVtxAssoc"]
+    elif basedef.basetype==xAOD.Type.TruthParticle:
+        prereqs = ["input:JetInputTruthParticles:"+basedef.inputname[22:]]
+    return prereqs
 
-# # Dipolarity.
-# jtm += DipolarityTool("dipolarity", SubJetRadius = 0.3)
+def getGhostPrereqs(ghostdef):
+    jetlog.verbose("Getting ghost PseudoJets of type {0}".format(ghostdef.inputtype))
 
-# # Planar flow.
-# jtm += PlanarFlowTool("planarflow")
+    prereqs = []
+    if ghostdef.inputtype=="Track":
+        prereqs = ["input:JetSelectedTracks","input:JetTrackVtxAssoc"]
+    elif ghostdef.inputtype.startswith("TruthLabel"):
+        truthsuffix = ghostdef.inputtype[5:]
+        prereqs = ["input:TruthLabel"+truthsuffix]
+    elif ghostdef.inputtype == "Truth":
+        prereqs = ["input:JetInputTruthParticles"]
+    return prereqs
 
-# # Kt mass drop.
-# jtm += KtMassDropTool("ktmassdrop")
+def ConstitPJGCfgAndOutputName(basedef):
+    ca = ComponentAccumulator()
+    jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
+    # 
+    getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
+        InputContainer = basedef.inputname,
+        OutputContainer = "PseudoJet"+basedef.label,
+        Label = basedef.label,
+        SkipNegativeEnergy=True,
+        GhostScale=0.
+        )
 
-# # Energy correlations.
-# jtm += EnergyCorrelatorTool("encorr", Beta = 1.0)
+    pjgalg = JetRecConf.PseudoJetAlgorithm(
+        "pjgalg_"+basedef.label,
+        PJGetter = getter
+        )
+    ca.addEventAlgo( pjgalg )
+    return ca, getter.OutputContainer
 
-# # COM shapes.
-# jtm += CenterOfMassShapesTool("comshapes")
+def GhostPJGCfgAndOutputName(ghostdef):
+    ca = ComponentAccumulator()
+    label = "Ghost"+ghostdef.inputtype
+    kwargs = {
+        "OutputContainer":    "PseudoJet"+label,
+        "Label":              label,
+        "SkipNegativeEnergy": True,
+        "GhostScale":         1e-40
+        }
 
-# # Jet pull
-# jtm += JetPullTool(
-#   "pull",
-#   UseEtaInsteadOfY = False,
-#   IncludeTensorMoments = True
-# )
+    pjgclass = JetRecConf.PseudoJetGetter
+    if ghostdef.inputtype=="MuonSegment":
+        # Muon segments have a specialised type
+        pjgclass = JetRecConf.MuonSegmentPseudoJetGetter
+        kwargs = {
+            "InputContainer":"MuonSegments",
+            "OutputContainer":"PseudoJet"+label,
+            "Label":label,
+            "Pt":1e-20
+            }
+    elif ghostdef.inputtype=="Track":
+        kwargs["InputContainer"] = "JetSelectedTracks"
+    elif ghostdef.inputtype.startswith("TruthLabel"):
+        truthsuffix = ghostdef.inputtype[5:]
+        kwargs["InputContainer"] = "TruthLabel"+truthsuffix
+    elif ghostdef.inputtype == "Truth":
+        kwargs["InputContainer"] = "JetInputTruthParticles"
+    else:
+        raise ValueError("Unhandled ghost type {0} received!".format(ghostdef.inputtype))
 
-# # Jet charge
-# jtm += JetChargeTool("charge", K=1.0)
+    getter = pjgclass("pjg_"+label, **kwargs)
 
-# # Shower deconstruction.
-# if jtm.haveShowerDeconstructionTool:
-#   jtm += ShowerDeconstructionTool("showerdec")
+    pjgalg = JetRecConf.PseudoJetAlgorithm(
+        "pjgalg_"+label,
+        PJGetter = getter
+        )
+    ca.addEventAlgo( pjgalg )
+    return ca, getter.OutputContainer
 
-# # Remove constituents (useful for truth jets in evgen pile-up file)
-# jtm += JetConstitRemover("removeconstit")
+########################################################################
+# Function for configuring the jet algorithm and builders, given the
+# set of dependencies
+#
+def JetAlgorithmCfg(jetname, jetdef, pjs, modlist):
+    jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
+    components = ComponentAccumulator()
 
-# # Sort jets by pT
-# # May be deisred after calibration or grooming.
-# jtm += JetSorter("jetsorter")
+    builder = getJetBuilder()
 
-# #  LocalWords:  JetRecStandardTools
+    finder = getJetFinder(jetname, jetdef)
+    finder.JetBuilder = builder
+
+    import JetModConfig
+    mods = []
+    for moddef,modspec in modlist:
+        mod = JetModConfig.getModifier(jetdef,moddef,modspec)
+        mods.append(mod)
+
+    rectool = getJetRecTool(jetname,finder,pjs,mods)
+
+    jetalg = JetRecConf.JetAlgorithm("jetalg_"+jetname)
+    jetalg.Tools = [rectool]
+    components.addEventAlgo(jetalg)
+
+    return components
+    
+
+########################################################################
+# Function for generating a jet builder, i.e. converter from
+# fastjet EDM to xAOD EDM
+#
+def getJetBuilder(doArea=True):
+    # Do we have any reasons for not using the area one?
+    # Maybe CPU reduction if we don't need areas for calibration
+    builder = JetRecConf.JetFromPseudojet("jetbuild")
+    if doArea:
+        builder.Attributes = ["ActiveArea","ActiveAreaFourVector"]
+    return builder
+
+########################################################################
+# Function for generating a jet finder, i.e. interface to fastjet
+#
+def getJetFinder(jetname, jetdef):
+    finder = JetRecConf.JetFinder("jetfind_"+jetname,
+        JetAlgorithm = jetdef.algorithm,
+        JetRadius = jetdef.radius,
+        PtMin = jetdef.ptmin,
+        GhostArea = 0.01,
+        RandomOption = 1,
+    )
+    return finder
+
+########################################################################
+# Function for generating a JetRecTool
+#
+def getJetRecTool(jetname, finder, pjs, mods):
+    # Create the JetRecTool and pass the inputs
+    jetrec = JetRecConf.JetRecTool("jetrec_"+jetname,
+        OutputContainer = jetname,
+        InputPseudoJets = pjs,
+        JetFinder = finder,
+        JetModifiers = mods
+    )
+    return jetrec

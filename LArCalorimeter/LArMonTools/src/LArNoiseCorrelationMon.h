@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,8 @@
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArCabling/LArCablingService.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 
 //STL:
@@ -63,9 +64,8 @@ protected:
   /** Handle to bad-channel mask */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_LArCablingService; 
-  
+  /** Handle to cabling */
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   
   /** Handle to pedestal */
   SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
@@ -133,7 +133,7 @@ private:
   int m_evtCounter;
   
   /** Declare methods used*/
-  bool isGoodChannel(const HWIdentifier id,const float ped) const;
+  bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling) const;
   void fillInCorrelations();
   void bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
   void bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);

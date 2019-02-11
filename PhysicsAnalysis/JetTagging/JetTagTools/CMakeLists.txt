@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
     Reconstruction/Jet/JetRec
     Reconstruction/Jet/JetSubStructureMomentTools
     Reconstruction/Jet/JetSubStructureUtils
-    Reconstruction/egamma/egammaMVACalib
     Reconstruction/MVAUtils
     Tracking/TrkEvent/TrkParameters
     InnerDetector/InDetRecTools/InDetSVWithMuonTool

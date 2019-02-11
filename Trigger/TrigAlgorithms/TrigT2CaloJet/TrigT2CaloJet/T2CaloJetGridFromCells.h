@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOJET_T2CALOJETGRIDFROMCELLS_H
@@ -102,7 +102,7 @@ class T2CaloJetGridFromCells : public T2CaloJetBaseTool
   bool m_doHECcellQualityCleaning;
   int m_cellQualityThresholdHEC;
 
-  ToolHandle<LArCablingService> m_cablingSvc;
+  ToolHandle<LArCablingLegacyService> m_cablingSvc;
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
   std::vector< EtaPhiRectangle > m_forbiddenRegions; //!< regions to be skipped
 

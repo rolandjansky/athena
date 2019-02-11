@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -30,10 +30,9 @@ CaloCellContainerMergerTool::CaloCellContainerMergerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class (type, name, parent),
    m_caloCellsKey("")
 {
-  declareInterface<ICaloCellMakerTool>(this);
   declareProperty ("CaloCellsName",m_caloCellsKey);
   declareProperty ("CaloNums",m_caloNums);
   m_caloNums.clear();
@@ -77,9 +76,11 @@ StatusCode CaloCellContainerMergerTool::initialize()
 
 }
 
-StatusCode CaloCellContainerMergerTool::process(CaloCellContainer * theCont )
+StatusCode
+CaloCellContainerMergerTool::process (CaloCellContainer* theCont,
+                                      const EventContext& ctx) const
 {
-  SG::ReadHandle<CaloCellContainer> theCellContainer (m_caloCellsKey);
+  SG::ReadHandle<CaloCellContainer> theCellContainer (m_caloCellsKey, ctx);
 
 
   if (!theCellContainer.isValid()) {

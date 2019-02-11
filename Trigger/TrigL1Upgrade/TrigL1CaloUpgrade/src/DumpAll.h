@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,6 @@ class TH1I;
 class TH1F;
 class TH2F;
 class TTree;
-class LArSuperCellCablingTool;
 
 
 class DumpAll : public AthAlgorithm
@@ -43,8 +42,6 @@ public :
 
 private :
 
-	/** For cell <-> SCell comparisons */
-	ToolHandle<LArSuperCellCablingTool> m_cabling;
 	/** base file */
 	TFile* m_file;
 	/** base histograms about super-cells */

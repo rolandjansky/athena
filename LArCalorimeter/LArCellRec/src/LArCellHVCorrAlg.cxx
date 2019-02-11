@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCellHVCorrAlg.h" 
@@ -22,6 +22,7 @@ LArCellHVCorrAlg::~LArCellHVCorrAlg() {}
 StatusCode LArCellHVCorrAlg::initialize() {
 
   ATH_CHECK(m_offlineHVScaleCorrKey.initialize());
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -66,7 +67,13 @@ void LArCellHVCorrAlg::MakeCorrection (CaloCell* theCell,
        ATH_MSG_ERROR("Do not have ofline HV corr. conditions object !!!!");
        return;
    }
-   float hvcorr = oflHVCorr->HVScaleCorr(theCell->ID());
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+         ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+         return;
+   }
+   float hvcorr = oflHVCorr->HVScaleCorr(cabling->createSignalChannelID((theCell->ID())));
 
    if (hvcorr<0.9 ) {
      if (hvcorr<0.4) {
@@ -85,9 +92,9 @@ void LArCellHVCorrAlg::MakeCorrection (CaloCell* theCell,
 }
 
 void LArCellHVCorrAlg::MakeCorrection (CaloCell* theCell,
-                                    const EventContext& /*ctx*/, const ILArHVScaleCorr* oflHVCorr ) const
+                                    const EventContext& /*ctx*/, const ILArHVScaleCorr* oflHVCorr, const LArOnOffIdMapping* cabling ) const
 {
- float hvcorr = oflHVCorr->HVScaleCorr(theCell->ID());
+ float hvcorr = oflHVCorr->HVScaleCorr(cabling->createSignalChannelID(theCell->ID()));
 
  if (hvcorr<0.9 ) {
    if (hvcorr<0.4) {

@@ -18,9 +18,8 @@
 #include <mutex>
 
 
-class LArCellMaskingTool: public AthAlgTool,
-			  virtual public ICaloCellMakerTool 
-
+class LArCellMaskingTool
+  : public extends<AthAlgTool, ICaloCellMakerTool >
 {
  
 public:    
@@ -30,12 +29,13 @@ public:
 		     const IInterface* parent) ;
 
 
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override;
 
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
  private:
   StatusCode fillIncludedCellsMap(const LArOnOffIdMapping* cabling) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArPedestalSC.h"
@@ -15,16 +15,6 @@ LArPedestalSC::LArPedestalSC(const CondAttrListCollection* attrList) {
   readBlob(attrList,*m_log);
 }
  
-float LArPedestalSC::pedestal(const Identifier&  cellID, int /*gain*/) const {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return this->pedestal(hwid,0);
-}
-
-float LArPedestalSC::pedestalRMS(const Identifier&  cellID, int /*gain*/) const {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return this->pedestalRMS(hwid,0);
-}
-
 
 float  LArPedestalSC::pedestal(const HWIdentifier& hwid, int /*gain*/) const {
   const IdentifierHash hash=m_scOnlineID->channel_Hash(hwid);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,7 +9,6 @@
 #include <string>
 #include "GaudiKernel/StatusCode.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h" 
 
 // Forward delcarations
 class MsgStream;
@@ -25,7 +24,6 @@ class LArCondFlatBase {
  protected:
   bool 	m_isInitialized;
   const LArOnlineID*          m_onlineHelper;
-  LArCablingService*          m_larCablingSvc;
   MsgStream*                  m_log;
 
 };

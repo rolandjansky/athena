@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDSPTHRESHOLDSFILLINGINLINE_H
@@ -8,11 +8,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCellGroup.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArOnlineID;
-class LArCablingService;
 class ICaloNoiseTool;
 class ILArBadChannelMasker;
 
@@ -25,6 +25,7 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   StatusCode stop();
 
  private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnlineID* m_onlineID;
 
   std::string m_nameOfSet;
@@ -40,7 +41,6 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   bool m_fill;
 
   ToolHandle < ICaloNoiseTool > m_noisetool;
-  ToolHandle < LArCablingService > m_cablingSvc;
   ToolHandle < ILArBadChannelMasker > m_badChannelMasker;
 
   enum mode_t{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,6 +20,8 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TileIdentifier/TileEmscaleCalibOptions.h"
 
@@ -62,6 +64,9 @@ class TileExpertDump: public AthAlgorithm {
     void printExpertEmscaleOnl();
     bool m_printExpertEmscale;
     bool m_printExpertEmscaleOnl;
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
 
     //=== non-property members
     ToolHandle<TileExpertToolEmscale> m_tileExpertToolEmscale;

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,6 +13,9 @@
 #include "LArRawConditions/LArWave.h"
 #include "LArRawConditions/LArWaveHelper.h"
 #include "LArRawConditions/LArCaliWave.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -36,6 +39,9 @@ public:
   StatusCode perMWCal(const std::vector<LArCaliWave*>, LArWave &mwfWave, LArWave &intrWave);
 
 private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
 
   double diffWave(const LArCaliWave& w1, const LArCaliWave& w2, int& tbin, bool normPeak) const ;
   double diffWave(const LArCaliWave& w1, const LArCaliWave& w2, bool normPeak) const ;

@@ -87,7 +87,8 @@ StatusCode TileCellNoiseFilter::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll)
+StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll,
+                                         const EventContext& /*ctx*/) const
 {
   ATH_MSG_DEBUG("in process()");
 

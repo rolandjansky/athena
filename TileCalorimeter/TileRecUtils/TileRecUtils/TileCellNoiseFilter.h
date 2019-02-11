@@ -54,7 +54,8 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     StatusCode finalize() override;
 
     /** proceed the coherent noise subtraction algorithm and correct Tile cell energies */
-    virtual StatusCode process (CaloCellContainer* cellcoll) override;
+    virtual StatusCode process (CaloCellContainer* cellcoll,
+                                const EventContext& ctx) const override;
 
   private:
 

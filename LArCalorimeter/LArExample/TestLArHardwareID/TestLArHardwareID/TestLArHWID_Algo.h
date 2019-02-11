@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTLARHWID_ALGO_H
@@ -26,7 +26,6 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class LArOnlineID;
 class LArHVCellID;
-class LArCablingService;
 class LArHVLineID;
 class LArElectrodeID;
 class LArHVCablingTool;
@@ -119,7 +118,6 @@ class TestLArHWID_Algo : public AthAlgorithm {
   //std::string m_Connected ; 
 
 
-  //LArCablingService*      m_cablingSvc ; 
   const CaloLVL1_ID*      m_lvl1Helper;
   const LArEM_ID*         m_emHelper;
   const LArHEC_ID*        m_hecHelper;

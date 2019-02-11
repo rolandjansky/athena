@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArRecEvent
                           Simulation/FastSimulation/FastSimulationEvent
+                          Simulation/FastShower/FastCaloSimAthenaPool
                           TileCalorimeter/TileEvent
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
