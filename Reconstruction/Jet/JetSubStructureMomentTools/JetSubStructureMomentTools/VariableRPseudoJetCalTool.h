@@ -74,7 +74,7 @@ class VariableRPseudoJetCalTool: public asg::AsgTool, public virtual IVariableRP
    /// Property: JetCalibrationTool selection mode
    /// if 0 -> smalles radius calTool with radius larger than the jet radius R
    /// if 1 -> calTool with radius closest to jet radius R
-   int                                  m_calToolSelectionMode;  
+   // int                                  m_calToolSelectionMode;  
 
   
    std::map<int, ToolHandle<IJetCalibrationTool> > m_varRJetCalibToolsMap;
