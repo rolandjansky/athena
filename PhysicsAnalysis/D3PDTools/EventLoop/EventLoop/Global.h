@@ -52,7 +52,7 @@ namespace EL
     struct ModuleData;
     struct OutputStreamData;
 
-    struct AlgorithmStateModule;
+    class AlgorithmStateModule;
   }
 }
 
