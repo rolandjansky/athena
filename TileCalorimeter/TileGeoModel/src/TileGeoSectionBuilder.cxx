@@ -37,7 +37,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "boost/io/ios_state.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <limits>
@@ -2484,6 +2483,7 @@ void TileGeoSectionBuilder::checking(std::string Name, bool print, int level,
 		<<"  dX1,dX2= "<<X1<<" "<<X2
                 <<"  dY1,dY2= "<<Y1<<" "<<Y2
                 <<"  dZ= "<<Z
+                << std::resetiosflags(std::ios::fixed)
 		<<endmsg;
    }
   if (X1 < rless && X2 < rless)
@@ -2759,8 +2759,6 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
     (*m_log) << MSG::DEBUG << "TileGeoSectionBuilder::computeCellDim for detector="
              << detector << endmsg;
 
-  boost::io::ios_all_saver ias (std::cout);
-
   /** Vectors holding rMin, rMax, zMin, zMax for each tilerow of the cell */
   std::vector<double> rmins;
   std::vector<double> rmaxs;
@@ -3019,6 +3017,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                           << cellDimNeg->getZMax(jj) << "\n";
               std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./Gaudi::Units::cm3) << " cm^3\n";
             }
+            std::cout << std::resetiosflags(std::ios::fixed);
           }
 	  /* ------------------------------------------------------------------------------------------------ */	  
 	}
@@ -3148,6 +3147,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                     << cellDimNeg->getZMin(jj) << " "
                     << cellDimNeg->getZMax(jj) << "\n";
         std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./Gaudi::Units::cm3) << " cm^3\n";
+        std::cout << std::resetiosflags(std::ios::fixed);
       }
 /* -------------------------------------------- */
     }
@@ -3240,6 +3240,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                       << cellDimNeg->getZMin(jj) << " "
                       << cellDimNeg->getZMax(jj) << "\n";
           std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./Gaudi::Units::cm3) << " cm^3\n";
+          std::cout << std::resetiosflags(std::ios::fixed);
         }
 /* -------------------------------------------- */
       }
@@ -3400,22 +3401,22 @@ void TileGeoSectionBuilder::setExtendedPeriodThickness(double val)
 
 void TileGeoSectionBuilder::checktransfunc(double absorber, double period, int np, double center)
 {
-    boost::io::ios_all_saver ias (std::cout);
-    std::cout << std::setprecision (std::numeric_limits<double>::digits10 + 1)
+  (*m_log) << MSG::VERBOSE
+           << std::setprecision (std::numeric_limits<double>::digits10 + 1)
               << " Absorber center = " << center 
               << "          length = " << absorber 
               << "          period = " << period 
               << "        nperiods = " << np 
-              << std::endl;
+              << endmsg;
     double zC,dZ,z1,z2=-absorber/2.+center;
     for (int i=0; i<np; ++i) {
         zC = (period*(2*i+1)-absorber)/2. + center;
         z1 = zC - period/2.;
         dZ = z1 - z2;
         z2 = zC + period/2.;
-        std::cout << std::setw(4)
-                  << i << "  z1= " << z1 << "  z2= " << z2 
-                  << "  dist from previous= " << dZ << std::endl;
+        (*m_log) << MSG::VERBOSE << std::setw(4)
+                 << i << "  z1= " << z1 << "  z2= " << z2
+                 << "  dist from previous= " << dZ << endmsg;
     }
 }
 
