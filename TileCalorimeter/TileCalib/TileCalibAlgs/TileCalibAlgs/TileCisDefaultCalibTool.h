@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILECISDEFAULTCALIBTOOL_H
@@ -18,12 +18,18 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 
 #include "TString.h"
 #include <stdint.h>
 #include <string> 
 #include <map>
+
+#define NBITS 10
+#define NBSTATUS 4
 
 // Forward declaration
 class TileHWID;
@@ -89,6 +95,10 @@ class TileCisDefaultCalibTool: public AthAlgTool
     ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
+      "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
     // jobOptions
     std::string m_rawChannelContainerName;
     std::string m_ntupleID;
@@ -117,28 +127,29 @@ class TileCisDefaultCalibTool: public AthAlgTool
 
     bool m_doSampleChecking;
 
+    using Tile = TileCalibUtils;
     // Results
-    float m_calib[5][64][48][2];
-    int m_qflag[5][64][48][2];
-    int m_nDAC[5][64][48][2]; // This is now deprecated since you can get this form the TGraph
-    int m_nDigitalErrors[5][64][48][2];
-    float m_chi2[5][64][48][2];
+    float (*m_calib)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_qflag)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_nDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]; // This is now deprecated since you can get this form the TGraph
+    int (*m_nDigitalErrors)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_chi2)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // These will not be saved to the ntuple
     // They are for the sample check that gets written to qflag
     // Mike Miller - 4 June 2009
-    int m_edgeSample[5][64][48][2];
-    int m_nextToEdgeSample[5][64][48][2];
+    int (*m_edgeSample)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_nextToEdgeSample)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // these arrays are used to contain information about stuck bits in adc's
     // this array pertains to the "stuck bit" quality flag; it is not written to
     // the ntuple
-    int m_SampleBit[5][64][48][2][10];
+    int (*m_sampleBit)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBITS];
     // This array contains information about each bit in the adc
     // it IS written into the ntuple
-    unsigned short m_BitStatus[5][64][48][2][4];
+    unsigned short (*m_bitStatus)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBSTATUS];
     // used to count the number of injection samples analyzed for odd bit behavior
-    int m_NumSamp[5][64][48][2];
+    int (*m_numSamp)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* m_scanMap;
