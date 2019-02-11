@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -18,9 +18,13 @@
 #define TILECALIBALGS_TILELOFCORRELATION_H
 
 #include "GaudiKernel/MsgStream.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include <vector>
 #include <string>
+
+#define NPARTITIONS 4
+#define NDIG 9
 
 class TileHWID;
 
@@ -88,18 +92,28 @@ class TileOFCorrelation
   
  private:
 
+  using Tile = TileCalibUtils;
   //double SS(9,9);
-  double m_SS[4][64][48][2][9][9];
-  double m_S[4][64][48][2][9];
-  double m_R[4][64][48][2][9][9];
+  double (*m_SS)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG][NDIG];
+  double (*m_S)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double (*m_R)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG][NDIG];
   //int N_events[4][64][48][2]; 
-  std::vector< std::vector <float> > m_DataVector[4][64][48][2]; 
+  std::vector< std::vector <float> > m_DataVector[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]; 
 
-  double m_corr2[9], m_corr_sum[4][64][48][2][9], m_corr_sum_sq[4][64][48][2][9], m_ncorr;
+  double m_corr2[NDIG];
+  double  (*m_corr_sum)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double  (*m_corr_sum_sq)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double  m_ncorr;
   float  m_corr[8];
-  int m_N[4][64][48][2], m_jentry, m_lag, m_N_pairs[4][64][48][2][9];
+  int (*m_N)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+  int  m_jentry, m_lag;
+  int (*m_N_pairs)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
   double m_N_d;
-  double m_S1[4][64][48][2][9], m_S2[4][64][48][2][9], m_S11[4][64][48][2][9], m_S12[4][64][48][2][9], m_S22[4][64][48][2][9];
+  double (*m_S1)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double (*m_S2)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double (*m_S11)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double (*m_S12)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
+  double  (*m_S22)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG];
 
 };
 

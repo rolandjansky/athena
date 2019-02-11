@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //=== IOVDbTest includes
@@ -55,6 +55,9 @@ StatusCode TileOFC2DBAlg::initialize() {
 
   ATH_MSG_INFO( "Initializing for " << m_runType );
 
+  //=== EventInfo key
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   //=== get TileToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
@@ -86,8 +89,9 @@ StatusCode TileOFC2DBAlg::initialize() {
 StatusCode TileOFC2DBAlg::execute() {
 
   //=== print run/evt/lbn/time info for each event
-  const xAOD::EventInfo* eventInfo(0);
-  CHECK( evtStore()->retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  ATH_CHECK( eventInfo.isValid() );
+
   ATH_MSG_DEBUG( "Event: ["
                  << eventInfo->runNumber() << ","
                  << eventInfo->eventNumber() << ":"

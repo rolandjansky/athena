@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILETOFTOOL_H
@@ -10,8 +10,11 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
+
 
 class StoreGateSvc;
 class TileID;
@@ -34,9 +37,13 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
   const TileID* m_tileID;
 
  private:
+
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey{this,
+      "CaloCellContainer", "CaloCellContainer", "Calo cell container"};
+
   float timeCor(int mod_ref1, int mod_ref2, int part_ref1, int part_ref2);
 
-  float m_TimeCor[4][64];
+  float (*m_timeCor)[64];
 
   float m_LBA_LBC[4];
   float m_LBA_EBA[4];
@@ -49,8 +56,8 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
   float m_LA_LC;
   float m_LA_EC;
 
-  float m_tcor[4][32][32];
-  int m_Npair[4][32][32];
+  float (*m_tcor)[32][32];
+  int (*m_nPair)[32][32];
 };
 
 #endif
