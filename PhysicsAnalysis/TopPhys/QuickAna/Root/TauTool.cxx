@@ -202,7 +202,7 @@ namespace ana
   TauToolTruth ::
   TauToolTruth(const std::string& name)
     : AsgTool(name), AnaTool(name),
-      m_lastEventNumber(0),
+      // m_lastEventNumber(0),
       m_truthTool("TauTruthMatchingTool", this)
   {
     declareProperty("WriteTruthTaus", m_writeTruthTaus=true);
