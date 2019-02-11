@@ -39,8 +39,8 @@ namespace TrigAnalysisTest {
   //
   Run1BStoxAODTrigger::Run1BStoxAODTrigger()
     : _passed_l1(0),
-      _passed_hlt(0),
-      _first_call(true)
+      _passed_hlt(0)
+      // , _first_call(true)
   {
     histFile = new TFile("hist.root", "RECREATE");
     if (histFile == nullptr || !histFile->IsOpen()) {
