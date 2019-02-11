@@ -77,16 +77,6 @@ public:
    *  collection is empty.
    */
   template<class Collection> void mergeCollections(Collection *mc_coll, Collection *data_coll, Collection *out_coll);
-
-  /** things to copy to the output stream */
-  template<class TypeToBeCopied> 
-  void copyObjects(StoreGateSvc *to, StoreGateSvc *from, std::string key);
-
-  template<class TypeToBeCopied, class Datum> 
-  void copyMuonIDCobject(StoreGateSvc* from, StoreGateSvc *to);
-
-  template<class TypeToBeCopied, class Datum> 
-  TypeToBeCopied* copyMuonDigitContainer(const TypeToBeCopied* oldObject);
  
 };
 

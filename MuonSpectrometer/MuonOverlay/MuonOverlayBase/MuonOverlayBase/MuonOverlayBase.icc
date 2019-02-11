@@ -16,19 +16,6 @@
 #include <memory>
 
 //================================================================
-template <class TypeToBeCopied>
-void MuonOverlayBase::copyMuonObjects(StoreGateSvc* to, StoreGateSvc *from, std::string key) {
-  
-  // could use:  templateClassName = abi::__cxa_demangle(typeid(TypeToBeCopied).name(), 0, 0, &status);
-  // but this would be gcc-specific.  So templateClassName is mangled on the output.
-  const std::string templateClassName = typeid(TypeToBeCopied).name();
-
-  std::auto_ptr<TypeToBeCopied> ap(from->retrievePrivateCopy<TypeToBeCopied>(key));
-  msg(MSG::DEBUG)<<"copyMuonObjects<"<<templateClassName<<">(): Working on p="<<ap.get()<<", key="<<key<<endmsg;
-  if(!to->record(ap, key).isSuccess()) {
-    msg(MSG::WARNING) <<"copyMuonObjects<"<<templateClassName<<">(): problem recording object p="<<ap.get()<<", key="<<key<<endmsg;
-  }
-}
 
 template<class TypeToBeCopied, class Datum> 
 TypeToBeCopied* MuonOverlayBase::copyMuonDigitContainer(const TypeToBeCopied* oldObject)
@@ -63,53 +50,3 @@ TypeToBeCopied* MuonOverlayBase::copyMuonDigitContainer(const TypeToBeCopied* ol
   return newObject;
 
 }
-
-template<class TypeToBeCopied, class Datum>
-void MuonOverlayBase::copyMuonIDCobject(StoreGateSvc* from, StoreGateSvc *to) {
-
-//  typedef typename TypeToBeCopied::base_value_type Collection;
-
-  const std::string templateClassName = typeid(TypeToBeCopied).name();
-
-  typedef std::vector<std::string> KeyList;
-  KeyList keys = from->keys<TypeToBeCopied>();
-  if(keys.empty()) {
-    ATH_MSG_WARNING("copyMuonIDCobject<"<<templateClassName<<">(): no keys found");
-  }
-
-  for (KeyList::const_iterator k=keys.begin(); k!=keys.end(); ++k) {
-    TypeToBeCopied *newObject = 0;
-    const TypeToBeCopied *oldObject=0;
-    if ( from->retrieve(oldObject, *k).isFailure() ) {
-       ATH_MSG_WARNING("copyMuonIDCobject<"<<templateClassName<<">(): problem retrieving container with " <<"key="<<*k);
-       continue;
-    }
-
-/*
-    newObject = new TypeToBeCopied ( oldObject->size() );
-    typename TypeToBeCopied::const_iterator iFirst = oldObject->begin();
-    typename TypeToBeCopied::const_iterator iLast = oldObject->end();
-    for (; iFirst != iLast; ++iFirst ) {
-       Collection * element = new Collection ( (*iFirst)->identify(), (*iFirst)->identifierHash()  );
-       typename TypeToBeCopied::base_value_type::const_iterator firstData = (*iFirst)->begin();
-       typename TypeToBeCopied::base_value_type::const_iterator lastData = (*iFirst)->end();
-       for (; firstData != lastData; ++firstData) {
-          Datum * newData = new Datum ( *(dynamic_cast<const Datum*>(*firstData)) );
-          element->push_back ( newData );
-       }
-       if ( newObject->addCollection (element, (*iFirst)->identifierHash()).isFailure() ) {
-          ATH_MSG_WARNING("copyMuonIDCobject<"<<templateClassName<<">(): problem adding collection with "<<"hash="<<(*iFirst)->identifierHash() );
-       }
-    }
-*/
-
-    newObject = copyMuonDigitContainer<TypeToBeCopied, Datum>(oldObject);
-
-    if (!to->record(newObject, *k).isSuccess()) {
-       ATH_MSG_WARNING("copyMuonIDCobject<"<<templateClassName<<">(): problem recording new container with "<<"key="<<*k);
-    }
-
-  }
-}
-
-
