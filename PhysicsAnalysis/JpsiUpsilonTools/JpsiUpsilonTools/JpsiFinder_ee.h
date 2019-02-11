@@ -4,26 +4,24 @@
 
 // ****************************************************************************
 // ----------------------------------------------------------------------------
-// JpsiFinder header file
+// JpsiFinder_ee header file
 //
 // James Catmore <James.Catmore@cern.ch>
 
 // ----------------------------------------------------------------------------
 // ****************************************************************************
-#ifndef JPSIFINDER_H
-#define JPSIFINDER_H
+#ifndef JpsiFinder_ee_H
+#define JpsiFinder_ee_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-#include "xAODMuon/Muon.h"
+#include "xAODEgamma/Electron.h"
 
 #include <vector>
 #include <string>
 #include "JpsiUpsilonTools/ICandidateSearch.h"
-
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
@@ -36,59 +34,54 @@ namespace InDet { class VertexPointEstimator; }
 
 namespace Analysis {
     
-    static const InterfaceID IID_JpsiFinder("JpsiFinder", 1, 0);
+    static const InterfaceID IID_JpsiFinder_ee("JpsiFinder_ee", 1, 0);
 
     // Struct and enum to associate muon pairs with track pairs
     // and make the program flow more straightforward
-    enum PairType{ MUMU=0, MUTRK=1, TRKTRK=2};
-    enum MuonTypes{ CC=0, CT=1, TT=2};
-    struct JpsiCandidate
+    enum PairTypeEE{ ELEL=0, ELTRK=1, TRK2=2};
+    struct JpsiEECandidate
     {
-        const xAOD::TrackParticle* trackParticle1;
-        const xAOD::TrackParticle* trackParticle2;
-        const xAOD::Muon* muon1;
-        const xAOD::Muon* muon2;
-        const xAOD::TrackParticleContainer* collection1;
-        const xAOD::TrackParticleContainer* collection2;
-        PairType pairType;
-        MuonTypes muonTypes;
+        const xAOD::TrackParticle* trackParticle1{nullptr};
+        const xAOD::TrackParticle* trackParticle2{nullptr};
+        const xAOD::Electron* el1{nullptr};
+        const xAOD::Electron* el2{nullptr};
+        const xAOD::TrackParticleContainer* collection1{nullptr};
+        const xAOD::TrackParticleContainer* collection2{nullptr};
+        PairTypeEE pairType=PairTypeEE::ELEL;
     };
     
-    class JpsiFinder:  public Analysis::ICandidateSearch, public AthAlgTool
+    class JpsiFinder_ee:  public Analysis::ICandidateSearch, public AthAlgTool
     {
     public:
-        JpsiFinder(const std::string& t, const std::string& n, const IInterface*  p);
-        ~JpsiFinder();
+        JpsiFinder_ee(const std::string& t, const std::string& n, const IInterface*  p);
+        ~JpsiFinder_ee();
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
+        virtual StatusCode finalize()   override;
         
-        static const InterfaceID& interfaceID() { return IID_JpsiFinder;}
+        static const InterfaceID& interfaceID() { return IID_JpsiFinder_ee;}
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-
         virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) override;
-        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&);
-        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::Muon*>&);
-        std::vector<JpsiCandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Muon*>&, bool);
-        double getInvariantMass(const JpsiCandidate&, const std::vector<double>& );
-        std::vector<JpsiCandidate> selectCharges(const std::vector<JpsiCandidate>& , const std::string&);
+        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&);
+        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::Electron*>&);
+        std::vector<JpsiEECandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Electron*>&, bool);
+        double getInvariantMass(const JpsiEECandidate&, const std::vector<double>& );
+        std::vector<JpsiEECandidate> selectCharges(const std::vector<JpsiEECandidate>& , const std::string&);
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection);
-        bool passesMCPCuts(const xAOD::Muon*);
+        bool passesEgammaCuts(const xAOD::Electron*);
         bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*);
         TVector3 trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
         //-------------------------------------------------------------------------------------
         
     private:
-        bool m_mumu;
-        bool m_mutrk;
+        bool m_elel;
+        bool m_eltrk;
         bool m_trktrk;
-        bool m_allMuons;
-        bool m_combOnly;
-        bool m_atLeastOneComb;
-        bool m_useCombMeasurement;
+        bool m_allElectrons;
+        bool m_useTrackMeasurement;
         bool m_useV0Fitter;
-        bool m_diMuons;
+        bool m_diElectrons;
         double m_trk1M;
         double m_trk2M;
         const HepPDT::ParticleDataTable *m_particleDataTable;
@@ -103,16 +96,16 @@ namespace Analysis {
         bool m_oppChOnly;
         bool m_sameChOnly;
         bool m_allChCombs;
-        std::string m_muonCollectionKey;
+        std::string m_electronCollectionKey;
         std::string m_TrkParticleCollection;
-        std::vector<std::string> m_MuonTrackKeys;
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
-        ToolHandle < InDet::ConversionFinderUtils > m_helpertool;//unused remove later
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
-        bool m_mcpCuts;
+        bool m_egammaCuts;
+        std::string m_elSelection;
         bool m_doTagAndProbe;
+        int m_numberOfEventsWithJpsi;
     };
 } // end of namespace
 #endif

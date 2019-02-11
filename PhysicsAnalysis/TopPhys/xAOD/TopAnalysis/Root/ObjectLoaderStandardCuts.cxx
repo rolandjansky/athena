@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopAnalysis/ObjectLoaderStandardCuts.h"
@@ -41,7 +41,8 @@ namespace top {
 							     topConfig->photonIdentificationLoose(),
 							     new top::StandardIsolation(
 							      topConfig->photonIsolation(),
-							      topConfig->photonIsolationLoose() )) );
+							      topConfig->photonIsolationLoose() ),
+							     topConfig->recomputeCPvars()) );
       }
       else{
 	objectSelection->photonSelection(new top::PhotonMC15(topConfig->photonPtcut(),

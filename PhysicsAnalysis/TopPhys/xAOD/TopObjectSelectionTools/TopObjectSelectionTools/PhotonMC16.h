@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPOBJECTSELECTIONTOOLS_PHOTONMC16_H_
@@ -28,9 +28,10 @@ class PhotonMC16 : public top::PhotonSelectionBase {
    * @param ptcut The minimum pT cut to apply to the photons.
    * @param etamax The maximum eta cut
    * @param isolation nullptr for un-isolated, or a new "isolation object" to
+   * @param usePhotonShowerShapeVariables to turn on/off the reading of shower shape variables
    * apply isolation cuts
    */
-  PhotonMC16(double ptcut, double etamax, IsolationBase* isolation);
+   PhotonMC16(double ptcut, double etamax, IsolationBase* isolation, bool usePhotonShowerShapeVariables);
 
   /**
    * @brief Class to help select good photons.
@@ -40,12 +41,14 @@ class PhotonMC16 : public top::PhotonSelectionBase {
    * @param tightID The ID level used to select tight photons.
    * @param looseID The ID level used to select loose photons.
    * @param isolation nullptr for un-isolated, or a new "isolation object" to
+   * @param usePhotonShowerShapeVariables to turn on/off the reading of shower shape variables
    * apply isolation cuts
    */
   PhotonMC16(double ptcut, double etamax,
              const std::string& tightID,
              const std::string& looseID,
-             IsolationBase* isolation);
+             IsolationBase* isolation,
+	     bool usePhotonShowerShapeVariables);
 
   /**
    * @brief The cuts to select good photons for your analysis should be
@@ -102,6 +105,8 @@ class PhotonMC16 : public top::PhotonSelectionBase {
 
   // The isolation tool, or nullptr if we don't want isolation
   std::unique_ptr<top::IsolationBase> m_isolation;
+
+  mutable bool m_usePhotonShowerShapeVariables;
 };
 
 }  // namespace top

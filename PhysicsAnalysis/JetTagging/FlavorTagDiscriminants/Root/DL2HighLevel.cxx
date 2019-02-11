@@ -82,7 +82,8 @@ namespace FlavorTagDiscriminants {
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
     SortRegexes trk_sort_regexes {
-      {".*sd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
       {".*ptsort"_r, SortOrder::PT_DESCENDING},
     };
     TrkSelRegexes trk_select_regexes {
