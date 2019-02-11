@@ -82,7 +82,7 @@ namespace EL
 
 
   StatusCode UnitTestAlgXAOD ::
-  changeInput (bool firstFile)
+  changeInput (bool /*firstFile*/)
   {
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_CHANGE_INVARIANT (this);

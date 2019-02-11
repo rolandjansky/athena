@@ -566,7 +566,7 @@ namespace EL
     ANA_MSG_INFO ("Processing events " << eventRange.m_beginEvent << "-" << eventRange.m_endEvent << " in file " << eventRange.m_url);
 
     for (uint64_t event = eventRange.m_beginEvent;
-         event != eventRange.m_endEvent;
+         event != uint64_t (eventRange.m_endEvent);
          ++ event)
     {
       m_inputTreeEntry = event;
