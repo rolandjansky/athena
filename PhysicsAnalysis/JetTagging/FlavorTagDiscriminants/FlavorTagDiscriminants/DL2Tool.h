@@ -6,8 +6,8 @@
 #ifndef DL2_TOOL_H
 #define DL2_TOOL_H
 
+#include "AsgTools/AsgTool.h"
 #include "JetInterface/ISingleJetModifier.h"
-#include <memory>
 
 namespace FlavorTagDiscriminants {
 
@@ -17,12 +17,12 @@ namespace FlavorTagDiscriminants {
     std::string nnFile;
   };
 
-  class DL2Tool : public ISingleJetModifier
+  class DL2Tool : public asg::AsgTool, virtual public ISingleJetModifier
   {
-    ASG_TOOL_CLASS1(DL2Tool, ISingleJetModifier )
+    ASG_TOOL_CLASS(DL2Tool, ISingleJetModifier )
   public:
     DL2Tool(const std::string& name);
-    ~DL2Tool() = default;
+    ~DL2Tool();
 
     StatusCode initialize();
     StatusCode finalize();
@@ -30,8 +30,8 @@ namespace FlavorTagDiscriminants {
     // returns 0 for success
     int modifyJet(xAOD::Jet& jet) const;
   private:
-    DL2Properties m_props;
-    std::unique_ptr<DL2HighLevel> m_dl2;
+    DL2Properties m_props; //!
+    std::unique_ptr<DL2HighLevel> m_dl2; //!
   };
 
 }

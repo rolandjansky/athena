@@ -22,7 +22,10 @@ atlas_depends_on_subdirs(
   Reconstruction/Jet/JetInterface
   Event/xAOD/xAODBase
   Event/xAOD/xAODJet
-  Event/xAOD/xAODEventInfo)
+  Event/xAOD/xAODEventInfo
+  PRIVATE
+  Tools/PathResolver
+  )
 
 # Build a shared library:
 atlas_add_library( FlavorTagDiscriminants
@@ -30,17 +33,19 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagTrackAugmenter.cxx
   Root/DL2.cxx
   Root/DL2HighLevel.cxx
+  Root/DL2Tool.cxx
   Root/customGetter.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
-  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo ${LWTNN_LIBRARIES})
+  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo PathResolver
+  ${LWTNN_LIBRARIES})
 
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
     src/components/FlavorTagDiscriminants_entries.cxx
     src/components/FlavorTagDiscriminants_load.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} FlavorTagDiscriminants
     )
 endif()
 
