@@ -39,7 +39,8 @@ LargeRToptaggingConfigFile NFC
 
 ### Reclustered jet configuration
 UseRCJets True
-UseRCJetSubstructure True
+###commenting out as it fails on data with the most recent ptag
+#UseRCJetSubstructure True
 RCJetEta 2.0
 UseVarRCJets True
 VarRCJetMassScale m_w,m_t
@@ -86,7 +87,7 @@ PhotonUseRadiativeZ False
 ### Muon configuration
 MuonQuality Medium
 MuonQualityLoose Medium
-MuonIsolation Gradient
+MuonIsolation FCTight_FixedRad
 MuonIsolationLoose None
 
 ### Tau configuration
