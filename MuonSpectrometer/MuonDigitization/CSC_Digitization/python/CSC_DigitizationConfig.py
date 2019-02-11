@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -47,9 +47,5 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
     kwargs.setdefault("NewDigitEDM", True)
     kwargs.setdefault("DriftVelocity", 39)
     kwargs.setdefault("ElectronEnergy", 66) # eV
-
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
 
     return CfgMgr.CscDigitizationTool(name, **kwargs)
