@@ -282,9 +282,14 @@ namespace top{
           AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
         }
 
-	// For electron prompt isolation tagger, check a cut on the tagger and also loose isolation
-	electron->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (electron->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;
-
+	// Prompt Electron Tagging (PLV): https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTagging
+	// This is not recommended, purely experimental! (no plans for electron SFs from e/gamma any time soon, unless strong motivation from analyses)
+	// The r20.7 BDT is called "Iso", the r21 one is "Veto". The cut on the BDT weight is <-0.5, with the FixedCutLoose WP. But this WP is no longer
+	// supported by e/gamma, so here let's just decorate that check, and we'll let the user access the BDT weights themselves if needed.
+	if (electron->isAvailable<float>("PromptLeptonIso")) // r20.7
+	    electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonIso")  = (electron->auxdata<float>("PromptLeptonIso")  < -0.5) ? 1 : 0;
+	if (electron->isAvailable<float>("PromptLeptonVeto")) // r21
+	    electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") = (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
       }
       
       ///-- set links to original objects- needed for MET calculation --///
