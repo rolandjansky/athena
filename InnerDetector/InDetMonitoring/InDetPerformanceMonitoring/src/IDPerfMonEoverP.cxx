@@ -537,7 +537,7 @@ StatusCode IDPerfMonEoverP::execute()
     const xAOD::TrackParticle* mytp = (*iter)->trackParticle();
     
     if(mytp){
-      uint8_t dummy(-1);
+      uint8_t dummy(0);
       auto summaryByDetector=[&mytp,&dummy]( const xAOD::SummaryType & t){
         return mytp->summaryValue(dummy, t) ? (dummy) : (-1);
       };
