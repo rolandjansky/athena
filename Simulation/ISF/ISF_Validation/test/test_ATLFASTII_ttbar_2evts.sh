@@ -3,7 +3,6 @@
 # art-description: MC15-style simulation using ATLFASTII
 # art-type: build
 # art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
