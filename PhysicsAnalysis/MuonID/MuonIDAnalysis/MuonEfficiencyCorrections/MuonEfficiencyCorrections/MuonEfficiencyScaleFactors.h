@@ -168,7 +168,7 @@ namespace CP {
             std::string m_calibration_version;
 
             /// threshold below which low-pt SF (i.e. from JPsi) should be used
-            bool m_use_low_pt_map;
+            float m_lowpt_threshold;
          
             CP::SystematicSet m_affectingSys;
             
