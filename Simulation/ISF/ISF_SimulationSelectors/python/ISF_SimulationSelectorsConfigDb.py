@@ -48,3 +48,4 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFullGeant4Sele
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPassBackGeant4Selector"               , "ISF_PassBackGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector"                 , "ISF_FatrasPileupSelector"                )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector_noHits"          , "ISF_FatrasPileupSelector_noHits"         )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultParametricSimulationSelector"  , "ISF_DefaultParametricSimulationSelector" )
