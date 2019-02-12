@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_ITRKEVENTCNVTOOL
@@ -7,10 +7,12 @@
 
 
 #include "GaudiKernel/IAlgTool.h"
-//#include "GaudiKernel/IMessageSvc.h"
+
+#include "AthLinks/ElementLink.h"
 #include "StoreGate/StoreGate.h"
+
 #include "GaudiKernel/ServiceHandle.h"
-#include <GaudiKernel/IMessageSvc.h>
+#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 class Identifier;
@@ -50,6 +52,10 @@ class ITrkEventCnvTool : virtual public IAlgTool
         
         /**This templated method will set the EL for the passed RIO_OnTrack.*/
         template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot);
+        /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
+        template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
+                                                              const std::string contName,
+                                                              typename ElementLink<CONT>::index_type& hashAndIndex) const;
         
         /** Take the passed RoT and prepare the PRD ElementLink for writing to disk.
         The procedure should be:

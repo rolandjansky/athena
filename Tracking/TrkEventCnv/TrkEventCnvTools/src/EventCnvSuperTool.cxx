@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventCnvTools/EventCnvSuperTool.h"
@@ -133,6 +133,19 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
     }
     return 0;
     
+}
+
+const Trk::ITrkEventCnvTool*
+Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
+  if (m_detID==nullptr) return nullptr;
+
+  if (m_detID->is_indet(id)) {
+    if (m_haveIdCnvTool) return &(*m_idCnvTool);
+  } else if(m_detID->is_muon(id)) {
+    if (m_haveMuonCnvTool) return &(*m_muonCnvTool);
+  }
+
+  return nullptr;
 }
 
 const Trk::Surface* 
