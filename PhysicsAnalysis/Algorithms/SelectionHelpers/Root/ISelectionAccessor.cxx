@@ -32,7 +32,7 @@ namespace CP
     {
       std::vector<std::string> result;
       std::string::size_type start = 0, split = 0;
-      while ((split = input.find ("&&", start)) != std::string::npos)
+      while ((split = input.find (separator, start)) != std::string::npos)
       {
         result.emplace_back (input.substr (start, split - start));
         start = split + separator.size();
