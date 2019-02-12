@@ -435,7 +435,7 @@ void IVP13DStandardChannelWidget::stopSpinning()
 //___________________________________________________________________________
 QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
-	VP1Msg::messageDebug("IVP13DStandardChannelWidget::getSnapshot()  - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch));
+	VP1Msg::messageDebug("IVP13DStandardChannelWidget::getSnapshot()  - transparent bkg: "+QString::number(transp)+" , width: "+QString::number(width)+" , batch: "+QString::number(batch));
   //   SoToVRML2Action tovrml2;
   //   tovrml2.apply(m_d->selection);
   //   SoVRMLGroup *newroot = tovrml2.getVRML2SceneGraph();

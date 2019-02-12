@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Script for constructing the command which launches vp1 with advanced "batch" options
+#
+# Author: Riccardo.Maria.Bianchi@cern.ch
+# 11 Jan 2019
+
+
+INPUT_FILE=$1
+
+
+echo "Running on input file '$1'"
+
+JOBOPT="VP1AlgsBatch/vp1batch.py"
+if [ -f vp1batch.py ]; then
+    JOBOPT=vp1batch.py
+fi
+
+
+echo athena.py $ATHENAOPTS  -c "'$OPTS'" $JOBOPT $EXTRAJOBOPT
