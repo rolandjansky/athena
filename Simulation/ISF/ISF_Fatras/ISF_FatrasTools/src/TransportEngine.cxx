@@ -144,7 +144,7 @@ StatusCode iFatras::TransportEngine::finalize()
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp)
+ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*)
 {
   // copy the current particle onto the particle clipboard
   ISF::ParticleClipboard::getInstance().setParticle(isp);
