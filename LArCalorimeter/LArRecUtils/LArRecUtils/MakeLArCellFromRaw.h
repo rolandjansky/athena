@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_MAKELARCELLFROMRAW_H
@@ -22,7 +22,7 @@
 #include <map>
 #include <vector>
 class CaloDetDescrElement ; 
-class   LArCablingService ;
+class LArCablingLegacyService ;
 
 class LArRoI_Map; 
 
@@ -93,7 +93,7 @@ private:
  mutable DataPool<LArCell> * m_dataPool;
  IMessageSvc * m_msgSvc ;
  
- LArCablingService* m_cablingSvc ;
+ LArCablingLegacyService* m_cablingSvc ;
 
  const LArOnlineID* m_onlineID;
 

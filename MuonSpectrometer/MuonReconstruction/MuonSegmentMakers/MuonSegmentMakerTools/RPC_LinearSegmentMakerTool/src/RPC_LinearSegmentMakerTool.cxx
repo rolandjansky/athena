@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_LinearSegmentMakerTool/RPC_LinearSegmentMakerTool.h"
@@ -82,10 +82,11 @@ static inline double getFirstPointR(const Muon::Fit2D::PointArray& points)
     return 0.0;
 }
 
-std::vector<const Muon::MuonSegment*>*
+void
 RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                  const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
                                  const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
+				 Trk::SegmentCollection*,
                                  bool,double) const
 {
     ATH_MSG_DEBUG("RPC_LinearSegmentMakerTool::find");
@@ -108,7 +109,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
     if (!pReadoutElement) {
        ATH_MSG_WARNING("Cannot get a RpcReadoutElement via dynamic cast.");
-       return pMuonSegs;
+	 //return pMuonSegs;
     }
 
     std::set<LayerID> zStations, phiStations;
@@ -320,5 +321,5 @@ done:
         delete zPoints[iZ];
     for (unsigned iPhi = 0; iPhi < phiPoints.size(); iPhi++)
         delete phiPoints[iPhi];
-    return pMuonSegs;
+      //return pMuonSegs;
 }

@@ -67,10 +67,10 @@ StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
   // Create the TGC cache container
   ATH_CHECK(createContainer(m_TgcCacheKey,    m_tgcIdHelper->module_hash_max(), ctx));
 
-  ATH_MSG_INFO("Created cache container " << m_MdtCsmCacheKey);
-  ATH_MSG_INFO("Created cache container " << m_CscCacheKey);
-  ATH_MSG_INFO("Created cache container " << m_RpcCacheKey);
-  ATH_MSG_INFO("Created cache container " << m_TgcCacheKey);
+  ATH_MSG_DEBUG("Created cache container " << m_MdtCsmCacheKey);
+  ATH_MSG_DEBUG("Created cache container " << m_CscCacheKey);
+  ATH_MSG_DEBUG("Created cache container " << m_RpcCacheKey);
+  ATH_MSG_DEBUG("Created cache container " << m_TgcCacheKey);
 
 
   return StatusCode::SUCCESS;

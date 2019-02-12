@@ -10,10 +10,7 @@
 // Constructor
 SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string &type, const std::string &name, const IInterface *parent) : 
   base_class(type, name, parent),
-  m_sctHelper{nullptr},
-  m_mutex{},
-  m_cache{},
-  m_condData{}
+  m_sctHelper{nullptr}
 { 
 }
 
@@ -76,21 +73,6 @@ bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
 
 const SCT_ModuleVetoCondData*
 SCT_LinkMaskingTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_ModuleVetoCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+  SG::ReadCondHandle<SCT_ModuleVetoCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
 }

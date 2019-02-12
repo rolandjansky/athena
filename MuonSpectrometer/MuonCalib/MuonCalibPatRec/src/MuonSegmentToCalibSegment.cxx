@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibPatRec/MuonSegmentToCalibSegment.h"
@@ -211,7 +211,7 @@ namespace MuonCalib {
 	  unsigned int nstations = (*sit)->numberOfStations();
 	  for(unsigned int i=0; i!=nstations; ++i){
 	    
-	    const Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
+	    Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
 	    
 	    ATH_MSG_VERBOSE( "New station with " << stationSegs->size() << " segments "  );
 	    
@@ -220,11 +220,11 @@ namespace MuonCalib {
 	    // 	    continue;
 	    // 	  }
 	    
-	    Muon::MuonSegmentCombination::SegmentVec::const_iterator segit     = stationSegs->begin();
-	    Muon::MuonSegmentCombination::SegmentVec::const_iterator segit_end = stationSegs->end();
+	    Muon::MuonSegmentCombination::SegmentVec::iterator segit     = stationSegs->begin();
+	    Muon::MuonSegmentCombination::SegmentVec::iterator segit_end = stationSegs->end();
 	    
 	    for( ; segit!=segit_end;++segit ){
-	      const Muon::MuonSegment* seg = *segit;
+	      Muon::MuonSegment* seg = (*segit).get();
 	      
 	      if( !seg ) {
 		ATH_MSG_WARNING( " go NULL pointer for MuonSegment "  );
@@ -346,7 +346,7 @@ namespace MuonCalib {
 	unsigned int nstations = (*sit)->numberOfStations();
 	for(unsigned int i=0; i!=nstations; ++i){
 	  
-	  const Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
+	  Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
 	  
 	  ATH_MSG_VERBOSE( "New Csc station with " << stationSegs->size() << " segments "  );
 	  
@@ -355,11 +355,11 @@ namespace MuonCalib {
 	  // 	    continue;
 	  // 	  }
 	  
-	  Muon::MuonSegmentCombination::SegmentVec::const_iterator segit     = stationSegs->begin();
-	  Muon::MuonSegmentCombination::SegmentVec::const_iterator segit_end = stationSegs->end();
+	  Muon::MuonSegmentCombination::SegmentVec::iterator segit     = stationSegs->begin();
+	  Muon::MuonSegmentCombination::SegmentVec::iterator segit_end = stationSegs->end();
 
 	  for( ; segit!=segit_end;++segit) {
-	    const Muon::MuonSegment* seg = *segit;
+	    Muon::MuonSegment* seg = (*segit).get();
 	    
 	    if( !seg ) {
 	      ATH_MSG_WARNING( " go NULL pointer for MuonSegment "  );

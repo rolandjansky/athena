@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIGDKFTRACKMAKERTOOL_H__
@@ -14,10 +14,6 @@
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 #include "TrkTrack/Track.h"
 
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-#include <mutex>
 #include <vector>
 
 class AtlasDetectorID;
@@ -51,12 +47,6 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
   const InDetDD::PixelDetectorManager* m_pixelManager;
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
 };
 

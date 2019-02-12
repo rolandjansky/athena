@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloAddCellPedShift.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
-#include "LArCabling/LArCablingService.h"
 //=== AttributeList
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -20,7 +19,6 @@
 CaloAddCellPedShift::CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_thistSvc(0),
-  m_cablingService("LArCablingService"),
   m_calo_id(0),
   m_onlineID(0),
   m_caloCoolIdTool("CaloCoolIdTool"),
@@ -65,7 +63,7 @@ StatusCode CaloAddCellPedShift::initialize()
   ATH_MSG_INFO ( " registered a callback for " << m_folderName << " folder " );
 
   ATH_CHECK( m_caloCoolIdTool.retrieve() );
-  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
@@ -145,6 +143,13 @@ StatusCode CaloAddCellPedShift::stop()
   std::vector<float> pedShiftValue;
   pedShiftValue.resize(ncell,0.);
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   FILE* finput = fopen(m_fname.c_str(),"r");
   ATH_MSG_INFO ( " opened file " << m_fname );
   int bec;
@@ -156,7 +161,7 @@ StatusCode CaloAddCellPedShift::stop()
   while( fscanf(finput,"%d %d %d %d %d %f",&bec,&pos_neg,&FT,&slot,&channel,&pedShift) != EOF  ) {
     ATH_MSG_INFO ( " read linbe " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << pedShift );
     HWIdentifier hwid = m_onlineID->channel_Id(bec,pos_neg,FT,slot,channel);
-    Identifier id     = m_cablingService->cnvToIdentifier( hwid);
+    Identifier id     = cabling->cnvToIdentifier( hwid);
     IdentifierHash idHash = m_calo_id->calo_cell_hash(id);
     int ii = (int) (idHash);
     pedShiftValue[ii] = pedShift;
@@ -245,7 +250,7 @@ StatusCode CaloAddCellPedShift::stop()
           m_layer =  m_calo_id->calo_sample(id);
           m_Gain = gain;
           if (iCool<48) {
-            HWIdentifier hwid = m_cablingService->createSignalChannelID(id);
+            HWIdentifier hwid = cabling->createSignalChannelID(id);
             m_bec= m_onlineID->barrel_ec(hwid);
             m_posneg= m_onlineID->pos_neg(hwid);
             m_FT= m_onlineID->feedthrough(hwid);

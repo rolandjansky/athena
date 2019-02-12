@@ -34,7 +34,6 @@ class MdtCalibrationSvc;
 class MdtCalibrationDbSvc;
 class MdtCalibrationSvcSettings;
 class MdtCalibrationSvcInput;
-class MdtCalibHit;
 class MsgStream;
 
 namespace Muon {
@@ -211,7 +210,6 @@ namespace Muon {
       double                               m_globalToLocalTolerance; 
       
       MdtCalibrationSvcSettings*           m_mdtCalibSvcSettings; 
-      mutable MdtCalibHit*                 m_calibHit;
 
       // Member variables used to fill the default error strategy
       MuonDriftCircleErrorStrategy        m_errorStrategy; //!< Error strategy for created ROTs

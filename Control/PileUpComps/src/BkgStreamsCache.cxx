@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -17,18 +17,15 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "EventInfo/PileUpEventInfo.h"
-#include "EventInfo/PileUpTimeEventIndex.h"
-#include "EventInfo/EventID.h"
+
+#include "xAODEventInfo/EventInfoContainer.h"
+
 #include "PileUpTools/IBeamIntensity.h"
+#include "PileUpTools/PileUpMisc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "BkgStreamsCache.h"
-
-#ifdef DEBUG_PILEUP
-#include <algorithm>
-#endif
-
 
 BkgStreamsCache::BkgStreamsCache( const std::string& type,
                                   const std::string& name,
@@ -45,7 +42,7 @@ BkgStreamsCache::BkgStreamsCache( const std::string& type,
   , m_atRndmSvc("AtRndmGenSvc", name)
   , m_randomStreamName("PileUpCollXingStream")
   , m_pileUpEventTypeProp(0)
-  , m_pileUpEventType(PileUpTimeEventIndex::Signal)
+  , m_pileUpEventType(xAOD::EventInfo::PileUpType::Signal)
   , m_subtractBC0(0)
   , m_ignoreBM(false)
   , m_readEventRand(nullptr)
@@ -68,7 +65,7 @@ BkgStreamsCache::BkgStreamsCache( const std::string& type,
   declareProperty("RndmGenSvc", m_atRndmSvc, "IAtRndmGenSvc controlling the distribution of bkg events/xing");
   declareProperty("RndmStreamName", m_randomStreamName, "IAtRndmGenSvc stream used as engine for our various random distributions, including the CollPerXing one ");
   declareProperty("SubtractBC0", m_subtractBC0, "reduce the number of events at bunch xing t=0 by m_subtractBC0. Default=0, set to 1 when using the same type of events (e.g. minbias) for original and background streams");
-  m_pileUpEventTypeProp.verifier().setUpper(PileUpTimeEventIndex::NTYPES-2);
+  m_pileUpEventTypeProp.verifier().setUpper(xAOD::EventInfo::PileUp_NTYPES-2);
   m_pileUpEventTypeProp.declareUpdateHandler(&BkgStreamsCache::PileUpEventTypeHandler, this);
   declareProperty("IgnoreBeamInt", m_ignoreBM, "Default=False, set to True to ignore the PileUpEventLoopMgr beam intensity tool in setting the number of events per xing.");
   declareProperty("IgnoreBeamLumi", m_ignoreSF, "Default=False, set to True to ignore the PileUpEventLoopMgr beam luminosity tool in setting the number of events per xing.");
@@ -85,7 +82,7 @@ BkgStreamsCache::~BkgStreamsCache()
 void
 BkgStreamsCache::PileUpEventTypeHandler(Property&)
 {
-  m_pileUpEventType=PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
+   m_pileUpEventType = xAOD::EventInfo::PileUpInt2Type( m_pileUpEventTypeProp.value() );
 }
 
 StatusCode
@@ -188,10 +185,9 @@ void BkgStreamsCache::newEvent()
   m_usedStreams.assign(m_streams.size(), false);
 }
 
-//TODO update this method!!
-const EventInfo* BkgStreamsCache::nextEvent(bool isCentralBunchCrossing)
+const xAOD::EventInfo* BkgStreamsCache::nextEvent(bool isCentralBunchCrossing)
 {
-  const EventInfo* pNextEvt(0);
+  const xAOD::EventInfo* pNextEvt(nullptr);
   StreamVector::size_type iS(0);
   do {
     iS = (StreamVector::size_type)m_chooseEventRand->fire();
@@ -210,7 +206,7 @@ const EventInfo* BkgStreamsCache::nextEvent(bool isCentralBunchCrossing)
     //FIXME a more careful strategy would have the PileUpStreams knowing if
     //they have been used for the central bunch-crossing already.
     bool readEvent(isCentralBunchCrossing || (m_readEventRand->fire()<1.0));
-    pNextEvt=pCurrStream->nextEventPre(readEvent);
+    pNextEvt = pCurrStream->nextEventPre( readEvent );
   }
   return pNextEvt;
 }
@@ -264,8 +260,9 @@ StatusCode BkgStreamsCache::initialize()
 {
   ATH_MSG_DEBUG (  "Initializing " << name()
                    << " - cache for events of type "
-                   << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+                   << xAOD::EventInfo::PileUpType2Name(m_pileUpEventType)
                    << " - package version " << PACKAGE_VERSION ) ;
+  
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
   //locate the ActiveStoreSvc and initialize our local ptr
   ATH_CHECK(service("ActiveStoreSvc", p_activeStore));
@@ -362,14 +359,15 @@ unsigned int BkgStreamsCache::setNEvtsXing(unsigned int iXing)
 }
 
 StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
-                                       PileUpEventInfo& overEvent,
+                                       xAOD::EventInfo* overEvent,
                                        int t0BinCenter)
 {
   return this->addSubEvts(iXing, overEvent, t0BinCenter, true, 0);
 }
 
+
 StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
-                                       PileUpEventInfo& overEvent,
+                                       xAOD::EventInfo* overEvent,
                                        int t0BinCenter, bool loadEventProxies, unsigned int BCID)
 {
   for (unsigned int iEvt=0; iEvt<nEvtsXing(iXing); ++iEvt)
@@ -378,11 +376,10 @@ StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
       // so we can choose to only use fresh events here.
       bool isCentralBunchCrossing((0==t0BinCenter)&&m_forceReadForBC0);
       // increment event iterators
-      if(!loadEventProxies)
-        {
+      if(!loadEventProxies)        {
           return this->nextEvent_passive(isCentralBunchCrossing);
-        }
-      const EventInfo* pBkgEvent(this->nextEvent(isCentralBunchCrossing)); //FIXME update this for the case where loadProxies=False
+      }
+      const xAOD::EventInfo* pBkgEvent = nextEvent( isCentralBunchCrossing ); //FIXME update this for the case where loadProxies=False
 
       //check input selector is not empty
       PileUpStream* currStream(this->current());
@@ -393,28 +390,34 @@ StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
           return StatusCode::FAILURE;
         }
       StoreGateSvc* pBkgStore = &(currStream->store());
-      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->event_ID()->event_number()
-                      << " run " << pBkgEvent->event_ID()->run_number()
+      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->eventNumber()
+                      << " run " << pBkgEvent->runNumber()
                       << " from store "
                       << pBkgStore->name()
                       << " @ Xing " << iXing );
 
       //  register as sub event of the overlaid
-      //    ask if sufficient/needed
-      overEvent.addSubEvt(t0BinCenter, BCID,
-                          m_pileUpEventType,
-                          *pBkgEvent, pBkgStore);
+
+      // get the SG container for subevents infos
+      xAOD::EventInfoContainer  *subEvCnt (nullptr);
+      ATH_CHECK( overEvent->evtStore()->retrieve(subEvCnt, c_pileUpEventInfoContName) );
+      // temporary EI instance to modify BCID before adding the EI
+      xAOD::EventInfo   tmp_ei( *pBkgEvent );
+      tmp_ei.setBCID( BCID );
+      // add subevent
+      addSubEvent( overEvent, &tmp_ei, t0BinCenter, m_pileUpEventType, subEvCnt, c_pileUpEventInfoContName );
+               
 #ifdef DEBUG_PILEUP
-      const EventInfo* pStoreInfo(nullptr);
+      const xAOD::EventInfo* pStoreInfo(nullptr);
       if (pBkgStore->retrieve(pStoreInfo).isSuccess() && pStoreInfo &&
-          pBkgEvent->event_ID()->event_number() != pStoreInfo->event_ID()->event_number())
+          pBkgEvent->eventNumber() != pStoreInfo->eventNumber())
         {
-          ATH_MSG_ERROR ( "added event " <<  pBkgEvent->event_ID()->event_number()
-                          << " run " << pBkgEvent->event_ID()->run_number()
+          ATH_MSG_ERROR ( "added event " <<  pBkgEvent->eventNumber()
+                          << " run " << pBkgEvent->runNumber()
                           << " differ from current store "
                           << pBkgStore->name()
-                          << " event " <<  pStoreInfo->event_ID()->event_number()
-                          << " run " << pStoreInfo->event_ID()->run_number()
+                          << " event " <<  pStoreInfo->eventNumber()
+                          << " run " << pStoreInfo->runNumber()
                           );
           assert(1);
         }
@@ -428,8 +431,7 @@ StatusCode BkgStreamsCache::finalize()
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_DEBUG ( "Finalizing " << name()
                   << " - cache for events of type "
-                  << PileUpTimeEventIndex::typeName(m_pileUpEventType)
-                  << " - package version " << PACKAGE_VERSION );
+                  << xAOD::EventInfo::PileUpType2Name(m_pileUpEventType) );
   while (sc.isSuccess() && m_streams.size()>0)
     {
       sc=m_streams.back().finalize();

@@ -9,7 +9,7 @@ atlas_subdir( TrigFTKTrackConverter )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondServices
+                          InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/PixelConditionsServices
                           Tracking/TrkFitter/TrkFitterInterfaces

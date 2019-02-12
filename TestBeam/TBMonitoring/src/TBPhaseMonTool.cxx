@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,7 @@
 // #include "CaloUtils/CaloSamplingHelper.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 #include "TBEvent/TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"
@@ -55,7 +55,7 @@ TBPhaseMonTool::TBPhaseMonTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
   : MonitorToolBase(type,name,parent)
-    , m_cablingService("LArCablingService", "TBPhaseMonTool")
+    , m_cablingService("LArCablingLegacyService", "TBPhaseMonTool")
     , m_onlineHelper(nullptr)
     , m_tdcContainerName("TDCRawCont")
     , m_caloCellName("AllCalo")

@@ -154,7 +154,7 @@ atlas_add_test( idCaloRunData
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData )
 atlas_add_test( CaloOnlyRunData
    SCRIPT test/test_calo_only_data.sh
-   EXTRA_PATTERNS "-s testReFastAlgo.*REGTEST*"
+   EXTRA_PATTERNS "-s FastCaloL2EgammaAlg.*REGTEST*"
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData
    )
@@ -178,6 +178,22 @@ atlas_add_test( NewJO
    EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RunMenuTest )
+atlas_add_test( RunMenuTest
+   SCRIPT test/test_runMenuTest.sh
+   EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|TrigSignatureMoniMT .*INFO.*"
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RunMenuTest
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest )
+atlas_add_test( pebTest
+   SCRIPT test/test_peb.sh
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest
+   EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_"
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )

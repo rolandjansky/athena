@@ -110,16 +110,14 @@ StatusCode HLT::RandomScaler::initialize()
 void HLT::RandomScaler::handle(const Incident& inc)
 {
   if (inc.type()==IncidentType::BeginEvent) {
-    const EventInfo* event(0);
     const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-    if (eventInc) event = &eventInc->eventInfo();
-    else {
-      msg() << MSG::ERROR << "Cannot retrieve EventInfo object from BeginEvent incident." << endmsg;
+    if (!eventInc) {
+      msg() << MSG::ERROR << "Cannot cast BeginEvent incident to EventIncident." << endmsg;
       return;
     }
-
-    m_seedInput[SEED_SEC]  = event->event_ID()->time_stamp();
-    m_seedInput[SEED_NSEC] = event->event_ID()->time_stamp_ns_offset();
+    EventContext context = inc.context();
+    m_seedInput[SEED_SEC]  = context.eventID().time_stamp();
+    m_seedInput[SEED_NSEC] = context.eventID().time_stamp_ns_offset();
 
     /* Generate hash-based seed from event quantities.
      * Ranlux64 only supports signed 32bit seeds ('long' on i686)

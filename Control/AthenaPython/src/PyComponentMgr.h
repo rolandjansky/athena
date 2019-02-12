@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyComponentMgr.h 
@@ -18,6 +18,7 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 
 // AthenaPython includes
 #include "AthenaPython/IPyComponentMgr.h"
@@ -31,8 +32,8 @@ class IPyComponent;
 
 namespace PyAthena {
 
-class PyComponentMgr : virtual public IPyComponentMgr,
-		               public AthService
+class ATLAS_NOT_THREAD_SAFE PyComponentMgr : virtual public IPyComponentMgr,
+                                             public AthService
 { 
   friend class SvcFactory<PyAthena::PyComponentMgr>;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DCMathSegmentMaker.h"
@@ -93,13 +93,6 @@ namespace Muon {
     m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"),
     m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
     m_dcslFitProvider(""),
-    m_multiGeo(0),
-    m_dcslFitter(0),
-    m_phimin(0.),
-    m_phimax(0.),
-    m_refit(false),
-    m_isEndcap(false),
-    m_nmultipleHitWarnings(0),
     m_rpcKey("RPC_Measurements"),
     m_tgcKey("TGC_Measurements"),
     m_mdtKey("MDT_DriftCircles")
@@ -179,7 +172,6 @@ namespace Muon {
 
     if( !m_dcslFitProvider.empty() ){
       ATH_CHECK( m_dcslFitProvider.retrieve() );
-      m_dcslFitter = m_dcslFitProvider->getFitter();
       ATH_MSG_INFO(" Using " << m_dcslFitProvider);
     }
 
@@ -203,11 +195,6 @@ namespace Muon {
 
   StatusCode DCMathSegmentMaker::finalize()
   {
-    // delete member pointers
-    for(std::vector<const Trk::MeasurementBase*>::iterator it=m_measurementsToBeDeleted.begin(); it!=m_measurementsToBeDeleted.end(); it++)
-      delete (*it);
-    m_measurementsToBeDeleted.clear();
-
     return StatusCode::SUCCESS;
   }
 
@@ -225,11 +212,36 @@ namespace Muon {
       if( mdt ) mdts.push_back(mdt);
     }
 
+    // global to local transformation for chamber
+    Amg::Transform3D gToStation = seg.associatedSurface().transform().inverse();
+
+    // set to get Identifiers of chambers with hits
+    std::set<Identifier> chamberSet;
+    for( std::vector<const MdtDriftCircleOnTrack*>::const_iterator it=mdts.begin();it!=mdts.end();++it){
+      Identifier dcid = (*it)->identify();
+      Identifier elId = m_idHelperTool->mdtIdHelper().elementID( dcid );
+      chamberSet.insert(elId);
+    }
+    std::unique_ptr<TrkDriftCircleMath::MdtMultiChamberGeometry> multiGeo;
+    if( m_doGeometry ) {
+      // vector to store chamber geometries
+      std::vector<TrkDriftCircleMath::MdtChamberGeometry> geos;
+
+      // loop over chambers
+      std::set<Identifier>::iterator it = chamberSet.begin();
+      std::set<Identifier>::iterator it_end = chamberSet.end();
+      for( ;it!=it_end;++it ){
+	geos.push_back( createChamberGeometry( *it, gToStation ) );
+      }
+
+      // create new geometry
+      multiGeo = std::unique_ptr<TrkDriftCircleMath::MdtMultiChamberGeometry>(new TrkDriftCircleMath::MdtMultiChamberGeometry(geos));
+    }
+
     if( mdts.size() < 2 )return 0;
     const MdtDriftCircleOnTrack* firstRot = findFirstRotInChamberWithMostHits(mdts);
 
     if( !firstRot ) {
-      if( m_nmultipleHitWarnings < 3 ) ATH_MSG_WARNING(" no Mdt selected, returning 0 ");
       return 0;
     }
 
@@ -244,34 +256,34 @@ namespace Muon {
     Identifier chid = firstRot->identify();
 
     // endcap or barrel
-    m_isEndcap = m_idHelperTool->mdtIdHelper().isEndcap(chid);
-
-    // global to local transformation for chamber
-    m_gToStation = seg.associatedSurface().transform().inverse();
+    bool isEndcap = m_idHelperTool->mdtIdHelper().isEndcap(chid);
 
     // define axis of chamber in global coordinates
-    m_amdbToGlobal = seg.associatedSurface().transform();
+    Amg::Transform3D amdbToGlobal = seg.associatedSurface().transform();
 
     std::vector<const MuonClusterOnTrack*> clusters = clus;
+    std::vector<const Trk::MeasurementBase*> measToBeDeleted;
     // if requested, retrieve trigger eta hits
     if( includeEtaHits ) {
-      addEtaHits(clusters);
+      measToBeDeleted=addEtaHits(clusters,isEndcap);
       ATH_MSG_DEBUG("adding eta hits: original clusters " << clus.size() << " extended " << clusters.size() );
     }
 
 
     /* ***** create cluster hits ******** */
-    TrkDriftCircleMath::CLVec cls = createClusterVec( clusters, chid );
+    ClusterVecPair spVecs;
+    if( m_doSpacePoints ) spVecs = create2DClusters( clusters );
+    else                  spVecs = create1DClusters( clusters );
+    TrkDriftCircleMath::CLVec cls = createClusterVec( chid, spVecs.first, gToStation );
     
     /* ***** create MDT hits ************ */
     ATH_MSG_DEBUG(" adding mdts " << mdts.size());
 
     TrkDriftCircleMath::DCOnTrackVec dcs;
     // reset chamber statistics
-    m_dcStatistics.clear();
     bool firstMdt = true;
-    m_phimin = 9999.;
-    m_phimax = -9999.;
+    double phimin = 9999.;
+    double phimax = -9999.;
     unsigned index = 0;
     std::vector<const Trk::MeasurementBase*>::const_iterator it = seg.containedMeasurements().begin();
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = seg.containedMeasurements().end();
@@ -285,7 +297,7 @@ namespace Muon {
       Identifier id = mdt->identify();
 
       // calculate local AMDB position
-      Amg::Vector3D locPos = m_gToStation*mdt->prepRawData()->globalPosition();
+      Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
       TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
 
       double r  = mdt->localParameters()[Trk::locR];
@@ -300,13 +312,13 @@ namespace Muon {
       TrkDriftCircleMath::DCOnTrack dcOnTrack(dc,1.,1.);
       ATH_MSG_VERBOSE(" new MDT hit " << m_idHelperTool->toString( id )  << " x " << lpos.x() << " y " << lpos.y() );
     
-      TubeEnds tubeEnds = localTubeEnds(*mdt,m_gToStation,m_amdbToGlobal);
+      TubeEnds tubeEnds = localTubeEnds(*mdt,gToStation,amdbToGlobal);
       if( firstMdt ){
-	m_phimin = tubeEnds.phimin; 
-	m_phimax = tubeEnds.phimax;
+	phimin = tubeEnds.phimin; 
+	phimax = tubeEnds.phimax;
 	firstMdt = false;
       }else{
-	updatePhiRanges(tubeEnds.phimin,tubeEnds.phimax,m_phimin,m_phimax);
+	updatePhiRanges(tubeEnds.phimin,tubeEnds.phimax,phimin,phimax);
       }
   
       dcs.push_back( dcOnTrack );
@@ -316,7 +328,7 @@ namespace Muon {
     
     // create line
     double angleYZ = seg.localDirection().angleYZ();
-    const Amg::Vector3D lpos = m_gToStation*seg.globalPosition();
+    const Amg::Vector3D lpos = gToStation*seg.globalPosition();
     TrkDriftCircleMath::LocPos segPos(lpos.y(),lpos.z());
     TrkDriftCircleMath::Line segPars(segPos,angleYZ);
 
@@ -329,35 +341,37 @@ namespace Muon {
     segment.clusters(cls);
     segment.hitsOnTrack(6); // hack just putting a number above the cut of at least 2
 
-    MuonSegment* newSeg = createSegment(segment,chid,seg.globalPosition(),seg.globalDirection(),mdts,true);
-    for(std::vector<const Trk::MeasurementBase*>::iterator it=m_measurementsToBeDeleted.begin(); it!=m_measurementsToBeDeleted.end(); it++)
+    segmentCreationInfo sInfo(spVecs,multiGeo.get(),gToStation,amdbToGlobal,phimin,phimax);
+    MuonSegment* newSeg = createSegment(segment,chid,seg.globalPosition(),seg.globalDirection(),mdts,true,sInfo);
+    for(std::vector<const Trk::MeasurementBase*>::iterator it=measToBeDeleted.begin(); it!=measToBeDeleted.end(); it++)
       delete (*it);
-    m_measurementsToBeDeleted.clear();
+    measToBeDeleted.clear();
     
     return newSeg;
   }
   
-  void DCMathSegmentMaker::addEtaHits( std::vector<const MuonClusterOnTrack*>& clusters ) const {
+  std::vector<const Trk::MeasurementBase*> DCMathSegmentMaker::addEtaHits( std::vector<const MuonClusterOnTrack*>& clusters, bool isEndcap ) const {
     
     std::set<IdentifierHash> chIdHs;
+    std::vector<const Trk::MeasurementBase*> measurementsToBeDeleted;
     std::vector<const MuonClusterOnTrack*>::iterator cit = clusters.begin();
     std::vector<const MuonClusterOnTrack*>::iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ) chIdHs.insert((*cit)->collectionHash());
     ATH_MSG_VERBOSE("Number of collections " << chIdHs.size() );
 
-    if( m_isEndcap ){
+    if( isEndcap ){
       const Muon::TgcPrepDataContainer* prdContainer = 0;
       SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey);
       if( !TgcCont.isValid() ) {
 	ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer ");
-	return;
+	return measurementsToBeDeleted;
       }
       else {
         prdContainer = TgcCont.cptr();
       }
       if(!prdContainer){
 	ATH_MSG_WARNING("No TGC prd container retrieved");
-	return;
+	return measurementsToBeDeleted;
       }
       
       // loop over chambers and get collections
@@ -381,7 +395,7 @@ namespace Muon {
 	  if( clus ) {
 	    ATH_MSG_VERBOSE("  adding hit: " << m_idHelperTool->toString(clus->identify()) );
 	    clusters.push_back(clus);
-	    m_measurementsToBeDeleted.push_back(clus);
+	    measurementsToBeDeleted.push_back(clus);
 	  }
 	}
       }
@@ -391,14 +405,14 @@ namespace Muon {
       SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_rpcKey);
       if(!RpcCont.isValid()){
 	ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer ");
-	return;
+	return measurementsToBeDeleted;
       }
       else{
 	prdContainer = RpcCont.cptr();
       }
       if(!prdContainer){
 	ATH_MSG_WARNING("No RPC prd container retrieved");
-	return;
+	return measurementsToBeDeleted;
       }
       
       // loop over chambers and get collections
@@ -417,59 +431,59 @@ namespace Muon {
 	  const MuonClusterOnTrack* clus = m_clusterCreator->createRIO_OnTrack(**hit,(*hit)->globalPosition());
 	  if( clus ) {
 	    clusters.push_back(clus);
-	    m_measurementsToBeDeleted.push_back(clus);
+	    measurementsToBeDeleted.push_back(clus);
 	  }
 	}
       }
     }
+    return measurementsToBeDeleted;
   }
 
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir,
-							     const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-							     const std::vector<const MuonClusterOnTrack*>&  clusters,
-							     bool hasPhiMeasurements, double momentum) const
+  void DCMathSegmentMaker::find( const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir,
+				 const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+				 const std::vector<const MuonClusterOnTrack*>&  clusters,
+				 bool hasPhiMeasurements, Trk::SegmentCollection* segColl, double momentum, double sinAngleCut) const
   {
 
     if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) { 
       ATH_MSG_DEBUG("Timeout reached. Aborting sequence."); 
-      return 0; 
+      return; 
     } 
  		 
     ATH_MSG_DEBUG("In find, passed "<<mdts.size() <<" RIO_OnTracks");
 
-    if( mdts.size() < 3 )return 0;
+    if( mdts.size() < 3 ) return;
 
     const MdtDriftCircleOnTrack* firstRot = findFirstRotInChamberWithMostHits(mdts);
 
     if( !firstRot ) {
-      if( m_nmultipleHitWarnings < 3 ) ATH_MSG_WARNING(" no Mdt selected, returning 0 ");
-      return 0;
+      return;
     }
 
     const MuonGM::MdtReadoutElement* detEl = firstRot->detectorElement();
 
     if( !detEl ) {
       ATH_MSG_WARNING(" no MdtReadoutElement found, returning 0 ");
-      return 0;
+      return;
     }
  
     // identifier
     Identifier chid = firstRot->identify();
 
     // endcap or barrel
-    m_isEndcap = m_idHelperTool->mdtIdHelper().isEndcap(chid);
+    bool isEndcap = m_idHelperTool->mdtIdHelper().isEndcap(chid);
 
     // global to local transformation for chamber
-    m_gToStation = detEl->GlobalToAmdbLRSTransform();
+    Amg::Transform3D gToStation = detEl->GlobalToAmdbLRSTransform();
 
     // define axis of chamber in global coordinates
-    m_amdbToGlobal = detEl->AmdbLRSToGlobalTransform();
+    Amg::Transform3D amdbToGlobal = detEl->AmdbLRSToGlobalTransform();
 
 
     // transform nominal pointing chamber position into surface frame
     Amg::Vector3D globalDirCh = Amg::Vector3D(detEl->center().x(),detEl->center().y(),detEl->center().z());
-    Amg::Vector3D dirCh(m_gToStation.linear()*globalDirCh);
+    Amg::Vector3D dirCh(gToStation.linear()*globalDirCh);
     double chamber_angleYZ = atan2(dirCh.z(),dirCh.y());
 
     Amg::Vector3D roaddir2=roaddir;
@@ -477,13 +491,13 @@ namespace Muon {
     if (dotprod<0) roaddir2=-roaddir2;
 
     // transform the global direction into the surface frame
-    Amg::Vector3D d(m_gToStation.linear()*roaddir2);
+    Amg::Vector3D d(gToStation.linear()*roaddir2);
     // calculate the local road angles in the surface frame
     double road_angleXZ = atan2(d.z(),d.x());
     double road_angleYZ = atan2(d.z(),d.y());
 
     if( !hasPhiMeasurements ) road_angleXZ =  acos(0.); // if no phi, take phi perpendicular to plane
-    ATH_MSG_VERBOSE("global road dir " << Amg::toString(roaddir2) << " XZ " << road_angleXZ << " YZ " <<  road_angleYZ << " isEndcap " << m_isEndcap 
+    ATH_MSG_VERBOSE("global road dir " << Amg::toString(roaddir2) << " XZ " << road_angleXZ << " YZ " <<  road_angleYZ << " isEndcap " << isEndcap 
 		    << " central phi " << detEl->center().phi() << " r " << detEl->center().perp() << " z " << detEl->center().z() );
 
     // rescale errors for low momentum
@@ -492,65 +506,81 @@ namespace Muon {
 
     /* ***** create cluster hits ******** */
     ATH_MSG_DEBUG(" adding clusters " << clusters.size());
-    TrkDriftCircleMath::CLVec cls = createClusterVec( clusters, chid );
+    ClusterVecPair spVecs;
+    if( m_doSpacePoints ) spVecs = create2DClusters( clusters );
+    else                  spVecs = create1DClusters( clusters );
+    TrkDriftCircleMath::CLVec cls = createClusterVec( chid, spVecs.first, gToStation );
     
     /* ***** create MDT hits ************ */
     ATH_MSG_DEBUG(" adding mdts " << mdts.size());
-    TrkDriftCircleMath::DCVec dcs = createDCVec( mdts, errorScale );
+    // set to get Identifiers of chambers with hits
+    std::set<Identifier> chamberSet;
+    double phimin=-9999,phimax=9999;
+    TrkDriftCircleMath::DCStatistics dcStatistics; // statistics on chamber occupancy
+    TrkDriftCircleMath::DCVec dcs = createDCVec( mdts, errorScale, chamberSet, phimin, phimax, dcStatistics, gToStation, amdbToGlobal );
     
-    TrkDriftCircleMath::Road road(TrkDriftCircleMath::LocPos(0.,0.),road_angleYZ,chamber_angleYZ,m_sinAngleCut);
+    //create geometry
+    std::unique_ptr<TrkDriftCircleMath::MdtMultiChamberGeometry> multiGeo;
+    if( m_doGeometry ) {
+      
+      ATH_MSG_VERBOSE(" using chamber geometry with #chambers " << chamberSet.size());
+      
+      // vector to store chamber geometries 
+      std::vector<TrkDriftCircleMath::MdtChamberGeometry> geos;
+      
+      // loop over chambers
+      std::set<Identifier>::iterator it = chamberSet.begin();
+      std::set<Identifier>::iterator it_end = chamberSet.end();
+      for( ;it!=it_end;++it ){
+
+	// this does not work yet....
+	// get geometry of chamber
+	//const Muon::MuonIntersectGeometry* intersectGeometry = m_intersectSvc->getChamberGeometry( *it );
+	  
+	//const MdtIntersectGeometry* mdtGeo = dynamic_cast<const MdtIntersectGeometry*>(intersectGeometry);
+	//if( !mdtGeo ) continue;
+	//geos.push_back( *mdtGeo->mdtChamberGeometry() );
+	
+	geos.push_back( createChamberGeometry( *it, gToStation ) );
+      }
+      
+      // create new geometry
+      multiGeo = std::unique_ptr<TrkDriftCircleMath::MdtMultiChamberGeometry>( new TrkDriftCircleMath::MdtMultiChamberGeometry(geos) );
+    }
+
+    double angle=m_sinAngleCut;
+    if(sinAngleCut>0) angle=sinAngleCut;
+    TrkDriftCircleMath::Road road(TrkDriftCircleMath::LocPos(0.,0.),road_angleYZ,chamber_angleYZ,angle);
  
     // call segment finder
-    TrkDriftCircleMath::SegVec segs = m_segmentFinder->findSegments(dcs,cls,road,m_dcStatistics,m_multiGeo);
+    TrkDriftCircleMath::SegVec segs = m_segmentFinder->findSegments(dcs,cls,road,dcStatistics,multiGeo.get());
 
     ATH_MSG_DEBUG("Found " << segs.size() <<" segments");
 
-    // clean up and return
+    // return
     if( segs.empty() ) {
-      delete m_multiGeo;
-      m_multiGeo = 0;
-      for(std::vector<const Trk::MeasurementBase*>::iterator it=m_measurementsToBeDeleted.begin(); it!=m_measurementsToBeDeleted.end(); it++)
-	delete (*it);
-      m_measurementsToBeDeleted.clear();
-      return 0;
+      return;
     }
-
-    /* **** convert found segment into MuonSegments ***** */
-
-    std::vector<const MuonSegment*>* segments = new std::vector<const MuonSegment*>();
-    segments->reserve( segs.size() );
-
 
     // loop over segments 
     TrkDriftCircleMath::SegIt sit = segs.begin();
     TrkDriftCircleMath::SegIt sit_end = segs.end();
+    segmentCreationInfo sInfo(spVecs,multiGeo.get(),gToStation,amdbToGlobal,phimin,phimax);
     for( ;sit!=sit_end;++sit ){
 
-      MuonSegment* segment = createSegment(*sit,chid,roadpos,roaddir2,mdts,hasPhiMeasurements);
-      if( segment ) segments->push_back( segment );
+      MuonSegment* segment = createSegment(*sit,chid,roadpos,roaddir2,mdts,hasPhiMeasurements,sInfo);
+      if( segment ) segColl->push_back(segment);
     }
     ATH_MSG_DEBUG(" Done ");
 
-    delete m_multiGeo;
-    m_multiGeo = 0;
-
-    for(std::vector<const Trk::MeasurementBase*>::iterator it=m_measurementsToBeDeleted.begin(); it!=m_measurementsToBeDeleted.end(); it++)
-      delete (*it);
-    m_measurementsToBeDeleted.clear();
-
-    if( segments->empty() ){
-      delete segments;
-      return 0;
-    }
- 
-    return segments;
   }
 
   MuonSegment* DCMathSegmentMaker::createSegment( TrkDriftCircleMath::Segment& segment, const Identifier& chid, 
 						  const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir2,
 						  const std::vector<const MdtDriftCircleOnTrack*>& mdts, 
-						  bool hasPhiMeasurements ) const {
+						  bool hasPhiMeasurements, segmentCreationInfo& sInfo) const {
     
+    bool isEndcap = m_idHelperTool->isEndcap(chid);
     //find all curved segments
     bool isCurvedSegment(false);
     MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);    
@@ -573,8 +603,8 @@ namespace Muon {
 		  << " associated clusters " << segment.clusters().size());
       
     // local position along x from road
-    Amg::Vector3D lroadpos  = m_gToStation*roadpos;
-    Amg::Vector3D lroaddir = m_gToStation.linear()*roaddir2;
+    Amg::Vector3D lroadpos  = sInfo.globalTrans*roadpos;
+    Amg::Vector3D lroaddir = sInfo.globalTrans.linear()*roaddir2;
 
     // local x position of first tube used if no phi measurement is present
     double lxroad = 0.;
@@ -586,7 +616,7 @@ namespace Muon {
       double sphi = 0.;
       double cphi = lroaddir.x();
       // swap local y and z in the endcaps
-      if ( m_isEndcap ) {
+      if ( isEndcap ) {
 	sphi = lroaddir.y();
 	lxroad = lroadpos.x()+(-lroadpos.y()+line.position().x())*cphi/sphi;
       }else{
@@ -614,17 +644,17 @@ namespace Muon {
 	lxroad = shortestTubeLen;
       }
     }else{
-      lxroad = (m_gToStation*mdts[0]->prepRawData()->detectorElement()->surface(mdts[0]->identify()).center()).x();
+      lxroad = (sInfo.globalTrans*mdts[0]->prepRawData()->detectorElement()->surface(mdts[0]->identify()).center()).x();
     }
 
     // calculate local direction vector
     Amg::Vector3D  lpos( lxroad,line.position().x(),line.position().y() );
   
     // global position segment
-    Amg::Vector3D gpos = m_amdbToGlobal*lpos;
+    Amg::Vector3D gpos = sInfo.amdbTrans*lpos;
 
     // create new surface 
-    Amg::Transform3D* surfaceTransform = new Amg::Transform3D(m_amdbToGlobal.rotation());
+    Amg::Transform3D* surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
     surfaceTransform->pretranslate(gpos);
     double surfDim = 500.;
     Trk::PlaneSurface* surf = new Trk::PlaneSurface( surfaceTransform, surfDim, surfDim );
@@ -637,29 +667,34 @@ namespace Muon {
     Amg::Vector3D gdir = updateDirection( linephi, *surf, roaddir2, isCurvedSegment );
 
     // extract RIO_OnTracks
-    m_rioDistVec.clear();
+    std::vector<std::pair<double,const Trk::MeasurementBase*> > rioDistVec; //vector to store the distance of a ROT to the segment
 
     // associate MDT hits to segment
-    associateMDTsToSegment( gdir, segment, mdts );
+    std::set<Identifier> deltaVec;
+    std::set<Identifier> outoftimeVec;
+    std::vector<const Trk::MeasurementBase*> measToBeDeleted=associateMDTsToSegment( gdir, segment, mdts, sInfo.geom, sInfo.globalTrans, sInfo.amdbTrans, deltaVec, outoftimeVec, rioDistVec );
+
+    TrkDriftCircleMath::DCSLHitSelector  hitSelector;
 
     if( m_redo2DFit && !isCurvedSegment ){
 
       // refit segment after recalibration
-      bool goodFit = m_defaultFitter.fit( line, segment.dcs(), m_hitSelector.selectHitsOnTrack(segment.dcs()) );
+      TrkDriftCircleMath::DCSLFitter  defaultFitter;
+      bool goodFit = defaultFitter.fit( line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()) );
       if( goodFit ){
-	if( fabs(segment.line().phi() - m_defaultFitter.result().line().phi()) > 0.01 || 
-	    fabs(segment.line().x0() - m_defaultFitter.result().line().x0()) > 0.01 || 
-	    fabs(segment.line().y0() - m_defaultFitter.result().line().y0()) > 0.01 ) {
+	if( fabs(segment.line().phi() - defaultFitter.result().line().phi()) > 0.01 || 
+	    fabs(segment.line().x0() - defaultFitter.result().line().x0()) > 0.01 || 
+	    fabs(segment.line().y0() - defaultFitter.result().line().y0()) > 0.01 ) {
 	
 	  // update local position and global
-	  linephi = m_defaultFitter.result().line().phi();
-	  lpos[1] =  m_defaultFitter.result().line().position().x() ;
-	  lpos[2] =  m_defaultFitter.result().line().position().y() ;
-	  gpos = m_amdbToGlobal*lpos;
+	  linephi = defaultFitter.result().line().phi();
+	  lpos[1] =  defaultFitter.result().line().position().x() ;
+	  lpos[2] =  defaultFitter.result().line().position().y() ;
+	  gpos = sInfo.amdbTrans*lpos;
 	
 	  // recreate  surface 
 	  delete surf;
-	  surfaceTransform = new Amg::Transform3D(m_amdbToGlobal.rotation());
+	  surfaceTransform = new Amg::Transform3D(sInfo.amdbTrans.rotation());
 	  surfaceTransform->pretranslate(gpos);
 	  surf = new Trk::PlaneSurface( surfaceTransform, surfDim, surfDim );
 	
@@ -681,18 +716,18 @@ namespace Muon {
 		      << " gdir " << gdir.phi() << " lphi " << linephi << " seg " << segLocDir.angleYZ() );
     }
   
-    // associate Clusters to segment, uses m_spVec and m_phiVec to get clusters
-    std::pair<int,int> netaPhiHits = associateClustersToSegment( segment, chid );
+    // associate Clusters to segment, uses spVecs to get clusters
+    std::pair<std::pair<int,int>,bool> netaPhiHits = associateClustersToSegment( segment, chid, sInfo.globalTrans, sInfo.clusters, sInfo.phimin, sInfo.phimax, rioDistVec );
   
     // copy hits into vector
-    DataVector<const Trk::MeasurementBase>* rioVec = createROTVec();
+    DataVector<const Trk::MeasurementBase>* rioVec = createROTVec(rioDistVec);
 
     double dlocx = 1000.;
     double dangleXZ = 1000.;
     double qoverp = -99999.;
     double dqoverp = -99999.;
     bool hasMeasuredCoordinate = false;
-    if( m_refitParameters && m_refit ){
+    if( m_refitParameters && netaPhiHits.second ){
       ATH_MSG_DEBUG(" distance between first and last phi hit sufficient to perform 4D fit: phi  " 
 		    << gdir.phi() << " theta " << gdir.theta());
     
@@ -722,7 +757,7 @@ namespace Muon {
 	if( track->measurementsOnTrack() && rioVec->size() != track->measurementsOnTrack()->size() ){
 	  ATH_MSG_DEBUG(" ROT vector size changed after fit, updating ");
 	  delete rioVec;
-	  m_rioDistVec.clear();
+	  rioDistVec.clear();
 	  rioVec = new DataVector<const Trk::MeasurementBase>();
 	  rioVec->reserve(track->measurementsOnTrack()->size());
 	  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = track->trackStateOnSurfaces()->begin();
@@ -742,20 +777,20 @@ namespace Muon {
 	    const Trk::MeasurementBase* measNew = meas->clone();
 	    rioVec->push_back( measNew );    
 	    double dist = (pars->position()-firstPars->position()).dot(firstPars->momentum().unit());
-	    m_rioDistVec.push_back( std::make_pair(dist,measNew) );
+	    rioDistVec.push_back( std::make_pair(dist,measNew) );
 	  }
 	}
 
 	delete track;
       }else {
 	ATH_MSG_DEBUG(" refit of segment failed!! ");
-	m_refit = false;
+	netaPhiHits.second = false;
       }
     }
 
     // optional update of phi position and direction, only performed if the segment was not refitted and there are phi hits
-    if( m_updatePhiUsingPhiHits && !m_refit ){
-      if( updateSegmentPhi( gpos, gdir, segLocPos, segLocDir, *surf, rioVec->stdcont() ) ){
+    if( m_updatePhiUsingPhiHits && !netaPhiHits.second ){
+      if( updateSegmentPhi( gpos, gdir, segLocPos, segLocDir, *surf, rioVec->stdcont(), sInfo.phimin, sInfo.phimax ) ){
 	surf->localToGlobal(segLocPos,gpos,gpos);
 	surf->localToGlobalDirection(segLocDir,gdir);
 	hasMeasuredCoordinate = true;
@@ -766,8 +801,8 @@ namespace Muon {
 
 
     if( msgLvl(MSG::DEBUG) ){
-      ATH_MSG_DEBUG(" number of hits " << rioVec->size() << " of which trigger " << netaPhiHits.first 
-		    << " eta and " << netaPhiHits.second << " phi ");
+      ATH_MSG_DEBUG(" number of hits " << rioVec->size() << " of which trigger " << netaPhiHits.first.first 
+		    << " eta and " << netaPhiHits.first.second << " phi ");
       DataVector<const Trk::MeasurementBase>::const_iterator mit = rioVec->begin();
       DataVector<const Trk::MeasurementBase>::const_iterator mit_end = rioVec->end();
       for( ;mit!=mit_end;++mit ){
@@ -790,19 +825,20 @@ namespace Muon {
       }
     }      
     // recalculate holes
-      
-    calculateHoles( chid, gpos, gdir, hasMeasuredCoordinate );
+    std::vector<Identifier> holeVec=calculateHoles( chid, gpos, gdir, hasMeasuredCoordinate, deltaVec, outoftimeVec, rioDistVec );
 
     // currently not taking into account masked channels
-    m_holeVec.insert(m_holeVec.end(),m_outoftimeVec.begin(),m_outoftimeVec.end());
-    MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), m_holeVec );
+    if(!outoftimeVec.empty()) holeVec.insert(holeVec.end(),outoftimeVec.begin(),outoftimeVec.end());
+    MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), holeVec );
 
-    if( m_dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
-      if( !m_dcslFitter->fit( segment.line(), segment.dcs(), m_hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
+    TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
+
+    if( dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
+      if( !dcslFitter->fit( segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
 	ATH_MSG_DEBUG( " T0 refit failed ");
       }else{
 	if( msgLvl(MSG::DEBUG) ) {
-	  if( m_dcslFitter->result().hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << m_dcslFitter->result().t0Shift());
+	  if( dcslFitter->result().hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << dcslFitter->result().t0Shift());
 	  else                                      ATH_MSG_DEBUG(" No fitted T0 ");
 	}
       }
@@ -810,14 +846,14 @@ namespace Muon {
     bool hasFittedT0 = false;
     double fittedT0  = 0;
     double errorFittedT0  = 1.;
-    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( m_dcslFitter && m_dcslFitter->result().hasT0Shift() ) ) ){
+    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( dcslFitter && dcslFitter->result().hasT0Shift() ) ) ){
       hasFittedT0 = true;
       if( segment.hasT0Shift() ){
 	fittedT0 = segment.t0Shift();
 	errorFittedT0 = segment.t0Error();
-      }else if( m_dcslFitter && m_dcslFitter->result().hasT0Shift() ) {
-	fittedT0 = m_dcslFitter->result().t0Shift();
-	errorFittedT0 = m_dcslFitter->result().t0Error();
+      }else if( dcslFitter && dcslFitter->result().hasT0Shift() ) {
+	fittedT0 = dcslFitter->result().t0Shift();
+	errorFittedT0 = dcslFitter->result().t0Error();
       }else{
 	ATH_MSG_WARNING(" Failed to access fitted t0 ");
 	hasFittedT0 = false;
@@ -892,11 +928,14 @@ namespace Muon {
       delete msegment;
       msegment = 0;
     }
+    for(std::vector<const Trk::MeasurementBase*>::iterator it=measToBeDeleted.begin(); it!=measToBeDeleted.end(); it++)
+      delete (*it);
+    measToBeDeleted.clear();
     return msegment;
   }
 
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios) const
+  void DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios, Trk::SegmentCollection* segColl) const
   {
     std::vector<const MdtDriftCircleOnTrack*> mdts;
     std::vector<const MuonClusterOnTrack*>    clusters;
@@ -920,40 +959,43 @@ namespace Muon {
 	clusters.push_back(clus);
       }
     }
-    return find(mdts,clusters);
+    find(mdts,clusters,segColl);
   }
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-							     const std::vector<const MuonClusterOnTrack*>&  clusters) const
+  void DCMathSegmentMaker::find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+				 const std::vector<const MuonClusterOnTrack*>&  clusters, 
+				 Trk::SegmentCollection* segColl) const
   {
-    if( mdts.empty() ) return 0;
+    if( mdts.empty() ) return;
 
     const MdtDriftCircleOnTrack* mdt = mdts.front();
-    if( !mdt ) return 0;
+    if( !mdt ) return;
 
     bool hasPhiMeasurements = false;
     Amg::Vector3D  gpos = mdt->globalPosition();
     Amg::Vector3D gdir =  Amg::Vector3D(gpos.x(),gpos.y(),gpos.z()).unit();
-    return find( gpos, 
-		 gdir, 
-		 mdts, 
-		 clusters, 
-		 hasPhiMeasurements );    
+    find( gpos, 
+	  gdir, 
+	  mdts, 
+	  clusters, 
+	  hasPhiMeasurements,
+	  segColl);
   }
 
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-							     const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const
+  void DCMathSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
+				 const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const
   {
     std::vector<const Trk::RIO_OnTrack*> rios = rios1;
     rios.insert( rios.end(), rios2.begin(), rios2.end() );
-    return find(rios); 
+    find(rios);
   }
 
-  std::vector<const MuonSegment*>* DCMathSegmentMaker::find( const Trk::TrackRoad& road,
-							     const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
-							     const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-							     bool hasPhiMeasurements, double momentum ) const
+  void DCMathSegmentMaker::find( const Trk::TrackRoad& road,
+				 const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
+				 const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
+				 Trk::SegmentCollection* segColl,
+				 bool hasPhiMeasurements, double momentum ) const
   {
     // copy all mdt hits into one vector
     std::vector< const MdtDriftCircleOnTrack* > all_mdts;
@@ -971,21 +1013,17 @@ namespace Muon {
       std::copy( cit->begin(), cit->end(), std::back_inserter(all_clus) );
     }
     
-    // set angle cut from road, keep old value
-    double sinAngleCut = m_sinAngleCut;
-	// FIXME - probably need to change interface to pass in sinAngleCut. EJWM.
-    m_sinAngleCut = road.deltaEta();
-    
     const Amg::Vector3D& gpos = road.globalPosition();
     const Amg::Vector3D& gdir = road.globalDirection();
-    std::vector<const MuonSegment*>* segments = find( gpos, 
-						      gdir, 
-						      all_mdts, 
-						      all_clus, 
-						      hasPhiMeasurements,
-						      momentum );
-    m_sinAngleCut = sinAngleCut;
-    return segments;
+    find( gpos, 
+	  gdir, 
+	  all_mdts, 
+	  all_clus, 
+	  hasPhiMeasurements,
+	  segColl,
+	  momentum,
+	  road.deltaEta());
+
   }       
 
 
@@ -1030,8 +1068,9 @@ namespace Muon {
     // simple division of MuonSpectrometer in regions using barrel/endcap seperation plus
     // inner/middle/outer seperation
 
+    bool isEndcap = m_idHelperTool->isEndcap(id);
 
-    if( m_isEndcap ){
+    if( isEndcap ){
 
       std::string stName = m_idHelperTool->mdtIdHelper().stationNameString(m_idHelperTool->mdtIdHelper().stationName(id) );
       if( stName[1] == 'I' ) return true;
@@ -1045,15 +1084,16 @@ namespace Muon {
   }
 
 
-  DCMathSegmentMaker::ClusterVec DCMathSegmentMaker::create1DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const
+  DCMathSegmentMaker::ClusterVecPair DCMathSegmentMaker::create1DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const
   {
     // if empty return
-    if( clusters.empty() ) return ClusterVec();
+    if( clusters.empty() ) return ClusterVecPair();
     // some useful typedefs...
     typedef std::vector<const MuonClusterOnTrack*>::const_iterator ROTCit;
  
     // create a vector to hold the clusters
     ClusterVec clVec;
+    ClusterVec phiVec;
     clVec.reserve(clusters.size());
 
     ROTCit cit = clusters.begin();
@@ -1064,22 +1104,22 @@ namespace Muon {
       int measuresPhi = m_idHelperTool->measuresPhi(id);
       
       if( measuresPhi ) {
-	m_phiVec.push_back( createSpacePoint( gasGapId, 0, *cit ) );
-	if( m_phiVec.back().corrupt() ) m_phiVec.pop_back();
+	phiVec.push_back( createSpacePoint( gasGapId, 0, *cit ) );
+	if( phiVec.back().corrupt() ) phiVec.pop_back();
       }else{
 	clVec.push_back(  createSpacePoint( gasGapId, *cit, 0 ) );
 	if( clVec.back().corrupt() ) clVec.pop_back();
       }
     }
 
-    return clVec;
+    return ClusterVecPair(clVec,phiVec);
   }
 
 
-  DCMathSegmentMaker::ClusterVec DCMathSegmentMaker::create2DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const
+  DCMathSegmentMaker::ClusterVecPair DCMathSegmentMaker::create2DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const
   {
     // if empty return
-    if( clusters.empty() ) return ClusterVec();
+    if( clusters.empty() ) return ClusterVecPair();
     
     ChIdHitMap gasGapHitMap;
 
@@ -1143,11 +1183,12 @@ namespace Muon {
     }
   }
 
-  DCMathSegmentMaker::ClusterVec DCMathSegmentMaker::createSpacePoints( DCMathSegmentMaker::ChIdHitMap& chIdHitMap ) const {
+  DCMathSegmentMaker::ClusterVecPair DCMathSegmentMaker::createSpacePoints( DCMathSegmentMaker::ChIdHitMap& chIdHitMap ) const {
     
     // vector to store output
-    ClusterVec clusters;
-    clusters.reserve(20);
+    ClusterVecPair clusterVecs;
+    clusterVecs.first.reserve(20);
+    clusterVecs.second.reserve(20);
     
     // loop over chambers
     ChIdHitMapIt cit = chIdHitMap.begin();
@@ -1155,18 +1196,21 @@ namespace Muon {
     for( ;cit!=cit_end;++cit ){
 
       // create clusters per chamber and copy them in to result vector
-      ClusterVec cls = createSpacePoints( cit->second );
-      std::copy( cls.begin(), cls.end(), std::back_inserter(clusters) );
+      ClusterVecPair cls = createSpacePoints( cit->second );
+      std::copy( cls.first.begin(), cls.first.end(), std::back_inserter(clusterVecs.first) );
+      std::copy( cls.second.begin(), cls.second.end(), std::back_inserter(clusterVecs.second) );
 
       //handleChamber( cit->second );
     }
 
-    return clusters;
+    return clusterVecs;
   }
 
-  DCMathSegmentMaker::ClusterVec DCMathSegmentMaker::createSpacePoints( DCMathSegmentMaker::IdHitMap& gasGapHitMap ) const {
+  DCMathSegmentMaker::ClusterVecPair DCMathSegmentMaker::createSpacePoints( DCMathSegmentMaker::IdHitMap& gasGapHitMap ) const {
 
     ClusterVec spacePoints;
+    ClusterVec phiVec;
+    bool isEndcap=m_idHelperTool->isEndcap((*(gasGapHitMap.begin())).first);
     
     ATH_MSG_VERBOSE(" creating Space points for " << gasGapHitMap.size() << " gas gaps "); 
 
@@ -1194,7 +1238,7 @@ namespace Muon {
 	
 	if( m_debugSpacePoints ) ATH_MSG_VERBOSE(" Eta hit " << m_idHelperTool->toString((*etaIt)->identify()));
 
-	if( m_isEndcap ) {
+	if( isEndcap ) {
 	  
 	  // check whether match with phi hits was found
 	  bool foundSP = false;
@@ -1235,8 +1279,8 @@ namespace Muon {
 
 	}
       }
-      if( m_isEndcap ){
-	// loop over flag vector and add unmatched phi hits to m_phiVec;
+      if( isEndcap ){
+	// loop over flag vector and add unmatched phi hits to phiVec;
 	Identifier prevPhiId;
 	for( unsigned int i=0;i<flagPhihit.size();++i ){
 	  if( flagPhihit[i] ) continue;
@@ -1247,14 +1291,14 @@ namespace Muon {
 	  
 	  Cluster2D sp = createTgcSpacePoint( git->first, 0, git->second.second[i] ); 
 	  if( sp.corrupt() ) continue;
-	  m_phiVec.push_back( sp );
+	  phiVec.push_back( sp );
 	  
 	}
       }else if( git->second.first.empty() && !git->second.second.empty() ) {
 	// if there were no eta hits create one phi spacePoint of all phi hits in gasgap
 	Cluster2D sp = createRpcSpacePoint( git->first, 0, git->second.second );
 	if( sp.corrupt() ) continue;
-	m_phiVec.push_back( sp );
+	phiVec.push_back( sp );
       }
       
     }
@@ -1262,12 +1306,13 @@ namespace Muon {
     ATH_MSG_VERBOSE(" Creating space points, number of gas-gaps " << gasGapHitMap.size() 
 		    << "  space points " << spacePoints.size());
     
-    return spacePoints;
+    return ClusterVecPair(spacePoints,phiVec);
   }
 
   DCMathSegmentMaker::Cluster2D DCMathSegmentMaker::createSpacePoint( const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, 
 								      const MuonClusterOnTrack* phiHit ) const
   {
+    bool isEndcap=m_idHelperTool->isEndcap(gasGapId);
     double error(1.);
     double lpx(0.);
     double lpy(0.);
@@ -1279,7 +1324,7 @@ namespace Muon {
       lpx = etaHit->localParameters()[Trk::locX];
       error = Amg::error(etaHit->localCovariance(),Trk::locX);
     }else if( etaHit && phiHit ) {
-      if( m_isEndcap ){
+      if( isEndcap ){
 	return createTgcSpacePoint( gasGapId,etaHit,phiHit );
       }else{
 	std::vector<const MuonClusterOnTrack*> phiVec;
@@ -1434,21 +1479,17 @@ namespace Muon {
   }
     
 
-  TrkDriftCircleMath::CLVec DCMathSegmentMaker::createClusterVec( const std::vector<const MuonClusterOnTrack*>& clusters, const Identifier& chid ) const {
+  TrkDriftCircleMath::CLVec DCMathSegmentMaker::createClusterVec( const Identifier& chid, ClusterVec& spVec, Amg::Transform3D gToStation ) const {
     
     TrkDriftCircleMath::CLVec cls;
-    m_spVec.clear();
-    m_phiVec.clear();
-    if( m_doSpacePoints ) m_spVec = create2DClusters( clusters );
-    else                  m_spVec = create1DClusters( clusters );
 
     int chPhi     = m_idHelperTool->mdtIdHelper().stationPhi(chid);
 
     // loop over clusters
-    ClusterIt cit=m_spVec.begin();
-    ClusterIt cit_end=m_spVec.end();
+    ClusterIt cit=spVec.begin();
+    ClusterIt cit_end=spVec.end();
     int index = 0;
-    cls.reserve(m_spVec.size());
+    cls.reserve(spVec.size());
     for( ; cit!=cit_end;++cit ){
 
       const MuonClusterOnTrack* meas = cit->etaHit ? cit->etaHit : cit->phiHit;
@@ -1469,7 +1510,7 @@ namespace Muon {
       TrkDriftCircleMath::ClusterId clid( name,eta,phi,isTgc,measuresPhi );
 
       // calculate local cluster position
-      Amg::Vector3D locPos = m_gToStation*cit->globalPos;
+      Amg::Vector3D locPos = gToStation*cit->globalPos;
       TrkDriftCircleMath::LocPos lp(locPos.y(),locPos.z());
       
       if( fabs(lp.y()) > m_maxAssociateClusterDistance ) {
@@ -1490,7 +1531,9 @@ namespace Muon {
 
 
   
-  TrkDriftCircleMath::DCVec DCMathSegmentMaker::createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale ) const {
+  TrkDriftCircleMath::DCVec DCMathSegmentMaker::createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale, std::set<Identifier>& chamberSet,
+							     double phimin, double phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, 
+							     Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal) const {
     
     TrkDriftCircleMath::DCVec dcs;
     /* ********  Mdt hits  ******** */
@@ -1499,16 +1542,8 @@ namespace Muon {
     //     typedef GeoMap::iterator GeoIt;
     //     GeoMap geoMap;
 
-    // reset chamber statistics
-    m_dcStatistics.clear();
     bool firstMdt = true;
-    m_phimin = 9999.;
-    m_phimax = -9999.;
 
-    // set to get Identifiers of chambers with hits
-    std::set<Identifier> chamberSet;
-    
- 
     unsigned index = 0;
     for( std::vector<const MdtDriftCircleOnTrack*>::const_iterator it=mdts.begin();it!=mdts.end();++it){
 
@@ -1531,7 +1566,7 @@ namespace Muon {
 
 
       // calculate local AMDB position
-      Amg::Vector3D locPos = m_gToStation*rot->prepRawData()->globalPosition();
+      Amg::Vector3D locPos = gToStation*rot->prepRawData()->globalPosition();
       TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
 
       double r  = rot->localParameters()[Trk::locR];
@@ -1551,13 +1586,13 @@ namespace Muon {
 
 
       
-      TubeEnds tubeEnds = localTubeEnds(*rot,m_gToStation,m_amdbToGlobal);
+      TubeEnds tubeEnds = localTubeEnds(*rot,gToStation,amdbToGlobal);
       if( firstMdt ){
-	m_phimin = tubeEnds.phimin; 
-	m_phimax = tubeEnds.phimax;
+	phimin = tubeEnds.phimin; 
+	phimax = tubeEnds.phimax;
 	firstMdt = false;
       }else{
-	updatePhiRanges(tubeEnds.phimin,tubeEnds.phimax,m_phimin,m_phimax);
+	updatePhiRanges(tubeEnds.phimin,tubeEnds.phimax,phimin,phimax);
       }
 
       if( msgLvl(MSG::VERBOSE) ) {
@@ -1570,41 +1605,12 @@ namespace Muon {
       
       chamberSet.insert(elId);
       
-      ++m_dcStatistics[detEl];
+      ++dcStatistics[detEl];
 
       ++index;
       
     }
       
-    if( m_doGeometry ) {
-      
-      ATH_MSG_VERBOSE(" using chamber geometry with #chambers " << chamberSet.size());
-      
-      // set to remove duplicate geometry descriptions, will happen if hits in multiple chambers are present
-      std::set<const Muon::MuonIntersectGeometry*> geoSet;
-      
-      // vector to store chamber geometries 
-      std::vector<TrkDriftCircleMath::MdtChamberGeometry> geos;
-      
-      // loop over chambers
-      std::set<Identifier>::iterator it = chamberSet.begin();
-      std::set<Identifier>::iterator it_end = chamberSet.end();
-      for( ;it!=it_end;++it ){
-
-	// this does not work yet....
-	// get geometry of chamber
-	//const Muon::MuonIntersectGeometry* intersectGeometry = m_intersectSvc->getChamberGeometry( *it );
-	  
-	//const MdtIntersectGeometry* mdtGeo = dynamic_cast<const MdtIntersectGeometry*>(intersectGeometry);
-	//if( !mdtGeo ) continue;
-	//geos.push_back( *mdtGeo->mdtChamberGeometry() );
-	
-	geos.push_back( createChamberGeometry( *it, m_gToStation ) );
-      }
-      
-      // create new geometry
-      m_multiGeo = new TrkDriftCircleMath::MdtMultiChamberGeometry( geos );
-    }
     return dcs;
   }
 
@@ -1683,12 +1689,15 @@ namespace Muon {
   }
 
 
-  void DCMathSegmentMaker::associateMDTsToSegment( const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, 
-						   const std::vector<const MdtDriftCircleOnTrack*>& mdts ) const {
+  std::vector<const Trk::MeasurementBase*> DCMathSegmentMaker::associateMDTsToSegment( const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, 
+										       const std::vector<const MdtDriftCircleOnTrack*>& mdts, 
+										       TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, 
+										       Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal,
+										       std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec, 
+										       std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // clear result vectors
-    m_deltaVec.clear();
-    m_outoftimeVec.clear();
+    std::vector<const Trk::MeasurementBase*> measurementsToBeDeleted;
 
     // convert segment parameters + x position from road
     const TrkDriftCircleMath::Line& line = segment.line(); 
@@ -1699,8 +1708,8 @@ namespace Muon {
       double ml2phi = line.phi() - segment.deltaAlpha();
       TrkDriftCircleMath::LocDir ml2dir(cos(ml2phi),sin(ml2phi));
       //ml2 segment position
-      const TrkDriftCircleMath::LocPos ml1LocPos = m_multiGeo->tubePosition(0,m_multiGeo->nlay(),0);
-      const TrkDriftCircleMath::LocPos ml2LocPos = m_multiGeo->tubePosition(1,1,0);           
+      const TrkDriftCircleMath::LocPos ml1LocPos = multiGeo->tubePosition(0,multiGeo->nlay(),0);
+      const TrkDriftCircleMath::LocPos ml2LocPos = multiGeo->tubePosition(1,1,0);           
       double chamberMidPtY = (ml1LocPos.y() + ml2LocPos.y())/2.0;
       TrkDriftCircleMath::LocPos ml2pos(segment.deltab(),chamberMidPtY);
       //construct the new ml2 segment line & transform
@@ -1714,11 +1723,11 @@ namespace Muon {
     for( TrkDriftCircleMath::DCOnTrackIt dcit = segment.dcs().begin();dcit!=segment.dcs().end();++dcit ){
 	
       if( dcit->state() == TrkDriftCircleMath::DCOnTrack::Delta ) {
-	m_deltaVec.insert( mdts[dcit->index()]->identify() );
+	deltaVec.insert( mdts[dcit->index()]->identify() );
       }
       
       if( dcit->state() == TrkDriftCircleMath::DCOnTrack::OutOfTime ){
-	m_outoftimeVec.insert( mdts[dcit->index()]->identify() );
+	outoftimeVec.insert( mdts[dcit->index()]->identify() );
       }
       
       if( dcit->state() != TrkDriftCircleMath::DCOnTrack::OnTrack ) continue;
@@ -1740,14 +1749,14 @@ namespace Muon {
       TrkDriftCircleMath::LocPos pointOnLineAMDB = toLine.toLocal( pointOnLine );
       
       // get position along wire from ROT
-      Amg::Vector3D posAlong = m_gToStation*riodc->globalPosition();
+      Amg::Vector3D posAlong = gToStation*riodc->globalPosition();
       
       // set yz components
       posAlong[1] = pointOnLineAMDB.x();
       posAlong[2] = pointOnLineAMDB.y();
       
       // back to global
-      Amg::Vector3D mdtGP = m_amdbToGlobal*posAlong;
+      Amg::Vector3D mdtGP = amdbToGlobal*posAlong;
       
       const Trk::StraightLineSurface* surf = dynamic_cast<const Trk::StraightLineSurface*>( &riodc->associatedSurface() );
       if( ! surf ){
@@ -1780,7 +1789,7 @@ namespace Muon {
 
       // update the drift radius after recalibration, keep error
       MdtDriftCircleOnTrack *new_drift_circle=new MdtDriftCircleOnTrack(*constDC);
-      m_measurementsToBeDeleted.push_back(new_drift_circle);
+      measurementsToBeDeleted.push_back(new_drift_circle);
       TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), fabs(constDC->driftRadius()), dcit->dr(), dcit->drPrecise(), 
 					     static_cast<TrkDriftCircleMath::DriftCircle *>(&(*dcit))->state()
 					     , dcit->id(), dcit->index(),new_drift_circle);
@@ -1801,9 +1810,9 @@ namespace Muon {
       }
       m_mdtCreator->updateSign( *dcOn, side );
       double dist = pointOnHit.x();
-      m_rioDistVec.push_back( std::make_pair(dist,dcOn) );
+      rioDistVec.push_back( std::make_pair(dist,dcOn) );
     }
-    ATH_MSG_DEBUG(" Segment phi range: min " << m_phimin << " max " << m_phimax);
+    return measurementsToBeDeleted;
   }
   
   
@@ -1852,35 +1861,38 @@ namespace Muon {
     }  
   };
 
-  std::pair<int,int> DCMathSegmentMaker::associateClustersToSegment( const TrkDriftCircleMath::Segment& segment, const Identifier& chid ) const {
+  std::pair<std::pair<int,int>,bool> DCMathSegmentMaker::associateClustersToSegment( const TrkDriftCircleMath::Segment& segment, const Identifier& chid, 
+										     Amg::Transform3D gToStation, ClusterVecPair& spVecs, double phimin, double phimax, 
+										     std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec ) const {
     
     typedef IdDataVec<std::pair<double,Cluster2D> > GasGapData;
     typedef IdDataVec<GasGapData>                   ChamberData;
     typedef std::vector<ChamberData>                ChamberDataVec;
     typedef ChamberDataVec::iterator                ChamberDataIt;
     ChamberDataVec chamberDataVec;
+    bool isEndcap=m_idHelperTool->isEndcap(chid);
 
     // keep track of the number of eta/phi hits on the segment
-    m_refit = false;
-    std::pair<int,int> netaPhiHits(0,0);
+    bool refit = false;
+    std::pair<std::pair<int,int>,bool> netaPhiHits(std::pair<int,int>(0,0),false);
     if( segment.clusters().empty() ) return netaPhiHits;
 
     std::vector<const Trk::MeasurementBase*> phiHits;
 
     // only refit if there are sufficient phi hits and no multiple phi hits per surface
-    m_refit = true; 
+    refit = true; 
 
     // keep track of detector elements which space points added to the track
     std::set<Identifier> detElOnSegments;
     std::set<MuonStationIndex::PhiIndex> phiIndices;
 
-    ATH_MSG_DEBUG(" Associating clusters: " << segment.clusters().size() << " number of space points " << m_spVec.size());
+    ATH_MSG_DEBUG(" Associating clusters: " << segment.clusters().size() << " number of space points " << spVecs.first.size());
 
     // associate space points and sort them per detector element and gas gap
     for( TrkDriftCircleMath::CLCit ccit = segment.clusters().begin();ccit!=segment.clusters().end();++ccit ){
 
       ATH_MSG_VERBOSE(" accessing cluster: " << ccit->index());
-      const Cluster2D& spacePoint = m_spVec[ccit->index()];
+      const Cluster2D& spacePoint = spVecs.first[ccit->index()];
 
       // skip corrupt space points
       if( spacePoint.corrupt() ) {
@@ -1892,13 +1904,13 @@ namespace Muon {
 	ATH_MSG_DEBUG(" Rejecting 1D tgc space point " << m_idHelperTool->toString(spacePoint.identify()));		
 	continue;
       }
-      if( m_assumePointingPhi && spacePoint.is2D() && !checkPhiConsistency(spacePoint.globalPos.phi()) ){
+      if( m_assumePointingPhi && spacePoint.is2D() && !checkPhiConsistency(spacePoint.globalPos.phi(), phimin, phimax) ){
 	ATH_MSG_DEBUG(" Inconsistent phi angle, dropping space point: phi " << spacePoint.globalPos.phi()
-		      << " range " << m_phimin << " " << m_phimax);
+		      << " range " << phimin << " " << phimax);
 	continue;
       } 
 
-      std::pair<double,double> resPull = residualAndPullWithSegment( segment, spacePoint );
+      std::pair<double,double> resPull = residualAndPullWithSegment( segment, spacePoint, gToStation );
       
       // if empty or new chamber, add chamber
       if( chamberDataVec.empty() || chamberDataVec.back().id != spacePoint.detElId ){
@@ -1957,7 +1969,7 @@ namespace Muon {
 	  Cluster2D& sp = clit->second;
 
 	  // calculate distance to segment
-	  double dist = distanceToSegment( segment, sp.globalPos );
+	  double dist = distanceToSegment( segment, sp.globalPos, gToStation );
 	  ATH_MSG_VERBOSE("    selected space point:  " << m_idHelperTool->toString( sp.identify() ) 
 			  << " pull " << fabs(clit->first) << " distance to segment " << dist << " phi " << sp.globalPos.phi());
 	  
@@ -1969,8 +1981,8 @@ namespace Muon {
 	      
 	      if( m_createCompetingROTsEta ) etaClusterVec.push_back( sp.etaHit->prepRawData() );
 	      else{
-		m_rioDistVec.push_back( std::make_pair(dist,sp.etaHit->clone()) );
-		++netaPhiHits.first;
+		rioDistVec.push_back( std::make_pair(dist,sp.etaHit->clone()) );
+		++netaPhiHits.first.first;
 	      }
 	    }
 	  }
@@ -1983,23 +1995,23 @@ namespace Muon {
 	    }else{
 	      // can have multiple phi hits per cluster, loop over phi hits and add them
 	      for( std::vector<const MuonClusterOnTrack*>::iterator pit = sp.phiHits.begin();pit!=sp.phiHits.end();++pit ){
-		m_rioDistVec.push_back( std::make_pair(dist,(*pit)->clone()) );
-		++netaPhiHits.second;
+		rioDistVec.push_back( std::make_pair(dist,(*pit)->clone()) );
+		++netaPhiHits.first.second;
 		phiHits.push_back(*pit);
 
 		// calculate position
-		double phiPos = m_isEndcap ? fabs( (*pit)->globalPosition().z() ) : fabs( (*pit)->globalPosition().perp() ); 
+		double phiPos = isEndcap ? fabs( (*pit)->globalPosition().z() ) : fabs( (*pit)->globalPosition().perp() ); 
 		if( phiPos < posFirstPhiStation ) posFirstPhiStation = phiPos;
 		if( phiPos > posLastPhiStation  ) posLastPhiStation  = phiPos;
 	      }
-	      if( sp.phiHits.size() > 1 ) m_refit = false;
+	      if( sp.phiHits.size() > 1 ) refit = false;
 	    }
 	  }
 	  ++nassociatedSp;
 	  ++clit;
 	}
 	// multiple clusters in same gas gap, don't refit
-	if( !m_createCompetingROTsPhi && nassociatedSp > 1 ) m_refit = false;
+	if( !m_createCompetingROTsPhi && nassociatedSp > 1 ) refit = false;
       }
       
       if( m_createCompetingROTsEta ){
@@ -2009,9 +2021,9 @@ namespace Muon {
 	  if( !etaCompCluster ){
 	    ATH_MSG_DEBUG(" failed to create competing ETA ROT " << etaClusterVec.size());
 	  }else{
-	    double dist = distanceToSegment( segment, etaCompCluster->globalPosition() );
-	    m_rioDistVec.push_back( std::make_pair(dist,etaCompCluster) );
-	    ++netaPhiHits.first;
+	    double dist = distanceToSegment( segment, etaCompCluster->globalPosition(), gToStation );
+	    rioDistVec.push_back( std::make_pair(dist,etaCompCluster) );
+	    ++netaPhiHits.first.first;
 
 	    if( msgLvl(MSG::VERBOSE) ){
 	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( etaClusterVec.front()->identify() ) << endmsg;
@@ -2030,10 +2042,10 @@ namespace Muon {
 	  if( !phiCompCluster ) {
 	    ATH_MSG_DEBUG(" failed to create competing PHI ROT " << phiClusterVec.size()); 
 	  }else{
-	    double dist = distanceToSegment( segment, phiCompCluster->globalPosition() );
-	    m_rioDistVec.push_back( std::make_pair(dist,phiCompCluster) );
+	    double dist = distanceToSegment( segment, phiCompCluster->globalPosition(), gToStation );
+	    rioDistVec.push_back( std::make_pair(dist,phiCompCluster) );
 	    phiHits.push_back(phiCompCluster);
-	    ++netaPhiHits.second;
+	    ++netaPhiHits.first.second;
 
 	    if( msgLvl(MSG::VERBOSE) ){
 	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( phiClusterVec.front()->identify() ) << endmsg;
@@ -2043,7 +2055,7 @@ namespace Muon {
 	    }
 	    
 	    // calculate position
-	    double phiPos = m_isEndcap ? fabs( phiCompCluster->globalPosition().z() ) : fabs( phiCompCluster->globalPosition().perp() ); 
+	    double phiPos = isEndcap ? fabs( phiCompCluster->globalPosition().z() ) : fabs( phiCompCluster->globalPosition().perp() ); 
 	    if( phiPos < posFirstPhiStation ) posFirstPhiStation = phiPos;
 	    if( phiPos > posLastPhiStation  ) posLastPhiStation  = phiPos;
 	  }
@@ -2052,7 +2064,7 @@ namespace Muon {
     }
 
     // add phi hits that were not associated with an eta hit (only in barrel)
-    if( (!m_phiVec.empty()||m_recoverBadRpcCabling) && m_addUnassociatedPhiHits && !m_idHelperTool->isEndcap(chid) ) {
+    if( (!spVecs.second.empty()||m_recoverBadRpcCabling) && m_addUnassociatedPhiHits && !isEndcap ) {
 
       TrkDriftCircleMath::ResidualWithSegment resWithSegment(segment);
 
@@ -2060,11 +2072,11 @@ namespace Muon {
 
       std::set<const MuonClusterOnTrack*> selectedClusters;
       std::vector<Cluster2D*> phiClusters;
-      phiClusters.reserve(m_phiVec.size());
+      phiClusters.reserve(spVecs.second.size());
 
       // create lists of PrepRawData per detector element
-      ClusterIt pit = m_phiVec.begin();
-      ClusterIt pit_end = m_phiVec.end();
+      ClusterIt pit = spVecs.second.begin();
+      ClusterIt pit_end = spVecs.second.end();
       for( ;pit!=pit_end;++pit ){
 	if( !pit->phiHit || pit->corrupt() ) {
 	  ATH_MSG_WARNING(" phi clusters without phi hit!!");
@@ -2077,8 +2089,8 @@ namespace Muon {
       unsigned int recoveredUnassociatedPhiHits(0);
       if( m_recoverBadRpcCabling ){
 	// now loop over 2D space points and add the phi hits to the list if the detEl is not yet added to the segment
-	ClusterIt spit = m_spVec.begin();
-	ClusterIt spit_end = m_spVec.end();
+	ClusterIt spit = spVecs.first.begin();
+	ClusterIt spit_end = spVecs.first.end();
 	for( ;spit!=spit_end;++spit ){
 	
 	  // skip clusters without phi hit
@@ -2129,7 +2141,7 @@ namespace Muon {
 	if( phiIndices.count(phiIndex) ) continue;
 
 	// calculate local cluster position
-	Amg::Vector3D locPos = m_gToStation*(*cit)->globalPos;
+	Amg::Vector3D locPos = gToStation*(*cit)->globalPos;
 	
 	// calculate intersect of segment with cluster 
 	TrkDriftCircleMath::Cluster cl(TrkDriftCircleMath::LocPos(locPos.y(),locPos.z()),1.);
@@ -2175,16 +2187,16 @@ namespace Muon {
 	if( !phiCompCluster ) {
 	  ATH_MSG_DEBUG(" failed to create competing PHI ROT " << prds.size()); 
 	}else{
-	  double dist = distanceToSegment( segment, phiCompCluster->globalPosition() );
+	  double dist = distanceToSegment( segment, phiCompCluster->globalPosition(), gToStation );
 
 	  if( fabs(dist) > m_maxAssociateClusterDistance ){
 	    delete phiCompCluster;
 	    ATH_MSG_VERBOSE("    rejected unassociated cluster:  " << m_idHelperTool->toString( prds.front()->identify() ) << "  distance to segment " << dist);
 	  continue;
 	  }
-	  m_rioDistVec.push_back( std::make_pair(dist,phiCompCluster) );
+	  rioDistVec.push_back( std::make_pair(dist,phiCompCluster) );
 	  phiHits.push_back(phiCompCluster);
-	  ++netaPhiHits.second;
+	  ++netaPhiHits.first.second;
 	  ++addedPhiHits;
 	  if( msgLvl(MSG::VERBOSE) ){
 	    msg(MSG::VERBOSE) << "    selected unassociated cluster:  " << m_idHelperTool->toString( prds.front()->identify() ) << "  distance to segment " << dist << endmsg;
@@ -2194,19 +2206,20 @@ namespace Muon {
 	  }
 	}
       }
-      ATH_MSG_VERBOSE("Added "  << addedPhiHits << " unass phi hits out of " << m_phiVec.size() << " phi hits without eta hit and "
+      ATH_MSG_VERBOSE("Added "  << addedPhiHits << " unass phi hits out of " << spVecs.second.size() << " phi hits without eta hit and "
 		      << recoveredUnassociatedPhiHits << " with unassociated eta hit ");
     }
     
     // calculate distance between first and last phi trigger hit, refit if there is a good constraint on phi
     double phiDistanceMax = posLastPhiStation - posFirstPhiStation; 
-    if( m_isEndcap && phiDistanceMax < 1000. ) m_refit = false;
-    else if( phiDistanceMax < 400. )           m_refit = false;
-    
+    if( isEndcap && phiDistanceMax < 1000. ) refit = false;
+    else if( phiDistanceMax < 400. )         refit = false;
+
+    netaPhiHits.second=refit;    
     return netaPhiHits;
   }
     
-  double DCMathSegmentMaker::distanceToSegment( const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos ) const 
+  double DCMathSegmentMaker::distanceToSegment( const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos, Amg::Transform3D gToStation ) const 
   {
 
     const TrkDriftCircleMath::Line& line = segment.line(); 
@@ -2214,7 +2227,7 @@ namespace Muon {
     double cos_sinLine = cos( line.phi() )/sin( line.phi() );
 
     // calculate local AMDB position
-    Amg::Vector3D locPos = m_gToStation*hitPos;
+    Amg::Vector3D locPos = gToStation*hitPos;
       
     TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
       
@@ -2231,22 +2244,22 @@ namespace Muon {
   }
     
 
-  DataVector<const Trk::MeasurementBase>* DCMathSegmentMaker::createROTVec() const {
+  DataVector<const Trk::MeasurementBase>* DCMathSegmentMaker::createROTVec(std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
 
     // sort hits according to they distance to the segment position
-    std::sort( m_rioDistVec.begin(),m_rioDistVec.end(),SortByDistanceToSegment() );
+    std::sort( rioDistVec.begin(),rioDistVec.end(),SortByDistanceToSegment() );
       
     DataVector<const Trk::MeasurementBase>* rioVec = new DataVector<const Trk::MeasurementBase>();
-    rioVec->reserve(m_rioDistVec.size());
-    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit = m_rioDistVec.begin();
-    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit_end = m_rioDistVec.end();
+    rioVec->reserve(rioDistVec.size());
+    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit = rioDistVec.begin();
+    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit_end = rioDistVec.end();
     for( ;rdit!=rdit_end;++rdit ){
       rioVec->push_back( rdit->second );
     }
     return rioVec;
   }
 
-  std::pair<double,double> DCMathSegmentMaker::residualAndPullWithSegment( const TrkDriftCircleMath::Segment& segment, const Cluster2D& spacePoint ) const 
+  std::pair<double,double> DCMathSegmentMaker::residualAndPullWithSegment( const TrkDriftCircleMath::Segment& segment, const Cluster2D& spacePoint, Amg::Transform3D gToStation ) const 
   {
     const TrkDriftCircleMath::Line& line = segment.line(); 
     double phi = line.phi();
@@ -2259,7 +2272,7 @@ namespace Muon {
     double cos_sinLine = cos( phi )/sin( phi );
 
     // calculate sp postion in AMDB reference frame
-    Amg::Vector3D locPos = m_gToStation*spacePoint.globalPos;
+    Amg::Vector3D locPos = gToStation*spacePoint.globalPos;
     TrkDriftCircleMath::LocPos lpos(locPos.y(),locPos.z());
 	
     // calculate distance of segment to measurement surface
@@ -2276,7 +2289,9 @@ namespace Muon {
 
 
 
-  void DCMathSegmentMaker::calculateHoles( Identifier chid, Amg::Vector3D gpos, Amg::Vector3D gdir, bool hasMeasuredCoordinate ) const {
+  std::vector<Identifier> DCMathSegmentMaker::calculateHoles( Identifier chid, Amg::Vector3D gpos, Amg::Vector3D gdir, bool hasMeasuredCoordinate, 
+							      std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec,
+							      std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // calculate crossed tubes
     const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir );
@@ -2287,8 +2302,8 @@ namespace Muon {
     std::set<Identifier> chambersOnSegment;
     int firstLayer = -1;
     int lastLayer  = -1;
-    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit = m_rioDistVec.begin();
-    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit_end = m_rioDistVec.end();
+    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit = rioDistVec.begin();
+    std::vector<std::pair<double,const Trk::MeasurementBase*> >::iterator rdit_end = rioDistVec.end();
     for( ;rdit!=rdit_end;++rdit ){
       const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rdit->second);
       if( mdt ) {
@@ -2311,7 +2326,7 @@ namespace Muon {
     if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " Tube layer ranges: " << firstLayer << " -- " 
 						  << lastLayer << " crossed tubes " << intersect.tubeIntersects().size() << std::endl;
     // clear hole vector
-    m_holeVec.clear();
+    std::vector<Identifier> holeVec;
     for( unsigned int ii=0;ii<intersect.tubeIntersects().size();++ii ){
 
       const MuonTubeIntersect& tint = intersect.tubeIntersects()[ii];
@@ -2338,7 +2353,7 @@ namespace Muon {
 	}
 	// check whether there is a delta electron in this tube 
 	if( m_removeDeltas ){
-	  if( m_deltaVec.count( tint.tubeId ) ) {
+	  if( deltaVec.count( tint.tubeId ) ) {
 	    if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " removing delta, distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 							  << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;
 	    continue;
@@ -2353,17 +2368,18 @@ namespace Muon {
 	}
 	if( msgLvl(MSG::VERBOSE)  ) {
 	  std::string holeType = "hole ";
-	  if( m_outoftimeVec.count(tint.tubeId) ) holeType = "Out-of-time ";
+	  if( outoftimeVec.count(tint.tubeId) ) holeType = "Out-of-time ";
 	  msg(MSG::VERBOSE) << holeType << " distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 			    << " " << m_idHelperTool->toString(tint.tubeId);
 	  if( !notBetweenHits ) msg(MSG::VERBOSE) << " between hits";
 	  msg(MSG::VERBOSE) << std::endl;
 	}
 
-	m_holeVec.push_back( tint.tubeId );
+	holeVec.push_back( tint.tubeId );
       }
     }
     if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << endmsg;
+    return holeVec;
   }
 
   const MdtPrepData* DCMathSegmentMaker::findMdt( const Identifier& id ) const {
@@ -2415,8 +2431,6 @@ namespace Muon {
       if( currentSector == -1 ){
 	currentSector = sector;
       }else if( sector != currentSector ){
-	++m_nmultipleHitWarnings;
-	if( m_nmultipleHitWarnings < 3 ) ATH_MSG_WARNING("Found multiple sectors on input, cannot process data ");
 	return 0; 
       }
       int& hitsInCh = hitsPerChamber[chId];
@@ -2531,7 +2545,8 @@ namespace Muon {
 
   bool DCMathSegmentMaker::updateSegmentPhi( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, 
 					     Amg::Vector2D& segLocPos, Trk::LocalDirection& segLocDir, 
-					     Trk::PlaneSurface& surf, const std::vector<const Trk::MeasurementBase*>& rots ) const {
+					     Trk::PlaneSurface& surf, const std::vector<const Trk::MeasurementBase*>& rots,
+					     double seg_phimin, double seg_phimax) const {
 
     bool hasUpdated = false;
 
@@ -2670,9 +2685,9 @@ namespace Muon {
 	  phimax = phimin;
 	  
 	  // check whether phi is consistent with segment phi range
-	  bool phiOk = checkPhiConsistency(phimin);
+	  bool phiOk = checkPhiConsistency(phimin,seg_phimin,seg_phimax);
 	  if( !phiOk ){
-	    if(msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Inconsistent phi "  << phimin << " range " << m_phimin << " " << m_phimax << std::endl;
+	    if(msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Inconsistent phi "  << phimin << " range " << seg_phimin << " " << seg_phimax << std::endl;
 	  }
 	}
       }
@@ -2841,28 +2856,28 @@ namespace Muon {
     }
   }
 
-  bool DCMathSegmentMaker::checkPhiConsistency( double phi ) const {
+  bool DCMathSegmentMaker::checkPhiConsistency( double phi, double phimin, double phimax ) const {
     // only if assuming pointing phi
     if( !m_assumePointingPhi ) return true;
 
     bool phiOk = true;
     double offset = 0.05;
-    if( m_phimin*m_phimax < 0. ){
+    if( phimin*phimax < 0. ){
       if( phi < 0. ){
 	if( phi > -1.1 ){
-	  if( phi < m_phimin - offset ) phiOk = false; 
+	  if( phi < phimin - offset ) phiOk = false; 
 	}else{
-	  if( phi > m_phimin + offset ) phiOk = false; 
+	  if( phi > phimin + offset ) phiOk = false; 
 	}
       }else{
 	if( phi > 1.1 ){
-	  if( phi < m_phimax - offset ) phiOk = false; 
+	  if( phi < phimax - offset ) phiOk = false; 
 	}else{
-	  if( phi > m_phimax + offset ) phiOk = false; 
+	  if( phi > phimax + offset ) phiOk = false; 
 	}
       }
     }else{
-      if( phi < m_phimin - offset || phi > m_phimax + offset ) phiOk = false;
+      if( phi < phimin - offset || phi > phimax + offset ) phiOk = false;
     }
     return phiOk;
   }

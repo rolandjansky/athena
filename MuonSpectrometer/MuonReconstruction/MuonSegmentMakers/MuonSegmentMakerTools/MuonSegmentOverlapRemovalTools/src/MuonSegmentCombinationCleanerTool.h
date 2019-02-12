@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTCOMBINATIONCLEANERTOOL_H
@@ -44,7 +44,7 @@ namespace Muon {
     virtual StatusCode finalize();
 
     /** clean segment combination collections */
-    MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap );
+    std::unique_ptr<MuonSegmentCombinationCollection> clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap );
 
     /** remove duplicates from a segment combination, returns a pointer to the original combi if unchanged */
     MuonSegmentCombination* removeDuplicateSegments( MuonSegmentCombination& combi ) const;
@@ -61,7 +61,7 @@ namespace Muon {
     MuonSegmentCombiOverlapSummary calculateOverlap( MuonSegmentCombiSummary& summary1, MuonSegmentCombiSummary& summary2 ) const;
 
     /* resolve overlap between two vectors of segments */
-    void resolveLayerOverlap( const std::vector<const MuonSegment*>& chamberVec1, const std::vector<const MuonSegment*>& chamberVec2,
+    void resolveLayerOverlap( const std::vector<MuonSegment*>& chamberVec1, const std::vector<MuonSegment*>& chamberVec2,
 			      MuonSegmentCombiOverlapSummary& summary) const;
 
     /** create summary */

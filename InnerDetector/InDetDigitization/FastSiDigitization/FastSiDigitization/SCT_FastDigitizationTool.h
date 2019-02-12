@@ -2,7 +2,7 @@
 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSIDIGITZATION_SCT_FASTDIGITZATIONTOOL_H
@@ -36,7 +36,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"

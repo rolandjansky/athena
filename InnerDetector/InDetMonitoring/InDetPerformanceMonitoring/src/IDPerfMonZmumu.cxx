@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -29,9 +29,6 @@
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
@@ -93,7 +90,7 @@ IDPerfMonZmumu::~IDPerfMonZmumu()
 
 StatusCode IDPerfMonZmumu::initialize()
 {
-
+  ATH_CHECK( m_evt.initialize() );
   // Setup the services
   ISvcLocator* pxServiceLocator = serviceLocator();
   if ( pxServiceLocator ) {
@@ -309,13 +306,15 @@ void IDPerfMonZmumu::RegisterHistograms()
 StatusCode IDPerfMonZmumu::execute()
 {
   ATH_MSG_DEBUG("Retrieving event info.");
-  const EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure()){
-    ATH_MSG_ERROR("Could not retrieve event info.");
-  }else{
-    m_runNumber = eventInfo->event_ID()->run_number();
-    m_evtNumber = eventInfo->event_ID()->event_number();
-    m_lumi_block = eventInfo->event_ID()->lumi_block();
+
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(evt.isValid()) {
+    m_runNumber = evt->runNumber();
+    m_evtNumber = evt->eventNumber();
+    m_lumi_block = evt->lumiBlock();
+  }
+  else {
+    ATH_MSG_ERROR("Could not retrieve event info."); // Keeping ERROR only to preserve old functionality
   }
 
   //Fill Staco muon parameters only

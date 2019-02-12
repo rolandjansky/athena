@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -144,9 +144,10 @@ StatusCode CaloCellContainerFromClusterTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloCellContainerFromClusterTool::process(CaloConstCellContainer* theCont) {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
+StatusCode
+CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
+                                           const EventContext& ctx) const
+{
   unsigned nCells=0;
   //Build bitmap to keep track which cells have been added to reducedCellContainer;
   std::bitset<200000> addedCellsMap;

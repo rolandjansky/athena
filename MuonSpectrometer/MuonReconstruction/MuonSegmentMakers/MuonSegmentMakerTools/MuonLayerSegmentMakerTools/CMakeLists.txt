@@ -22,11 +22,12 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLayerHough
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerAlgs/CscSegmentMakers
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces )
+                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
+			  Tracking/TrkEvent/TrkSegment )
 
 # Component(s) in the package:
 atlas_add_component( MuonLayerSegmentMakerTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonHoughPatternToolsLib MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonHoughPatternToolsLib MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough TrkSegment )
 

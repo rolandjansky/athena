@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentCombinationCleanerTool.h"
@@ -90,12 +90,12 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  MuonSegmentCombinationCollection* MuonSegmentCombinationCleanerTool::clean( const MuonSegmentCombinationCollection& combiCol,
-									      MuonSegmentCombPatternCombAssociationMap* segPattMap ){
+  std::unique_ptr<MuonSegmentCombinationCollection> MuonSegmentCombinationCleanerTool::clean( const MuonSegmentCombinationCollection& combiCol,
+											      MuonSegmentCombPatternCombAssociationMap* segPattMap ){
 
-    MuonSegmentCombinationCollection* combiCleanCol = new MuonSegmentCombinationCollection;
+    std::unique_ptr<MuonSegmentCombinationCollection> combiCleanCol(new MuonSegmentCombinationCollection);
     
-    cleanAndMergeCombis(combiCol,combiCleanCol,segPattMap);
+    cleanAndMergeCombis(combiCol,combiCleanCol.get(),segPattMap);
     
     return combiCleanCol;
   }
@@ -256,12 +256,12 @@ namespace Muon {
 	ATH_MSG_VERBOSE("    -> large overlap, merge candidate ");
 
 	// set to make sure we are not adding segments twice
-	std::set<const MuonSegment*> addedSegments;
-	std::vector< std::vector<const MuonSegment*> > segmentsPerChamberLayer(MuonStationIndex::ChIndexMax);
+	std::set<MuonSegment*> addedSegments;
+	std::vector< std::vector<MuonSegment* > > segmentsPerChamberLayer(MuonStationIndex::ChIndexMax);
 
 	// first add shared segments, take one with best chi2
-	std::vector< std::pair<const MuonSegment*,const MuonSegment*> >::iterator shit = overlap.shared.begin(); 
-	std::vector< std::pair<const MuonSegment*,const MuonSegment*> >::iterator shit_end = overlap.shared.end(); 
+	std::vector< std::pair<MuonSegment*,MuonSegment*> >::iterator shit = overlap.shared.begin(); 
+	std::vector< std::pair<MuonSegment*,MuonSegment*> >::iterator shit_end = overlap.shared.end(); 
 	for( ;shit!=shit_end;++shit ){
 	  
 	  // select segment with best chi2
@@ -269,7 +269,7 @@ namespace Muon {
 	  const Trk::FitQuality* fq2 =shit->second->fitQuality();
 	  double chi2First = fq1 ? fq1->chiSquared() : 1e10;
 	  double chi2Second = fq2 ? fq2->chiSquared() : 1e10;
-	  const MuonSegment* bestSegment =  chi2First < chi2Second ? shit->first : shit->second;
+	  MuonSegment* bestSegment =  chi2First < chi2Second ? shit->first : shit->second;
 	  
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
@@ -279,11 +279,11 @@ namespace Muon {
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
 	
-	std::vector<const MuonSegment*>::iterator uit = overlap.uniqueFirst.begin();
-	std::vector<const MuonSegment*>::iterator uit_end = overlap.uniqueFirst.end();
+	std::vector<MuonSegment*>::iterator uit = overlap.uniqueFirst.begin();
+	std::vector<MuonSegment*>::iterator uit_end = overlap.uniqueFirst.end();
 	for( ;uit!=uit_end;++uit ){
 	  // check whether already added
-	  const MuonSegment* bestSegment = *uit;
+	  MuonSegment* bestSegment = *uit;
 	  
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
@@ -297,7 +297,7 @@ namespace Muon {
 	uit_end = overlap.uniqueSecond.end();
 	for( ;uit!=uit_end;++uit ){
 	  // check whether already added
-	  const MuonSegment* bestSegment = *uit;
+	  MuonSegment* bestSegment = *uit;
 	  
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
@@ -311,7 +311,7 @@ namespace Muon {
 	shit_end = overlap.subsetFirst.end(); 
 	for( ;shit!=shit_end;++shit ){
 	  // check whether already added
-	  const MuonSegment* bestSegment = shit->second;
+	  MuonSegment* bestSegment = shit->second;
 	  
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
@@ -325,7 +325,7 @@ namespace Muon {
 	shit_end = overlap.subsetSecond.end(); 
 	for( ;shit!=shit_end;++shit ){
 	  // check whether already added
-	  const MuonSegment* bestSegment = shit->first;
+	  MuonSegment* bestSegment = shit->first;
 	  
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
@@ -339,19 +339,19 @@ namespace Muon {
 	MuonSegmentCombination* newCombi = new MuonSegmentCombination();
 	
 	// loop over layers and add segments
-	std::vector< std::vector<const MuonSegment*> >::iterator chit = segmentsPerChamberLayer.begin();
-	std::vector< std::vector<const MuonSegment*> >::iterator chit_end = segmentsPerChamberLayer.end();
+	std::vector< std::vector<MuonSegment*> >::iterator chit = segmentsPerChamberLayer.begin();
+	std::vector< std::vector<MuonSegment*> >::iterator chit_end = segmentsPerChamberLayer.end();
 	for( ;chit!=chit_end;++chit ){
 	  
 	  // skip empty ones
 	  if( chit->empty() ) continue;
 
-	  std::vector< const MuonSegment* >* segVec = new std::vector< const MuonSegment* >();
+	  std::unique_ptr<std::vector< std::unique_ptr<MuonSegment> > > segVec(new std::vector< std::unique_ptr<MuonSegment> >());
 	  segVec->reserve( chit->size() );
-	  std::vector<const MuonSegment*>::iterator segit = chit->begin();
-	  std::vector<const MuonSegment*>::iterator segit_end = chit->end();
-	  for( ;segit!=segit_end;++segit ) segVec->push_back( (*segit)->clone() );
-	  newCombi->addSegments( segVec );
+	  std::vector<MuonSegment*>::iterator segit = chit->begin();
+	  std::vector<MuonSegment*>::iterator segit_end = chit->end();
+	  for( ;segit!=segit_end;++segit ) segVec->push_back( std::unique_ptr<MuonSegment>((*segit)->clone()) );
+	  newCombi->addSegments( std::move(segVec) );
 	}
 
 	// create new summary
@@ -414,8 +414,8 @@ namespace Muon {
     return summary;
   }
 
-  void MuonSegmentCombinationCleanerTool::resolveLayerOverlap( const std::vector<const MuonSegment*>& chamberVec1,
-							       const std::vector<const MuonSegment*>& chamberVec2,
+  void MuonSegmentCombinationCleanerTool::resolveLayerOverlap( const std::vector<MuonSegment*>& chamberVec1,
+							       const std::vector<MuonSegment*>& chamberVec2,
 							       MuonSegmentCombiOverlapSummary& summary) const {
     CompareMuonSegmentKeys compareKeys;
 
@@ -423,15 +423,15 @@ namespace Muon {
     std::vector<int> uniqueSecond(chamberVec2.size(),1);
 
     unsigned int index1 = 0;
-    std::vector<const MuonSegment*>::const_iterator sit1 = chamberVec1.begin();
-    std::vector<const MuonSegment*>::const_iterator sit1_end = chamberVec1.end();
+    std::vector<MuonSegment*>::const_iterator sit1 = chamberVec1.begin();
+    std::vector<MuonSegment*>::const_iterator sit1_end = chamberVec1.end();
     for( ;sit1!=sit1_end;++sit1,++index1 ){
       // identifier(s) of MDT chambers on segment
       std::set<Identifier> chIds1 = m_helperTool->chamberIds( **sit1 );
 
       unsigned int index2 = 0;
-      std::vector<const MuonSegment*>::const_iterator sit2 = chamberVec2.begin();
-      std::vector<const MuonSegment*>::const_iterator sit2_end = chamberVec2.end();
+      std::vector<MuonSegment*>::const_iterator sit2 = chamberVec2.begin();
+      std::vector<MuonSegment*>::const_iterator sit2_end = chamberVec2.end();
       for( ;sit2!=sit2_end;++sit2,++index2 ){
 
 	if( !uniqueSecond[index2] ) continue;
@@ -507,8 +507,8 @@ namespace Muon {
     }
 
     unsigned int index2 = 0;
-    std::vector<const MuonSegment*>::const_iterator sit2 = chamberVec2.begin();
-    std::vector<const MuonSegment*>::const_iterator sit2_end = chamberVec2.end();
+    std::vector<MuonSegment*>::const_iterator sit2 = chamberVec2.begin();
+    std::vector<MuonSegment*>::const_iterator sit2_end = chamberVec2.end();
     for( ;sit2!=sit2_end;++sit2,++index2 ){
       if( uniqueSecond[index2] ) summary.uniqueSecond.push_back(*sit2);
     }
@@ -529,12 +529,12 @@ namespace Muon {
 
       // loop over segments in station
       const MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
-         
+
       // check if not empty
       if( !stationSegs || stationSegs->empty() ) continue;
-  
+
       // get chamber identifier, chamber index and station index
-      Identifier chid = m_helperTool->chamberId( *stationSegs->front() );
+      Identifier chid = m_helperTool->chamberId( *stationSegs->front().get() );
       MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);
       MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( chIndex );
       summary.stations.insert(stIndex);
@@ -548,13 +548,7 @@ namespace Muon {
       MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
       for (;ipsg!=ipsg_end;++ipsg){
 
-	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
-
-	if( !seg ){
-	  ATH_MSG_WARNING(" MuonSegmentCombination contains a segment that is not a MuonSegment!! ");
-	  continue;
-	}
-	
+	MuonSegment* seg=(*ipsg).get();
 	if( seg->containedROTs().size() > 3 ) {
 	  summary.stationsGood.insert(stIndex);
 	}
@@ -571,7 +565,7 @@ namespace Muon {
     CompareMuonSegmentKeys compareKeys;
 
     // store pointers to segments that should be kept
-    std::set<const MuonSegment*> segmentsToBeKept;
+    std::set<MuonSegment*> segmentsToBeKept;
     unsigned int nsegments = 0; // total number of segments 
 
     unsigned int nstations = combi.numberOfStations();
@@ -581,28 +575,21 @@ namespace Muon {
     for(unsigned int i=0; i<nstations; ++i){
 
       // loop over segments in station
-      const MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
+      MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
          
       // check if not empty
       if( !stationSegs || stationSegs->empty() ) continue;
 
-      std::vector< std::pair<MuonSegmentKey,const MuonSegment*> > keys;
+      std::vector< std::pair<MuonSegmentKey,MuonSegment*> > keys;
       keys.reserve(stationSegs->size());
 
-      MuonSegmentCombination::SegmentVec::const_iterator ipsg=stationSegs->begin();    
-      MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
+      MuonSegmentCombination::SegmentVec::iterator ipsg=stationSegs->begin();    
+      MuonSegmentCombination::SegmentVec::iterator ipsg_end=stationSegs->end();
       for (;ipsg!=ipsg_end;++ipsg){
 
 	++nsegments;
 
-	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
-
-	if( !seg ){
-	  ATH_MSG_WARNING(" MuonSegmentCombination contains a segment that is not a MuonSegment!! ");
-	  continue;
-	}
-
-	
+	MuonSegment* seg=(*ipsg).get();
 	ATH_MSG_VERBOSE("  segment " << m_printer->print(*seg) << std::endl << m_printer->print( seg->containedMeasurements() ) );
 
 	// create key
@@ -610,8 +597,8 @@ namespace Muon {
 
 	// loop over already added keys
 	bool addSegment = true;
-	std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator kit = keys.begin();
-	std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator kit_end = keys.end();
+	std::vector< std::pair<MuonSegmentKey,MuonSegment*> >::iterator kit = keys.begin();
+	std::vector< std::pair<MuonSegmentKey,MuonSegment*> >::iterator kit_end = keys.end();
 	for( ;kit!=kit_end;++kit ) {
 
 	  CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(key,kit->first);
@@ -632,8 +619,8 @@ namespace Muon {
 	
 	if( addSegment ) keys.push_back( std::make_pair(key,seg) ); 
       }
-      std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator kit = keys.begin();
-      std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator kit_end = keys.end();
+      std::vector< std::pair<MuonSegmentKey,MuonSegment*> >::iterator kit = keys.begin();
+      std::vector< std::pair<MuonSegmentKey,MuonSegment*> >::iterator kit_end = keys.end();
       for( ;kit!=kit_end;++kit ) segmentsToBeKept.insert( kit->second );
     }
 
@@ -649,28 +636,26 @@ namespace Muon {
     for(unsigned int i=0; i<nstations; ++i){
 
       // loop over segments in station
-      const MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
+      MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
          
       // check if not empty
       if( !stationSegs || stationSegs->empty() ) continue;
 
-      std::vector< const MuonSegment* >* segVec = new std::vector< const MuonSegment* >();
+      std::unique_ptr<std::vector< std::unique_ptr< MuonSegment> > > segVec(new std::vector< std::unique_ptr< MuonSegment> >());
       segVec->reserve( stationSegs->size() );
 
-
-      MuonSegmentCombination::SegmentVec::const_iterator ipsg=stationSegs->begin();    
-      MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
+      MuonSegmentCombination::SegmentVec::iterator ipsg=stationSegs->begin();    
+      MuonSegmentCombination::SegmentVec::iterator ipsg_end=stationSegs->end();
       for (;ipsg!=ipsg_end;++ipsg){
 
-	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
-
+	MuonSegment* seg=(*ipsg).get();
 	if( !segmentsToBeKept.count(seg) ){
 	  ATH_MSG_VERBOSE(" dropping segment  " << m_printer->print(*seg) );
 	  continue;
 	}else ATH_MSG_VERBOSE(" adding   segment  " << m_printer->print(*seg) );
-	segVec->push_back( seg->clone() );
+	segVec->push_back( std::move(*ipsg) );
       }	
-      newCombi->addSegments( segVec );
+      newCombi->addSegments( std::move(segVec) );
     }
     
     return newCombi;
@@ -693,9 +678,12 @@ namespace Muon {
       
       // skip empty layers
       if( chit->empty() ) continue;
-      
-      sout << " Chamber Layer: " << MuonStationIndex::chName((MuonStationIndex::ChIndex)index) << " with " << chit->size() << " segments " << std::endl
-	   << m_printer->print( *chit ) << std::endl;
+
+      sout << " Chamber Layer: " << MuonStationIndex::chName((MuonStationIndex::ChIndex)index) << " with " << chit->size() << " segments " << std::endl;
+
+      std::vector<MuonSegment*>::iterator segit=(*chit).begin();
+      std::vector<MuonSegment*>::iterator segit_end=(*chit).end();
+      for(;segit!=segit_end;++segit) sout<< m_printer->print( **segit ) << std::endl;
       
       ++index;
     }

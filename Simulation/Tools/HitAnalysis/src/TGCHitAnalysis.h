@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGC_HIT_ANALYSIS_H
@@ -26,32 +26,32 @@ class TGCHitAnalysis : public AthAlgorithm {
  public:
 
    TGCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
-   ~TGCHitAnalysis(){}
+   virtual ~TGCHitAnalysis(){}
 
-   virtual StatusCode initialize();
-   virtual StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute() override;
 
  private:
 
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_rz;
-   TH1* h_hits_eta;
-   TH1* h_hits_phi;
-   TH1* h_hits_lx;
-   TH1* h_hits_ly;
-   TH1* h_hits_lz;
-   TH1* h_hits_dcx;
-   TH1* h_hits_dcy;
-   TH1* h_hits_dcz;
-   TH1* h_hits_time;
-   TH1* h_hits_edep;
-   TH1* h_hits_kine;
-   TH1* h_hits_step;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_rz;
+   TH1* m_h_hits_eta;
+   TH1* m_h_hits_phi;
+   TH1* m_h_hits_lx;
+   TH1* m_h_hits_ly;
+   TH1* m_h_hits_lz;
+   TH1* m_h_hits_dcx;
+   TH1* m_h_hits_dcy;
+   TH1* m_h_hits_dcz;
+   TH1* m_h_hits_time;
+   TH1* m_h_hits_edep;
+   TH1* m_h_hits_kine;
+   TH1* m_h_hits_step;
 
    std::vector<float>* m_hits_x;
    std::vector<float>* m_hits_y;

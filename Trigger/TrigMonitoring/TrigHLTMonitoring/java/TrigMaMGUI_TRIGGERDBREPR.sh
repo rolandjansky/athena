@@ -1,5 +1,5 @@
-# TO RUN THE GUI, PLEASE RUN THE COMMAND:
-# source TrigMaMGUI_TRIGGERDBREPR.sh
+# Author: Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 if [ -z "$AtlasProject" ]
 then
@@ -10,10 +10,9 @@ then
 fi
 
 echo
-echo "     Trigger Menu Aware Monitoring Graphical User Interface"
+echo "     Trigger Menu-aware Monitoring Graphical User Interface"
 echo "     for use with TRIGGERDBREPR"
-echo "     by Xanthe Hoad xanthe.hoad@cern.ch"
-echo "     For more info about Menu Aware Monitoring see"
+echo "     For more info about Menu-aware Monitoring see"
 echo "     https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM"
 echo
 
@@ -26,6 +25,8 @@ then
 fi
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TARGETDIR="/tmp/${USER}/MaMGUI"
+mkdir -p $TARGETDIR
 
-javac $SCRIPTDIR/../java/TrigMaMGUI.java
-java -cp $SCRIPTDIR/../java: TrigMaMGUI TRIGGERDBREPR
+javac $SCRIPTDIR/../java/TrigMaMGUI.java -d $TARGETDIR
+java -cp $TARGETDIR: TrigMaMGUI TRIGGERDBREPR

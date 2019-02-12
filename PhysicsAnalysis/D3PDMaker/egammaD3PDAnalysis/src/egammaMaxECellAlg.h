@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: egammaMaxECellAlg.h 604352 2014-07-01 04:52:11Z ssnyder $
@@ -19,7 +19,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -56,6 +57,7 @@ public:
 
 
 private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   /// Property: Prefix to add to aux data items.
   std::string m_auxPrefix;
 
@@ -65,7 +67,6 @@ private:
   /// Property: If true, don't complain if input objects are missing.
   bool m_allowMissing;
 
-  ToolHandle<LArCablingService>  m_larCablingSvc;
 };
 
 

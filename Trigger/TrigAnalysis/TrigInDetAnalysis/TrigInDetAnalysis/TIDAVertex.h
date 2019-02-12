@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDAVertex.h        
-//
-//                   
-//  
-//
-//   $Id: TIDAVertex.h, v0.0   Thu 22 Apr 2010 15:32:23 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDAVertex.h
+ **
+ **     @author  mark sutton
+ **     @date    Thu 22 Apr 2010 15:32:23 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef TRIGINDETANALYSIS_TIDAVERTEX_H
-#define TRIGINDETANALYSIS_TIDAVERTEX_H
+#ifndef TIDA_VERTEX_H
+#define TIDA_VERTEX_H
 
 #include <iostream>
 
@@ -88,16 +86,16 @@ private:
 
 }
 
-inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& v ) { 
-  return s <<  "[ x=" << v.position()[0]  << " +- " << v.error()[0]
-	   <<  "\ty=" << v.position()[1]  << " +- " << v.error()[1]
-	   <<  "\tz=" << v.position()[2]  << " +- " << v.error()[2]
-	   << ";\tchi2="   << v.chi2()    << "/" << v.ndof()
-	   << "\tNtracks=" << v.Ntracks() << "\t]"; 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& t ) { 
+  return s <<  "[ x=" << t.position()[0]  << " +- " << t.error()[0]
+	   <<  "\ty=" << t.position()[1]  << " +- " << t.error()[1]
+	   <<  "\tz=" << t.position()[2]  << " +- " << t.error()[2]
+	   << ";\tchi2="   << t.chi2()    << "/" << t.ndof()
+	   << "\tNtracks=" << t.Ntracks() << "\t]"; 
 }
 
 
-#endif  // TRIGINDETANALYSIS_TIDAVERTEX_H
+#endif  // TIDA_VERTEX_H 
 
 
 

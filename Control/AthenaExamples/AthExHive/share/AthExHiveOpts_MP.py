@@ -12,6 +12,9 @@ from SGComps.SGCompsConf import SGInputLoader
 job += SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
 job.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
+
 from AthExHive.AthExHiveConf import *
 job += HiveAlgA(OutputLevel=DEBUG,Time=20)
 job += HiveAlgB(OutputLevel=DEBUG,Time=10)

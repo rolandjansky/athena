@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////// -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleLinks_p1.h 
@@ -20,7 +20,7 @@
 class ParticleLinks_p1{ 
  public:
     ParticleLinks_p1(){;}
-    ~ParticleLinks_p1(){;}
+   ~ParticleLinks_p1() = default;
  private:
     SelectedParticles_p1 m_sel;
     DataLink_p1 m_containerLink;

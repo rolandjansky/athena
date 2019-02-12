@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCELLCORRECTION_CALOCELLPEDESTALCORR_H
@@ -33,11 +33,8 @@ public:
 
   virtual StatusCode initialize() override;
 
-  StatusCode process( CaloCellContainer * theCellContainer) override;
-
-
   StatusCode process( CaloCellContainer * theCellContainer, 
-		      const EventContext& ctx) const; //override;
+		      const EventContext& ctx) const override;
 
 private:
   // const DataHandle<CondAttrListCollection> m_noiseAttrListColl;

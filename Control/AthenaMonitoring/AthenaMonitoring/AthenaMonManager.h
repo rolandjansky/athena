@@ -11,6 +11,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class ISvcLocator;
 class ITHistSvc;
@@ -131,6 +133,7 @@ class AthenaMonManager : public AthAlgorithm {
       // Use private implementation idiom for more flexible development.
       class Imp;
       Imp *m_d;
+
 };
 
 #endif

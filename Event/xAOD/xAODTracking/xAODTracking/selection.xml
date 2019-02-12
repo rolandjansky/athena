@@ -31,7 +31,12 @@
   <class name="xAOD::TrackParticle_v1">
          <field name="m_perigeeParameters" transient="true"/>
   </class>
-
+  <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
+        targetClass="xAOD::TrackParticle_v1" source="" target="" >
+    <![CDATA[
+       newObj->resetCache();
+    ]]> 
+  </read>
   <class name="xAOD::TrackParticleAuxContainer_v1"
          id="C3B01EA0-CA87-4C96-967F-E0F9A75BD370"/>
   <class name="xAOD::TrackParticleContainer_v1"
@@ -72,17 +77,14 @@
 
   <!-- NeutralParticle_v1 dictionaries: -->
   <class name="xAOD::NeutralParticle_v1">
-         <field name="m_perigeeCached" transient="true"/>
+         <field name="m_perigeeParameters" transient="true"/>
   </class>
-  
   <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
-        targetClass="xAOD::NeutralParticle_v1"
-        source="" target="m_perigeeCached">
+        targetClass="xAOD::NeutralParticle_v1" source="" target="" >
     <![CDATA[
-      m_perigeeCached = false;
-     ]]>
+       newObj->resetCache();
+    ]]> 
   </read>
-  
   <class name="xAOD::NeutralParticleAuxContainer_v1"
          id="006862BC-5CEB-11E3-9FB4-02163E00A92F"/>
   <class name="xAOD::NeutralParticleContainer_v1"

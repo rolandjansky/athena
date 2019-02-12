@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSampling_p1.cxx 
@@ -86,7 +86,4 @@ JetSampling_p1::JetSampling_p1()
   m_eFCal2Cell.assign(0);
   m_erad.assign(0);
 }
-
-JetSampling_p1::~JetSampling_p1()
-{}
 

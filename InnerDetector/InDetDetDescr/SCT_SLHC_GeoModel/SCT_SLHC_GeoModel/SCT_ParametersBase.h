@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_SLHC_GeoModel_SCT_ParametersBase_H
@@ -16,7 +16,7 @@ public:
   // Constructor 
   SCT_ParametersBase(const SCT_GeoModelAthenaComps * athenaComps)
     : m_athenaComps(athenaComps) {}
-  virtual ~SCT_ParametersBase() {}
+  virtual ~SCT_ParametersBase() = default;
 
   // Geometry DB Interface
   const IGeometryDBSvc * db() const {return m_athenaComps->geomDB();}

@@ -1,7 +1,7 @@
 /** -*- c++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -17,7 +17,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -56,7 +55,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       // Constructor
       SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent);
       // Destructor
-      ~SCTCalibWriteTool() {};
+      virtual ~SCTCalibWriteTool() = default;
 
       // overloading functions
       virtual StatusCode initialize();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_POSIXTIMEKEEPER_H
@@ -34,7 +34,8 @@ public:
   /// TimeKeeper Implementation
   //@{
   virtual time_t allocTime() const = 0;   ///< allocated CPU time for job
-  virtual void updateTime();  
+  // cppcheck-suppress virtualCallInConstructor
+  virtual void updateTime();
   virtual const std::string& unitLabel() const;
   //@}
 

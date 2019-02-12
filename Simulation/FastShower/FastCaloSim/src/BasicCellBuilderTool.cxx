@@ -20,7 +20,6 @@ BasicCellBuilderTool::BasicCellBuilderTool(
                                            const std::string& name,
                                            const IInterface* parent)
   :base_class(type, name, parent),
-   m_nEvent(0),
    m_caloDDM(0),
    m_caloCID(0),
    m_atlas_id(0)
@@ -104,8 +103,6 @@ StatusCode BasicCellBuilderTool::initialize()
 
   // pointer to detector manager:
   m_atlas_id = (m_caloDDM->getCalo_Mgr())->getEM_ID();
-
-  m_nEvent=0;
 
   return StatusCode::SUCCESS;
 
@@ -857,10 +854,11 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
 
 
 
-StatusCode BasicCellBuilderTool::process(CaloCellContainer * theCellContainer)
+StatusCode
+BasicCellBuilderTool::process (CaloCellContainer* theCellContainer,
+                               const EventContext& /*ctx*/) const
 {
   ATH_MSG_INFO("Executing start size=" <<theCellContainer->size());
-  ++m_nEvent;
 
   //  addCell0101(theCellContainer,48,10,300000,m_em_map);
   //  addCell0101(theCellContainer,52,10,100000,m_em_map);

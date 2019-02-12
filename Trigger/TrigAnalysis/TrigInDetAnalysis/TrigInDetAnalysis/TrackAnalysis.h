@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackAnalysis.h        
-//
-//                   
-// 
-//
-//   $Id: TrackAnalysis.h, v0.0   Sun 18 Jan 2009 19:53:18 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:53:18 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef TRIGINDETANALYSIS_TRACKANALYSIS_H
-#define TRIGINDETANALYSIS_TRACKANALYSIS_H
+#ifndef TIDA_TRACKANALYSIS_H
+#define TIDA_TRACKANALYSIS_H
 
 #include <iostream>
 #include <vector>
@@ -25,6 +23,7 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -48,10 +47,19 @@ public:
     
   /// standard operation interface 
   virtual void initialise() = 0;
- 
+
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
-			TrackAssociator* matcher ) = 0;
+			TrackAssociator*   matcher ) = 0;
+  
+  virtual void execute( const std::vector<TIDA::Track*>& tracks1,
+			const std::vector<TIDA::Track*>& tracks2,
+			TrackAssociator*   matcher, 
+			TrigObjectMatcher* /* objects */ ) {
+    execute( tracks1, tracks2, matcher );
+  };
+  
+
 
   //  virtual void execute( const std::vector<TIDA::Track*>& ,
   //			const std::vector<TIDA::Track*>& ,
@@ -110,16 +118,12 @@ public:
   TIDARoiDescriptor*  roi() const               { return m_roi; }
   void             setroi(TIDARoiDescriptor* r) { m_roi=r; }
 
-
-public:
-  /// FIXME: public for now, to avoid warnings about naming convention
-  ///        violations.  Should be fixed properly after run2 finishes.
-
+protected:
+ 
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
   std::string   mname;
 
-protected:
   /// lookup table for the histograms by name - does this 
   /// need to be in the base class?  
   std::map<std::string, TH1*> m_histos;
@@ -148,7 +152,7 @@ inline std::ostream& operator<<(std::ostream& s, const TrackAnalysis& ta) {
 }
 
 
-#endif  // TRIGINDETANALYSIS_TRACKANALYSIS_H 
+#endif  // TIDA_TRACKANALYSIS_H 
 
 
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // FCAL_HV_Energy_Rescale.cxx 
@@ -40,7 +40,7 @@ FCAL_HV_Energy_Rescale::~FCAL_HV_Energy_Rescale()
 StatusCode FCAL_HV_Energy_Rescale::initialize()
 {
   CHECK(m_hvCorrTool.retrieve());
-  ATH_CHECK( m_cabling.retrieve());
+  ATH_CHECK( m_cablingKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -65,6 +65,13 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
  
   IdentifierHash hashMin,hashMax;
   calocell_id->calo_cell_hash_range(CaloCell_ID::LARFCAL, hashMin,hashMax);
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   ATH_MSG_INFO( "Working on hash range 0 to " << hashMax  );
 
@@ -91,7 +98,7 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
     if (calocell_id->is_fcal(h)) {
       ++nFCAL;
       Identifier id=calocell_id->cell_id(h);
-      HWIdentifier hwid=m_cabling->createSignalChannelID(id);
+      HWIdentifier hwid=cabling->createSignalChannelID(id);
       const float corrNew=m_hvCorrTool->Scale(id);
       const float upd1corr=upd1HVScaleCorr->HVScaleCorr(hwid);
       

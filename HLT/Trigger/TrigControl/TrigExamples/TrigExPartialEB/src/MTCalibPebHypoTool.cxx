@@ -4,6 +4,7 @@
 
 // Trigger includes
 #include "MTCalibPebHypoTool.h"
+#include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines the PEBInfo keys expected by StreamTagMakerTool
 
 // Athena includes
 #include "AthenaKernel/Timeout.h"
@@ -44,12 +45,40 @@ namespace {
     }
     return str;
   }
-  /// ROB ID vector print helper
-  std::string robIdVecToString(const std::vector<uint32_t>& robIdVec) {
+  /// Print helper for a container with ROB/SubDet IDs
+  template<typename Container>
+  std::string idsToString(const Container& ids) {
     std::ostringstream str;
-    for (const uint32_t robId : robIdVec)
-      str << "0x" << std::hex << robId << std::dec << " ";
+    for (const uint32_t id : ids)
+      str << "0x" << std::hex << id << std::dec << " ";
     return str.str();
+  }
+  /// Append PEB information to the Decision object
+  StatusCode appendPEBInfo(TrigCompositeUtils::Decision* decision,
+                           std::set<uint32_t> robIDsToAdd,
+                           std::set<uint32_t> subDetIDsToAdd) {
+    // Merge with previous ROBs
+    std::vector<uint32_t> previousRobs;
+    if (decision->getDetail(PEBInfoWriterToolBase::robListKey(), previousRobs)) {
+      robIDsToAdd.insert(previousRobs.begin(), previousRobs.end());
+    }
+
+    // Merge with previous SubDets
+    std::vector<uint32_t> previousSubDets;
+    if (decision->getDetail(PEBInfoWriterToolBase::subDetListKey(), previousSubDets)) {
+      subDetIDsToAdd.insert(previousSubDets.begin(), previousSubDets.end());
+    }
+
+    // Attach the PEB Info to the decision
+    std::vector<uint32_t> robVec(robIDsToAdd.begin(), robIDsToAdd.end());
+    if (not decision->setDetail(PEBInfoWriterToolBase::robListKey(), robVec)) {
+      return StatusCode::FAILURE;
+    }
+    std::vector<uint32_t> subDetVec(subDetIDsToAdd.begin(), subDetIDsToAdd.end());
+    if (not decision->setDetail(PEBInfoWriterToolBase::subDetListKey(), subDetVec)) {
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
   }
 }
 
@@ -119,12 +148,12 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
     const std::vector<uint32_t>& robs = p.second;
     if (instruction.find(":ADD:")!=std::string::npos) {
       // Prefetch ROBs
-      ATH_MSG_DEBUG("Preloading ROBs: " << robIdVecToString(robs));
+      ATH_MSG_DEBUG("Preloading ROBs: " << idsToString(robs));
       m_robDataProviderSvc->addROBData(input.eventContext, robs, name()+"-ADD");
     }
     if (instruction.find(":GET:")!=std::string::npos) {
       // Retrieve ROBs
-      ATH_MSG_DEBUG("Retrieving ROBs: " << robIdVecToString(robs));
+      ATH_MSG_DEBUG("Retrieving ROBs: " << idsToString(robs));
       // VROBFRAG = std::vector<const eformat::ROBFragment<const uint32_t*>* >
       IROBDataProviderSvc::VROBFRAG robFragments;
       m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
@@ -142,15 +171,24 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
   }
 
   // ---------------------------------------------------------------------------
-  // Random accept decision
+  // Random accept decision with PEB information
   // ---------------------------------------------------------------------------
   bool accept = randomAccept(m_acceptRate);
-  if (accept) {
-    ATH_MSG_DEBUG("Decision " << m_decisionId << " is accept");
-    TrigCompositeUtils::addDecisionID(m_decisionId, input.decision);
+  if(!accept) {
+    ATH_MSG_DEBUG("Decision " << m_decisionId << " is reject");
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_DEBUG("Decision " << m_decisionId << " is accept");
+  TrigCompositeUtils::addDecisionID(m_decisionId, input.decision);
+
+  if (m_pebRobList.empty() && m_pebSubDetList.empty()) {
+    ATH_MSG_VERBOSE("Not configured to write any PEBInfo, nothing will be attached to the decision");
   }
   else {
-    ATH_MSG_DEBUG("Decision " << m_decisionId << " is reject");
+    ATH_MSG_DEBUG("Attaching ROBs=[" << idsToString(m_pebRobList) << "] and SubDets=["
+                  << idsToString(m_pebSubDetList) << "] to the decision object");
+    ATH_CHECK(appendPEBInfo(input.decision,m_pebRobList,m_pebSubDetList));
   }
 
   return StatusCode::SUCCESS;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETTAGINFOBASE_H
@@ -23,7 +23,7 @@ namespace Analysis {
   public:
     
     //!< destructor
-    virtual ~ITagInfo() { };
+    virtual ~ITagInfo() = default;
     
     //!< to set the tag likelihood for one tagger
     virtual void setTagLikelihood(const std::vector<double>&) = 0;
@@ -59,9 +59,6 @@ class JetTagInfoBase : public Analysis::ITagInfo
     friend class JetConverterBase;
   
  public:
-  //!< destructor
-  virtual ~JetTagInfoBase() { };
-  
   //!< a clone method for the proper workings of the copy constructor
   virtual JetTagInfoBase* clone() const = 0;
 };

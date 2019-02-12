@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -32,6 +32,7 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 // Utilities
+#include "EventInfoUtils/EventIDFromStore.h"
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
 
@@ -59,7 +60,6 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-    m_cablingSvc(0),
     m_mergeSvc(0),
     m_caloMgr(0), 
     m_lvl1Helper(0), 
@@ -2821,15 +2821,11 @@ void LVL1::TriggerTowerMaker::digitize()
 
 void LVL1::TriggerTowerMaker::preProcess()
 {
-  
- 
   // Pedestal Correction: Get the BCID number
-  const EventInfo* evt;
   unsigned int eventBCID=0;
-  // unsigned int m_eventNumber=0;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
-    eventBCID = evt->event_ID()->bunch_crossing_id();
-    // m_eventNumber = evt->event_ID()->event_number();
+  const EventIDBase* evid = EventIDFromStore( evtStore() );
+  if( evid ) {
+    eventBCID = evid->bunch_crossing_id();
   }else{
     ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
   }

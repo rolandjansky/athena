@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONSTEST_LARFEBRODMAPCONVERT_H
@@ -16,7 +16,8 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
 #include <iostream>
 
@@ -44,7 +45,7 @@ class LArFebRodMapConvert
 
   const LArOnlineID* m_onlineID;
 
-  ToolHandle<LArCablingService> m_cablingSvc;
+  SG::ReadCondHandleKey<LArFebRodMapping>  m_RodKey{this, "FebRodKey", "LArFebRodMap", "SG ROD mapping key"};
 
 }; 
 

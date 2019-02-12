@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "StoreGate/StoreGate.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TileCalibAlgs/TileTOFTool.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -21,7 +22,6 @@
 TileTOFTool::TileTOFTool(const std::string& type, const std::string& name, const IInterface* pParent )
   : AthAlgTool( type, name, pParent ),
     m_tileID(nullptr),
-    m_TimeCor(),
     m_LBA_LBC(),
     m_LBA_EBA(),
     m_LBC_EBC(),
@@ -30,20 +30,31 @@ TileTOFTool::TileTOFTool(const std::string& type, const std::string& name, const
     m_Nebc(),
     m_LA_EA(0),
     m_LA_LC(0),
-    m_LA_EC(0),
-    m_tcor(),
-    m_Npair()
+    m_LA_EC(0)
 {
   declareInterface<ITileCalibTool>( this );
+
+  m_timeCor = new float[4][64]();
+  m_tcor = new float[4][32][32]();
+  m_nPair = new int[4][32][32]();
 }
 
-TileTOFTool::~TileTOFTool() {}
+TileTOFTool::~TileTOFTool() {
+
+  delete[] m_timeCor;
+  delete[] m_tcor;
+  delete[] m_nPair;
+
+}
 
 ///////////////////////////////////////////////////////////
 
 StatusCode TileTOFTool::initialize()
 {
   ATH_MSG_INFO ( "initialize()" );
+
+  ATH_CHECK( m_caloCellContainerKey.initialize() );
+
   return StatusCode::SUCCESS;  
 } 
 
@@ -57,8 +68,8 @@ StatusCode TileTOFTool::execute()
 {
   ATH_MSG_INFO ( "execute()" );
 
-  const CaloCellContainer* cellCONT = nullptr;
-  ATH_CHECK( evtStore()->retrieve( cellCONT, "AllCalo") );
+  SG::ReadHandle<CaloCellContainer> cellCONT(m_caloCellContainerKey);
+  ATH_CHECK( cellCONT.isValid() );
   ATH_MSG_DEBUG ( "Cell container found" );
 
   CaloCellContainer::const_iterator iCell  = cellCONT->begin();
@@ -129,7 +140,7 @@ StatusCode TileTOFTool::execute()
 	for(int s=0; s<4; s++) {
           for(int k=0; k<32; k++) {
             for(int l=0; l<32; l++) {
-              TIMECOR(k,l+32,s,s, m_Npair[s][k][l], m_tcor[s][k][l]);
+              TIMECOR(k,l+32,s,s, m_nPair[s][k][l], m_tcor[s][k][l]);
             }
           }
         }
@@ -155,8 +166,8 @@ StatusCode TileTOFTool::finalizeCalculations()
   for(int s=0; s<4; s++) {
     for(int k=0; k<32; k++) {
       for(int l=0; l<32; l++) {
-        if(m_Npair[s][k][l]!=0) {
-          m_tcor[s][k][l] = m_tcor[s][k][l]/m_Npair[s][k][l];
+        if(m_nPair[s][k][l]!=0) {
+          m_tcor[s][k][l] = m_tcor[s][k][l]/m_nPair[s][k][l];
         }
       }
     }}
@@ -172,7 +183,7 @@ StatusCode TileTOFTool::finalizeCalculations()
   for(int s=0; s<4; s++){
     if(m_Neba[s]!=0) {
       m_LBA_EBA[s] = m_LBA_EBA[s]/m_Neba[s];
-      if(m_Npair[0][15][s+14]>5) {
+      if(m_nPair[0][15][s+14]>5) {
         m_LA_EA = m_LA_EA + m_tcor[0][15][s+14] - m_LBA_EBA[s];
         p0++;
       }
@@ -180,7 +191,7 @@ StatusCode TileTOFTool::finalizeCalculations()
 
     if(m_Nlbc[s]!=0) {
       m_LBA_LBC[s] = m_LBA_LBC[s]/m_Nlbc[s];
-      if(m_Npair[2][15][s+14]>5) {
+      if(m_nPair[2][15][s+14]>5) {
         m_LA_LC = m_LA_LC + m_tcor[2][15][s+14] - m_LBA_LBC[s];
         p2++;
       }
@@ -188,7 +199,7 @@ StatusCode TileTOFTool::finalizeCalculations()
 
     if(m_Nebc[s]!=0) {
       m_LBC_EBC[s] = m_LBC_EBC[s]/m_Nlbc[s];
-      if(m_Npair[2][15][s+14]>5) {
+      if(m_nPair[2][15][s+14]>5) {
         m_LA_EC = m_LA_EC + m_LA_LC + m_tcor[3][15][s+14] - m_LBC_EBC[s];
         p3++;
       }
@@ -202,15 +213,15 @@ StatusCode TileTOFTool::finalizeCalculations()
 // Calculation of time offsets wrt module 16 of each partition
 
    int n2[4][64] = {{0}};
-   memset( m_TimeCor, 0, sizeof(m_TimeCor) );
+   memset( m_timeCor, 0, 2 * sizeof(*m_timeCor) );
 
   for(int s=0; s<4; s++){
 
-    m_TimeCor[s][15] = 0.; n2[s][15] = 1;
+    m_timeCor[s][15] = 0.; n2[s][15] = 1;
 
     for(int k=12; k<20; k++) {
-      if(m_Npair[s][15][k]>5) {
-        m_TimeCor[s][k+32] = -m_tcor[s][15][k];
+      if(m_nPair[s][15][k]>5) {
+        m_timeCor[s][k+32] = -m_tcor[s][15][k];
         n2[s][k+32]=1;
       }
     }
@@ -219,155 +230,155 @@ StatusCode TileTOFTool::finalizeCalculations()
 
     for(int k=12; k<15; k++) {
       for(int l=16; l<20; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=12; k<16; k++) {
       for(int l=20; l<24; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=52; k<56; k++) {
       if(n2[s][k]>0) {
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
       }
     }
 
     for(int k=8; k<12; k++) { 
       for(int l=20; l<24; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=8; k<12; k++) {
       for(int l=24; l<28; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=56; k<60; k++) {
       if(n2[s][k]>0) {
-        m_TimeCor[s][k] /=n2[s][k];
+        m_timeCor[s][k] /=n2[s][k];
       }
     }
 
     for(int k=0; k<8; k++) {
       for(int l=24; l<28; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if (n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=4; k<8; k++) {
       for(int l=28; l<32; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=60; k<64; k++) {
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
 // Path to calculate all time offsets for modules in region x < 0
 
     for(int k=16; k<20; k++) {
       for(int l=12; l<16; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=16; k<20; k++) {
       for(int l=8; l<12; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=40; k<44; k++) {
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=20; k<24; k++){
       for(int l=8; l<12; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=20; k<24; k++) {
       for(int l=4; l<8; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=36; k<40; k++) {
       if(n2[s][k]>0) {
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
       }
     }
     
     for(int k=24; k<32; k++) {
       for(int l=4; l<8; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][k] += m_TimeCor[s][l+32] + m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][k] += m_timeCor[s][l+32] + m_tcor[s][k][l];
           n2[s][k]++;
         }
       }
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
 
     for(int k=24; k<28; k++) {
       for(int l=0; l<4; l++) {
-        if(m_Npair[s][k][l]>5) {
-          m_TimeCor[s][l+32] += m_TimeCor[s][k] - m_tcor[s][k][l];
+        if(m_nPair[s][k][l]>5) {
+          m_timeCor[s][l+32] += m_timeCor[s][k] - m_tcor[s][k][l];
           n2[s][l+32]++;
         }
       }
     }
     for(int k=32; k<36; k++) {
       if(n2[s][k]>0)
-        m_TimeCor[s][k] /= n2[s][k];
+        m_timeCor[s][k] /= n2[s][k];
     }
     
     for(int l=0; l<64; l++) {
-      ATH_MSG_INFO ( "Partition: " << s << " Module: " << l+1 << " TimeCor: " << m_TimeCor[s][l] << " n: " << n2[s][l] );
+      ATH_MSG_INFO ( "Partition: " << s << " Module: " << l+1 << " TimeCor: " << m_timeCor[s][l] << " n: " << n2[s][l] );
     }
   } //end of loop over different partitions
 
@@ -379,7 +390,7 @@ StatusCode TileTOFTool::writeNtuple(int runNumber, int runType, TFile * rootFile
   ATH_MSG_INFO ( "writeNtuple(" << runNumber << "," << runType << "," << rootFile << ")" );
 
   TTree *t = new TTree("TOF", "TOF");
-  t->Branch("Time_Offset", m_TimeCor, "Time_Offset[4][64]/F");
+  t->Branch("Time_Offset", m_timeCor, "Time_Offset[4][64]/F");
   t->Branch("eba16_lba16", &m_LA_EA, "eba16_lba16/F");
   t->Branch("lbc16_lba16", &m_LA_LC, "lbc16_lba16/F");
   t->Branch("ebc16_lba16", &m_LA_EC, "ebc16_lba16/F");

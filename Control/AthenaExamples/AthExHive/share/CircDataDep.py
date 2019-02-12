@@ -51,6 +51,9 @@ from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 topSequence.SGInputLoader.Load = [ ('EventInfo','StoreGateSvc+McEventInfo') ]
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg()
+
 from AthExHive.AthExHiveConf import *
 
 topSequence+=AlgT(OutputLevel=DEBUG)

@@ -67,8 +67,7 @@ class SCT_TdaqEnabledToolSetup:
     def setTool(self):
         if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_TdaqEnabledTool
-            self.tool = SCT_TdaqEnabledTool(name = self.toolName,
-                                            EventInfoKey = self.eventInfoKey)
+            self.tool = SCT_TdaqEnabledTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

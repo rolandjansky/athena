@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArDumpShapes.h,v 1.1 2006-06-27 18:31:59 ssnyder Exp $
@@ -32,6 +32,9 @@
 #define LARDUMPSHAPES_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include <string>
 
 /**
@@ -61,6 +64,8 @@ public:
 
 
 private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   /// JO property: The nmae of the ROOT file to create.
   std::string m_filename;
 

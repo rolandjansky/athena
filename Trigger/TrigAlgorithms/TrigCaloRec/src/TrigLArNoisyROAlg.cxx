@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -35,7 +35,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h"
 //#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
@@ -47,7 +46,6 @@ class ISvcLocator;
 TrigLArNoisyROAlg::TrigLArNoisyROAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator), 
     m_useCachedResult(false), m_roiEtaLimit(4.8), m_onlineID(0),
-    m_cablingService("LArCablingService"),
     m_AllTECaloClusterContainer(NULL)
 {
 
@@ -106,8 +104,8 @@ StatusCode TrigLArNoisyROAlg::geoInit(){
 	   msg(MSG::ERROR) << "Unable to retrieve LArOnlineID " << endmsg;
            return StatusCode::FAILURE;
 	}
-	if ( m_cablingService.retrieve().isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve LArCablingService " << endmsg;
+	if ( m_cablingKey.initialize().isFailure() ){
+	   msg(MSG::ERROR) << "Unable to initialize LArCabling with key " <<  m_cablingKey.key() << endmsg;
            return StatusCode::FAILURE;
 	}
 	return StatusCode::SUCCESS;
@@ -137,6 +135,12 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
 
   beforeExecMonitors().ignore();
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling = *cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have cabling map !!");
+     return HLT::ERROR;
+  }
 
   //get all input TEs
   std::string cellcontname;
@@ -190,7 +194,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
        if ( (cell->caloDDE()->getSubCalo()) != CaloCell_Base_ID::LAREM ) continue;
 
        Identifier id = cell->ID();
-       HWIdentifier hwid = m_cablingService->createSignalChannelID(id);
+       HWIdentifier hwid = cabling->createSignalChannelID(id);
        HWIdentifier febid = m_onlineID->feb_Id(hwid);
        unsigned int channel = m_onlineID->channel(hwid);
        if ( msgLvl() <= MSG::DEBUG ) {

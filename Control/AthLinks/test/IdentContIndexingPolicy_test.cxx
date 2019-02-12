@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -57,7 +57,7 @@ public:
   const_iterator indexFind(int hash) const
   { return const_iterator (m_map.find (hash)); }
 
-  void set (unsigned hash, unsigned idx, std::string val)
+  void set (unsigned hash, unsigned idx, const std::string& val)
   {
     IDENTIFIABLE& i = m_map[hash];
     i.m_hash = hash;

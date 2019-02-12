@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRACKSIMWRAP_DUMPSP
@@ -51,7 +51,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
 class StoreGateSvc;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.h 
@@ -51,8 +51,7 @@ namespace item {
   };
 }
 
-class ItemListSvc : virtual public IItemListSvc,
-		    public AthService 
+class ItemListSvc : public extends<AthService, IItemListSvc>
 { 
 
 public: 
@@ -66,30 +65,26 @@ public:
 public:
 
   /// Gaudi Service Implementation
-  StatusCode initialize();
+  StatusCode initialize() override;
   //StatusCode start();
-  StatusCode finalize();
+  StatusCode finalize() override;
 
   // Public interface methods
   // non-const
   //
   // add a stream-item pair to the service listing
-  StatusCode addStreamItem(std::string stream, std::string itemname);
+  virtual StatusCode addStreamItem(const std::string& stream, const std::string& itemname) override;
   // remove Item 
-  StatusCode removeStreamItem(std::string stream, std::string itemname);
+  virtual StatusCode removeStreamItem(const std::string& stream, const std::string& itemname) override;
   //
   // const
   //
   // check if a stream-item is registered
-  bool containsItem(const std::string itemname, const std::string stream="ANY") const;
+  virtual bool containsItem(const std::string& itemname, const std::string& stream="ANY") const override;
   // get the streams for a given item
-  std::vector<std::string> getStreamsForItem(const std::string itemname) const;
+  virtual std::vector<std::string> getStreamsForItem(const std::string& itemname) const override;
   // get the items for a given stream
-  std::vector<std::string> getItemsForStream(const std::string stream) const;
-
-  static const InterfaceID& interfaceID();
-
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
+  virtual std::vector<std::string> getItemsForStream(const std::string& stream) const override;
 
 private:
   // Map between streams and items
@@ -102,15 +97,5 @@ private:
   
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& ItemListSvc::interfaceID() 
-{ 
-  return IItemListSvc::interfaceID(); 
-}
-
 
 #endif //> !ATHENASERVICES_ITEMLISTSVC_H
-

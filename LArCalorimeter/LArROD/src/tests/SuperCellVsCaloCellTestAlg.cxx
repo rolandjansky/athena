@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArROD includes
@@ -16,11 +16,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //needed for linker ...
 //constexpr double SuperCellVsCaloCellTestAlg::eBins[SuperCellVsCaloCellTestAlg::nBinsE+1];
@@ -85,7 +81,7 @@ StatusCode SuperCellVsCaloCellTestAlg::initialize() {
    ServiceHandle<ITHistSvc> histSvc("THistSvc",name());
    CHECK( histSvc->regTree(TString::Format("/%s/debug",m_stream.c_str()).Data(),m_tree) );
 
-
+   ATH_CHECK( m_cablingKey.initialize() );
 
 
    return StatusCode::SUCCESS;
@@ -128,8 +124,12 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
 
    const CaloCellContainer* tscells=0;if(!m_tscKey.empty()) CHECK( evtStore()->retrieve(tscells,m_tscKey) );
 
-   
-
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey}; 
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling) {
+      ATH_MSG_ERROR("Do not have SC mapping object " << m_cablingKey.key() );
+      return StatusCode::FAILURE;
+   }
 
    //iterate over supercells, and build up a histogram of the resolution
    for(auto scell : *scells) {
@@ -167,11 +167,9 @@ StatusCode SuperCellVsCaloCellTestAlg::execute() {
 
          //detect suspicious supercells .. where truth energy is greater than 1GeV and we measure less than 25% of it, or super cell ET is greater than 1GeV and truth ET < 25% of that
          if( (tscellEt>1. && scellEt/tscellEt<0.25) || (scellEt>1. && tscellEt/scellEt<0.25) ) {
-            const EventInfo* evt = 0; CHECK( evtStore()->retrieve(evt) );
-            m_eventNumber = evt->event_ID()->event_number();
+	    m_eventNumber = getContext().eventID().event_number();
 
-            ToolHandle<LArSuperCellCablingTool> larCablingTool;
-            HWIdentifier hwid = larCablingTool->createSignalChannelID(scell->ID());
+            HWIdentifier hwid = cabling->createSignalChannelID(scell->ID());
             m_treeChannel = hwid.get_identifier32().get_compact();
             m_treeSampling = samplingEnum;
             m_treeEta = scell->caloDDE()->eta();

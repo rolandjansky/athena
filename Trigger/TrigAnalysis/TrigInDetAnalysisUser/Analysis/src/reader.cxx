@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    reader.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: reader.cxx, v0.0   Mon 30 Jan 2012 18:43:21 CET sutt $
+/**
+ **     @file    reader.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Mon 30 Jan 2012 18:43:21 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 

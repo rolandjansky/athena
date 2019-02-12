@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
@@ -1659,7 +1659,7 @@ const Amg::Vector3D& MuonCombinePatternTool::globalPrdPos( const Trk::PrepRawDat
   return prd->detectorElement()->surface(prd->identify()).center();
 }
 
-const MuonPatternCombinationCollection* MuonCombinePatternTool::makePatternCombinations(const MuonPrdPatternCollection* muonpatterns)const
+MuonPatternCombinationCollection* MuonCombinePatternTool::makePatternCombinations(const MuonPrdPatternCollection* muonpatterns)const
 {
   ATH_MSG_DEBUG("makePatternCombinations");
 

@@ -21,13 +21,12 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
-#include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // STL includes
+#include <atomic>
 #include <string>
-#include <vector>
 
 //forward declarations
 class IdentifierHash;
@@ -71,7 +70,7 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   double m_biasVoltage;
 
   bool m_conditionsToolValid;
-  mutable bool m_conditionsToolWarning;
+  mutable std::atomic_bool m_conditionsToolWarning;
  
   // -- Radiation damage specific
   bool m_calcHoles;
@@ -86,12 +85,6 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   ToolHandle<ISCT_ElectricFieldTool> m_electricFieldTool{this, "SCT_ElectricFieldTool", "SCT_ElectricFieldTool", "SCT electric field tool"};
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 };
 

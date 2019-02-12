@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_MajorityConditionsTool.h"
@@ -14,15 +14,10 @@ using namespace SCT_ConditionsData;
 
 // Constructor
 SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_overall{false},
-  m_majorityFraction{0.9},
-  m_mutex{},
-  m_cache{},
-  m_condData{}
+  base_class(type, name, parent)
  {
-  declareProperty("UseOverall", m_overall);
-  declareProperty("MajorityFraction", m_majorityFraction);
+  declareProperty("UseOverall", m_overall=false);
+  declareProperty("MajorityFraction", m_majorityFraction=0.9);
 }
 
 // Initialize
@@ -43,8 +38,7 @@ StatusCode SCT_MajorityConditionsTool::finalize() {
 }
 
 // Is the detector good?
-bool SCT_MajorityConditionsTool::isGood() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+bool SCT_MajorityConditionsTool::isGood(const EventContext& ctx) const {
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return false;
 
@@ -58,9 +52,13 @@ bool SCT_MajorityConditionsTool::isGood() const {
   }
 }
 
-// Is a barrel/endcap good?
-bool SCT_MajorityConditionsTool::isGood(int bec) const {
+bool SCT_MajorityConditionsTool::isGood() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(ctx);
+}
+
+// Is a barrel/endcap good?
+bool SCT_MajorityConditionsTool::isGood(int bec, const EventContext& ctx) const {
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return false;
 
@@ -81,22 +79,12 @@ bool SCT_MajorityConditionsTool::isGood(int bec) const {
   return result;
 }
 
+bool SCT_MajorityConditionsTool::isGood(int bec) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(bec, ctx);
+}
+
 const SCT_MajorityCondData* SCT_MajorityConditionsTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+  SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
 }

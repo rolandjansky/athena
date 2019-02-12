@@ -33,7 +33,7 @@
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
-
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 #include "MergingEventLoopMgr.h"
@@ -526,7 +526,7 @@ namespace TrigSim {
                 m_currentRun = pPrimEvt->event_ID()->run_number();
                 m_firstRun = false;
 
-                m_incidentSvc->fireIncident(EventIncident(*pPrimEvt, name(),"BeginRun"));
+                m_incidentSvc->fireIncident(EventIncident(name(),"BeginRun",Gaudi::Hive::currentContext()));
 
                 sc = beginRunAlgorithms();
                 if(sc.isFailure()) {
@@ -545,7 +545,7 @@ namespace TrigSim {
              *  Fire suitable incident
              */
 
-            m_incidentSvc->fireIncident(EventIncident(*pPrimEvt, name(),"BeginEvent"));
+            m_incidentSvc->fireIncident(EventIncident(name(),"BeginEvent",Gaudi::Hive::currentContext()));
 
 
 
@@ -849,7 +849,7 @@ namespace TrigSim {
             /*
              *  Fire suitable incident
              */
-            m_incidentSvc->fireIncident(EventIncident(*pPrimEvt, name(),"EndEvent"));
+            m_incidentSvc->fireIncident(EventIncident(name(),"EndEvent",Gaudi::Hive::currentContext()));
 
 
 

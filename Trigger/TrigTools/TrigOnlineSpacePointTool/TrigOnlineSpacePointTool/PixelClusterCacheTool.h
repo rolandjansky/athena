@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGONLINESPACEPOINTTOOL_PIXELCLUSTERCACHETOOL_H
@@ -18,7 +18,7 @@
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include <vector>
 #include <string>
 

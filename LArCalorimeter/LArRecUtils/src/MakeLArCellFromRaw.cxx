@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of MakeLArCellFromRaw
@@ -15,7 +15,7 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArRawUtils/LArRoI_Map.h" 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -75,10 +75,10 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
     log <<MSG::ERROR << "cannot find ToolSvc in MakeLArCellFromRaw " << endmsg;
     return;
   }
-  sc = p_toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
+  sc = p_toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
   if (sc.isFailure())
   {
-    log <<MSG::INFO<< "cannot find LArCablingService in MakeLArCellFromRaw " << endmsg;
+    log <<MSG::INFO<< "cannot find LArCablingLegacyService in MakeLArCellFromRaw " << endmsg;
     return;
   }
 

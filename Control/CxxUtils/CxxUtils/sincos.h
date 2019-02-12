@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: sincos.h,v 1.1 2008-11-24 04:34:07 ssnyder Exp $
@@ -74,6 +74,7 @@ namespace CxxUtils {
  */
 struct sincos
 {
+  // cppcheck-suppress uninitMemberVar  ; false positive
   /// Calculate sine and cosine of x.
   sincos (double x)
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))

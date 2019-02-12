@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyJobOptionsSvc.h 
@@ -29,6 +29,8 @@
 // AthenaPython includes
 #include "PyJobOptionsCatalogue.h"
 
+#include "CxxUtils/checker_macros.h"
+
 // Forward declaration
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
@@ -37,7 +39,7 @@ class IProperty;
 struct _object; 
 typedef _object PyObject;
 
-class PyJobOptionsSvc
+class ATLAS_NOT_THREAD_SAFE PyJobOptionsSvc
   : virtual public ::IJobOptionsSvc,
     virtual public ::IProperty,
             public ::AthService

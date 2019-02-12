@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1TriggerTowerTool.h, 
@@ -21,6 +21,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class CaloIdManager;
 class CaloLVL1_ID;
@@ -127,6 +129,7 @@ namespace LVL1
       virtual StatusCode loadFTRefs();
     
     private:
+      bool isRun2() const;
   
       /** Print a vector to debug */
       template <typename T>
@@ -156,7 +159,6 @@ namespace LVL1
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
       // one of L1CaloPprConditionsContainer{,Run2}*
-      bool m_isRun2;
       
       /// For Run2 strategy (LowMu, HighMu)
       L1CaloPprChanStrategyContainer* m_strategyContainer;
@@ -177,6 +179,9 @@ namespace LVL1
       /// Baseline correction Tool
       bool m_correctFir;
       ToolHandle<LVL1::IL1DynamicPedestalProvider> m_dynamicPedestalProvider;
+
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+      { this, "EventInfoKey", "EventInfo", "" };
 
       ///Parameters
       static const int s_saturationValue = 255;

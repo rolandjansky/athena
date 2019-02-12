@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -27,8 +27,6 @@ class LArRampFlat:
   bool good() const { return m_isInitialized && m_nChannels>0; }
 
   virtual  RampRef_t ADC2DAC(const HWIdentifier&  CellID, int gain) const ;  
-  virtual  RampRef_t ADC2DAC(const Identifier&  CellID, int gain) const;
-  
 
 };
 

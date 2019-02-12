@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFO_H
@@ -22,10 +22,6 @@
 
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
-#include "TileConditions/TileCondIdTransforms.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -86,64 +82,6 @@ class TileInfo : public DataObject {
   int NPhElec(int samp) const { return m_nPhElecVec[samp]; }
 
 
-  //==================================================================
-  //==
-  //== Accessor methods for calibration constants
-  //==
-  //==================================================================
-
-  /** Returns the calibration for a given ADC and amplitude.
-      This function should be called by most users. It returns the complete calibration
-      from rawDataUnitIn to rawDataUnitOut for a given reconstruction method specified in filterType.
-      @param adc_id The adc of interest
-      @param amplitude The "amplitude" in untis of rawDataUnitIn
-      @param rawDataUnitIn One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
-      @param rawDataUnitOut One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
-      @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
-  */
-  double ChannelCalib(const HWIdentifier& adc_id,
-                      double amplitude,
-                      const TileRawChannelUnit::UNIT rawDataUnitIn  = TileRawChannelUnit::ADCcounts,
-                      const TileRawChannelUnit::UNIT rawDataUnitOut = TileRawChannelUnit::MegaElectronVolts,
-                      const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const;
-
-  /** Returns the calibration factor for a given ADC.
-      This function should be called by most users. It returns the complete calibration
-      from rawDataUnitIn to rawDataUnitOut for a given reconstruction method specified in filterType.
-      @param adc_id The adc of interest
-      @param rawDataUnitIn One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
-      @param rawDataUnitOut One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
-      @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
-  */
-  double ChannelCalib(const HWIdentifier& adc_id,
-                      const TileRawChannelUnit::UNIT rawDataUnitIn  = TileRawChannelUnit::ADCcounts,
-                      const TileRawChannelUnit::UNIT rawDataUnitOut = TileRawChannelUnit::MegaElectronVolts,
-                      const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const
-    { return ChannelCalib(adc_id, 1.0, rawDataUnitIn, rawDataUnitOut, filterType); }
-
-  /** Returns the input amplitude corrected with the EM scale calibration. */
-  double EmsCalib(const HWIdentifier& channel_id, double amplitude=1.0) const;
-
-  /** Returns the input amplitude corrected with the cesium calibration.
-      Note: The constant for D-layer cells will be around 1.2
-      @param channel_id Channel hardware (online) identifier
-      @param amplitude Input amplitude
-      @param applyLasCorr If set to true, a laser stability correction is applied (not implemented yet)
-  */
-  double CesiumCalib(const HWIdentifier& channel_id, double amplitude=1.0, bool applyLasCorr=true) const;
-
-  /** Returns the input amplitude corrected with the laser calibration. */
-  double LaserCalib(const HWIdentifier& channel_id, double amplitude=1.0) const;
-
-  /** Retruns the input amplitude corrected with the CIS calibration.
-      @param adc_id The adc of interest
-      @param amplitude Amplitude of pulse in units of ADC counts
-      @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
-   */
-  double CisCalib(const HWIdentifier& adc_id, double amplitude=1.0,
-                  const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const;
-
-
   /** TileHit to TileCell energy conversion.
       Returns the factor for converting TileHit amplitude to TileCell energy in simulation*/
   double HitCalib(const Identifier& pmt_id) const;
@@ -161,36 +99,6 @@ class TileInfo : public DataObject {
   bool TileCoherNoise() const {return m_tileCoherNoise;}
   /** Zero suppression switched on/off? */
   bool TileZeroSuppress() const {return m_tileZeroSuppress;}
-
-  /** Returns digits noise for given ADC in units of ADC counts.
-      This function returns the noise level in ADC counts for individual samples */
-  double DigitsPedSigma(const HWIdentifier& adc_id) const;
-  double DigitsPedSigma(int gain, int channel, int drawerHash) const
-    { return m_tileToolNoiseSample->getHfn(drawerHash,channel,gain); }
-
-  /** Returns the pedestal for a given ADC in units of ADC counts.
-      For the simulation, slightly different levels depending on channel/gain
-      are returned.
-  */
-  double DigitsPedLevel(const HWIdentifier& adc_id) const;
-  double DigitsPedLevel(int gain, int channel, int drawerHash) const
-    { return m_tileToolNoiseSample->getPed(drawerHash,channel,gain); }
-
-  /** Return the expected noise sigma for a given channel and reco-method in ADC counts.
-      It takes noise sigma of an individual digit and multiplies it by a special factor
-      which depends on reco-method
-  */
-  double ChannelNoiseSigma(const HWIdentifier& adc_id) const
-    { return DigitsPedSigma(adc_id)*m_noiseScaleFactor[m_noiseScaleIndex]; }
-  double ChannelNoiseSigma(int gain, int channel, int drawerHash) const
-    { return DigitsPedSigma(gain,channel,drawerHash)*m_noiseScaleFactor[m_noiseScaleIndex]; }
-
-  /** Should in the future return the expected noise sigma for a given cell and reco-method.
-      As a first approach, now we use the noise sigma of an individual digit, convert it to MeV
-      and multiply it by a special factor which depends on reco-method
-  */
-  double CellNoiseSigma(const Identifier& cell_id, CaloGain::CaloGain gain,
-			const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const;
 
   /** Returns the decomposed covariance matrix*/
   const TMatrixD * DecoCovariance(int ros, int drawer, int hilo) const;
@@ -344,23 +252,6 @@ class TileInfo : public DataObject {
   void muRcvShape(const int nsamp, const int itrig, const double phase,
                  std::vector<double> &murcvshape) const;
 
-  //==================================================================
-  //==
-  //== Accessor methods for timing corrections
-  //==
-  //==================================================================
-
-  double TimeCalib(const HWIdentifier &adc_id, double time) const;
-
-
-  //==================================================================
-  //==
-  //== Accessor methods for "bad" channels
-  //==
-  //==================================================================
-
-  uint32_t GetAdcStatus(const HWIdentifier &adc_id) const;
-  uint32_t GetChannelStatus(const HWIdentifier &channel_id) const;
 
   //==================================================================
   //==
@@ -514,10 +405,6 @@ class TileInfo : public DataObject {
   double m_mev2adcTB[32];
 
   ServiceHandle<TileCablingSvc>       m_tileCablingSvc;
-  ToolHandle<TileCondIdTransforms>    m_tileIdTrans;
-  ToolHandle<TileCondToolEmscale>     m_tileToolEmscale;
-  ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
-  ToolHandle<TileCondToolTiming>      m_tileToolTiming;
 
   int    m_nPhElec;
   int    m_nPhElecVec[7];

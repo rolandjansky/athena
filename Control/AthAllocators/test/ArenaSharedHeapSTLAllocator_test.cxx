@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaSharedHeapSTLAllocator_test.cxx 470825 2011-11-25 23:20:57Z ssnyder $
@@ -41,6 +41,7 @@ struct Payload
   static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
+// cppcheck-suppress uninitMemberVar ; false positive
 Payload::Payload(int the_y)
 {
   x = n++;

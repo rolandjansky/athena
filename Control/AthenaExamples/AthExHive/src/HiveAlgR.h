@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_HIVEALGR_H
@@ -10,7 +10,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class HiveAlgR  :  public AthReentrantAlgorithm {
   
@@ -29,7 +29,7 @@ public:
   
 private:
 
-  SG::ReadHandleKey<EventInfo> m_evt{this, "EvtInfo", "McEventInfo", "event info key"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt{this, "EvtInfo", "EventInfo", "event info key"};
 
   SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "ar1", "write handle key"};
   

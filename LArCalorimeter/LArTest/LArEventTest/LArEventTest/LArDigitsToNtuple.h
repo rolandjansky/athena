@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,10 +24,11 @@
 #include <string>
 #include <map>
 
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
@@ -43,9 +44,8 @@ class LArDigitsToNtuple : public AthAlgorithm
   StatusCode execute();
   StatusCode finalize();
  private:
-
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"};
   const LArOnlineID *m_onlineHelper; 
-  LArCablingService *m_larCablingSvc;
   const LArEM_ID    *m_emId;
   const LArHEC_ID   *m_hecId;
   const LArFCAL_ID  *m_fcalId;

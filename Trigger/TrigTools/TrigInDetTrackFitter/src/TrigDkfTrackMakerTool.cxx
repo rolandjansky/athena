@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,7 @@
 
 TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ): AthAlgTool(t,n,p),
-  m_mutex{},
-  m_cacheSCTElements{}
+					     const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< ITrigDkfTrackMakerTool >( this );
   m_idHelper=NULL;
@@ -349,22 +347,7 @@ bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track,
 }
 
 const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cacheSCTElements.size()) {
-    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheSCTElements[slot]!=evt) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_SCTDetectorElements.set(*condData);
-    m_cacheSCTElements[slot] = evt;
-  }
-  return (m_SCTDetectorElements.isValid() ? m_SCTDetectorElements->getDetectorElement(waferHash) : nullptr);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+  if (not  condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }

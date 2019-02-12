@@ -151,7 +151,7 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 	msg(MSG::INFO) << "--> Input VP1 Configuration file: " << m_inputVP1CfgFile
 			<< endmsg;
 
-	// LAUNCH VP1-Batch on the latest-produced ESD file
+	// build the command to launch VP1-Batch on the latest-produced ESD file
 	std::string commandStr = "vp1 -batch";
 
 	// add custom output folder, if user specified it

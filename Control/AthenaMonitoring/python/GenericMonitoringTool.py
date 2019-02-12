@@ -32,7 +32,7 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     if path is None:
         import warnings
-        warnings.warn("Calling defineHistrogram without path is deprecated. Specify e.g. path='EXPERT'", stacklevel=2)
+        warnings.warn("WARNING: Calling defineHistrogram without path is deprecated. Specify e.g. path='EXPERT'", stacklevel=2)
         path = 'EXPERT'
 
     if title is None: title=varname
@@ -49,8 +49,9 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # For backwards compatibility
     elif labels is not None:
-        log.warning("The 'label1:label2' syntax in defineHistogram is deprecated. "
-                    "Please use a list instead: ['label1','label2']")
+        import warnings
+        warnings.warn("WARNING: The 'label1:label2' syntax in defineHistogram is deprecated. "
+                      "Please use a list instead: ['label1','label2']", stacklevel=2)
         labels = labels.strip()   # remove spurious white-spaces
         if len(labels)>0:
             if labels[-1]!=':': labels += ':'

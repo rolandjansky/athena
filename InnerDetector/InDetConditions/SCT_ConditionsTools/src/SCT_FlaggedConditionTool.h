@@ -49,14 +49,18 @@ public:
 
   /**Get the reason why the wafer is bad (by Identifier)*/ 
   virtual const std::string& details(const Identifier& id) const override;
+  virtual const std::string& details(const Identifier& id, const EventContext& ctx) const override;
   /**Get the reason why the wafer is bad (by IdentifierHash)*/ 
   virtual const std::string& details(const IdentifierHash& id) const override;
+  virtual const std::string& details(const IdentifierHash& id, const EventContext& ctx) const override;
 
   /**Get number flagged as bad (per event)*/
   virtual int numBadIds() const override;
+  virtual int numBadIds(const EventContext& ctx) const override;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
   virtual const SCT_FlaggedCondData* getBadIds() const override;
+  virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const override;
 
  private:
   SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds;

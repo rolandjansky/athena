@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -87,8 +87,9 @@ StatusCode TileCellNoiseFilter::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileCellNoiseFilter::process(CaloCellContainer *cellcoll) {
-
+StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll,
+                                         const EventContext& /*ctx*/) const
+{
   ATH_MSG_DEBUG("in process()");
 
   int nCells = cellcoll->nCellsCalo(s_caloIndex);
@@ -99,7 +100,8 @@ StatusCode TileCellNoiseFilter::process(CaloCellContainer *cellcoll) {
 
   // common-mode shift calculation
   ATH_MSG_DEBUG("Calculating common-mode shift...");
-  int ncorr = this->calcCM(cellcoll);
+  cmdata_t commonMode = {{{0}}};
+  int ncorr = this->calcCM(cellcoll, commonMode);
   if (ncorr <= 0) {
     ATH_MSG_DEBUG( "Failed to calculate common-mode shift - no corrections applied");
     return StatusCode::SUCCESS;
@@ -116,7 +118,7 @@ StatusCode TileCellNoiseFilter::process(CaloCellContainer *cellcoll) {
     if (tilecell == 0) continue;
     if (tilecell->badcell()) continue;
 
-    setCMSEnergy(tilecell);
+    setCMSEnergy(commonMode, tilecell);
   }
 
   return StatusCode::SUCCESS;
@@ -130,7 +132,8 @@ StatusCode TileCellNoiseFilter::finalize() {
 
 // ============================================================================
 // correct energy
-void TileCellNoiseFilter::setCMSEnergy(TileCell* tilecell) {
+void TileCellNoiseFilter::setCMSEnergy(const cmdata_t& commonMode,
+                                       TileCell* tilecell) const {
   //Identifier id  = tilecell->ID(); 
   bool good1 = !tilecell->badch1();
   bool good2 = !tilecell->badch2();
@@ -150,7 +153,7 @@ void TileCellNoiseFilter::setCMSEnergy(TileCell* tilecell) {
     int chan = m_tileHWID->channel(adc_id);  // 0-47
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(partition, drawer);
     e1 -= m_tileToolEmscale->channelCalib(drawerIdx, chan, gain1,
-        this->getCMShift(partition - 1, drawer, chan),
+        this->getCMShift(commonMode, partition - 1, drawer, chan),
         TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
   }
 
@@ -161,7 +164,7 @@ void TileCellNoiseFilter::setCMSEnergy(TileCell* tilecell) {
     int chan = m_tileHWID->channel(adc_id);  // 0-47
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(partition, drawer);
     e2 -= m_tileToolEmscale->channelCalib(drawerIdx, chan, gain2,
-        this->getCMShift(partition - 1, drawer, chan),
+        this->getCMShift(commonMode, partition - 1, drawer, chan),
         TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
   }
 
@@ -187,13 +190,13 @@ void TileCellNoiseFilter::setCMSEnergy(TileCell* tilecell) {
 
 // ============================================================================
 // calculate correction
-int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
-
+int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll,
+                                cmdata_t& commonMode) const
+{
   bool useCaloNoise = (!m_useTileNoiseDB);
 
-  memset(m_commonMode, 0, sizeof(m_commonMode));
-  memset(m_nEmptyChan, 0, sizeof(m_nEmptyChan));
-  memset(m_nGoodChan, 0, sizeof(m_nGoodChan));
+  int nEmptyChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
+  int nGoodChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
 
   size_t cellItr = cellcoll->indexFirstCellCalo(s_caloIndex);
   size_t lastCell = cellcoll->indexLastCellCalo(s_caloIndex);
@@ -240,7 +243,7 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
       int chan = m_tileHWID->channel(adc_id); // 0-47
       int mob = (int) (chan / s_maxChannel);
 
-      ++m_nGoodChan[partition - 1][drawer][mob];
+      ++nGoodChan[partition - 1][drawer][mob];
 
       if (gain1 == TileID::HIGHGAIN) {
 
@@ -280,8 +283,8 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
 
         // use only empty channels with less significance
         if (significance <= m_truncationThresholdOnAbsEinSigma) {
-          m_commonMode[partition - 1][drawer][mob] += amp;
-          m_nEmptyChan[partition - 1][drawer][mob]++;
+          commonMode[partition - 1][drawer][mob] += amp;
+          nEmptyChan[partition - 1][drawer][mob]++;
         }
       }
     }
@@ -293,7 +296,7 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
       int chan = m_tileHWID->channel(adc_id); // 0-47
       int mob = (int) (chan / s_maxChannel);
 
-      ++m_nGoodChan[partition - 1][drawer][mob];
+      ++nGoodChan[partition - 1][drawer][mob];
 
       if (gain2 == TileID::HIGHGAIN) {
 
@@ -335,8 +338,8 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
 
         // use only empty channels with less significance
         if (significance <= m_truncationThresholdOnAbsEinSigma) {
-          m_commonMode[partition - 1][drawer][mob] += amp;
-          m_nEmptyChan[partition - 1][drawer][mob]++;
+          commonMode[partition - 1][drawer][mob] += amp;
+          nEmptyChan[partition - 1][drawer][mob]++;
         }
       }
     }
@@ -351,30 +354,30 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
 
         if (m_minimumNumberOfTruncatedChannels < 1.0) {
           nchmin = ceil(m_minimumNumberOfTruncatedChannels
-                        * m_nGoodChan[partition][drawer][mob]);
+                        * nGoodChan[partition][drawer][mob]);
           if (nchmin < 2) nchmin = 2;
         }
 
-        if (m_nEmptyChan[partition][drawer][mob] >= nchmin) {
-          m_commonMode[partition][drawer][mob] /= m_nEmptyChan[partition][drawer][mob];
+        if (nEmptyChan[partition][drawer][mob] >= nchmin) {
+          commonMode[partition][drawer][mob] /= nEmptyChan[partition][drawer][mob];
           ++ncorr;
           ATH_MSG_VERBOSE( "ros " << partition + 1 << std::setw(2)
                           << " drawer " << std::setw(2) << drawer
                           << " mb " << mob
-                          << " mean " << m_commonMode[partition][drawer][mob]
-                          << " taken from " << m_nEmptyChan[partition][drawer][mob] << " channels"
-                          << " nchgood " << m_nGoodChan[partition][drawer][mob]
+                          << " mean " << commonMode[partition][drawer][mob]
+                          << " taken from " << nEmptyChan[partition][drawer][mob] << " channels"
+                          << " nchgood " << nGoodChan[partition][drawer][mob]
                           << " nchmin " << nchmin );
 
         } else {
           if (msgLvl(MSG::VERBOSE)) {
-            if (m_commonMode[partition][drawer][mob] != 0.0) {
+            if (commonMode[partition][drawer][mob] != 0.0) {
               msg(MSG::VERBOSE) << "ros " << partition + 1 << std::setw(2)
                                 << " drawer " << std::setw(2) << drawer
                                 << " mb " << mob
-                                << " mean is zero instead of " << m_commonMode[partition][drawer][mob]
-                                << " / " << m_nEmptyChan[partition][drawer][mob]
-                                << " nchgood " << m_nGoodChan[partition][drawer][mob]
+                                << " mean is zero instead of " << commonMode[partition][drawer][mob]
+                                << " / " << nEmptyChan[partition][drawer][mob]
+                                << " nchgood " << nGoodChan[partition][drawer][mob]
                                 << " nchmin " << nchmin
                                 << endmsg;
             } else {
@@ -382,12 +385,12 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
                                 << " drawer " << std::setw(2) << drawer
                                 << " mb " << mob
                                 << " mean is zero - nothing to correct"
-                                << " nchgood " << m_nGoodChan[partition][drawer][mob]
+                                << " nchgood " << nGoodChan[partition][drawer][mob]
                                 << " nchmin " << nchmin
                                 << endmsg;
             }
           }
-          m_commonMode[partition][drawer][mob] = 0.0;
+          commonMode[partition][drawer][mob] = 0.0;
         }
       }
     }

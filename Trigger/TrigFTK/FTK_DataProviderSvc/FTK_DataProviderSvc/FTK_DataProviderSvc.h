@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_DATAPROVIDERSVC_H
@@ -7,8 +7,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/EventContext.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -31,10 +29,9 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 
-#include <mutex>
 #include <vector>
 #include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 
@@ -277,14 +274,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_doVertexSorting;
   bool m_processAuxTracks;
   bool m_getHashIDfromConstants;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;  
-
 
 };
 

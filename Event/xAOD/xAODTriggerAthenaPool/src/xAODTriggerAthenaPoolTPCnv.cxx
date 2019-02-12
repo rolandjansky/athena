@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -16,6 +16,8 @@
 #include "xAODTrigger/versions/EmTauRoIAuxContainer_v1.h"
 #include "xAODTrigger/JetRoIAuxContainer.h"
 #include "xAODTrigger/versions/JetRoIAuxContainer_v1.h"
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "xAODTrigger/versions/TrigCompositeAuxContainer_v1.h"
 
 // Local include(s):
 #include "xAODEmTauRoIContainerCnv_v1.h"
@@ -24,6 +26,7 @@
 #include "xAODJetRoIAuxContainerCnv_v1.h"
 #include "xAODEnergySumRoIAuxInfoCnv_v1.h"
 #include "xAODEnergySumRoICnv_v1.h"
+#include "xAODTrigCompositeAuxContainerCnv_v1.h"
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODEmTauRoIContainerCnv_v1,
@@ -56,3 +59,7 @@ DECLARE_TPCNV_FACTORY( xAODEnergySumRoICnv_v1,
                        xAOD::EnergySumRoI_v1,
                        Athena::TPCnvVers::Old )
 
+DECLARE_TPCNV_FACTORY( xAODTrigCompositeAuxContainerCnv_v1,
+                       xAOD::TrigCompositeAuxContainer,
+                       xAOD::TrigCompositeAuxContainer_v1,
+                       Athena::TPCnvVers::Old )

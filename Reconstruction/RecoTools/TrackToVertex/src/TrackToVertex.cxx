@@ -27,7 +27,7 @@ const Amg::Vector3D Reco::TrackToVertex::s_origin(0.,0.,0.);
 // constructor
 Reco::TrackToVertex::TrackToVertex(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this)
 {
    declareInterface<ITrackToVertex>(this);
    // the extrapolatr and the BeamCondSvc 

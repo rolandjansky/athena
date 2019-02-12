@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHandleBaseT_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -53,7 +53,7 @@ public:
     iterator (std::vector<Payload>::iterator it)
       : m_it (std::move(it)) {}
     reference operator*() const { return *m_it; }
-    iterator& operator++() { m_it++; return *this; }
+    iterator& operator++() { ++m_it; return *this; }
     bool operator== (const iterator& other) const
     { return m_it == other.m_it; }
 
@@ -72,7 +72,7 @@ public:
     const_iterator (TestAlloc::iterator it)
       : m_it (&*it) {}
     reference operator*() const { return *m_it; }
-    const_iterator& operator++() { m_it++; return *this; }
+    const_iterator& operator++() { ++m_it; return *this; }
     bool operator== (const const_iterator& other) const
     { return m_it == other.m_it; }
     bool operator== (const TestAlloc::iterator& other) const
@@ -99,7 +99,8 @@ private:
 
 
 TestAlloc::TestAlloc (Params  params)
-  : m_params (std::move(params))
+  : m_stats(),
+    m_params (std::move(params))
 {
   for (int i = 0; i < 10; i++)
     m_vec.push_back (i);

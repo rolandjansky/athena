@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETASSOCIATIONBASE_P1_H
@@ -11,7 +11,7 @@ class JetAssociationBase_p1
   
  public:
   JetAssociationBase_p1() {};
-  ~JetAssociationBase_p1() {};
+  ~JetAssociationBase_p1() = default;
   
   /// Stored in the base class
   unsigned int m_keyIndex{};

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* author : Marcello Fanti, Sandrine Laplace, Walter Lampl */
@@ -55,6 +55,7 @@ private:
 };
 
 CLASS_DEF(LArCaliWaveContainer,1262967440,0)
+CLASS_DEF(CondCont<LArCaliWaveContainer>,1202133600,0)
 
 // inline methods
 

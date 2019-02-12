@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LAruA2MeVFlat.h"
@@ -28,8 +28,3 @@ const float& LAruA2MeVFlat::UA2MEV(const HWIdentifier& chid) const {
   return getDataByHash(m_onlineHelper->channel_Hash(chid),0);
 }
 
-  // retrieving LAruA2MeV using offline ID  
-const float& LAruA2MeVFlat::UA2MEV(const Identifier& id) const  {
-  const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(id);
-  return UA2MEV(OnId);
-}

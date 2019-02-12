@@ -27,9 +27,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 ///Gaudi includes
-#include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 ///STL includes
 #include <map>
@@ -101,10 +99,6 @@ private:
   mutable std::mutex m_mutex;
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
-
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
 
   mutable unsigned int m_nRetrievalFailure;
 

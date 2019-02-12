@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    globals.cxx         
-//   
-//
-//   @author M Sutton
-//
-//   $Id: globals.cxx, v0.0   Sun 12 Mar 2017 15:21:12 CET sutt $
-//
+/**
+ **     @file    globals.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Sun 12 Mar 2017 15:21:12 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 #include "TrigInDetAnalysis/TIDAEvent.h"

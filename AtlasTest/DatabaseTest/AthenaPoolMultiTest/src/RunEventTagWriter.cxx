@@ -13,13 +13,7 @@
 #include "RunEventTagWriter.h"
 
 #include "StoreGate/StoreGateSvc.h"
-//#include "EventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-//#include "AthenaPoolUtilities/AthenaAttributeList.h"
-//#include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 #include "CoralBase/AttributeListSpecification.h"
-//#include "AthenaPoolUtilities/MinimalEventInfoAttributeList.h"
 
 #include "CxxUtils/make_unique.h"
 
@@ -31,8 +25,7 @@
 RunEventTagWriter::RunEventTagWriter(const std::string& name, 
                                      ISvcLocator* pSvcLocator) 
     : AthAlgorithm(name, pSvcLocator),
-      m_evt("McEventInfo"),
-      m_evtx("McEventInfo"),
+      m_evt("EventInfo"),
       m_attribList("RunEventTag"),
       m_attribListSpec(0)
 {}
@@ -52,7 +45,6 @@ StatusCode RunEventTagWriter::initialize()
   std::string attribName;
 
   ATH_CHECK( m_evt.initialize() );
-  ATH_CHECK( m_evtx.initialize() );
   ATH_CHECK( m_attribList.initialize() );
 
   ATH_MSG_DEBUG( "Initializing " << name()  );
@@ -100,22 +92,13 @@ StatusCode RunEventTagWriter::execute()
   }
 
   ATH_MSG_DEBUG( "Retrieving event info from TDS."  );
-  SG::ReadHandle<xAOD::EventInfo> evtx (m_evtx);
-  SG::ReadHandle<EventInfo> evt (m_evt);
-  if (!evtx.isValid()) 
-  {
-    if (!evt.isValid()) {
-      ATH_MSG_ERROR( "Could not get event info from TDS."  );
-    }
-    else {
-      if(fillTag(evt.cptr(),attribList).isFailure()) {
-        ATH_MSG_ERROR( "Could not build tag from old event info."  );
-      }
-    }
+  SG::ReadHandle<xAOD::EventInfo> evt (m_evt);
+  if (!evt.isValid()) {
+    ATH_MSG_ERROR( "Could not get event info from TDS."  );
   }
   else {
-    if(fillTag(evtx.cptr(),attribList).isFailure()) {
-      ATH_MSG_ERROR( "Could not build tag from xaod event info."  );
+    if(fillTag(evt.cptr(),attribList).isFailure()) {
+      ATH_MSG_ERROR( "Could not build tag from event info."  );
     }
   }
 
@@ -129,35 +112,6 @@ StatusCode RunEventTagWriter::execute()
   ATH_MSG_DEBUG( "Attribute List: " << attribListStream.str() );
 
   return (StatusCode::SUCCESS);
-}
-
-StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeList* attribList)
-{
-  unsigned int runNumber = eInfo->event_ID()->run_number();
-  unsigned int eventNumber = eInfo->event_ID()->event_number();
-
-  if (!attribList)
-  {
-    ATH_MSG_ERROR( "Attribute list object is NULL."  );
-    return (StatusCode::FAILURE);
-  }
-
-  ATH_MSG_DEBUG( "About to assign values to Tag Attrib List"  );
-  try
-  {
-    (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
-    (*attribList)["EventNumber"].data<unsigned int>() = eventNumber;
-  } 
-  catch (const std::exception& e) 
-  {
-    ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
-                   << "attributes; Message: " << e.what() );
-    return (StatusCode::FAILURE);
-  }
-  ATH_MSG_DEBUG( "Finished adding Run,Event data to AthenaAttributeList." );
-
-  return StatusCode::SUCCESS;
-
 }
 
 StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAttributeList* attribList)

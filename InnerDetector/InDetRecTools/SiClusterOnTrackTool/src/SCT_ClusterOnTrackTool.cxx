@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,13 +47,6 @@ InDet::SCT_ClusterOnTrackTool::SCT_ClusterOnTrackTool
                   "Simulation of module distortions");
   declareProperty("SCTDistortionsTool", m_distortionsTool,
                   "Tool to retrieve SCT distortions");
-}
-
-///////////////////////////////////////////////////////////////////
-// Destructor
-///////////////////////////////////////////////////////////////////
-
-InDet::SCT_ClusterOnTrackTool::~SCT_ClusterOnTrackTool() {
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,11 +29,10 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArCalibTools/LArParamsProperties.h"
 //using namespace LArParamsProperties ;
 
@@ -55,7 +54,7 @@ class LArReadParamsFromFile : public AthAlgorithm
   const LArEM_ID*   m_emId;
   const LArHEC_ID*  m_hecId;
   const LArFCAL_ID* m_fcalId;
-  LArCablingService *m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   // LArConditionsContainerBase::GroupingType m_groupingType ;
   int m_groupingType ;
   std::string m_groupingName ;
@@ -120,10 +119,11 @@ class LArReadParamsFromFile : public AthAlgorithm
     complete->set(chid, data[0]) ;
     return StatusCode::SUCCESS ;
   } ;
-  StatusCode set(LArCaliPulseParamsVsCalib* calib, HWIdentifier chid, int /*gain*/, std::vector<float> data) {
-    calib->set(chid, data[0], data[1], data[2], data[3], (short)data[4]) ;
-    return StatusCode::SUCCESS ;
-  } ;
+  
+  //StatusCode set(LArCaliPulseParamsVsCalib* calib, HWIdentifier chid, int /*gain*/, std::vector<float> data) {
+  //  calib->set(chid, data[0], data[1], data[2], data[3], (short)data[4]) ;
+  //  return StatusCode::SUCCESS ;
+  //`} ;
 
   // define symLink for all classes
   //--------------------------------
@@ -140,7 +140,7 @@ class LArReadParamsFromFile : public AthAlgorithm
   void do_symLink(const LArEMEC_HVbetaComplete* data)     { detStore()->symLink(data,(ILArEMEC_HVbeta*)data)     ; } ;
   void do_symLink(const LArCableLengthComplete* data)     { detStore()->symLink(data,(ILArCableLength*)data)     ; } ;
   void do_symLink(const LArCableAttenuationComplete* data){ detStore()->symLink(data,(ILArCableAttenuation*)data); } ;
-  void do_symLink(const LArCaliPulseParamsVsCalib* data)  { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
+//  void do_symLink(const LArCaliPulseParamsVsCalib* data)  { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
 
 };
 

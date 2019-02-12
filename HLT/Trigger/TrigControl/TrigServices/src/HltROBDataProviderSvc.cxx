@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files.
-#include "TrigServices/HltROBDataProviderSvc.h"
+#include "HltROBDataProviderSvc.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"

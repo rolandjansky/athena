@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveSelector.h"
@@ -13,7 +13,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "LArCabling/LArCablingService.h"
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
 
@@ -58,6 +57,8 @@ StatusCode LArCaliWaveSelector::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(  m_cablingKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -66,9 +67,12 @@ StatusCode LArCaliWaveSelector::stop()
 {
   ATH_MSG_INFO ( " in stop.." );
 
-  // Get the cabling service
-  LArCablingService * cabling = 0;
-  CHECK( toolSvc()->retrieveTool("LArCablingService",cabling) );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   // create empty LArCaliWaveContainer to store DAC selected LArCaliWave
   // make it view container

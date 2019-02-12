@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file IBkgStreamsCache.h
@@ -13,9 +13,9 @@
 #define PILEUPTOOLS_IBKGSTREAMSCACHE_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class IBeamIntensity;
-class PileUpEventInfo;
 
 /** @class IBkgStreamsCache
  *  @brief Interface to in-memory cache for pileup events
@@ -45,7 +45,7 @@ public:
      @param loadEventProxies should we load the event proxies or not.
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overEvent,
+                                xAOD::EventInfo* overEvent,
                                 int t0BinCenter, bool loadEventProxies, unsigned int BCID) = 0;
   /**
      @brief Read input events in bkg stores and link them to overlay store
@@ -54,7 +54,7 @@ public:
      @param t0BinCenter   time wrto t0 of current bin center in ns
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overlaidEvent,
+                                xAOD::EventInfo* overlaidEvent,
                                 int t0BinCenter) = 0;
   /// how many stores in cache
   virtual unsigned int nStores() const = 0;

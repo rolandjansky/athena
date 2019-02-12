@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,7 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ToolHandle.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 #include <vector>
 #include <list>
@@ -32,7 +33,6 @@ class LArHEC_ID;
 class TileID;
 class ICaloNoiseTool;
 class LArOnlineID;
-class LArCablingService;
 class Identifier;
 
 namespace D3PD {
@@ -71,7 +71,7 @@ private:
   const LArHEC_ID  *m_hecid;
   const TileID     *m_tileid;    
   const LArOnlineID* m_onlineHelper;
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  ToolHandle<LArCablingLegacyService> m_larCablingSvc;
   //  const CaloDetDescrManager*  m_dd_man; 
 
 

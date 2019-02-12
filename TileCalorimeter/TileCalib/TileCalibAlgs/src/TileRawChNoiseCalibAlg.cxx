@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****** **************************************************************
@@ -54,10 +54,6 @@
 #   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
 #endif
 
-#define MAX_DRAWERS 256
-#define N_CHANS 48
-#define N_DMUS 16
-
 
 TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
  : AthAlgorithm(name,pSvcLocator)
@@ -93,12 +89,6 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   declareProperty("InvertChanRatio", m_invertChanRatio = true); // swap two sigmas and invert ratio if it is above 1.0 (channel fit only)
   declareProperty("MaskBadChannels",m_maskBadChannels = true);
   declareProperty("UseforCells" , m_UseforCells  = 2); // Fit=0, Fixed=1,  Opt=2, Dsp=3, OF1=4, MF=5
-  declareProperty("TileRawChannelContainerFixed", m_fixedRawChannelContainer = "TileRawChannelFixed");
-  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "TileRawChannelFit"); // 
-  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "TileRawChannelOpt2"); //
-  declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "TileRawChannelCnt"); //
-  declareProperty("TileRawChannelContainerOF1", m_OF1RawChannelContainer = "TileRawChannelOF1"); //
-  declareProperty("TileRawChannelContainerMF",  m_MFRawChannelContainer = "TileRawChannelMF"); //
   declareProperty("CalibMode", m_calibMode = true);  
   declareProperty("UsePMT", m_usePMT = false);  
   declareProperty("RunNumber", m_run=0);
@@ -113,63 +103,111 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
 
   m_fillidx=false;
 
+  m_histAmp = new TH1F*[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_histCellAmp = new TH1F*[2][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_evt = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_ros = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_drawer = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_channel = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_gain = new bool[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_mean = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_sigma = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_av = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_rms = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_skewness = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_kurtosis = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_mean_err = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_sigma_err = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_chi2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_ndf = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_probC2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_ggpar = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NPARS]();
+  m_rc_gsigma1 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gsigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gnorm = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gchi2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrsigma1= new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrsigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrnorm = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gcorrsigma1sigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+
+  m_side = new bool[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_phi = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_sample = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_tower = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gg = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_av = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_rms= new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_hash= new uint32_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS]();
+  
+  m_cell_nch = new int[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN]();
+  m_ecell_ene = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN]();
+  m_ggpar = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS][NPARS]();
+  m_gsigma1 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gsigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gnorm = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gchi2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrsigma1 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrsigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrnorm = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gcorrsigma1sigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
 }
 
 TileRawChNoiseCalibAlg::~TileRawChNoiseCalibAlg()
-{ }
+{ 
+  delete[] m_histAmp;
+  delete[] m_histCellAmp;
+  delete[] m_evt;
+  delete[] m_ros;
+  delete[] m_drawer;
+  delete[] m_channel;
+  delete[] m_gain;
+  delete[] m_rc_mean;
+  delete[] m_rc_sigma;
+  delete[] m_rc_av;
+  delete[] m_rc_rms;
+  delete[] m_rc_skewness;
+  delete[] m_rc_kurtosis;
+  delete[] m_rc_mean_err;
+  delete[] m_rc_sigma_err;
+  delete[] m_rc_chi2;
+  delete[] m_rc_ndf;
+  delete[] m_rc_probC2;
+  delete[] m_rc_ggpar;
+  delete[] m_rc_gsigma1;
+  delete[] m_rc_gsigma2;
+  delete[] m_rc_gnorm;
+  delete[] m_rc_gchi2;
+  delete[] m_rc_gerrsigma1;
+  delete[] m_rc_gerrsigma2;
+  delete[] m_rc_gerrnorm;
+  delete[] m_rc_gcorrsigma1sigma2;
+
+  delete[] m_side;
+  delete[] m_phi;
+  delete[] m_sample;
+  delete[] m_tower;
+  delete[] m_gg;
+  delete[] m_ecell_av;
+  delete[] m_ecell_rms;
+  delete[] m_ecell_hash;
+   
+  delete[] m_cell_nch;
+  delete[] m_ecell_ene;
+  delete[] m_ggpar;
+  delete[] m_gsigma1;
+  delete[] m_gsigma2;
+  delete[] m_gnorm;
+  delete[] m_gchi2;
+  delete[] m_gerrsigma1;
+  delete[] m_gerrsigma2;
+  delete[] m_gerrnorm;
+  delete[] m_gcorrsigma1sigma2;
+}
 
 /// Only array initialization is done here
 /// All the helpers initialization is done at the first event
 StatusCode TileRawChNoiseCalibAlg::initialize() {
-
-  memset(m_rc_mean      ,0,          sizeof(m_rc_mean      ));
-  memset(m_rc_av        ,0,          sizeof(m_rc_av        ));
-  memset(m_rc_rms       ,0,          sizeof(m_rc_rms       ));
-  memset(m_rc_kurtosis  ,0,          sizeof(m_rc_kurtosis  ));
-  memset(m_rc_skewness  ,0,          sizeof(m_rc_skewness  ));
-  memset(m_rc_sigma     ,0,          sizeof(m_rc_sigma     ));
-  memset(m_rc_mean_err  ,0,          sizeof(m_rc_mean_err  ));
-  memset(m_rc_sigma_err ,0,          sizeof(m_rc_sigma_err ));
-  memset(m_rc_chi2      ,0,          sizeof(m_rc_chi2      ));
-  memset(m_rc_ndf       ,0,          sizeof(m_rc_ndf       ));
-  memset(m_rc_probC2    ,0,          sizeof(m_rc_probC2    ));
-  memset(m_ros        ,0,          sizeof(m_ros        ));
-  memset(m_drawer     ,0,          sizeof(m_drawer     ));
-  memset(m_channel    ,0,          sizeof(m_channel    ));
-  memset(m_gain       ,0,          sizeof(m_gain       ));
-
-  memset(m_rc_ggpar     ,0,          sizeof(m_rc_ggpar     ));
-  memset(m_rc_gsigma1   ,0,          sizeof(m_rc_gsigma1   ));
-  memset(m_rc_gsigma2   ,0,          sizeof(m_rc_gsigma2   ));
-  memset(m_rc_gnorm     ,0,          sizeof(m_rc_gnorm     ));
-  memset(m_rc_gchi2     ,0,          sizeof(m_rc_gchi2     ));
-  memset(m_rc_gerrsigma1,0,          sizeof(m_rc_gerrsigma1));
-  memset(m_rc_gerrnorm  ,0,          sizeof(m_rc_gerrnorm  ));
-  memset(m_rc_gerrsigma2,0,          sizeof(m_rc_gerrsigma2));
-  memset(m_rc_gcorrsigma1sigma2 ,0,  sizeof(m_rc_gcorrsigma1sigma2 ));
-
-
-  memset(m_ecell_av     ,0,          sizeof(m_ecell_av     ));
-  memset(m_ecell_rms    ,0,          sizeof(m_ecell_rms    ));
-  memset(m_ecell_hash   ,0xFF,       sizeof(m_ecell_hash   ));
-  memset(m_side       ,0,          sizeof(m_side       ));
-  memset(m_phi        ,0,          sizeof(m_phi        ));
-  memset(m_sample     ,0,          sizeof(m_sample     ));
-  memset(m_tower      ,0,          sizeof(m_tower      ));
-  memset(m_gg         ,0,          sizeof(m_gg         ));
-  memset(m_ggpar        ,0,          sizeof(m_ggpar        ));
-  memset(m_gsigma1      ,0,          sizeof(m_gsigma1      ));
-  memset(m_gsigma2      ,0,          sizeof(m_gsigma2      ));
-  memset(m_gnorm        ,0,          sizeof(m_gnorm        ));
-  memset(m_gchi2        ,0,          sizeof(m_gchi2        ));
-  memset(m_gerrsigma1   ,0,          sizeof(m_gerrsigma1   ));
-  memset(m_gerrnorm     ,0,          sizeof(m_gerrnorm     ));
-  memset(m_gerrsigma2   ,0,          sizeof(m_gerrsigma2   ));
-  memset(m_gcorrsigma1sigma2 ,0,     sizeof(m_gcorrsigma1sigma2 ));
-//  memset(gcorrsigma1norm ,0,       sizeof(gcorrsigma1norm));
-//  memset(gcorrsigma2norm ,0,       sizeof(gcorrsigma2norm));
-
-  memset(m_histAmp       ,0,  sizeof(m_histAmp        ));
 
   int nbin = 151;
   float binwidth[2] = { 0.125, 0.25 }; // in ADC
@@ -198,13 +236,12 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   nbin = 301;
   float cellbin[2] = { 80., 2.5 }; //in MeV
   float xcellmax[2] = { (float) nbin * cellbin[0] / 2.F, (float) nbin * cellbin[1] / 2.F }; //in MeV
-  memset(m_histCellAmp   ,0,  sizeof(m_histCellAmp    ));
 
-  for (int side = 0; side < 2; side++) {
+  for (int side = 0; side < NSIDES; side++) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-      for (int sample = 0; sample < 4; sample++) {
-        for (int tower = 0; tower < 17; tower++) {
-          for (int gg = 0; gg < 6; gg++) {
+      for (int sample = 0; sample < NSAMPLES; sample++) {
+        for (int tower = 0; tower < NTOWERS; tower++) {
+          for (int gg = 0; gg < NCELLGAINS; gg++) {
             sStr.str("");
             sStr << "CellAmplitude_Side_" << side << "_Drawer_" << drawer << "_Sample_" << sample << "_Tower_" << tower << "_Gains_" << gg;
             nam = sStr.str();
@@ -228,6 +265,17 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   CHECK( m_tileIdTrans.retrieve() );
 
   CHECK( m_dqStatusKey.initialize() );
+
+  ATH_CHECK( m_rawChannelContainerFitKey.initialize(m_doFit) );
+  ATH_CHECK( m_rawChannelContainerFixedKey.initialize(m_doFixed) );
+  ATH_CHECK( m_rawChannelContainerOptKey.initialize(m_doOpt) );
+  ATH_CHECK( m_rawChannelContainerDspKey.initialize(m_doDsp) );
+  ATH_CHECK( m_rawChannelContainerOF1Key.initialize(m_doOF1) );
+  ATH_CHECK( m_rawChannelContainerMFKey.initialize(m_doMF) );
+
+  if (!m_eventInfoKey.key().empty()) {
+    ATH_CHECK( m_eventInfoKey.initialize() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -299,18 +347,19 @@ StatusCode TileRawChNoiseCalibAlg::execute() {
     StoreRunInfo(dqStatus); // done only once
   }
 
-  memset(m_ecell_ene     ,0,          sizeof(m_ecell_ene     ));
-  memset(m_cell_nch      ,0,          sizeof(m_cell_nch      ));
+  memset(m_ecell_ene     ,0,          2 * sizeof( *m_ecell_ene     ));
+  memset(m_cell_nch      ,0,          2 * sizeof( *m_cell_nch      ));
 
   m_cispar = dqStatus->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );
   
-  if (m_doFit){empty &= (fillRawChannels(dqStatus, m_fitRawChannelContainer, Fit).isFailure());}
-  if (m_doFixed){empty &= (fillRawChannels(dqStatus, m_fixedRawChannelContainer, Fixed).isFailure());}
-  if (m_doOpt){empty &= (fillRawChannels(dqStatus, m_optRawChannelContainer, Opt).isFailure());}
-  if (m_doDsp) {empty &= (fillRawChannels(dqStatus, m_dspRawChannelContainer, Dsp).isFailure());}
-  if (m_doOF1) {empty &= (fillRawChannels(dqStatus, m_OF1RawChannelContainer, OF1).isFailure());}
-  if (m_doMF) {empty &= (fillRawChannels(dqStatus, m_MFRawChannelContainer, MF).isFailure());}
+
+  if (m_doFit) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerFitKey, Fit).isFailure());}
+  if (m_doFixed) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerFixedKey, Fixed).isFailure());}
+  if (m_doOpt) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerOptKey, Opt).isFailure());}
+  if (m_doDsp) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerDspKey, Dsp).isFailure());}
+  if (m_doOF1) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerOF1Key, OF1).isFailure());}
+  if (m_doMF) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerMFKey, MF).isFailure());}
 
 
   if (empty) {ATH_MSG_ERROR( "Error in execute " ); }
@@ -569,11 +618,11 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
       }
     }
     
-    for (int side = 0; side < 2; side++) {
+    for (int side = 0; side < NSIDES; side++) {
       for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-        for (int sample = 0; sample < 4; ++sample) {
-          for (int tower = 0; tower < 17; ++tower) {
-            for (int gg = 0; gg < 6; ++gg) {
+        for (int sample = 0; sample < NSAMPLES; ++sample) {
+          for (int tower = 0; tower < NTOWERS; ++tower) {
+            for (int gg = 0; gg < NCELLGAINS; ++gg) {
               m_histCellAmp[side][drawer][sample][tower][gg]->Write();
             }
           }
@@ -622,8 +671,8 @@ void TileRawChNoiseCalibAlg::StoreRunInfo(const TileDQstatus* dqStatus) {
     }
   } else { // monogain can use eventinfo
 
-    const xAOD::EventInfo* eventInfo(0);
-    if (evtStore()->retrieve(eventInfo).isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey); 
+    if ( !eventInfo.isValid() ) {
       ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
       m_run = 0;
       m_time = 0;
@@ -661,27 +710,22 @@ void TileRawChNoiseCalibAlg::StoreRunInfo(const TileDQstatus* dqStatus) {
 // Statistics is summed for Average, RMS calculations
 /*---------------------------------------------------------*/
 StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
-                                                   std::string rcCnt, RCtype rctype) {
+                                                   const SG::ReadHandleKey<TileRawChannelContainer>& rawChannelContainerKey,
+                                                   RCtype rctype) {
 /*---------------------------------------------------------*/
 
-  const TileRawChannelContainer* RawChannelCnt;
-
-  if (evtStore()->retrieve(RawChannelCnt, rcCnt).isFailure()) {
-    ATH_MSG_ERROR( "can't retrieve RawChannelContainer " << rcCnt << " from TDS" );
-    removeRC(rctype);
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.isValid() );
 
   if ((rctype == Dsp) && (m_trigType != Phys)) {
     ATH_MSG_ERROR( "Removing DSP RawChannelContainer for non Phys run. TrigType is: " << m_trigType );
-    removeRC(rctype);
     return StatusCode::FAILURE;
   }
 
-  TileRawChannelUnit::UNIT RChUnit = RawChannelCnt->get_unit();
+  TileRawChannelUnit::UNIT RChUnit = rawChannelContainer->get_unit();
 
-  TileRawChannelContainer::const_iterator collItr = RawChannelCnt->begin();
-  TileRawChannelContainer::const_iterator lastColl = RawChannelCnt->end();
+  TileRawChannelContainer::const_iterator collItr = rawChannelContainer->begin();
+  TileRawChannelContainer::const_iterator lastColl = rawChannelContainer->end();
 
   for (; collItr != lastColl; ++collItr) {
 
@@ -746,19 +790,6 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
                                                //when all the cells have been built
 
   return StatusCode::SUCCESS;
-}
-
-/// removeRC
-/// 
-/*---------------------------------------------------------*/
-void TileRawChNoiseCalibAlg::removeRC(RCtype rctype) {
-/*---------------------------------------------------------*/
-  if (rctype == Fixed) m_doFixed = false;
-  else if (rctype == Opt) m_doOpt = false;
-  else if (rctype == Fit) m_doFit = false;
-  else if (rctype == Dsp) m_doDsp = false;
-  else if (rctype == OF1) m_doOF1 = false;
-  else if (rctype == MF)  m_doMF = false;
 }
 
 /// finalDigits is called during finalize

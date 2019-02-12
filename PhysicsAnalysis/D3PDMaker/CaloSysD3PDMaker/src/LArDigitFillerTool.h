@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOSYSD3PDMAKER_LARDIGITFILLERTOOL_H
@@ -13,8 +13,8 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "GaudiKernel/ToolHandle.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArEM_ID;
 class LArFCAL_ID;
@@ -59,6 +59,8 @@ public:
 
 private: 
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   // flags
   bool m_savesca;
   bool m_savedigit;
@@ -83,8 +85,6 @@ private:
   const LArHEC_ID* m_hecId;
   const LArFCAL_ID* m_fcalId;
   
-  ToolHandle<LArCablingService> m_larCablingSvc;
-
   // variables in ntuple 
   long m_cellIndex;
   //long m_evt;

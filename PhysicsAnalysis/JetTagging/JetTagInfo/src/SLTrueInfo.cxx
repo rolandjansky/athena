@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SLTrueInfo.h"
@@ -31,9 +31,6 @@ SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, cons
   m_ProductionVertex = r;  
 }
 	
-SLTrueInfo::~SLTrueInfo() {
-}
-
 MsgStream& operator<<( MsgStream& out, const SLTrueInfo& info) {
   out << " -> SLTrueInfo " 
       << " barcode = " << info.barcode()

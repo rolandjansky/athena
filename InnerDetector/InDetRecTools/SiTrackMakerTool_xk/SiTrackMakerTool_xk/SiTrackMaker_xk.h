@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -110,9 +110,8 @@ namespace InDet{
       int                            m_seedsfilter{}   ;  // Level of seeds filer
       unsigned int                   m_wrongcluster{}  ;  // Max lentgh of thtrack
       std::string                    m_fieldmode     ;  // Mode of magnetic field
+      Trk::MagneticFieldMode         m_fieldModeEnum{Trk::FullField};
       std::string                    m_patternName   ;  // Name of the pattern recognition
-//      std::string         m_inputClusterContainerName;
-//      std::string      m_inputHadClusterContainerName;
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster;
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad;
       Trk::TrackInfo                 m_trackinfo     ;
@@ -133,7 +132,6 @@ namespace InDet{
       bool                           m_ITKGeomtry{}    ; // ITK geometry
       bool                        m_seedsegmentsWrite{}; // Call seed to track conversion
       bool                           m_heavyion{}      ; // Is it heavy ion events
-      Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max{}        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd{}   ; // max Xi2 for clusters
       double                         m_xi2maxlink{}    ; // max Xi2 for clusters
@@ -183,8 +181,6 @@ namespace InDet{
       bool isHadCaloCompatible();
       bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
-      void       magneticFieldInit();
-      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;

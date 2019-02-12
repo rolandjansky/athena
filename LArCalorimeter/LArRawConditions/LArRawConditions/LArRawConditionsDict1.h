@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,8 +9,6 @@
 
 
 //=== Base classes
-#include "LArRawConditions/LArConditionsVsCalibBase.h"
-
 
 //=== LArAutoCorrP
 #include "LArRawConditions/LArAutoCorrMC.h"
@@ -23,19 +21,10 @@ INSTAN_CS(LArAutoCorrP);
 //PYGATE(LArAutoCorrMC);
 
 
-//=== LArCaliPulseParamsP
 #include "LArRawConditions/LArCaliPulseParamsComplete.h"
 #include "LArRawConditions/LArCaliPulseParamsP.h"
-#include "LArRawConditions/LArCaliPulseParamsVsCalib.h"
 INSTAN_BOTH(LArCaliPulseParamsP);
 
-template class LArConditionsVsCalibDB<LArCaliPulseParamsP>;
-template class LArConditionsVsCalib<LArCaliPulseParamsP>;
-
-namespace LArRawConditionsDict {
-  LArConditionsVsCalibDB<LArCaliPulseParamsP>       vscalib001 ;
-  LArConditionsVsCalib<LArCaliPulseParamsP>         vscalib101 ;
-}
 
 //=== LArDAC2uAP
 #include "LArRawConditions/LArDAC2uAMC.h"

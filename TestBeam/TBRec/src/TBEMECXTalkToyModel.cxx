@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -34,12 +34,11 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class (type, name, parent),
    m_caloSelection(false),
    m_calo_dd_man(nullptr),
    m_calo_id(nullptr)
 {
-  declareInterface<ICaloCellMakerTool>(this);
   declareProperty("CaloNums",m_caloNums);
   declareProperty("XTalkScaleLong",    m_xtalkScaleLong);
   declareProperty("XTalkScaleEta",     m_xtalkScaleEta);
@@ -98,7 +97,8 @@ StatusCode TBEMECXTalkToyModel::initialize()
 
 }
 
-StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
+StatusCode TBEMECXTalkToyModel::process (CaloCellContainer* theCont,
+                                         const EventContext& /*ctx*/) const
 {
   StatusCode sc;
 
@@ -138,7 +138,8 @@ StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
   return StatusCode::SUCCESS ;
 }
 
-StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
+StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg,
+                                                       const CaloCellContainer::iterator & itrCellEnd ) const
 {
   unsigned int myCellHashOffset[CaloCell_ID::NSUBCALO];
   std::set<int> m_validCalos;

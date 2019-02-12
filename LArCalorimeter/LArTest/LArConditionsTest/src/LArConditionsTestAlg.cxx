@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,7 +20,7 @@
 // #include "LArTools/LArFebRodMap.h"
 // #include "LArTools/LArOnOffIdMap.h"
 #include "LArRawUtils/LArRoI_Map.h" 
-#include "LArCabling/LArCablingService.h" 
+#include "LArCabling/LArCablingLegacyService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
@@ -1356,7 +1356,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
     }
 
 
-    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
+    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc) ) {
         ATH_MSG_ERROR (" Failed to get LArCablingService" );
 	// return StatusCode::FAILURE ; 
 	return; 
@@ -1399,7 +1399,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
     // Access LArCablingService, which should use LArFebRodMap and LArOnOffIdMap.
 
-    const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec(); 
+    const std::vector<HWIdentifier>& roms = const_cast<LArCablingLegacyService*>(m_cablingSvc)->getLArRoModIDvec(); 
     ATH_MSG_DEBUG ( " Number of LArReadoutModuleIDs= " << roms.size() );
 
 //    std::vector<HWIdentifier>::const_iterator it = febs.begin();
@@ -1456,7 +1456,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
 		// check Calibration Slot and Channel
 		const std::vector<HWIdentifier>&
-		    calib = m_cablingSvc->calibSlotLine(sid) ; 
+		    calib = const_cast<LArCablingLegacyService*>(m_cablingSvc)->calibSlotLine(sid) ; 
 		if(calib.size()==0) {
                   ATH_MSG_ERROR( " No calibration for this channel,hdw id="
                                  <<sid.get_compact() );

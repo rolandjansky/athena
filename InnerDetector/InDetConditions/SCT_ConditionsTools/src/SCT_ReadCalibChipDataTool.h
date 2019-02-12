@@ -21,10 +21,6 @@
 
 // Include Gaudi classes
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-// Include STL
-#include <mutex>
 
 // Forward declarations
 class SCT_ID;
@@ -49,15 +45,17 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
   //@}
   
   // Methods to return calibration data
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const override; //!<Get NPtGain data per wafer
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const override; //!<Get NoiseOccupancy data wafer
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NoiseOccupancy data wafer
 
  private:
@@ -74,14 +72,6 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   //----------Private Attributes----------//
   const SCT_ID*                       m_id_sct;            //!< Handle to SCT ID helper
   
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
-  // Pointers of SCT_GainCalibData and SCT_NoiseCalibData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_GainCalibData> m_condDataGain;
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_NoiseCalibData> m_condDataNoise;
   // Read Cond Handles
   SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain{this, "CondKeyGain", "SCT_GainCalibData", "SCT calibration data of gains of chips"};
   SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise{this, "CondKeyNoise", "SCT_NoiseCalibData", "SCT calibration data of noises of chips"};

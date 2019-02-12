@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
 
 #include <sstream>
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -39,7 +38,6 @@ LArSCHitFillerTool::LArSCHitFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<LArHitContainer> (type, name, parent), 
-        m_larCablingSvc("LArCablingService"),
         m_dd_fSampl (nullptr),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),

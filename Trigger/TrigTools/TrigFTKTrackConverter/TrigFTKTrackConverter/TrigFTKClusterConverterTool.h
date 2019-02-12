@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //implementation
@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -18,12 +18,9 @@
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
 
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include <mutex>
 #include <vector>
 
 class StoreGateSvc;
@@ -95,13 +92,6 @@ private:
   PRD_MultiTruthCollection* m_ftkSctTruth;
   const AtlasDetectorID* m_idHelper;
   bool m_collectionsReady;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;
 
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 };

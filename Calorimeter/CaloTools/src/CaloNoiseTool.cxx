@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseTool.h"
@@ -38,7 +38,7 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
     m_tile_id(nullptr),
     m_calo_dd_man(nullptr),
     m_calocell_id(nullptr),
-    m_cablingService("LArCablingService"),
+    m_cablingService("LArCablingLegacyService"),
     m_tileInfoName("TileInfo"),
     m_tileInfo(nullptr),
     m_Adc2MeVFactor(0),

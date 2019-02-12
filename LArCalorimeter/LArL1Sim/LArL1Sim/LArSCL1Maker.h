@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARSCL1MAKER_H
@@ -23,6 +23,9 @@
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 
 
 class PileUpMergeSvc;
@@ -33,7 +36,6 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 class LArOnline_SuperCellID;
-class LArSuperCellCablingTool;
 class ILArShape;
 class ILArfSampl;
 class ILArPedestal;
@@ -86,6 +88,8 @@ class LArSCL1Maker : public AthAlgorithm,
 
  private:
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
 //
 // >>>>>>>> private algorithm parts
 //
@@ -130,7 +134,6 @@ class LArSCL1Maker : public AthAlgorithm,
  
   int m_BeginRunPriority;
 
-  ToolHandle<LArSuperCellCablingTool>      m_cablingSCSvc;
   ToolHandle<ICaloSuperCellIDTool>           m_scidtool;
   /** pointer to the offline TT helper */
   const CaloCell_SuperCell_ID*     m_scHelper;

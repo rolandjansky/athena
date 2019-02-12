@@ -130,7 +130,9 @@ namespace xAOD {
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     // reset perigee cache if existing
-    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
@@ -153,7 +155,9 @@ namespace xAOD {
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     // reset perigee cache if existing
-    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
     static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
@@ -199,11 +203,9 @@ namespace xAOD {
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
 
     // Require the cache to be valid and check if the cached pointer has been set
-    if(m_perigeeParameters.isValid())
+    if(m_perigeeParameters.isValid()){
       return *(m_perigeeParameters.ptr());
-
-    // Perigee needs to be calculated, and cached
-
+    }
     static const Accessor< float > acc1( "d0" );
     static const Accessor< float > acc2( "z0" );
     static const Accessor< float > acc3( "phi" );
@@ -211,11 +213,6 @@ namespace xAOD {
     static const Accessor< float > acc5( "qOverP" );
     static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(definingParametersCovMatrix());
-    // cov->setZero();
-    // auto it= acc6(*this).begin();
-    // for (size_t irow = 0; irow<5; ++irow)
-    //   for (size_t icol =0; icol<=irow; ++icol)
-    //       cov->fillSymmetric(irow,icol,*it++) ;
     static const Accessor< float > acc7( "beamlineTiltX" );
     static const Accessor< float > acc8( "beamlineTiltY" );
     
@@ -510,8 +507,12 @@ namespace xAOD {
       }
 
       return *( acc( *this ) );
-   }
-   
+   } 
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+   
+   void TrackParticle_v1::resetCache(){
+     m_perigeeParameters.reset();
+   }
 
+ 
 } // namespace xAOD

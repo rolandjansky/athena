@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimHitToPrdTest/RPC_SimHitToPrdCBNTAlgo.h"
-
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
@@ -402,12 +396,9 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::execute()
     return  StatusCode::RECOVERABLE;
   }
   
-  const EventInfo* pevt;
-  StatusCode sc_read = evtStore()->retrieve(pevt);
-  if (sc_read.isSuccess())  {
-    m_c->event = pevt->event_ID()->event_number();
-    m_c->run   = pevt->event_ID()->run_number();
-  }
+  const EventContext& context = getContext();
+  m_c->event = context.eventID().event_number();
+  m_c->run   = context.eventID().run_number();
 
   if(m_doMCtruth)
   {

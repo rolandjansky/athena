@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCompleteToFlat.h"
@@ -40,8 +40,7 @@ LArCompleteToFlat::LArCompleteToFlat( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_hashMax(0),
-  m_onlineID(0),
-  m_cablingSvc("LArCablingService")
+  m_onlineID(0)
 {
 
   declareProperty("uA2MeVInput",m_uA2MeVInput);//="LAruA2MeV");
@@ -70,7 +69,7 @@ LArCompleteToFlat::~LArCompleteToFlat()
 ////////////////////////////
 StatusCode LArCompleteToFlat::initialize()
 {
-  CHECK(m_cablingSvc.retrieve());
+  ATH_CHECK(m_cablingKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -421,8 +420,14 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
   spec->extend<unsigned>("version");
   CondAttrListCollection* coll=new CondAttrListCollection(true);
 
-
   std::vector<float> defaultRamp={0.0,1.0};
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return coll;
+  }
 
   for (unsigned gain=0;gain<3;++gain) {
 
@@ -449,7 +454,7 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       std::vector<float> rampVec(input->ADC2DAC(chid,gain).asVector());
-      if (rampVec.size()==0 && gain==2 && m_fakeEMBPSLowGain && m_cablingSvc->isOnlineConnected(chid)) { 
+      if (rampVec.size()==0 && gain==2 && m_fakeEMBPSLowGain && cabling->isOnlineConnected(chid) ) { 
 	rampVec=input->ADC2DAC(chid,1).asVector();
 	rampVec[1]*=10.0;
 	++nCopiedEMPS;
@@ -812,7 +817,14 @@ StatusCode LArCompleteToFlat::stop() {
 
 void LArCompleteToFlat::errIfConnected(const HWIdentifier chid, const int gain, const char* objName, const char* message) const{
 
-  if (m_cablingSvc->isOnlineConnected(chid)) {
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return;
+  }
+
+  if (cabling->isOnlineConnected(chid)) {
     if (! (gain==2 && m_onlineID->isEMBPS(chid))) { //No LG Presampler calibration
       msg(MSG::ERROR) << "No valid " << objName << " found for channel "  << m_onlineID->channel_name(chid) << ", gain " << gain << ". ";
       if (message) msg(MSG::ERROR) << message;

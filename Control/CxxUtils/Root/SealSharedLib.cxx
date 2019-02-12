@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -82,9 +82,8 @@ namespace Athena {                             // wlav
 // wlav modified from SealBase/src/SharedLibraryError.cpp
 SharedLibraryError::SharedLibraryError (const std::string& context,
 					const std::string& cause)
+  : m_message ("Shared library operation")
 {
-  m_message = "Shared library operation";
-
   if (! context.empty ())
   {
     m_message += " ";

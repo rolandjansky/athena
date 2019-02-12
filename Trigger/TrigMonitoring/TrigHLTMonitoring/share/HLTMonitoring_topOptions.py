@@ -9,7 +9,6 @@ if not 'DQMonFlags' in dir():
   from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 ########## control step assignment #########
-
 if DQMonFlags.monManEnvironment == 'tier0Raw':
   # we are in RAW->ESD step
   # run all tools *except* the following (these are run in ESD->AOD)
@@ -26,7 +25,7 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doMinBias  = False
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
-  HLTMonFlags.doIDJpsiMon  = False
+  HLTMonFlags.doMaM = False
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
   log.info('Environment is tier0ESD')
   # we are in ESD->AOD step
@@ -42,9 +41,11 @@ else :
   log.info('Switching all tools off...')
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
+  HLTMonFlags.doMaM = False
 
-# temporarily disabling IDJpsiMon to deal with ATR-12037
-HLTMonFlags.doIDJpsiMon = False
+# remove flag for IDJpsi monitoring in anticipation of the code 
+# being removed
+# HLTMonFlags.doIDJpsiMon = False
 
 log.info("HLTMonFlags are:")
 print HLTMonFlags

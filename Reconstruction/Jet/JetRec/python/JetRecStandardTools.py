@@ -240,7 +240,7 @@ jtm += JetConstituentsRetriever(
 #--------------------------------------------------------------
 
 # Prepare a sequence of input constituent modifiers
-from JetRecTools.JetRecToolsConfig import ctm
+from JetRecTools.ConstitToolManager import ctm
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_LCOrigin",
     OutputContainer='LCOriginTopoClusters',
     InputContainer= 'CaloCalTopoClusters',

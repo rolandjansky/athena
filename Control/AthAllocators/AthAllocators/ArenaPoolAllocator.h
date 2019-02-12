@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaPoolAllocator.h 470529 2011-11-24 23:54:22Z ssnyder $
@@ -152,7 +152,7 @@ public:
   /**
    * @brief Destructor.  This will free all the Allocator's storage.
    */
-  ~ArenaPoolAllocator();
+  virtual ~ArenaPoolAllocator();
 
 
   /// Don't allow copy construction or assignment.
@@ -194,7 +194,7 @@ public:
    * The elements may continue to be cached internally, without
    * returning to the system.
    */
-  virtual void reset();
+  virtual void reset() override;
 
 
   /**
@@ -205,7 +205,8 @@ public:
    * @c destructor should be called on them if it was provided
    * (preceded by @c clear if provided and @c mustClear was set).
    */
-  virtual void erase();
+  // cppcheck-suppress virtualCallInConstructor ; false positive
+  virtual void erase() override final;
 
 
   /**

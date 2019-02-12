@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -11,7 +11,6 @@
 
 #include <sstream>
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -38,7 +37,7 @@ SCFillerTool::SCFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<CaloCellContainer> (type, name, parent), 
-        m_larCablingSvc("LArCablingService"),
+        m_larCablingSvc("LArCablingLegacyService"),
 	m_tableFilled(false),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),

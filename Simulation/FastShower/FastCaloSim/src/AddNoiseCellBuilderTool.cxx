@@ -58,7 +58,9 @@ StatusCode AddNoiseCellBuilderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer)
+StatusCode
+AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
+                                  const EventContext& ctx) const
 {
   m_rndmSvc->print(m_randomEngineName);
   //m_randomEngine->showStatus();
@@ -67,9 +69,7 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
     rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
   }
 
-  ATH_MSG_INFO("Executing start calo size=" <<theCellContainer->size()<<" Event="<<m_nEvent/*<<" rseed="<<rseed*/);
-
-  ++m_nEvent;
+  ATH_MSG_INFO("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt()/*<<" rseed="<<rseed*/);
 
   double E_tot=0;
   double Et_tot=0;

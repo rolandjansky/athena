@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ICscSegmentUtilTool.h
@@ -69,7 +69,7 @@ public:  // Interface methods
   virtual Muon::MuonSegmentCombination*
   get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb) const=0;  
   
-  virtual std::vector<const Muon::MuonSegment*>*
+  virtual std::unique_ptr<std::vector<std::unique_ptr<Muon::MuonSegment> > >
   getMuonSegments(Identifier eta_id, Identifier phi_id,
                   ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                   ICscSegmentFinder::ChamberTrkClusters& phi_clus,

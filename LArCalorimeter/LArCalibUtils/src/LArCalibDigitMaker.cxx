@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
@@ -23,7 +23,6 @@ using CLHEP::ns;
 
 LArCalibDigitMaker::LArCalibDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_larCablingSvc("LArCablingService"),
     m_nTrigger(0)
 {
   //declareProperty("DigitKey",m_key="");
@@ -44,7 +43,7 @@ LArCalibDigitMaker::~LArCalibDigitMaker()
 StatusCode LArCalibDigitMaker::initialize()
 {
   ATH_MSG_DEBUG ( "======== LArCalibDigitMaker Initialize ========" );
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_calibMapKey.initialize() );
     
 //  std::cout << "Pattern.size()=" << m_vPattern.size() << std::endl;
 //   std::cout << "DAC.size()=" << m_vDAC.size() << std::endl;
@@ -88,9 +87,17 @@ StatusCode LArCalibDigitMaker::initialize()
 }
 
 
-StatusCode LArCalibDigitMaker::execute()
-{if (m_dontRun)
-  return StatusCode::SUCCESS;
+StatusCode LArCalibDigitMaker::execute() {
+
+ if (m_dontRun) return StatusCode::SUCCESS;
+
+ SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+ const LArCalibLineMapping* clcabling{*clHdl};
+ if(!clcabling) {
+    ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_calibMapKey.key() );
+    return StatusCode::FAILURE;
+ }
+
  const DataHandle<xAOD::EventInfo> thisEventInfo;
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
@@ -125,7 +132,7 @@ StatusCode LArCalibDigitMaker::execute()
      //Get data members of LArDigit
      const std::vector<short>& samples=(*it)->samples();
      CaloGain::CaloGain gain=(*it)->gain();
-     const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(chid);
+     const std::vector<HWIdentifier>& calibChannelIDs=clcabling->calibSlotLine(chid);
      if (calibChannelIDs.size()==0) 
        continue; //Disconnected channel
      //For the time beeing, I assume we are in H8 and have only one calib channel per FEB channel

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -63,7 +63,6 @@
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -98,8 +97,7 @@ FixLArElecCalib::FixLArElecCalib(const std::string& name, ISvcLocator* pSvcLocat
   m_shec_idhelper(0),
   m_sfcal_idhelper(0),
   m_sonline_idhelper(0),
-  m_scell_idhelper(0),
-  m_cablingSvc(0)
+  m_scell_idhelper(0)
 { 
 
     declareProperty("FixFlag",      m_fixFlag);
@@ -125,7 +123,7 @@ StatusCode FixLArElecCalib::initialize() {
 
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK( service("ToolSvc", toolSvc) );
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -187,9 +185,12 @@ StatusCode FixLArElecCalib::fix1() {
    IToolSvc* toolSvc = nullptr;
    ATH_CHECK( service("ToolSvc", toolSvc) );
 
-   LArCablingService* cablingSvc = nullptr; 
-   ATH_CHECK( toolSvc->retrieveTool("LArCablingService",cablingSvc) );
-
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
    const LArDAC2uAMC * dac2ua_c = nullptr;
    ATH_CHECK( detStore()->retrieve(dac2ua_c) );
 
@@ -221,7 +222,7 @@ StatusCode FixLArElecCalib::fix1() {
         }else
  	 id = em_idhelper->channel_id(det,samp,reg,eta,0); 
 
-	HWIdentifier hid = cablingSvc->createSignalChannelID(id);
+	HWIdentifier hid = cabling->createSignalChannelID(id);
 	const LArDAC2uAComplete::LArCondObj & t = dac2ua->get(hid,0); 
 	std::string id_str = online_idhelper->print_to_string(hid); 
 	ATH_MSG_DEBUG(" online id = "<<id_str);
@@ -264,9 +265,12 @@ StatusCode FixLArElecCalib::fix2() {
     IToolSvc* toolSvc = nullptr;
     ATH_CHECK( service("ToolSvc", toolSvc) );
     
-    LArCablingService* cablingSvc = nullptr;
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",cablingSvc) );
-    
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+    } 
     const LArDAC2uAMC * dac2ua_c = nullptr;
     ATH_CHECK( detStore()->retrieve(dac2ua_c) );
     LArDAC2uAMC* dac2ua = const_cast<LArDAC2uAMC*>(dac2ua_c);
@@ -311,7 +315,7 @@ StatusCode FixLArElecCalib::fix2() {
 	  {
 	    HWIdentifier hid = it.channelId(); 
 	    if( (*it).isEmpty() ) continue;  
-	    if(cablingSvc->isOnlineConnected(hid)){
+	    if(cabling->isOnlineConnected(hid)){
 	      continue;
 	    }else
 	      {
@@ -355,7 +359,7 @@ StatusCode FixLArElecCalib::fix2() {
 
 	  int module = fcal_idhelper->module(id)-1;
 
-	  HWIdentifier hid = cablingSvc->createSignalChannelID(id);
+	  HWIdentifier hid = cabling->createSignalChannelID(id);
 
 	  for(unsigned int gain = 0;gain<3;++gain){
 	    
@@ -504,17 +508,24 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
   int n_hec=0;
   int n_fcal=0;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   for (; it!=it_e;++it){
     
     HWIdentifier hid = it.channelId(); 
     if( (*it).isEmpty() ) continue;  
-    if(!m_cablingSvc->isOnlineConnected(hid)){
+    if(!cabling->isOnlineConnected(hid)){
 	      continue;
     }
 
     LArfSamplComplete::LArCondObj& t2 = const_cast<LArfSamplComplete::LArCondObj&>(*it);
 
-    Identifier id = m_cablingSvc->cnvToIdentifier(hid);
+    Identifier id = cabling->cnvToIdentifier(hid);
 
 
     if(m_hec_idhelper->is_lar_hec(id)){
@@ -575,6 +586,12 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
    ATH_CHECK( detStore()->retrieve(fsampl_c) );
    LArfSamplMC* fsampl = const_cast<LArfSamplMC*>(fsampl_c);
 
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
    // read in the file
 
    ATH_MSG_INFO(" opening file "<< filename );
@@ -606,7 +623,7 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
-	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+	HWIdentifier hid = cabling->createSignalChannelID(id);
 	const LArfSamplComplete::LArCondObj & t = fsampl->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
 	ATH_MSG_INFO(" online id = "<<id_str);
@@ -642,6 +659,13 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
    const LAruA2MeVMC * ua2mev_c = nullptr;
    ATH_CHECK( detStore()->retrieve(ua2mev_c) );
    LAruA2MeVMC* ua2mevMC = const_cast<LAruA2MeVMC*>(ua2mev_c);
+
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
 
    std::ifstream infile(filename.c_str() ) ; 
 
@@ -680,7 +704,7 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
-	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+	HWIdentifier hid = cabling->createSignalChannelID(id);
 
 	const LArDAC2uAComplete::LArCondObj & t = dac2uaMC->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
@@ -736,6 +760,13 @@ StatusCode FixLArElecCalib::fix5() {
     ATH_CHECK( updateMinBias("mbrms_em_rel12.txt") );
     ATH_CHECK( updateMinBias("mbrms_hec_rel12.txt") );
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+      return StatusCode::FAILURE;
+    }
+
     // Fix5 is for updating the FCAL noise and MinBiasRMS data using 
     // Sven Menke's file.
 
@@ -760,10 +791,10 @@ StatusCode FixLArElecCalib::fix5() {
 	    HWIdentifier hid = it.channelId(); 
 	    if( (*it).isEmpty() ) continue;  
 
-	    Identifier id = m_cablingSvc->cnvToIdentifier(hid);
+	    Identifier id = cabling->cnvToIdentifier(hid);
 	    if(!m_fcal_idhelper->is_lar_fcal(id)) continue;
 
-	    if(m_cablingSvc->isOnlineConnected(hid)){
+	    if(cabling->isOnlineConnected(hid)){
 	      ++nconn;
 	      continue;
 	    }else
@@ -825,7 +856,7 @@ StatusCode FixLArElecCalib::fix5() {
 
        ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
-       HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+       HWIdentifier hid = cabling->createSignalChannelID(id);
 
        const LArMinBiasComplete::LArCondObj& t1 = minbias->get(hid,0) ;
        LArMinBiasComplete::LArCondObj& t2 = const_cast<LArMinBiasComplete::LArCondObj&>(t1); 
@@ -870,7 +901,7 @@ StatusCode FixLArElecCalib::fix5() {
 	  int eta2 = m_fcal_idhelper->eta(id);
 	  int phi2 = m_fcal_idhelper->phi(id);
 
-	  HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+	  HWIdentifier hid = cabling->createSignalChannelID(id);
 	  log<<MSG::INFO<<" mod, phi,eta"<<module<<" "<<phi2<<" "<<eta2<<endmsg;
 	  ++n2;
 
@@ -903,6 +934,12 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
        return StatusCode::FAILURE; 
      }
   
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
    int lar,tp,det,samp,reg,eta,phi; 
    //tp=1 for EM, 2=HEC 
 
@@ -940,7 +977,7 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 		}
 	  }
 
-	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+	HWIdentifier hid = cabling->createSignalChannelID(id);
 	const LArMinBiasComplete::LArCondObj & t = minbias->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
 	ATH_MSG_INFO(" online id = "<<id_str);
@@ -990,6 +1027,12 @@ StatusCode FixLArElecCalib::fix6() {
     ATH_CHECK( detStore()->retrieve(dac2uA_c) );
     LArDAC2uAMC* dac2uA = const_cast<LArDAC2uAMC*>(dac2uA_c);
     
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+    }
     int ndisc=0;
     int nconn=0;
     for( unsigned int gain=0;gain<3;++gain)
@@ -1003,10 +1046,10 @@ StatusCode FixLArElecCalib::fix6() {
 	    HWIdentifier hid = it.channelId(); 
 	    if( (*it).isEmpty() ) continue;  
 
-	    Identifier id = m_cablingSvc->cnvToIdentifier(hid);
+	    Identifier id = cabling->cnvToIdentifier(hid);
 	    if(!m_fcal_idhelper->is_lar_fcal(id)) continue;
 
-	    if(m_cablingSvc->isOnlineConnected(hid)){
+	    if(cabling->isOnlineConnected(hid)){
 	      ++nconn;
 	      continue;
 	    }else
@@ -1071,7 +1114,7 @@ StatusCode FixLArElecCalib::fix6() {
 
        ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
-       HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+       HWIdentifier hid = cabling->createSignalChannelID(id);
 
        const LArNoiseComplete::LArCondObj& noise0 = noise->get(hid,0) ;
        LArNoiseComplete::LArCondObj& u0 = const_cast<LArNoiseComplete::LArCondObj&>(noise0); 
@@ -1182,6 +1225,13 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 
    ATH_MSG_INFO(" Opened file "<<filename );
 
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   const LArOnOffIdMapping* cabling{*cablingHdl};
+   if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+   }
+
    m_cache[0].clear();
    m_cache[1].clear();
    m_cache[2].clear();
@@ -1236,7 +1286,7 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 	  {
 	    id = m_hec_idhelper->channel_id(2,samp,reg,eta,0); 
 	  }
-	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+	HWIdentifier hid = cabling->createSignalChannelID(id);
 
         if (gain >= 0 && gain < 3)
           m_cache[gain].push_back(ROW(hid,vfl));
@@ -1407,6 +1457,12 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
     ILArMphysOverMcal* imphys=0;
     ATH_CHECK (detStore()->symLink(mphys,imphys) );
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+    }
     int n=0;
 
     std::string filename("FCal_noise_minbias_adc2mev.txt");
@@ -1454,7 +1510,7 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
 
        ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
-       HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
+       HWIdentifier hid = cabling->createSignalChannelID(id);
 
        LArMphysOverMcalMC::LArCondObj t; 
        t.m_data =1. ;
@@ -1569,6 +1625,12 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
 StatusCode FixLArElecCalib::fix9() {
 
     ATH_MSG_INFO ( " in fix9(), replace FCAL AutoCorr " );
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+    }
 
     std::vector<float> fcal_autoCorr[3][3] ; //[module][gain]
     fcal_autoCorr[0][0].push_back( -0.01);
@@ -1637,7 +1699,7 @@ StatusCode FixLArElecCalib::fix9() {
 	    const LArAutoCorrMC::LArCondObj & u = (*it);
 	    if( (*it).isEmpty() ) continue;  
 	     
-	    Identifier id = m_cablingSvc->cnvToIdentifier(hid);
+	    Identifier id = cabling->cnvToIdentifier(hid);
 	    if(! m_fcal_idhelper->is_lar_fcal(id)) continue ;
 	    int module = m_fcal_idhelper->module(id);
 	    module = module - 1 ; 
@@ -1676,6 +1738,13 @@ StatusCode FixLArElecCalib::fix10() {
     const LArRampMC * ramp_c = nullptr;
     ATH_CHECK( detStore()->retrieve(ramp_c) );
     LArRampMC* ramp = const_cast<LArRampMC*>(ramp_c);
+
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+    }
     
     LArRampMC::ConditionsMapIterator  it = ramp->begin(0);
     LArRampMC::ConditionsMapIterator  it_e = ramp->end(0);
@@ -1687,10 +1756,10 @@ StatusCode FixLArElecCalib::fix10() {
 	    HWIdentifier hid = it.channelId(); 
 	    if( (*it).isEmpty() ) continue;  
 
-	    Identifier id = m_cablingSvc->cnvToIdentifier(hid);
+	    Identifier id = cabling->cnvToIdentifier(hid);
 	    if(!m_fcal_idhelper->is_lar_fcal(id)) continue;
 
-	    if( ! m_cablingSvc->isOnlineConnected(hid)){
+	    if( ! cabling->isOnlineConnected(hid)){
               ATH_MSG_ERROR(" unconnected channel" 
                             << m_online_idhelper->print_to_string(hid) );
 		++ndisc ; 
@@ -1749,6 +1818,12 @@ StatusCode FixLArElecCalib::fix13() {
     if ( scidtool.retrieve().isFailure() ) {
       ATH_MSG_ERROR ( " Could not retrieve scitool " );
     }
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+    }
 
     std::set<Identifier> scidset;
     std::map<HWIdentifier,int> sslot_schannel_idx;
@@ -1774,7 +1849,7 @@ StatusCode FixLArElecCalib::fix13() {
 	if ( scidset.find(SCID) == scidset.end() && (m_scell_idhelper->calo_cell_hash( SCID ).value() < 99999) )
 		scidset.insert(SCID);
 	else continue;
-	HWIdentifier hwid = m_cablingSvc->createSignalChannelID(chid);
+	HWIdentifier hwid = cabling->createSignalChannelID(chid);
 	if ( i == 0 ){
         of << "Off ID\t\tSCID\t\tOnl ID\t\tFT\tslot\tB-E pos_neg\tSamp\teta\tphi\tFEB_ID\t\tSHWID\t" << std::endl;
 	}
@@ -1864,7 +1939,7 @@ StatusCode FixLArElecCalib::fix13() {
         if ( scidset.find(SCID) == scidset.end() )
                 scidset.insert(SCID);
         else continue;
-        HWIdentifier hwid = m_cablingSvc->createSignalChannelID(chid);
+        HWIdentifier hwid = cabling->createSignalChannelID(chid);
         if ( i == 0 ){
         of1 << "Off ID\t\tSCID\t\tOnl ID\t\tFT\tslot\tB-E pos_neg\tSamp\teta\tphi\tFEB_ID\t\tSHWID\t" << std::endl;
         }
@@ -1937,7 +2012,7 @@ StatusCode FixLArElecCalib::fix13() {
         if ( scidset.find(SCID) == scidset.end() )
                 scidset.insert(SCID);
         else continue;
-        HWIdentifier hwid = m_cablingSvc->createSignalChannelID(chid);
+        HWIdentifier hwid = cabling->createSignalChannelID(chid);
         if ( i == 0 ){
         of3 << "Off ID\t\tSCID\t\tOnl ID\t\tFT\tslot\tB-E pos_neg\tSamp\teta\tphi\tFEB_ID\t\tSHWID\t" << std::endl;
         }

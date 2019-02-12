@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @class AthHistogramAlgorithm.h 
@@ -60,7 +60,7 @@ public:
    *  and more to a root file)
    * Returns (kind of) a pointer to the @c THistSvc
    */
-  ServiceHandle<ITHistSvc>& histSvc() const;
+  const ServiceHandle<ITHistSvc>& histSvc() const;
 
 
 
@@ -80,7 +80,7 @@ private:
 private: 
 
   /// a handle on the Hist/TTree registration service
-  mutable ServiceHandle<ITHistSvc> m_histSvc;
+  ServiceHandle<ITHistSvc> m_histSvc;
 
 
 
@@ -110,7 +110,7 @@ private:
 //////////////////////
 
 // For the THistSvc
-inline ServiceHandle<ITHistSvc>& AthHistogramAlgorithm::histSvc() const 
+inline const ServiceHandle<ITHistSvc>& AthHistogramAlgorithm::histSvc() const 
 {
   return m_histSvc;
 }

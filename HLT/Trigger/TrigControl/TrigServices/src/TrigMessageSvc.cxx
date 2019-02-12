@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TrigMessageSvc.cxx 5 2013-05-14 10:33:04Z ricab $
 
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -12,8 +10,8 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "TrigServices/TrigMessageSvc.h"
-#include "TrigServices/TrigHLTIssues.h"
+#include "TrigMessageSvc.h"
+#include "TrigHLTIssues.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 
 #include <TH1I.h>
@@ -37,7 +35,7 @@ static int ersGaudiDebugOffset = 8;
 
 // Constructor
 TrigMessageSvc::TrigMessageSvc( const std::string& name, ISvcLocator* svcloc )
-  : Service(name, svcloc)
+  : base_class(name, svcloc)
   , m_doSuppress{false}
   , m_running{false}
   , m_canEnter{false}
@@ -1050,22 +1048,6 @@ void TrigMessageSvc::eraseMessage( const StatusCode& key, const Message& msg )
     }      
   }
   pthread_mutex_unlock(&msgsvcmutex);
-}
-
-// ---------------------------------------------------------------------------
-StatusCode TrigMessageSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-// ---------------------------------------------------------------------------
-  if ( IMessageSvc::interfaceID().versionMatch(riid) )  {
-    *ppvInterface = (IMessageSvc*)this;
-  }
-  else if ( ITrigMessageSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = static_cast<ITrigMessageSvc*>(this);
-  }
-  else  {
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
 
 // ---------------------------------------------------------------------------

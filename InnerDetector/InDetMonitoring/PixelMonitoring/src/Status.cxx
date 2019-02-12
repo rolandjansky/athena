@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sstream>
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"

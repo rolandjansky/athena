@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************
@@ -25,7 +25,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArCalibParams.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 class LArCalibDigitsAccumulatorFreeGain : public AthAlgorithm
 {
@@ -51,7 +51,7 @@ public:
   };
 
 private:
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
   const LArOnlineID* m_onlineHelper;
 
 

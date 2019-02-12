@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARH6OSCILLATIONCOMPLETE_H
@@ -10,8 +10,6 @@
 #include "LArRawConditions/LArConditionsContainer.h"
 
 #include <vector>
-
-class LArCablingService ;
 
 /** This class implements the ILArH6Oscillation interface
  *
@@ -37,10 +35,6 @@ class LArH6OscillationComplete: public ILArH6Oscillation ,
   virtual  const double& channelPhase(const HWIdentifier&  CellID) const ;
   
   virtual  const double& channelAmplitude(const HWIdentifier&  CellID) const ;
-  
-  virtual  const double& channelPhase(const Identifier&  CellID) const;
-  
-  virtual  const double& channelAmplitude(const Identifier&  CellID) const;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

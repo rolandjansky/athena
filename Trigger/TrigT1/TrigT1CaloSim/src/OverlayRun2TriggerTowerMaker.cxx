@@ -25,9 +25,6 @@
 #include "TileConditions/TileInfo.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //For getting TriggerTowers from BS
@@ -268,11 +265,12 @@ namespace LVL1 {
     ATH_MSG_DEBUG("Tile TTL1 pedestal value = " << m_TileTTL1Ped);
 
     // try to determine wheter we run on data or on simulation
-    auto ei = dynamic_cast<const EventIncident*>(&inc);
-    if(!ei) {
+    const xAOD::EventInfo* evtinfo{nullptr};
+    if(evtStore()->retrieve(evtinfo)!=StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
-    } else {
-      bool isData = !(ei->eventInfo().event_type()->test(EventType::IS_SIMULATION));
+    }
+    else {
+      bool isData = !(evtinfo->eventTypeBitmask()&xAOD::EventInfo::IS_SIMULATION);
       m_isDataReprocessing = isData;
       if(m_isDataReprocessing) {
         ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");

@@ -1,0 +1,14 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
+
+template <class CONT, class ROT>
+bool Trk::IEventCnvSuperTool::getHashAndIndex(const ROT* rot,
+                                              const std::string contName,
+                                              typename ElementLink<CONT>::index_type& hashAndIndex) const {
+  const Trk::ITrkEventCnvTool* cnvTool{getCnvTool(rot->identify())};
+  if (cnvTool!=nullptr) return cnvTool->getHashAndIndex<CONT, ROT>(rot, contName, hashAndIndex);
+  return false;
+}

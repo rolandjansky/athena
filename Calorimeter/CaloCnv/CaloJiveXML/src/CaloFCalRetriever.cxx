@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloFCalRetriever.h"
@@ -18,7 +18,6 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArCabling/LArCablingService.h"
 
 using Athena::Units::GeV;
 
@@ -32,8 +31,7 @@ namespace JiveXML {
    **/
   CaloFCalRetriever::CaloFCalRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("FCAL"),
-    m_larCablingSvc("LArCablingService")
+    m_typeName("FCAL")
   {
 
     //Only declare the interface
@@ -64,6 +62,8 @@ namespace JiveXML {
   StatusCode CaloFCalRetriever::initialize() {
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+
+    ATH_CHECK( m_cablingKey.initialize() );
 
     return StatusCode::SUCCESS;	
   }
@@ -128,9 +128,13 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it1 = cellContainer->beginConstCalo(CaloCell_ID::LARFCAL);
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LARFCAL);
 
-    
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+
+    if(!cabling) {
+       ATH_MSG_WARNING( "Do not have cabling mapping from key " << m_cablingKey.key() );
+       return DataMap;
+    }
 
     const ILArPedestal* larPedestal = nullptr;
     if(m_doFCalCellDetails){
@@ -166,7 +170,7 @@ namespace JiveXML {
 	  if ((((*it1)->provenance()&0xFF)!=0xA5)&&m_cellConditionCut) continue; // check full conditions for FCal
 	  Identifier cellid = (*it1)->ID(); 
 
-          HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
+          HWIdentifier LArhwid = cabling->createSignalChannelIDFromHash((*it1)->caloDDE()->calo_hash());
 	  
 	  //ignore FCal cells that are to be masked
 	  if (m_doMaskLArChannelsM5){

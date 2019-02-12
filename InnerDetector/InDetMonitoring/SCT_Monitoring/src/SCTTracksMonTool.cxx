@@ -142,12 +142,6 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
 
 // ====================================================================================================
 // ====================================================================================================
-SCTTracksMonTool::~SCTTracksMonTool() {
-  // nop
-}
-
-// ====================================================================================================
-// ====================================================================================================
 StatusCode SCTTracksMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
@@ -815,7 +809,7 @@ SCTTracksMonTool::bookGeneralHistos() {                                        /
     m_trk_chi2->GetXaxis()->SetTitle("Number of track #chi^{2}/NDF");
     CHECK(Tracks.regHist(m_trk_chi2));
 
-    m_trk_N = new TH1F("trk_N", "Number of tracks", 400, 0, 400);
+    m_trk_N = new TH1F("trk_N", "Number of tracks", 400, 0, 4000);
     m_trk_N->GetXaxis()->SetTitle("Number of tracks");
     CHECK(Tracks.regHist(m_trk_N));
 

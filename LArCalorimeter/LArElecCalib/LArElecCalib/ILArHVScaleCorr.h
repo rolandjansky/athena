@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARHVSCALRCORR_H
@@ -23,9 +23,6 @@ class ILArHVScaleCorr {
 
   // online ID
   virtual const float& HVScaleCorr(const HWIdentifier& id )  const = 0 ;
-  
-  // offline ID 
-  virtual const float& HVScaleCorr(const Identifier& id )  const =0;
   
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 

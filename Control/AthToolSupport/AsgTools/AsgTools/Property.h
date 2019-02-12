@@ -76,6 +76,20 @@ public:
   ///   no string conversion available
   virtual StatusCode getString (std::string& result) const;
 
+  /// \brief get the property as a string I can pas to \ref setString
+  ///
+  /// the main difference to \ref getString is that this will *not*
+  /// quote strings, i.e. it will assume strings are already properly
+  /// quoted if they need to be and won't be otherwise.  otherwise
+  /// there will be an issue when setting non-strings from strings
+  /// the user provided
+  ///
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   no string conversion available
+  virtual StatusCode getCastString (std::string& result) const;
+
   /// \brief set the property from a string
   /// \par Guarantee
   ///   basic

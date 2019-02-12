@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,9 +24,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h" 
 #include "GaudiKernel/IIncidentListener.h" 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
 class StoreGateSvc;
-class LArCablingService; 
 class LArOnlineID; 
 class LArEM_ID; 
 
@@ -44,8 +47,9 @@ public:
     StatusCode finalize();
 
 private:
-    // cabling Service 
-    LArCablingService* m_cablingSvc   ;  
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+    SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+    SG::ReadCondHandleKey<LArFebRodMapping>  m_RodKey{this, "FebRodKey", "LArFebRodMap", "SG ROD mapping key"};
     const LArOnlineID* m_onlineID; 
     const LArOnlineID* m_emid;
     int m_tbin;

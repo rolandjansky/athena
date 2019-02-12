@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ public:
   const unsigned int onlineId, float errorhit[20]);
 
   // Destructor:
-  virtual ~SCT_TB04_RawData();
+  virtual ~SCT_TB04_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 

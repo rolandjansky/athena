@@ -94,14 +94,16 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
 //Does not lock or clear atomics to allow faster destruction
 void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
 {
-  size_t s = m_vec.size();
-  for (size_t i=0; i<s ;i++) {
+  if(0 != m_currentHashes.load(std::memory_order_relaxed)){ //Reduce overhead if cache was unused
+    size_t s = m_vec.size();
+    for (size_t i=0; i<s ;i++) {
       const void* p = m_vec[i];
       if(p && p < ABORTED) deleter (p);
+    }
   }
 #ifndef NDEBUG
   for(size_t i =0; i<m_NMutexes; i++){
-     if(m_HoldingMutexes[i].counter!=0) std::cout << " counter is " << m_HoldingMutexes[i].counter << std::endl;
+     if(m_HoldingMutexes[i].counter!=0) std::cout << "IdentifiableCacheBase counter is " << m_HoldingMutexes[i].counter << std::endl;
      assert(m_HoldingMutexes[i].counter==0);
   }
 #endif

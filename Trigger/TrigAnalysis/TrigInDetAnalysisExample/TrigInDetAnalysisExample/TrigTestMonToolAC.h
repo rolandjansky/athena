@@ -1,10 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTestMonToolAC.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __TRIGTESTMONTOOLAC_H
-#define __TRIGTESTMONTOOLAC_H
+
+#ifndef TIDAEXAMPLE_TRIGTESTMONTOOLAC_H
+#define TIDAEXAMPLE_TRIGTESTMONTOOLAC_H
 
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -141,4 +147,4 @@ public:
 
 
 
-#endif //  __TRIGTESTMONTOOLAC_H
+#endif //  TIDAEXAMPLE_TRIGTESTMONTOOLAC_H

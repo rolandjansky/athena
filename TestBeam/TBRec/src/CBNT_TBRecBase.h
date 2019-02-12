@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,14 +9,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArCabling/LArCablingService.h"
-
 #include "TTree.h"
 
 class HWIdentifier;
 class LArOnlineID;
-//class LArCablingService;
-//class ILArBadChanTool;
 class StoreGateSvc;
 class LArEM_ID;
 class LArHEC_ID;
@@ -72,7 +68,6 @@ class CBNT_TBRecBase : public AthAlgorithm {
   const LArHEC_ID* m_hecId;
   const LArFCAL_ID* m_fcalId;
   const LArOnlineID* m_onlineId;
-  ToolHandle<LArCablingService> m_larCablingSvc;
 
 };
 #endif

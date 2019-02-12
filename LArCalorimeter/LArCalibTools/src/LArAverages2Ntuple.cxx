@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAverages2Ntuple.h"
@@ -10,8 +10,7 @@
 
 LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_emId(NULL), m_onlineHelper(NULL),
-  m_larCablingSvc ("LArCablingService")
+  m_emId(NULL), m_onlineHelper(NULL)
   //  m_eventCounter(0)
 {
   declareProperty("ContainerKey",m_contKey);
@@ -37,8 +36,8 @@ StatusCode LArAverages2Ntuple::initialize()
   
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  // Retrieve LArCablingService
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_calibMapKey.initialize() );
 
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1) {
@@ -91,6 +90,19 @@ StatusCode LArAverages2Ntuple::initialize()
 StatusCode LArAverages2Ntuple::execute()
 {
   ATH_MSG_DEBUG ( "in execute" );
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "DO not have cabling from the key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+  const LArCalibLineMapping *clcabling {*clHdl};
+  if(!clcabling) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
   
   const LArAccumulatedCalibDigitContainer* accuDigitContainer = NULL;
   StatusCode sc=evtStore()->retrieve(accuDigitContainer,m_contKey);  
@@ -160,10 +172,10 @@ StatusCode LArAverages2Ntuple::execute()
      m_barrel_ec = m_onlineHelper->barrel_ec(chid);
      m_pos_neg   = m_onlineHelper->pos_neg(chid);
 
-     bool isConnected = m_larCablingSvc->isOnlineConnected(chid);
+     bool isConnected = cabling->isOnlineConnected(chid);
      if(isConnected){
-       Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
-       const std::vector<HWIdentifier>& calibLineV=m_larCablingSvc->calibSlotLine(chid);
+       Identifier id=cabling->cnvToIdentifier(chid);
+       const std::vector<HWIdentifier>& calibLineV=clcabling->calibSlotLine(chid);
        std::vector<HWIdentifier>::const_iterator calibLineIt=calibLineV.begin();
        m_calibLine = m_onlineHelper->channel(*calibLineIt);
        m_eta=m_emId->eta(id); 

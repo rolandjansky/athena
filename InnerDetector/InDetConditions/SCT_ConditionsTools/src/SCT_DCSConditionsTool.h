@@ -15,21 +15,17 @@
 
 //
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-//
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
+//
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
 //STL
-#include <list>
 #include <string>
-#include <map>
-#include <mutex>
 
 class SCT_ID;
 
@@ -83,17 +79,6 @@ private:
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheState;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheHV;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheTemp0;
-  // Pointer of SCT_DCSStatCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSStatCondData> m_pBadModules;
-  // Pointers of SCT_DCSFloatCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState{this, "CondKeyState", "SCT_DCSStatCondData", "SCT DCS state"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_DCSHVCondData", "SCT DCS HV"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0{this, "CondKeyTemp0", "SCT_DCSTemp0CondData", "SCT DCS temperature on side 0"};

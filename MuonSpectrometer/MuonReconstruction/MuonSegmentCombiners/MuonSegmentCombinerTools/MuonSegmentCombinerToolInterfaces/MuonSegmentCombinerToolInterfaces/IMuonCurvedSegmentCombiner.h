@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,10 +20,10 @@ namespace Muon
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    virtual MuonSegmentCombinationCollection* combineSegments(  const MuonSegmentCombinationCollection& mdtCombiColl, 
-                                                                const MuonSegmentCombinationCollection& csc4DCombiColl, 
-                                                                const MuonSegmentCombinationCollection& csc2DCombiColl,
-								MuonSegmentCombPatternCombAssociationMap* segPattMap)=0;
+    virtual std::unique_ptr<MuonSegmentCombinationCollection> combineSegments(  const MuonSegmentCombinationCollection& mdtCombiColl, 
+										const MuonSegmentCombinationCollection& csc4DCombiColl, 
+										const MuonSegmentCombinationCollection& csc2DCombiColl,
+										MuonSegmentCombPatternCombAssociationMap* segPattMap)=0;
   };
 
   inline const InterfaceID& Muon::IMuonCurvedSegmentCombiner::interfaceID()

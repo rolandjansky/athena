@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ namespace InDetDD {
                                     const int nCrystals);
 
       /** Destructor: */
-      ~SCT_ForwardModuleSideGeometry();
+      virtual ~SCT_ForwardModuleSideGeometry() = default;
 
       ///////////////////////////////////////////////////////////////////
       // Const methods:
@@ -157,9 +157,6 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline SCT_ForwardModuleSideGeometry::~SCT_ForwardModuleSideGeometry()
-{}
-
 inline double SCT_ForwardModuleSideGeometry::radius1() const
 {
   return m_radius1;

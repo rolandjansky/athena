@@ -12,8 +12,6 @@
 #include "EventTagWriter.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "GaudiKernel/RndmGenerators.h"
@@ -29,6 +27,7 @@
 EventTagWriter::EventTagWriter(const std::string& name, 
                                ISvcLocator* pSvcLocator) 
     : AthAlgorithm(name, pSvcLocator),
+      m_evt("EventInfo"),
       m_attribListSpec(0),
       m_maxNum(5)
 {
@@ -51,6 +50,8 @@ StatusCode EventTagWriter::initialize()
   std::string attribName;
 
   ATH_MSG_DEBUG( "Initializing " << name()  );
+
+  ATH_CHECK( m_evt.initialize() );
 
   ATH_MSG_DEBUG( "Defining the attribute list specification."  );
   m_attribListSpec = new coral::AttributeListSpecification;
@@ -202,7 +203,6 @@ StatusCode EventTagWriter::initialize()
 
 StatusCode EventTagWriter::execute() 
 {
-  StatusCode sc = StatusCode::SUCCESS;
   char attribNum[128];
   std::string attribName = "";
   int randInt = 0;
@@ -271,15 +271,14 @@ StatusCode EventTagWriter::execute()
   ATH_MSG_DEBUG( "Finished adding type test data to AthenaAttributeList." );
 
   ATH_MSG_DEBUG( "Retrieving event info from TDS."  );
-  const EventInfo* eventInfo;
-  sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_ERROR( "Could not retrieve event info from TDS."  );
+  SG::ReadHandle<xAOD::EventInfo> evt (m_evt);
+  if (!evt.isValid()) {
+    ATH_MSG_FATAL( "Could not find event info"  );
+    return(StatusCode::FAILURE);
   }
 
-  unsigned short runNumber = eventInfo->event_ID()->run_number();
-  unsigned short eventNumber = eventInfo->event_ID()->event_number();
+  unsigned short runNumber = evt->runNumber();
+  unsigned short eventNumber = evt->eventNumber();
 
   ATH_MSG_DEBUG( "Adding AOD global data to AthenaAttributeList." );
   unsigned short nGlobal = 0;

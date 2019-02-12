@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackAssociator.h        
-//
-//                   
-// 
-//
-//   $Id: TrackAssociator.h, v0.0   Sun 18 Jan 2009 19:08:11 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackAssociator.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:08:11 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKASSOCIATOR_H
-#define __TRACKASSOCIATOR_H
+#ifndef TIDA_TRACKASSOCIATOR_H
+#define TIDA_TRACKASSOCIATOR_H
 
 #include <iostream>
 #include <vector>
@@ -28,7 +26,7 @@
 typedef TIDA::Associator<TIDA::Track> TrackAssociator;
 
 
-#endif  // __TRACKASSOCIATOR_H 
+#endif  // TIDA_TRACKASSOCIATOR_H 
 
 
 

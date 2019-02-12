@@ -18,7 +18,7 @@ namespace Muon{
   class MuonSegmentCombiSummary {
   public:
     // vector of segments
-    typedef std::vector<const MuonSegment*> SegVec;
+    typedef std::vector<MuonSegment*>       SegVec;
     typedef SegVec::iterator                SegIt;
     typedef SegVec::const_iterator          SegCit;
 

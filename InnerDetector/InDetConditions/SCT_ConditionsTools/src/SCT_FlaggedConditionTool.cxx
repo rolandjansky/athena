@@ -84,10 +84,8 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
 
 // Retrieve the reason why the wafer is flagged as bad (by IdentifierHash)
 // If wafer is not found return a null string
-const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId) const {
+const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId, const EventContext& ctx) const {
   static const std::string nullString;
-
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
@@ -99,16 +97,24 @@ const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashI
   return ((itr != badIds->end()) ? (*itr).second : nullString);
 }
 
-// Retrieve the reason why the wafer is flagged as bad (by Identifier)
-// If wafer is not found return a null string
-const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id) const {
-  const IdentifierHash hashId = m_sctID->wafer_hash(Id);
-  return details(hashId);
+const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return details(hashId, ctx);
 }
 
-int SCT_FlaggedConditionTool::numBadIds() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+// Retrieve the reason why the wafer is flagged as bad (by Identifier)
+// If wafer is not found return a null string
+const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id, const EventContext& ctx) const {
+  const IdentifierHash hashId{m_sctID->wafer_hash(Id)};
+  return details(hashId, ctx);
+}
 
+const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return details(Id, ctx);
+}
+
+int SCT_FlaggedConditionTool::numBadIds(const EventContext& ctx) const {
   const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
@@ -118,10 +124,18 @@ int SCT_FlaggedConditionTool::numBadIds() const {
   return badIds->size();
 }
 
+int SCT_FlaggedConditionTool::numBadIds() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return numBadIds(ctx);
+}
+
+const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds(const EventContext& ctx) const {
+  return getCondData(ctx);
+}
+
 const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-
-  return getCondData(ctx);
+  return getBadIds(ctx);
 }
 
 const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getCondData(const EventContext& ctx) const {

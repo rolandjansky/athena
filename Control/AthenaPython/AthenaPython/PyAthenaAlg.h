@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaAlg.h 
@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPython/IPyComponent.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 // Python
@@ -27,8 +28,8 @@ namespace PyAthena {
 
 typedef ::AthAlgorithm AlgBase_t;
 
-class Alg : virtual public ::IPyComponent,
-                    public   AlgBase_t
+class ATLAS_NOT_THREAD_SAFE Alg : virtual public ::IPyComponent,
+                                  public   AlgBase_t
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 

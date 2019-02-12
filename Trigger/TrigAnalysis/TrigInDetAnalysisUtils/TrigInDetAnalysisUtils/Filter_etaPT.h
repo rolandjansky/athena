@@ -1,14 +1,14 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Filter_etaPT.h        
-//
-//            generic track filter to filter on eta and PT only
-// 
-//
-//   $Id: Filter_PT.h, v0.0   Wed 28 Oct 2009 02:47:05 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Filter_etaPT.h
+ **
+ **       generic track filter to filter on eta and PT only
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:47:05 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSISUTILS_FILTER_ETAPT_H
