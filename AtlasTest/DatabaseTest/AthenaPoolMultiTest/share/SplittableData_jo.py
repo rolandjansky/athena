@@ -53,22 +53,22 @@ from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
 PassAllFilter       = PassAllFilter("PassAllFilter")
 PassNoneFilter      = PassNoneFilter("PassNoneFilter")
 AddTrigMap          = AddTrigMap("AddTrigMap")
-EventTagWriter      = EventTagWriter("EventTagWriter")
-TagEventTagWriter   = TagEventTagWriter("TagEventTagWriter")
+#EventTagWriter      = EventTagWriter("EventTagWriter")
+#TagEventTagWriter   = TagEventTagWriter("TagEventTagWriter")
 DummyLumirangeTool  = DummyLumirangeTool("DummyLumirangeTool")
 
 PassAllFilter.OutputLevel  = WARNING
 PassNoneFilter.OutputLevel = WARNING
 AddTrigMap.OutputLevel     = INFO
-EventTagWriter.OutputLevel = INFO 
-TagEventTagWriter.OutputLevel = DEBUG
+#EventTagWriter.OutputLevel = INFO 
+#TagEventTagWriter.OutputLevel = DEBUG
 DummyLumirangeTool.OutputLevel = INFO
 
 topSequence        += PassAllFilter
 topSequence        += PassNoneFilter
 topSequence        += AddTrigMap
-topSequence        += EventTagWriter
-topSequence        += TagEventTagWriter
+#topSequence        += EventTagWriter
+#topSequence        += TagEventTagWriter
 topSequence        += DummyLumirangeTool
 
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
@@ -87,48 +87,14 @@ svcMgr += AthenaPoolCnvSvc()
 include( "AthenaPoolMultiTest/ExampleStreamConfig.py" )
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-DataStream = AthenaPoolOutputStream( "DataStream" , "AthenaPoolMultiTest_Splittable0.root", True, noTag=True )
+DataStream = AthenaPoolOutputStream( "DataStream" , "AthenaPoolMultiTest_Splittable0.root", False, noTag=False )
 DataStream.ItemList    = exampleItemList  # comes from ExampleStreamConfig
 DataStream.ItemList   += [ "FauxTriggerMap#*" ] # add item not in StreamConfig
 DataStream.MetadataItemList   += exampleMetadataList
 DataStream.AcceptAlgs  = ["PassAllFilter"]
 DataStream.RequireAlgs = ["PassAllFilter"]
 DataStream.VetoAlgs    = ["PassNoneFilter"]
-
-#--------------------------------------------------------------
-# Consequently, should have 3 output files
-#    Numbers 3, 4, from PassAll and 1 from Passnone 
-#--------------------------------------------------------------
-#
-#  Now configure output collection
-#
-#--------------------------------------------------------------
-from RegistrationServices.RegistrationServicesConf import RegistrationStream
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-
-TagTool = RegistrationStreamTagTool("TagTool")
-#TagTool.FragmentByGroup = True
-
-FullColl = RegistrationStream("FullColl")
-FullColl.OutputCollection = "SplittableCollection.root"
-FullColl.ItemList        += [ "DataHeader#DataStream" ]
-FullColl.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-FullColl.ItemList        += [ "CollectionMetadataContainer#*" ]
-FullColl.AcceptAlgs       = [ "PassAllFilter"]
-
-#FullColl.Tool = TagTool
-
-# Now put full veto to make sure vetos work on collections
-NullColl = RegistrationStream("NullColl")
-NullColl.OutputCollection = "NullableCollection.root"
-NullColl.ItemList        += [ "DataHeader#DataStream" ]
-NullColl.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-NullColl.OutputLevel      = INFO
-NullColl.RequireAlgs      = ["PassNoneFilter"]
-
-#topSequence    += DataStream
-topSequence    += FullColl
-topSequence    += NullColl
+DataStream.WritingTool.AttributeListKey="SimpleTagDecisions"
 
 #--------------------------------------------------------------
 # Output options
