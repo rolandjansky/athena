@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # List of containers that are made on-the-fly by basically all DAOD types and
 # can therefore be reasonably added to the NameAndTypes dictionary centrally
@@ -36,6 +36,8 @@ ContainersOnTheFly = [
                         ["AntiKt4TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthWZJets","xAOD::JetContainer"],
                         ["AntiKt4TruthWZJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt4TruthDressedWZJets","xAOD::JetContainer"],
+                        ["AntiKt4TruthDressedWZJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4EMTopoCSSKJets","xAOD::JetContainer"],
                         ["AntiKt4EMTopoCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4EMPFlowCSSKJets","xAOD::JetContainer"],
