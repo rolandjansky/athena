@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_MaterialManager.h"
@@ -59,15 +59,6 @@ SCT_MaterialManager::reinit()
 void
 SCT_MaterialManager::loadMaterials()
 {
-  //const GeoElement *copper    = getElement("Copper");
-
-  //const GeoMaterial *kapton   = getMaterial("std::Kapton"); // 30th Aug 2005 D.Naito added.
-
-  // CuKapton for Low Mass Tapes
-  //GeoMaterial * matCuKapton   = new GeoMaterial("sct::CuKapton",2.94*gram/Gaudi::Units::cm3);
-  //matCuKapton->add(const_cast<GeoElement*>(copper),  0.6142);
-  //matCuKapton->add(const_cast<GeoMaterial*>(kapton), 0.3858);
-  //addMaterial(matCuKapton);
 }
 
 const GeoElement* 
