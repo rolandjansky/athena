@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthCnvSvc.h 
@@ -297,7 +297,10 @@ protected:
 
   /// Retrieve address creation interface
   virtual
-  SmartIF<IAddressCreator>& addressCreator() { return m_addressCreator; }
+  SmartIF<IAddressCreator>& addressCreator()
+  {
+    return m_addressCreator;
+  }
 
   StatusCode makeCall (int typ,
                        bool ignore_add,
@@ -307,11 +310,11 @@ protected:
                        DataObject*& pObject);
 
   /// Pointer to data provider service
-  mutable SmartIF<IDataProviderSvc>   m_dataSvc;
+  SmartIF<IDataProviderSvc>   m_dataSvc;
   /// Pointer to the address creation service interface
-  mutable SmartIF<IAddressCreator>    m_addressCreator;
+  SmartIF<IAddressCreator>    m_addressCreator;
   /// Pointer to the IConversionSvc interface of this
-  mutable SmartIF<IConversionSvc>     m_cnvSvc;
+  SmartIF<IConversionSvc>     m_cnvSvc;
   /// Conversion service type
   long                m_type;
   /// List of conversion workers
