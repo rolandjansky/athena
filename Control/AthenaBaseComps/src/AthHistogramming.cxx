@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthHistogramming.cxx
@@ -62,7 +62,7 @@ AthHistogramming::~AthHistogramming()
 ///////////////////////////////////////////////////////////////////
 
 // To be called by the derived classes to fill the internal configuration
-StatusCode AthHistogramming::configAthHistogramming( ServiceHandle<ITHistSvc>& histSvc,
+StatusCode AthHistogramming::configAthHistogramming( const ServiceHandle<ITHistSvc>& histSvc,
                                                      const std::string& prefix,          const std::string& rootDir,
                                                      const std::string& histNamePrefix,  const std::string& histNamePostfix,
                                                      const std::string& histTitlePrefix, const std::string& histTitlePostfix )
@@ -212,7 +212,7 @@ TH1* AthHistogramming::hist( const std::string& histName, const std::string& tDi
 TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir, std::string stream )
 {
   // Get a pointer
-  TTree* treePointer = const_cast<TTree*>(&treeRef);
+  const TTree* treePointer = &treeRef;
 
   // Check that we got a valid pointer
   if ( !treePointer )
@@ -239,11 +239,8 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
       return NULL;
     }
 
-  // Set the new name and title for the TTree, based on the prefixes that the user set for this class instance
-  treePointer->SetNameTitle( (treeName).c_str(), (treeTitle).c_str() );
-
   // Create a clone that has the new name
-  TTree* treeClone = dynamic_cast< TTree* >( treePointer->Clone() );
+  TTree* treeClone = dynamic_cast< TTree* >( treePointer->Clone(treeName.c_str()) );
   if( !treeClone )
     {
       m_msg << MSG::WARNING
@@ -251,6 +248,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
             << "!" << endmsg;
       return NULL;
     }
+  treeClone->SetTitle (treeTitle.c_str());
 
   // Massage the final string to book things
   std::string bookingString("");
@@ -329,7 +327,7 @@ TTree* AthHistogramming::tree( const std::string& treeName, const std::string& t
 TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tDir, std::string stream )
 {
   // Get a pointer
-  TGraph* graphPointer = const_cast<TGraph*>(&graphRef);
+  const TGraph* graphPointer = &graphRef;
 
   // Check that we got a valid pointer
   if ( !graphPointer )
@@ -356,12 +354,8 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
       return NULL;
     }
 
-  // Set the new name and title for the TGraph, based on the prefixes that the user set for this class instance
-  graphPointer->SetNameTitle( (m_histNamePrefix+graphName+m_histNamePostfix).c_str(),
-                              (m_histTitlePrefix+graphTitle+m_histTitlePostfix).c_str() );
-
   // Create a clone that has the new name
-  TGraph* graphClone = dynamic_cast< TGraph* >( graphPointer->Clone() );
+  TGraph* graphClone = dynamic_cast< TGraph* >( graphPointer->Clone((m_histNamePrefix+graphName+m_histNamePostfix).c_str()) );
   if( !graphClone )
     {
       m_msg << MSG::WARNING
@@ -369,6 +363,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
             << "!" << endmsg;
       return NULL;
     }
+  graphClone->SetTitle ((m_histTitlePrefix+graphTitle+m_histTitlePostfix).c_str());
 
   // Massage the final string to book things
   std::string bookingString("");

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthHistogramTool.h 
@@ -52,7 +52,7 @@ public:
    *  and more to a root file)
    * Returns (kind of) a pointer to the @c THistSvc
    */
-  ServiceHandle<ITHistSvc>& histSvc() const;
+  const ServiceHandle<ITHistSvc>& histSvc() const;
 
 
   /////////////////////////////////////////////////////////////////// 
@@ -74,7 +74,7 @@ public:
 protected:
   
   /// Pointer to the THistSvc (event store by default)
-  mutable ServiceHandle<ITHistSvc> m_histSvc;
+  ServiceHandle<ITHistSvc> m_histSvc;
 
 
   /// Name of the ROOT output stream (file)
@@ -104,7 +104,7 @@ protected:
 /////////////////////////////////////////////////////////////////// 
 
 // For the THistSvc
-inline ServiceHandle<ITHistSvc>& AthHistogramTool::histSvc() const 
+inline const ServiceHandle<ITHistSvc>& AthHistogramTool::histSvc() const 
 {
   return m_histSvc;
 }
