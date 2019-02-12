@@ -27,8 +27,11 @@ namespace CP
   SelectionType SelectionAccessorList ::
   getBits (const SG::AuxElement& element) const
   {
-    // if we overflow, just return true/false
-    if (m_list.size() > 8 * sizeof (SelectionType))
+    // total number of bits in SelectionType
+    constexpr size_t SelectionTotalBits = 8 * sizeof (SelectionType);
+
+    // if we have more cuts than bits, just return true/false
+    if (m_list.size() > SelectionTotalBits)
     {
       if (getBool (element))
         return selectionAccept();
