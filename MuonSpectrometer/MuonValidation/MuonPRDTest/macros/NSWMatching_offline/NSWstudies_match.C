@@ -12,8 +12,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "../efficiency.C"
-
 #include "NSWstudies_match.h"
 #include "NSWstudies.h"
 
@@ -24,10 +22,14 @@ void init_hists (vector< TH1I* >& hist_vec, bool isMM, string datatype, string m
 bool doEvt (int evtnr);
 void write_and_delete (vector< TH1I* > vec);
 void init_hist_pull (vector< TH1F*>& hist_pull);
+void efficiency (double missers, double total);
 
 //Inputs
-int min_mismatched_channel = 0;
+bool doMuonOnly = false;
 int max_diff = 3;
+
+// For SDO <> PRD matching one can also look at the pull
+bool doPull = false;
 
 // log settings
 bool quiet = true;
@@ -37,9 +39,8 @@ bool printHits = false;
 // Helpers in development:
 // Validate hits beforehand
 bool digi_test = false;
-// Does the electron check do anything?
-bool doElectronCheck = true;
-
+// Check hits and SDO for electron, plan to replace MuonOnly
+bool doElectroncheck = false;
 
 // To test two data objects versus each other change the input of match_Hits_Digits and fillHists functions!!
 void NSWstudies::Loop()
@@ -47,7 +48,7 @@ void NSWstudies::Loop()
    bool doMM = 1;
    bool dosTGC = 1;
 
-   TFile *outFile = new TFile("RootFiles/NSWVal_Hists.root", "recreate");
+   TFile *outFile = new TFile("NSWMatching_Hists.root", "recreate");
    vector< TH1I* > hist_MM_digits;
    vector< TH1I* > hist_MM_hits;
    vector< TH1I* > hist_sTGC_digits;
@@ -58,31 +59,8 @@ void NSWstudies::Loop()
    TH2D *hist_sTGC_global_hits = new TH2D ("sTGC_Global_pos_mismatched_hits", "sTGC_Global_pos_mismatched_hits", 50, -6000., 6000., 50, -6000., 6000.);
 
    vector< TH1F* > hist_pull;
-   init_hist_pull(hist_pull);
+   if (doPull) { init_hist_pull(hist_pull); }
 
-//   In a ROOT session, you can do:
-//      root> .L NSWstudies.C
-//      root> NSWstudies t
-//      root> t.GetEntry(12); // Fill t data members with entry number 12
-//      root> t.Show();       // Show values of entry 12
-//      root> t.Show(16);     // Read and show values of entry 16
-//      root> t.Loop();       // Loop on all entriess
-//
-
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
@@ -96,22 +74,18 @@ void NSWstudies::Loop()
    for (jentry=firstentry; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
+
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       if (!doEvt(eventNumber)) {continue;}
       // if (Cut(ientry) < 0) continue;
-     
+
       //only muon events:
       bool allMu = true;
       int mu_pdg = 13;
       for (int pdg : *TruthParticle_Pdg) { allMu &= (abs(pdg) == mu_pdg); }
-      if (!allMu) { continue; }
+      if (!allMu && doMuonOnly) { continue; }
       
-      if (!quiet) {
-         printf("\n**** Event: %d ****\n", eventNumber);
-       /*  printf("\nMM's\n");printf("number of truthparticles: %lu\n", TruthParticle_Pdg->size());
-            for (int pdg : *TruthParticle_Pdg) { printf("   namely: %d\n", pdg);}
-            for (double Pt : *TruthParticle_Pt) { printf("  Pt: %f\n", Pt); }*/
-      }
+      if (!quiet) { printf("\n**** Event: %d ****\n", eventNumber);}
 
       if (dosTGC) {
          Flocalize_collection oHits_sTGC ("Hits", Hits_sTGC_off_stationName, Hits_sTGC_off_stationEta, Hits_sTGC_off_stationPhi, Hits_sTGC_off_multiplet, Hits_sTGC_off_gas_gap, Hits_sTGC_off_channel, Hits_sTGC_off_channel_type);
@@ -120,23 +94,23 @@ void NSWstudies::Loop()
          Flocalize_collection oSDO_sTGC ("SDOs", SDO_sTGC_stationName, SDO_sTGC_stationEta, SDO_sTGC_stationPhi, SDO_sTGC_multiplet, SDO_sTGC_gas_gap, SDO_sTGC_channel, SDO_sTGC_channel_type);
          Flocalize_collection oRDO_sTGC ("RDOs", RDO_sTGC_stationName, RDO_sTGC_stationEta, RDO_sTGC_stationPhi, RDO_sTGC_multiplet, RDO_sTGC_gas_gap, RDO_sTGC_channel, RDO_sTGC_channel_type);
          Flocalize_collection oPRD_sTGC ("PRDs", PRD_sTGC_stationName, PRD_sTGC_stationEta, PRD_sTGC_stationPhi, PRD_sTGC_multiplet, PRD_sTGC_gas_gap, PRD_sTGC_channel, PRD_sTGC_channel_type);
-         match_Hits_Digits(oRDO_sTGC, oPRD_sTGC);
-         fillHists(oRDO_sTGC, hist_sTGC_hits);
-         fillHists(oPRD_sTGC, hist_sTGC_digits);
+         match_Hits_Digits(oHits_sTGC, oDigits_sTGC);
+         fillHists(oHits_sTGC, hist_sTGC_hits);
+         fillHists(oDigits_sTGC, hist_sTGC_digits);
 
-         plotError (oPRD_sTGC, hist_pull);
+         if (doPull) { plotError (oPRD_sTGC, hist_pull); }
          
          /*/Digits to Hits 2D:
          for (unsigned int k = 0; k < oDigits_sTGC.size(); ++k) {
             int diff = oDigits_sTGC.matchedchannel.at(k) - oDigits_sTGC.channel->at(k);
-            if ((oDigits_sTGC.matchedchannel.at(k) < 0 || abs(diff) > 3) && oDigits_sTGC.channel->at(k) > min_mismatched_channel) {
+            if (oDigits_sTGC.matchedchannel.at(k) < 0 || abs(diff) > 3) {
                hist_sTGC_global_digits->Fill(Digits_sTGC_globalPosX->at(k), Digits_sTGC_globalPosY->at(k));
             }
          }
          //Hits to Digits 2D:
          for (unsigned int k = 0; k < oHits_sTGC.size(); ++k) {
             int diff = oHits_sTGC.matchedchannel.at(k) - oHits_sTGC.channel->at(k);
-            if ((oHits_sTGC.matchedchannel.at(k) < 0 || abs(diff) > 3) && oHits_sTGC.channel->at(k) > min_mismatched_channel) {
+            if (oHits_sTGC.matchedchannel.at(k) < 0 || abs(diff) > 3) {
                hist_sTGC_global_hits->Fill(Hits_sTGC_detector_globalPositionX->at(k), Hits_sTGC_detector_globalPositionY->at(k));
             }
          }*/
@@ -149,23 +123,23 @@ void NSWstudies::Loop()
          Flocalize_collection oSDO_MM ("SDOs", SDO_MM_stationName, SDO_MM_stationEta, SDO_MM_stationPhi, SDO_MM_multiplet, SDO_MM_gas_gap, SDO_MM_channel);
          Flocalize_collection oRDO_MM ("RDOs", RDO_MM_stationName, RDO_MM_stationEta, RDO_MM_stationPhi, RDO_MM_multiplet, RDO_MM_gas_gap, RDO_MM_channel);
          Flocalize_collection oPRD_MM ("PRDs", PRD_MM_stationName, PRD_MM_stationEta, PRD_MM_stationPhi, PRD_MM_multiplet, PRD_MM_gas_gap, PRD_MM_channel);
-         match_Hits_Digits(oRDO_MM, oPRD_MM);
-         fillHists(oRDO_MM, hist_MM_hits);
-         fillHists(oPRD_MM, hist_MM_digits);
+         match_Hits_Digits(oHits_MM, oDigits_MM);
+         fillHists(oHits_MM, hist_MM_hits);
+         fillHists(oDigits_MM, hist_MM_digits);
 
-         plotError (oPRD_MM, hist_pull);
+         if (doPull) { plotError (oPRD_MM, hist_pull); }
 
          /*/Digits to Hits 2D:
          for (unsigned int k = 0; k < oDigits_MM.sizes(); ++k) {
             int diff = oDigits_MM.matchedchannel.at(k) - oDigits_MM.channel->at(k);
-            if ((oDigits_MM.matchedchannel.at(k) < 0 || abs(diff) > 3) && oDigits_MM.channel->at(k) > min_mismatched_channel) {
+            if (oDigits_MM.matchedchannel.at(k) < 0 || abs(diff) > 3) {
                hist_MM_global_digits->Fill(Digits_MM_globalPosX->at(k), Digits_MM_globalPosY->at(k));
             }
          }/
          // //Hits to Digits 2D:
          for (unsigned int k = 0; k < oHits_MM.size(); ++k) {
             int diff = oHits_MM.matchedchannel.at(k) - oHits_MM.channel->at(k);
-            if ((oHits_MM.matchedchannel.at(k) < 0 || abs(diff) > 3) && oHits_MM.channel->at(k) > min_mismatched_channel) {
+            if (oHits_MM.matchedchannel.at(k) < 0 || abs(diff) > 3) {
                hist_MM_global_hits->Fill(Hits_MM_detector_globalPositionX->at(k), Hits_MM_detector_globalPositionY->at(k));
             }
          }*/
@@ -293,18 +267,22 @@ void NSWstudies::fillHists (Flocalize_collection& oData, vector< TH1I* >& hist_v
       if (abs(diff) > 19 ) { diff = -20; /*printf("Matchedchannel more then 20 strips away! Matchedchannel: %d\n", oData.matchedchannel.at(i));*/ }
       //Check if hit inside volume & only muon:
       if (oData.matchedchannel.at(i) == -100) { continue; }
-      if (oData.name == "Hits" && !digi_test && doElectronCheck) {
+      if (oData.name == "Hits" && !digi_test && doElectroncheck) {
          if (oData.isMM) { 
             bool accept_hit = Hits_MM_isInsideBounds->at(i) * (abs(Hits_MM_particleEncoding->at(i)) == 13);
-            //diff = accept_hit * diff; 
             if (!accept_hit) { continue; }
          } else { 
-         	// For the wire digits, channel numbers can only go up to 59. However I made it so that hits placed in the dead region are given the channelnumber 63. As 63 isn't a valid channel number, the digit isn't added.
+         	// quote: "For the wire digits, channel numbers can only go up to 59. However I made it so that hits placed in the dead region are given the channelnumber 63. As 63 isn't a valid channel number, the digit isn't added.""
             bool accept_hit = Hits_sTGC_isInsideBounds->at(i) * 
             						(abs(Hits_sTGC_particleEncoding->at(i)) == 13) * 
             						(oData.channel_type->at(i) != 2 || oData.channel->at(i) != 63);
-            //diff = accept_hit * diff; 
             if (!accept_hit) { continue; }
+         }
+      } else if (oData.name == "SDOs" && !digi_test && doElectroncheck) {
+         if (oData.isMM) { 
+            if (SDO_MM_barcode->at(i) == 0) { continue; }
+         } else { 
+            if (SDO_sTGC_barcode->at(i) == 0) { continue; }
          }
       }
       //
@@ -324,7 +302,7 @@ void NSWstudies::fillHists (Flocalize_collection& oData, vector< TH1I* >& hist_v
       for (unsigned int j = 0; j < oData.matchedindices.at(i).size(); ++j) { 
          hist_match->Fill(nextbin);
       }
-      if (abs(diff) > max_diff && oData.channel->at(i) > min_mismatched_channel) { 
+      if (abs(diff) > max_diff) { 
          hist_missmatch->Fill(nextbin);
          hist_missmatched_chc->Fill(oData.channel->at(i));
          hasMissed = true;
@@ -348,18 +326,18 @@ void init_hists (vector< TH1I* >& hist_vec, bool isMM, string datatype, string m
       ndigits = 100;
       type = "sTGC";
    }
-   title.Form("%s_Nearest_matched(%s)channel_minus_Channel_%s", type, matchedwith.c_str(), obj);
+   title.Form("%s_matched_strip_distance_%s_%s", type, obj, matchedwith.c_str());
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), 40, -20, 20) );
    hist_vec[0]->GetXaxis()->SetTitle("Difference(strips) (-20 = out of range)");
-   title.Form("%s_Occurence_of_%s", type, obj);
+   title.Form("%s_position_%s", type, obj);
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), ndigits, 0, ndigits) );
    title.Form("%s_%s_per_%s",type, obj, matchedwith.c_str());
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), ndigits, 0, ndigits) );
-   title.Form("%s_Nr_mismatched_%s", type, obj);
+   title.Form("%s_position_mismatched_%s", type, obj);
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), ndigits, 0, ndigits) );
-   title.Form("%s_Mismatched_events_%s", type, obj);
+   title.Form("%s_events_mismatched_%s", type, obj);
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), 1000, 0, 1000) );
-   title.Form("%s_Mismatched_channel_%s", type, obj);
+   title.Form("%s_channel_mismatched_%s", type, obj);
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), 100, 0, 500) );
 }
 
@@ -379,8 +357,10 @@ void NSWstudies::plotError (Flocalize_collection oPRD, vector<TH1F*> hists_pull)
 	      sTGC_truthX = SDO_sTGC_localPosX->at(j);
 	      sTGC_pull = (sTGC_locX - sTGC_truthX) / sTGC_error;
 
-	      printf("PRD sTGC channel: %d, matched with SDO channel: %d\n", PRD_sTGC_channel->at(i), SDO_sTGC_channel->at(j));
-	      printf("PRD sTGC locX: %f, SDO locx: %f\n\n", sTGC_locX, sTGC_truthX);
+	      if (!quiet) {
+            printf("PRD sTGC channel: %d, matched with SDO channel: %d\n", PRD_sTGC_channel->at(i), SDO_sTGC_channel->at(j));
+            printf("PRD sTGC locX: %f, SDO locx: %f\n\n", sTGC_locX, sTGC_truthX); 
+         }
 
 	      //printf("sTGC1\n");
 	      chTy = oPRD.channel_type->at(i);
@@ -397,8 +377,10 @@ void NSWstudies::plotError (Flocalize_collection oPRD, vector<TH1F*> hists_pull)
 	      MM_truthX = SDO_MM_localPosX->at(j);
 	      MM_pull = (MM_locX - MM_truthX) / MM_error;
 
-	      printf("PRD MM channel: %d, matched with SDO channel: %d\n", PRD_MM_channel->at(i), SDO_MM_channel->at(j));
-	      printf("PRD MM locX: %f, SDO locx: %f\n\n", MM_locX, MM_truthX);
+         if (!quiet) {
+   	      printf("PRD MM channel: %d, matched with SDO channel: %d\n", PRD_MM_channel->at(i), SDO_MM_channel->at(j));
+   	      printf("PRD MM locX: %f, SDO locx: %f\n\n", MM_locX, MM_truthX);
+         }
 
 	      gg = oPRD.gas_gap->at(i) + 5;
 	      hists_pull[gg]->Fill((MM_locX - MM_truthX));
@@ -445,7 +427,10 @@ void init_hist_pull (vector< TH1F*>& hist_pull) {
 
 }
 
-
+void efficiency (double missers, double total) {
+   double eff = ((total - missers)/total);
+   printf("Efficiency: %g/%g = %g %% \n", missers, total, (eff*100.));
+}
 
 
 
