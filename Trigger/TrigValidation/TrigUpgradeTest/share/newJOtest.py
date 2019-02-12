@@ -14,7 +14,7 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
-
+flags.needFlagsCategory('Trigger')
 setupMenu(flags)
 
 

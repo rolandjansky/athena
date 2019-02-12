@@ -81,17 +81,10 @@ def _createCfgFlags():
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
 
 
-#LAr Flags:
-    try:
-        import LArConfiguration # Suppress flake8 unused import warning: # noqa: F401
-        haveLArConfiguration = True
-    except ImportError:
-        haveLArConfiguration = False
-
-    if haveLArConfiguration:
-        from LArConfiguration.LArConfigFlags import createLArConfigFlags
-        lcf=createLArConfigFlags()
-        acf.join(lcf)
+    def __lar():
+        from LArCellRec.LArConfigFlags import createLArConfigFlags
+        return createLArConfigFlags()
+    acf.addFlagsCategory( "LAr", __lar ) 
 
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
@@ -103,39 +96,23 @@ def _createCfgFlags():
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
 
 
-# Trigger
-    try:
-        import TriggerJobOpts # Suppress flake8 unused import warning: # noqa: F401
-        haveTriggerJobOpts = True
-    except ImportError:
-        haveTriggerJobOpts = False
-
-    if haveTriggerJobOpts:
+    def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
-        acf.join( createTriggerFlags() )
+        return createTriggerFlags()
+    acf.addFlagsCategory( "Trigger", __trigger )
 
-# Muon 
-    try:
-        import MuonConfig # Suppress flake8 unused import warning: # noqa: F401
-        haveMuonConfig = True
-    except ImportError:
-        haveMuonConfig = False
-
-    if haveMuonConfig:
+    def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
-        acf.join( createMuonConfigFlags() )
+        return createMuonConfigFlags()
+    acf.addFlagsCategory( "Muon", __muon )
 
-# DQ
-    try:
-        import AthenaMonitoring # Suppress flake8 unused import warning: # noqa: F401
-        haveDQConfig = True
-    except ImportError:
-        haveDQConfig = False
 
-    if haveDQConfig:
+    def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
-        acf.join( createDQConfigFlags() )
-        createComplexDQConfigFlags(acf)
+        dqf = createDQConfigFlags()
+        createComplexDQConfigFlags(acf)  # TODO try to use the same style?
+        return dqf
+    acf.addFlagsCategory("DQ", __dq )
 
     return acf
 
