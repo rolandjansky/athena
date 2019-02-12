@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
 #include "AthenaPython/IPyComponent.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 class INamedInterface;
@@ -26,8 +27,8 @@ typedef _object PyObject;
 
 namespace PyAthena {
 
-class Aud : virtual public ::IPyComponent,
-	            public ::Auditor
+class ATLAS_NOT_THREAD_SAFE Aud : virtual public ::IPyComponent,
+                                  public ::Auditor
 { 
 
   /////////////////////////////////////////////////////////////////// 

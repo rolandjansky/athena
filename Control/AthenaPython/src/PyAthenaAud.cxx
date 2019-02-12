@@ -227,7 +227,7 @@ Aud::afterEndRun(INamedInterface* comp)
 
 /// Audit the start of a standard "event".
 void 
-Aud::py_before(IAuditor::StandardEventType evt, const std::string& component)
+Aud::py_before (IAuditor::StandardEventType evt, const std::string& component)
 {
   const char* evtname = 0;
   switch (evt) {

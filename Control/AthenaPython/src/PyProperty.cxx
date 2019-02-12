@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyProperty.cxx 
@@ -28,11 +28,11 @@
 
 namespace {
 
-  class DeepCopier
+  class ATLAS_NOT_THREAD_SAFE DeepCopier
   {
     PyObject *m_fct;
   public:
-    static DeepCopier* instance()
+    static DeepCopier* instance ATLAS_NOT_THREAD_SAFE ()
     {
       static DeepCopier self;
       static bool first = true;
