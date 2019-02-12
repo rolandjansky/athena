@@ -23,15 +23,11 @@ if( LCG_NIGHTLY )
     # TDAQ_RELEASE_BASE should be set to a NIGHTLY TDAQ build!
     set( TDAQ-COMMON_VERSION "99-00-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( DQM-COMMON_VERSION "99-00-00" CACHE STRING
-       "The version of dqm-common to use for the build" )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
     set( TDAQ-COMMON_VERSION "03-00-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( DQM-COMMON_VERSION "00-00-00" CACHE STRING
-       "The version of dqm-common to use for the build" )
     set( TDAQ_VERSION "08-01-02" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
@@ -39,14 +35,11 @@ endif()
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
    CACHE PATH "The directory to pick up tdaq-common from" )
-set( DQM-COMMON_ATROOT
-   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}"
-   CACHE PATH "The directory to pick up dqm-common from" )
 set( TDAQ_PROJECT_NAME "tdaq" CACHE STRING "The name of the tdaq project" )
 set( TDAQ_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}"
    CACHE PATH "The directory to pick up tdaq from" )
-mark_as_advanced( TDAQ-COMMON_ATROOT DQM-COMMON_ATROOT TDAQ_PROJECT_NAME
+mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Find the ATLAS CMake code:
@@ -111,10 +104,6 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
-string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
-string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
-   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 
 # Temporarily add tdaq dependency to Athena build:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
