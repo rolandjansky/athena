@@ -24,6 +24,9 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
+// tool for cluster building
+#include "STgcClusterization/ISTgcClusterBuilderTool.h"
+
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
@@ -47,7 +50,7 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("sTGCRDO"),
 		  "RDO container to read");
   declareProperty("Merge",  m_merge = true);
-  
+  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
 }
 
 
@@ -229,6 +232,8 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
       prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
     } 
   } //end it = rdoColl
+
+
 
   if(m_merge) {
 

@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
+			  MuonSpectrometer/MuonReconstruction/MuonDataPrep/STgcClusterization
                           Tracking/TrkDetDescr/TrkSurfaces )
 
 # External dependencies (some of these aren't currently needed, but they will once we add BS etc)
