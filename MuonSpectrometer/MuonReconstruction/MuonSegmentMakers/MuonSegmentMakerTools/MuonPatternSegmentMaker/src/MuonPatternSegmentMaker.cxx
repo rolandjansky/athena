@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonPatternSegmentMaker/MuonPatternSegmentMaker.h"
 
@@ -42,9 +42,7 @@ namespace Muon {
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_keyRpc("RPC_Measurements"),
-    m_keyTgc("TGC_Measurements")
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     declareInterface<IMuonPatternSegmentMaker>(this);
 
@@ -56,8 +54,6 @@ namespace Muon {
     declareProperty("DropDistance",m_dropDistance = 1500.);
     declareProperty("AngleCutPhi",m_phiAngleCut = 1e9 );
     declareProperty("FullFinder",m_doFullFinder = true);
-    declareProperty("RpcPrepDataContainer", m_keyRpc);
-    declareProperty("TgcPrepDataContainer", m_keyTgc);
     declareProperty("DoSummary",m_doSummary = false);
     declareProperty("RecoverTriggerHits",m_recoverTriggerHits = true);
     declareProperty("RemoveDoubleMdtHits",m_removeDoubleMdtHits = true);
@@ -95,26 +91,19 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if(!m_keyRpc.initialize()){
-      ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
-      return StatusCode::FAILURE;
-    }
-    if(!m_keyTgc.initialize()){
-      ATH_MSG_ERROR("Couldn't initalize TGC ReadHandleKey");
-      return StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS; 
   }
 
 
-  MuonSegmentCombinationCollection* MuonPatternSegmentMaker::find( const MuonPatternCombinationCollection& patterns, MuonSegmentCombPatternCombAssociationMap* segPattMap ) const {
+  std::unique_ptr<MuonSegmentCombinationCollection> MuonPatternSegmentMaker::find( const MuonPatternCombinationCollection* patterns, 
+										   MuonSegmentCombPatternCombAssociationMap* segPattMap, 
+										   const std::vector<const RpcPrepDataCollection*>& rpcCols, 
+										   const std::vector<const TgcPrepDataCollection*>& tgcCols) const {
 
-    if( m_recoverTriggerHits ) retrieveTriggerHitContainers();
-  
-    MuonSegmentCombinationCollection* combiCol = new MuonSegmentCombinationCollection();
+    std::unique_ptr<MuonSegmentCombinationCollection> combiCol(new MuonSegmentCombinationCollection);
 
-    MuonPatternCombinationCollection::const_iterator it = patterns.begin();
-    for( ; it!=patterns.end();++it ){
+    MuonPatternCombinationCollection::const_iterator it = patterns->begin();
+    for( ; it!=patterns->end();++it ){
 
       const MuonPatternCombination* pattern = *it;
 
@@ -122,31 +111,47 @@ namespace Muon {
 	continue;
       }
 
-      MuonSegmentCombination* combi = find( *pattern );
+      std::unique_ptr<Trk::SegmentCollection> segCol(new Trk::SegmentCollection(SG::VIEW_ELEMENTS));
+      find( *pattern, rpcCols, tgcCols, segCol.get() );
 
-      // insert new combination into collection
-      combiCol->push_back( combi );
+      if(!segCol->empty()){
+	MuonSegmentCombination* combi=new MuonSegmentCombination(); //dynamically assigning memory here, but this object will be immediately added to the collection, which will take ownership
+	std::unique_ptr<std::vector<std::unique_ptr<MuonSegment> > > segVec (new std::vector<std::unique_ptr< MuonSegment> >);
+	Trk::SegmentCollection::iterator sit = segCol->begin();
+	Trk::SegmentCollection::iterator sit_end = segCol->end();
+        for( ; sit!=sit_end;++sit){
+	  Trk::Segment* tseg=*sit;
+          MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
+	  segVec->push_back(std::unique_ptr<MuonSegment>(mseg));
+	}
+	combi->addSegments(std::move(segVec));
 
-      // create link between pattern and segment combination
-      segPattMap->insert(std::make_pair( combi, pattern) );
+	// insert new combination into collection
+	combiCol->push_back( combi );
+
+	// create link between pattern and segment combination
+	segPattMap->insert(std::make_pair( combi, pattern) );
+      }
 
     } // end loop over patterns
 
+    if(combiCol->empty()) combiCol.reset();
     return combiCol;
   }
   
   
-  MuonSegmentCombination* MuonPatternSegmentMaker::find( const MuonPatternCombination& pattern ) const {
+  void MuonPatternSegmentMaker::find( const MuonPatternCombination& pattern, const std::vector<const RpcPrepDataCollection*>& rpcCols, 
+				      const std::vector<const TgcPrepDataCollection*>& tgcCols, Trk::SegmentCollection* segColl) const {
 
-    if( pattern.chamberData().empty() )  return 0; // 0 at the moment! we need convention howto fill this, JS
+    if( pattern.chamberData().empty() )  return;
     ATH_MSG_DEBUG(" New global Pattern:  pos " << pattern.chamberData().front().intersectPosition() 
 		  << " dir " << pattern.chamberData().front().intersectDirection());
 
     bool hasPhiMeasurements = checkForPhiMeasurements( pattern );
 
-    // sort hits per region 
+    // sort hits per region
     RegionMap regionMap;
-    createRegionMap( pattern, regionMap, hasPhiMeasurements );
+    createRegionMap( pattern, regionMap, hasPhiMeasurements, rpcCols, tgcCols );
     
     // printout region Map
     if( msgLvl(MSG::DEBUG) || m_doSummary ) printRegionMap( regionMap );
@@ -156,10 +161,6 @@ namespace Muon {
     calibrateRegionMap( regionMap, hitsPerRegion );
     
     //if( m_doNtuple ) xxx_EventNtWriter->fill( hitsPerRegion, &pattern, hasPhiMeasurements );
-    
-    // create MuonSegmentCombintation for the given pattern
-    MuonSegmentCombination* combi = new MuonSegmentCombination();
-    
     
     ROTsPerRegionIt rit = hitsPerRegion.begin();
     ROTsPerRegionIt rit_end = hitsPerRegion.end();
@@ -174,36 +175,28 @@ namespace Muon {
 
 	if( mdtit->size() < 3 ) continue;
 
-	std::vector<const MuonSegment*>* segments = 0;
-	
 	if( m_doFullFinder ){
-	  segments = m_segmentMaker->find( rit->regionPos, rit->regionDir, *mdtit, rit->clusters, 
-					   hasPhiMeasurements, rit->regionDir.mag() );
+	  m_segmentMaker->find( rit->regionPos, rit->regionDir, *mdtit, rit->clusters, 
+				hasPhiMeasurements, segColl, rit->regionDir.mag() );
 	}else{
 	  std::vector<const Trk::RIO_OnTrack*> rios;
 	  rios.insert( rios.begin(), mdtit->begin(), mdtit->end() );
-	  segments = m_segmentMaker->find(rios);
+	  m_segmentMaker->find(rios,segColl);
 	}
 	
 	ATH_MSG_VERBOSE(" search in " << m_idHelper->toStringChamber(mdtit->front()->identify()) << " nhits " << mdtit->size());
-
-	if( segments ) {
-	  ATH_MSG_VERBOSE(" found segments " << segments->size());
-
-	  combi->addSegments( segments );
-
-	}else{
+	if(segColl->empty()){
 	  ATH_MSG_VERBOSE(" no segments found ");
 	}
+	else ATH_MSG_VERBOSE("now have "<<segColl->size()<<" segments");
 
       }// end loop over MDTs
 
     } // end loop over regions
-      
+
       // delete pointer to ROT in region mapx
     clearRotsPerRegion( hitsPerRegion );
 
-    return combi;
   }
 
 
@@ -243,8 +236,8 @@ namespace Muon {
     return false;
   }
 
-  void MuonPatternSegmentMaker::createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, 
-						 bool hasPhiMeasurements ) const {
+  void MuonPatternSegmentMaker::createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements, 
+						 const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols) const {
     
     if( hasPhiMeasurements )
       ATH_MSG_DEBUG(" pattern has phi measurements using extrapolation to determine second coordinate ");
@@ -266,8 +259,8 @@ namespace Muon {
 	  - count the number of eta and phi clusters per collection
 	  
       */
-      std::map<int,EtaPhiHits> etaPhiHitsPerChamber;
-      std::set<Identifier>     clusterIds;
+      std::map<unsigned int,EtaPhiHits> etaPhiHitsPerChamber;
+      std::set<Identifier> clusterIds;
 
 
       
@@ -329,7 +322,7 @@ namespace Muon {
 	  
 	  if( m_recoverTriggerHits ){
 	    bool measuresPhi = m_idHelper->measuresPhi(id);
-	    int colHash = clus->collectionHash();
+	    unsigned int colHash = clus->collectionHash();
 
 	    EtaPhiHits& hitsPerChamber = etaPhiHitsPerChamber[colHash];
 	    if( measuresPhi ) ++hitsPerChamber.nphi;
@@ -339,40 +332,47 @@ namespace Muon {
 	}
       }
       if( !etaPhiHitsPerChamber.empty() ){
-	std::map<int,EtaPhiHits>::iterator chit = etaPhiHitsPerChamber.begin(); 
-	std::map<int,EtaPhiHits>::iterator chit_end = etaPhiHitsPerChamber.end(); 
+	std::map<unsigned int,EtaPhiHits>::iterator chit = etaPhiHitsPerChamber.begin(); 
+	std::map<unsigned int,EtaPhiHits>::iterator chit_end = etaPhiHitsPerChamber.end(); 
 	for( ;chit!=chit_end;++chit ){
 	  EtaPhiHits& hits = chit->second;
 	  if( (hits.neta > 0 && hits.nphi == 0) || (hits.nphi > 0 && hits.neta == 0) ){
-	    if( m_idHelper->isRpc(id) && m_rpcPrdContainer ){
-	      
-	      RpcPrepDataContainer::const_iterator pos = m_rpcPrdContainer->indexFind(chit->first);
-	      if( pos == m_rpcPrdContainer->end() ){
-		ATH_MSG_DEBUG(" RpcPrepDataCollection not found in container!! ");
-	      }else{
-		RpcPrepDataCollection::const_iterator rpcit = (*pos)->begin();
-		RpcPrepDataCollection::const_iterator rpcit_end = (*pos)->end();
-		for( ;rpcit!=rpcit_end;++rpcit ){
-		  if( clusterIds.count( (*rpcit)->identify() ) ) continue;
-		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*rpcit);
-		  insertCluster(*clus,regionMap,patpose,patdire,hasPhiMeasurements);		  
-		  clusterIds.insert(clus->identify());
+	    if( m_idHelper->isRpc(id) && !rpcCols.empty() ){
+	      std::vector<const RpcPrepDataCollection*>::const_iterator rcvit=rpcCols.begin();
+	      for( ;rcvit!=rpcCols.end();++rcvit){
+		if((*rcvit)->identifyHash()==chit->first){
+		  RpcPrepDataCollection::const_iterator rpcit = (*rcvit)->begin();
+		  RpcPrepDataCollection::const_iterator rpcit_end = (*rcvit)->end();
+		  for( ;rpcit!=rpcit_end;++rpcit ){
+		    if( clusterIds.count( (*rpcit)->identify() ) ) continue;
+		    const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*rpcit);
+		    insertCluster(*clus,regionMap,patpose,patdire,hasPhiMeasurements);		  
+		    clusterIds.insert(clus->identify());
+		  }
+		  break;
 		}
 	      }
-	    }else if( m_idHelper->isTgc(id) && m_tgcPrdContainer ){
-	      TgcPrepDataContainer::const_iterator pos = m_tgcPrdContainer->indexFind(chit->first);
-	      if( pos == m_tgcPrdContainer->end() ){
-		ATH_MSG_DEBUG(" TgcPrepDataCollection not found in container!! ");
-	      }else{
-		TgcPrepDataCollection::const_iterator tgcit = (*pos)->begin();
-		TgcPrepDataCollection::const_iterator tgcit_end = (*pos)->end();
-		for( ;tgcit!=tgcit_end;++tgcit ){
-		  if( clusterIds.count( (*tgcit)->identify() ) ) continue;
-		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*tgcit);
-		  insertCluster(*clus,regionMap,patpose,patdire,hasPhiMeasurements);		  
-		  clusterIds.insert(clus->identify());
+	      if( rcvit == rpcCols.end() ){
+                ATH_MSG_DEBUG(" RpcPrepDataCollection not found in container!! ");
+              }
+	    }else if( m_idHelper->isTgc(id) && !tgcCols.empty()){
+	      std::vector<const TgcPrepDataCollection*>::const_iterator tcvit=tgcCols.begin();
+	      for( ;tcvit!=tgcCols.end();++tcvit){
+                if((*tcvit)->identifyHash()==chit->first){
+		  TgcPrepDataCollection::const_iterator tgcit = (*tcvit)->begin();
+		  TgcPrepDataCollection::const_iterator tgcit_end = (*tcvit)->end();
+		  for( ;tgcit!=tgcit_end;++tgcit ){
+		    if( clusterIds.count( (*tgcit)->identify() ) ) continue;
+		    const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*tgcit);
+		    insertCluster(*clus,regionMap,patpose,patdire,hasPhiMeasurements);
+		    clusterIds.insert(clus->identify());
+		  }
+		  break;
 		}
 	      }
+	      if( tcvit == tgcCols.end() ){
+                ATH_MSG_DEBUG(" RpcPrepDataCollection not found in container!! ");
+              }
 	    }
 	  }
 	}
@@ -741,20 +741,4 @@ namespace Muon {
     return 0;
   }
 
-  void MuonPatternSegmentMaker::retrieveTriggerHitContainers() const {
-    m_rpcPrdContainer=0;
-    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_keyRpc);
-    if( !RpcCont.isValid() ) {
-      ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
-    }
-    else m_rpcPrdContainer=RpcCont.cptr();
-    
-    m_tgcPrdContainer=0;
-    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc);
-    if(!TgcCont.isValid() ) {
-	ATH_MSG_DEBUG(" Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits ");
-    }
-    else m_tgcPrdContainer=TgcCont.cptr();
-    
-  }
 }

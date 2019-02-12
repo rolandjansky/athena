@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinder.h"
@@ -139,11 +139,11 @@ return (fabs(i.z()) < fabs(j.z()));}
     return false;
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-										      std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, 
-										      std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
-										      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const {
-    std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
+  void MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
+						    std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, 
+						    std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
+						    const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl,
+						    Trk::SegmentCollection* segColl) const {
 
     if(tgcCols){
       Muon::TgcPrepDataContainer* clusterPRD=new Muon::TgcPrepDataContainer(m_idHelper->tgcIdHelper().module_hash_max());
@@ -162,7 +162,7 @@ return (fabs(i.z()) < fabs(j.z()));}
         theTGCs.push_back(*theIt);
       }
 
-      findSegments(theTGCs,mdtPrdCont,segs,tgcTruthColl);
+      findSegments(theTGCs,mdtPrdCont,segColl,tgcTruthColl);
     }//end if TGC
 
     if(rpcCols){
@@ -182,17 +182,16 @@ return (fabs(i.z()) < fabs(j.z()));}
         theRPCs.push_back(*theIt);
       }
 
-      findSegments(theRPCs,mdtPrdCont,segs,rpcTruthColl);
+      findSegments(theRPCs,mdtPrdCont,segColl,rpcTruthColl);
     }//end if RPC
 
-    return segs;
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-										      const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
-										      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const {
-    std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
-    
+  void MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
+						    const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
+						    const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl,
+						    Trk::SegmentCollection* segColl) const {
+
     if (tgcPrdCont) { 
 
       Muon::TgcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*tgcPrdCont);
@@ -207,7 +206,7 @@ return (fabs(i.z()) < fabs(j.z()));}
         theTGCs.push_back(*theIt);
       }
 
-      findSegments(theTGCs,mdtPrdCont,segs,tgcTruthColl);
+      findSegments(theTGCs,mdtPrdCont,segColl,tgcTruthColl);
     }//end if TGC
 
     if (rpcPrdCont) {
@@ -224,15 +223,15 @@ return (fabs(i.z()) < fabs(j.z()));}
         theRPCs.push_back(*theIt);
       }
 
-      findSegments(theRPCs,mdtPrdCont,segs,rpcTruthColl);
+      findSegments(theRPCs,mdtPrdCont,segColl,rpcTruthColl);
     }//end if rpc
 
-    return segs;
   }
 
   void MuonClusterSegmentFinder::findSegments( std::vector<const TgcPrepDataCollection*>& tgcCols, const Muon::MdtPrepDataContainer* mdtPrdCont,
-					       std::vector<const Muon::MuonSegment*>* segments, const PRD_MultiTruthCollection* tgcTruthColl) const {
+					       Trk::SegmentCollection* segColl, const PRD_MultiTruthCollection* tgcTruthColl) const {
     ATH_MSG_INFO ("Executing " << name() << "...");
+    ATH_MSG_DEBUG("start with "<<segColl->size()<<" segments");
 
     candEvent*  thisEvent = new candEvent;
 
@@ -250,14 +249,10 @@ return (fabs(i.z()) < fabs(j.z()));}
     findOverlap(themap,thisEvent);
     resolveCollections(themap,thisEvent);
 
-    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent, mdtPrdCont);
+    getSegments(thisEvent, mdtPrdCont, segColl);
 
-    ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
+    ATH_MSG_DEBUG("now have " << segColl->size()<<" segments" );
 
-    for( auto seg : resolvedSegments ){
-      segments->push_back(seg);
-    }
-    	
     if (m_doNtuple) {
       m_ntuple->fill(thisEvent->Clust());
       m_tree->Fill();
@@ -266,8 +261,9 @@ return (fabs(i.z()) < fabs(j.z()));}
   }
 
   void MuonClusterSegmentFinder::findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, const Muon::MdtPrepDataContainer* mdtPrdCont,
-					      std::vector<const Muon::MuonSegment*>* segments, const PRD_MultiTruthCollection* rpcTruthColl ) const {
+					      Trk::SegmentCollection* segColl, const PRD_MultiTruthCollection* rpcTruthColl ) const {
     ATH_MSG_INFO ("Executing " << name() << "...");
+    ATH_MSG_DEBUG("start with "<<segColl->size()<<" segments");
 
     candEvent * thisEvent = new candEvent;
 
@@ -277,7 +273,6 @@ return (fabs(i.z()) < fabs(j.z()));}
     ATH_MSG_DEBUG("the size of Clust is " << thisEvent->Clust().size() );
     std::vector<std::vector<ClusterSeg::SpacePoint>> sPoints = theAnalysis.analyse(thisEvent->Clust()); 
 
-
     processSpacePoints(thisEvent,sPoints);
     if(thisEvent->segTrkColl()->size() > 0) ATH_MSG_DEBUG( "it made at least one track " );
     else ATH_MSG_DEBUG("processSpacePoints didn't make anything");
@@ -286,13 +281,9 @@ return (fabs(i.z()) < fabs(j.z()));}
     findOverlap(themap,thisEvent);
     resolveCollections(themap,thisEvent);
 
-    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent,mdtPrdCont);
+    getSegments(thisEvent,mdtPrdCont,segColl);
 
-    ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
-
-    for( auto seg : resolvedSegments ){
-      segments->push_back(seg);
-    }
+    ATH_MSG_DEBUG("now have " << segColl->size()<<" segments" );
 
     if (m_doNtuple) {
       m_ntuple->fill(thisEvent->Clust());
@@ -485,7 +476,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     ATH_MSG_DEBUG("Resolved track candidates: old size " << theEvent->segTrkColl()->size() << " new size " << theEvent->resolvedTracks()->size() );
   }
  
-  std::vector<const MuonSegment*> MuonClusterSegmentFinder::getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont) const {
+  void MuonClusterSegmentFinder::getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont, Trk::SegmentCollection* segColl) const {
 
     std::vector<const Muon::MuonSegment*> appendSegments; 
         
@@ -528,15 +519,14 @@ return (fabs(i.z()) < fabs(j.z()));}
           }
         }
         ATH_MSG_DEBUG("Running mdt segment finding: MDTs " << MDTs.size() << " MCOTs " << MCOTs.size());
-        std::vector<const MuonSegment*>* segments = m_segmentMaker->find(theEvent->resolvedTrackSeeds()[i].first,theEvent->resolvedTrackSeeds()[i].second,MDTs,MCOTs);   
-        if(segments && segments->size() > 0){
-          appendSegments.insert(appendSegments.end(),segments->begin(),segments->end());
-          ATH_MSG_DEBUG( "the size of the segment collection is " << segments->size() );
-          for(unsigned int j = 0;j< segments->size();j++){ATH_MSG_DEBUG( "the " << j << "th segment contains " << (*segments)[j]->numberOfContainedROTs() << " ROTs " );}
-        } else ATH_MSG_DEBUG("finding of the muon segments failed");
+	m_segmentMaker->find(theEvent->resolvedTrackSeeds()[i].first,theEvent->resolvedTrackSeeds()[i].second,MDTs,MCOTs,false,segColl);
+	ATH_MSG_DEBUG( "the size of the segment collection is " << segColl->size() );
+	for(unsigned int j = 0;j< segColl->size();j++){
+	  Trk::Segment* tseg=segColl->at(j);
+	  ATH_MSG_DEBUG( "the " << j << "th segment contains " << (dynamic_cast<MuonSegment*>(tseg))->numberOfContainedROTs() << " ROTs " );
+	}
       }
     }
-    return m_segmentOverlapRemovalTool->removeDuplicates(appendSegments);
   }
 
   bool MuonClusterSegmentFinder::getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex,MuonStationIndex::LayerIndex layerIndex, 

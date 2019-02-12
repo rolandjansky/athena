@@ -9,7 +9,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-
+#include "TrkSegment/SegmentCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
@@ -38,13 +38,13 @@ public:
   static const InterfaceID& interfaceID();
 
   /** @brief find segments in a set of chambers starting from seeding TrackParameters */
-  virtual std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const = 0;
+  virtual std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const = 0;
 
   /** @brief find segments in a set of chambers starting from seeding TrackParameters (version with Hashes) */
-  virtual std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const = 0;
+  virtual std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const = 0;
 
   /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
-  virtual std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrds ) const = 0;
+  virtual std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrds ) const = 0;
 
 
   /** @brief retrieve MDT PRD collections for the given hashes */

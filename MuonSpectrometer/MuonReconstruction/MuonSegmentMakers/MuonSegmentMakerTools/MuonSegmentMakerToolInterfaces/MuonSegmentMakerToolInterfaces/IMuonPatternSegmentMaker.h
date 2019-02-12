@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTMAKETOOLINTERFACES_MUON_IMUONPATTERNSEGMENTMAKER_H
@@ -9,6 +9,9 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
+#include "TrkSegment/SegmentCollection.h"
+#include "MuonPrepRawData/RpcPrepDataCollection.h"
+#include "MuonPrepRawData/TgcPrepDataCollection.h"
 
 #include <vector>
 
@@ -32,13 +35,15 @@ namespace Muon {
 	@param combi a reference to a MuonSegmentCombination
 	@return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
     */
-    virtual MuonSegmentCombination* find( const MuonPatternCombination& pattern ) const = 0;
+    virtual void find( const MuonPatternCombination& pattern, const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols,
+		       Trk::SegmentCollection* segColl) const = 0;
 
     /** @brief find tracks starting from a MuonSegmentCombinationCollection
 	@param combiCol a reference to a MuonSegmentCombinationCollection
 	@return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
     */
-    virtual MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patterns, MuonSegmentCombPatternCombAssociationMap* segPattMap ) const = 0;
+    virtual std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonPatternCombinationCollection* patterns, MuonSegmentCombPatternCombAssociationMap* segPattMap,
+								    const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols ) const = 0;
 
   };
   

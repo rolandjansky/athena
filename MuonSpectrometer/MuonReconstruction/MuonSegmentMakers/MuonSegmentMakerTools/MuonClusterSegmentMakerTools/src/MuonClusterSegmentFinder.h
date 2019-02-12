@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -104,19 +104,21 @@ namespace Muon {
     StatusCode initialize();
     StatusCode finalize();
 
-    std::vector<const Muon::MuonSegment*>* getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-							      const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
-							      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const;
+    void getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
+			    const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
+			    const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl,
+			    Trk::SegmentCollection* segColl) const;
 
-    std::vector<const Muon::MuonSegment*>* getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-							      std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
-							      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const;
+    void getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
+			    std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
+			    const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl,
+			    Trk::SegmentCollection* segColl) const;
 
     /** tgc segment finding */
-    void findSegments(std::vector<const TgcPrepDataCollection*>& tgcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, std::vector<const Muon::MuonSegment*>* segments,
+    void findSegments(std::vector<const TgcPrepDataCollection*>& tgcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, Trk::SegmentCollection* segColl,
 		      const PRD_MultiTruthCollection* tgcTruthColl) const;
     /** rpc segment finding */
-    void findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, std::vector<const Muon::MuonSegment*>* segments,
+    void findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, Trk::SegmentCollection* segColl,
 		      const PRD_MultiTruthCollection* tgcTruthColl) const;
 
   private:
@@ -147,7 +149,7 @@ namespace Muon {
     void findOverlap(std::map<int,bool>& themap,candEvent* theEvent) const;
     void processSpacePoints(candEvent* theEvent,std::vector<std::vector<ClusterSeg::SpacePoint>>& sPoints) const;
     void resolveCollections(std::map<int,bool> themap,candEvent* theEvent) const;
-    std::vector<const MuonSegment*> getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont) const;
+    void getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont, Trk::SegmentCollection* segColl) const;
     bool getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, MuonStationIndex::LayerIndex layerIndex, 
 		       const Muon::MdtPrepDataContainer* input, std::vector<const MdtPrepDataCollection*>& output ) const;
   };

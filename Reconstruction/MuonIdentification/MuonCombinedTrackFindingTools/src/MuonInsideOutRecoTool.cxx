@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInsideOutRecoTool.h"
@@ -98,7 +98,7 @@ namespace MuonCombined {
   }
 
   void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
+					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segColl) {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -176,7 +176,7 @@ namespace MuonCombined {
     }
 
     // add candidate to indet candidate
-    addTag(indetCandidate,tagMap,*bestCandidate.first.get(),bestCandidate.second,combTracks,meTracks,segments);
+    addTag(indetCandidate,tagMap,*bestCandidate.first.get(),bestCandidate.second,combTracks,meTracks,segColl);
   }
 
 

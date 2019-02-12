@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
@@ -11,7 +11,6 @@
 #include "Particle/TrackParticleContainer.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MuidEvent/MuidTrackContainer.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -852,10 +851,6 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
   // only bail out in case of real problem. So still attach features if no muon found: important for caching!
   if ( hltStatus != HLT::OK && hltStatus != HLT::MISSING_FEATURE ) return hltStatus;
 
-  hltStatus = attachMuonSegmentCombinationCollection(TEout);
-  if(hltStatus != HLT::OK)
-    return hltStatus;
-
   hltStatus = attachSegments(TEout);
   if(hltStatus != HLT::OK)
     return hltStatus;
@@ -884,8 +879,6 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
   if(msTrackParticleAuxCont) delete msTrackParticleAuxCont; // always clean up Aux container
 
   // record collections  
-  if (m_recordSegments)
-    m_TrigMuonEF_saTrackTool->recordSegments();
   if (m_recordPatterns)
     m_TrigMuonEF_saTrackTool->recordPatterns();
   if (m_recordTracks)
@@ -1195,19 +1188,10 @@ HLT::ErrorCode TrigMuSuperEF::runMSSegmentTaggedReconstruction(HLT::TriggerEleme
 
 HLT::ErrorCode TrigMuSuperEF::buildSegmentTaggedTracks(InDetCandidateCollection& inDetCandidates) {
   std::vector<const Muon::MuonSegment*> segments;
-  auto segmentCombiCollection =  m_TrigMuonEF_saTrackTool->segmentCombis();
-  for(auto combi : *segmentCombiCollection){
-    auto nStations = combi->numberOfStations();
-    for(unsigned int i = 0; i < nStations; ++i){
-      const Muon::MuonSegmentCombination::SegmentVec* segmentsCombi = combi->stationSegments( i );
-      if( !segmentsCombi || segmentsCombi->empty() ) continue;
-      Muon::MuonSegmentCombination::SegmentVec::const_iterator sit = segmentsCombi->begin();
-      Muon::MuonSegmentCombination::SegmentVec::const_iterator sit_end = segmentsCombi->end();
-      for( ; sit!=sit_end;++sit){
-	const Muon::MuonSegment* muonSegment = *sit;
-	segments.push_back(muonSegment);
-      }
-    }
+  auto segmentCollection =  m_TrigMuonEF_saTrackTool->segments();
+  for(auto tseg : *segmentCollection){
+    const Muon::MuonSegment* mseg=dynamic_cast<const Muon::MuonSegment*>(tseg);
+    segments.push_back(mseg);
   }
   MuonCombined::InDetCandidateToTagMap* segmentTagMap=new MuonCombined::InDetCandidateToTagMap();
   m_tagMaps.push_back(segmentTagMap);
@@ -1807,23 +1791,6 @@ void TrigMuSuperEF::setCombinedTimers(HLT::Algo* fexAlgo, std::vector<TrigTimer*
   ATH_MSG_INFO("Setting TMEF Combined Timers");
   timers.push_back( fexAlgo->addTimer("TMEF_CBFinderTime") );
   timers.push_back( fexAlgo->addTimer("TMEF_CBDataOutputTime") );
-}
-
-HLT::ErrorCode TrigMuSuperEF::attachMuonSegmentCombinationCollection(HLT::TriggerElement* TEout){
-  const MuonSegmentCombinationCollection* combiCol = m_TrigMuonEF_saTrackTool->segmentCombisToAttach();
-  if (combiCol) {
-    auto hltStatus = attachFeature(TEout, combiCol, "forTB");
-    if(hltStatus!=HLT::OK) {
-      ATH_MSG_WARNING("Attaching SegmentCombinationCollection to TEout unsuccessful");
-      delete combiCol;
-      return hltStatus;
-    }
-    else
-      ATH_MSG_DEBUG("Successfully attached to TEout the container of combined segments with size " << combiCol->size());
-  }
-  else 
-    ATH_MSG_DEBUG("SegmentCombinationCollection pointer zero, not attached to TE");
-  return HLT::OK;
 }
 
 HLT::ErrorCode TrigMuSuperEF::attachSegments(HLT::TriggerElement* TEout){

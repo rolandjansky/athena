@@ -339,8 +339,8 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
         pRoad->dump(m_pMuGirl->msg());
-    std::vector<const Muon::MuonSegment*>* pSegments =
-        m_pMuGirl->tgcSegmentMaker()->find(*pRoad, mdts, clusters);
+    std::vector<const Muon::MuonSegment*>* pSegments = NULL;
+    m_pMuGirl->tgcSegmentMaker()->find(*pRoad, mdts, clusters, 0);
     if (pSegments != NULL)
     {
         for (std::vector<const Muon::MuonSegment*>::const_iterator itSeg = pSegments->begin();

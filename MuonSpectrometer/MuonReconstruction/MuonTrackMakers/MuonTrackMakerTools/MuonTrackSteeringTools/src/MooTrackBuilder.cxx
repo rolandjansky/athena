@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/Timeout.h" 
@@ -30,6 +30,7 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkEventPrimitives/ResidualPull.h"
+#include "TrkSegment/SegmentCollection.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
@@ -645,66 +646,67 @@ namespace Muon {
     return tracks;
   }
 
-  std::vector< const MuonSegment*>
-  MooTrackBuilder::removeDuplicateWithReference( const std::vector< const MuonSegment*>& segments,
-                                                 const std::vector< const MuonSegment*>& referenceSegments ) const {
+  void MooTrackBuilder::removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,
+						      std::vector<const MuonSegment*>& referenceSegments) const {
 
-    if( segments.empty() || referenceSegments.empty() ) return std::vector< const MuonSegment*>();
+    if( referenceSegments.empty() ) return;
 
-    ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments.size() 
+    ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size() 
                   << " reference size " << referenceSegments.size() );
 
     CompareMuonSegmentKeys compareSegmentKeys;
 
     // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
-    std::vector< std::pair<MuonSegmentKey,const MuonSegment*> > segKeys;
-    segKeys.reserve(segments.size());
+    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator > > segKeys;
+    segKeys.reserve(segments->size());
 
     // loop over reference segments and make keys
-    std::vector< const MuonSegment*>::const_iterator sit = segments.begin();
-    std::vector< const MuonSegment*>::const_iterator sit_end = segments.end();
-    for( ; sit!=sit_end;++sit) segKeys.push_back( std::make_pair(MuonSegmentKey(**sit),*sit) );
+    Trk::SegmentCollection::iterator sit = segments->begin();
+    Trk::SegmentCollection::iterator sit_end = segments->end();
+    for( ; sit!=sit_end;++sit){
+      Trk::Segment* tseg=*sit;
+      MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
+      segKeys.push_back( std::make_pair(MuonSegmentKey(*mseg),sit));
+    }
 
     // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
-    std::vector< std::pair<MuonSegmentKey,const MuonSegment*> > referenceSegKeys;
+    std::vector< MuonSegmentKey> referenceSegKeys;
     referenceSegKeys.reserve(referenceSegments.size());
 
     // loop over reference segments and make keys
-    sit = referenceSegments.begin();
-    sit_end = referenceSegments.end();
-    for( ; sit!=sit_end;++sit) referenceSegKeys.push_back( std::make_pair(MuonSegmentKey(**sit),*sit) );
-    
+    std::vector<const MuonSegment*>::iterator vit=referenceSegments.begin();
+    std::vector<const MuonSegment*>::iterator vit_end=referenceSegments.end();
+    for( ; vit!=vit_end;++vit){
+      referenceSegKeys.push_back( MuonSegmentKey(**vit) );
+    }
 
-    std::vector< const MuonSegment*> cleanedSegments;
-
-      
     // loop over segments and compare the current segment with the reference ones
-    std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator skit = segKeys.begin();
-    std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator skit_end = segKeys.end();
+    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator> >::iterator skit = segKeys.begin();
+    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator> >::iterator skit_end = segKeys.end();
     for( ;skit!=skit_end;++skit ){
 
       bool isDuplicate = false;
 
-      std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator rskit = referenceSegKeys.begin();
-      std::vector< std::pair<MuonSegmentKey,const MuonSegment*> >::iterator rskit_end = referenceSegKeys.end();
+      std::vector<MuonSegmentKey>::iterator rskit = referenceSegKeys.begin();
+      std::vector<MuonSegmentKey>::iterator rskit_end = referenceSegKeys.end();
       for( ;rskit!=rskit_end;++rskit ){
 
 
-        CompareMuonSegmentKeys::OverlapResult overlapResult = compareSegmentKeys( rskit->first, skit->first );
+        CompareMuonSegmentKeys::OverlapResult overlapResult = compareSegmentKeys( *rskit, skit->first );
         if( overlapResult == CompareMuonSegmentKeys::Identical ) {
-          ATH_MSG_DEBUG(" discarding identical segment" << m_printer->print(*skit->second) );
+          ATH_MSG_DEBUG(" discarding identical segment");
           isDuplicate = true;
           break;
         }else if( overlapResult == CompareMuonSegmentKeys::SuperSet ){
           // reference segment superset of current: discard
-          ATH_MSG_DEBUG(" discarding (subset) " << m_printer->print(*skit->second) );
+          ATH_MSG_DEBUG(" discarding (subset) ");
           isDuplicate = true;
           break;
         }
       }
-      if( !isDuplicate ) cleanedSegments.push_back(skit->second);    }
+      if( isDuplicate ) segments->erase(skit->second);
+    }
     
-    return cleanedSegments;
   }
 
 
@@ -721,7 +723,7 @@ namespace Muon {
     }
 
     // redo segment finding 
-    std::vector<const MuonSegment*>* segments = m_seededSegmentFinder->find(pars,chIds);
+    std::unique_ptr<Trk::SegmentCollection> segments=m_seededSegmentFinder->find(pars,chIds);
  
     // check whether we got segments
     if( !segments ) {
@@ -730,45 +732,42 @@ namespace Muon {
     }    
     if( segments->empty() ){
       ATH_MSG_DEBUG(" got empty vector!! " );
-      delete segments;
       return 0;      
     }
 
-
-    std::vector< const MuonSegment*> cleanedSegments; 
+    unsigned int nseg=segments->size();
     if( m_useExclusionList ){
       std::vector<const MuonSegment*> referenceSegments;
-      referenceSegments.reserve(candidate.excludedSegments().size());
       for( std::vector<MuPatSegment*>::const_iterator esit = candidate.excludedSegments().begin();
            esit != candidate.excludedSegments().end(); ++esit ) {
         if( (*esit)->segment ) referenceSegments.push_back((*esit)->segment);
       }      
-      cleanedSegments = removeDuplicateWithReference( *segments, referenceSegments ); 
-    }else{ 
-      cleanedSegments.insert( cleanedSegments.begin(),segments->begin(),segments->end()); 
-    } 
+      removeDuplicateWithReference( segments, referenceSegments ); 
+    }
 
-    if( msgLvl(MSG::DEBUG) && cleanedSegments.size() != segments->size() ) {
+    if( msgLvl(MSG::DEBUG) && segments->size()!=nseg ) {
       msg(MSG::DEBUG) << MSG::DEBUG << " Rejected segments based on exclusion list, number of removed segments: " 
-                      << segments->size() - cleanedSegments.size() << " total " << segments->size() << endmsg;
+                      << nseg - segments->size() << " total " << segments->size() << endmsg;
     }
     
     std::vector<Trk::Track*>* newTracks = 0;
-    if( !cleanedSegments.empty() ){
+    if( !segments->empty() ){
       
       newTracks = new std::vector<Trk::Track*>;
       
       // loop over segments
-      std::vector<const MuonSegment*>::iterator sit = cleanedSegments.begin();
-      std::vector<const MuonSegment*>::iterator sit_end = cleanedSegments.end();
+      Trk::SegmentCollection::iterator sit = segments->begin();
+      Trk::SegmentCollection::iterator sit_end = segments->end();
       for( ;sit!=sit_end;++sit ){
         
         if( !*sit ) continue;
+	Trk::Segment* tseg=*sit;
+	MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
         
         if( msgLvl(MSG::DEBUG) ){
-          msg(MSG::DEBUG) << MSG::DEBUG << " adding segment " << m_printer->print(**sit);
+          msg(MSG::DEBUG) << MSG::DEBUG << " adding segment " << m_printer->print(*mseg);
           if( msgLvl(MSG::VERBOSE) ) {
-            msg(MSG::DEBUG)  << std::endl << m_printer->print((*sit)->containedMeasurements()) << endmsg;
+            msg(MSG::DEBUG)  << std::endl << m_printer->print(mseg->containedMeasurements()) << endmsg;
             if( msgLvl(MSG::VERBOSE) && candidate.track().measurementsOnTrack() ) 
 	      msg(MSG::DEBUG)  << " track " << m_printer->print(candidate.track()) << std::endl
 			       << m_printer->print(candidate.track().measurementsOnTrack()->stdcont()) << endmsg;
@@ -776,7 +775,7 @@ namespace Muon {
             msg(MSG::DEBUG)  << endmsg;
           }
         }
-        MuPatSegment* segInfo = m_candidateHandler->createSegInfo(**sit);
+        MuPatSegment* segInfo = m_candidateHandler->createSegInfo(*mseg);
         
 	if( !m_candidateMatchingTool->match(candidate,*segInfo,true) ){
 	  delete segInfo;
@@ -793,14 +792,6 @@ namespace Muon {
         
       }
     }
-
-    // loop over segments
-    std::vector<const MuonSegment*>::iterator sit = segments->begin();
-    std::vector<const MuonSegment*>::iterator sit_end = segments->end();
-    for( ;sit!=sit_end;++sit ) delete *sit;
-
-    // free memory
-    delete segments;
 
     if( !newTracks || newTracks->empty() ){
       delete newTracks;

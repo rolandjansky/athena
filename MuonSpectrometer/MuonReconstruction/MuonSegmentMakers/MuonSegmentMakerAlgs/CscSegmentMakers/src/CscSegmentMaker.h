@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Csc2dSegmentMaker.h
@@ -63,8 +63,8 @@ private:  // data
   ToolHandle<ICscSegmentFinder> m_4dseg_finder;
 
   // Output container.
-  MuonSegmentCombinationCollection* m_psegs;
-  MuonSegmentCombinationCollection* m_psegs4d;
+  std::unique_ptr<MuonSegmentCombinationCollection> m_psegs;
+  std::unique_ptr<MuonSegmentCombinationCollection> m_psegs4d;
 
 };
 

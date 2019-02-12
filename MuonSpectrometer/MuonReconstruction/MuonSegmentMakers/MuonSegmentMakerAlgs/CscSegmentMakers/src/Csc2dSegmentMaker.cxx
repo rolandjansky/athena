@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Csc2dSegmentMaker.h"
@@ -143,22 +143,17 @@ StatusCode Csc2dSegmentMaker::initialize(){
 
 
 //******************************************************************************
-MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const
+std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const
 {
 
   // Construct output segment collection.
-  MuonSegmentCombinationCollection* mpsegs = 0;
+  std::unique_ptr<MuonSegmentCombinationCollection> mpsegs(new MuonSegmentCombinationCollection);
 
-  bool haveElement = false;
   for ( unsigned int icol=0; icol <pcols.size(); ++icol) {
     const CscPrepDataCollection* clus = pcols[icol];
     if (clus->size() == 0)     continue; // skip zero cluster collection
-    haveElement = true;
     break;
   }
-
-  if (haveElement)
-    mpsegs = new MuonSegmentCombinationCollection;
 
   unsigned int col_count = 0;
   // Loop over collections in the container.
@@ -176,7 +171,8 @@ MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<con
     }
   }
 
-  if(mpsegs) ATH_MSG_DEBUG("found "<<mpsegs->size()<<" 2d csc segments");
+  if(!mpsegs->empty()) ATH_MSG_DEBUG("found "<<mpsegs->size()<<" 2d csc segments");
+  else mpsegs.reset();
       
   return mpsegs;
 }
@@ -334,9 +330,9 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 
   
 //******************************************************************************
-MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& ) const
+std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& ) const
 {
-  return 0;
+  return std::unique_ptr<MuonSegmentCombinationCollection>();
 
 }
 
