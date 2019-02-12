@@ -12,25 +12,22 @@ from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 import AthenaCommon.CfgGetter as CfgGetter
 
-from AthenaCommon import CfgMgr
+# Set InDet Flags
+def inDetSetup():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doCaloSeededBrem = False
+    InDetFlags.InDet25nsec = True 
+    InDetFlags.doPrimaryVertex3DFinding = False 
+    InDetFlags.doPrintConfigurables = False
+    InDetFlags.doResolveBackTracks = True 
+    InDetFlags.doSiSPSeededTrackFinder = True
+    InDetFlags.doTRTPhaseCalculation = True
+    InDetFlags.doTRTSeededTrackFinder = True
+    InDetFlags.doTruth = False
+    InDetFlags.init()
 
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-include("InDetRecExample/InDetRecConditionsAccess.py")
+    ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from InDetRecExample.InDetKeys import InDetKeys
 from TriggerJobOpts.TriggerFlags import TriggerFlags
