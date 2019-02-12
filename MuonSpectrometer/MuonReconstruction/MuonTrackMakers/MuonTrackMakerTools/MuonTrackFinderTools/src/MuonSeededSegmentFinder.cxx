@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSeededSegmentFinder.h"
@@ -15,7 +15,6 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 
 #include <iostream>
 
@@ -94,28 +93,28 @@ namespace Muon {
   }
 
 
-  std::vector<const MuonSegment*>* MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const {
+  std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const {
 
     // get MdtPrepData collections correspondign to the chamber Identifiers
     std::vector<const MdtPrepData*> mdtPrds = extractPrds( chIds );
 
     if ( mdtPrds.empty() ) {
       ATH_MSG_DEBUG(" no MdtPrepData found ");
-      return 0;
+      return std::unique_ptr<Trk::SegmentCollection>();
     }
 
     // find segments
     return find(pars, mdtPrds);
   }
 
-  std::vector<const MuonSegment*>* MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const {
+  std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const {
 
     // get MdtPrepData collections correspondign to the chamber Identifiers
     std::vector<const MdtPrepData*> mdtPrds = extractPrds( chIdHs );
     
     if ( mdtPrds.empty() ) {
       ATH_MSG_DEBUG(" no MdtPrepData found ");
-      return 0;
+      return std::unique_ptr<Trk::SegmentCollection>();
     }
 
     // find segments
@@ -123,8 +122,8 @@ namespace Muon {
   }
 
 
-  std::vector<const MuonSegment*>* MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars,
-								  const std::vector<const MdtPrepData*>& mdtPrds ) const {
+  std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find( const Trk::TrackParameters& pars,
+									 const std::vector<const MdtPrepData*>& mdtPrds ) const {
 
     // are we close to the chamber edge?
     bool doHoleSearch = true;
@@ -155,18 +154,18 @@ namespace Muon {
     std::vector< std::vector<const MuonClusterOnTrack*> >    clusterROTsVec;
 
     // call segment finder
-    std::vector<const MuonSegment*>* segments = doHoleSearch ?
-      m_segMaker->find( road, mdtROTsVec, clusterROTsVec, true ) :
-      m_segMakerNoHoles->find( road, mdtROTsVec, clusterROTsVec, true );
+    std::unique_ptr<Trk::SegmentCollection> segments(new Trk::SegmentCollection());
+    doHoleSearch ?
+      m_segMaker->find( road, mdtROTsVec, clusterROTsVec, segments.get(), true ) :
+      m_segMakerNoHoles->find( road, mdtROTsVec, clusterROTsVec, segments.get(), true );
 
     // delete ROTs
     std::for_each( mdtROTs.begin(), mdtROTs.end(), MuonDeleteObject<const MdtDriftCircleOnTrack>() );
 
     if ( !segments ) {
       ATH_MSG_DEBUG(" No segments found ");
-      return 0;
     } else {
-      ATH_MSG_DEBUG(" Number of segments found: " << segments->size() << std::endl << m_printer->print(*segments));
+      ATH_MSG_DEBUG(" Number of segments found: " << segments->size());
     }
 
     return segments;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRECHELPERTOOLS_H
@@ -84,6 +84,7 @@ namespace Muon{
 
     /** @brief print vector of segments  */
     std::string print( const std::vector< const MuonSegment* >& segs ) const;
+    std::string print( std::vector< std::unique_ptr<MuonSegment> >& segs ) const;
 
     /** @brief print Muon MeasurementBase to string */
     std::string print( const Trk::MeasurementBase& measurement ) const;

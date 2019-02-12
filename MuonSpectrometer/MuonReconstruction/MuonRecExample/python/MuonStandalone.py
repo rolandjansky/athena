@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction"""
 
@@ -136,7 +136,6 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                                         DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                     MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
                                                      UseCSC = muonRecFlags.doCSCs(),
                                                      UseMDT = False,
                                                      UseRPC = False,

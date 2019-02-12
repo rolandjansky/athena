@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscSegmentUtilTool_H
@@ -52,7 +52,7 @@ public:
   
 
   // calls get2dMuonSegmentCombination and get4dMuonSegmentCombination with 2d segments!!
-  std::vector<const Muon::MuonSegment*>*
+  std::unique_ptr<std::vector<std::unique_ptr<Muon::MuonSegment> > >
   getMuonSegments(Identifier eta_id, Identifier phi_id,
                   ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                   ICscSegmentFinder::ChamberTrkClusters& phi_clus,

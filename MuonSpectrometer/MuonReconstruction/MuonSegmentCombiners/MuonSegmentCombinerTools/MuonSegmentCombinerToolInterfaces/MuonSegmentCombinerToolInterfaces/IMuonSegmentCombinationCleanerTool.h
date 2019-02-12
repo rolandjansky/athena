@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONSEGMENTCOMBINATIONCLEANERTOOL_H
@@ -26,7 +26,7 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** clean phi hits on a segment combination */
-    virtual MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap ) = 0;
+    virtual std::unique_ptr<MuonSegmentCombinationCollection> clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap ) = 0;
 
   };
   

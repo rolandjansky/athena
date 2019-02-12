@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGC_LINEARSEGMENTMAKERTOOL_H
@@ -27,40 +27,40 @@ public:
 
     StatusCode initialize();
     StatusCode Finalize();
-    virtual std::vector<const Muon::MuonSegment*>*
-    find(const std::vector<const Trk::RIO_OnTrack*>&) const
+    virtual void
+      find(const std::vector<const Trk::RIO_OnTrack*>&,
+	   Trk::SegmentCollection*) const
     {
-        return NULL;
     }
 
-    virtual std::vector<const Muon::MuonSegment*>*
+    virtual void
     find(const std::vector<const Trk::RIO_OnTrack*>&,
          const std::vector<const Trk::RIO_OnTrack*>&) const
     {
-        return NULL;
     }
 
-    virtual std::vector<const Muon::MuonSegment*>*
+    virtual void
     find(const std::vector<const Muon::MdtDriftCircleOnTrack*>&,
-         const std::vector<const Muon::MuonClusterOnTrack*>&) const
+         const std::vector<const Muon::MuonClusterOnTrack*>&, 
+	 Trk::SegmentCollection*) const
     {
-        return NULL;
     }
 
-    virtual std::vector<const Muon::MuonSegment*>*
+    virtual void
     find(const Amg::Vector3D&,
          const Amg::Vector3D&,
          const std::vector<const Muon::MdtDriftCircleOnTrack*>&,
          const std::vector<const Muon::MuonClusterOnTrack*>&,
-         bool,double) const
+         bool,Trk::SegmentCollection*,
+	 double,double) const
     {
-        return NULL;
     }
 
-    virtual std::vector<const Muon::MuonSegment*>*
+    virtual void
     find(const Trk::TrackRoad& road,
          const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >& mdts,
          const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
+	 Trk::SegmentCollection* segColl=0,
          bool hasPhiMeasurements = false,double momentum=1e9) const;
 
 private:

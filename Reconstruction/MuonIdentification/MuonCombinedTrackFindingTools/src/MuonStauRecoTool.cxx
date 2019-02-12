@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStauRecoTool.h"
@@ -1320,14 +1320,19 @@ namespace MuonCombined {
     if( mdts.size() > 2 ){
 
       // run segment finder
-      std::unique_ptr<std::vector<const Muon::MuonSegment*> > foundSegments(segmentMaker->find( intersection.trackParameters->position(),
-                                                                                                intersection.trackParameters->momentum(),
-                                                                                                mdts, clusters,
-                                                                                                !clusters.empty(), intersection.trackParameters->momentum().mag() ));
-      if( foundSegments ){
-        for( auto seg : *foundSegments ){
-          ATH_MSG_DEBUG( " " << m_printer->print(*seg) );
-          segments.push_back( std::shared_ptr<const Muon::MuonSegment>(seg) );
+      std::unique_ptr<Trk::SegmentCollection> segColl(new Trk::SegmentCollection(SG::VIEW_ELEMENTS));
+      segmentMaker->find( intersection.trackParameters->position(),
+			  intersection.trackParameters->momentum(),
+			  mdts, clusters,
+			  !clusters.empty(), segColl.get(), intersection.trackParameters->momentum().mag() );
+      if( segColl ){
+	Trk::SegmentCollection::iterator sit = segColl->begin();
+	Trk::SegmentCollection::iterator sit_end = segColl->end();
+	for( ; sit!=sit_end;++sit){
+	  Trk::Segment* tseg=*sit;
+	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
+          ATH_MSG_DEBUG( " " << m_printer->print(*mseg) );
+          segments.push_back( std::shared_ptr<const Muon::MuonSegment>(mseg) );
         }
       }
     }
