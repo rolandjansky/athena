@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -156,7 +156,7 @@ void make_cluster_lists (StoreGateSvc& sg,
 }
 
 
-void test1 (CaloTester& calotest, StoreGateSvc& sg)
+void test1 (CaloTester& calotest, StoreGateSvc& sg, const EventContext& ctx)
 {
   std::cout << "test1\n";
 
@@ -175,7 +175,7 @@ void test1 (CaloTester& calotest, StoreGateSvc& sg)
     assert( tool.retrieve().isSuccess() );
 
     CaloConstCellContainer ccc (SG::VIEW_ELEMENTS);
-    assert( tool->process (&ccc).isSuccess() );
+    assert( tool->process (&ccc, ctx).isSuccess() );
     assert (ccc.size() == usedCells1.size());
     for (const CaloCell* cell : ccc) {
       assert (usedCells1.count (cell->caloDDE()->calo_hash()) == 1);
@@ -188,7 +188,7 @@ void test1 (CaloTester& calotest, StoreGateSvc& sg)
     assert( tool.retrieve().isSuccess() );
 
     CaloConstCellContainer ccc (SG::VIEW_ELEMENTS);
-    assert( tool->process (&ccc).isSuccess() );
+    assert( tool->process (&ccc, ctx).isSuccess() );
     assert (ccc.size() == usedCells.size());
     for (const CaloCell* cell : ccc) {
       assert (usedCells.count (cell->caloDDE()->calo_hash()) == 1);
@@ -201,7 +201,7 @@ void test1 (CaloTester& calotest, StoreGateSvc& sg)
     assert( tool.retrieve().isSuccess() );
 
     CaloConstCellContainer ccc (SG::VIEW_ELEMENTS);
-    assert( tool->process (&ccc).isSuccess() );
+    assert( tool->process (&ccc, ctx).isSuccess() );
     assert (ccc.size() == usedCells.size() + otherCells.size());
     for (const CaloCell* cell : ccc) {
       assert (usedCells.count (cell->caloDDE()->calo_hash()) +
@@ -227,7 +227,7 @@ int main (int /*argc*/, char** argv)
   ctx.setExtension( Atlas::ExtendedEventContext (&*sg, 0) );
   Gaudi::Hive::setCurrentContext (ctx);
 
-  test1 (calotest, *sg);
+  test1 (calotest, *sg, ctx);
   return 0;
 }
 
