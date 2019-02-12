@@ -24,3 +24,5 @@ atlas_add_component( VP1AlgsBatch
 
 # Install files from the package:
 atlas_install_runtime( share/*.vp1 )
+atlas_install_joboptions( share/*.py )
+atlas_install_scripts( share/vp1batch )
