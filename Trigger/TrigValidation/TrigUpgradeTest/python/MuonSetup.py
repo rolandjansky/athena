@@ -57,8 +57,9 @@ def makeMuonPrepDataAlgs():
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
   CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                  cluster_builder = CscClusterBuilderTool)    
-  
-  eventAlgs_MuonPRD.append( CscRdoToCscPrepData )  
+
+  eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
+  viewAlgs_MuonPRD.append( CscRawDataProvider )  
   viewAlgs_MuonPRD.append( CscRdoToCscPrepData )  
   viewAlgs_MuonPRD.append( CscClusterBuilder ) 
 
