@@ -97,7 +97,9 @@ private:
   std::vector<std::string> m_streamNames;
 
   Gaudi::Property<bool> m_calcStats{this, "CalcStats", false};
+  bool m_extend{false};
   bool m_frozen{false};
+  std::string m_attListKey;
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<ICutFlowSvc> m_cutflowSvc;
   ServiceHandle<IAlgExecStateSvc> m_algstateSvc;

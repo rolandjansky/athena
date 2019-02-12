@@ -172,6 +172,7 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
+svcMgr.DecisionSvc.SaveDecisions = True
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
 svcMgr.ItemListSvc.OutputLevel = DEBUG
 #svcMgr.DecisionSvc.OutputLevel = VERBOSE

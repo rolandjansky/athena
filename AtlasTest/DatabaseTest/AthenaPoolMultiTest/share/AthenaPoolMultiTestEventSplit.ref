@@ -82,7 +82,6 @@ Splitter48           INFO EventInfo event: 1 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 1 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 2 run: 0
 Splitter1           DEBUG Trigmask = 4
@@ -101,8 +100,6 @@ Splitter48           INFO EventInfo event: 2 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 2 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 3 run: 0
 Splitter1           DEBUG Trigmask = 256
@@ -121,9 +118,6 @@ Splitter48           INFO EventInfo event: 3 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 3 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 4 run: 0
 Splitter1           DEBUG Trigmask = 18
@@ -142,10 +136,6 @@ Splitter48           INFO EventInfo event: 4 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 4 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 5 run: 0
 Splitter1           DEBUG Trigmask = 36
@@ -164,10 +154,6 @@ Splitter48           INFO EventInfo event: 5 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 5 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 6 run: 0
 Splitter1           DEBUG Trigmask = 65
@@ -186,10 +172,6 @@ Splitter48           INFO EventInfo event: 6 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 6 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 7 run: 0
 Splitter1           DEBUG Trigmask = 130
@@ -208,10 +190,6 @@ Splitter48           INFO EventInfo event: 7 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 7 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 8 run: 0
 Splitter1           DEBUG Trigmask = 260
@@ -230,10 +208,6 @@ Splitter48           INFO EventInfo event: 8 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 8 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 9 run: 0
 Splitter1           DEBUG Trigmask = 513
@@ -252,10 +226,6 @@ Splitter48           INFO EventInfo event: 9 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 9 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 10 run: 0
 Splitter1           DEBUG Trigmask = 1026
@@ -274,10 +244,6 @@ Splitter48           INFO EventInfo event: 10 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 10 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 11 run: 0
 Splitter1           DEBUG Trigmask = 2052
@@ -296,10 +262,6 @@ Splitter48           INFO EventInfo event: 11 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 11 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 12 run: 0
 Splitter1           DEBUG Trigmask = 4097
@@ -318,10 +280,6 @@ Splitter48           INFO EventInfo event: 12 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 12 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 13 run: 0
 Splitter1           DEBUG Trigmask = 8194
@@ -340,10 +298,6 @@ Splitter48           INFO EventInfo event: 13 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 13 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 14 run: 0
 Splitter1           DEBUG Trigmask = 16388
@@ -362,10 +316,6 @@ Splitter48           INFO EventInfo event: 14 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 14 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 15 run: 0
 Splitter1           DEBUG Trigmask = 32769
@@ -384,10 +334,6 @@ Splitter48           INFO EventInfo event: 15 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 15 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 16 run: 0
 Splitter1           DEBUG Trigmask = 3
@@ -406,10 +352,6 @@ Splitter48           INFO EventInfo event: 16 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 16 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 17 run: 0
 Splitter1           DEBUG Trigmask = 6
@@ -428,10 +370,6 @@ Splitter48           INFO EventInfo event: 17 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 17 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 18 run: 0
 Splitter1           DEBUG Trigmask = 5
@@ -450,10 +388,6 @@ Splitter48           INFO EventInfo event: 18 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 18 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 19 run: 0
 Splitter1           DEBUG Trigmask = 10
@@ -472,10 +406,6 @@ Splitter48           INFO EventInfo event: 19 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Others
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream1
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream2
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: Stream3
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream1              INFO Records written: 8
 Stream2              INFO Records written: 8

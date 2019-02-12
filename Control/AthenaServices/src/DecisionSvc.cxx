@@ -22,6 +22,8 @@ DecisionSvc::DecisionSvc(const std::string& name,
 #endif
   m_algstateSvc("AlgExecStateSvc",name)
 {
+  declareProperty("SaveDecisions", m_extend = false, "Set to true to add streaming decisions to an attributeList");
+  declareProperty("AttributeListKey", m_attListKey = "SimpleTag", "StoreGate key of AttributeList to extend");
 }
 
 DecisionSvc::~DecisionSvc()
@@ -355,58 +357,36 @@ DecisionSvc::handle(const Incident& inc)
 
   ATH_MSG_DEBUG("handle() " << inc.type() << " for file: " << fileName);
 
-  const AthenaAttributeList* attlist;
-  std::string attname("SimpleTag");
-  if (m_evtStore->retrieve(attlist,"SimpleTag").isSuccess()) {
-    ATH_MSG_DEBUG("Found att list with " << attname);
-  } else {
-    ATH_MSG_ERROR("Did not find att list in event store");
-    return;
-  }
-  // Build new attribute list for modification
-  std::string suffix("Decisions");
-  AthenaAttributeList* newone = new AthenaAttributeList(attlist->specification());
-  newone->copyData(*attlist);
-  auto streams = this->getStreams();
-  for (auto it  = streams.begin(); 
-            it != streams.end(); ++it) {
-    newone->extend(*it,"bool");
-    (*newone)[*it].data<bool>() = this->isEventAccepted(*it);
-    ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << attname+suffix);
-  }
-  if (m_evtStore->record(newone,attname+suffix).isFailure()) {
-    ATH_MSG_ERROR("Unable to record att list " << attname+suffix);
-  }
-  ATH_MSG_INFO("BLARG " << m_evtStore->dump());
-/*
-  for (auto it = newone->begin(); it != newone->end(); ++it) {
-    const coral::Attribute& attrib = *it;
-    std::string name = attrib.specification().name();
-    const std::type_info& type = attrib.specification().type();
-    if ( type == typeid(bool) ) {
-        const bool* value = static_cast<const bool*>( attrib.addressOfData() );
-        ATH_MSG_INFO(" name " << name << " value " << *value); 
+  // Check whether to extend attribute list
+  if (m_extend) {
+    std::string suffix("Decisions");
+    ATH_MSG_DEBUG("Adding stream decisions to " << m_attListKey+suffix);
+    // Look for attribute list created for mini-EventInfo
+    const AthenaAttributeList* attlist;
+    if (m_evtStore->retrieve(attlist,m_attListKey).isSuccess()) {
+      ATH_MSG_DEBUG("Found att list with " << m_attListKey);
+    } else {
+      ATH_MSG_ERROR("Did not find event info att list " << m_attListKey << " in event store");
+      return;  // exit if no original to extend
     }
-    else if ( type == typeid(unsigned int) ) {
-        const unsigned int* value = 
-            static_cast<const unsigned int*>( attrib.addressOfData() );
-        ATH_MSG_INFO(" name " << name << " value " << *value); 
+
+    // Build new attribute list for modification
+    AthenaAttributeList* newone = new AthenaAttributeList(attlist->specification());
+    newone->copyData(*attlist);
+
+    // Now loop over stream definitions and add decisions
+    auto streams = this->getStreams();
+    for (auto it  = streams.begin(); 
+              it != streams.end(); ++it) {
+      newone->extend(*it,"bool");
+      (*newone)[*it].data<bool>() = this->isEventAccepted(*it);
+      ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << m_attListKey+suffix);
     }
-    else if ( type == typeid(unsigned long) ) {
-        const unsigned long* value = 
-            static_cast<const unsigned long*>( attrib.addressOfData() );
-        ATH_MSG_INFO(" name " << name << " value " << *value); 
-    }
-    else if ( type == typeid(unsigned long long) ) {
-        const unsigned long long* value = static_cast<const unsigned long long*>( attrib.addressOfData() );
-        ATH_MSG_INFO(" name " << name << " value " << *value); 
-    }
-    else if ( type == typeid(float) ) {
-        const float* value = static_cast<const float*>( attrib.addressOfData() );
-        ATH_MSG_INFO(" name " << name << " value " << *value); 
+    // record new attribute list with old key + suffix
+    if (m_evtStore->record(newone,m_attListKey+suffix).isFailure()) {
+      ATH_MSG_ERROR("Unable to record att list " << m_attListKey+suffix);
     }
   }
-*/
 
   return;
 }
