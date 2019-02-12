@@ -517,18 +517,15 @@ class Configuration:
           if not topSequence is None:
 
               # add the track augmenters before we add the main b-tagging tool
-              from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
-                  BTagVertexAugmenter, BTagTrackAugmenter)
+              from BTagging.BTaggingConf import BTagTrackAugmenterAlg
               suffix = jetcol + self.GeneralToolSuffix()
-              topSequence += BTagVertexAugmenter(
-                  name = 'VertexAugmenter_' + suffix)
               ipetool = Trk__TrackToVertexIPEstimator(
                   name = "IPETool_" + suffix)
               ToolSvc += ipetool
-              topSequence += BTagTrackAugmenter(
+              topSequence += BTagTrackAugmenterAlg(
                   name = 'TrackAugmenter_' + suffix,
-                  TrackToVertexIPEstimator = ipetool,
-                  SaveTrackVectors = True)
+                  prefix = 'btag_',
+                  TrackToVertexIPEstimator = ipetool)
 
               # now add the btagger tool
               topSequence += jetbtaggertool
