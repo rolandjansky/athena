@@ -8,11 +8,13 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/EventContext.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
 #include <algorithm>
 
 DecisionSvc::DecisionSvc(const std::string& name,
 		       ISvcLocator* pSvcLocator ) :
   base_class(name, pSvcLocator),
+  m_evtStore("StoreGateSvc",name),
 #ifdef SIMULATIONBASE
   m_cutflowSvc("",name),
 #else
@@ -52,6 +54,8 @@ DecisionSvc::initialize()
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "EndEvent", 100);
 
+  ATH_CHECK(m_evtStore.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -59,48 +63,8 @@ DecisionSvc::initialize()
 StatusCode
 DecisionSvc::finalize()
 {
-/*
-  ATH_MSG_INFO("-- OUTPUT STREAM EVENT OVERLAP SUMMARY --");
-
-  msg(MSG::INFO) << "List of registered " << m_streamNames.size()
-		 << " Streams: ";
-  for(std::vector<std::string>::const_iterator it = m_streamNames.begin();
-                                               it != m_streamNames.end(); ++it){
-    msg(MSG::INFO)<< (*it) << " ";
-  }
-  msg(MSG::INFO)<<endmsg;
-  if (m_calcStats) {
-    // Print unstreamed event count
-    ATH_MSG_INFO(" Unstreamed events " << m_badEvents);
-    // Print overlap levels
-    ATH_MSG_INFO(" Overlap multiplicities seen:");
-    for (std::map<unsigned int,unsigned int>::const_iterator olit = m_overlapLevelCounts.begin();
-                                                             olit != m_overlapLevelCounts.end(); olit++) {
-      ATH_MSG_INFO("   ** Events went into " << olit->first << " streams " << olit->second << " times");
-    }
-    // Print overlap summary
-    ATH_MSG_INFO (" ** Printing Stream Overlap summary");
-    unsigned int sid=0;
-    for (std::map<std::string, std::vector<unsigned int> >::const_iterator xit = m_stream2Counts.begin();
-                             xit != m_stream2Counts.end(); ++xit) {
-      ATH_MSG_INFO(" Stream " << xit->first << " " << xit->second.at(sid) << " events");
-      if (xit->second.at(sid)>0) {
-        for (unsigned int sid2 = 0; sid2 < xit->second.size(); ++sid2) {
-          if (sid != sid2 && xit->second.at(sid2)>0) {
-            msg() << MSG::INFO << " --> overlap fraction " << m_streamNames.at(sid2)
-                  << " " << std::fixed << std::setprecision(2) << float(xit->second.at(sid2))/float(xit->second.at(sid)) << endmsg;
-          }
-        }
-      }
-      sid++;
-    }
-  }
-*/
-
   ATH_MSG_INFO ("Finalized successfully.");
-
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode
@@ -164,44 +128,43 @@ StatusCode
 DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsModeMap,
                      const std::string& name, const std::string& stream)
 {
+  // check if this stream already exist
+  std::map<std::string, std::vector<std::string> >::iterator it = streamsModeMap.find(stream);
+  if(it != streamsModeMap.end()){
+    // ok, it exists, then check if the algname was already been inserted
 
-	// check if this stream already exist
-	std::map<std::string, std::vector<std::string> >::iterator it = streamsModeMap.find(stream);
-	if(it != streamsModeMap.end()){
-	  // ok, it exists, then check if the algname was already been inserted
+    // save the list
+    std::vector<std::string> tmpvec = it->second;
 
-	  // save the list
-	  std::vector<std::string> tmpvec = it->second;
-
-	  bool algexist = false;
-          // Check if alg already registered for this stream
-	  for(auto vit = (it->second).begin();
-                   vit != (it->second).end(); ++vit) {
-	    if((*vit) == name){
-	      algexist = true;
-	      // it seems the alg was already inserted, warn the user
-	      ATH_MSG_ERROR("Alg name : " << name
-                        << " of stream " << stream
-                        << " has already been registered!");
-	      return StatusCode::FAILURE;
-	    }
-	  }
+    bool algexist = false;
+    // Check if alg already registered for this stream
+    for(auto vit = (it->second).begin();
+             vit != (it->second).end(); ++vit) {
+      if((*vit) == name){
+        algexist = true;
+        // it seems the alg was already inserted, warn the user
+        ATH_MSG_ERROR("Alg name : " << name
+                       << " of stream " << stream
+                       << " has already been registered!");
+        return StatusCode::FAILURE;
+      }
+    }
 
 
-	  // So, if the stream exist but the alg has not been registered
-	  // update its content std::vector with a alg
-	  if(algexist == false){
-	    tmpvec.push_back(name);
-	    streamsModeMap.erase(stream);
-	    streamsModeMap.insert(std::make_pair(stream, tmpvec));
-	  }
+    // So, if the stream exist but the alg has not been registered
+    // update its content std::vector with a alg
+    if(algexist == false){
+      tmpvec.push_back(name);
+      streamsModeMap.erase(stream);
+      streamsModeMap.insert(std::make_pair(stream, tmpvec));
+    }
 
-	  //if the stream doesn't exist yet, then insert it
-	} else {
-	  std::vector<std::string> tmpvec;
-	  tmpvec.push_back(name);
-	  streamsModeMap.insert(std::make_pair(stream, tmpvec));
-	}
+    //if the stream doesn't exist yet, then insert it
+  } else {
+    std::vector<std::string> tmpvec;
+    tmpvec.push_back(name);
+    streamsModeMap.insert(std::make_pair(stream, tmpvec));
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -238,11 +201,13 @@ DecisionSvc::addVetoAlg(const std::string& name,
   return fillMap(m_stream_veto,name,stream);
 }
 
+// Utility interface to retrieve unique list of streams
 const std::vector<std::string> DecisionSvc::getStreams() const
 {
   return m_streamNames;
 }
 
+// Utility interface 
 const std::vector<std::string>
 DecisionSvc::getAcceptAlgs(const std::string& stream) const
 {
@@ -251,6 +216,7 @@ DecisionSvc::getAcceptAlgs(const std::string& stream) const
   return std::vector<std::string>();
 }
 
+// Utility interface
 const std::vector<std::string>
 DecisionSvc::getRequireAlgs(const std::string& stream) const
 {
@@ -259,6 +225,7 @@ DecisionSvc::getRequireAlgs(const std::string& stream) const
   return std::vector<std::string>();
 }
 
+// Utility interface
 const std::vector<std::string>
 DecisionSvc::getVetoAlgs(const std::string& stream) const
 {
@@ -290,17 +257,8 @@ DecisionSvc::isEventAccepted( const std::string& stream,
 
   ATH_MSG_DEBUG("In DecisionSvc::isEventAccepted( " << stream << " )");
 
-#if 0
-  if (! ectx.valid()) {
-    ATH_MSG_ERROR("In DecisionSvc::isEventAccepted( " << stream << " )"
-                  << " EventContext should never be INVALID!");
-    return false;
-  }
-#endif
-
   // By construction a stream is accepted
   bool result = true;
-
   
   bool found_accept = false;
   bool found_require = false;
@@ -397,42 +355,60 @@ DecisionSvc::handle(const Incident& inc)
 
   ATH_MSG_DEBUG("handle() " << inc.type() << " for file: " << fileName);
 
+  const AthenaAttributeList* attlist;
+  std::string attname("SimpleTag");
+  if (m_evtStore->retrieve(attlist,"SimpleTag").isSuccess()) {
+    ATH_MSG_DEBUG("Found att list with " << attname);
+  } else {
+    ATH_MSG_ERROR("Did not find att list in event store");
+    return;
+  }
+  // Build new attribute list for modification
+  std::string suffix("Decisions");
+  AthenaAttributeList* newone = new AthenaAttributeList(attlist->specification());
+  newone->copyData(*attlist);
+  auto streams = this->getStreams();
+  for (auto it  = streams.begin(); 
+            it != streams.end(); ++it) {
+    newone->extend(*it,"bool");
+    (*newone)[*it].data<bool>() = this->isEventAccepted(*it);
+    ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << attname+suffix);
+  }
+  if (m_evtStore->record(newone,attname+suffix).isFailure()) {
+    ATH_MSG_ERROR("Unable to record att list " << attname+suffix);
+  }
+  ATH_MSG_INFO("BLARG " << m_evtStore->dump());
 /*
-  // Statistics
-  if (inc.type()=="EndEvent" && m_calcStats) {
-    m_eventCount++;
-    unsigned int streamCount = 0;
-    unsigned int acceptCount = 0;
-    for (std::vector<std::string>::const_iterator it  = m_streamNames.begin();
-                                                  it != m_streamNames.end(); ++it) {
-      if (this->isEventAccepted(*it)) {
-        // set streamed flag
-        acceptCount++;
-        // increment stream overlap counters
-        std::map<std::string, std::vector<unsigned int> >::iterator m2it = m_stream2Counts.find(*it);
-        if (m2it == m_stream2Counts.end()) {
-          ATH_MSG_ERROR("Stream counting map not initialized properly");
-        }
-        else {
-          for (std::vector<std::string>::const_iterator it2  = m_streamNames.begin();
-                                                  it2 != m_streamNames.end(); ++it2) {
-            if (this->isEventAccepted(*it2)) {
-              (m_stream2Counts[*it2])[streamCount]++;
-            }
-          }
-        }
-      }
-      streamCount++;
+  for (auto it = newone->begin(); it != newone->end(); ++it) {
+    const coral::Attribute& attrib = *it;
+    std::string name = attrib.specification().name();
+    const std::type_info& type = attrib.specification().type();
+    if ( type == typeid(bool) ) {
+        const bool* value = static_cast<const bool*>( attrib.addressOfData() );
+        ATH_MSG_INFO(" name " << name << " value " << *value); 
     }
-    // Count events which went to no stream
-    if (acceptCount==0) m_badEvents++;
-    // Check overlap level
-    std::map<unsigned int,unsigned int>::iterator olit = m_overlapLevelCounts.find(acceptCount);
-    if (olit != m_overlapLevelCounts.end()) (olit->second)++;
-    else m_overlapLevelCounts.insert(std::make_pair(acceptCount,1));
+    else if ( type == typeid(unsigned int) ) {
+        const unsigned int* value = 
+            static_cast<const unsigned int*>( attrib.addressOfData() );
+        ATH_MSG_INFO(" name " << name << " value " << *value); 
+    }
+    else if ( type == typeid(unsigned long) ) {
+        const unsigned long* value = 
+            static_cast<const unsigned long*>( attrib.addressOfData() );
+        ATH_MSG_INFO(" name " << name << " value " << *value); 
+    }
+    else if ( type == typeid(unsigned long long) ) {
+        const unsigned long long* value = static_cast<const unsigned long long*>( attrib.addressOfData() );
+        ATH_MSG_INFO(" name " << name << " value " << *value); 
+    }
+    else if ( type == typeid(float) ) {
+        const float* value = static_cast<const float*>( attrib.addressOfData() );
+        ATH_MSG_INFO(" name " << name << " value " << *value); 
+    }
   }
 */
 
+  return;
 }
 
 
@@ -441,18 +417,6 @@ StatusCode DecisionSvc::start()
   ATH_MSG_DEBUG("in start");
   CHECK( this->interpretAlgMap() );
   m_frozen = true;
-
-  // initialize statistics vector
-  /*
-  if (m_calcStats) {
-    for(std::vector<std::string>::const_iterator ait  = m_streamNames.begin();
-                                                 ait != m_streamNames.end(); ++ait) {
-      std::vector<unsigned int> temp;
-      std::fill_n(back_inserter(temp), m_streamNames.size(), (unsigned int)0);
-      m_stream2Counts.insert(std::make_pair(*ait,temp));
-    }
-  }
-  */
 
   // lambda to return true if second element is non-empty
   auto teststreams = [](const auto& m)
