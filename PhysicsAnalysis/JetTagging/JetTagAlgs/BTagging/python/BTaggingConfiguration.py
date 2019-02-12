@@ -492,10 +492,11 @@ class Configuration:
           self._BTaggingConfig_MainAssociatorTools[jetcol] = assoc
           options.setdefault('BTagTrackAssocTool', assoc)
 
+          # add the RNN tool
           from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
               FlavorTagDiscriminants__DL2Tool as DL2Tool)
           rnn = DL2Tool(
-              name='bobo',
+              name='RNN_' + jetcol + self.GeneralToolSuffix(),
               nnFile='neuralNetwork.json')
           ToolSvc += rnn
           options.setdefault("preBtagToolModifiers", [rnn])
@@ -514,7 +515,24 @@ class Configuration:
           # Setup the associator tool
           # -- add tool to topSequence
           if not topSequence is None:
+
+              # add the track augmenters before we add the main b-tagging tool
+              from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
+                  BTagVertexAugmenter, BTagTrackAugmenter)
+              suffix = jetcol + self.GeneralToolSuffix()
+              topSequence += BTagVertexAugmenter(
+                  name = 'VertexAugmenter_' + suffix)
+              ipetool = Trk__TrackToVertexIPEstimator(
+                  name = "IPETool_" + suffix)
+              ToolSvc += ipetool
+              topSequence += BTagTrackAugmenter(
+                  name = 'TrackAugmenter_' + suffix,
+                  TrackToVertexIPEstimator = ipetool,
+                  SaveTrackVectors = True)
+
+              # now add the btagger tool
               topSequence += jetbtaggertool
+
           # -- add tool to ToolSvc
           if AddToToolSvc:
               ToolSvc += jetbtaggertool
