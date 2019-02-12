@@ -1,0 +1,274 @@
+Open source database: COOLOFL_INDET/OFLP200
+Open destination database: sqlite://X;schema=test0.db;dbname=OFLP200
+COOL exception caught: The database does not exist
+Try to create new conditions DB
+Creation succeeded
+Add folders in path:/Indet/Align [ /Indet/Align ]
+Creating folder /Indet/Align payload-type 0 on destination
+Created 43 new channels for /Indet/Align
+Start to process folder: /Indet/Align (run/lumi)
+Multi version folder: consider tags [ InDetAlign-FDR-01 InDetAlign-FDR-02 InDetAlign-FDR-03 InDetAlign-FDR-04 InDetAlign-FDR-05 InDetAlign-M8-RndMis-IBL_1-Pix_SCT_033 InDetAlign-UPD2-FDR-01 InDetAlign-UPD2-FDR-03 InDetAlign-UPD2-FDR-04 InDetAlign-UPD2-FDR-05 InDetAlign-UPD2-FDR-06 InDetAlign-UPD2-FDR-07 InDetAlign_CMC_csc321 InDetAlign_CMC_nominal InDetAlign_CMC_sctdisp1 InDetAlign_CMC_sctdisp2 InDetAlign_CMC_sctdisp2rphi InDetAlign_CMC_sctlocal1 InDetAlign_CMC_sctlocal2 InDetAlign_CSC_00 InDetAlign_CSC_01 InDetAlign_CSC_02 InDetAlign_CSC_02_ResFinalPix_00 InDetAlign_CSC_02_ResIniPix_00 InDetAlign_IOVDEP-00 InDetAlign_IOVDEP-01 InDetAlign_IOVDEP-02 InDetAlign_IOVDEP-03 InDetAlign_InDetAlign_IOVDEP-01 InDetAlign_InDetAlign_R2_IBLDistortion_p1C_Corrected InDetAlign_MC15c InDetAlign_Nominal InDetAlign_Nominal_PhiDeltaPhi_01 InDetAlign_Nominal_PhiDeltaPhi_02 InDetAlign_Nominal_PhiDeltaR_01 InDetAlign_Nominal_PhiDeltaR_02 InDetAlign_Nominal_PhiDeltaZ_01 InDetAlign_Nominal_PhiDeltaZ_02 InDetAlign_Nominal_RDeltaPhi_01 InDetAlign_Nominal_RDeltaPhi_02 InDetAlign_Nominal_RDeltaPhi_Aligned_01 InDetAlign_Nominal_RDeltaPhi_nod0bias_02 InDetAlign_Nominal_RDeltaR_01 InDetAlign_Nominal_RDeltaR_02 InDetAlign_Nominal_RDeltaZ_01 InDetAlign_Nominal_RDeltaZ_02 InDetAlign_Nominal_RadialConst_01 InDetAlign_Nominal_RadialConst_Aligned_01 InDetAlign_Nominal_Radial_Aligned_01 InDetAlign_Nominal_Sagitta_01 InDetAlign_Nominal_Sagitta_Aligned_01 InDetAlign_Nominal_ZDeltaPhi_01 InDetAlign_Nominal_ZDeltaPhi_02 InDetAlign_Nominal_ZDeltaR_01 InDetAlign_Nominal_ZDeltaR_02 InDetAlign_Nominal_ZDeltaZ_01 InDetAlign_Nominal_ZDeltaZ_02 InDetAlign_R2_2016postTS1_d0biased InDetAlign_R2_FTKtest_EndCapShift_extreme InDetAlign_R2_FTKtest_EndCapShift_typical InDetAlign_R2_FTKtest_PixelTy_10um InDetAlign_R2_FTKtest_PixelTy_30um InDetAlign_R2_IBLDistortion_m1C InDetAlign_R2_IBLDistortion_p02C InDetAlign_R2_IBLDistortion_p02C_4muPixY InDetAlign_R2_IBLDistortion_p05C InDetAlign_R2_IBLDistortion_p1C InDetAlign_R2_IBLDistortion_p1C_FIXED InDetAlign_R2_IBLDistortion_p1C_corrected InDetAlign_R2_IBLDistortion_p2C InDetAlign_R2_Nominal InDetAlign_R2_RadialBias_m400mu InDetAlign_R2_RadialBias_p400mu InDetAlign_R2_RndMis_SiOnly_033M8 InDetAlign_R2_RndMis_SiOnly_IBL033M8Rest010M8 InDetAlign_ResFinalPix_00 InDetAlign_ResIniPix_00 InDetSi_CSCMisaligned_PhiDeltaR_01 InDetSi_CSCMisaligned_PhiDeltaR_02 InDetSi_CSCMisaligned_PhiDeltaR_03 InDetSi_CSCMisaligned_PhiDeltaR_03_02 InDetSi_CSCMisaligned_RDeltaPhi_01 InDetSi_CSCMisaligned_RDeltaPhi_02 InDetSi_CSCMisaligned_RDeltaPhi_03 InDetSi_CSCMisaligned_RDeltaPhi_04 InDetSi_CSCMisaligned_RDeltaR_01 InDetSi_CSCMisaligned_RDeltaR_02 InDetSi_CSCMisaligned_RDeltaZ_01 InDetSi_CSCMisaligned_RDeltaZ_02 InDetSi_CSCMisaligned_RDeltaZ_03 InDetSi_CSCMisaligned_RDeltaZ_03_02 InDetSi_CSCMisaligned_ZDeltaPhi_01 InDetSi_CSCMisaligned_ZDeltaPhi_02 InDetSi_CSCMisaligned_ZDeltaPhi_03 InDetSi_CSCMisaligned_ZDeltaPhi_04 InDetSi_CSC_Day1-01 InDetSi_CSC_Day100-01 InDetSi_Day1-01 InDetSi_Day1-02 InDetSi_Day1-03 InDetSi_Day1-04 InDetSi_Day100-01 InDetSi_Day100-02 InDetSi_Day100-03 InDetSi_Day100-04 InDetSi_Nominal_RDeltaR_01 IndetAlign-FDR-00 IndetAlign-MC11-00 IndetAlign_cscalign_00 IndetAlign_cscalign_01 nominal0 pixdisp1 pixdisp2 sct1pix1disp sct2bpix1disp sct2pix1disp sctdisp1 sctdisp2 sctlocal1 sctlocal2 sctlocal3 sctlocal4 sctlocal5 sctlocal6 sctlocal7 sctlocal8 test1 test1_dup test1l test2 test_dup1 test_tag ]
+Copying tag InDetAlign-FDR-01 of folder /Indet/Align to destination tag InDetAlign-FDR-01
+Folder copied with 136 objects
+Copying tag InDetAlign-FDR-02 of folder /Indet/Align to destination tag InDetAlign-FDR-02
+Folder copied with 102 objects
+Copying tag InDetAlign-FDR-03 of folder /Indet/Align to destination tag InDetAlign-FDR-03
+Folder copied with 136 objects
+Copying tag InDetAlign-FDR-04 of folder /Indet/Align to destination tag InDetAlign-FDR-04
+Folder copied with 34 objects
+Copying tag InDetAlign-FDR-05 of folder /Indet/Align to destination tag InDetAlign-FDR-05
+Folder copied with 34 objects
+Copying tag InDetAlign-M8-RndMis-IBL_1-Pix_SCT_033 of folder /Indet/Align to destination tag InDetAlign-M8-RndMis-IBL_1-Pix_SCT_033
+Folder copied with 43 objects
+Copying tag InDetAlign-UPD2-FDR-01 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-01
+Folder copied with 68 objects
+Copying tag InDetAlign-UPD2-FDR-03 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-03
+Folder copied with 68 objects
+Copying tag InDetAlign-UPD2-FDR-04 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-04
+Folder copied with 34 objects
+Copying tag InDetAlign-UPD2-FDR-05 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-05
+Folder copied with 34 objects
+Copying tag InDetAlign-UPD2-FDR-06 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-06
+Folder copied with 34 objects
+Copying tag InDetAlign-UPD2-FDR-07 of folder /Indet/Align to destination tag InDetAlign-UPD2-FDR-07
+Folder copied with 34 objects
+Copying tag InDetAlign_CMC_csc321 of folder /Indet/Align to destination tag InDetAlign_CMC_csc321
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_nominal of folder /Indet/Align to destination tag InDetAlign_CMC_nominal
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_sctdisp1 of folder /Indet/Align to destination tag InDetAlign_CMC_sctdisp1
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_sctdisp2 of folder /Indet/Align to destination tag InDetAlign_CMC_sctdisp2
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_sctdisp2rphi of folder /Indet/Align to destination tag InDetAlign_CMC_sctdisp2rphi
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_sctlocal1 of folder /Indet/Align to destination tag InDetAlign_CMC_sctlocal1
+Folder copied with 16 objects
+Copying tag InDetAlign_CMC_sctlocal2 of folder /Indet/Align to destination tag InDetAlign_CMC_sctlocal2
+Folder copied with 16 objects
+Copying tag InDetAlign_CSC_00 of folder /Indet/Align to destination tag InDetAlign_CSC_00
+Folder copied with 34 objects
+Copying tag InDetAlign_CSC_01 of folder /Indet/Align to destination tag InDetAlign_CSC_01
+Folder copied with 34 objects
+Copying tag InDetAlign_CSC_02 of folder /Indet/Align to destination tag InDetAlign_CSC_02
+Folder copied with 34 objects
+Copying tag InDetAlign_CSC_02_ResFinalPix_00 of folder /Indet/Align to destination tag InDetAlign_CSC_02_ResFinalPix_00
+Folder copied with 34 objects
+Copying tag InDetAlign_CSC_02_ResIniPix_00 of folder /Indet/Align to destination tag InDetAlign_CSC_02_ResIniPix_00
+Folder copied with 34 objects
+Copying tag InDetAlign_IOVDEP-00 of folder /Indet/Align to destination tag InDetAlign_IOVDEP-00
+Folder copied with 68 objects
+Copying tag InDetAlign_IOVDEP-01 of folder /Indet/Align to destination tag InDetAlign_IOVDEP-01
+Folder copied with 77 objects
+Copying tag InDetAlign_IOVDEP-02 of folder /Indet/Align to destination tag InDetAlign_IOVDEP-02
+Folder copied with 77 objects
+Copying tag InDetAlign_IOVDEP-03 of folder /Indet/Align to destination tag InDetAlign_IOVDEP-03
+Folder copied with 77 objects
+Copying tag InDetAlign_InDetAlign_IOVDEP-01 of folder /Indet/Align to destination tag InDetAlign_InDetAlign_IOVDEP-01
+Folder copied with 77 objects
+Copying tag InDetAlign_InDetAlign_R2_IBLDistortion_p1C_Corrected of folder /Indet/Align to destination tag InDetAlign_InDetAlign_R2_IBLDistortion_p1C_Corrected
+Folder copied with 43 objects
+Copying tag InDetAlign_MC15c of folder /Indet/Align to destination tag InDetAlign_MC15c
+Folder copied with 145 objects
+Copying tag InDetAlign_Nominal of folder /Indet/Align to destination tag InDetAlign_Nominal
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaPhi_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaPhi_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaPhi_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaPhi_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaR_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaR_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaR_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaR_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaZ_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaZ_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_PhiDeltaZ_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_PhiDeltaZ_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaPhi_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaPhi_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaPhi_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaPhi_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaPhi_Aligned_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaPhi_Aligned_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaPhi_nod0bias_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaPhi_nod0bias_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaR_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaR_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaR_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaR_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaZ_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaZ_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RDeltaZ_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_RDeltaZ_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RadialConst_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RadialConst_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_RadialConst_Aligned_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_RadialConst_Aligned_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_Radial_Aligned_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_Radial_Aligned_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_Sagitta_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_Sagitta_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_Sagitta_Aligned_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_Sagitta_Aligned_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaPhi_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaPhi_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaPhi_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaPhi_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaR_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaR_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaR_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaR_02
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaZ_01 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaZ_01
+Folder copied with 34 objects
+Copying tag InDetAlign_Nominal_ZDeltaZ_02 of folder /Indet/Align to destination tag InDetAlign_Nominal_ZDeltaZ_02
+Folder copied with 34 objects
+Copying tag InDetAlign_R2_2016postTS1_d0biased of folder /Indet/Align to destination tag InDetAlign_R2_2016postTS1_d0biased
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_FTKtest_EndCapShift_extreme of folder /Indet/Align to destination tag InDetAlign_R2_FTKtest_EndCapShift_extreme
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_FTKtest_EndCapShift_typical of folder /Indet/Align to destination tag InDetAlign_R2_FTKtest_EndCapShift_typical
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_FTKtest_PixelTy_10um of folder /Indet/Align to destination tag InDetAlign_R2_FTKtest_PixelTy_10um
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_FTKtest_PixelTy_30um of folder /Indet/Align to destination tag InDetAlign_R2_FTKtest_PixelTy_30um
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_m1C of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_m1C
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p02C of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p02C
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p02C_4muPixY of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p02C_4muPixY
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p05C of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p05C
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p1C of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p1C
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p1C_FIXED of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p1C_FIXED
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p1C_corrected of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p1C_corrected
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_IBLDistortion_p2C of folder /Indet/Align to destination tag InDetAlign_R2_IBLDistortion_p2C
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_Nominal of folder /Indet/Align to destination tag InDetAlign_R2_Nominal
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_RadialBias_m400mu of folder /Indet/Align to destination tag InDetAlign_R2_RadialBias_m400mu
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_RadialBias_p400mu of folder /Indet/Align to destination tag InDetAlign_R2_RadialBias_p400mu
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_RndMis_SiOnly_033M8 of folder /Indet/Align to destination tag InDetAlign_R2_RndMis_SiOnly_033M8
+Folder copied with 43 objects
+Copying tag InDetAlign_R2_RndMis_SiOnly_IBL033M8Rest010M8 of folder /Indet/Align to destination tag InDetAlign_R2_RndMis_SiOnly_IBL033M8Rest010M8
+Folder copied with 43 objects
+Copying tag InDetAlign_ResFinalPix_00 of folder /Indet/Align to destination tag InDetAlign_ResFinalPix_00
+Folder copied with 34 objects
+Copying tag InDetAlign_ResIniPix_00 of folder /Indet/Align to destination tag InDetAlign_ResIniPix_00
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_PhiDeltaR_01 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_PhiDeltaR_01
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_PhiDeltaR_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_PhiDeltaR_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_PhiDeltaR_03 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_PhiDeltaR_03
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_PhiDeltaR_03_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_PhiDeltaR_03_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaPhi_01 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaPhi_01
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaPhi_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaPhi_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaPhi_03 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaPhi_03
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaPhi_04 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaPhi_04
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaR_01 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaR_01
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaR_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaR_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaZ_01 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaZ_01
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaZ_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaZ_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaZ_03 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaZ_03
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_RDeltaZ_03_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_RDeltaZ_03_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_ZDeltaPhi_01 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_ZDeltaPhi_01
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_ZDeltaPhi_02 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_ZDeltaPhi_02
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_ZDeltaPhi_03 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_ZDeltaPhi_03
+Folder copied with 34 objects
+Copying tag InDetSi_CSCMisaligned_ZDeltaPhi_04 of folder /Indet/Align to destination tag InDetSi_CSCMisaligned_ZDeltaPhi_04
+Folder copied with 34 objects
+Copying tag InDetSi_CSC_Day1-01 of folder /Indet/Align to destination tag InDetSi_CSC_Day1-01
+Folder copied with 34 objects
+Copying tag InDetSi_CSC_Day100-01 of folder /Indet/Align to destination tag InDetSi_CSC_Day100-01
+Folder copied with 34 objects
+Copying tag InDetSi_Day1-01 of folder /Indet/Align to destination tag InDetSi_Day1-01
+Folder copied with 34 objects
+Copying tag InDetSi_Day1-02 of folder /Indet/Align to destination tag InDetSi_Day1-02
+Folder copied with 34 objects
+Copying tag InDetSi_Day1-03 of folder /Indet/Align to destination tag InDetSi_Day1-03
+Folder copied with 34 objects
+Copying tag InDetSi_Day1-04 of folder /Indet/Align to destination tag InDetSi_Day1-04
+Folder copied with 34 objects
+Copying tag InDetSi_Day100-01 of folder /Indet/Align to destination tag InDetSi_Day100-01
+Folder copied with 34 objects
+Copying tag InDetSi_Day100-02 of folder /Indet/Align to destination tag InDetSi_Day100-02
+Folder copied with 34 objects
+Copying tag InDetSi_Day100-03 of folder /Indet/Align to destination tag InDetSi_Day100-03
+Folder copied with 34 objects
+Copying tag InDetSi_Day100-04 of folder /Indet/Align to destination tag InDetSi_Day100-04
+Folder copied with 34 objects
+Copying tag InDetSi_Nominal_RDeltaR_01 of folder /Indet/Align to destination tag InDetSi_Nominal_RDeltaR_01
+Folder copied with 34 objects
+Copying tag IndetAlign-FDR-00 of folder /Indet/Align to destination tag IndetAlign-FDR-00
+Folder copied with 34 objects
+Copying tag IndetAlign-MC11-00 of folder /Indet/Align to destination tag IndetAlign-MC11-00
+Folder copied with 34 objects
+Copying tag IndetAlign_cscalign_00 of folder /Indet/Align to destination tag IndetAlign_cscalign_00
+Folder copied with 34 objects
+Copying tag IndetAlign_cscalign_01 of folder /Indet/Align to destination tag IndetAlign_cscalign_01
+Folder copied with 34 objects
+Copying tag nominal0 of folder /Indet/Align to destination tag nominal0
+Folder copied with 34 objects
+Copying tag pixdisp1 of folder /Indet/Align to destination tag pixdisp1
+Folder copied with 34 objects
+Copying tag pixdisp2 of folder /Indet/Align to destination tag pixdisp2
+Folder copied with 34 objects
+Copying tag sct1pix1disp of folder /Indet/Align to destination tag sct1pix1disp
+Folder copied with 34 objects
+Copying tag sct2bpix1disp of folder /Indet/Align to destination tag sct2bpix1disp
+Folder copied with 34 objects
+Copying tag sct2pix1disp of folder /Indet/Align to destination tag sct2pix1disp
+Folder copied with 34 objects
+Copying tag sctdisp1 of folder /Indet/Align to destination tag sctdisp1
+Folder copied with 34 objects
+Copying tag sctdisp2 of folder /Indet/Align to destination tag sctdisp2
+Folder copied with 34 objects
+Copying tag sctlocal1 of folder /Indet/Align to destination tag sctlocal1
+Folder copied with 34 objects
+Copying tag sctlocal2 of folder /Indet/Align to destination tag sctlocal2
+Folder copied with 34 objects
+Copying tag sctlocal3 of folder /Indet/Align to destination tag sctlocal3
+Folder copied with 34 objects
+Copying tag sctlocal4 of folder /Indet/Align to destination tag sctlocal4
+Folder copied with 34 objects
+Copying tag sctlocal5 of folder /Indet/Align to destination tag sctlocal5
+Folder copied with 34 objects
+Copying tag sctlocal6 of folder /Indet/Align to destination tag sctlocal6
+Folder copied with 34 objects
+Copying tag sctlocal7 of folder /Indet/Align to destination tag sctlocal7
+Folder copied with 34 objects
+Copying tag sctlocal8 of folder /Indet/Align to destination tag sctlocal8
+Folder copied with 34 objects
+Copying tag test1 of folder /Indet/Align to destination tag test1
+Folder copied with 34 objects
+Copying tag test1_dup of folder /Indet/Align to destination tag test1_dup
+Folder copied with 34 objects
+Copying tag test1l of folder /Indet/Align to destination tag test1l
+Folder copied with 34 objects
+Copying tag test2 of folder /Indet/Align to destination tag test2
+Folder copied with 50 objects
+Copying tag test_dup1 of folder /Indet/Align to destination tag test_dup1
+Folder copied with 34 objects
+Copying tag test_tag of folder /Indet/Align to destination tag test_tag
+Folder copied with 34 objects
