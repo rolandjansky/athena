@@ -128,7 +128,7 @@ namespace CP {
         } else if (!m_use_low_pt_map) {
             ATH_MSG_INFO("Low pt SF turned off as crossover threshold is negative! Using Zmumu based SF for all pt values.");
         } else {
-            ATH_MSG_INFO("JPsi/DYmumu based low pt SF will start to rock below " << lowPtTransition() / 1000. << " GeV!");
+            ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << lowPtTransition() / 1000. << " GeV!");
         }
         std::set<std::string> decorations{
             sf_decoration() ,
@@ -341,12 +341,9 @@ namespace CP {
     std::string MuonEfficiencyScaleFactors::filename_LowPtCalo() const{
         if (!m_custom_file_LowPtCalo.empty()) return resolve_file_location(m_custom_file_LowPtCalo);
         // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
-        if (measurement() == CP::MuonEfficiencyType::Reco) {
-            return  lowPtTransition() > 0 ? resolve_file_location("Reco_CaloTag_JPsi.root") : filename_Calo();
-        } else if (measurement()  == CP::MuonEfficiencyType::Iso) {
-            return lowPtTransition() > 0 ?filename_LowPt() : filename_Central();
-        }
-        return filename_Central();
+        else if (m_Type != CP::MuonEfficiencyType::Reco || lowPtTransition() < 0) {
+            return filename_Calo();
+        } else return resolve_file_location("Reco_CaloTag_JPsi.root");
     }
     // load the SF histos
     

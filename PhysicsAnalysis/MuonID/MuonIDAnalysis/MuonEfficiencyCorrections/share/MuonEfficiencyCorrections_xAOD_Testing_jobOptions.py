@@ -23,31 +23,23 @@ alg.ValidationRelease="cMoriond2019"
 
 WPs = [
          # reconstruction WPs
-       # "LowPt",
-       # "Loose", 
-       # "Medium", 
-       # "Tight", 
-       # "HighPt",
+        "LowPt",
+        "Loose", 
+        "Medium", 
+        "Tight", 
+        "HighPt",
          # track-to-vertex-association WPs
-       #  "TTVA",
+         "TTVA",
          # BadMuon veto SFs
         # "BadMuonVeto_HighPt",
          # isolation WPs
-        "FCLoose_FixedRadIso",
-        "FCTightIso",
-        "FCTightTrackOnlyIso",        
-        "FCTightTrackOnly_FixedRadIso",
-        "FCTight_FixedRadIso",
-        "FixedCutHighPtTrackOnlyIso",
-        "FixedCutPflowLooseIso",
-        "FixedCutPflowTightIso",
-     
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
 for WP in WPs: 
-  #  alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180905_TriggerUpdate", useLowPtMap = False )]
-    #alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/", )]
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/", )]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
 
 theJob += alg
 
