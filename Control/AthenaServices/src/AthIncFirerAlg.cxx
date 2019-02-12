@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthIncFirerAlg.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -26,7 +26,6 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
   auto ctxcp=ctx;
   for(auto & i:m_incLists.value()){
     ATH_MSG_VERBOSE("Firing incident "<<i);
-
     if((i=="BeginEvent")||(i=="EndEvent")){
       m_incSvc->fireIncident(std::make_unique<EventIncident>(name(),i,ctxcp));
       if(m_Serial.value())m_incSvc->fireIncident(EventIncident(name(),i,ctxcp));
@@ -37,6 +36,7 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
   }
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode AthIncFirerAlg::finalize(){
   return StatusCode::SUCCESS;

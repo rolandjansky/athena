@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpStream.h"
@@ -18,22 +18,18 @@
 
 #include "SGTools/DataProxy.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h" 
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
-/* #include "GaudiKernel/IOpaqueAddress.h" */
 class IOpaqueAddress;
-
-using namespace std;
 
 /// Structors
 PileUpStream::PileUpStream():
   m_name("INVALID"), p_svcLoc(0), p_sel(0), p_SG(0), p_iter(0), 
-  p_activeStore(0), m_ownEvtIterator(false),
+  p_mergeSvc(nullptr), p_activeStore(0), m_ownEvtIterator(false),
   m_msg("PileUpStream"), m_neverLoaded(true), m_ownStore(false),
   m_used(false), m_hasRing(false), m_iOriginalRing(0)
 { 
@@ -41,7 +37,7 @@ PileUpStream::PileUpStream():
 
 PileUpStream::PileUpStream(const PileUpStream& rhs):
   m_name(rhs.m_name), p_svcLoc(rhs.p_svcLoc), p_sel(rhs.p_sel), 
-  p_SG(rhs.p_SG), p_iter(rhs.p_iter), p_activeStore(rhs.p_activeStore),
+  p_SG(rhs.p_SG), p_iter(rhs.p_iter), p_mergeSvc(rhs.p_mergeSvc), p_activeStore(rhs.p_activeStore),
   m_ownEvtIterator(rhs.m_ownEvtIterator), m_msg(rhs.m_msg),
   m_neverLoaded(rhs.m_neverLoaded), m_ownStore(rhs.m_ownStore),
   m_used(rhs.m_used), m_hasRing(rhs.m_hasRing), m_iOriginalRing(rhs.m_iOriginalRing)
@@ -59,6 +55,7 @@ PileUpStream::operator=(const PileUpStream& rhs) {
     p_sel=rhs.p_sel; 
     p_SG=rhs.p_SG; 
     p_iter=rhs.p_iter;
+    p_mergeSvc = rhs.p_mergeSvc;
     p_activeStore=rhs.p_activeStore;
     m_ownEvtIterator=rhs.m_ownEvtIterator;
     rhs.m_ownEvtIterator=false;
@@ -83,12 +80,13 @@ PileUpStream::PileUpStream(const std::string& name,
 { 
   assert(p_sel);
   assert(p_svcLoc);
-  if (!(p_sel->createContext(p_iter).isSuccess() &&
-	serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() ) ) {
+  if( !( p_sel->createContext(p_iter).isSuccess() &&
+         serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() &&
+         serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() ) ) {
 
-    const string errMsg("PileUpStream:: can not create stream");
+    const std::string errMsg("PileUpStream:: can not create stream");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   } else  m_ownEvtIterator=true;
 }
 
@@ -104,10 +102,11 @@ PileUpStream::PileUpStream(const std::string& name,
   assert(p_svcLoc);
   if (!(serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() && 
 	serviceLocator()->service(selecName, p_sel).isSuccess() &&
+        serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() &&
 	p_sel->createContext(p_iter).isSuccess() )) {
-    const string errMsg("PileUpStream: can not create stream");
+    const std::string errMsg("PileUpStream: can not create stream");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   } else  m_ownEvtIterator=true;
 }
 
@@ -184,9 +183,9 @@ bool PileUpStream::setupStore()
 void PileUpStream::setActiveStore()
 {
   if (0 == p_activeStore) {
-    const string errMsg("PileUpStream::setActiveStore(): no ActiveStoreSvc ptr set, INVALID STREAM STATE ");
+    const std::string errMsg("PileUpStream::setActiveStore(): no ActiveStoreSvc ptr set, INVALID STREAM STATE ");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   }
   p_activeStore->setStore(&store());
   return;
@@ -231,30 +230,30 @@ bool PileUpStream::loadStore()
 }
 
 //return next event, load store with next event
-const EventInfo* PileUpStream::nextEventPre(bool readRecord) {
-  if (m_neverLoaded) readRecord=true;
-  else if (readRecord) {
-    //do not reset these the first time we call nextEventPre
-    this->resetUsed();
-    m_hasRing=false;
-  }
-  const EventInfo* pEvent(0);
-  //  if (isNotEmpty()) {
-  if (readRecord && this->nextRecordPre().isFailure()) {
-    ATH_MSG_INFO ( "nextEventPre(): end of the loop. No more events in the selection" );
-    return (const EventInfo*)0;
-  } 
-  if( !(this->store().retrieve(pEvent)).isSuccess() ) {
-      ATH_MSG_DEBUG ( "nextEventPre():	Unable to retrieve Event root object" );
-  }
-  if (readRecord) {
+const xAOD::EventInfo* PileUpStream::nextEventPre(bool readRecord)
+{
+   if (m_neverLoaded) readRecord=true;
+   else if (readRecord) {
+      //do not reset these the first time we call nextEventPre
+      this->resetUsed();
+      m_hasRing=false;
+   }
+   //  if (isNotEmpty()) {
+   if (readRecord && this->nextRecordPre().isFailure()) {
+      ATH_MSG_INFO ( "nextEventPre(): end of the loop. No more events in the selection" );
+      return nullptr;
+   }
+
+   const xAOD::EventInfo* xAODEventInfo = p_mergeSvc->getPileUpEvent( p_SG, "" );
+   if (readRecord) {
       ATH_MSG_DEBUG ( "nextEventPre(): read new event " 
-		      <<  pEvent->event_ID()->event_number() 
-		      << " run " << pEvent->event_ID()->run_number()
+		      <<  xAODEventInfo->eventNumber() 
+		      << " run " << xAODEventInfo->runNumber()
 		      << " into store " << this->store().name() );
-  }
-  return pEvent;
-}    
+   }
+
+   return xAODEventInfo;
+}
 
 bool PileUpStream::nextEventPre_Passive(bool readRecord) {
   if (m_neverLoaded) readRecord=true;

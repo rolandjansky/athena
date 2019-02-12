@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvc/IOVSvcTool.h"
@@ -348,12 +348,11 @@ IOVSvcTool::handle(const Incident &inc) {
   if ( inc.type() == m_checkTrigger || inc.type() == IncidentType::BeginRun ) {
 
     EventContext context;
-    const EventInfo* evt{nullptr};
+    const EventInfo* evt = p_sgSvc->tryConstRetrieve<EventInfo>();
 
-    if (StatusCode::SUCCESS != p_sgSvc->retrieve(evt)) {
+    if( !evt ) {
       // If EventInfo is not in the event store, check whether 
       // whether we can get event context via BeginRun incident
-      evt = nullptr;
       const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
       if(!eventInc) {
 	m_log << MSG::ERROR 
@@ -364,7 +363,7 @@ IOVSvcTool::handle(const Incident &inc) {
       } else {
 	context = inc.context();
 	if (m_log.level() <= MSG::DEBUG) {
-	  m_log << MSG::DEBUG << "Got event context from " << inc.type() << " incident" << endmsg;
+           m_log << MSG::DEBUG << "Got event context from " << inc.type() << " incident" << endmsg;
 	}
       }
     }
@@ -375,10 +374,11 @@ IOVSvcTool::handle(const Incident &inc) {
     event = eventID->lumi_block();
     run   = eventID->run_number();
     
+    m_log << MSG::DEBUG << "Got event info: " << "run="<< run << ", event=" << event << endmsg;
     m_curTime.setRunEvent(run,event);
 
     // get ns timestamp from event
-    m_curTime.setTimestamp(1000000000L*(uint64_t)evt->event_ID()->time_stamp()+evt->event_ID()->time_stamp_ns_offset());
+    m_curTime.setTimestamp(1000000000L*(uint64_t)eventID->time_stamp() + eventID->time_stamp_ns_offset());
 
     if (m_log.level() <= MSG::DEBUG) {
       m_log << MSG::DEBUG;

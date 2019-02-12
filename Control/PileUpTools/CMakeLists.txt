@@ -14,13 +14,17 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODCnvInterfaces
                           GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_library( PileUpToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS PileUpTools
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks SGTools EventInfo xAODEventInfo GaudiKernel StoreGateLib SGtests )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel
+                   AthLinks SGTools
+                   EventInfo xAODEventInfo xAODCnvInterfaces
+                   GaudiKernel StoreGateLib SGtests ) 
 
 atlas_add_component( PileUpTools
                      src/components/*.cxx

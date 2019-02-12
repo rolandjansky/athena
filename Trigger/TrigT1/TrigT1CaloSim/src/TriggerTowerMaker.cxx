@@ -32,6 +32,7 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 // Utilities
+#include "EventInfoUtils/EventIDFromStore.h"
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
 
@@ -2820,15 +2821,11 @@ void LVL1::TriggerTowerMaker::digitize()
 
 void LVL1::TriggerTowerMaker::preProcess()
 {
-  
- 
   // Pedestal Correction: Get the BCID number
-  const EventInfo* evt;
   unsigned int eventBCID=0;
-  // unsigned int m_eventNumber=0;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
-    eventBCID = evt->event_ID()->bunch_crossing_id();
-    // m_eventNumber = evt->event_ID()->event_number();
+  const EventIDBase* evid = EventIDFromStore( evtStore() );
+  if( evid ) {
+    eventBCID = evid->bunch_crossing_id();
   }else{
     ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
   }

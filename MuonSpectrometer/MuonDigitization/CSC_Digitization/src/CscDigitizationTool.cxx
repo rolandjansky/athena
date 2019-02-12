@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -22,7 +22,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 using namespace MuonGM;
 
@@ -218,10 +218,10 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   
   // get the iterator pairs for this DetEl
   //iterate over hits
-  const EventInfo* pevt = 0;
-  ATH_CHECK( evtStore()->retrieve(pevt, "") );
-  m_evt = pevt->event_ID()->event_number();
-  m_run = pevt->event_ID()->run_number();
+  const xAOD::EventInfo* pevt = nullptr;
+  ATH_CHECK( evtStore()->retrieve(pevt) );
+  m_evt = pevt->eventNumber();
+  m_run = pevt->runNumber();
   
   
   std::map <IdentifierHash,deposits> myDeposits;
