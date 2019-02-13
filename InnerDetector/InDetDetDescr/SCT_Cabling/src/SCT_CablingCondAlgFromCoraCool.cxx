@@ -22,9 +22,6 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
-//DB utilities
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-
 // Gaudi include
 #include "GaudiKernel/EventIDRange.h"
 
@@ -281,7 +278,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   int nrods{0};
   std::set<int> tempRobSet;
   for (; rodIt != last_rod; ++rodIt) {
-    AthenaAttributeList rodAttributes{rodIt->second};
+    const coral::AttributeList& rodAttributes{rodIt->second};
     int rob{rodAttributes["ROB"].data<int>()};
     if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :" << std::hex << rob << std::dec);
     int crate{isRun2 ? static_cast<int>(rodAttributes["crate"].data<unsigned char>()) : (rodAttributes["crate"].data<int>())};
@@ -319,7 +316,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   CondAttrListVec::const_iterator geoIt{pGeo->begin()};
   CondAttrListVec::const_iterator last_geo{pGeo->end()};
   for (;geoIt != last_geo;++geoIt) {
-    AthenaAttributeList geoAttributes{geoIt->second};
+    const coral::AttributeList& geoAttributes{geoIt->second};
     int mur{isRun2 ? static_cast<int>(geoAttributes["MUR"].data<unsigned int>()) : (geoAttributes["MUR"].data<int>())};
     int position{isRun2 ? static_cast<int>(geoAttributes["position"].data<short>()) : (geoAttributes["position"].data<int>())};
     if (mur > 10000) geoMurMap[mur]=position; //only for endcap case
@@ -341,7 +338,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   allInsertsSucceeded = true;
   std::set<int> tempRobSet2;
   for (; rodMurIt!=last_rodMur; ++rodMurIt) {
-    AthenaAttributeList rodMurAttributes{rodMurIt->second};
+    const coral::AttributeList& rodMurAttributes{rodMurIt->second};
     int mur{isRun2 ? static_cast<int>(rodMurAttributes["MUR"].data<unsigned int>()) : (rodMurAttributes["MUR"].data<int>())};
     int crate{isRun2 ? static_cast<int>(rodMurAttributes["crate"].data<unsigned char>()) : (rodMurAttributes["crate"].data<int>())};
     int crateSlot{isRun2 ? static_cast<int>(rodMurAttributes["rod"].data<unsigned char>()) : (rodMurAttributes["rod"].data<int>())};//slot is int16, others are int32
@@ -405,7 +402,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   std::set<Identifier> offlineIdSet;
   long long lastSerialNumber{0};
   for (; murIt != last_mur; ++murIt) {
-    AthenaAttributeList murAttributes{murIt->second};
+    const coral::AttributeList& murAttributes{murIt->second};
     int mur{isRun2 ? static_cast<int>(murAttributes["MUR"].data<unsigned int>()) : (murAttributes["MUR"].data<int>())};
     bool nullMur{murAttributes["moduleID"].isNull() or murAttributes["module"].isNull()};
     if (9999 == mur or nullMur) continue;

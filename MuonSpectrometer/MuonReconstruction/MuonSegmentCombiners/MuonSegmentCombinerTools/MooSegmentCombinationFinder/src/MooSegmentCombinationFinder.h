@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,6 @@ namespace Muon
     class IMuonPatternSegmentMaker;
     class IMuonCurvedSegmentCombiner;
     class IMuonSegmentCombinationCleanerTool;
-    class IMuonSegmentOverlapRemovalTool;
     class IMuonSegmentSelectionTool;
     class MuonEDMPrinterTool;
     class MuonEDMHelperTool;
@@ -67,11 +66,11 @@ namespace Muon
        /** standard Athena-Algorithm method */
       virtual StatusCode finalize  ();
       
-      IMooSegmentCombinationFinder::Output* 
-	findSegments( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-		      const std::vector<const CscPrepDataCollection*>& cscCols,  
-		      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-		      const std::vector<const RpcPrepDataCollection*>& rpcCols );
+      void findSegments(const std::vector<const MdtPrepDataCollection*>& mdtCols,
+			const std::vector<const CscPrepDataCollection*>& cscCols,
+			const std::vector<const TgcPrepDataCollection*>& tgcCols,
+			const std::vector<const RpcPrepDataCollection*>& rpcCols,
+			IMooSegmentCombinationFinder::Output& output);
       
     private:
 
@@ -85,7 +84,7 @@ namespace Muon
       void postProcess(  MuonSegmentCombinationCollection* col);
 
       /** extract a segment collection from a segment combination collection */
-      void extractSegmentCollection( const MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments  ) const;
+      void extractSegmentCollection( const MuonSegmentCombinationCollection* combiCol, Trk::SegmentCollection& segments  ) const;
       
       /** select segment on quality */
       bool goodSegment( const MuonSegment& segment ) const;
@@ -102,7 +101,6 @@ namespace Muon
       }
       void auditorBefore( IAlgTool* tool );
       void auditorAfter( IAlgTool* tool, bool status );
-
 
       /** class member version of retrieving MsgStream */
       bool                                            m_doSummary; //<! print summary after each stage
@@ -122,14 +120,13 @@ namespace Muon
       ToolHandle<IMuonPatternSegmentMaker>           m_patternSegmentMaker;
       ToolHandle<IMuonCurvedSegmentCombiner>         m_curvedSegmentCombiner;
       ToolHandle<IMuonSegmentCombinationCleanerTool> m_segmentCombinationCleaner;
-      ToolHandle<IMuonSegmentOverlapRemovalTool>     m_overlapRemovalTool;    
       ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
 
       MuonSegmentCombPatternCombAssociationMap m_segmentPatternMap;
       bool m_cloneSegments;
 
       /** counters */
-      mutable unsigned int m_nevents;
+      unsigned int m_nevents;
       mutable unsigned int m_ncsc2SegmentCombinations;
       mutable unsigned int m_ncsc4SegmentCombinations;
       mutable unsigned int m_npatternCombinations;
@@ -139,10 +136,10 @@ namespace Muon
       mutable unsigned int m_nsegments;
       mutable unsigned int m_nsegmentsStraight;
       mutable unsigned int m_nsegmentsCurved;
-      mutable unsigned int m_nremovedSegments;
       mutable unsigned int m_nremovedBadSegments;
 
-    }; 
+    };
+
 } // end of namespace
 
 #endif 

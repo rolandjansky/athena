@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFinderAlg.h"
@@ -94,9 +94,9 @@ StatusCode MuonSegmentFinderAlg::initialize()
 
   ATH_CHECK( m_segmentCollectionKey.initialize() );
   ATH_CHECK( m_cscPrdsKey.initialize() );
-  ATH_CHECK( m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust) );
-  ATH_CHECK( m_rpcPrdsKey.initialize(m_doRPCClust) );
-  ATH_CHECK( m_tgcPrdsKey.initialize(m_doTGCClust) );
+  ATH_CHECK( m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust));
+  ATH_CHECK( m_rpcPrdsKey.initialize());
+  ATH_CHECK( m_tgcPrdsKey.initialize());
   ATH_CHECK( m_patternCollKey.initialize() );
   ATH_CHECK( m_tgcTruth.initialize(m_doClusterTruth) );
   ATH_CHECK( m_rpcTruth.initialize(m_doClusterTruth) );
@@ -108,7 +108,13 @@ StatusCode MuonSegmentFinderAlg::execute()
 {
   
   // vector to hold segments
-  std::vector<const Muon::MuonSegment*> segs;
+  SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey);
+  ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
+
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey);
+  const Muon::TgcPrepDataContainer* tgcPrdCont=tgcPrds.cptr();
+  SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey);
+  const Muon::RpcPrepDataContainer* rpcPrdCont=rpcPrds.cptr();
 
   SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey);
   if(!patternColl.isValid()) {
@@ -120,9 +126,19 @@ StatusCode MuonSegmentFinderAlg::execute()
 
     for(MuonPatternCombinationCollection::const_iterator patt=patternColl->begin(); patt!=patternColl->end(); ++patt) {
       ATH_MSG_DEBUG( "Working on pattern combination " << m_printer->print( **patt ) );
-      //check the technology & call the corresponding segment finder
-      createSegmentsWithMDTs( *patt, segs );
-      createSegmentsFromClusters( *patt, segs );
+      //check the technology & call the corresponding segment finder 
+      std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
+      std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
+      tgcCols.reserve(tgcPrdCont->size());
+      for(auto p : *tgcPrdCont){
+	if(!p->empty()) tgcCols.push_back(p);
+      }
+      rpcCols.reserve(rpcPrdCont->size());
+      for(auto p : *rpcPrdCont){
+        if(!p->empty()) rpcCols.push_back(p);
+      }
+      createSegmentsWithMDTs( *patt, handle.ptr(), rpcCols, tgcCols );
+      createSegmentsFromClusters( *patt, handle.ptr() );
     }//end loop on pattern combinations
 
   }
@@ -131,52 +147,30 @@ StatusCode MuonSegmentFinderAlg::execute()
   }
 
   //do cluster based segment finding
-  std::vector<const Muon::MuonSegment*>* clustSegs(NULL);
   if (m_doTGCClust || m_doRPCClust){
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey);
-    const Muon::RpcPrepDataContainer* rpcPrdCont=0;
-    const Muon::TgcPrepDataContainer* tgcPrdCont=0;
     const PRD_MultiTruthCollection* tgcTruthColl=0;
     const PRD_MultiTruthCollection* rpcTruthColl=0;
-    if(m_doTGCClust){
-      SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey);
-      tgcPrdCont=tgcPrds.cptr();
-    }
-    if(m_doRPCClust){
-      SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey);
-      rpcPrdCont=rpcPrds.cptr();
-    }
     if(m_doClusterTruth){
       SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth);
       SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth);
       tgcTruthColl=tgcTruth.cptr();
       rpcTruthColl=rpcTruth.cptr();
     }
-    clustSegs = m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(),rpcPrdCont,tgcPrdCont,tgcTruthColl,rpcTruthColl);
-  }
-  if (clustSegs) {
-    segs.insert(segs.end(),clustSegs->begin(),clustSegs->end());
-    delete clustSegs;
+    m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(),m_doRPCClust ? rpcPrdCont : 0,m_doTGCClust ? tgcPrdCont : 0,tgcTruthColl,rpcTruthColl,handle.ptr());
   }
 
-  std::vector<const Muon::MuonSegment*> resolvedSegments = m_segmentOverlapRemovalTool->removeDuplicates(segs);
+  ATH_MSG_DEBUG("segments before overlap removal: "<<handle->size());
+  m_segmentOverlapRemovalTool->removeDuplicates(handle.ptr());
   
-  //create a new SG container to store the segments
-  std::unique_ptr<Trk::SegmentCollection> segmentCollection = std::unique_ptr<Trk::SegmentCollection>( new Trk::SegmentCollection());
-  segmentCollection->reserve(resolvedSegments.size());
-  for( std::vector<const Muon::MuonSegment*>::iterator sit = resolvedSegments.begin(); sit!=resolvedSegments.end();++sit ){
-    segmentCollection->push_back( const_cast<Muon::MuonSegment*>(*sit) );
-    if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(**sit,3);
-  }
-  ATH_MSG_DEBUG(" Segments after overlap removal: " << resolvedSegments.size() << " removed " << segs.size() - resolvedSegments.size() );
-
-  // need to delete removed segments
-  if( segs.size() != resolvedSegments.size() ){
-    for( auto seg : segs ){
-      auto pos = std::find(resolvedSegments.begin(),resolvedSegments.end(),seg);
-      if( pos == resolvedSegments.end() ) delete seg;
+  if(!m_truthSummaryTool.empty()){
+    for(unsigned int i=0;i<handle.ptr()->size();i++){
+      Trk::Segment* tseg=handle.ptr()->at(i);
+      m_truthSummaryTool->add(*(dynamic_cast<const Muon::MuonSegment*>(tseg)),3);
     }
   }
+
+  ATH_MSG_DEBUG(" Segments after overlap removal: " << handle->size());
 
   if( !m_csc2dSegmentFinder.empty() && !m_csc4dSegmentFinder.empty() ){
 
@@ -195,11 +189,10 @@ StatusCode MuonSegmentFinderAlg::execute()
       }
       ATH_MSG_DEBUG("Retrieved CscPrepDataContainer " <<  cscCols.size());
       // reconstruct segments in the CSC eta and phi plane
-      MuonSegmentCombinationCollection* csc2dSegmentCombinations = m_csc2dSegmentFinder->find( cscCols );
+      std::unique_ptr<MuonSegmentCombinationCollection> csc2dSegmentCombinations = m_csc2dSegmentFinder->find( cscCols );
       // combine CSC segments in eta and phi plane if any were found
       if (csc2dSegmentCombinations) {
-	MuonSegmentCombinationCollection* csc4dSegmentCombinations = m_csc4dSegmentFinder->find( *csc2dSegmentCombinations );
-	delete csc2dSegmentCombinations;
+	std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations = m_csc4dSegmentFinder->find( *csc2dSegmentCombinations );
 	if( csc4dSegmentCombinations ){
 	
 	  // now copy the segments into the collection, not optimal as unneeded copy
@@ -217,30 +210,26 @@ StatusCode MuonSegmentFinderAlg::execute()
 	    for(unsigned int i=0; i<nstations; ++i){
 
 	      // loop over segments in station
-	      const Muon::MuonSegmentCombination::SegmentVec* segments = combi.stationSegments( i ) ;
-         
+	      Muon::MuonSegmentCombination::SegmentVec* segments = combi.stationSegments( i ) ;
+
 	      // check if not empty
 	      if( !segments || segments->empty() ) continue;
 	      // loop over new segments, copy them into collection
-	      Muon::MuonSegmentCombination::SegmentVec::const_iterator sit = segments->begin();
-	      Muon::MuonSegmentCombination::SegmentVec::const_iterator sit_end = segments->end();
-	      for( ; sit!=sit_end;++sit) segmentCollection->push_back( new Muon::MuonSegment(**sit) );
+	      Muon::MuonSegmentCombination::SegmentVec::iterator sit = segments->begin();
+	      Muon::MuonSegmentCombination::SegmentVec::iterator sit_end = segments->end();
+	      for( ; sit!=sit_end;++sit) handle->push_back( (*sit).release()); //releasing so the handle can take ownership
 	    }
 	  }  
-	  delete csc4dSegmentCombinations;
 	}
       }
     }
   }
 
-  if( m_printSummary || msgLvl(MSG::DEBUG) ){
-    msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endmsg;
+  ATH_MSG_DEBUG("Number of segments found " << handle->size());
+  for(unsigned int i=0;i<handle.ptr()->size();i++){
+    Trk::Segment* tseg=handle.ptr()->at(i);
+    ATH_MSG_DEBUG(m_printer->print(*(dynamic_cast<Muon::MuonSegment*>(tseg))));
   }
-  SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey);
-  
-  //Add the segments to store gate
-  ATH_CHECK( handle.record(std::move(segmentCollection)) );
-
   return StatusCode::SUCCESS;
 } // execute
 
@@ -250,7 +239,7 @@ StatusCode MuonSegmentFinderAlg::finalize()
   return AthAlgorithm::finalize();
 }
 
-void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, std::vector<const Muon::MuonSegment*>& segments ) {
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments ) {
   //turn the PRD into MuonCluster
   std::map<int,std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
   std::vector< Muon::MuonPatternChamberIntersect >::const_iterator it = patt->chamberData().begin();
@@ -274,21 +263,19 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
   std::map<int,std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit_end = clustersPerSector.end();
   for( ;sit!=sit_end;++sit ){
     std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
-    std::vector<const Muon::MuonSegment*>* segs = m_clusterSegMakerNSW->find(clusters);
+    std::vector<Muon::MuonSegment*> segVec;
+    m_clusterSegMakerNSW->find(clusters,segVec,segments);
 
     //cleanup the memory
     for(std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit!=clusters.end(); ++cit) {
       delete *cit;
     }
-    if( segs ){
-      segments.insert(segments.end(),segs->begin(),segs->end());
-      delete segs;
-    }    
   }
 }
 
 
-void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, std::vector<const Muon::MuonSegment*>& segments ) { 
+void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
+						  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols, const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) { 
 
   if( m_useNSWMode ){
 
@@ -340,11 +327,8 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
 	  if( mdtit->empty() ) continue;
 	  ATH_MSG_VERBOSE("Calling segment finding for sector " << m_idHelperTool->toString(mdtit->front()->identify()) );
 	  //fit the segments
-	  std::vector<const Muon::MuonSegment*>* segs = m_segmentMaker->find( rotit->regionPos, rotit->regionDir, *mdtit, rotit->clusters,
-									      hasPhiMeasurements, rotit->regionDir.mag() );
-	  if(!segs) continue;
-	  segments.insert(segments.end(),segs->begin(), segs->end());
-	  delete segs;
+	  m_segmentMaker->find( rotit->regionPos, rotit->regionDir, *mdtit, rotit->clusters,
+				hasPhiMeasurements, segs, rotit->regionDir.mag() );
 
 	}//end loop on hits per region
 
@@ -357,19 +341,6 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
 
     }//end loop on chambers in the pattern
   }else{
-    Muon::MuonSegmentCombination* segmentCombi = m_patternSegmentMaker->find(*patcomb);
-    if( segmentCombi ){
-      // loop over stations
-      unsigned int nst = segmentCombi->numberOfStations();
-      for( unsigned int i = 0 ;i<nst;++i ){
-	if( !segmentCombi->stationSegments(i) ) continue;
-
-	// loop over segments 
-	for( auto sit : *segmentCombi->stationSegments(i) ){
-	  segments.push_back( sit->clone() );
-	}
-      }
-      delete segmentCombi;
-    }
+    m_patternSegmentMaker->find(*patcomb, rpcCols, tgcCols, segs);
   }
 }

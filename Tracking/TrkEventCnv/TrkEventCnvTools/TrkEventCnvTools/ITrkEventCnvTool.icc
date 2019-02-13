@@ -1,112 +1,98 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IAlgTool.h"
-#include "StoreGate/StoreGate.h"
-#include "TrkPrepRawData/PrepRawData.h"
 #include "Identifier/IdentifierHash.h"
-#include "AthLinks/ElementLink.h"
+#include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/StoreGate.h"
+
 #include <typeinfo>
 
-
 template <class CONT, class ROT>
-void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot){
-    // verify pointer is ok
-    // assume EL is correct
-    // get data handles to convertors
+void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) {
+  // verify pointer is ok
+  // assume EL is correct
+  // get data handles to convertors
 
+  bool isPersistifiable = (rot->m_rio.key() != 0
+                           and IdentContIndex(rot->m_rio.index()).isValid());
 
-    // Do some checks to see if we can (or should) continue
-//    bool isPersistifiable = !(rot->m_rio.dataID().empty())        && 
-//  IdentContIndex(rot->m_rio.index()).isValid();
-
-    bool isPersistifiable = 
-      rot->m_rio.key() != 0
-         && IdentContIndex(rot->m_rio.index()).isValid();
-
-    if (isPersistifiable) 
-    {
-        //std::cout<<"EL for "<<typeid(rot).name()<<" is already set to persistent so skip further checks"<<std::endl;
-        return; // Already set - bail out.
-    }
-//    std::cout<<"EL for "<<typeid(rot).name()<<" is NOT set to persistent - doing so now"<<std::endl;
-//    std::cout<<" - PersistentState::valid(&(rot->m_rio))"<< rot->m_rio.toPersistentState()<<std::endl;
-//    if (rot->m_rio.toPersistentState() ){
-//        std::cout<<" - IdentContIndex(rot->m_rio.index()).isValid() "<< 
-//IdentContIndex(rot->m_rio.index()).isValid()<<std::endl;
-//    }
+  if (isPersistifiable) {
+    return; // Already set - bail out.
+  }
     
-    // When doing AOD to AOD copy we expect the PRD links to be zero.
-    if (rot->prepRawData()==0) 
-    {
-      MsgStream log(&(*m_msgSvc), name() ); 
-      log<<MSG::DEBUG<<"No PRD for this ROT: "<<(*rot)<<endmsg; 
-      return;
-    } 
-    // else {
-    //         std::cout<<"Continuing for ROT of type : "<<typeid(rot).name()<<std::endl;
-    //     }
-
-    const DataHandle<CONT> dh, dhEnd;
-    StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
-    if (sc.isFailure())
-    {
-       MsgStream log(&(*m_msgSvc), name() );
-       log << MSG::WARNING <<"No containers found!"<< endmsg;
-       return;
-    }
-
-    //std::cout << "Found data handles and will now loop over them all."<<std::endl;
-    // loop over dhs
-    for ( ; dh!=dhEnd; dh++ )
-    {
-        const Trk::PrepRawData* prd     = rot->prepRawData();
-        unsigned int            index   = prd->getHashAndIndex().objIndex(); // prd index within collection
-        IdentifierHash          idHash  = prd->getHashAndIndex().collHash(); // idHash of collection
-
-        CONT* cont = dh; // container
-        typename CONT::const_iterator coll = cont->indexFind(idHash); //matching collection
-
-        // does coll exist?
-        // check prd exists in collection
-        // check pointer value the same.
-        if ( (coll!=cont->end())&& ((*coll)->size()>index) && (prd==(**coll)[index]) )
-	{
-            // okay, so we found the correct PRD in the container.
-            // Now set EL correctly. dh.key() is the name of the container. index is the index withtin the collection. IdHash????
-            rot->m_rio.resetWithKeyAndIndex(dh.key(), prd->getHashAndIndex().hashAndIndex() );
-            //std::cout<<"Successfully set (key, hash, index) for ROT : ("<<dh.key()<<","<<idHash<<","<<index<<")"<<std::endl;
-            
-            //Final sanity check - should remove later
-            // Do some checks to see if we can (or should) continue
-	   
-	   
-//This block currently look useless. Commenting it out.	    
-	 /*   
-          bool isPersistifiable = !(rot->m_rio.dataID().empty()) && IdentContIndex(rot->m_rio.index()).isValid();
-          if (isPersistifiable) 
-          {
-                //std::cout<<"EL for "<<typeid(rot).name()<<" is set correctly."<<std::endl;
-                return; // Already set - bail out.
-           } else {
-                //std::cout<<"WARNING: "<<typeid(rot).name()<<" is still unfit for persistency."<<std::endl;
-           }
-           */
-	    
-            return; //exit loop and function. We're done.
-        }
-    }
-    // so, we obviously didn't have the correct container (or something else went wrong)
-    MsgStream log(&(*m_msgSvc), name() );
-    log << MSG::ERROR<<"Could not find matching PRD container for this ROT. ROT will be written out in incomplete state. "
-        << "Dumping ROT: "<<*rot<<endmsg;
-
+  // When doing AOD to AOD copy we expect the PRD links to be zero.
+  if (rot->prepRawData()==nullptr) {
+    MsgStream log(&(*m_msgSvc), name());
+    log<<MSG::DEBUG<<"No PRD for this ROT: "<<(*rot)<<endmsg;
     return;
+  }
+
+  const DataHandle<CONT> dh, dhEnd;
+  StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
+  if (sc.isFailure()) {
+    MsgStream log(&(*m_msgSvc), name());
+    log << MSG::WARNING <<"No containers found!"<< endmsg;
+    return;
+  }
+
+  // loop over dhs
+  for ( ; dh!=dhEnd; dh++) {
+    const Trk::PrepRawData* prd     = rot->prepRawData();
+    unsigned int            index   = prd->getHashAndIndex().objIndex(); // prd index within collection
+    IdentifierHash          idHash  = prd->getHashAndIndex().collHash(); // idHash of collection
+
+    CONT* cont = dh; // container
+    typename CONT::const_iterator coll = cont->indexFind(idHash); //matching collection
+
+    // does coll exist?
+    // check prd exists in collection
+    // check pointer value the same.
+    if ( (coll!=cont->end())&& ((*coll)->size()>index) && (prd==(**coll)[index]) ) {
+      // okay, so we found the correct PRD in the container.
+      // Now set EL correctly. dh.key() is the name of the container. index is the index withtin the collection. IdHash????
+      rot->m_rio.resetWithKeyAndIndex(dh.key(), prd->getHashAndIndex().hashAndIndex() );
+            
+      return; //exit loop and function. We're done.
+    }
+  }
+  // so, we obviously didn't have the correct container (or something else went wrong)
+  MsgStream log(&(*m_msgSvc), name());
+  log << MSG::ERROR<<"Could not find matching PRD container for this ROT. ROT will be written out in incomplete state. "
+      << "Dumping ROT: "<<*rot<<endmsg;
+
+  return;
 }
 
-inline void Trk::ITrkEventCnvTool::setRoT_Values(std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *>& pair, Trk::RIO_OnTrack *RoT )
-{
-    RoT->setValues(pair.first, pair.second);
+inline void Trk::ITrkEventCnvTool::setRoT_Values(std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *>& pair, Trk::RIO_OnTrack *RoT) {
+  RoT->setValues(pair.first, pair.second);
+}
+
+template <class CONT, class ROT>
+bool Trk::ITrkEventCnvTool::getHashAndIndex(const ROT* rot,
+                                            const std::string contName,
+                                            typename ElementLink<CONT>::index_type& hashAndIndex) const {
+  if (rot==nullptr) return false;
+
+  const Trk::PrepRawData* prd{rot->prepRawData()};
+  if (prd==nullptr) return false;
+
+  SG::ReadHandle<CONT> cont{contName};
+  if (not cont.isValid()) return false;
+
+  const IdentContIndex& idContIndex{prd->getHashAndIndex()};
+  const IdentifierHash& idHash{idContIndex.collHash()}; // idHash of collection
+  typename CONT::const_iterator contItr{cont->indexFind(idHash)}; //matching collection
+  if (contItr==cont->end()) return false;
+  if ((*contItr)==nullptr) return false;
+
+  unsigned int index{idContIndex.objIndex()}; // prd index within collection
+  if (((*contItr)->size()>index) and (prd==(**contItr)[index])) {
+    hashAndIndex = idContIndex.hashAndIndex();
+    return true;
+  }
+
+  return false;
 }

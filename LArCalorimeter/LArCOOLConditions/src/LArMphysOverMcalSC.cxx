@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArMphysOverMcalSC.h"
@@ -26,9 +26,3 @@ const float& LArMphysOverMcalSC::MphysOverMcal(const HWIdentifier& hwid, int /*g
    return this->getDataByHash(hash,0);
 }
 
-// retrieving LArMphysOverMcal using offline ID  
-const float& LArMphysOverMcalSC::MphysOverMcal(const Identifier& cellID, int /*gain*/) const  {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return LArMphysOverMcalSC::MphysOverMcal(hwid,0);
-
-}

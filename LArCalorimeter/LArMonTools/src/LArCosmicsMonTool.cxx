@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -45,7 +45,7 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
 				     const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
     m_rootStore(nullptr),
-    m_larCablingService("LArCablingService"),
+    m_larCablingService("LArCablingLegacyService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_newrun(true)
 {

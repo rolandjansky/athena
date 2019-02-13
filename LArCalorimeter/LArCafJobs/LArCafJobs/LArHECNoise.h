@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArHECNoise_H
@@ -22,7 +22,8 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -42,7 +43,6 @@
 class LArOnlineID;
 class LArElectrodeID;
 class HWIdentifier;
-class LArCablingService;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
@@ -66,8 +66,8 @@ class LArHECNoise : public AthAlgorithm  {
     
    TTree* m_tree;
 
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    /*Tools*/
-   ToolHandle<LArCablingService> m_LArCablingService;
    ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
 

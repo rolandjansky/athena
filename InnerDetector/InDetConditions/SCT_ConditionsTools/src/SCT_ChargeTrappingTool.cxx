@@ -57,8 +57,6 @@ SCT_ChargeTrappingTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  std::lock_guard<std::mutex> lock{m_mutex};
-
   m_isSCT = (m_detectorName=="SCT");
   
   // Get conditions summary tool
@@ -118,7 +116,6 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
   
   if (m_conditionsToolWarning) {
     // Only print the warning once.
-    std::lock_guard<std::mutex> lock{m_mutex};
     m_conditionsToolWarning = false;
     ATH_MSG_WARNING("Conditions Summary Tool is not used. Will use temperature and voltages from job options. "
                     << "Effects of radiation damage may be wrong!");
@@ -353,21 +350,7 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
 }
 
 const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }

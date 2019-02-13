@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_LARRAWCHANNELBUILDERTOOLBASECLASS
@@ -21,8 +21,7 @@ LArRawChannelBuilderToolBaseClass::LArRawChannelBuilderToolBaseClass(const std::
   m_parent(NULL),
   m_helper(NULL),
   m_detStore(NULL),
-  m_larCablingSvc(0)
-  ,m_isSC(false)
+  m_isSC(false)
 {
 declareProperty("IsSuperCell",              m_isSC  = false);
 }
@@ -95,19 +94,27 @@ LArRawChannelBuilderToolBaseClass::finalEventHidden()
 Identifier
 LArRawChannelBuilderToolBaseClass::currentID( void )
 {
-  if(m_parent->curr_id==0)
-    {
+  const LArOnOffIdMapping *cabling=nullptr;
+  if(m_isSC) {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = *cablingHdl;
+  } else {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = *cablingHdl;
+  }   
+  if(!cabling) {
+     m_parent->curr_id=0;
+  } else {
+    if(m_parent->curr_id==0) {
       try {
-        m_parent->curr_id = m_larCablingSvc->cnvToIdentifier(m_parent->curr_chid);
+        m_parent->curr_id = cabling->cnvToIdentifier(m_parent->curr_chid);
       } catch ( LArID_Exception & except ) {
-	MsgStream log(msgSvc(), name());
-        log << MSG::INFO
-	    << "A larCablingSvc exception was caught for channel 0x!"
-	    << MSG::hex << m_parent->curr_chid.get_compact() << MSG::dec << endmsg;
-        // log << MSG::INFO<<m_onlineHelper->print_to_string(curr_chid)<<endmsg;
+        ATH_MSG_INFO("Cabling exception was caught for channel 0x!"
+	    << MSG::hex << m_parent->curr_chid.get_compact() << MSG::dec );
         m_parent->curr_id=0;
       }
     }
+  }
   return m_parent->curr_id;
 }
 

@@ -1,26 +1,6 @@
 <lcgdict>
-  <!-- base class for all vscalib -->
-  <class name="LArConditionsVsCalibBase" >
-    <field name="m_init"         transient="true" />
-    <field name="m_detStore"     transient="true" />
-    <field name="m_cablingSvc"   transient="true" />
-    <field name="m_onlineHelper" transient="true" />
-  </class>
-
-  <!-- patterns for all vscalib -->
-  <!--<class pattern="LArConditionsVsCalib<*>" /> -->
 
 
-  <!-- LArRtermP -->
-<!--
-  <class name="LArRtermP" />
-  <class name="LArRtermVsCalib" id="FC0FDC55-5A44-4E86-8408-57CD2A0D9614" />
-
-  <class name="std::vector<LArRtermP>" />
-  <class pattern="std::pair*LArRtermP*"/>
-  <class pattern="std::vector<LArRtermP>"/>
-  <class pattern="*iterator*LArRtermP*"/>
--->
 
   <!-- base class for all containers -->
   <class name="LArConditionsContainerBase" />
@@ -54,13 +34,6 @@
   <class name="LArConditionsSubset<LArCaliPulseParamsP>"  id="D1D15524-04F0-4A75-ABC7-948D90491504" >
     <field name="m_subsetMap" transient="true" />
   </class>
-
-  <class name="LArConditionsVsCalibDB<LArCaliPulseParamsP>" />
-
-  <class name="LArConditionsVsCalib<LArCaliPulseParamsP>" />
-
-  <class name="LArCaliPulseParamsVsCalib" id="E36381CB-C436-4FF4-8A91-9D24BA23B836" />
-
 
   <class pattern="*pair*<unsigned*LArCaliPulseParamsP*"/>
   <class name="std::vector<LArCaliPulseParamsP>"/>

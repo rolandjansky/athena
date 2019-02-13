@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArShapeToSCShape.cxx 
@@ -38,17 +38,13 @@
 LArShapeToSCShape::LArShapeToSCShape( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_scidTool("CaloSuperCellIDTool"),
-  m_scCablingTool("LArSuperCellCablingTool"),
-  m_cablingService("LArCablingService")
+  m_scidTool("CaloSuperCellIDTool")
 {
   //
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
   declareProperty("CaloSuperCellIDTool",m_scidTool);
-  declareProperty("LArSuperCellCablingTool",m_scCablingTool);
-  declareProperty("LArCablingService",m_cablingService);
 }
 
 // Destructor
@@ -62,8 +58,8 @@ StatusCode LArShapeToSCShape::initialize()
 {
 
   CHECK(m_scidTool.retrieve());
-  CHECK(m_scCablingTool.retrieve());
-  CHECK(m_cablingService.retrieve());
+  CHECK(m_cablingSCKey.initialize());
+  CHECK(m_cablingKey.initialize());
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
@@ -142,6 +138,18 @@ StatusCode LArShapeToSCShape::execute()
     pTimeOffset[i]=0.0;
   }
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> scHdl{m_cablingSCKey};
+  const LArOnOffIdMapping* scCont{*scHdl};
+  if(!scCont) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingSCKey.key());
+     return StatusCode::FAILURE;
+  }
   unsigned nTileIds=0;
   unsigned nTotalIds=0;
   auto scIt=caloSCID->cell_begin();
@@ -163,10 +171,10 @@ StatusCode LArShapeToSCShape::execute()
     const Identifier cellId=cellIds[0];
     
     //Get online hash (via online identifier):
-    const HWIdentifier scOnlId=m_scCablingTool->createSignalChannelID(scId);
+    const HWIdentifier scOnlId=scCont->createSignalChannelID(scId);
     const IdentifierHash scOnlHash=onlSCID->channel_Hash(scOnlId);
     
-    const HWIdentifier hwid=m_cablingService->createSignalChannelID(cellId);
+    const HWIdentifier hwid=cabling->createSignalChannelID(cellId);
 
     //std::cout << "SuperCellSummary onl: 0x" << std::hex << scOnlId.get_identifier32().get_compact() 
     //	      << ", ofl: 0x" << scId.get_identifier32().get_compact() 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -63,7 +63,6 @@ LArHECNoise::LArHECNoise(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_thistSvc(0),
     m_tree(0),
-    m_LArCablingService("LArCablingService"),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
     m_caloIdMgr(0),
@@ -103,7 +102,6 @@ LArHECNoise::LArHECNoise(const std::string& name,
    declareProperty( "TrigDecisionTool", m_trigDec );
    
    /** switches to control the analysis through job options */
-   declareProperty("LArCablingService", m_LArCablingService);
    
    declareProperty("TriggerLines",m_TriggerLines={"L1_J5", "L1_J10", "L1_J12", "L1_J30", "L1_TAU5", "L1_TAU8", "L1_J5_EMPTY", "L1_J10_EMPTY", "L1_J12_EMPTY", "L1_J30_EMPTY", "L1_TAU5_EMPTY", "L1_TAU8_EMPTY", "L1_J5_FIRSTEMPTY", "L1_J10_FIRSTEMPTY", "L1_J12_FIRSTEMPTY", "L1_J30_FIRSTEMPTY", "L1_TAU5_FIRSTEMPTY", "L1_TAU8_FIRSTEMPTY"});
 
@@ -125,7 +123,7 @@ StatusCode LArHECNoise::initialize() {
   // Trigger Decision Tool
   ATH_CHECK(m_trigDec.retrieve());
   
-  ATH_CHECK( m_LArCablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   // Retrieve online ID helper
   const DataHandle<LArOnlineID> LArOnlineIDHelper;
@@ -223,6 +221,13 @@ StatusCode LArHECNoise::execute() {
      ATH_CHECK(evtStore()->retrieve(lraw, "LArRawChannels"));
   }
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   // retrieve pedestals
   ATH_CHECK( detStore()->retrieve(m_ped,"Pedestal") );
 
@@ -275,7 +280,7 @@ StatusCode LArHECNoise::execute() {
 
               m_nt_evtCount += 1;
               m_nt_gain = pLArDigit->gain();
-              Identifier oid = m_LArCablingService->cnvToIdentifier(hid);
+              Identifier oid = cabling->cnvToIdentifier(hid);
               m_nt_OID = pLArDigit->channelID().get_compact();
               m_nt_ped = m_ped->pedestal(pLArDigit->channelID(),pLArDigit->gain());
               m_nt_pedRMS = m_ped->pedestalRMS(pLArDigit->channelID(),pLArDigit->gain());

@@ -19,26 +19,14 @@ const float SCT_DCSConditionsTool::s_defaultTemperature{-40.};
 
 SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_readAllDBFolders{true},
-  m_returnHVTemp{true},
-  m_barrel_correction{-3.7},
-  m_ecInner_correction{-13.1},
-  m_ecOuter_correction{-15.5},
-  m_mutex{},
-  m_cacheState{},
-  m_cacheHV{},
-  m_cacheTemp0{},
-  m_pBadModules{},
-  m_pModulesHV{},
-  m_pModulesTemp0{},
   m_pHelper{nullptr}
 { 
     //declare variables which will be filled by jobOptions
-    declareProperty("ReadAllDBFolders", m_readAllDBFolders);
-    declareProperty("ReturnHVTemp", m_returnHVTemp);
-    declareProperty("TempBarrelCorrection", m_barrel_correction);
-    declareProperty("TempEcInnerCorrection", m_ecInner_correction);
-    declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
+    declareProperty("ReadAllDBFolders", m_readAllDBFolders=true);
+    declareProperty("ReturnHVTemp", m_returnHVTemp=true);
+    declareProperty("TempBarrelCorrection", m_barrel_correction=-3.7);
+    declareProperty("TempEcInnerCorrection", m_ecInner_correction=-13.1);
+    declareProperty("TempEcOuterCorrection", m_ecOuter_correction=-15.5);
 }
 
 StatusCode SCT_DCSConditionsTool::initialize() {
@@ -230,63 +218,18 @@ float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId) con
 
 const SCT_DCSStatCondData*
 SCT_DCSConditionsTool::getCondDataState(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheState.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheState.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheState[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
-    }
-    m_pBadModules.set(*condData);
-    m_cacheState[slot] = evt;
-  }
-  return m_pBadModules.get();
+  SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState, ctx};
+  return condData.retrieve();
 }
 
 const SCT_DCSFloatCondData*
 SCT_DCSConditionsTool::getCondDataHV(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheHV.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheHV.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheHV[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
-    }
-    m_pModulesHV.set(*condData);
-    m_cacheHV[slot] = evt;
-  }
-  return m_pModulesHV.get();
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV, ctx};
+  return condData.retrieve();
 }
 
 const SCT_DCSFloatCondData*
 SCT_DCSConditionsTool::getCondDataTemp0(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheTemp0.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheTemp0.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheTemp0[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
-    }
-    m_pModulesTemp0.set(*condData);
-    m_cacheTemp0[slot] = evt;
-  }
-  return m_pModulesTemp0.get();
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0, ctx};
+  return condData.retrieve();
 }

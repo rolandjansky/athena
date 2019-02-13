@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
@@ -7,7 +7,6 @@
 #include "StoreGate/StoreGate.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -28,7 +27,6 @@ LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, IS
   AthAlgorithm(name,pSvcLocator),
   m_onlineID(0),
   m_noisetool("CaloNoiseToolDefault"),
-  m_cablingSvc("LArCablingService"),
   m_badChannelMasker("LArBadChannelMasker"),
   m_workmode (FIXED)
 {
@@ -72,7 +70,7 @@ StatusCode LArDSPThresholdFillInline::initialize() {
   ATH_MSG_DEBUG ( "start initialize()" );
 
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
-  ATH_CHECK( m_cablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   if(m_maskBadChannels){
     ATH_CHECK( m_badChannelMasker.retrieve() );
@@ -160,12 +158,19 @@ StatusCode LArDSPThresholdFillInline::stop() {
     }
     ATH_MSG_INFO ( "theCaloDDM retrieved" );
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling) {
+        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+        return StatusCode::FAILURE;
+    }
+
     for (unsigned hs=0;hs<hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
-      const Identifier id=m_cablingSvc->cnvToIdentifier(chid);
-      ATH_MSG_DEBUG ( "cell id: " << id << " " << m_cablingSvc->isOnlineConnected(chid) );
+      const Identifier id=cabling->cnvToIdentifier(chid);
+      ATH_MSG_DEBUG ( "cell id: " << id << " " << cabling->isOnlineConnected(chid) );
 
-      if(!m_cablingSvc->isOnlineConnected(chid)){
+      if(!cabling->isOnlineConnected(chid)){
 	ATH_MSG_DEBUG ( "cell id: " << id << " not connected channel, skip  " );
 	// Same (very high) thresholds for disconnected channels as masked channels
 	ptQThrBlob[hs]=m_maskedtqThrsh;

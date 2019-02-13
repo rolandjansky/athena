@@ -736,8 +736,8 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
 
   double zfield = 0.;
   if(m_fieldModeEnum!=Trk::NoField && m_fieldService->solenoidOn()) {
-    // const Amg::Vector3D& pos = Tp.position();
-    double f[3], p[3] ={10., 10., 0.};//{pos[Amg::x],pos[Amg::y],pos[Amg::z]};
+    const Amg::Vector3D& pos = Tp.position();
+    double f[3], p[3] ={pos[Amg::x],pos[Amg::y],pos[Amg::z]};
     m_fieldService->getFieldZR(p,f);
     zfield =  299.7925*f[2];
   }

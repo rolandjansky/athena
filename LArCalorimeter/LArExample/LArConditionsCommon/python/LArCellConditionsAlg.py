@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=================================================================================
 ## Name:        LArCellConditionsAlg.py
@@ -130,10 +130,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
         
     def execute(self):
         self.msg.info('running execute...')
-
-        #print "Check Validity.. (and thus initialize the LArCablingSvc)"
-        #self.larCablingSvc.isLArOnOffIdValid()
-        #self.larCablingSvc.readOnlOffMap()
 
         #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
         garbagedump = open(os.devnull, 'w')

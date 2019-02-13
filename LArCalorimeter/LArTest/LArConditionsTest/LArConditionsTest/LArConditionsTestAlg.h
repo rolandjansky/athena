@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,6 +31,10 @@
 #include "LArElecCalib/ILArRamp.h" 
 #include "StoreGate/DataHandle.h"
 //#include "AthenaKernel/IOVSvcDefs.h" 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
 #include "LArElecCalib/ILArShape.h" 
 #include "LArElecCalib/ILArNoise.h" 
@@ -45,10 +49,10 @@
 #include "LArConditionsTest/LArRampPTmp.h" 
 
 
-class LArCablingService; 
 class LArOnlineID; 
 class GenericDbTable; 
 class LArRampMC;
+class LArCablingLegacyService;
 
 class LArConditionsTestAlg : public AthAlgorithm, public IIncidentListener 
 {
@@ -101,8 +105,7 @@ private:
     std::vector<LArRampPTmp>          m_rampCache;
     std::vector<LArRampPTmp>          m_rampCorrections;
 
-    // cabling Service 
-    LArCablingService* m_cablingSvc   ;  
+    const LArCablingLegacyService * m_cablingSvc;
     const LArOnlineID* m_onlineID; 
     BooleanProperty    m_testFill; 
     BooleanProperty    m_testCondObjs; 

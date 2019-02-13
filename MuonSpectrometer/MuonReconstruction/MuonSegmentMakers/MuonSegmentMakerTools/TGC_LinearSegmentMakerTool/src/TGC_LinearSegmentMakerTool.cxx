@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -94,11 +94,11 @@ static inline double getFirstPointZ(const Muon::Fit2D::PointArray& points)
     return 0.0;
 }
 
-std::vector<const Muon::MuonSegment*>*
-TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
-                                 const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
-                                 const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
-                                 bool,double) const
+void TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
+				      const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
+				      const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
+				      Trk::SegmentCollection*,
+				      bool,double) const
 {
     ATH_MSG_DEBUG("TGC_LinearSegmentMakerTool::find");
 
@@ -114,7 +114,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
     const MuonGM::TgcReadoutElement* pReadoutElement =
     dynamic_cast<const MuonGM::TgcReadoutElement*>(rios.front()->detectorElement());
-    if (!pReadoutElement) return 0;
+    if (!pReadoutElement) return;
 
     std::set<std::string> rhoStations, phiStations;
     int iHit = 0;
@@ -322,6 +322,6 @@ done:
         delete *itPt;
 
     ATH_MSG_DEBUG("TGC_LinearSegmentMakerTool::find ended");
-    return pMuonSegs;
+    //return pMuonSegs;
 }
 

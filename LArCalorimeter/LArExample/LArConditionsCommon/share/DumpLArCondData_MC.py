@@ -73,9 +73,6 @@ from LArCabling.LArCabingConf import LArCablingService
 ToolSvc += LArCablingService()
 # Create a dumper object with output level for printout
 
-#larCablingSvc = theApp.getHandle().toolsvc().retrieve("LArCablingService","LArCablingService")._itool
-#larCablingSvc.setPython(larCablingSvc)
-
 #--------------------------------------------------------------
 # access by identifier 
 #--------------------------------------------------------------

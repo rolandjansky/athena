@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAutoCorrFromStdNtuple.h"
@@ -10,7 +10,6 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
-#include "LArCabling/LArCablingService.h"
 
 #include "LArTools/LArMCSymTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
@@ -78,6 +77,8 @@ LArAutoCorrFromStdNtuple::~LArAutoCorrFromStdNtuple()
 StatusCode LArAutoCorrFromStdNtuple::initialize() 
 {
   ATH_CHECK ( m_larmcsym.retrieve() ); 
+  ATH_CHECK ( m_cablingKey.initialize() );
+
   return StatusCode::SUCCESS ;
 }
 
@@ -90,14 +91,17 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   // get LArOnlineID helper
   const LArOnlineID* onlineHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
-  // and cabling service
-  LArCablingService *larCablingSvc;
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",larCablingSvc) );
   // and helper for FCAL
   const CaloIdManager* caloId_mgr;
   ATH_CHECK( detStore()->retrieve(caloId_mgr, "CaloIdManager") );
   const LArFCAL_ID* fcal_id = caloId_mgr->getFCAL_ID();
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "DO not have mapping from cabling key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   TChain* outfit = new TChain(m_ntuple_name.c_str());
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -227,7 +231,7 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
           //if(onlineHelper->isFCALchannel(chid)) {
           if(onlineHelper->barrel_ec(chid)==1 && onlineHelper->feedthrough(chid) >= 25 && onlineHelper->feedthrough(chid) < 28 ) {
              ATH_MSG_DEBUG ( "Adding sFCAL channel " << onlineHelper->channel_name(chid) );
-             const int mod=fcal_id->module(larCablingSvc->cnvToIdentifier(chid));
+             const int mod=fcal_id->module(cabling->cnvToIdentifier(chid));
              if(mod<0 || mod > 3) {
                 ATH_MSG_ERROR ( "Wrong FCAL module: " << mod << " ignored !!" );
                 continue;

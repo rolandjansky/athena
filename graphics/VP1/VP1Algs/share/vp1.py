@@ -22,7 +22,9 @@ if not 'vp1MultiAvailableSrcDirs' in dir(): vp1MultiAvailableSrcDirs = []
 if not 'vp1TrigDecXML' in dir(): vp1TrigDecXML=""
 if not 'vp1Batch' in dir(): vp1Batch=False
 if not 'vp1BatchAllEvents' in dir(): vp1BatchAllEvents=False
+if not 'vp1BatchNEvents' in dir(): vp1BatchNEvents=0
 if not 'vp1BatchOutFolder' in dir(): vp1BatchOutFolder=""
+if not 'vp1BatchRandomConfiguration' in dir(): vp1BatchRandomConfiguration=False
 if not 'vp1LarHvData' in dir(): vp1LarHvData=False
 # if not 'vp1FullToroids' in dir(): vp1FullToroids=False
 if not 'vp1CruiseTime' in dir(): vp1CruiseTime=0
@@ -228,8 +230,12 @@ if vp1Batch:
     os.putenv("VP1_BATCHMODE","1")
 if vp1BatchAllEvents:
     os.putenv("VP1_BATCHMODE_ALLEVENTS","1")
+if vp1BatchNEvents > 0:
+    os.putenv("VP1_BATCHMODE_NEVENTS", str(vp1BatchNEvents) )
 if (vp1BatchOutFolder != ""):
     os.putenv("VP1_BATCHMODE_OUT_FOLDER", vp1BatchOutFolder)
+if vp1BatchRandomConfiguration:
+    os.putenv("VP1_BATCHMODE_RANDOMCONFIG","1")
 
 
 

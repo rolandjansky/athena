@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBLARRAWCHANNELBUILDER_H
@@ -12,7 +12,7 @@
 #include "LArRawUtils/LArRawOrdering.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -36,7 +36,8 @@ public:
 private:
   //Services & Tools 
   LArRoI_Map* m_roiMap;
-  LArCablingService *m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;
   const LArHEC_ID*  m_hecId;

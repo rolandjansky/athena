@@ -1319,6 +1319,14 @@ void VP1MainWindow::loadConfigurationFromFile(QString file) {
 }
 
 //_________________________________________________________________________________
+void VP1MainWindow::replaceConfigurationFile(QString file)
+{
+	VP1Msg::messageDebug("VP1MainWindow::replaceConfigurationFile() : " + file);
+	m_tabmanager->removeAllTabs();
+	m_tabmanager->loadConfigurationFromFile(file,availablePluginFiles());
+}
+
+//_________________________________________________________________________________
 void VP1MainWindow::listenOnTcp()
 {
 	QString err;

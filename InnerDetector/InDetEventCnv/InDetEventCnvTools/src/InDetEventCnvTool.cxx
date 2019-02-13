@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventCnvTools/InDetEventCnvTool.h"
-
-//#include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -30,10 +28,9 @@
 #include <cassert>
 #include <iostream>
 
-InDet::InDetEventCnvTool::InDetEventCnvTool(
-  const std::string& t,
-  const std::string& n,
-  const IInterface*  p )
+InDet::InDetEventCnvTool::InDetEventCnvTool(const std::string& t,
+                                            const std::string& n,
+                                            const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   m_pixMgrLocation("Pixel"),
@@ -43,9 +40,7 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(
   m_setPrepRawDataLink(false),
   m_IDHelper(nullptr),
   m_SCTHelper(nullptr),
-  m_idDictMgr(nullptr),
-  m_mutex{},
-  m_cacheSCTElements{}
+  m_idDictMgr(nullptr)
 {
   declareInterface<ITrkEventCnvTool>(this);
   declareProperty("PixelMgrLocation", m_pixMgrLocation);
@@ -54,25 +49,20 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(
   
 }
 
-InDet::InDetEventCnvTool::~InDetEventCnvTool()
-{
-}
-
-StatusCode InDet::InDetEventCnvTool::initialize()
-{
+StatusCode InDet::InDetEventCnvTool::initialize() {
 
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) return sc;
   
   // get Pixel Detector Description Manager
-  if( detStore()->contains<InDetDD::PixelDetectorManager>(m_pixMgrLocation)){
+  if (detStore()->contains<InDetDD::PixelDetectorManager>(m_pixMgrLocation)) {
     sc = detStore()->retrieve(m_pixMgr, m_pixMgrLocation);
     if (sc.isFailure()) {
-        ATH_MSG_FATAL("Could not get PixelDetectorDescription");
-        return sc;
+      ATH_MSG_FATAL("Could not get PixelDetectorDescription");
+      return sc;
     }
   } else {
-    ATH_MSG_INFO("No Pixels? Could not get PixelDetectorDescription"); 
+    ATH_MSG_INFO("No Pixels? Could not get PixelDetectorDescription");
   }
         
   // check if SLHC geo is used (TRT not implemented) 
@@ -82,8 +72,8 @@ StatusCode InDet::InDetEventCnvTool::initialize()
     std::cout << "Could not get IdDictManager !" << std::endl;
     return StatusCode::FAILURE;
   } 
-  const IdDictDictionary* dict = m_idDictMgr->manager()->find_dictionary("InnerDetector"); 
-  if(!dict) {
+  const IdDictDictionary* dict = m_idDictMgr->manager()->find_dictionary("InnerDetector");
+  if (!dict) {
     std::cout << " Cannot access InnerDetector dictionary "<< std::endl;
     return StatusCode::FAILURE;
   }
@@ -94,22 +84,21 @@ StatusCode InDet::InDetEventCnvTool::initialize()
   // Find string SLHC in dictionary file name - if found is SLHC geo
   if (dict->file_name().find("SLHC")!=std::string::npos) isSLHC=true;
 
-  if(!isSLHC && detStore()->contains<InDetDD::TRT_DetectorManager>(m_trtMgrLocation)){
+  if (!isSLHC && detStore()->contains<InDetDD::TRT_DetectorManager>(m_trtMgrLocation)) {
     // Get TRT Detector Description Manager
     sc = detStore()->retrieve(m_trtMgr, m_trtMgrLocation);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not get TRT_DetectorDescription");
       return sc;
     }
-  }else {
-    ATH_MSG_INFO("No TRT? Could not get TRT_DetectorDescription"); 
+  } else {
+    ATH_MSG_INFO("No TRT? Could not get TRT_DetectorDescription");
   }
 
 
-//retrieving the various ID helpers
+  //retrieving the various ID helpers
   
-  if (detStore()->retrieve(m_IDHelper, "AtlasID").isFailure()) 
-  {
+  if (detStore()->retrieve(m_IDHelper, "AtlasID").isFailure()) {
     ATH_MSG_FATAL( "Could not get ATLAS ID helper");
     return StatusCode::FAILURE;
   }
@@ -127,75 +116,66 @@ StatusCode InDet::InDetEventCnvTool::initialize()
 }
 
 void 
-InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack )
-{
+InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) {
   InDetConcreteType type=Unknown;
   if (0!=dynamic_cast<const SCT_ClusterOnTrack*>(&rioOnTrack) )     type = SCT;
   if (0!=dynamic_cast<const PixelClusterOnTrack*>(&rioOnTrack) )    type = Pixel;
   if (0!=dynamic_cast<const TRT_DriftCircleOnTrack*>(&rioOnTrack) ) type = TRT;
   if (type==Unknown) {
     ATH_MSG_ERROR("Type does not match known concrete type of InDet! Dumping RoT:"<<rioOnTrack);
-  }else{
+  } else {
     ATH_MSG_VERBOSE("Type = "<<type);
   }
-      
- // const Identifier& id           = rioOnTrack.identify();
-
     
   return;
 }
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-    InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack    )
+InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack    )
 {
   using namespace Trk;
   const TrkDetElementBase* detEl = 0;
   const PrepRawData*       prd   = 0;
   const Identifier& id           = rioOnTrack.identify();
    
-  if (m_IDHelper->is_pixel(id) ) 
-  {
-    ATH_MSG_DEBUG ("Set Pixel detector element."); 
+  if (m_IDHelper->is_pixel(id) ) {
+    ATH_MSG_DEBUG ("Set Pixel detector element.");
     // use IdentifierHash for speed
     detEl = m_pixMgr->getDetectorElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = pixelClusterLink( id, rioOnTrack.idDE() );
-  }
-  else if (m_IDHelper->is_sct(id) ) 
-  {
-    ATH_MSG_DEBUG("Set SCT detector element" ); 
+  } else if (m_IDHelper->is_sct(id)) {
+    ATH_MSG_DEBUG("Set SCT detector element" );
     // use IdentifierHash for speed
     detEl = getSCTDetectorElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = sctClusterLink( id, rioOnTrack.idDE() );
-  }
-  else if (m_IDHelper->is_trt(id)) 
-  {
-    ATH_MSG_DEBUG("Set TRT detector element" ); 
+  } else if (m_IDHelper->is_trt(id)) {
+    ATH_MSG_DEBUG("Set TRT detector element" );
     // use IdentifierHash for speed
     detEl = m_trtMgr->getElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = trtDriftCircleLink( id, rioOnTrack.idDE() );
-  }else{    
+  } else {
     ATH_MSG_WARNING("Unknown type of ID detector from identifier :"
-        << id<<", in string form:" 
-        << m_IDHelper->show_to_string(id) 
-        ); 
+                    << id<<", in string form:"
+                    << m_IDHelper->show_to_string(id)
+                    );
   }
-  return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
+  return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd);
 }
 
 void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
     
   InDet::PixelClusterOnTrack* pixel = dynamic_cast<InDet::PixelClusterOnTrack*>(RoT);
-  if (pixel!=0){
+  if (pixel!=0) {
     prepareRIO_OnTrackElementLink<const InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(pixel);
     return;
   }
   InDet::SCT_ClusterOnTrack* sct = dynamic_cast<InDet::SCT_ClusterOnTrack*>(RoT);
-  if (sct!=0){
+  if (sct!=0) {
     prepareRIO_OnTrackElementLink<const InDet::SCT_ClusterContainer, InDet::SCT_ClusterOnTrack>(sct);
     return;
   }
   InDet::TRT_DriftCircleOnTrack* trt = dynamic_cast<InDet::TRT_DriftCircleOnTrack*>(RoT);
-  if (trt!=0){
+  if (trt!=0) {
     prepareRIO_OnTrackElementLink<const InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(trt);
     return;
   }
@@ -209,77 +189,63 @@ void InDet::InDetEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
 }
 
 const Trk::TrkDetElementBase* 
-InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& idHash)
-{
-    
-  const Trk::TrkDetElementBase* detEl=0;
-//    if (m_pixMgr->getIdg()->is_pixel(id) ) 
+InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& idHash) {
 
-  if (m_IDHelper->is_pixel(id) ) 
-  {
-  
-    ATH_MSG_DEBUG("Set Pixel detector element."); 
+  const Trk::TrkDetElementBase* detEl=0;
+
+  if (m_IDHelper->is_pixel(id)) {
+
+    ATH_MSG_DEBUG("Set Pixel detector element.");
     // use IdentifierHash for speed
     detEl = m_pixMgr->getDetectorElement( idHash ) ;
-  }
-  else if (m_IDHelper->is_sct(id) )
-  {
+  } else if (m_IDHelper->is_sct(id)) {
 
-    ATH_MSG_DEBUG("Set SCT detector element" ); 
+    ATH_MSG_DEBUG("Set SCT detector element" );
     // use IdentifierHash for speed
     detEl = getSCTDetectorElement( idHash ) ;
-  }
-  else if (m_IDHelper->is_trt(id) ) 
-  {
+  } else if (m_IDHelper->is_trt(id)) {
 
-    ATH_MSG_DEBUG("Set TRT detector element" ); 
+    ATH_MSG_DEBUG("Set TRT detector element" );
     // use IdentifierHash for speed
     detEl = m_trtMgr->getElement( idHash ) ;
-  }else{
+  } else {
     ATH_MSG_WARNING("Unknown type of ID detector from identifier :"
-        << id<<", in string form:" 
-        << m_IDHelper->show_to_string(id) 
-        ); 
+                    << id<<", in string form:"
+                    << m_IDHelper->show_to_string(id)
+                    );
   }
   return detEl;
 }
 
 const Trk::TrkDetElementBase* 
-InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id)
-{
+InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) {
  
   const Trk::TrkDetElementBase* detEl=0;
  
-  if (m_IDHelper->is_pixel(id) ) 
-  {
+  if (m_IDHelper->is_pixel(id) ) {
   
-    ATH_MSG_DEBUG("Set Pixel detector element."); 
+    ATH_MSG_DEBUG("Set Pixel detector element.");
     // use IdentifierHash for speed
     detEl = m_pixMgr->getDetectorElement( id ) ;
-  }
-  else if (m_IDHelper->is_sct(id) ) 
-  {
+  } else if (m_IDHelper->is_sct(id)) {
 
-    ATH_MSG_DEBUG("Set SCT detector element" ); 
+    ATH_MSG_DEBUG("Set SCT detector element" );
     const Identifier wafer_id = m_SCTHelper->wafer_id(id);
     const IdentifierHash wafer_hash = m_SCTHelper->wafer_hash(wafer_id);
     detEl = getSCTDetectorElement( wafer_hash ) ;
-  }
-  else if (m_IDHelper->is_trt(id) ) 
-  {
-    ATH_MSG_DEBUG("Set TRT detector element" ); 
+  } else if (m_IDHelper->is_trt(id)) {
+    ATH_MSG_DEBUG("Set TRT detector element");
     // use IdentifierHash for speed
     detEl = m_trtMgr->getElement( id ) ;
-  }else{
-    ATH_MSG_WARNING("Unknown type of ID detector from identifier :"<< id<<", in string form:" 
-        << m_IDHelper->show_to_string(id) ); 
+  } else {
+    ATH_MSG_WARNING("Unknown type of ID detector from identifier :"<< id<<", in string form:"
+                    << m_IDHelper->show_to_string(id) );
   }
   return detEl;
 }
 
 const Trk::PrepRawData* 
-    InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
-{
+InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash ) {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container
@@ -287,18 +253,16 @@ const Trk::PrepRawData*
   // obviously this can be optimised! EJWM
   SG::ReadHandle<PixelClusterContainer> h_pixClusCont (m_pixClusContName);
   if (!h_pixClusCont.isValid()) {
-      ATH_MSG_ERROR("Pixel Cluster container not found at "<<m_pixClusContName);
-      return 0;
-  }
-  else{
+    ATH_MSG_ERROR("Pixel Cluster container not found at "<<m_pixClusContName);
+    return 0;
+  } else {
     ATH_MSG_DEBUG("Pixel Cluster Container found" );
   }
   const PixelClusterContainer* pixClusCont = h_pixClusCont.cptr();
 
   PixelClusterContainer::const_iterator it = pixClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=pixClusCont->end()) 
-  {
+  if (it!=pixClusCont->end()) {
     //loop though collection to find matching PRD.
     PixelClusterCollection::const_iterator collIt = (*it)->begin();
     PixelClusterCollection::const_iterator collItEnd = (*it)->end();
@@ -312,32 +276,29 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
-{
+InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const IdentifierHash& idHash ) {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  SG::ReadHandle<SCT_ClusterContainer> h_sctClusCont (m_sctClusContName);
+  SG::ReadHandle<SCT_ClusterContainer> h_sctClusCont(m_sctClusContName);
   if (!h_sctClusCont.isValid()) {
-      ATH_MSG_ERROR("SCT Cluster container not found at "<<m_sctClusContName);
-      return 0;
-  }
-  else{
+    ATH_MSG_ERROR("SCT Cluster container not found at "<<m_sctClusContName);
+    return 0;
+  } else {
     ATH_MSG_DEBUG("SCT Cluster Container found" );
   }
   const SCT_ClusterContainer* sctClusCont = h_sctClusCont.cptr();
  
   SCT_ClusterContainer::const_iterator it = sctClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=sctClusCont->end()) 
-  {
+  if (it!=sctClusCont->end()) {
     //loop though collection to find matching PRD.
     SCT_ClusterCollection::const_iterator collIt = (*it)->begin();
     SCT_ClusterCollection::const_iterator collItEnd = (*it)->end();
     // there MUST be a faster way to do this!!
-    for ( ; collIt!=collItEnd; collIt++){
+    for ( ; collIt!=collItEnd; collIt++) {
       if ( (*collIt)->identify()==id ) return *collIt;
     }
   }
@@ -346,8 +307,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  )
-{
+InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash ) {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container
@@ -355,23 +315,21 @@ const Trk::PrepRawData*
   // obviously this can be optimised! EJWM
   SG::ReadHandle<TRT_DriftCircleContainer> h_trtDriftCircleCont (m_trtDriftCircleContName);
   if (!h_trtDriftCircleCont.isValid()) {
-      ATH_MSG_ERROR("TRT Drift Circles container not found at "<<m_trtDriftCircleContName);
-      return 0;
-  }
-  else{
+    ATH_MSG_ERROR("TRT Drift Circles container not found at "<<m_trtDriftCircleContName);
+    return 0;
+  } else {
     ATH_MSG_DEBUG("TRT Drift Circles Container found" );
   }
   const TRT_DriftCircleContainer* trtDriftCircleCont = h_trtDriftCircleCont.cptr();
   
   TRT_DriftCircleContainer::const_iterator it = trtDriftCircleCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=trtDriftCircleCont->end()) 
-  {
+  if (it!=trtDriftCircleCont->end()) {
     //loop though collection to find matching PRD.
     TRT_DriftCircleCollection::const_iterator collIt = (*it)->begin();
     TRT_DriftCircleCollection::const_iterator collItEnd = (*it)->end();
     // there MUST be a faster way to do this!!
-    for ( ; collIt!=collItEnd; collIt++){
+    for ( ; collIt!=collItEnd; collIt++) {
       if ( (*collIt)->identify()==id ) return *collIt;
     }
   }
@@ -380,21 +338,7 @@ const Trk::PrepRawData*
 }
 
 const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cacheSCTElements.size()) {
-    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheSCTElements[slot]!=evt) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey};
-    if (not sctDetEle.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_sctDetectorElements.set(*sctDetEle);
-    m_cacheSCTElements[slot] = evt;
-  }
-  return (m_sctDetectorElements.isValid() ? m_sctDetectorElements->getDetectorElement(waferHash) : nullptr);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey};
+  if (not sctDetEle.isValid()) return nullptr;
+  return sctDetEle->getDetectorElement(waferHash);
 }

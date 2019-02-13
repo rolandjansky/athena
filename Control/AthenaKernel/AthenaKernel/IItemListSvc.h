@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IItemListSvc.h 
@@ -33,6 +33,7 @@ class IItemListSvc
 { 
 
 public:
+  DeclareInterfaceID (IItemListSvc,1,0);
 
   virtual ~IItemListSvc();
 
@@ -41,30 +42,26 @@ public:
   // non-const
   //
   // add a stream-item pair to the service listing
-  virtual StatusCode addStreamItem(std::string stream, std::string itemname) = 0;
+  virtual StatusCode addStreamItem(const std::string& stream, const std::string& itemname) = 0;
   // remove Item 
-  virtual StatusCode removeStreamItem(std::string stream, std::string itemname) = 0;
+  virtual StatusCode removeStreamItem(const std::string& stream, const std::string& itemname) = 0;
   //
   // const
   //
   // check if a stream-item is registered
   //virtual bool containsItem(const std::string itemname) const = 0;
-  virtual bool containsItem(const std::string itemname, const std::string stream="ANY") const = 0;
+  virtual bool containsItem(const std::string& itemname, const std::string& stream="ANY") const = 0;
   // check how many streams contain an item
   //virtual long countItemInstances(const std::string itemname) const = 0;
   // get the streams for a given item
-  virtual std::vector<std::string> getStreamsForItem(const std::string itemname) const = 0;
+  virtual std::vector<std::string> getStreamsForItem(const std::string& itemname) const = 0;
   // get the items for a given stream
-  virtual std::vector<std::string> getItemsForStream(const std::string stream) const = 0;
+  virtual std::vector<std::string> getItemsForStream(const std::string& stream) const = 0;
 
   // get mutex for streaming itemlist to output
   virtual std::mutex& streamMutex();
 
 
-public:
-
-  static const InterfaceID& interfaceID();
-  
 private:
 
   std::mutex m_stream_mut;
@@ -74,14 +71,6 @@ private:
 /////////////////////////////////////////////////////////////////// 
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
-
-inline 
-const InterfaceID& 
-IItemListSvc::interfaceID() 
-{ 
-  static const InterfaceID IID_IItemListSvc("IItemListSvc", 1, 0);
-  return IID_IItemListSvc; 
-}
 
 inline
 std::mutex&

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaTool.h 
@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaPython/IPyComponent.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 // Python
@@ -26,8 +27,8 @@ typedef _object PyObject;
 namespace PyAthena {
 
 typedef ::AthAlgTool ToolBase_t;
-class Tool : virtual public ::IPyComponent,
-	             public   ToolBase_t
+class ATLAS_NOT_THREAD_SAFE Tool : virtual public ::IPyComponent,
+	                           public   ToolBase_t
 { 
 
   /////////////////////////////////////////////////////////////////// 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -57,7 +57,6 @@
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "CaloIdentifier/CaloID_Exception.h"
-#include "LArCabling/LArCablingService.h" 
 //#include "LArIdentifier/LArHardwareID.h" 
 
 //LVL1 Calo trigger includes
@@ -142,7 +141,6 @@ class TriggerTowerMaker : public AthAlgorithm,
     ToolHandle<IL1TriggerTowerTool> m_TTtool;
     ToolHandle<IL1CaloMappingTool> m_mappingTool; 
     ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-    LArCablingService* m_cablingSvc;
     PileUpMergeSvc* m_mergeSvc;
 
     // user-defined names for random number engines - keep streams distinct

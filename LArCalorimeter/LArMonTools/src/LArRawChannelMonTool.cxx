@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelMonTool.h"
@@ -102,7 +102,7 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   , m_lar_online_id_ptr ( 0 )
   , m_calo_description_mgr_ptr( 0 )
   , m_calo_id_mgr_ptr( 0 )
-  , m_cabel_service_tool ( "LArCablingService" )
+  , m_cabel_service_tool ( "LArCablingLegacyService" )
   , m_masking_tool ( "BadLArRawChannelMask" )
   , m_atlas_ready( false )
   , m_lar_online_id_str_helper_ptr ( 0 )

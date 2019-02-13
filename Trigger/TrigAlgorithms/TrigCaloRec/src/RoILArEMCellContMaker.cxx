@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -34,8 +34,7 @@
 
 RoILArEMCellContMaker::RoILArEMCellContMaker(const std::string & type, const std::string & name,
 	 const IInterface* parent): IAlgToolEFCalo(type, name, parent),
-				    m_data(NULL),
-				    m_cablingSvc(NULL)
+				    m_data(NULL)
 {
 
   declareProperty("DoLArCellsNoiseSuppression", m_do_LArCells_noise_suppression = 1);
@@ -57,9 +56,6 @@ StatusCode RoILArEMCellContMaker::initialize(){
   if (m_do_LArCells_noise_suppression!=0){
 
     if (m_noiseTool.retrieve().isFailure()) return StatusCode::FAILURE;
-
-    StatusCode sc=toolSvc()->retrieveTool("LArCablingService",m_cablingSvc);
-    if (sc!=StatusCode::SUCCESS) return sc;
 
   } else {
     m_noiseTool.disable();

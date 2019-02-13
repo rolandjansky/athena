@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -20,9 +20,8 @@
 #include "FileCatalog/IFileCatalog.h"
 
 #include "EventInfoMgt/ITagInfoMgr.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/TagInfo.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 
 #include "IOVDbParser.h"
@@ -433,7 +432,6 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
                                    const EventContext& /*ctx*/)
 {
@@ -469,15 +467,13 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     return::StatusCode::SUCCESS;
   }
   if (m_state==IOVDbSvc::EVENT_LOOP) {
-    // determine iovTime from event
-    const DataHandle<EventInfo> evt;
-    const DataHandle<EventInfo> evtEnd;
-    if (StatusCode::SUCCESS==m_h_sgSvc->retrieve(evt,evtEnd)) {
-      m_iovTime.setRunEvent(evt->event_ID()->run_number(),
-                            evt->event_ID()->lumi_block());
+    // determine iovTime from eventID in the event context
+    const EventIDBase* evid = EventIDFromStore( m_h_sgSvc );
+    if( evid ) {
+      m_iovTime.setRunEvent( evid->run_number(), evid->lumi_block()) ;
       // save both seconds and ns offset for timestamp
-      uint64_t nsTime=evt->event_ID()->time_stamp()*1000000000LL;
-      nsTime += evt->event_ID()->time_stamp_ns_offset();
+      uint64_t nsTime = evid->time_stamp() *1000000000LL;
+      nsTime += evid->time_stamp_ns_offset();
       m_iovTime.setTimestamp(nsTime);
       ATH_MSG_DEBUG( "updateAddress - using iovTime from EventInfo: " << m_iovTime);
     } else {

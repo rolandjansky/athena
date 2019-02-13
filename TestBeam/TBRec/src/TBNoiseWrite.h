@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBNOISEWRITE_H
@@ -18,7 +18,6 @@ class CaloCell_ID;
 class CaloDetDescrManager;
 class IToolSvc;
 class LArDigitContainer;
-class LArCablingService;
 
 class TBNoiseWrite: public AthAlgorithm {
  public:    
@@ -65,7 +64,6 @@ class TBNoiseWrite: public AthAlgorithm {
 
   //const CaloCell_ID* m_calo_id;
   //const CaloDetDescrManager* m_calo_dd_man; 
-  //LArCablingService* m_larCablingSvc;
 
   /** Text file containing xCryo and yTable */
   std::string m_txtFileWithXY;

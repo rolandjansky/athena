@@ -34,6 +34,8 @@ public:
 
   virtual Trk::ITrkEventCnvTool* getCnvTool(const Identifier& /*id*/) override
   { std::abort(); }
+  virtual const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& /*id*/) const override
+  { std::abort(); }
   virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack */*RoT*/ ) override
   { std::abort(); }
   virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* /*Rot*/) override

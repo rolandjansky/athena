@@ -12,7 +12,7 @@
  CREATED:  May 11, 2004
 
  PURPOSE:  Create a CaloCellContainer by calling a set of tools
- sharing interface CaloUtils/ICaloCellMakerTool.h
+ sharing interface CaloInterface/ICaloCellMakerTool.h
  FIXME : should see how Chronostat and MemStat report could still be obtained
  ********************************************************************/
 
@@ -31,7 +31,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CxxUtils/make_unique.h"
 
 using CLHEP::microsecond;
 using CLHEP::second;
@@ -41,7 +40,7 @@ using CLHEP::second;
 /////////////////////////////////////////////////////////////////////
 
 CaloCellMaker::CaloCellMaker(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator)
+    : AthReentrantAlgorithm(name, pSvcLocator)
   , m_chrono("ChronoStatSvc", name)
   , m_ownPolicy(static_cast<int>(SG::VIEW_ELEMENTS))
   , m_caloCellsOutputKey("")
@@ -100,26 +99,21 @@ StatusCode CaloCellMaker::initialize() {
 
 }
 
-StatusCode CaloCellMaker::execute() {
+StatusCode CaloCellMaker::execute (const EventContext& ctx) const {
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::WriteHandle<CaloCellContainer> caloCellsOutput(m_caloCellsOutputKey, ctx);
 
-  ATH_CHECK( caloCellsOutput.record(CxxUtils::make_unique<CaloCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
-
-  ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerTools.begin();
-  ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerTools.end();
+  ATH_CHECK( caloCellsOutput.record(std::make_unique<CaloCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
 
   // loop on tools
   // note that finalization and checks are also done with tools
-  //  ++m_evCounter;
-  for (; itrTool != endTool; ++itrTool) {
-    ATH_MSG_DEBUG( "Calling tool " << itrTool->name() );
+  for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerTools) {
+    ATH_MSG_DEBUG( "Calling tool " << tool.name() );
 
-    std::string chronoName = this->name() + "_" + itrTool->name();
+    std::string chronoName = this->name() + "_" + tool.name();
 
     m_chrono->chronoStart(chronoName);
-    StatusCode sc = (*itrTool)->process(caloCellsOutput.ptr(), ctx);
+    StatusCode sc = tool->process(caloCellsOutput.ptr(), ctx);
     m_chrono->chronoStop(chronoName);
 
     ATH_MSG_DEBUG( "Chrono stop : delta "
@@ -127,7 +121,7 @@ StatusCode CaloCellMaker::execute() {
         << " second " );
 
     if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Error executing tool " << itrTool->name() );
+      ATH_MSG_ERROR( "Error executing tool " << tool.name() );
     }
   }
 

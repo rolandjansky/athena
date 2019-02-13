@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
@@ -14,7 +14,7 @@
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -141,9 +141,9 @@ StatusCode CaloTriggerTowerService::initialize ()
   IToolSvc* toolSvc;
   status   = service( "ToolSvc",toolSvc  );
   if(status.isSuccess()) {
-    status = toolSvc->retrieveTool("LArCablingService",m_larcablingSvc);
+    status = toolSvc->retrieveTool("LArCablingLegacyService",m_larcablingSvc);
     if(status.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve LArCablingService"<< endmsg;
+      msg() << MSG::ERROR << "Could not retrieve LArCablingLegacyService"<< endmsg;
       return(StatusCode::FAILURE);
     }
   } else    {

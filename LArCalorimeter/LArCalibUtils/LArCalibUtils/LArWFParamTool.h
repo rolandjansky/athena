@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,14 +18,14 @@
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArCaliWave.h"
 #include "LArRawConditions/LArWaveHelper.h" 
+#include "LArCabling/LArOnOffIdMapping.h"
 
-#include "LArCabling/LArCablingService.h"
 
 static const InterfaceID IID_LArWFParamTool("LArWFParamTool", 1 , 0); 
 
-class LArCablingSvc;
 class LArOnlineID;
 class LArEM_ID;
+class LArOnOffIdMapping;
 
 class LArWFParamTool : public AthAlgTool
 {
@@ -60,6 +60,7 @@ public:
 			      const HWIdentifier chid, 
 			      const CaloGain::CaloGain gain,
 			      LArWFParams& wfParams,
+                              const LArOnOffIdMapping *cabling,
 			      LArCaliWave* omegaScan=NULL,
 			      LArCaliWave* resOscill0=NULL,
 			      LArCaliWave* resOscill1=NULL
@@ -92,7 +93,8 @@ private:
   };
 
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   const LArEM_ID* m_emId;
   const LArOnlineID* m_onlineHelper;
 
@@ -143,7 +145,7 @@ private:
   LArWave dstepRespDfstep (const LArWave& gCali, const double& fstep, const double& Tc) const ;
   double dstepCorrDfstep (const double t, const double& fstep, const double& Tc ) const ;
   LArWave dstepCorrDfstep(const LArWave& gCali, const double& fstep, const double& Tcal ) const ;
-  StatusCode RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, LArCaliWave* omegaScan=NULL) const;
+  StatusCode RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, LArCaliWave* omegaScan=NULL) const;
   StatusCode RTM_Taur(const LArWave& gCali, LArWFParams& wfParams, const WaveTiming_t& wt) const;
   double logChi2CosRespShaper (const double omega, const LArWave& gCali, const LArWFParams& wf, const waveRange_t& range) const;
   double logChi2InjRespRes (const double taur, const LArWave& gCali, const LArWFParams& wf, const waveRange_t& range ) const ;

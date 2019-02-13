@@ -28,12 +28,12 @@ namespace Muon {
     static const InterfaceID& interfaceID() { return IID_IMuonSegmentPairFittingTool; }
 
 
-    virtual void trackParameters( const Muon::MuonSegment& seg ,double &theta,double &curvature,int &imeth ) = 0;
-    virtual void extrapolateSegment( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
+    virtual void trackParameters( Muon::MuonSegment& seg ,double &theta,double &curvature,int &imeth ) = 0;
+    virtual void extrapolateSegment( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
 
-    virtual void fit2Segments( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
-    virtual void fit2SegmentsC( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
-    virtual void fit2SegmentsSL( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
+    virtual void fit2Segments( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
+    virtual void fit2SegmentsC( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
+    virtual void fit2SegmentsSL( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull ) = 0;
 
   };
 

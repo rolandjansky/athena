@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSegmentMaker.h"
@@ -49,8 +49,8 @@ CscSegmentMaker(const std::string& aname, ISvcLocator* pSvcLocator)
     m_dumped(0), m_dump(false), 
     m_2dseg_finder(""),
     m_4dseg_finder(""),
-    m_psegs(0),
-    m_psegs4d(0)
+    m_psegs(std::unique_ptr<MuonSegmentCombinationCollection>()),
+    m_psegs4d(std::unique_ptr<MuonSegmentCombinationCollection>())
 {
   declareProperty("dump_count", m_dumpcount =5);
   declareProperty("sg_inkey", m_sg_inkey = "");
@@ -131,23 +131,21 @@ StatusCode CscSegmentMaker::execute(){
     ATH_MSG_ERROR ( " Failed to build segments " );
   }
 
-  sc = evtStore()->record(m_psegs, m_sg_outkey);
+  sc = evtStore()->record(m_psegs.release(), m_sg_outkey);
   if (sc.isFailure()) {
     ATH_MSG_ERROR ( " Cannot record CSC segment collection " << m_sg_outkey );
   } else {
     if ( m_dump )
       ATH_MSG_DEBUG ( "    Created " << m_psegs->size() << " 2D segments and " );
   }
-  m_psegs =0;
   
-  sc = evtStore()->record(m_psegs4d, m_sg_4d_outkey);
+  sc = evtStore()->record(m_psegs4d.release(), m_sg_4d_outkey);
   if (sc.isFailure()) {
     ATH_MSG_ERROR ( " Cannot record CSC segment collection " << m_sg_4d_outkey );
   } else {
     if ( m_dump )
       ATH_MSG_DEBUG ( m_psegs4d->size() << " 4D segments."  );
   }
-  m_psegs4d =0;
   
   return StatusCode::SUCCESS;
 
@@ -177,14 +175,8 @@ StatusCode CscSegmentMaker::build_segments() {
     if (m_psegs) {
       if (m_psegs->size() > 1) {
         m_psegs4d = m_4dseg_finder->find(*m_psegs);
-      } else {
-        m_psegs4d = new MuonSegmentCombinationCollection;
       }
-    } else {
-      m_psegs4d = new MuonSegmentCombinationCollection;
-      m_psegs = new MuonSegmentCombinationCollection; // needs to make a memory allocation for moore..
     }
-
   }
   return StatusCode::SUCCESS;
 }

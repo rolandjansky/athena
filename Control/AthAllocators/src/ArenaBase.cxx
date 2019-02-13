@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -128,7 +128,7 @@ const std::string& ArenaBase::name() const
  *
  * This should be called with m_mutex held.
  */
-LockedAllocator ArenaBase::makeAllocator (size_t i)
+ArenaAllocatorBase* ArenaBase::makeAllocator (size_t i)
 {
   // We have to create a new Allocator.
   // Make sure there's room in the vector.
@@ -144,8 +144,7 @@ LockedAllocator ArenaBase::makeAllocator (size_t i)
   m_allocs[i].m_alloc = std::move (alloc);
   m_allocs[i].m_mutex = std::make_unique<std::mutex>();
 
-  return LockedAllocator (m_allocs[i].m_alloc.get(),
-                          *m_allocs[i].m_mutex);
+  return m_allocs[i].m_alloc.get();
 }
 
 

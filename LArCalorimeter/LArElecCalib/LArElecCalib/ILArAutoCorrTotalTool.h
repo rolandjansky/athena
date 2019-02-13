@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARAUTOCORRTOTALTOOL_H
@@ -27,18 +27,9 @@ class ILArAutoCorrTotalTool: virtual public IAlgTool {
 						  int gain,
 						  float Nminbias=-1) const = 0;
   
-  virtual const std::vector<double> autoCorrTotal(const Identifier& id, 
-						  int gain,
-						  float Nminbias=-1) const = 0;
-
   virtual const std::vector<double> samplRMS(const HWIdentifier& id,
                                              int gain,
                                              float Nminbias=-1) const = 0;
-
-  virtual const std::vector<double> samplRMS(const Identifier& id,
-                                             int gain,
-                                             float Nminbias=-1) const = 0;
-
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;  
 

@@ -14,7 +14,6 @@ class StoreGateSvc;
 class MsgStream;
 class CaloDetDescrManager;
 class CaloCell_ID;
-class LArCablingService;
 class LArOnlineID;
 
 class TBCellContainerFillerTool
@@ -34,7 +33,6 @@ class TBCellContainerFillerTool
     private:
         const CaloDetDescrManager *m_theCaloDDM;
         const CaloCell_ID * m_theCaloCCIDM;
-        ToolHandle<LArCablingService> m_cablingService;
         const LArOnlineID* m_onlineHelper;
         unsigned int m_hashMax;
 };

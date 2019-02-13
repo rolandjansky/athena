@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloMBAverageTool.h" 
@@ -7,7 +7,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 CaloMBAverageTool::CaloMBAverageTool (const std::string& type, 
 				  const std::string& name, 
@@ -16,7 +16,7 @@ CaloMBAverageTool::CaloMBAverageTool (const std::string& type,
     m_OFCTool("LArOFCTool"),
     m_calo_id(nullptr),
     m_Nminbias(-1),m_deltaBunch(1),m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBiasAverage("LArMinBiasAverage"),
-    m_cabling("LArCablingService"),
+    m_cabling("LArCablingLegacyService"),
     m_ncell(0)
 { 
   declareInterface<ICaloMBAverageTool>(this);

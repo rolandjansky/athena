@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -74,7 +74,7 @@ class LArParams2Ntuple : public LArCond2NtupleBase
   const LArEMEC_HVbetaComplete*       m_completeEMEC_HVbeta ;
   const LArCableLengthComplete*       m_completeCableLength ;
   const LArCableAttenuationComplete*  m_completeCableAttenuation ;
-  const LArCaliPulseParamsVsCalib*    m_calibCaliPulseParams ;
+  //const LArCaliPulseParamsVsCalib*    m_calibCaliPulseParams ;
   const LArOFCBinComplete*            m_completeOFCBin ;
 
 
@@ -113,7 +113,7 @@ class LArParams2Ntuple : public LArCond2NtupleBase
 //   { return m_detStore->retrieve(dynamic_cast<const ILArCableAttenuation*&>(data_object) ) ; } 
 
   inline StatusCode retrieveAbstractInterface(const LArCaliPulseParamsComplete*& data_object);
-  inline StatusCode retrieveAbstractInterface(const LArCaliPulseParamsVsCalib*& data_object);
+  //inline StatusCode retrieveAbstractInterface(const LArCaliPulseParamsVsCalib*& data_object);
   inline StatusCode retrieveAbstractInterface(const LArDetCellParamsComplete*& data_object);
   inline StatusCode retrieveAbstractInterface(const LArPhysCaliTdiffComplete*& data_object);
   inline StatusCode retrieveAbstractInterface(const LArTdriftComplete*& data_object);

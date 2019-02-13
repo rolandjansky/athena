@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTLARCONDITIONSTOOLS_H
@@ -17,6 +17,8 @@ class CaloCell_ID;
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 #include "LArRawUtils/LArRoI_Map.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class TestLArConditionsTools : public AthAlgorithm
 {
@@ -30,6 +32,8 @@ class TestLArConditionsTools : public AthAlgorithm
   StatusCode retrieveTools();  
 
 private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   StatusCode testCaloNoiseDDE();
   StatusCode testCaloCellNoise();

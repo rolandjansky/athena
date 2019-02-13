@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRegionSelector/LArRegionSelectorCheckOL.h"
@@ -15,7 +15,6 @@
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescrRegion.h"
 #include "CaloIdentifier/CaloLVL1_ID.h" 
-#include "LArCabling/LArCablingService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 #include "RegionSelector/IRegionLUT_Creator.h" 
@@ -32,7 +31,6 @@ LArRegionSelectorCheckOL::LArRegionSelectorCheckOL
   m_ttman(0),
   m_TT_ID(0),
   m_toolSvc(0),
-  m_cablingSvc(0),
   m_ttSvc(0)
 {
   declareProperty("TestTable", m_testTable);
@@ -55,9 +53,6 @@ StatusCode LArRegionSelectorCheckOL::initialize(){
   ATH_MSG_DEBUG ( "CaloLVL1_ID helper found" );
 
   ATH_CHECK( service( "ToolSvc",m_toolSvc  ) );
-
-  ATH_CHECK( m_toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
-  ATH_MSG_DEBUG ( "Successfully retrieved LArCablingSvc" );
 
   ATH_CHECK( m_toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
   ATH_MSG_DEBUG ( "Successfully retrieved CaloTriggerTowerSvc" );

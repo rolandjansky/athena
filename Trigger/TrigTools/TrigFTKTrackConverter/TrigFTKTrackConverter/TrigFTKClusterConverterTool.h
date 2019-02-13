@@ -18,12 +18,9 @@
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
 
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include <mutex>
 #include <vector>
 
 class StoreGateSvc;
@@ -95,13 +92,6 @@ private:
   PRD_MultiTruthCollection* m_ftkSctTruth;
   const AtlasDetectorID* m_idHelper;
   bool m_collectionsReady;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;
 
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 };

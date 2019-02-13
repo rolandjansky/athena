@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArRampBuilder.h"
@@ -26,7 +26,6 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
     m_peakOFTool("LArOFPeakRecoTool"),
     m_event_counter(0),
     m_recoType(OF),
-    m_larCablingSvc("LArCablingService"),
     m_onlineHelper(),
     m_emId(0),
     m_groupingType("ExtendedFeedThrough"),
@@ -83,11 +82,8 @@ StatusCode LArRampBuilder::initialize()
     return StatusCode::FAILURE;
   }
   
-  sc = m_larCablingSvc.retrieve(); 
-  if(sc.isFailure()){
-    ATH_MSG_FATAL( "Could not retrieve LArCablingService Tool" );
-    return sc;
-  }
+  ATH_CHECK( m_cablingKey.initialize() );
+
   if(m_doBadChannelMask) { 
     sc=m_badChannelMask.retrieve(); 
     if (sc.isFailure()) {
@@ -143,7 +139,7 @@ void LArRampBuilder::chooseRecoMode()  {
     ATH_MSG_DEBUG("LArParabolaPeakRecoTool retrieved with success!");
     
     if(m_correctBias){
-      // if using parabola, get the cabling service and offlineID helper to obtain the layer (needed for correction) 
+      // if using parabola, get offlineID helper to obtain the layer (needed for correction) 
       const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
       m_emId=caloIdMgr->getEM_ID();
       if (!m_emId) {
@@ -455,6 +451,13 @@ StatusCode LArRampBuilder::stop()
   else
     larRampComplete=NULL;
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
+
   int containerCounter=0;
   //Outermost loop goes over all gains (different containers).
   //for (CaloGain::CaloGain gain=CaloGain::LARHIGHGAIN;gain<CaloGain::LARNGAIN;gain++) {
@@ -547,7 +550,7 @@ StatusCode LArRampBuilder::stop()
 	    kMax=2;
             bool isgood=true;
             if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
-	    if (m_larCablingSvc->isOnlineConnected(chid) && isgood) {
+	    if (cabling->isOnlineConnected(chid) && isgood) {
 	      ATH_MSG_WARNING( "Not enough samples around the maximum! Use kMax=2 ("
 				<< m_onlineHelper->channel_name(chid) <<", DAC=" << dac_it->first 
 				<< ", Amp[2]=" << ramppoint.Samples[2] <<   " )" );
@@ -656,7 +659,7 @@ StatusCode LArRampBuilder::stop()
 	    IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
 	    
 	    // get layer for correction
-	    Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+	    Identifier id=cabling->cnvToIdentifier(chid);
 	    int layer=m_emId->sampling(id);
 	    //	    std::cout << "samples = " << ramppoint.Samples.size() << ", 0 = " << ramppoint.Samples[0] << ", 1 = " << ramppoint.Samples[1] << std::endl;
 	    peak=m_peakParabolaTool->peak(ramppoint.Samples,layer,m_thePedestal[chid_hash]);
@@ -708,10 +711,9 @@ StatusCode LArRampBuilder::stop()
 	sort(data.begin(),data.end()); //Sort vector of raw data (necessary to cut off nonlinar high ADC-values)
 	std::vector<float> rampCoeffs;
 	std::vector<int> vSat;
-	//bool isConnected = m_larCablingSvc->isOnlineConnected(chid);
-	StatusCode sc=rampfit(m_degree+1,data,rampCoeffs,vSat,chid);
+	StatusCode sc=rampfit(m_degree+1,data,rampCoeffs,vSat,chid,cabling);
 	if (sc!=StatusCode::SUCCESS){
-	  if (!m_larCablingSvc->isOnlineConnected(chid))
+	  if (!cabling->isOnlineConnected(chid))
 	      ATH_MSG_DEBUG("Failed to produce ramp for disconnected channel " << m_onlineHelper->channel_name(chid));
 	  else if (m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid,gain))
 	    ATH_MSG_INFO( "Failed to produce ramp for known bad channel " << m_onlineHelper->channel_name(chid));
@@ -802,12 +804,12 @@ StatusCode LArRampBuilder::stop()
  
 StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 				   std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
-                                   const HWIdentifier chid) {
+                                   const HWIdentifier chid, const LArOnOffIdMapping* cabling) {
   unsigned linRange=data.size();
   if (linRange<2) {
     bool isgood=true;
     if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false; 
-    if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) {
+    if (cabling->isOnlineConnected(chid) && isgood ) {
       ATH_MSG_ERROR( "Not enough datapoints (" << linRange << ") to fit a polynom!" );
       return StatusCode::FAILURE;
     }
@@ -860,7 +862,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   bool isgood=true;
   if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
   if (deg>linRange) {
-    if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) 
+    if (cabling->isOnlineConnected(chid) && isgood ) 
       ATH_MSG_ERROR( "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg );
     else
       ATH_MSG_DEBUG("Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg 

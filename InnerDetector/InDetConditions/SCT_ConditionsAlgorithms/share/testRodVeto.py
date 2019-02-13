@@ -92,6 +92,6 @@ import AthenaCommon.AtlasUnixGeneratorJob
 sct_RODVetoToolSetup.getTool().OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
-theApp.EvtMax = 1
+theApp.EvtMax = 20
 
 ServiceMgr.MessageSvc.infoLimit = 50000

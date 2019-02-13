@@ -10,7 +10,7 @@
 
 class IIOVRegistrationSvc;
 class ILArHVPathologyDbTool;
-class LArCablingService ;
+class LArCablingLegacyService ;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
@@ -51,7 +51,7 @@ class LArHVPathologyDbAlg : public AthAlgorithm
 
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
-  ToolHandle<LArCablingService> m_cablingService;
+  ToolHandle<LArCablingLegacyService> m_cablingService;
   const LArEM_ID*       m_larem_id;
   const LArHEC_ID*       m_larhec_id;
   const LArFCAL_ID*       m_larfcal_id;

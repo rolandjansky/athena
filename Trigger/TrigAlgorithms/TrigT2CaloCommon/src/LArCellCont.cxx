@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -82,7 +82,7 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
 // Needs to find each FEB and attach it to a collection
 //LArCablingService* larCablingSvc;
 //sc = toolSvc->retrieveTool("LArCablingService",larCablingSvc);
-sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
+sc = toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
 if (sc.isFailure()){
   std::cout << "LArCellCont\t\t DEBUG \t"
      << "Problems to retrieve LArCablingSvc" << std::endl;

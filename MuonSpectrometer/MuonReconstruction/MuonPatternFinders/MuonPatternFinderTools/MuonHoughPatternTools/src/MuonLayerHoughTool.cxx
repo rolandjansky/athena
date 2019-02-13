@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
@@ -254,11 +254,11 @@ namespace Muon {
   }
 
 
-  const MuonPatternCombinationCollection* MuonLayerHoughTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-                                                                    const std::vector<const CscPrepDataCollection*>& ,  
-                                                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-                                                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-                                                                    const MuonSegmentCombinationCollection* ) const {                                              
+  MuonPatternCombinationCollection* MuonLayerHoughTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+							      const std::vector<const CscPrepDataCollection*>& ,  
+							      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+							      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+							      const MuonSegmentCombinationCollection* ) const {                                              
 
     reset();
     ATH_MSG_DEBUG("MuonLayerHoughTool::find");
@@ -322,7 +322,6 @@ namespace Muon {
     return analyse();
   }
 
-  // Still used?
   MuonPatternCombinationCollection* MuonLayerHoughTool::analyse( const MdtPrepDataContainer*  mdtCont,
                                                                  const CscPrepDataContainer*  cscCont,
                                                                  const TgcPrepDataContainer*  tgcCont,

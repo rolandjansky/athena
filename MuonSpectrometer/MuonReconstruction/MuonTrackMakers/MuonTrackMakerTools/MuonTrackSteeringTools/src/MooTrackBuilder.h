@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKBUILDER_H
@@ -20,6 +20,7 @@
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkSegment/SegmentCollection.h"
 #include <vector>
 
 class MsgStream;
@@ -249,8 +250,8 @@ namespace Muon {
 
   private:
 
-    std::vector< const MuonSegment*> removeDuplicateWithReference( const std::vector< const MuonSegment*>& segments,
-                                                                   const std::vector< const MuonSegment*>& referenceSegments ) const;
+    void removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,
+				       std::vector<const MuonSegment*>& referenceSegments ) const;
 
 
 

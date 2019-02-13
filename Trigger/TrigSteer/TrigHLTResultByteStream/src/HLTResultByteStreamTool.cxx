@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,13 +10,10 @@
 #include <iostream>
 #include <stdlib.h>
 
-std::string HLT::HLTResultByteStreamTool::s_l2ResultName = "HLTResult_L2";
-std::string HLT::HLTResultByteStreamTool::s_efResultName = "HLTResult_EF";
-std::string HLT::HLTResultByteStreamTool::s_hltResultName = "HLTResult_HLT";
-std::string HLT::HLTResultByteStreamTool::s_dataScoutingResultName = "DataScouting_";
-
-eformat::SubDetector HLT::HLTResultByteStreamTool::s_idL2 = eformat::TDAQ_LVL2;
-eformat::SubDetector HLT::HLTResultByteStreamTool::s_idEF = eformat::TDAQ_EVENT_FILTER;  // same as TDAQ_HLT in eformat5
+const std::string HLT::HLTResultByteStreamTool::s_l2ResultName = "HLTResult_L2";
+const std::string HLT::HLTResultByteStreamTool::s_efResultName = "HLTResult_EF";
+const std::string HLT::HLTResultByteStreamTool::s_hltResultName = "HLTResult_HLT";
+const std::string HLT::HLTResultByteStreamTool::s_dataScoutingResultName = "DataScouting_";
 
 HLT::HLTResultByteStreamTool::HLTResultByteStreamTool( const std::string& type,
                                                        const std::string& name,
@@ -24,8 +21,8 @@ HLT::HLTResultByteStreamTool::HLTResultByteStreamTool( const std::string& type,
   :  AthAlgTool(type,name,parent)
 {
   declareInterface< HLT::HLTResultByteStreamTool  >( this );
-  m_feaL2.idMap().setDetId(s_idL2);
-  m_feaEF.idMap().setDetId(s_idEF);
+  m_feaL2.idMap().setDetId(eformat::TDAQ_LVL2);
+  m_feaEF.idMap().setDetId(eformat::TDAQ_EVENT_FILTER);
 }
 
 
@@ -35,9 +32,9 @@ HLT::HLTResultByteStreamTool::~HLTResultByteStreamTool()
 
 eformat::SubDetector HLT::HLTResultByteStreamTool::byteStreamLocation(std::string objName)
 {
-  if (objName == s_l2ResultName) return s_idL2;
-  if (objName == s_efResultName || objName == s_hltResultName) return s_idEF;
-  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return s_idEF;
+  if (objName == s_l2ResultName) return eformat::TDAQ_LVL2;
+  if (objName == s_efResultName || objName == s_hltResultName) return eformat::TDAQ_EVENT_FILTER;
+  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return eformat::TDAQ_EVENT_FILTER;
 
   return eformat::OTHER;
 }

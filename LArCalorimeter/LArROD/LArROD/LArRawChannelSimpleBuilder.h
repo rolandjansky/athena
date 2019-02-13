@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -17,12 +17,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArRawChannelContainer;
 
@@ -39,7 +40,7 @@ public:
 
 private:
   //Services & Tools 
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;
   const LArHEC_ID*  m_hecId;

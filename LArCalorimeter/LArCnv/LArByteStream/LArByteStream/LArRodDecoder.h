@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,7 +29,7 @@
 #include "LArROD/LArCellBuilderDriver.h"
 
 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -201,7 +201,7 @@ private:
   //  inline void writeFebInfo(LArRawChannelContainer& m_coll, LArFebEnergy& febene);
 
   
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  ToolHandle<LArCablingLegacyService> m_larCablingSvc;
   float	m_LArCellEthreshold ;
   bool m_larCell; // set to True if it is used for ConvertingLArCell 
   bool m_readtdc; // set to True if the tdc phase is read from the upper byte of the nsamples word.
@@ -433,7 +433,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
         CaloGain::CaloGain gain_in = (CaloGain::CaloGain) gain;
         HWIdentifier cId = m_onlineHelper->channel_Id(fId,fcNb);
         LArDigit dg(cId, gain_in, samples);
-	if ( m_larCellFromDigit ){
+	if ( m_larCellFromDigit){
         	m_larCellFromDigit->buildLArCell(&dg,energy,time,gain_in);
 	}
         collElem = coll[fcNb+nfeb];

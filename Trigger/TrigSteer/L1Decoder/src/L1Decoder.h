@@ -36,13 +36,13 @@ public:
 protected: // protected to support unit testing
   //  StatusCode flagPassingRoIs(TrigCompositeUtils::DecisionContainer* rois,
   //			     const xAOD::TrigCompositeUtils* chains) const;
-  virtual StatusCode readConfiguration(); 
-  
+  virtual StatusCode readConfiguration();
+
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
                             xAOD::TrigCompositeContainer* storage,
                             const std::string& type,
                             const EventContext& ctx) const;
-  
+
 private:
 
   ///@{ @name Properties
@@ -56,7 +56,10 @@ private:
       "Object with the time stamp when decoding started" };
 
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all jet chains produced by the unpacker"};
+    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
+
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
+    this, "FSDecisions", "FSDecisions", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
 
   Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};

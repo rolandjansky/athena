@@ -11,7 +11,8 @@ outStream = AthenaPoolOutputStream('StreamRDO', athenaCommonFlags.PoolRDOOutput(
 outStream.ItemList = []
 
 # Event info
-outStream.ItemList += ['xAOD::EventInfo#EventInfo']
+outStream.ItemList += [ 'xAOD::EventInfo#*', 'xAOD::EventAuxInfo#*' ]
+outStream.ItemList += [ 'xAOD::EventInfoContainer#*', 'xAOD::EventInfoAuxContainer#*' ]
 
 # Timings
 outStream.ItemList += ['RecoTimingObj#EVNTtoHITS_timings']

@@ -24,7 +24,7 @@
 //#include "GaudiKernel/IChronoStatSvc.h"
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Calo includes
@@ -34,16 +34,16 @@ class IChronoStatSvc;
 class ICaloCellMakerTool;
 class CaloCellContainer;
 
-class CaloCellMaker: public AthAlgorithm {
+class CaloCellMaker: public AthReentrantAlgorithm {
 
   public:
 
     CaloCellMaker(const std::string& name, ISvcLocator* pSvcLocator);
-    ~CaloCellMaker();
+    virtual ~CaloCellMaker();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
   private:
 

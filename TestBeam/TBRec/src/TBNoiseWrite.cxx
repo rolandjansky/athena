@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class TBNoiseWrite // Write ROOT Tree with noise in randomly triggered 
@@ -37,7 +37,6 @@ TBNoiseWrite::TBNoiseWrite(const std::string& name,
   m_tree(0),
   //m_calo_id(0),
   //m_calo_dd_man(0),
-  //m_larCablingSvc(0),
   m_txtFileWithXY("xcryo_ytable.txt")
 { 
   declareProperty("CellContainer",m_caloCellContainerName);

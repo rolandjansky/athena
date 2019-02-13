@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTools/LArMCSymTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CaloIdentifier/LArID.h"
 
@@ -11,7 +11,7 @@ LArMCSymTool::LArMCSymTool(const std::string& type,
                                const std::string& name, 
                                const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
-    m_cablingService("LArCablingService"),
+    m_cablingService("LArCablingLegacyService"),
     m_ncellem(0),
     m_ncellhec(0),
     m_ncellfcal(0),
@@ -44,7 +44,7 @@ StatusCode LArMCSymTool::initialize()  {
   m_listOnline.resize(larHashMax);
   ATH_MSG_DEBUG("total number of cells " << larHashMax);
 
- CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingService),
+ CHECK( detStore()->regFcn(&LArCablingLegacyService::iovCallBack,&(*m_cablingService),
                            &LArMCSymTool::iovCallBack,
                            this,true) );
 

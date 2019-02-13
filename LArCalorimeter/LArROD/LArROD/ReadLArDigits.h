@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -19,12 +19,14 @@
 #include "GaudiKernel/MsgStream.h"
 #include  "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include <fstream>
 
 class ReadLArDigits : public AthAlgorithm
@@ -40,8 +42,8 @@ class ReadLArDigits : public AthAlgorithm
   StatusCode finalize();
 
  private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   int m_count;
-  ToolHandle<LArCablingService> m_larCablingSvc;
   const LArEM_ID* m_emId;
   const LArOnlineID* m_onlineHelper;
   std::ofstream m_outfile;

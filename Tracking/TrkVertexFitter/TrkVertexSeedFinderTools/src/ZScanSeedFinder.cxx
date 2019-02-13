@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -28,8 +28,8 @@ namespace Trk
   ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
     
-    m_mode1dfinder("Trk::FsmwMode1dFinder"),
-    m_IPEstimator("Trk::TrackToVertexIPEstimator"),
+    m_mode1dfinder("Trk::FsmwMode1dFinder", this),
+    m_IPEstimator("Trk::TrackToVertexIPEstimator", this),
     m_disableAllWeights(false),
     m_constraintcutoff(9.),
     m_constrainttemp(1.),
@@ -271,5 +271,28 @@ namespace Trk
     return std::vector<Amg::Vector3D>(0);
 
   }
+
+
+  void ZScanSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
+    //implemented to satisfy inheritance
+  }
+
+  int ZScanSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /*a */ ,
+				       const std::vector<const Trk::TrackParameters*>&  /*b */) const{
+      //implemented to satisfy inheritance
+    return 0;
+  }
+
+  int ZScanSeedFinder::getModes1d(std::vector<float>& /* a */, std::vector<float> &  /*b */, 
+				  std::vector<float>& /* c */, std::vector<float>& /* d */) const{
+      //implemented to satisfy inheritance  
+    return 0;
+  }
+
+  void ZScanSeedFinder::getCorrelationDistance( double & /* cXY*/, double & /*cZ */ ){
+      //implemented to satisfy inheritance    
+  }
+
+
 
 }

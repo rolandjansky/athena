@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECUTILS_LARCELLFAKEPROBELECTRONICS_H
@@ -23,7 +23,7 @@
 #include "Identifier/HWIdentifier.h"
 
 class StoreGateSvc; 
-class LArCablingService;
+class LArCablingLegacyService;
 class LArOnlineID;
 
 class LArCellFakeProbElectronics :  public AthAlgTool, virtual public ICellWeightTool
@@ -49,8 +49,8 @@ class LArCellFakeProbElectronics :  public AthAlgTool, virtual public ICellWeigh
   /*! process jobOptions and add affected cells to list */
   StatusCode add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel, double weight);
 
-  /*! pointer to LArCablingService */
-  LArCablingService* m_cablingService;
+  /*! pointer to LArCablingLegacyService */
+  LArCablingLegacyService* m_cablingService;
 
   /*! pointer to LAr Online ID helper */
   const LArOnlineID* m_onlineHelper;  

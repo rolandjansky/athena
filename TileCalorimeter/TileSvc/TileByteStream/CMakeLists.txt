@@ -51,7 +51,7 @@ atlas_add_component( TileByteStream
    LINK_LIBRARIES TileByteStreamLib )
 
 
-set( extra_patterns "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|INFO opening|loading cache|start processing|done processing|WARNING ../MuRcvDigitsCnt|WARNING ../MuRcvRawChCnt|TileL2Builder initialization completed|Initializing TileMuRcvContByteStreamTool|filled inputFileSummary from file|Picked valid file" )
+set( extra_patterns "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|INFO opening|loading cache|start processing|done processing|WARNING ../MuRcvDigitsCnt|WARNING ../MuRcvRawChCnt|TileL2Builder initialization completed|Initializing TileMuRcvContByteStreamTool|filled inputFileSummary from file|Picked valid file|No SimFlags" )
 
 atlas_add_test( TileDigitsContByteStreamCnv_test
    SCRIPT test/TileDigitsContByteStreamCnv_test.sh

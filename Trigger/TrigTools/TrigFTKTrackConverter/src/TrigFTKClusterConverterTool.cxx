@@ -61,9 +61,7 @@ TrigFTKClusterConverterTool::TrigFTKClusterConverterTool(const std::string& t,
   m_doTruth(false),
   m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
   m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
-  m_mcTruthName("TruthEvent"),
-  m_mutex{},
-  m_cacheSCTElements{} {
+  m_mcTruthName("TruthEvent") {
 
   declareInterface< ITrigFTKClusterConverterTool >( this );
   declareProperty( "UsePixelCalibSvc",m_usePixelCalibSvc); 
@@ -456,22 +454,7 @@ StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* evtS
 }
 
 const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getSCTDetectorElement(const IdentifierHash hash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cacheSCTElements.size()) {
-    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheSCTElements[slot]!=evt) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_SCTDetectorElements.set(*condData);
-    m_cacheSCTElements[slot] = evt;
-  }
-  return (m_SCTDetectorElements.isValid() ? m_SCTDetectorElements->getDetectorElement(hash) : nullptr);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(hash);
 }

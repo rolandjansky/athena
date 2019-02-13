@@ -106,7 +106,7 @@ import time, calendar
 ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
 #time in seconds , now
 #ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
-theApp.EvtMax                   = 1
+theApp.EvtMax                   = 20
 
 ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = 3

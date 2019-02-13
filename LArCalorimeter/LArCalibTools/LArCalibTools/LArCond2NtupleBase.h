@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -11,7 +11,6 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
@@ -75,6 +74,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
 

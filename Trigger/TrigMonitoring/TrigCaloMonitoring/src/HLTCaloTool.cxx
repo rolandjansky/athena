@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloMonitoring/HLTCaloTool.h"
@@ -10,7 +10,7 @@
 
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloIdentifier/TileID.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -24,7 +24,7 @@
 HLTCaloTool::HLTCaloTool(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
  m_tcrAlgTools(this),
  m_onlineHelper(NULL),
- m_cablingSvc("LArCablingService"),
+ m_cablingSvc("LArCablingLegacyService"),
  m_tileID(NULL)
 {
 	declareProperty ("TCRTools", m_tcrAlgTools);
