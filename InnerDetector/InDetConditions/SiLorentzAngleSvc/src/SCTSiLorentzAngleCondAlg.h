@@ -34,7 +34,7 @@ namespace MagField {
 
 /**
  * @class SCTSiLorentzAngleCondAlg
- * This class prepares SiLorentAngleCondData using SiPropertiesTool
+ * This class prepares SiLorentAngleCondData using SCT_SiliconConditionsTool
  **/
 
 class SCTSiLorentzAngleCondAlg: public AthReentrantAlgorithm
