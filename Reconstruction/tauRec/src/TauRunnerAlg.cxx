@@ -233,6 +233,12 @@ StatusCode TauRunnerAlg::execute() {
 	else if ( (*itT)->name().find("Pi0ClusterScaler") != std::string::npos){
 	  sc = (*itT)->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
 	}
+	else if ( (*itT)->name().find("Pi0ScoreCalculator") != std::string::npos){
+	  sc = (*itT)->executePi0nPFO(*pTau, *neutralPFOContainer);
+	}
+	else if ( (*itT)->name().find("Pi0Selector") != std::string::npos){
+	  sc = (*itT)->executePi0nPFO(*pTau, *neutralPFOContainer);
+	}
 	else if ( (*itT)->name().find("PanTau") != std::string::npos){
 	  sc = (*itT)->executePanTau(*pTau, *pi0Container);
 	}
