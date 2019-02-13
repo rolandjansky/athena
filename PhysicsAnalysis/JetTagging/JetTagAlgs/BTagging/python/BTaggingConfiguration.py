@@ -495,13 +495,16 @@ class Configuration:
           # add the RNN tool
           from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
               FlavorTagDiscriminants__DL2Tool as DL2Tool)
+          from os.path import splitext, basename
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap:
-              rnn = DL2Tool(
-                  name='RNN_' + jetcol + self.GeneralToolSuffix(),
-                  nnFile=preTagDL2JetToTrainingMap[jetcol])
-              ToolSvc += rnn
-              options['preBtagToolModifiers'] += rnn
+              for nn_file in preTagDL2JetToTrainingMap[jetcol]:
+                  training_name = nn_file.replace('/','_')
+                  rnn = DL2Tool(
+                      name=training_name + self.GeneralToolSuffix(),
+                      nnFile=nn_file)
+                  ToolSvc += rnn
+                  options['preBtagToolModifiers'].append(rnn)
 
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
