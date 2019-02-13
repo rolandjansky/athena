@@ -73,15 +73,19 @@ namespace CP
     accA->setBool (*jet, true);
     accB->setBool (*jet, true);
     EXPECT_TRUE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)0);
     accA->setBool (*jet, true);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)1);
     accA->setBool (*jet, false);
     accB->setBool (*jet, true);
     EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)2);
     accA->setBool (*jet, false);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
   }
 }
 
