@@ -231,6 +231,7 @@ namespace egEnergyCorr {
 
     es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
     es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
+    es2017_R21_ofc0_v1,  // Release 21 model calibration extrapolated for OFC(mu=0), coveering 2015,2016,2017 and 2018 data
     
     UNDEFINED
 
@@ -478,6 +479,7 @@ namespace AtlasRoot {
     TH1*         m_zeeNom;
     TH1*         m_zeeNom_data2015;
     TH1*         m_zeeNom_data2016;
+    TH1*         m_zeeNom_data2018;
     TH1*         m_zeeFwdk;
     TH1*         m_zeeFwdb;
 
