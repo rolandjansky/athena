@@ -28,6 +28,7 @@ public:
   virtual StatusCode update( xAOD::TrigMissingET *met,
 			     TrigEFMissingEtHelper *metHelper ) const = 0;
 
+protected:
  /** definition of the meaning for the component flag bits
   **/
  static const unsigned short m_maskProcessing         = 0x0001 ; // bit  0 Component is being processed
