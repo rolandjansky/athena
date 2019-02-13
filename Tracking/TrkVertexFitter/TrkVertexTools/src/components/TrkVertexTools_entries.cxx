@@ -3,6 +3,7 @@
 #include "TrkVertexTools/DummyVertexSelectionTool.h" 
 #include "TrkVertexTools/TruthVertexSelectionTool.h"  
 #include "TrkVertexTools/VertexStoringTool.h"
+#include "TrkVertexTools/SecVertexMergingTool.h"
  
 using namespace Trk;
  
@@ -11,7 +12,7 @@ DECLARE_COMPONENT( VertexMergingTool )
 DECLARE_COMPONENT( DummyVertexSelectionTool )
 DECLARE_COMPONENT( TruthVertexSelectionTool )
 DECLARE_COMPONENT( VertexStoringTool )
-    
+DECLARE_COMPONENT( SecVertexMergingTool )
  
 
  

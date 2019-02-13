@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -26,8 +26,8 @@ namespace Trk
   // ImagingSeedFinder constructor
   ImagingSeedFinder::ImagingSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_vertexImageMaker("Trk::VertexImageMaker"),
-    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder" ),
+    m_vertexImageMaker("Trk::VertexImageMaker", this),
+    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder", this),
     m_cacheRunNumber(0), m_cacheEventNumber(0), m_currentSeedIdx(0)
   {   
 
@@ -216,6 +216,26 @@ namespace Trk
     return vertices;
 
   } // End ImagingSeedFinder find multiseed - based on vector of Trk::ParametersBase
+
+  void ImagingSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
+    //implemented to satisfy inheritance
+  }
+
+  int ImagingSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> */* a */ ,
+					 const std::vector<const Trk::TrackParameters*> & /* b */ ) const{
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  int ImagingSeedFinder::getModes1d(std::vector<float> & /* a */, std::vector<float> & /* b */, 
+				    std::vector<float> & /* c */, std::vector<float> & /* d */) const{
+   //implemented to satisfy inheritance
+    return 0;
+  }
+
+  void ImagingSeedFinder::getCorrelationDistance( double &/* cXY */, double &/* cZ */ ){
+    //implemented to satisfy inheritance
+  }
 
 
 } //End Trk namespace

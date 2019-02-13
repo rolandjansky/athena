@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_MODE3DTO1DFINDER_H
@@ -40,18 +40,28 @@ namespace Trk
       
       //destructor
       virtual ~Mode3dTo1dFinder();
-      
-      
+            
       //obtain the 3d-mode (position) from a list of positions (distribution in space)
       virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const;
 
       //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
       virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const;
-      
+     
+
+      //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
+      virtual void setPriVtxPosition( double, double );
+      virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
+				   std::vector<float> &, std::vector<float> &);
+
+      virtual const std::vector<int> & AcceptedCrossingPointsIndices() const;
+      virtual void getCorrelationDistance( double &cXY, double &cZ );
       
   private:
       
       ToolHandle< IMode1dFinder > m_mode1dfinder;
+
+      //this variable is needed for the above dummy functions
+      mutable std::vector<int>  m_acceptedCrossingPoint;
   };
 }
 #endif

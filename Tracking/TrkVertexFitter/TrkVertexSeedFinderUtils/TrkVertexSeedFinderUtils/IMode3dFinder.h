@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,14 +36,21 @@ namespace Trk
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IMODE3DFINDER; };
        
+       virtual void setPriVtxPosition( double, double ) = 0 ;
+
        //obtain the 3d-mode (position) from a list of positions (distribution in space)
        virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const =0;
 
        //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
        virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const=0;       
 
+       virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
+				    std::vector<float> &, std::vector<float> &) = 0 ;
+       virtual const std::vector<int> & AcceptedCrossingPointsIndices() const = 0 ;
+       virtual void getCorrelationDistance( double &cXY, double &cZ ) = 0 ;
+
+
   };
 }
 
 #endif
-
