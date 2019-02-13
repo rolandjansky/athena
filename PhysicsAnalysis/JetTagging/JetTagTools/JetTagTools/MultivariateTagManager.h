@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOL_MULTIVARIATETAGMANAGER_C
@@ -39,7 +39,7 @@ namespace Analysis {
     void setOrigin(const xAOD::Vertex* priVtx);
     void finalizeHistos() {};
 
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);
+    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag);
 
 
   private:

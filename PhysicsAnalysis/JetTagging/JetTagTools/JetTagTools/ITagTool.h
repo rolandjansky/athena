@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -48,7 +48,7 @@ namespace Analysis
        TrackParticles via navigation. But maybe this is not a very good idea since then
        a JetTag allways have to be created even if the tagging does not work. Think ...
        */
-      virtual StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging *) = 0;
+      virtual StatusCode tagJet(const xAOD::Jet *, xAOD::BTagging *) = 0;
       
       /** finalize the histos: Normalize other histos and fill the integratedNegativeIP histos.
        This cannot be done in the finalize() of this algtool because the histo service
