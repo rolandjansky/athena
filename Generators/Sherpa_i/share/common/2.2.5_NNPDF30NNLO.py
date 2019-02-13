@@ -1,5 +1,5 @@
 ## Sherpa config with NNPDF3.0 NNLO PDF
-include("Sherpa_i/Common_2.2.5_Base_Fragment.py")
+include("Sherpa_i/2.2.5_Base_Fragment.py")
 
 evgenConfig.tune = "NNPDF3.0 NNLO"
 
