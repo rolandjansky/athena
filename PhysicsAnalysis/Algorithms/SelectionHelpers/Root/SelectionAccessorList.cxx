@@ -53,8 +53,8 @@ namespace CP
 
 
   void SelectionAccessorList ::
-  setBits (SG::AuxElement& element,
-           SelectionType selection) const
+  setBits (SG::AuxElement& /*element*/,
+           SelectionType /*selection*/) const
   {
     // technically we could support setting by setting all the
     // components, but I can't think of a situation in which that
