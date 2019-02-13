@@ -811,7 +811,6 @@ template <typename T>
 StatusCode psc::Psc::callOnEventLoopMgr(std::function<StatusCode (T*)> func,
                                         const std::string& name) const
 {
-  // FIXME static variables are dangerous when forking
   T* processingMgr{nullptr};
   StatusCode sc = m_svcLoc->service(m_nameEventLoopMgr, processingMgr);
   if(!sc.isSuccess()) {
