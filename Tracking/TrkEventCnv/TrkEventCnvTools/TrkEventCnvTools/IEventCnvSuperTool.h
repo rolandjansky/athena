@@ -29,17 +29,16 @@ namespace Trk
 
     static const InterfaceID& interfaceID();
 
-    virtual Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id)=0;
     virtual const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id) const =0;
 
     /** From passed Identifier*/
-    virtual const Trk::Surface* getSurface(const Identifier& id)=0;
+    virtual const Trk::Surface* getSurface(const Identifier& id) const =0;
 
     /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
-    virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT )=0;
+    virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT ) const =0;
 
    /** Take the passed RoT and prepare the PRD ElementLink for writing to disc*/
-    virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) = 0;
+    virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) const = 0;
 
     /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
     template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,

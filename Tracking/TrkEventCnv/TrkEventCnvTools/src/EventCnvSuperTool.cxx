@@ -93,8 +93,8 @@ Trk::EventCnvSuperTool::finalize(){
     return StatusCode::SUCCESS;
 }
 
-Trk::ITrkEventCnvTool*    
-Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
+const Trk::ITrkEventCnvTool*    
+Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
     if (m_detID==0) return 0;
 
     if(m_detID->is_indet(id))
@@ -135,23 +135,10 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
     
 }
 
-const Trk::ITrkEventCnvTool*
-Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
-  if (m_detID==nullptr) return nullptr;
-
-  if (m_detID->is_indet(id)) {
-    if (m_haveIdCnvTool) return &(*m_idCnvTool);
-  } else if(m_detID->is_muon(id)) {
-    if (m_haveMuonCnvTool) return &(*m_muonCnvTool);
-  }
-
-  return nullptr;
-}
-
 const Trk::Surface* 
-Trk::EventCnvSuperTool::getSurface(const Identifier& id){
+Trk::EventCnvSuperTool::getSurface(const Identifier& id) const {
     const Surface* surface = 0;
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(id);
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(id);
     if (cnvTool!=0) {
         const TrkDetElementBase* detEl = cnvTool->getDetectorElement( id );
         if (detEl!=0)
@@ -165,10 +152,10 @@ Trk::EventCnvSuperTool::getSurface(const Identifier& id){
 }
 
 void
-Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )
+Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
     using namespace std;
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
     if (cnvTool!=0) {
         cnvTool->recreateRIO_OnTrack( RoT );
     } else {
@@ -180,9 +167,9 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )
 }
 
 void
-Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT )
+Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
     if (cnvTool!=0) {
         cnvTool->prepareRIO_OnTrack( RoT );
     } else {
