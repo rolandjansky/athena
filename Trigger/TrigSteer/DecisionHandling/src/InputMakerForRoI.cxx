@@ -54,7 +54,8 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
       continue;
     }
     if( outputHandle->size() == 0){ // input filtered out
-      ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
+      ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
+      //      continue;
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );

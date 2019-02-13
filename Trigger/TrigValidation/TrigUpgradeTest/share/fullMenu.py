@@ -15,13 +15,13 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
-doElectron = True
-doPhoton = True
-doMuon   = True
+doElectron = False
+doPhoton = False
+doMuon   = False
 doJet    = True
-doMET    = False
+doMET    = True
 doBJet   = False
-doCombo  = True
+doCombo  = False
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
