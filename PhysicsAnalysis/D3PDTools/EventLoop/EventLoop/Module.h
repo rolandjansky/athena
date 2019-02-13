@@ -92,10 +92,28 @@ namespace EL
       virtual ::StatusCode onCloseInputFile (ModuleData& data);
 
 
+      /// \brief actions after `CloseInputFile` is called on the
+      /// algorithms
+      ///
+      /// Right now that is only used to disconnect the `TEvent`
+      /// object from the input file.
+    public:
+      virtual ::StatusCode postCloseInputFile (ModuleData& data);
+
+
       /// \brief actions just before `fileExecute` is called on
       /// algorithms
     public:
       virtual ::StatusCode onFileExecute (ModuleData& data);
+
+
+      /// \brief actions just before `execute` is called on
+      /// algorithms
+      ///
+      /// For now that is mostly used to point input modules to the
+      /// right event
+    public:
+      virtual ::StatusCode onExecute (ModuleData& data);
 
 
       /// \brief actions just before algorithms are finalized

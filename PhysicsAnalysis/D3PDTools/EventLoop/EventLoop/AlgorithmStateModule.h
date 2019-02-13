@@ -33,7 +33,7 @@ namespace EL
     /// class itself, but I decided it is better to factor it out into
     /// a separate module.
 
-    struct AlgorithmStateModule final : public Module
+    class AlgorithmStateModule final : public Module
     {
       //
       // public interface

@@ -379,10 +379,6 @@ namespace EL
     // private interface
     //
 
-  private:
-    Long64_t m_inputTreeEntry {0};
-
-
     /// description: the list of output files
   private:
     std::map<std::string,Detail::OutputStreamData> m_outputs; //!
