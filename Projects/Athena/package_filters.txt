@@ -11,7 +11,7 @@
 # Remove most HLT packages
 # We currently build the HLT as part of Athena. Uncomment the following three lines to revert:
 #+ HLT/Trigger/TrigTransforms/TrigTransform
-#- HLT/.*
+- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 
 # Offload service has build problems
