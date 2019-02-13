@@ -468,15 +468,16 @@ const JetContainer* JetRecTool::build() const {
       ++naction;
     } else {
       pjets = new JetContainer;
-#ifndef GENERATIONBASE
+
       if ( m_trigger ) {
-        ATH_MSG_DEBUG("Attaching online Aux container.");
+#ifndef GENERATIONBASE
+        ATH_MSG_DEBUG("Attaching online JetTrigAux container.");
         pjets->setStore(new xAOD::JetTrigAuxContainer);
+#endif //GENERATIONBASE
       } else {
         ATH_MSG_DEBUG("Attaching offline Aux container.");
         pjets->setStore(new xAOD::JetAuxContainer);
       }
-#endif //GENERATIONBASE
     }
     
     // Find jets.
