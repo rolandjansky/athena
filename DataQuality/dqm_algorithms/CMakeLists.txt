@@ -8,7 +8,7 @@ atlas_subdir( dqm_algorithms )
 # External dependencies:
 find_package( Boost COMPONENTS program_options filesystem thread system )
 find_package( ROOT COMPONENTS MathCore Hist Core Tree RIO pthread )
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS dqm_core_io dqm_core dqm_dummy_io dqm_dummy )
 
 # Component(s) in the package:
 atlas_add_library( dqm_algorithms

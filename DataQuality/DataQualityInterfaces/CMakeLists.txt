@@ -8,7 +8,7 @@ atlas_subdir( DataQualityInterfaces )
 # External dependencies:
 find_package( Boost COMPONENTS system regex thread filesystem )
 find_package( ROOT COMPONENTS Cint Hist RIO Tree Core MathCore pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS dqm_core_io dqm_core dqm_dummy_io dqm_dummy )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( DataQualityInterfaces
