@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
@@ -143,6 +143,11 @@ namespace CP {
      bool m_useMVALowPt;
      
      std::string m_eventInfoContName;
+
+     std::string m_MVAreaderFile_EVEN_MuidCB;
+     std::string m_MVAreaderFile_ODD_MuidCB;
+     std::string m_MVAreaderFile_EVEN_MuGirl;
+     std::string m_MVAreaderFile_ODD_MuGirl;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonSelectionTool.cxx 299883 2014-03-28 17:34:16Z krasznaa $
@@ -31,6 +31,16 @@ namespace CP {
 
     //for users of low-pT working point to choose whether to use MVA
     declareProperty( "UseMVALowPt", m_useMVALowPt = false );
+
+    //MVA configs for low-pT working point
+    declareProperty( "MVAreaderFile_EVEN_MuidCB", m_MVAreaderFile_EVEN_MuidCB = 
+		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml");
+    declareProperty( "MVAreaderFile_ODD_MuidCB", m_MVAreaderFile_ODD_MuidCB =
+		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml");
+    declareProperty( "MVAreaderFile_EVEN_MuGirl", m_MVAreaderFile_EVEN_MuGirl =
+		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml");
+    declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
+		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
 
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
@@ -212,10 +222,10 @@ namespace CP {
 
     //Set up TMVA readers for MVA-based low-pT working point
     //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
-    TString weightPath_EVEN_MuidCB = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml");
-    TString weightPath_ODD_MuidCB = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml");
-    TString weightPath_EVEN_MuGirl = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml");
-    TString weightPath_ODD_MuGirl = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
+    TString weightPath_EVEN_MuidCB = PathResolverFindCalibFile(m_MVAreaderFile_EVEN_MuidCB);
+    TString weightPath_ODD_MuidCB = PathResolverFindCalibFile(m_MVAreaderFile_ODD_MuidCB);
+    TString weightPath_EVEN_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_EVEN_MuGirl);
+    TString weightPath_ODD_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_ODD_MuGirl);
 
     readerE_MUID = new TMVA::Reader();
     PrepareReader( readerE_MUID );
@@ -762,29 +772,28 @@ namespace CP {
       return false;
     }
 
+    
+    //use different trainings for even/odd numbered events
+    TMVA::Reader *reader_MUID, *reader_MUGIRL;
+    if( info->eventNumber() % 2 == 1) {
+      reader_MUID = readerE_MUID;
+      reader_MUGIRL = readerE_MUGIRL;
+    } 
+    else {
+      reader_MUID = readerO_MUID;
+      reader_MUGIRL = readerO_MUGIRL;
+    }
+
     // get the BDT discriminant response
     float BDTdiscriminant;
-    if( info->eventNumber() % 2 == 1) {
-
-      if( mu.author() == 1 )
-	BDTdiscriminant = readerE_MUID->EvaluateMVA( "BDTG" );
-      else if( mu.author() == 6 || mu.author() == 4 )
-	BDTdiscriminant = readerE_MUGIRL->EvaluateMVA( "BDTG" );
-      else {
-	ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
-	return false;
-      }
-    }
+    
+    if( mu.author() == 1 )
+      BDTdiscriminant = reader_MUID->EvaluateMVA( "BDTG" );
+    else if( mu.author() == 6 || mu.author() == 4 )
+      BDTdiscriminant = reader_MUGIRL->EvaluateMVA( "BDTG" );
     else {
-
-      if( mu.author() == 1 )
-	BDTdiscriminant = readerO_MUID->EvaluateMVA( "BDTG" );
-      else if( mu.author() == 6 || mu.author() == 4 )
-	BDTdiscriminant = readerO_MUGIRL->EvaluateMVA( "BDTG" );
-      else {
-	ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
-	return false;
-      }
+      ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
+      return false;
     }
 
     //cut on dicriminant at -0.6
@@ -992,6 +1001,8 @@ namespace CP {
     // :: 
     double start_cut = 2.5;
     double fabs_eta = fabs(mu.eta());
+
+    //parametrization of expected q/p error as function of pT
     double p0(8.0), p1(0.034), p2(0.00011);
     if( fabs_eta>1.05 && fabs_eta<1.3 ) {
       p1=0.036;
