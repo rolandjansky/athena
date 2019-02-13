@@ -66,8 +66,8 @@ namespace ana
 
     // Initialize Fudge Tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_fudgeMCTool, ElectronPhotonShowerShapeFudgeTool));
-    ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 21)); // 21 == MC15
-    ATH_CHECK (m_fudgeMCTool.setProperty("FFCalibFile", "ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root")); //only for rel21 
+    ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 22)); 
+    ATH_CHECK (m_fudgeMCTool.setProperty("FFCalibFile", "ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root")); //only for rel21 
     ATH_CHECK (m_fudgeMCTool.initialize());
 
     // Initialize isolation correction tool
@@ -101,7 +101,7 @@ namespace ana
     if (m_isAF2 || m_isData){
       cut_fudge_tool.setPassedIf(true);
     } else {
-      QA_CHECK_CUT (cut_fudge_tool, m_fudgeMCTool->applyCorrection(photon));
+      //QA_CHECK_CUT (cut_fudge_tool, m_fudgeMCTool->applyCorrection(photon));
     }
 
     // Correct the isolation
@@ -170,7 +170,10 @@ namespace ana
                             (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous) );
 
     // Photon cleaning from the same TWiki
-    cut_cleaning.setPassedIf( PhotonHelpers::passOQquality( &photon ) );
+    bool passCleaning = photon.isAvailable<char>("DFCommonPhotonsCleaning") ?
+                    static_cast<bool>(photon.auxdata<char>("DFCommonPhotonsCleaning")) :
+                    PhotonHelpers::passOQquality( &photon );
+    cut_cleaning.setPassedIf( passCleaning);
 
     // Using MC15/R20 selections
     // Explicit check that the photon is not in the crack
