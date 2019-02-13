@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTCNVTOOL_H
@@ -39,29 +39,29 @@ namespace Muon {
         virtual StatusCode initialize();
 
         /** check that the RoT is correctly filled*/
-        virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack );
+        virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const;
 
         virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-            getLinks( const Trk::RIO_OnTrack& rioOnTrack    );
+            getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const;
         
         /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/    
-        virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot);
+        virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const;
         
         /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
-        virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT );
+        virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const;
         
         /** Return the detectorElement associated with this Identifier*/
-        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
+        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const;
         
         /** Return the detectorElement associated with this Identifier*/
-        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
+        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const;
         
-        const Trk::PrepRawData* rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        const Trk::PrepRawData* cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        const Trk::PrepRawData* tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        const Trk::PrepRawData* mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  );
-        const Trk::PrepRawData* mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        const Trk::PrepRawData* stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
+        const Trk::PrepRawData* cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
+        const Trk::PrepRawData* tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
+        const Trk::PrepRawData* mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
+        const Trk::PrepRawData* mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
+        const Trk::PrepRawData* stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
 
     private:
 
