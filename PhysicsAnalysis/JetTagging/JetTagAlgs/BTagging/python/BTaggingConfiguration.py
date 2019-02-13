@@ -391,7 +391,7 @@ class Configuration:
       if JetCollection in self._BTaggingConfig_JetBTaggerTools:
           self.setupJetBTaggerTools(JetCollections=JetCollection)
 
-  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True, TrackAssociatorName="MatchedTracks"):
+  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True, TrackAssociatorName="MatchedTracks", preTagDL2JetToTrainingMap={}):
       """Convenience function which takes only a single jet collection and returns an instance instead
       of a list; see setupJetBTaggerTools for more info. This function is mainly here for easy calling for BTagging from JetRec.
 
@@ -403,10 +403,10 @@ class Configuration:
           elif Verbose:
               print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
           JetCollection = JetCollection[:-4]
-      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName)
+      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName, preTagDL2JetToTrainingMap)
       return btagger[0]
 
-  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks"):
+  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks", preTagDL2JetToTrainingMap={}):
       """Sets up JetBTaggerTool tools and adds them to the topSequence (one per jet collection). This function just updates
       the tool if such a tool already exists for the specified jet collections. This function should only be used for
       jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
@@ -495,11 +495,13 @@ class Configuration:
           # add the RNN tool
           from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
               FlavorTagDiscriminants__DL2Tool as DL2Tool)
-          rnn = DL2Tool(
-              name='RNN_' + jetcol + self.GeneralToolSuffix(),
-              nnFile='neuralNetwork.json')
-          ToolSvc += rnn
-          options.setdefault("preBtagToolModifiers", [rnn])
+          options.setdefault("preBtagToolModifiers", [])
+          if jetcol in preTagDL2JetToTrainingMap:
+              rnn = DL2Tool(
+                  name='RNN_' + jetcol + self.GeneralToolSuffix(),
+                  nnFile=preTagDL2JetToTrainingMap[jetcol])
+              ToolSvc += rnn
+              options['preBtagToolModifiers'] += rnn
 
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
@@ -515,17 +517,6 @@ class Configuration:
           # Setup the associator tool
           # -- add tool to topSequence
           if not topSequence is None:
-
-              # add the track augmenters before we add the main b-tagging tool
-              from BTagging.BTaggingConf import BTagTrackAugmenterAlg
-              suffix = jetcol + self.GeneralToolSuffix()
-              ipetool = Trk__TrackToVertexIPEstimator(
-                  name = "IPETool_" + suffix)
-              ToolSvc += ipetool
-              topSequence += BTagTrackAugmenterAlg(
-                  name = 'TrackAugmenter_' + suffix,
-                  prefix = 'btag_',
-                  TrackToVertexIPEstimator = ipetool)
 
               # now add the btagger tool
               topSequence += jetbtaggertool

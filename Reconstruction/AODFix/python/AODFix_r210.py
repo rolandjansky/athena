@@ -133,6 +133,17 @@ class AODFix_r210(AODFix_base):
         BTagConf.doNotCheckForTaggerObstacles()
         from BTagging.BTaggingConf import Analysis__StandAloneJetBTaggerAlg as StandAloneJetBTaggerAlg
 
+        # add the track augmenters before we add the main b-tagging tool
+        from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
+            Trk__TrackToVertexIPEstimator as IPEstimator)
+        from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
+        ipetool = IPEstimator(name="AODFixBTagIPETool")
+        ToolSvc += ipetool
+        topSequence += Analysis__BTagTrackAugmenterAlg(
+            name='AODFixBTagTrackAugmenter',
+            prefix='btag_',
+            TrackToVertexIPEstimator = ipetool)
+
         btag = "BTagging_"
         AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
         for i, jet in enumerate(JetCollectionList):
