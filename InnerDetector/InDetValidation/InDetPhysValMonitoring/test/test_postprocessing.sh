@@ -51,7 +51,7 @@ dcube() {
 
 # Running IDPVM on first ESD file
 ( set -x
-  inputESDFile="$individual_ESD_1" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
+  inputESDFile="$individual_ESD_1" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
 )
 echo "art-result: $? physval"
 
@@ -59,7 +59,7 @@ mv ./physval.root ./physval_1.root
 
 # Running IDPVM on second ESD file
 ( set -x
-  inputESDFile="$individual_ESD_2" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
+  inputESDFile="$individual_ESD_2" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
 )
 echo "art-result: $? physval"
 
@@ -80,7 +80,7 @@ echo "art-result: $? physval"
 mv ./physval.root ./$dcuberef_postprocessing
   
 # DCube InDetPhysValMonitoring performance plots
-dcube InDetPhysValMonitoring "" "$dcubemon_postprocessing" "$dcubecfg_postprocessing" "$dcuberef_postprocessing" "$dcubeoutput_postprocessing"
+# dcube InDetPhysValMonitoring "" "$dcubemon_postprocessing" "$dcubecfg_postprocessing" "$dcuberef_postprocessing" "$dcubeoutput_postprocessing"
 
 # Generate test report with custom python script
 python $artdata/InDetSLHC_Example/scripts/compareIDPVoutputs_ratio.py ./$dcuberef_postprocessing ./$dcubemon_postprocessing
