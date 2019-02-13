@@ -59,7 +59,7 @@ endfunction( _add_gtest )
 set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
 
 set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx
-   test/gt_LeakChecks.cxx)
+   test/gt_LeakChecks.cxx test/gt_UnitTestAlgXAOD.cxx)
 
 
 file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )
