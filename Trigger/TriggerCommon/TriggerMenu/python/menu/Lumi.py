@@ -20,7 +20,9 @@ def lumi(triggerPythonConfig):
     elif menu_name == 'MC_tight_default': menu_name = 'MC_pp_v7_tight_mc_prescale'
     elif menu_name == 'default_loose': menu_name = 'MC_pp_v7_loose_mc_prescale'
     elif menu_name == 'default_tight': menu_name = 'MC_pp_v7_tight_mc_prescale'
-
+    elif menu_name == 'MC_no_prescale_default': menu_name = 'MC_pp_v8_no_prescale'
+    elif menu_name == 'MC_CPSampleProd_default': menu_name = 'MC_pp_v8_CPSampleProd_mc_prescale'
+    elif menu_name == 'MC_TriggerValidation_default' : menu_name = 'MC_pp_v8_TriggerValidation_mc_prescale'
     log.info( 'Menu name: '+ menu_name)
 
 
@@ -45,6 +47,18 @@ def lumi(triggerPythonConfig):
         if 'BulkMCProd' in menu_name:
             L1Prescales = Prescales.L1Prescales_BulkMCProd_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_BulkMCProd_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'no_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_no_prescale
+            HLTPrescales = Prescales.HLTPrescales_no_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'CPSampleProd' in menu_name:
+            L1Prescales = Prescales.L1Prescales_CPSampleProd_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_CPSampleProd_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'TriggerValidation' in menu_name:
+            L1Prescales = Prescales.L1Prescales_TriggerValidation_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_TriggerValidation_mc_prescale
             log.info(" HLTPrescales %s" % HLTPrescales)
         else:
             L1Prescales = Prescales.L1Prescales
