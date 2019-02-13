@@ -73,7 +73,7 @@ mv ./physval_hadd.root ./$dcubemon_postprocessing
 
 # Running IDPVM on the combined ESD file
 ( set -x
-  inputESDFile="$combined_ESD" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
+  inputESDFile="$combined_ESD" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
 )
 echo "art-result: $? physval"
   
