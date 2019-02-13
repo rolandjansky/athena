@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -87,8 +87,16 @@ StatusCode  ClusterMakerTool::initialize(){
      }
    }
 
-   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
-   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+   if (not m_pixelLorentzAngleTool.empty()) {
+     ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
+   } else {
+     m_pixelLorentzAngleTool.disable();
+   }
+   if (not m_sctLorentzAngleTool.empty()) {
+     ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+   } else {
+     m_sctLorentzAngleTool.disable();
+   }
 
    ATH_CHECK(m_clusterErrorKey.initialize());
 
