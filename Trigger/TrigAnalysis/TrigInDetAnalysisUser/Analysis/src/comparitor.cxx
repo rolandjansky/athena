@@ -853,7 +853,7 @@ int main(int argc, char** argv) {
 
     /// use the default panels
 
-    std::string ((*inpanels[3])[6]) = { eff_panel, res_panel, diff_panel };
+    std::string (*inpanels[3])[6] = { eff_panel, res_panel, diff_panel };
 
     size_t nphist[3] = { 4, 4, 10 }; 
 
