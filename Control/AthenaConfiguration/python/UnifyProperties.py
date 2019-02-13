@@ -95,10 +95,7 @@ def getUnificationFunc(propname):
 
 def unifyProperty(propname,prop1,prop2):
     unificationFunc = getUnificationFunc(propname)
-    print "HHHH", propname
-    if  "HypoTools" in propname:
-        print "HHHHHH unifying", str(prop1), str(prop2)
-        
+
     if unificationFunc is None:
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \

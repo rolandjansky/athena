@@ -31,8 +31,6 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = None,
                                      CA = accCalo )
 
-    # del accCalo
-
     fastCaloStep = ChainStep(getChainStepName('Photon', 1), [fastCaloSequence])
 
     accPhoton = ComponentAccumulator()
@@ -52,8 +50,6 @@ def generateChains(flags, chainDict):
                                      Hypo = l2PhotonHypo,
                                      HypoToolGen = None,
                                      CA = accPhoton )
-
-    # del accPhoton
 
     l2PhotonStep = ChainStep(getChainStepName('Photon', 2), [l2PhotonSequence])
 

@@ -27,17 +27,13 @@ def generateChains( flags,  chainDict ):
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
     accCalo.merge(l2CaloReco)
 
-    # acc.addEventAlgo(l2CaloHypo)
-
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
                                      HypoToolGen = None, 
                                      CA = accCalo)
-    # del accCalo
 
     fastCaloStep = ChainStep(getChainStepName('Electron', 1), [fastCaloSequence])
-
 
     accTrk = ComponentAccumulator()
 
@@ -52,7 +48,6 @@ def generateChains( flags,  chainDict ):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 
     # TODO remove once full tracking is in place
-    # fakeHypoAlg = RecoFragmentsPool.retrieve( fakeHypoAlgCfg, flags, name="FakeHypoForElectron" )
     fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
 
 

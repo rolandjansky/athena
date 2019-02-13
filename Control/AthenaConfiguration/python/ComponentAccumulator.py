@@ -159,6 +159,7 @@ class ComponentAccumulator(object):
             return findSubSequence(self._sequence,sequenceName)
 
 
+
     def addEventAlgo(self, algorithms,sequenceName=None):
         if not isinstance(algorithms,collections.Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
@@ -178,7 +179,6 @@ class ComponentAccumulator(object):
 
             existingAlg = findAlgorithm(seq, algo.getName())
             if existingAlg:
-                print "RRRR", existingAlg, algo
                 self._deduplicateComponent(algo, existingAlg)
             else:
                 seq+=algo #TODO: Deduplication necessary?
@@ -262,7 +262,6 @@ class ComponentAccumulator(object):
     def _deduplicateComponent(self,newComp,comp):
         #print "Checking ", comp, comp.getType(), comp.getJobOptName()
         allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
-        print "KKK", str(allProps)
         for prop in allProps:
             if not prop.startswith('_'):
                 try:
@@ -1042,5 +1041,3 @@ class MergeMovingAlgorithms( unittest.TestCase ):
 
 if __name__ == "__main__":
     unittest.main()
-
-

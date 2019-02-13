@@ -22,7 +22,6 @@ def makeSummary(name, flatDecisions):
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
-    # summary.HLTSummary = "MonitoringSummary" + name
     return summary
 
 
@@ -344,7 +343,7 @@ def generateDecisionTree(HLTNode, chains):
 
     ## Fill chain steps matrix
     for chain in chains:
-        # chain.decodeHypoToolConfs()
+        chain.decodeHypoToolConfs()
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)
@@ -375,16 +374,13 @@ def generateDecisionTree(HLTNode, chains):
                         stepCategoryAcc.merge( seq.ca )
 
                     alg = seq.hypo.Alg
-                    # stepHypos.append( alg )
                     if stepHypo is None:
-                        print('11111111111111111111 ALG: ', alg)
                         stepHypo = alg
                         stepHypos.append( alg )
                     stepCategoryAcc.addEventAlgo( alg )
 
             stepAccs.append( stepCategoryAcc )
                 
-            print "after merge hypos"
             stepCategoryAcc.printConfig( True, True )
             firstChain = chainsInCell[0]
 
@@ -419,19 +415,9 @@ def generateDecisionTree(HLTNode, chains):
         stepFilter = createStepFilterNode(stepName, CFsequences, dump=False)
         stepCF = createStepRecoNode('{}_{}'.format(HLTNode.name(), stepName), CFsequences, dump=False)
 
-        print('9999999999999999999 ACCS: ', len(stepAccs), stepAccs)
-        print('4444444444444444444 HYPOS: ', len(stepHypos), stepHypos)
-
         from AthenaCommon.CFElements import findOwningSequence
         for oneAcc, cfseq, hypo in zip( stepAccs, CFsequences, stepHypos):
             owning = findOwningSequence( stepCF, hypo.getName() )
-            # owning = findOwningSequence( stepCF, cfseq.step.name )
-            print('555555555', owning)
-            # temp = ComponentAccumulator()
-            # temp.addSequence( owning )
-            # temp.addEventAlgo( hypo, owning.getName() )
-            # temp.merge( oneAcc )
-            # temp.wasMerged()
             acc.addSequence( owning )
             acc.merge( oneAcc, sequenceName = owning.getName() )
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
@@ -440,14 +426,13 @@ def generateDecisionTree(HLTNode, chains):
         HLTNode += stepCF
         HLTNode += summary
 
-
-
         stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
         stepCF_ControlFlow_to_dot(stepCF)
 
     all_DataFlow_to_dot(HLTNode.name(), allSequences)
     matrixDisplay( allSequences )
     return acc
+
 
 def findFilter(filter_name, cfseqList):
       """
