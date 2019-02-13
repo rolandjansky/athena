@@ -9,5 +9,4 @@ def getRpcOverlay(name="RpcOverlay", **kwargs):
     kwargs.setdefault("OutputDigitKey",overlayFlags.outputStore()+"+RPC_DIGITS")
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
-    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
     return CfgMgr.RpcOverlay(name, **kwargs)

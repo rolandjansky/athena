@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -41,10 +41,8 @@ private:
   SG::ReadHandleKey<RpcDigitContainer> m_mainInputDigitKey{this,"MainInputDigitKey","OriginalEvent_SG+RPC_DIGITS","ReadHandleKey for Main Input RpcDigitContainer"};
   SG::ReadHandleKey<RpcDigitContainer> m_overlayInputDigitKey{this,"OverlayInputDigitKey","BkgEvent_0_SG+RPC_DIGITS","ReadHandleKey for Overlay Input RpcDigitContainer"};
   SG::WriteHandleKey<RpcDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"};
-  std::string m_sdo{"RPC_SDO"};
 
   const RpcIdHelper   * m_rpcHelper{nullptr};
-  bool m_copySDO{true};
 
 };
 
