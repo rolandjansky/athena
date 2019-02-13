@@ -68,7 +68,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolation","Isolation to use : FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
     registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -193,7 +193,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
     registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
     registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
-
+    registerParameter("RecomputeCPVariables", "Run the CP tools to force computation of variables that may already exist in derivations? (default: True)", "True");
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
     registerParameter("ElectronVariableSaveList", "The list of electron variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");

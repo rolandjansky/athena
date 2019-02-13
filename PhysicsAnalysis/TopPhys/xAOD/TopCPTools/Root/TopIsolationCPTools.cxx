@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCPTools/TopIsolationCPTools.h"
@@ -62,16 +62,14 @@ StatusCode IsolationCPTools::setupIsolation() {
 
   // Muon Isolation WPs
   std::set<std::string> muon_isolations{{
-      "LooseTrackOnly",
-      "Loose",
-      "Gradient",
-      "GradientLoose",
-      "FixedCutTight",
-      "FixedCutTightTrackOnly",
-      "FixedCutLoose",
       "FCTight",
       "FCLoose",
       "FCTightTrackOnly",
+      "FCTightTrackOnly_FixedRad",
+      "FCLoose_FixedRad",
+      "FCTight_FixedRad",
+      "FixedCutPflowTight",
+      "FixedCutPflowLoose",
     }};
 
   // Electron Isolation WPs include all of those defined for

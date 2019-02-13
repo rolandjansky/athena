@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonObjectCollectionMaker.h 799839 2017-03-08 11:07:28Z grancagn $
@@ -79,16 +79,14 @@ namespace top{
       ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
 
       ///-- Isolation --///
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_LooseTrackOnly;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Gradient;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_GradientLoose;      
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTight;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightTrackOnly;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTightTrackOnly;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTightTrackOnly_FixedRad;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose_FixedRad;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight_FixedRad;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutPflowTight;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutPflowLoose;
       // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
       ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
 

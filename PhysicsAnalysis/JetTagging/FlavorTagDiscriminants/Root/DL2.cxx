@@ -3,6 +3,7 @@
 */
 
 #include "FlavorTagDiscriminants/DL2.h"
+#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
@@ -97,8 +98,7 @@ namespace FlavorTagDiscriminants {
 
     // save out things
     for (const auto& dec: m_decorators) {
-      // the second argument to compute(...) is for sequences, we
-      // don't currently have any.
+      // the second argument to compute(...) is for sequences
       auto out_vals = m_graph->compute(nodes, seqs, dec.first);
       for (const auto& node: dec.second) {
         node.second(*jet.btagging()) = out_vals.at(node.first);
@@ -161,23 +161,27 @@ namespace FlavorTagDiscriminants {
     // Track Getter Class
     TrackGetter::TrackGetter(SortOrder order, TrackSelection selection):
       m_track_associator("BTagTrackToJetAssociator"),
-      m_sort_function(get_track_sort(order)),
+      m_sort_var_getter(get_track_sort(order)),
       m_select_function(get_track_select(selection))
     {
     }
     Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
       const xAOD::BTagging *btagging = jet.btagging();
       if (!btagging) throw std::runtime_error("can't find btagging object");
-      std::vector<const xAOD::TrackParticle*> tracks;
+      std::vector<std::pair<double, const xAOD::TrackParticle*>> tracks;
       for (const auto &link : m_track_associator(*btagging)) {
         if(!link.isValid()) {
           throw std::logic_error("invalid track link");
         }
         const xAOD::TrackParticle *tp = *link;
-        if (m_select_function(tp)) tracks.push_back(tp);
+        if (m_select_function(tp)) {
+          tracks.push_back({m_sort_var_getter(tp, jet), tp});
+        };
       }
-      std::sort(tracks.begin(), tracks.end(), m_sort_function);
-      return tracks;
+      std::sort(tracks.begin(), tracks.end(), std::greater<>());
+      std::vector<const xAOD::TrackParticle*> only_tracks;
+      for (const auto& trk: tracks) only_tracks.push_back(trk.second);
+      return only_tracks;
     }
 
 
@@ -196,22 +200,24 @@ namespace FlavorTagDiscriminants {
       }
       }
     }
-    TrackSort get_track_sort(SortOrder order) {
+    TrackSortVar get_track_sort(SortOrder order) {
       typedef xAOD::TrackParticle Tp;
+      typedef xAOD::Jet Jet;
       typedef SG::AuxElement AE;
       AE::ConstAccessor<float> d0("btag_ip_d0");
       AE::ConstAccessor<float> d0_sigma("btag_ip_d0_sigma");
+      BTagTrackAugmenter aug;
       switch(order) {
       case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
-        return [d0, d0_sigma](const Tp* tp1, const Tp* tp2) {
-                 double sd01 = std::abs(d0(*tp1) / d0_sigma(*tp1));
-                 double sd02 = std::abs(d0(*tp2) / d0_sigma(*tp2));
-                 return  sd01 > sd02;
+        return [d0, d0_sigma](const Tp* tp, const Jet&) {
+                 return std::abs(d0(*tp) / d0_sigma(*tp));
+               };
+      case SortOrder::D0_SIGNIFICANCE_DESCENDING:
+        return [aug](const Tp* tp, const Jet& j) {
+                 return aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
                };
       case SortOrder::PT_DESCENDING:
-        return [](const Tp* tp1, const Tp* tp2) {
-                 return tp1->pt() > tp2->pt();
-               };
+        return [](const Tp* tp, const Jet&) {return tp->pt();};
       default: {
           throw std::logic_error("Unknown sort function");
         }

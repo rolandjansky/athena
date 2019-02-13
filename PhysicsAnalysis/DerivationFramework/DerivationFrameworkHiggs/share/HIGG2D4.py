@@ -346,6 +346,9 @@ higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
 
 DerivationFrameworkJob += higg2d4Seq
 
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq, algname="QGTaggerToolAlg")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

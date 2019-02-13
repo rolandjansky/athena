@@ -1439,10 +1439,11 @@ namespace AtlasRoot {
 
       // release 20 run 2 systematics for mc15 like geometries
       else {
+        //Just pick the owned one from a unique_ptr per case
         TH2* histo = nullptr;
-	if (ptype == PATCore::ParticleType::Electron && m_pp0_elec) histo = dynamic_cast<TH2*>(m_pp0_elec->Clone());
-        else if (ptype == PATCore::ParticleType::ConvertedPhoton && m_pp0_conv ) histo = dynamic_cast<TH2*>(m_pp0_conv->Clone());
-        else if (ptype == PATCore::ParticleType::UnconvertedPhoton && m_pp0_unconv) histo = dynamic_cast<TH2*>(m_pp0_unconv->Clone());
+        if (ptype == PATCore::ParticleType::Electron && m_pp0_elec) histo = dynamic_cast<TH2*>(m_pp0_elec.get());
+        else if (ptype == PATCore::ParticleType::ConvertedPhoton && m_pp0_conv ) histo = dynamic_cast<TH2*>(m_pp0_conv.get());
+        else if (ptype == PATCore::ParticleType::UnconvertedPhoton && m_pp0_unconv) histo = dynamic_cast<TH2*>(m_pp0_unconv.get());
 
         if (histo) {
           const double aeta = std::abs(cl_eta);
@@ -1453,8 +1454,6 @@ namespace AtlasRoot {
           if (aeta > 1.5 and aeta < 2.0) { dapp0 *= 2.6; }
           else if (aeta >= 2.0 and aeta <= 2.5) { dapp0 *= 2.3; }
         }
-
-        delete histo;
      }
     }
 
@@ -2150,9 +2149,15 @@ namespace AtlasRoot {
 
     if (var == egEnergyCorr::Scale::ZeeStatUp or var == egEnergyCorr::Scale::ZeeStatDown) {
       const double sign = (var == egEnergyCorr::Scale::ZeeStatUp) ? 1 : -1;
-      std::unique_ptr<TH1> h((TH1*)m_zeeNom->Clone());
-      if ((m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1) && runnumber < 297000) h.reset((TH1*) m_zeeNom_data2015->Clone()); // special for 2015 with es2017
-      if ( (m_esmodel== egEnergyCorr::es2017_R21_v0 || m_esmodel== egEnergyCorr::es2017_R21_v1) && runnumber>=297000 && runnumber<322817) h.reset((TH1*)m_zeeNom_data2016->Clone()); // 2016 data
+      TH1* h= ((TH1*)m_zeeNom.get());
+      if ((m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved 
+           or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV 
+           or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1) && runnumber < 297000){
+        h=((TH1*) m_zeeNom_data2015.get()); // special for 2015 with es2017
+      }
+      if ( (m_esmodel== egEnergyCorr::es2017_R21_v0 || m_esmodel== egEnergyCorr::es2017_R21_v1) && runnumber>=297000 && runnumber<322817) {
+        h=((TH1*)m_zeeNom_data2016.get()); // 2016 data
+      }
       double stat_error = h->GetBinError(h->FindFixBin(eta));
 	    if (m_use_stat_error_scaling) {
         stat_error = stat_error / sqrt(h->GetNbinsX());
@@ -2429,21 +2434,22 @@ namespace AtlasRoot {
     const double aeta = std::abs(cl_eta);
     const double ETGeV = energy / cosh(cl_eta) / 1E3;
 
-    std::unique_ptr<TAxis> axis;
-    std::unique_ptr<TList> graphs;
+    //This will point to the return of get() of a unique_ptr
+    TAxis* axis;
+    TList* graphs;
 
     if (ptype == PATCore::ParticleType::Electron ) { 
-      axis.reset(dynamic_cast<TAxis*>(m_E4ElectronEtaBins->Clone())); 
-      graphs.reset(dynamic_cast<TList*>(m_E4ElectronGraphs->Clone())); 
+      axis=(dynamic_cast<TAxis*>(m_E4ElectronEtaBins.get())); 
+      graphs=(dynamic_cast<TList*>(m_E4ElectronGraphs.get())); 
       graphs->SetOwner();
     } else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { 
-      axis.reset(dynamic_cast<TAxis*>(m_E4UnconvertedEtaBins->Clone())); 
-      graphs.reset(dynamic_cast<TList*>(m_E4UnconvertedGraphs->Clone())); 
+      axis=dynamic_cast<TAxis*>(m_E4UnconvertedEtaBins.get()); 
+      graphs=dynamic_cast<TList*>(m_E4UnconvertedGraphs.get()); 
       graphs->SetOwner();
     }
     else if (ptype == PATCore::ParticleType::ConvertedPhoton) { 
-      axis.reset(dynamic_cast<TAxis*>(m_E4ConvertedEtaBins->Clone())); 
-      graphs.reset(dynamic_cast<TList*>(m_E4ConvertedGraphs->Clone()));; 
+      axis=dynamic_cast<TAxis*>(m_E4ConvertedEtaBins.get()); 
+      graphs=dynamic_cast<TList*>(m_E4ConvertedGraphs.get()); 
       graphs->SetOwner();
     }
     else { ATH_MSG_FATAL("invalid particle type"); return -1; }
@@ -2731,31 +2737,32 @@ namespace AtlasRoot {
 
 double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,PATCore::ParticleType::Type ptype,double cl_eta,double ET) const {
  
-   std::unique_ptr<TH2D> hmat;
+  //Again this does no need to be ptr just get the one owned
+   TH2D* hmat;
 
    if (ptype==PATCore::ParticleType::Electron) {
-      if (geo==egEnergyCorr::ConfigA) hmat.reset((TH2D*) m_electronBias_ConfigA->Clone());
-      else if (geo==egEnergyCorr::ConfigEL) hmat.reset((TH2D*)m_electronBias_ConfigEpLp->Clone());
-      else if (geo==egEnergyCorr::ConfigFMX) hmat.reset((TH2D*)m_electronBias_ConfigFpMX->Clone());
-      else if (geo==egEnergyCorr::ConfigN) hmat.reset((TH2D*)m_electronBias_ConfigN->Clone());
-      else if (geo==egEnergyCorr::ConfigIBL) hmat.reset((TH2D*)m_electronBias_ConfigIBL->Clone());
-      else if (geo==egEnergyCorr::ConfigPP0) hmat.reset((TH2D*)m_electronBias_ConfigPP0->Clone());
+      if (geo==egEnergyCorr::ConfigA) hmat=((TH2D*) m_electronBias_ConfigA.get());
+      else if (geo==egEnergyCorr::ConfigEL) hmat=((TH2D*)m_electronBias_ConfigEpLp.get());
+      else if (geo==egEnergyCorr::ConfigFMX) hmat=((TH2D*)m_electronBias_ConfigFpMX.get());
+      else if (geo==egEnergyCorr::ConfigN) hmat=((TH2D*)m_electronBias_ConfigN.get());
+      else if (geo==egEnergyCorr::ConfigIBL) hmat=((TH2D*)m_electronBias_ConfigIBL.get());
+      else if (geo==egEnergyCorr::ConfigPP0) hmat=((TH2D*)m_electronBias_ConfigPP0.get());
       else return 0;
    } else if (ptype==PATCore::ParticleType::UnconvertedPhoton) {
-      if (geo==egEnergyCorr::ConfigA) hmat.reset((TH2D*)m_unconvertedBias_ConfigA->Clone());
-      else if (geo==egEnergyCorr::ConfigEL) hmat.reset((TH2D*)m_unconvertedBias_ConfigEpLp->Clone());
-      else if (geo==egEnergyCorr::ConfigFMX) hmat.reset((TH2D*)m_unconvertedBias_ConfigFpMX->Clone());
-      else if (geo==egEnergyCorr::ConfigN) hmat.reset((TH2D*)m_unconvertedBias_ConfigN->Clone());
-      else if (geo==egEnergyCorr::ConfigIBL) hmat.reset((TH2D*)m_unconvertedBias_ConfigIBL->Clone());
-      else if (geo==egEnergyCorr::ConfigPP0) hmat.reset((TH2D*)m_unconvertedBias_ConfigIBL->Clone());
+      if (geo==egEnergyCorr::ConfigA) hmat=((TH2D*)m_unconvertedBias_ConfigA.get());
+      else if (geo==egEnergyCorr::ConfigEL) hmat=((TH2D*)m_unconvertedBias_ConfigEpLp.get());
+      else if (geo==egEnergyCorr::ConfigFMX) hmat=((TH2D*)m_unconvertedBias_ConfigFpMX.get());
+      else if (geo==egEnergyCorr::ConfigN) hmat=((TH2D*)m_unconvertedBias_ConfigN.get());
+      else if (geo==egEnergyCorr::ConfigIBL) hmat=((TH2D*)m_unconvertedBias_ConfigIBL.get());
+      else if (geo==egEnergyCorr::ConfigPP0) hmat=((TH2D*)m_unconvertedBias_ConfigIBL.get());
       else return 0;
    } else if (ptype==PATCore::ParticleType::ConvertedPhoton) {
-      if (geo==egEnergyCorr::ConfigA) hmat.reset((TH2D*)m_convertedBias_ConfigA->Clone());
-      else if (geo==egEnergyCorr::ConfigEL) hmat.reset((TH2D*)m_convertedBias_ConfigEpLp->Clone());
-      else if (geo==egEnergyCorr::ConfigFMX) hmat.reset((TH2D*)m_convertedBias_ConfigFpMX->Clone());
-      else if (geo==egEnergyCorr::ConfigN) hmat.reset((TH2D*)m_convertedBias_ConfigN->Clone());
-      else if (geo==egEnergyCorr::ConfigIBL) hmat.reset((TH2D*)m_convertedBias_ConfigIBL->Clone());
-      else if (geo==egEnergyCorr::ConfigPP0) hmat.reset((TH2D*)m_convertedBias_ConfigPP0->Clone());
+      if (geo==egEnergyCorr::ConfigA) hmat=((TH2D*)m_convertedBias_ConfigA.get());
+      else if (geo==egEnergyCorr::ConfigEL) hmat=((TH2D*)m_convertedBias_ConfigEpLp.get());
+      else if (geo==egEnergyCorr::ConfigFMX) hmat=((TH2D*)m_convertedBias_ConfigFpMX.get());
+      else if (geo==egEnergyCorr::ConfigN) hmat=((TH2D*)m_convertedBias_ConfigN.get());
+      else if (geo==egEnergyCorr::ConfigIBL) hmat=((TH2D*)m_convertedBias_ConfigIBL.get());
+      else if (geo==egEnergyCorr::ConfigPP0) hmat=((TH2D*)m_convertedBias_ConfigPP0.get());
       else return 0;
    } else return 0;
 
