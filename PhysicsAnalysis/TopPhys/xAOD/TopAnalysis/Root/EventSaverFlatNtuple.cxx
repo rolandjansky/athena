@@ -863,11 +863,10 @@ namespace top {
           systematicTree->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
-
           systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
           systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
           systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
-
+          systematicTree->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
         }
         if(m_useRCAdditionalJSS){
 
@@ -1317,6 +1316,8 @@ namespace top {
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+        m_particleLevelTreeManager->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
 
       }
       if (m_useRCAdditionalJSS){
@@ -2434,6 +2435,7 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
@@ -2489,6 +2491,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
       m_rcjet_gECF322_clstr.clear();
@@ -2532,6 +2535,8 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);        
+
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -2586,6 +2591,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
@@ -3532,6 +3538,8 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");      
+
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
@@ -3582,6 +3590,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
 
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
@@ -3627,6 +3636,7 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -3679,6 +3689,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;

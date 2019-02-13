@@ -293,10 +293,14 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	     
 	     
 	     if(m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMTopoJets")!=std::string::npos)getEMTopoClusters(clusters,rcjet); // //  // use subjet constituents
-	     else getLCTopoClusters(clusters,rcjet); //	//  // use LCTOPO CLUSTERS matched to subjet
-	     
+	     else if (m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMPFlowJets")!=std::string::npos) getPflowConstituent(clusters,rcjet,event); // use ghost-matche tracks
+	     else getLCTopoClusters(clusters,rcjet);//  // use LCTOPO CLUSTERS matched to subjet
+       if(m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMPFlowJets")== std::string::npos){
+       // In case of AntiKt4EMPFlowJets the tracks could be removed by the pile-up cuts
 	     top::check(!clusters.empty(),"RCJetMC15::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
-	     
+	     }
+           
+       if(clusters.size() != 0) {    
 	     // Now rebuild the large jet from the small jet constituents aka the original clusters
 	     fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
 	     std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
@@ -346,6 +350,8 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	      rcjet->auxdecor<float>("d12_clstr") = split12;
 	      rcjet->auxdecor<float>("d23_clstr") = split23;
 	      rcjet->auxdecor<float>("Qw_clstr") = qw;
+	      
+	      rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
     
 	    
 	   } // end of if useJSS
@@ -408,19 +414,17 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	    rcjet->auxdecor<float>("L3_clstr") = L3;
 	    rcjet->auxdecor<float>("L4_clstr") = L4;
 	    rcjet->auxdecor<float>("L5_clstr") = L5;
-	  }
-	  
-	  // lets also store the rebuilt jet in case we need it later
-	  if (m_useJSS || m_useAdditionalJSS){  
-	    
+	    // lets also store the rebuilt jet incase we need it later
 	    rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
 	    rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
 	    rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
 	    rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
 	    
+	    
 	  }// end of if useAdditional JSS
 	}// end of rcjet loop
       } //m_useJSS || m_useAdditionalJSS
+      }
 	
     } //if (!evtStore()->contains<xAOD::JetContainer>(m_OutputJetContainer)) 
 
@@ -570,14 +574,15 @@ void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters,cons
 
 }
 
-void  RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet){
+void  RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet)
+{
   
   //LCTOPO CLUSTERS
   clusters.clear();
   
-   // get the clusters (directly we so can try using the LCTopo clusters)
-   const xAOD::CaloClusterContainer* myClusters(nullptr);
-   top::check(evtStore()->retrieve(myClusters, "CaloCalTopoClusters"), "Failed to retrieve CaloCalTopoClusters");
+  // get the clusters (directly we so can try using the LCTopo clusters)
+  const xAOD::CaloClusterContainer* myClusters(nullptr);
+  top::check(evtStore()->retrieve(myClusters, "CaloCalTopoClusters"), "Failed to retrieve CaloCalTopoClusters");
   
     
   
@@ -610,4 +615,50 @@ void  RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters,con
 
 }
 
+void  RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet, const top::Event& event)
+{
+
+   // At the moment the proper constituent of the PFlows aren't available in TOPQ1 and there is no strategy to provide uncertainty on that consequently
+   // at the moment just the tracks ghost matched to the PFLow objects are considered to define the substructure (under suggestion of the JSS group). 
+   // As a consiquence all the neutral component of the jet is missing from the substructure, this choice is consistently copied at particle level		
+     
+   clusters.clear();
+   std::vector<const xAOD::TrackParticle*> jetTracks;
+   
+   //The primary vertex z is needed to evaluate delta z0
+   float primary_vertex_z = event.m_info->auxdataConst<float>("AnalysisTop_PRIVTX_z_position");
+    
+
+	
+  	  
+   for (auto subjet : rcjet->getConstituents() ){
+    const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());		  
+		  
+    jetTracks.clear();
+    
+    bool haveJetTracks = subjet_raw->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, jetTracks);
+    if (haveJetTracks){
+       for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt=jetTracks.begin(); jetTrIt!=jetTracks.end(); ++jetTrIt) 
+	     {
+        	TLorentzVector temp_p4;
+        	if( *jetTrIt != nullptr ){
+          //Pileup suppression, using the nominal working point     
+          float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
+      
+          if ( fabs((*jetTrIt)->d0()) <2 && fabs((*jetTrIt)->eta()) < 2.5 && fabs(sin((*jetTrIt)->theta()) * deltaz0 ) < 3 ) {  		
+			        temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
+			        clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+		      }
+	       }
+       }
+    }
+    else{
+  
+	   ATH_MSG_WARNING("The link to the ghost matched tracks to the PFlow jets are missing, unable to calculate the substructure");
+	   break;
+
+   }
+  }
+
+}			    
 

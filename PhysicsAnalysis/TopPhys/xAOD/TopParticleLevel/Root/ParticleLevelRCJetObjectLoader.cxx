@@ -205,19 +205,46 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	    std::vector<fastjet::PseudoJet> clusters;
 	    clusters.clear();
 	    
-	    for (auto subjet : rcjet->getConstituents() ){
+	  for (auto subjet : rcjet->getConstituents() ){
 	      //std::cout <<"retrieved PL subjets" << std::endl;
 	      const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 	      //std::cout <<"retrieved PL rawjets" << std::endl;
+	      
+	      const xAOD::TruthParticleContainer* myTruthParticle(nullptr);
+        // The truth collection is needed to determine the charge of the particles     
+	      if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),false).find("AntiKt4EMPFlowJets")!=std::string::npos){	
+			   top::check(evtStore()->retrieve(myTruthParticle,"TruthParticles"),"Failed to retrieve truth particle JetContainer");	
+		
+   		}
     
-	      for (auto clus_itr : subjet_raw->getConstituents() ){
+	  for (auto clus_itr : subjet_raw->getConstituents() ){
 		//	  std::cout <<"retrieved PL clusters" << std::endl;
+		
 		TLorentzVector temp_p4;
 		temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
+		
+   
+      // Only in case AntiKt4EMPFlowJets are used include in the substructure only the charged component of the substructure
+		  if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),false).find("AntiKt4EMPFlowJets")!=std::string::npos){
+        bool isCharged=false;
+		    bool found=false;
+		
+		    for (auto truthParticle: *myTruthParticle ){
+		       double epsilon=0.00001;
+		       if(fabs(truthParticle->pt() - clus_itr->pt()) < epsilon && fabs(truthParticle->eta() - clus_itr->eta()) < epsilon && fabs(truthParticle->phi() - clus_itr->phi()) < epsilon && fabs(truthParticle->m() - clus_itr->m()) < epsilon ){
+		          isCharged = truthParticle->isCharged();
+		          found=true;
+		          break;
+		         }
+		   }
+		   if(!found) ATH_MSG_WARNING("Substructure element not in the TruthParticle collection");
+		   if(!isCharged) continue;
+		  }
+		
 		clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
-	      }
-	    }
-    
+
+	  }
+    }
 	    fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
 	     std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
      
@@ -265,6 +292,9 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	      rcjet->auxdecor<float>("d12_clstr") = split12;
 	      rcjet->auxdecor<float>("d23_clstr") = split23;
 	      rcjet->auxdecor<float>("Qw_clstr") = qw;
+	      
+	      
+	      rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
     
 	    
 	   } // end of if useJSS
@@ -328,17 +358,19 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	    rcjet->auxdecor<float>("L4_clstr") = L4;
 	    rcjet->auxdecor<float>("L5_clstr") = L5;
 	  }
-	  
-	  // lets also store the rebuilt jet in case we need it later
-	  if (m_useJSS || m_useAdditionalJSS){  
-	    
+
+          // lets also store the rebuilt jet in case we need it later
+          if (m_useJSS || m_useAdditionalJSS){
+
 	    rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
 	    rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
 	    rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
 	    rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
 	    
+	    
 	  }// end of if useAdditional JSS
-	  
+    
+	    
 	} // end rcjet loop
       } // //m_useJSS || m_useAdditionalJSS
 	
