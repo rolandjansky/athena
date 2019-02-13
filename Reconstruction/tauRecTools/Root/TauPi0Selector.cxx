@@ -70,8 +70,6 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
     // Pi0NeutralPFOs 
     //---------------------------------------------------------------------
     int nRecoPi0s=0;
-    ATH_MSG_INFO("NPFO size" << neutralPFOContainer.size());
-    ATH_MSG_INFO("NPFO link size" << pTau.protoNeutralPFOLinks().size());
     for( auto neutralPFO : neutralPFOContainer )
     {
         // Set number of pi0s to 0 for all neutral PFOs. Required when rerunning on xAOD level
