@@ -142,7 +142,7 @@ class AthConfigFlags(object):
         raise KeyError(errString)
 
     def __call__(self,name):
-        return self.get(name)
+        return self._get(name)
 
     def lock(self):
         self._locked=True
