@@ -82,7 +82,7 @@ def _createCfgFlags():
 
 
     def __lar():
-        from LArCellRec.LArConfigFlags import createLArConfigFlags
+        from LArConfiguration.LArConfigFlags import createLArConfigFlags
         return createLArConfigFlags()
     acf.addFlagsCategory( "LAr", __lar ) 
 
