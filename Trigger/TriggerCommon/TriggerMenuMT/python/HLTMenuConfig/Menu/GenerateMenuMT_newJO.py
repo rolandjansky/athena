@@ -48,7 +48,7 @@ def generateMenu( flags ):
 
     chainAccumulators = []
 
-    for name, cfgFlag in flags._flagdict.iteritems():
+    for name, cfgFlag in list(flags._flagdict.iteritems()):
         if not 'Trigger.menu.' in name:
             continue
 
