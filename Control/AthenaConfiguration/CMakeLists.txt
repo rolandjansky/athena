@@ -25,6 +25,10 @@ atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( AllConfigFlagsTest
+   SCRIPT python -m AthenaConfiguration.AllConfigFlags
+   POST_EXEC_SCRIPT nopost.sh )
+
 
 # Check python syntax:
 atlas_add_test( flake8
