@@ -596,7 +596,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR = true)
   ParticleOrigin partorig     = NonDefined;
   ParticleType   tempparttype = UnknownJet;
   std::set<const xAOD::TruthParticle*>      allJetMothers;
-  std::pair<ParticleType,ParticleOrigin>   res;
 
   if(!jet) return std::make_pair(parttype,partorig);
 

@@ -165,7 +165,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   float jet_mass = jet.m()/1000.0;
 
   // d2 - check if its there, otherwise, write it out
-  float jet_d2;
+  float jet_d2 = 0;       // default d2 to 0.  This probably gets used when the jet has one constituent, so it will fail the mass cut anyways
 
   static SG::AuxElement::ConstAccessor<float>    acc_D2   ("D2");
   static SG::AuxElement::ConstAccessor<float>    acc_ECF1 ("ECF1");
@@ -183,9 +183,6 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
       if( acc_ECF2(jet)>0.0 ){
         jet_d2 = acc_ECF3(jet) * pow(acc_ECF1(jet), 3.0) / pow(acc_ECF2(jet), 3.0);
       }
-    }
-    else{
-      jet_d2 = 0;       // set d2 artificially to 0.  This is probably because the jet has one constituent, so it will fail the mass cut anyways
     }
   }
 

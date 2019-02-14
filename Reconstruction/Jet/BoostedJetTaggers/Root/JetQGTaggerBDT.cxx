@@ -212,7 +212,7 @@ void JetQGTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
   bool undefNTracks = false;
   bool undefTrackWidth = false;
 
-  const xAOD::Vertex* primvertex;
+  const xAOD::Vertex* primvertex {nullptr};
   bool isValid = true;
 
   const xAOD::VertexContainer* vxCont = 0;

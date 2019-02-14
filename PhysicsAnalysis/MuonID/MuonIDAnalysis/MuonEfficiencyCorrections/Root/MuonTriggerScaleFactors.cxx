@@ -491,7 +491,6 @@ namespace CP {
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
-	unsigned int run = getRunNumber();            
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
