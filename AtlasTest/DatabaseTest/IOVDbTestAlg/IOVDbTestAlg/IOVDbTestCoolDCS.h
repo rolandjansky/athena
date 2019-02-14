@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBTEST_TESTCOOLDCS_H
@@ -9,21 +9,21 @@
 // into an Athena algorithm
 // Richard Hawkings, started 9/9/05
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include <vector>
 #include <string>
 
 class StoreGateSvc;
 
-class IOVDbTestCoolDCS: public AthAlgorithm
+class IOVDbTestCoolDCS: public AthReentrantAlgorithm
 {
  public:
     IOVDbTestCoolDCS(const std::string& name, ISvcLocator* pSvcLocator);
-    ~IOVDbTestCoolDCS();
+    virtual ~IOVDbTestCoolDCS();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
 private:
   // list folders to be read as AthenaAttributeList

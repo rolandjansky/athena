@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -14,11 +14,15 @@
 # define IOVDBTESTALG_IOVDBTESTALG_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "IOVDbTestConditions/IOVDbTestMDTEleMap.h"
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
 
+#include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class StoreGateSvc;
@@ -30,24 +34,24 @@ class IAthenaOutputStreamTool;
  ** Algorithm to test writing conditions data and reading them back.
  **/
 
-class IOVDbTestAlg: public AthAlgorithm 
+class IOVDbTestAlg: public AthReentrantAlgorithm 
 {
 public:
     IOVDbTestAlg (const std::string& name, ISvcLocator* pSvcLocator);
-    ~IOVDbTestAlg();
+    virtual ~IOVDbTestAlg();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
 private:
 
-    StatusCode createCondObjects();
-    StatusCode printCondObjects();
+    StatusCode createCondObjects (const EventContext& ctx) const;
+    StatusCode printCondObjects() const;
     StatusCode streamOutCondObjects();
     StatusCode registerCondObjects();
     StatusCode readWithBeginRun();
-    void       waitForSecond();
+    void       waitForSecond() const;
     StatusCode testCallBack(  IOVSVC_CALLBACK_ARGS  );
     StatusCode registerIOV(const CLID& clid);
 
@@ -70,11 +74,8 @@ private:
     BooleanProperty           m_online;
     std::string               m_tagID;
     
-    StoreGateSvc*             m_sgSvc;
-    StoreGateSvc*             m_detStore;
-    const EventInfo*          m_evt;
-    IIOVRegistrationSvc*      m_regSvc;
-    IAthenaOutputStreamTool*  m_streamer;
+    ServiceHandle<IIOVRegistrationSvc>      m_regSvc;
+    ToolHandle<IAthenaOutputStreamTool>     m_streamer;
 };
 
 
