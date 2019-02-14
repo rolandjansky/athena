@@ -43,6 +43,7 @@ namespace CP
     ANA_CHECK (m_jvtTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -56,9 +57,12 @@ namespace CP
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
         for (xAOD::Jet *jet : *jets)
         {
-          // manually update jvt decoration using the tool
-          const float jvt = m_jvtTool->updateJvt (*jet);
-          (*m_decorationAccessor) (*jet) = jvt;
+          if (m_preselection.getBool (*jet))
+          {
+            // manually update jvt decoration using the tool
+            const float jvt = m_jvtTool->updateJvt (*jet);
+            (*m_decorationAccessor) (*jet) = jvt;
+          }
         }
         return StatusCode::SUCCESS;
       });
