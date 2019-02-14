@@ -550,9 +550,6 @@ class ComponentAccumulator(object):
             self.appendConfigurable(ch)
         return
 
-    def wasMerged(self):
-        self._wasMerged=True
-
 
     def store(self,outfile,nEvents=10):
         from AthenaCommon.Utils.unixtools import find_datafile
