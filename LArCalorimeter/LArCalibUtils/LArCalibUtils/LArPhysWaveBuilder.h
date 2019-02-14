@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhysWaveBuilder.h,v 1.6 2006-11-07 11:31:36 mdelmast Exp $
@@ -27,6 +27,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include <vector>
 #include <string>
 
@@ -71,6 +74,9 @@ class LArPhysWaveBuilder : public AthAlgorithm
 
 
 private:
+   
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   /// === Private methods
   /// Make the wave container from the accumulated waves.
   StatusCode make_container (std::unique_ptr<LArPhysWaveContainer>& larPhysWaveContainer);

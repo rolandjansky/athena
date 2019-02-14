@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -14,9 +14,8 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "GaudiKernel/ToolHandle.h"
-
-class LArCablingService;
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace D3PD{
 
@@ -56,8 +55,7 @@ namespace D3PD{
         float* m_energy;
         float* m_time;
         float* m_quality;
-	ToolHandle<LArCablingService> m_larCablingSvc;
-
+        SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     };
 
 }

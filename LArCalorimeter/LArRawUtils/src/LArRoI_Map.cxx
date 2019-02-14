@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawUtils/LArRoI_Map.h" 
@@ -63,7 +63,7 @@ StatusCode LArRoI_Map::initialize()
   ATH_CHECK( m_cablingSvc.retrieve() );
   ATH_CHECK( m_ttSvc.retrieve() ); 
 
-  ATH_CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
+  ATH_CHECK( detStore()->regFcn(&LArCablingLegacyService::iovCallBack,&(*m_cablingSvc),
                                 &LArRoI_Map::iovCallBack,
                                 this,true) );
   ATH_CHECK(  detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,&(*m_ttSvc),

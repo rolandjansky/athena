@@ -13,6 +13,7 @@ monitoring_muonIso_pp = ['HLT_mu26_ivarmedium']
 monitoring_MSonly = ['HLT_mu60_0eta105_msonly']
 monitoring_MSonly_HI = ['HLT_mu15_msonly']
 monitoring_MSonly_pp = ['HLT_mu60_0eta105_msonly']
+monitoring_MSonly_pp = ['']
 
 #monitoring_muonEFFS = ['HLT_mu22_mu8noL1']
 monitoring_muonEFFS = ['HLT_mu24_mu8noL1']

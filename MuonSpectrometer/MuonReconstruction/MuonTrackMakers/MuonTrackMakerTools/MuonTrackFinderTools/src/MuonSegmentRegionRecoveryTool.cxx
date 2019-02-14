@@ -72,6 +72,7 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
+#include "TrkSegment/SegmentCollection.h"
 
 #include <map>
 
@@ -891,38 +892,41 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
         }
       }
       if ( prds && exParsFirst) {
-        std::vector<const MuonSegment*>* segments = m_seededSegmentFinder->find(*exParsFirst, *prds );
+        std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(*exParsFirst, *prds );
         if ( segments ) {
           if ( !segments->empty() ) ATH_MSG_DEBUG("found segments " << segments->size() );
-          std::vector<const MuonSegment*>::iterator sit = segments->begin();
-          std::vector<const MuonSegment*>::iterator sit_end = segments->end();
+          Trk::SegmentCollection::iterator sit = segments->begin();
+          Trk::SegmentCollection::iterator sit_end = segments->end();
 
-          const MuonSegment* bestSegment = 0;
+          MuonSegment* bestSegment = 0;
           const Trk::TrackParameters* bestSegmentPars = 0;
           for ( ; sit != sit_end; ++sit ) {
 
+	    Trk::Segment* tseg=*sit;
+	    MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
+
             if ( m_trackSegmentMatchingTool.empty() ) ATH_MSG_VERBOSE("No track/segment matching");
-            else if ( !m_trackSegmentMatchingTool->match(track, **sit, true) ) {
+            else if ( !m_trackSegmentMatchingTool->match(track, *mseg, true) ) {
               ATH_MSG_DEBUG(" Segment does not match with track ");
               continue;
             } else {
               ATH_MSG_DEBUG(" Segment/track matched successfully using " << m_trackSegmentMatchingTool );
             }
-            const Trk::TrackParameters* segPars = m_extrapolator->extrapolateDirectly(*exParsFirst, (*sit)->associatedSurface(),
+            const Trk::TrackParameters* segPars = m_extrapolator->extrapolateDirectly(*exParsFirst, mseg->associatedSurface(),
                                                   Trk::anyDirection, false, Trk::muon);
             if ( segPars ) {
-              double resy = (*sit)->localParameters()[Trk::locY] - segPars->parameters()[Trk::locY];
+              double resy = mseg->localParameters()[Trk::locY] - segPars->parameters()[Trk::locY];
               Trk::LocalDirection locDir;
-              (*sit)->associatedSurface().globalToLocalDirection(segPars->momentum(), locDir);
-              double dangleYZ = (*sit)->localDirection().angleYZ() - locDir.angleYZ();
-              ATH_MSG_DEBUG("resy " << resy << " dangleYZ " << dangleYZ << " "  << m_printer->print(**sit) );
+              mseg->associatedSurface().globalToLocalDirection(segPars->momentum(), locDir);
+              double dangleYZ = mseg->localDirection().angleYZ() - locDir.angleYZ();
+              ATH_MSG_DEBUG("resy " << resy << " dangleYZ " << dangleYZ << " "  << m_printer->print(*mseg) );
               if ( fabs(dangleYZ) < 0.05 ) {
-                bestSegment = *sit;
+                bestSegment = mseg;
                 if ( bestSegmentPars ) delete bestSegmentPars;
                 bestSegmentPars = segPars->clone();
               }
             } else {
-              ATH_MSG_DEBUG("Did not reach " << m_printer->print(**sit) );
+              ATH_MSG_DEBUG("Did not reach " << m_printer->print(*mseg) );
             }
             delete segPars;
           }
@@ -945,8 +949,6 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
             }
           }
           if ( bestSegmentPars ) delete bestSegmentPars;
-          for ( sit = segments->begin(); sit != sit_end; ++sit ) delete *sit;
-          delete segments;
         }
       }
       delete exParsFirst;

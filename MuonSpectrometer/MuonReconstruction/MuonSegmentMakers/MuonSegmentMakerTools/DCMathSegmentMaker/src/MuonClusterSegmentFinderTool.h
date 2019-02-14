@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONROADFINDERTOOL_H
@@ -59,13 +59,17 @@ namespace Muon {
 
   public:
     //find segments given a list of MuonCluster
-    std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) const override;
+    //segments can be added directly to a SegmentCollection, if they are to be written to SG, or returned in a list for further processing
+    void find(std::vector< const Muon::MuonClusterOnTrack* >& clusters, std::vector<Muon::MuonSegment*>& segments, Trk::SegmentCollection* segColl=0) const override;
     
   private:
     //reconstruct the segments in the precision (eta) plane
-    std::vector<const Muon::MuonSegment*>* findPrecisionSegments(std::vector< const Muon::MuonClusterOnTrack* >& MuonClusters) const;
+    void findPrecisionSegments(std::vector< const Muon::MuonClusterOnTrack* >& MuonClusters, std::vector<Muon::MuonSegment*>& etaSegs) const;
     //recontruct 3D segments
-    std::vector<const Muon::MuonSegment*>* find3DSegments(std::vector< const Muon::MuonClusterOnTrack* >& MuonClusters, std::vector<const Muon::MuonSegment*>* etaSegs) const;
+    void find3DSegments(std::vector< const Muon::MuonClusterOnTrack* >& MuonClusters, 
+			std::vector<Muon::MuonSegment*>& etaSegs, 
+			std::vector<Muon::MuonSegment*>& segments,
+			Trk::SegmentCollection* segColl=0) const;
     //clean the clusters
     std::vector< const Muon::MuonClusterOnTrack* > cleanClusters(std::vector< const Muon::MuonClusterOnTrack* >& MuonClusters, bool selectPhiClusters=false) const ;
     //order the clusters

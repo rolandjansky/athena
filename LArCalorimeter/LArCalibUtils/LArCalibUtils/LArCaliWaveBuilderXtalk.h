@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /************************************************************
@@ -53,8 +53,11 @@
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-#include "LArCabling/LArCablingService.h"
+
 #include "LArElecCalib/ILArPedestal.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
@@ -76,7 +79,10 @@ class LArCaliWaveBuilderXtalk : public AthAlgorithm
 
  private:
 
-  StatusCode initializeCabling();
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+
+  StatusCode initializeCabling(const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont);
   
   std::vector<std::string> m_keylist;
   std::vector<std::string> m_keylistproperty;
@@ -89,7 +95,6 @@ class LArCaliWaveBuilderXtalk : public AthAlgorithm
   WaveContainer   m_waves;
 
   const LArOnlineID*   m_onlineHelper;
-  ToolHandle<LArCablingService> m_larCablingSvc;
 
   std::vector<HWIdentifier> m_CalibLineHW;
 

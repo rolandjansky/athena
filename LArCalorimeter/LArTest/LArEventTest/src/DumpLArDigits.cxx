@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/DumpLArDigits.h"
@@ -15,7 +15,6 @@ DumpLArDigits::DumpLArDigits(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_chan(0),
     m_onlineHelper(0),
-    m_larCablingSvc(0),
     m_emId(0)
 {m_count=0;
  declareProperty("LArDigitContainerName",m_key=""); 
@@ -43,7 +42,7 @@ StatusCode DumpLArDigits::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   m_outfile.open(m_FileName.c_str(),std::ios::out);
 
@@ -72,6 +71,12 @@ StatusCode DumpLArDigits::execute()
  else
    ATH_CHECK( evtStore()->retrieve(digit_cont) );
  ATH_MSG_INFO ( "Retrieved LArDigitContainer from StoreGate! key=" << m_key );
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling{*cablingHdl};
+ if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+ }
  //int nColl=0;
  short layer,eta,phi;
  m_chan=0;
@@ -107,12 +112,12 @@ StatusCode DumpLArDigits::execute()
      m_outfile << "FEB_ID: 0x" << std::hex << febid.get_compact() 
 	       << " channel: " << std::dec <<  m_onlineHelper->channel(chid) 
 	       << " (" << m_onlineHelper->channelInSlotMax(febid) << "/FEB), ";
-     if (!m_larCablingSvc->isOnlineConnected(chid))
+     if (!cabling->isOnlineConnected(chid))
        {std::cout << "disconnected: \n";
        m_outfile << "disconnected: \n";
        continue;
        }
-     const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+     const Identifier id=cabling->cnvToIdentifier(chid);
      //std::cout << "Compact onlineid=" << id.get_compact() << std::endl;
      eta=m_emId->eta(id); 
      phi=m_emId->phi(id);

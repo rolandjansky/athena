@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,7 +14,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "Identifier/Identifier.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -40,7 +39,6 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   m_adc2eTools(),
   m_pedestalTools(),
   m_oldPedestal(0.),
-  m_larCablingSvc("LArSuperCellCablingTool"),
   m_counter(0)
 {
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
@@ -70,18 +68,9 @@ StatusCode LArSuperCellBuilderDriver::initialize()
       ATH_MSG_ERROR( "Could not get LArOnlineID helper !"  );
       return StatusCode::FAILURE;
     }
-  // if (m_roiMap.retrieve().isFailure())
-//     {
-//       ATH_MSG_ERROR( "Unable to find tool LArRoI_Map"  );
-//       return StatusCode::FAILURE; 
-//     }
-  
-  if(m_larCablingSvc.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR( "Could not retrieve LArCablingService Tool"  );
-      return StatusCode::FAILURE;
-    }
-  
+
+  ATH_CHECK( m_cablingKeySC.initialize() );
+
   // ***
   //m_larRawOrdering.setMap(&(*m_roiMap)); 
   
@@ -170,10 +159,14 @@ StatusCode LArSuperCellBuilderDriver::execute() {
         return StatusCode::SUCCESS;
   }
 
-  ToolHandle<LArSuperCellCablingTool> cabling;
   const CaloSuperCellDetDescrManager* sem_mgr;
-  CHECK( cabling.retrieve() );
-  CHECK( detStore()->retrieve (sem_mgr, "CaloSuperCellMgr") );
+  ATH_CHECK( detStore()->retrieve (sem_mgr, "CaloSuperCellMgr") );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdlSC{m_cablingKeySC};
+  const LArOnOffIdMapping* cabling=*cablingHdlSC;
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have SC cabling from key" << m_cablingKeySC.key() );
+     return StatusCode::FAILURE;
+  }
 
   initEventTools();
 
@@ -185,7 +178,7 @@ StatusCode LArSuperCellBuilderDriver::execute() {
        int time=0;
        int prov=0;
        CaloGain::CaloGain gain;
-       if ( buildLArCell( (*cont_it), energy, time, gain, prov, &msg() ) ){
+       if ( cabling->isOnlineConnected((*cont_it)->channelID()) && buildLArCell( (*cont_it), energy, time, gain, prov, &msg() ) ){
 	   ii++;
 	   Identifier id = cabling->cnvToIdentifier((*cont_it)->channelID());
 	   IdentifierHash idhash = sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
@@ -225,7 +218,7 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
       m_params->curr_chid=digit->channelID();
       m_params->curr_gain=digit->gain();
       
-      if(!m_buildDiscChannel && !m_larCablingSvc->isOnlineConnected(m_params->curr_chid)){
+      if(!m_buildDiscChannel ){
 	  m_counter++;
   	  return false;
       }

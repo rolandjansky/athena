@@ -182,7 +182,7 @@ namespace Muon {
           MuonSegmentCombination::SegmentVec::const_iterator ipsg    =stationSegs->begin();
           MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
           for (; ipsg != ipsg_end; ++ipsg) {
-            const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
+            const MuonSegment* seg = dynamic_cast<const MuonSegment*>((*ipsg).get());
             if ( 0 != seg ) {
 
               // Add segment to the MuonSegmentCollection

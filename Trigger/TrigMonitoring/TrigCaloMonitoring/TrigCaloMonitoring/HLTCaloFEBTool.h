@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HLTCALOFEBTOOL_H
@@ -13,7 +13,7 @@
 
 class StoreGateSvc;
 class IAlgToolEFCalo;
-class LArCablingService;
+class LArCablingLegacyService;
 class LArOnlineID;
 class MsgStream;
 class ITrigDataAccess;
@@ -48,7 +48,7 @@ private:
 	/** use or not ntuples */
 	bool m_ntuple;
 	const LArOnlineID * m_onlineHelper;
-        ToolHandle<LArCablingService>     m_cablingSvc;
+        ToolHandle<LArCablingLegacyService>     m_cablingSvc;
         ITrigDataAccess *m_data;
         /** Noise tool for offline cell by cell check */
         ToolHandle<ICaloNoiseTool> m_noisetool;

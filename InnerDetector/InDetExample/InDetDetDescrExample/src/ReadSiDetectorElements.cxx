@@ -93,11 +93,9 @@ StatusCode ReadSiDetectorElements::initialize(){
   if (m_useConditionsTools) {
     ATH_CHECK(m_siLorentzAngleTool.retrieve());
     ATH_CHECK(m_siConditionsTool.retrieve());
-    ATH_CHECK(m_siPropertiesTool.retrieve());
   } else {
     m_siLorentzAngleTool.disable();
     m_siConditionsTool.disable();
-    m_siPropertiesTool.disable();
   }
 
   // Initialize ReadCondHandleKey
@@ -172,19 +170,6 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
             << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
             << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
-
-        // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
-        ATH_MSG_ALWAYS(" Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
-                       << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-                       << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-                       << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s));
-        // ATH_MSG_ALWAYS(element->hitDepthDirection() << " "
-        //   << element->hitPhiDirection() << " "
-        //   << element->hitEtaDirection() << " "
-        //   << element->swapPhiReadoutDirection() << " "
-        //   << element->swapEtaReadoutDirection());
-        // ATH_MSG_ALWAYS("isBarrel: " << element->isBarrel());
 
         ATH_MSG_ALWAYS(" HashId, Id : " << hashId << "\t" << element->identify().getString());
 
@@ -550,11 +535,6 @@ ReadSiDetectorElements::testElement(const Identifier & id,
                    );
     ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
                    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
-    const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
-    ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-                   << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-                   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
-                   << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
     if (m_useConditionsTools) {
       ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
                      << m_siConditionsTool->temperature(hashId) << " "

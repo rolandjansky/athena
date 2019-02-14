@@ -29,16 +29,15 @@ topSequence += steps
 steps += topSequence.L1DecoderTest
 
 
-from TrigT2CaloCommon.CaloDef import createFastCaloSequence
+
 
 if TriggerFlags.doCalo:
 
   if ( doHLTCaloTopo ) :
-
-     from TrigT2CaloCommon.CaloDef import algoHLTCaloCell, algoHLTTopoCluster
-     steps+=algoHLTCaloCell(OutputLevel=DEBUG)    
-     steps+=algoHLTTopoCluster(OutputLevel=DEBUG)    
-
+    from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+    recosequence, caloclusters = HLTFSTopoRecoSequence("FSRoI")
+    steps+=recosequence
+ 
   if ( doL2Egamma ) :
 
      from TrigT2CaloCommon.CaloDef import createFastCaloSequence
@@ -49,7 +48,8 @@ if TriggerFlags.doCalo:
      filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
      filterL1RoIsAlg.Chains = [ "HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut" ]
      filterL1RoIsAlg.OutputLevel = DEBUG
-     steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ createFastCaloSequence() ])
+     (fastCaloSequence, sequenceOut) = createFastCaloSequence(filterL1RoIsAlg.Output[0])
+     steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
   dumpMasterSequence()

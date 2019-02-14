@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -497,6 +497,25 @@ namespace Muon {
     return sout.str();
   }
 
+  std::string MuonEDMPrinterTool::print( std::vector< std::unique_ptr< MuonSegment> >& segs ) const {
+
+    std::ostringstream sout;
+
+    std::vector< std::unique_ptr<MuonSegment> >::iterator it = segs.begin();
+    std::vector< std::unique_ptr<MuonSegment> >::iterator it_end = segs.end();
+    std::vector< std::unique_ptr<MuonSegment> >::iterator it_last = it_end; --it_last;
+    for( ;it!=it_end;++it ){
+      if(!*it) {
+	sout << " WARNING, zero pointer detected in MuonSegment vector!!! " << std::endl;
+        continue;
+      }
+      sout << print(**it);
+      if( it != it_last ) sout << std::endl;
+    }
+
+    return sout.str();
+  }
+
   std::string MuonEDMPrinterTool::print( const MuonSegmentCombinationCollection& combiCol ) const {
     std::ostringstream sout;
 
@@ -525,7 +544,7 @@ namespace Muon {
     for(unsigned int i=0; i<nstations; ++i){
 
       // loop over segments in station
-      const MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
+      MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i ) ;
          
       // check if not empty
       if( !stationSegs || stationSegs->empty() ) continue;

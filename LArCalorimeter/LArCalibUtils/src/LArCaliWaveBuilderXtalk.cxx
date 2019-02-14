@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilderXtalk.h"
@@ -27,7 +27,6 @@ LArCaliWaveBuilderXtalk::LArCaliWaveBuilderXtalk(const std::string& name, ISvcLo
   : AthAlgorithm(name, pSvcLocator),
     m_groupingType("ExtendedFeedThrough"), // SubDetector, Single, FeedThrough
     m_onlineHelper(NULL),
-    m_larCablingSvc("LArCablingService"),
     m_posOrNeg(0),
     m_barrelEndcap(0),
     m_isInnerWheel(0),
@@ -161,13 +160,14 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
   m_dt = m_SamplingPeriod/m_NStep;
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
   
   return StatusCode::SUCCESS;
 }
 
 //=========================================================================================================
-StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
+StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont)
 //=========================================================================================================
 { 
   // bug in LArTools, on-off map doesn't work at initialization stage
@@ -176,8 +176,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 
   // Temporary solution to create onoff map as long as it is not done in calibSlotLine()
   // WAITING FOR A FIX in LArTools
- 
-  Identifier cellId = m_larCablingSvc->cnvToIdentifier(m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,1,4));
+  Identifier cellId = cabling->cnvToIdentifier(m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,1,4));
   ATH_MSG_INFO ( "Dummy ids - TEMPORARY " << m_onlineHelper->show_to_string(cellId) );
 
 
@@ -200,7 +199,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
       
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
       ATH_MSG_INFO ( "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
@@ -223,7 +222,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("7",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,71);
       if (m_calibPattern.find("8",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,70);
       
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
@@ -240,7 +239,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,7);
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
       
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
@@ -271,7 +270,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
 
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
       ATH_MSG_INFO ( "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
@@ -303,7 +302,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
       
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
@@ -342,7 +341,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
       
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
@@ -359,7 +358,21 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 StatusCode LArCaliWaveBuilderXtalk::execute()
 //=========================================================================================================
 {
-  if (m_event_counter==0) initializeCabling();
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR("Do not have calibration mapping object " << m_CLKey.key());
+     return StatusCode::FAILURE;
+  }
+ 
+  if (m_event_counter==0) initializeCabling(cabling, clCont);
 
   // Print progression
   if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
@@ -411,7 +424,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
     // Loop over all cells as long as no interesting pulsed cell is found
     do{
 
-      const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine((*it)->hardwareID());
+      const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine((*it)->hardwareID());
       if (calibLine.size() != 0) {
 	std::vector<HWIdentifier>::iterator found=find(m_CalibLineHW.begin(),m_CalibLineHW.end(),calibLine[0]);
 
@@ -576,6 +589,13 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
   //  > #16 0xee8b2c82 in LArConditionsContainerBase::initializeBase ()                                                                                            
   //  > #17 0xeed5f872 in LArConditionsContainer<LArCaliWaveVec>::initialize ()                                                                                    
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
+
 
   LArWaveHelper wHelper;
   int NCaliWave=0;
@@ -601,7 +621,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
       //
 
       const HWIdentifier hwId = cell_it.channelId();
-      if (!m_larCablingSvc->isOnlineConnected(hwId)) continue; //Ignore disconnected channels
+      if (!cabling->isOnlineConnected(hwId)) continue; //Ignore disconnected channels
 	      
       const WaveMap& waveMap = (*cell_it);
       if (waveMap.size()==0) {

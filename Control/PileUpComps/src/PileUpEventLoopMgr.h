@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPEVENTLOOPMGR_H
@@ -16,7 +16,6 @@
 
 // Athena headers
 #include "AthenaKernel/MsgStreamMember.h"
-#include "EventInfo/EventID.h"  /* for EventID::number_type */
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
@@ -30,10 +29,6 @@
 class IBeamIntensity;
 class IBeamLuminosity;
 class IBkgStreamsCache;
-namespace xAODMaker
-{
-  class IEventInfoCnvTool;
-}
 class IEvtSelector;
 class IIncidentSvc;
 class ITimeKeeper;
@@ -153,16 +148,17 @@ private:
   /// property: control behaviour of event loop on algorithm failure
   Gaudi::Property<int> m_failureMode;
 
+  /// SG key for the EventInfoContainer
+  Gaudi::Property<std::string> m_evinfContName;
+
   /// property: beam intensity service handle for beam profile in local time
   ServiceHandle<IBeamIntensity> m_beamInt;
   /// property: beam intensity service handle for luminosity profile in iovtime
   ServiceHandle<IBeamLuminosity> m_beamLumi;
-  /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
-  ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
   //@}
 
   /// current run number
-  EventID::number_type m_currentRun;
+  uint32_t m_currentRun;
   bool m_firstRun;
 
   /// Private message stream member

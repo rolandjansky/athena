@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArRTMParamExtractor.h"
@@ -156,6 +156,8 @@ StatusCode LArRTMParamExtractor::initialize() {
   if (m_ignoreDACselection) 
     ATH_MSG_INFO( "Will ignore DAC selection and use first value found per channel per gain" );
 
+  ATH_CHECK( m_cablingKey.initialize() );
+
   return StatusCode::SUCCESS ;
 }
 
@@ -177,6 +179,13 @@ StatusCode LArRTMParamExtractor::stop()
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR( " Can't get LArWFParamTool" );
     return sc;
+  }
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
   }
       
   // retrieve previous complete objects from DetStore, if needed
@@ -533,6 +542,7 @@ StatusCode LArRTMParamExtractor::stop()
 	  sc = larWFParamTool->getLArWaveParams(larCaliWave, 
 						chid, (CaloGain::CaloGain)gain, 
                                                 wfParams,
+                                                cabling,
 						omegaScan,
 						resOscill0,
 						resOscill1 );					

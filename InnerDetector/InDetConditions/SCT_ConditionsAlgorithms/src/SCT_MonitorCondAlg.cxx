@@ -79,7 +79,7 @@ StatusCode SCT_MonitorCondAlg::execute(const EventContext& ctx) const
   CondAttrListCollection::const_iterator iter{readCdo->begin()};
   CondAttrListCollection::const_iterator last{readCdo->end()};
   for (; iter!=last; ++iter) {
-    const AthenaAttributeList& list{iter->second};
+    const coral::AttributeList& list{iter->second};
     if (list.size()>defectListIndex) {
       const Identifier moduleId{m_helper->module_id(Identifier{iter->first})};
       const IdentifierHash moduleHash{m_helper->wafer_hash(moduleId)};

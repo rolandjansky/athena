@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Csc4dSegmentMaker_H
@@ -16,7 +16,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h" //including MuonSegmentCombination(Collection).h CscPrepDataContainer.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h" // added..
 
 class ICscSegmentUtilTool;
 
@@ -36,7 +35,7 @@ namespace Muon {
   class MuonSegment;
 }
 
-class Csc4dSegmentMaker : virtual public ICscSegmentFinder, virtual public Muon::IMuonSegmentMaker, public AthAlgTool {
+class Csc4dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
 
 public:  // methods
 
@@ -52,25 +51,8 @@ public:  // methods
   // Finalization.
   StatusCode finalize();
 
-  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
-  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& ) const ;
-
-  // Only for Csc4dSegmentMaker
-  std::vector<const Muon::MuonSegment*>*  find( const Trk::TrackRoad &,
-                                                const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > > &,
-                                                const std::vector< std::vector< const Muon::MuonClusterOnTrack* > > &  ,
-                                                bool, double) const ;
-  std::vector<const Muon::MuonSegment*>*  find( const Amg::Vector3D&, const Amg::Vector3D&,
-                                                const std::vector< const Muon::MdtDriftCircleOnTrack* > &,
-                                                const std::vector< const Muon::MuonClusterOnTrack* > &  ,
-                                                bool, double) const;
-
-  std::vector<const Muon::MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ ) const;
-  std::vector<const Muon::MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& /*rios1*/,
-                                         const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) const ;
-  std::vector<const Muon::MuonSegment*>* find( const std::vector<const Muon::MdtDriftCircleOnTrack*>& /*mdts*/,
-                                         const std::vector<const Muon::MuonClusterOnTrack*>&  /*clusters*/) const;
-
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonSegmentCombinationCollection& ) const ;
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const; //not used here
 
 private:  // data
 

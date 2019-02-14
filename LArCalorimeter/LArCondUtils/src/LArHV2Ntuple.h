@@ -13,14 +13,15 @@
 // Gaudi includes
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include "TTree.h"
 
 class CaloCell_ID;
 class LArOnlineID;
-class LArCablingService;
 class Identifier;
 class HWIdentifier;
 class CaloDetDescrManager;
@@ -41,6 +42,8 @@ class LArHV2Ntuple : public AthAlgorithm {
     StatusCode          finalize(){return StatusCode::SUCCESS;}
     
   private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
 
   //---------------------------------------------------
   // Member variables
@@ -70,7 +73,6 @@ class LArHV2Ntuple : public AthAlgorithm {
   // ID helper
   const CaloCell_ID* m_caloId; 
   const LArOnlineID* m_onlId;
-  ToolHandle<LArCablingService> m_cabling;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   std::map<int, std::vector<HWIdentifier> >m_hvonlId_map;
 

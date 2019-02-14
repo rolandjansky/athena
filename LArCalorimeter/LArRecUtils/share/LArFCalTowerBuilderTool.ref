@@ -6640,6 +6640,7 @@ towers
 6398 100 63 0 
 6399 100 64 0 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+MetaDataSvc          INFO MetaDataSvc::stop()
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 06C9EAE8-6F5B-E011-BAAA-003048F0E7AC
 /cvmfs/atlas-co...   INFO Database being retired...

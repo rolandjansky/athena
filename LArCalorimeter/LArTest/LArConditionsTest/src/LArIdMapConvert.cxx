@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArConditionsTest/LArIdMapConvert.h"
@@ -17,8 +17,7 @@ LArIdMapConvert::LArIdMapConvert( const std::string& name,
 				  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_onlineID(NULL),
-  m_caloCellID(NULL),
-  m_cablingSvc("LArCablingService")
+  m_caloCellID(NULL)
 {
   //
   // Property declaration
@@ -45,11 +44,8 @@ StatusCode LArIdMapConvert::initialize() {
     return StatusCode::FAILURE;
   }
 
-  sc=m_cablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -64,6 +60,19 @@ StatusCode LArIdMapConvert::finalize()
 StatusCode LArIdMapConvert::execute() {  
 
   const uint32_t onlHashMax=m_onlineID->channelHashMax();
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont){
+     ATH_MSG_ERROR("Do not have calib mapping object " << m_CLKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   coral::AttributeListSpecification* spec_onOff = new coral::AttributeListSpecification();
   spec_onOff->extend("OnlineHashToOfflineId", "blob");
@@ -103,11 +112,11 @@ StatusCode LArIdMapConvert::execute() {
 
   for (uint32_t onlHash=0;onlHash<onlHashMax;++onlHash) {
     const HWIdentifier hwid=m_onlineID->channel_Id(onlHash);
-    print(hwid,outfile);
-    const Identifier id=m_cablingSvc->cnvToIdentifierFromHash(onlHash);
+    print(hwid,outfile,cabling,clCont);
+    const Identifier id=cabling->cnvToIdentifierFromHash(onlHash);
     pBlobOnOff[index++]=id.get_identifier32().get_compact();
 
-    const std::vector<HWIdentifier>& calibIDs=m_cablingSvc->calibSlotLine(hwid);
+    const std::vector<HWIdentifier>& calibIDs=clCont->calibSlotLine(hwid);
     const size_t nCalibLines=calibIDs.size();
     (calibHist[nCalibLines])++;
     pBlobCalib[calibIndex++]=nCalibLines;
@@ -144,7 +153,7 @@ StatusCode LArIdMapConvert::execute() {
 }
     
   
-void LArIdMapConvert::print (const HWIdentifier& hwid, std::ostream& out) {
+void LArIdMapConvert::print (const HWIdentifier& hwid, std::ostream& out, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont) {
   const IdentifierHash hwid_hash=m_onlineID->channel_Hash(hwid);
   out << hwid_hash << " " << std::hex << "0x" << hwid.get_identifier32().get_compact() << std::dec << " " 
       << m_onlineID->barrel_ec(hwid) << " " 
@@ -152,8 +161,8 @@ void LArIdMapConvert::print (const HWIdentifier& hwid, std::ostream& out) {
       << m_onlineID->feedthrough(hwid) << " " 
       << m_onlineID->slot(hwid) << " "
       << m_onlineID->channel(hwid) << " : ";
-  if (m_cablingSvc->isOnlineConnected(hwid)) {
-    const Identifier id=m_cablingSvc->cnvToIdentifier(hwid);
+  if (cabling->isOnlineConnected(hwid)) {
+    const Identifier id=cabling->cnvToIdentifier(hwid);
     out   << std::hex << "0x" << id.get_identifier32().get_compact() << std::dec << " " 
 	  << m_caloCellID->sub_calo(id) << " "
 	  << m_caloCellID->pos_neg(id) << " " 
@@ -165,7 +174,7 @@ void LArIdMapConvert::print (const HWIdentifier& hwid, std::ostream& out) {
   else
     out << " disconnected ";
 
-  const std::vector<HWIdentifier>& calibIDs=m_cablingSvc->calibSlotLine(hwid);
+  const std::vector<HWIdentifier>& calibIDs=clCont->calibSlotLine(hwid);
   for (size_t i=0;i<calibIDs.size();++i) {
     out << std::hex << "0x" << calibIDs[i].get_identifier32().get_compact() << " ";
   }

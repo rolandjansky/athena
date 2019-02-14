@@ -10,26 +10,16 @@
 
 #include "SCT_TdaqEnabledTool.h"
 
-//Use Event info to determine whether folder is expetd to have valid data
-#include "EventInfo/EventID.h"
-
-// Read (Cond) Handle
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 // Constructor
 SCT_TdaqEnabledTool::SCT_TdaqEnabledTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
-  m_mutex{},
-  m_cache{},
-  m_condData{},
   m_pHelper{nullptr},
   m_useDatabase{true}
 {
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
 }
 
 //Initialize
@@ -39,8 +29,7 @@ SCT_TdaqEnabledTool::initialize() {
   ATH_MSG_INFO(" Database will "<<databaseUseString<<"be used.");
 
   ATH_CHECK(detStore()->retrieve(m_pHelper,"SCT_ID"));
-  // Read (Cond) Handle Key
-  ATH_CHECK(m_eventInfoKey.initialize());
+  // Read Cond Handle Key
   if (m_useDatabase) {
     ATH_CHECK(m_condKey.initialize());
   }
@@ -89,21 +78,6 @@ SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId) const {
 
 const SCT_TdaqEnabledCondData*
 SCT_TdaqEnabledTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_TdaqEnabledCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+  SG::ReadCondHandle<SCT_TdaqEnabledCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
 }

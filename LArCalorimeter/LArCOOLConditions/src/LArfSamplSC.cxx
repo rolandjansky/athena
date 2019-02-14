@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArfSamplSC.h"
@@ -7,12 +7,12 @@
 
 //const float LArfSamplSC::errorcode=ILArfSampl::ERRORCODE;
 
-LArfSamplSC::LArfSamplSC() {}
+LArfSamplSC::LArfSamplSC():m_null(0.) {}
 
 LArfSamplSC::~LArfSamplSC() {}
 
 
-LArfSamplSC::LArfSamplSC(const CondAttrListCollection* attrList) {
+LArfSamplSC::LArfSamplSC(const CondAttrListCollection* attrList):m_null(0.) {
   StatusCode sc=initializeBase("LArfSamplSC");
   if (sc.isFailure()) return;
  
@@ -32,7 +32,7 @@ const float& LArfSamplSC::FSAMPL(const HWIdentifier& hwid) const {
 }
 
 // retrieving LArfSampl using offline ID  
-const float& LArfSamplSC::FSAMPL(const Identifier& id) const  {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(id);
-  return LArfSamplSC::FSAMPL(hwid);
+const float& LArfSamplSC::FSAMPL(const Identifier& /*id*/) const  {
+  (*m_log) << MSG::WARNING << "LArfSamplSC::FSAMPL not implemented for CellId !!!" << endmsg;
+  return m_null; 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEEDEDSEGMENTFINDER_H
@@ -74,13 +74,13 @@ public:
   StatusCode finalize();
 
   /** @brief find segments in a set of chambers starting from seeding TrackParameters */
-  std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const;
+  std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::set<Identifier>& chIds ) const;
 
   /** @brief find segments in a set of chambers starting from seeding TrackParameters (version with Hashes) */
-  std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const;
+  std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::set<IdentifierHash>& chIdHs ) const;
 
   /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
-  std::vector<const MuonSegment*>* find( const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrds ) const;
+  std::unique_ptr<Trk::SegmentCollection> find( const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrds ) const;
 
 
   /** @brief retrieve MDT PRD collections for the given hashes */

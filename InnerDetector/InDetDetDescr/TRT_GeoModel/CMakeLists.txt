@@ -39,3 +39,11 @@ atlas_add_component( TRT_GeoModel
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel TRT_ConditionsServicesLib InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData InDetIdentifier )
 
+atlas_add_test( TRT_GMConfig_test
+                SCRIPT test/TRT_GMConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+# Install files from the package:
+atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/*.py )
+

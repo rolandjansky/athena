@@ -21,10 +21,6 @@
 
 // Include Gaudi classes
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-// Include STL
-#include <mutex>
 
 // Forward declarations
 class SCT_ID;
@@ -76,14 +72,6 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   //----------Private Attributes----------//
   const SCT_ID*                       m_id_sct;            //!< Handle to SCT ID helper
   
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
-  // Pointers of SCT_GainCalibData and SCT_NoiseCalibData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_GainCalibData> m_condDataGain;
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_NoiseCalibData> m_condDataNoise;
   // Read Cond Handles
   SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain{this, "CondKeyGain", "SCT_GainCalibData", "SCT calibration data of gains of chips"};
   SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise{this, "CondKeyNoise", "SCT_NoiseCalibData", "SCT calibration data of noises of chips"};

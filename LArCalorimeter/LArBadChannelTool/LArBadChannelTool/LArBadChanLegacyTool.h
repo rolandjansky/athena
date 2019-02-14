@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChanLegacyTool_H
@@ -14,7 +14,7 @@
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -91,7 +91,7 @@ private:
   const DataHandle<CondAttrListCollection>  m_DBColl;
   const DataHandle<CondAttrListCollection>  m_TmpDBColl;
   const DataHandle<AthenaAttributeList>          m_DBBadFebColl;
-  ToolHandle<LArCablingService> m_cablingService;
+  ToolHandle<LArCablingLegacyService> m_cablingService;
 
   mutable BadChanInfo      m_HwBadChan; //should be non-mutable if possible
   mutable OfflineInfo      m_OfflineBadChan;

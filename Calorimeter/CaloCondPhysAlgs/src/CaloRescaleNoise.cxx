@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloRescaleNoise.h"
@@ -54,7 +54,7 @@ StatusCode CaloRescaleNoise::initialize()
 
   ATH_CHECK( m_noiseTool.retrieve() );
   ATH_CHECK( m_hvCorrTool.retrieve() );
-  ATH_CHECK( m_cabling.retrieve());
+  ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -88,6 +88,13 @@ StatusCode CaloRescaleNoise::stop()
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   FILE* fp = fopen("calonoise.txt","w");
 
   int ncell=m_calo_id->calo_cell_hash_max();
@@ -95,7 +102,7 @@ StatusCode CaloRescaleNoise::stop()
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       HWIdentifier hwid=m_cabling->createSignalChannelID(id);
+       HWIdentifier hwid=cabling->createSignalChannelID(id);
        const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
        int subCalo;
        IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);

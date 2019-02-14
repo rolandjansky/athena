@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -46,7 +45,6 @@
 
 LArCondDataTest::LArCondDataTest(const std::string& name, ISvcLocator* pSvcLocator) :
 	AthAlgorithm(name,pSvcLocator),
-	m_cablingSvc(0),
 	m_onlineID(0),
         m_emid(0),
         m_tbin(0),m_fixShape(false)
@@ -71,11 +69,10 @@ LArCondDataTest::~LArCondDataTest()
 StatusCode LArCondDataTest::initialize()
 {
     ATH_CHECK( detStore()->retrieve(m_onlineID) );
-
-    IToolSvc* toolSvc = 0;
-    ATH_CHECK( service("ToolSvc", toolSvc) );
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
     ATH_CHECK( detStore()->retrieve( m_emid) );
+    ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_CLKey.initialize() );
+    ATH_CHECK( m_RodKey.initialize() );
 
     ATH_MSG_DEBUG ( "initialize done" );
     return StatusCode::SUCCESS;
@@ -89,9 +86,26 @@ StatusCode LArCondDataTest::execute()
 {
      ATH_MSG_DEBUG(" LArCondDataTest::execute() ");
 
-    // Access LArCablingService, which should use LArFebRodMap and LArOnOffIdMap.
+     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+     const LArOnOffIdMapping* cabling{*cablingHdl};
+     if(!cabling){
+        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+        return StatusCode::FAILURE;
+     }
+     SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+     const LArCalibLineMapping *clCont {*clHdl};
+     if(!clCont){
+        ATH_MSG_ERROR("Do not have calib mapping object " << m_CLKey.key() );
+        return StatusCode::FAILURE;
+     }
+     SG::ReadCondHandle<LArFebRodMapping> rodHdl{m_RodKey};
+     const LArFebRodMapping *rodCont {*rodHdl};
+     if(!rodCont){
+        ATH_MSG_ERROR("Do not have ROD mapping object " << m_RodKey.key() );
+        return StatusCode::FAILURE;
+     }
 
-    const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec(); 
+    const std::vector<HWIdentifier>& roms = rodCont->getLArRoModIDvec(); 
     ATH_MSG_DEBUG ( " Number of LArReadoutModuleIDs= " << roms.size() );
 
     std::vector<HWIdentifier>::const_iterator it = m_onlineID->channel_begin();
@@ -171,7 +185,7 @@ StatusCode LArCondDataTest::execute()
 	HWIdentifier sid = *it; 
 	try { 
 
-	    if(! m_cablingSvc->isOnlineConnected(sid))
+	    if(! cabling->isOnlineConnected(sid))
 		continue;
 
 	    if(m_onlineID->barrel_ec(sid)==1)
@@ -184,8 +198,8 @@ StatusCode LArCondDataTest::execute()
 	     }
 	
 	    ++nconnected; 
-	    Identifier id = m_cablingSvc->cnvToIdentifier(sid);
-	    HWIdentifier sid2 =m_cablingSvc->createSignalChannelID(id);
+	    Identifier id = cabling->cnvToIdentifier(sid);
+	    HWIdentifier sid2 =cabling->createSignalChannelID(id);
 	    ++nch ;
 	    if( sid  !=sid2  ) { 		
               ATH_MSG_ERROR( " HWIdentifier mismatch,  sid "
@@ -199,7 +213,7 @@ StatusCode LArCondDataTest::execute()
 
 		// check Calibration Slot and Channel
 		const std::vector<HWIdentifier>&
-		    calib = m_cablingSvc->calibSlotLine(sid) ; 
+		    calib = clCont->calibSlotLine(sid) ; 
 		if(calib.size()==0) {
                   ATH_MSG_ERROR( " No calibration for this channel,hdw id="
                                  <<sid.get_compact() );

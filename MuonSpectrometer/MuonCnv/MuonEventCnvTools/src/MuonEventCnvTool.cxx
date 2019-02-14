@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonEventCnvTools/MuonEventCnvTool.h"
@@ -96,7 +96,7 @@ StatusCode Muon::MuonEventCnvTool::initialize()
 }
 
 void 
-    Muon::MuonEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack )
+    Muon::MuonEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const
 {
     MuonConcreteType type=TypeUnknown;
     if (0!=dynamic_cast<const Muon::RpcClusterOnTrack*>(&rioOnTrack) )        type = RPC;
@@ -117,7 +117,7 @@ void
 
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-    Muon::MuonEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack    )
+    Muon::MuonEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
 {
     using namespace Trk;
     using namespace MuonGM;
@@ -164,7 +164,7 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
     return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
 }
 
-void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
+void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
     Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<Muon::MdtDriftCircleOnTrack*>(RoT);
     if (mdt!=0){
@@ -199,7 +199,7 @@ void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
     return;
 }
 
-void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
+void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
     ////std::cout<<"MuonEventCnvTool::recreateRIO_OnTrack"<<std::endl;
     std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *> pair = getLinks( *RoT );
@@ -209,13 +209,13 @@ void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
 }
 
 const Trk::TrkDetElementBase* 
-Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& /**idHash*/)
+Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& /**idHash*/) const
 {
     return getDetectorElement(id);
 }
 
 const Trk::TrkDetElementBase* 
-Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id)
+Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const
 {
     const Trk::TrkDetElementBase* detEl = 0;
 
@@ -242,7 +242,7 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id)
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;
@@ -277,7 +277,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;
@@ -312,7 +312,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;
@@ -346,7 +346,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;
@@ -381,7 +381,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;
@@ -415,7 +415,7 @@ const Trk::PrepRawData*
 }
 
 const Trk::PrepRawData* 
-    Muon::MuonEventCnvTool::mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
+    Muon::MuonEventCnvTool::mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const
 {
     using namespace Trk;
     using namespace Muon;

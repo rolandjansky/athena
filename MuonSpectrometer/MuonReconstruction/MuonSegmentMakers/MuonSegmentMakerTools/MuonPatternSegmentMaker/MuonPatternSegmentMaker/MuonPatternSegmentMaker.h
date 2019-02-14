@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
 #define MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
@@ -25,8 +25,6 @@
 
 
 #include "Identifier/Identifier.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 class StoreGate;
 class MsgStream;
@@ -122,12 +120,15 @@ namespace Muon {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-    MuonSegmentCombination* find( const MuonPatternCombination& pattern ) const;
+    void find( const MuonPatternCombination& pattern, const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols,
+	       Trk::SegmentCollection* segColl) const;
 
-    MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patternCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) const;
+    std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonPatternCombinationCollection* patternCol, MuonSegmentCombPatternCombAssociationMap* segPattMap,
+							    const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols) const;
 
   private:
-    void createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements ) const;
+    void createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements, 
+			  const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols) const;
 
     void insertCluster( const MuonCluster& mdt, RegionMap& regionMap, 
 			const Amg::Vector3D& patpose, const Amg::Vector3D& patdire,
@@ -147,9 +148,6 @@ namespace Muon {
     const MuonSegment* isSubSet( const MuonSegment* seg1,  const MuonSegment* seg2 ) const;
     int         getRegionId( const Identifier& id ) const ;
 
-    void retrieveTriggerHitContainers() const;
-
-  
     ToolHandle<IMuonSegmentMaker>       m_segmentMaker;     //<! pointer to muon segment maker. 
 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
@@ -166,11 +164,6 @@ namespace Muon {
     bool m_doSummary;
     bool m_recoverTriggerHits;
     bool m_removeDoubleMdtHits;
-
-    SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_keyRpc;
-    SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_keyTgc;
-    mutable const Muon::RpcPrepDataContainer* m_rpcPrdContainer;
-    mutable const Muon::TgcPrepDataContainer* m_tgcPrdContainer;
 
   };
 

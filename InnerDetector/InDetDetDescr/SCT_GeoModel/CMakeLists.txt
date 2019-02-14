@@ -37,6 +37,10 @@ atlas_add_component( SCT_GeoModel
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier )
 
+atlas_add_test( SCT_GMConfig_test
+                SCRIPT test/SCT_GMConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-
+atlas_install_scripts( test/*.py )

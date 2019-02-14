@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaSvc.h 
@@ -18,6 +18,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaPython/IPyComponent.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 // Python
@@ -27,9 +28,9 @@ typedef _object PyObject;
 namespace PyAthena {
 
 typedef ::AthService SvcBase_t;
-class Svc : virtual public ::IPyComponent,
-            virtual public ::IIncidentListener,
-	            public   SvcBase_t
+class ATLAS_NOT_THREAD_SAFE Svc : virtual public ::IPyComponent,
+                                  virtual public ::IIncidentListener,
+                                  public   SvcBase_t
 { 
 
   /////////////////////////////////////////////////////////////////// 

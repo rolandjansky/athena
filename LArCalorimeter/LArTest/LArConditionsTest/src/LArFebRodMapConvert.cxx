@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArConditionsTest/LArFebRodMapConvert.h"
           
-//#include "LArTools/LArCablingBlob.h"
 //#include "LArTools/LArOnOffIdMap.h"
 #include "LArIdentifier/LArOnlineID.h"
 //#include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -16,9 +15,7 @@
 LArFebRodMapConvert::LArFebRodMapConvert( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_onlineID(NULL),
-  //m_caloCellID(NULL),
-  m_cablingSvc("LArCablingService")
+  m_onlineID(NULL)
 {
   //
   // Property declaration
@@ -39,18 +36,7 @@ StatusCode LArFebRodMapConvert::initialize() {
     return StatusCode::FAILURE;
   }
   
-  /*
-  sc = detStore()->retrieve(m_caloCellID, "CaloCell_ID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  */
-  sc=m_cablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_RodKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -85,13 +71,19 @@ StatusCode LArFebRodMapConvert::execute() {
 
   outfile << "hash id rodid" << std::endl;
 
+  SG::ReadCondHandle<LArFebRodMapping> rodHdl{m_RodKey};
+  const LArFebRodMapping *rodCont {*rodHdl};
+  if(!rodCont){
+     ATH_MSG_ERROR("Do not have ROD mapping object " << m_RodKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   for (uint32_t onlHash=0;onlHash<onlHashMax;++onlHash) {
     const HWIdentifier hwid=m_onlineID->feb_Id(onlHash);
 #ifdef LARREADOUTMODULEID_H //Old version
-    const uint32_t rodid=m_cablingSvc->getReadoutModuleID(hwid).id();
+    const uint32_t rodid=rodCont->getReadoutModuleID(hwid).id();
 #else //New version, LArReadoutModuleID replaced my HWIdentifier
-    const uint32_t rodid=m_cablingSvc->getReadoutModuleID(hwid).get_identifier32().get_compact();
+    const uint32_t rodid=rodCont->getReadoutModuleID(hwid).get_identifier32().get_compact();
 #endif
     pBlobFebRod[index++]=rodid;
     outfile << onlHash << " 0x" << std:: hex << hwid.get_compact() << " 0x"<< rodid << std::dec << std::endl;

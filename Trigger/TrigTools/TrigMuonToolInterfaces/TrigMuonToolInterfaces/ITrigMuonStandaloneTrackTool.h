@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONTOOLINTERFACES_ITRIGMUONSTANDALONETRACKTOOL_H
@@ -8,7 +8,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigMuonEvent/CachingFeatureCollection.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
@@ -67,10 +66,6 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
 					       TrigMuonEFMonVars& monvars,
 					       std::vector<TrigTimer*>& timers) = 0;
   
-  /** return last created MuonSegmentCombinationCollection. Object will be deleted by tool at the end of the event.
-      NB: You can not attach this object to the TriggerElement */
-  virtual const MuonSegmentCombinationCollection* segmentCombis()=0;
-
   /** return last created MuonPatternCombinationCollection. Object will be deleted by tool at the end of the event.
       NB: You can not attach this object to the TriggerElement */
   virtual const MuonPatternCombinationCollection* patternCombis()=0;
@@ -87,10 +82,6 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
       NB: You can not attach this object to the TriggerElement */
   virtual const TrackCollection* extrapolatedTracks() = 0;
 
-
-  /** return last created MuonSegmentCombinationCollection. Caller is responsible for deletion of object.
-      Call this function if you want to attach the object to the TriggerElement */
-  virtual const MuonSegmentCombinationCollection* segmentCombisToAttach()=0;
 
   /** return last created MuonPatternCombinationCollection. Caller is responsible for deletion of object.
       Call this function if you want to attach the object to the TriggerElement */
@@ -113,7 +104,6 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
   virtual const xAOD::TrackParticleContainer* trackParticleContainerToAttach()=0;
   virtual const xAOD::TrackParticleAuxContainer* trackParticleAuxContainerToAttach()=0;
 
-  virtual void recordSegments() = 0;
   virtual void recordPatterns() = 0;
   virtual void recordSpectrometerTracks() = 0;
 

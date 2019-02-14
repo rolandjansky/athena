@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChanLegacyTool.h"
@@ -42,7 +42,7 @@ struct BadFebEntryMerger {
 LArBadChanLegacyTool::LArBadChanLegacyTool(const std::string& type, const std::string& name, 
 			       const IInterface* parent) :
 	AthAlgTool( type, name, parent), 
-        m_cablingService("LArCablingService"),
+        m_cablingService("LArCablingLegacyService"),
 	m_updatedFromDB( false),
 	m_updatedFebsFromDB( false),
 	m_ready( false),

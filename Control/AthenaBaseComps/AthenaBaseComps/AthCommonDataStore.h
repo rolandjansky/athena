@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class  AthCommonDataStore
@@ -85,17 +85,22 @@ public:
    * Returns (kind of) a pointer to the @c StoreGateSvc
    * @warning: deprecated. please use @c evtStore() instead
    */
-  ServiceHandle<StoreGateSvc>& sgSvc() const { return m_evtStore; }
+  const ServiceHandle<StoreGateSvc>& sgSvc() const { return m_evtStore; }
 
   /** @brief The standard @c StoreGateSvc (event store)
    * Returns (kind of) a pointer to the @c StoreGateSvc
    */
-  ServiceHandle<StoreGateSvc>& evtStore() const { return m_evtStore; }
+  ServiceHandle<StoreGateSvc>& evtStore() { return m_evtStore; }
+
+  /** @brief The standard @c StoreGateSvc (event store)
+   * Returns (kind of) a pointer to the @c StoreGateSvc
+   */
+  const ServiceHandle<StoreGateSvc>& evtStore() const { return m_evtStore; }
 
   /** @brief The standard @c StoreGateSvc/DetectorStore
    * Returns (kind of) a pointer to the @c StoreGateSvc
    */
-  ServiceHandle<StoreGateSvc>& detStore() const { return m_detStore; }
+  const ServiceHandle<StoreGateSvc>& detStore() const { return m_detStore; }
 
 
   /**
@@ -371,15 +376,15 @@ protected:
 private:
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
   /// Pointer to StoreGate (event store by default)
-  mutable StoreGateSvc_t m_evtStore;
+  StoreGateSvc_t m_evtStore;
 
   /// Pointer to StoreGate (detector store by default)
-  mutable StoreGateSvc_t m_detStore;
+  StoreGateSvc_t m_detStore;
 
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
-  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+  std::vector<SG::VarHandleKeyArray*> m_vhka;
   bool m_varHandleArraysDeclared;
 
 

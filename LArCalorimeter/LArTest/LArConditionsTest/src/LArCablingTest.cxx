@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArConditionsTest/LArCablingTest.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -12,7 +11,7 @@
 #include <fstream>
 
 LArCablingTest::LArCablingTest(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator), m_larCablingSvc("LArCablingService"), m_print(true),
+  AthAlgorithm(name, pSvcLocator), m_print(true),
   m_onlineId(0),
   m_caloCellId(0)
 {
@@ -27,7 +26,10 @@ LArCablingTest::~LArCablingTest() {
 StatusCode LArCablingTest::initialize() {
   detStore()->retrieve(m_onlineId,"LArOnlineID").ignore();
   detStore()->retrieve(m_caloCellId,"CaloCell_ID").ignore();
-  m_larCablingSvc.retrieve().ignore();
+
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
+  ATH_CHECK( m_RodKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -41,14 +43,32 @@ StatusCode LArCablingTest::execute() {
     outfile.open("identifiers.txt");
     outfile << "hash id bec pn FT SL chan id calo pn sampl reg eta phi calib" << std::endl;
   }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont){
+     ATH_MSG_ERROR("Do not have calib mapping object " << m_CLKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArFebRodMapping> rodHdl{m_RodKey};
+  const LArFebRodMapping *rodCont {*rodHdl};
+  if(!rodCont){
+     ATH_MSG_ERROR("Do not have ROD mapping object " << m_RodKey.key() );
+     return StatusCode::FAILURE;
+  }
   if (m_mode & 1) {
     std::vector<HWIdentifier>::const_iterator it1 = m_onlineId->channel_begin();
     std::vector<HWIdentifier>::const_iterator it1_e = m_onlineId->channel_end();
     for (;it1!=it1_e;it1++) {
       const HWIdentifier hwid = *it1;
       if (m_print)
-	print(hwid,outfile);
-      const Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+	print(hwid,outfile,cabling,clCont);
+      const Identifier id=cabling->cnvToIdentifier(hwid);
       if (m_print)
 	if (id!=Identifier())
 	  std::cout << "ON:OFF 0x" << hwid.get_identifier32().get_compact() << ":0x"<<id.get_identifier32().get_compact() << std::dec << std::endl;
@@ -60,7 +80,7 @@ StatusCode LArCablingTest::execute() {
     for(;it2!=it2_e;it2++) {
       const Identifier id=*it2;
       if (!m_caloCellId->is_tile(id)) {
-	const HWIdentifier hwid=m_larCablingSvc->createSignalChannelID(id);
+	const HWIdentifier hwid=cabling->createSignalChannelID(id);
 	if (m_print)
 	  std::cout << "OFF:ON 0x" << std::hex << id.get_identifier32().get_compact() << ":0x"<<hwid.get_identifier32().get_compact() << std::dec << std::endl;
       }
@@ -73,7 +93,7 @@ StatusCode LArCablingTest::execute() {
     size_t nId=0;
     for (;it1!=it1_e;it1++,nId++) {
       const HWIdentifier hwid = *it1;
-      bool result=m_larCablingSvc->isOnlineConnected(hwid);
+      bool result=cabling->isOnlineConnected(hwid);
       if (m_print)
 	std::cout << "Connected 0x" << std::hex << hwid.get_identifier32().get_compact() << ":"<<result << std::dec << std::endl;
     }
@@ -85,9 +105,9 @@ StatusCode LArCablingTest::execute() {
     for(;it3!=it3_e;++it3) {
       const HWIdentifier FEBID=*it3;
 #ifdef LARREADOUTMODULEID_H //Old version
-      const uint32_t RODID=m_larCablingSvc->getReadoutModuleID(FEBID).id();
+      const uint32_t RODID=rodCont->getReadoutModuleID(FEBID).id();
 #else //New version, LArReadoutModuleID replaced my HWIdentifier
-      const uint32_t RODID=m_larCablingSvc->getReadoutModuleID(FEBID).get_identifier32().get_compact();
+      const uint32_t RODID=rodCont->getReadoutModuleID(FEBID).get_identifier32().get_compact();
 #endif
       if (m_print) {
 	std::cout << "FEB:ROD 0x" << FEBID.get_identifier32().get_compact() << ":0x" << 
@@ -103,7 +123,7 @@ StatusCode LArCablingTest::execute() {
 
 
 
-void LArCablingTest::print (const HWIdentifier& hwid, std::ostream& out) {
+void LArCablingTest::print (const HWIdentifier& hwid, std::ostream& out, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont) {
   const IdentifierHash hwid_hash=m_onlineId->channel_Hash(hwid);
   out << hwid_hash << " " << std::hex << "0x" << hwid.get_identifier32().get_compact() << std::dec << " " 
       << m_onlineId->barrel_ec(hwid) << " " 
@@ -111,8 +131,8 @@ void LArCablingTest::print (const HWIdentifier& hwid, std::ostream& out) {
       << m_onlineId->feedthrough(hwid) << " " 
       << m_onlineId->slot(hwid) << " "
       << m_onlineId->channel(hwid) << " : ";
-  if (m_larCablingSvc->isOnlineConnected(hwid)) {
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+  if (cabling->isOnlineConnected(hwid)) {
+    const Identifier id=cabling->cnvToIdentifier(hwid);
     out   << std::hex << "0x" << id.get_identifier32().get_compact() << std::dec << " " 
 	  << m_caloCellId->sub_calo(id) << " "
 	  << m_caloCellId->pos_neg(id) << " " 
@@ -124,7 +144,7 @@ void LArCablingTest::print (const HWIdentifier& hwid, std::ostream& out) {
   else
     out << " disconnected ";
 
-  const std::vector<HWIdentifier>& calibIDs=m_larCablingSvc->calibSlotLine(hwid);
+  const std::vector<HWIdentifier>& calibIDs=clCont->calibSlotLine(hwid);
   for (size_t i=0;i<calibIDs.size();++i) {
     out << std::hex << "0x" << calibIDs[i].get_identifier32().get_compact() << " ";
   }

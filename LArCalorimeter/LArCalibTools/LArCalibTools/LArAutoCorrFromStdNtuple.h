@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRFROMSTDNTUPLE_H
@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include <vector>
 #include <string>
@@ -54,6 +55,7 @@ class LArAutoCorrFromStdNtuple : public AthAlgorithm
   bool m_sFcal;
 
    ToolHandle<ILArMCSymTool> m_larmcsym;
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 };
 
 #endif

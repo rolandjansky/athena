@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------------------
@@ -13,6 +13,8 @@
 #define LARCALIWAVESELECTOR_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -22,7 +24,6 @@ typedef std::pair< std::pair<int,int>, int> DetGain;
 
 class LArOnlineID;
 class CaloCell_ID;
-class LArOnOffIdMap;
 
 class LArCaliWaveSelector : public AthAlgorithm
 {
@@ -36,6 +37,8 @@ class LArCaliWaveSelector : public AthAlgorithm
   StatusCode finalize(){ return StatusCode::SUCCESS;}
     
  private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   void parseSelection();
 

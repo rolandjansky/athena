@@ -56,6 +56,8 @@
 #include "VP1Base/VP1AthenaPtrs.h"
 #include "VP1Base/VP1Settings.h"
 
+#include "VP1UtilsBase/VP1BatchUtilities.h"
+
 #include <QApplication>
 #include <QProgressBar>
 #include <QDesktopWidget>
@@ -64,6 +66,7 @@
 #include <QCursor>
 #include <QTimer>
 #include <QSet>
+#include <QStringList>
 #include <QMessageBox>
 
 #include <Inventor/C/errors/debugerror.h>
@@ -75,6 +78,19 @@
 #include <sstream>      // std::ostringstream
 #include <ctime>
 #include <stdexcept>
+#include <string>
+#include <vector>
+
+
+
+std::vector<std::string> qstringlistToVecString(QStringList list)
+{
+	std::vector<std::string> vec;
+	foreach(QString str, list) {
+		vec.push_back(str.toStdString());
+	}
+	return vec;
+}
 
 
 //___________________________________________________________________
@@ -87,8 +103,13 @@ public:
 	VP1Prioritiser * prioritiser;
 	VP1MainWindow* mainwindow;
 
+	long int eventsProcessed;
+
 	bool batchMode;
 	bool batchModeAllEvents;
+	int batchModeNEvents;
+	bool batchModeRandomConfig;
+	VP1BatchUtilities* batchUtilities;
 
 	VP1AvailEvents * availEvents;
 
@@ -178,19 +199,24 @@ private:
 
 //___________________________________________________________________
 VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
-		StoreGateSvc* eventStore,StoreGateSvc* detStore,
-		ISvcLocator* svcLocator,IToolSvc*toolSvc,
+		StoreGateSvc* eventStore,
+		StoreGateSvc* detStore,
+		ISvcLocator* svcLocator,
+		IToolSvc*toolSvc,
 		VP1AvailEvents * availEvents)
 : QObject(parent), m_d(new Imp)
 {
 	m_d->availEvents = availEvents;
 	VP1AthenaPtrs::setPointers(eventStore,detStore,svcLocator,toolSvc);
+	m_d->eventsProcessed = 0;
 
 	m_d->scheduler = this;
 	m_d->prioritiser = new VP1Prioritiser(this);
 	m_d->mainwindow = new VP1MainWindow(this,availEvents);//mainwindow takes ownership of available events
 	m_d->batchMode = false;
+	m_d->batchUtilities = nullptr;
 	m_d->batchModeAllEvents = false;
+	m_d->batchModeNEvents = 0;
 	m_d->allSystemsRefreshed = false;
 	m_d->goingtonextevent=true;
 	m_d->currentsystemrefreshing=0;
@@ -211,18 +237,23 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 
 	// Init and show the main window of VP1
 	SoQt::init( m_d->mainwindow );// SoQt::init( "VP1" );
+
+	// check if 'batch mode'
 	bool batchMode = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE"); // ::getenv("VP1_BATCHMODE");
 	qDebug() << "VP1ExecutionScheduler:: Do we run in 'batch' mode?" << batchMode;
 	if (batchMode) {
 		VP1Msg::messageWarningAllRed("User has run VP1 in 'batch-mode', so the main window of the program will not be shown.");
 		m_d->batchMode = true;
+
+		// check if the user set the "all events" option as well
+		m_d->batchModeAllEvents = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE_ALLEVENTS");
+
+		// check if the user set the "random configuration file" option as well
+		m_d->batchModeRandomConfig = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE_RANDOMCONFIG");
 	}
 	else {
 		m_d->mainwindow->show();
 	}
-
-    // If in batch mode, let's see if the user set the "all events" options as well
-	m_d->batchModeAllEvents = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE_ALLEVENTS"); // ::getenv("VP1_BATCHMODE");
 
 
 	m_d->pb = m_d->mainwindow->progressbar;
@@ -265,6 +296,7 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 VP1ExecutionScheduler::~VP1ExecutionScheduler()
 {
 	m_d->refreshtimer->stop();
+	delete m_d->batchUtilities;
 	delete m_d->mainwindow;
 	delete m_d->prioritiser;
 	delete m_d->globalEventFilter;
@@ -272,8 +304,10 @@ VP1ExecutionScheduler::~VP1ExecutionScheduler()
 }
 
 //___________________________________________________________________
-VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, StoreGateSvc* detStore,
-		ISvcLocator* svcLocator, IToolSvc*toolSvc,
+VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
+		StoreGateSvc* detStore,
+		ISvcLocator* svcLocator,
+		IToolSvc*toolSvc,
 		QStringList joboptions,
 		QString initialCruiseMode,
 		unsigned initialCruiseSeconds,
@@ -354,7 +388,19 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, St
 	} else {
 		foreach(QString opt,joboptions)
     		  scheduler->m_d->mainwindow->loadConfigurationFromFile(opt);
+
+		if ( scheduler->m_d->batchMode ) {
+			if (scheduler->m_d->batchModeRandomConfig ) {
+				scheduler->m_d->batchUtilities = new VP1BatchUtilities( qstringlistToVecString(joboptions) );
+			}
+			QString batchNevents = VP1QtUtils::environmentVariableValue("VP1_BATCHMODE_NEVENTS");
+			if (batchNevents > 0 ) {
+				scheduler->m_d->batchModeNEvents = batchNevents.toInt();
+			}
+		}
 	}
+
+
 	if (scheduler->m_d->mainwindow->tabWidget_central->count()<=1) {
 		if (initialCruiseMode=="TAB") {
 			VP1Msg::message("ERROR: Can not start in cruisemode TAB unless there are at least 2 tabs loaded from initial .vp1 files. Reverting to cruise mode NONE.");
@@ -395,6 +441,7 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, St
 							static_cast<int>(initialCruiseSeconds))));
 	if ( cruisesecs>0 )
 		scheduler->m_d->mainwindow->spinBox_cruise->setValue(cruisesecs);
+
 
 	return scheduler;
 }
@@ -504,8 +551,15 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 
 
 	VP1Msg::messageDebug("batch mode: " + QString::number(m_d->batchMode));
+
+	if (m_d->batchModeRandomConfig) {
+		VP1Msg::messageDebug("User chose 'batch' and 'batch-random-config'. So we now replace the configuration with a random one from the input set...");
+		QString randomConfigFile = QString::fromStdString( m_d->batchUtilities->getRandomConfigFile() );
+		m_d->mainwindow->replaceConfigurationFile(randomConfigFile);
+	}
+
 	if ( m_d->batchMode && m_d->allVisibleRefreshed() ) { // or m_d->allSystemsRefreshed ???
-			VP1Msg::messageDebug("We're in batch mode, skipping...");
+			VP1Msg::messageDebug("We're in batch mode, skipping the execution of the GUI...");
 	} else {
 		VP1Msg::messageDebug("skipEvent: " + QString::number(m_d->skipEvent));
 		if(m_d->skipEvent) {
@@ -544,7 +598,8 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 		eraseSystem(s);
 	}
 
-	VP1Msg::messageDebug("event processed.");
+	++m_d->eventsProcessed; // we don't use Athena's tools for this, so we can use this in VP1Light as well.
+	VP1Msg::messageDebug("event processed. " + QString::number(m_d->eventsProcessed) + " events processed so far.");
 
 	//Let channels know we are going to the next event now:
 	foreach(IVP1ChannelWidget*cw, m_d->mainwindow->tabManager()->allChannels()) {
@@ -553,7 +608,8 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 
-	VP1Msg::messageDebug("mainwindow->mustQuit: " + QString::number(m_d->mainwindow->mustQuit()) );
+
+	VP1Msg::messageDebug("mainwindow->mustQuit ? " + QString::number(m_d->mainwindow->mustQuit()) );
 	return !m_d->mainwindow->mustQuit();
 }
 
@@ -737,6 +793,7 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 		if (m_d->batchMode) {
 
 			VP1Msg::messageDebug("we are in 'batch-mode'...");
+			VP1Msg::messageDebug("batchModeNEvents: " + QString::number(m_d->batchModeNEvents) + " - m_d->eventsProcessed: " + QString::number(m_d->eventsProcessed) );
 
 			// saving the snapshot of the 3D window to a file
 			QString save_ok = saveSnaphsotToFile(s, true);
@@ -748,16 +805,34 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 
 
 			if (m_d->batchModeAllEvents) {
+				VP1Msg::messageWarningAllRed("******************************************************************");
 				VP1Msg::messageWarningAllRed("'batch mode' with 'all events' option. Moving to the next event...");
 				VP1Msg::messageWarningAllRed("******************************************************************");
+				// N.B. calling QApplication::quit() here it makes VP1 move to the next event;
 				QApplication::quit();
-			} else {
-				VP1Msg::messageWarningRed("'batch mode'. Now exiting VP1");
-
-				// Here we want to close VP1 completely.
+				// Now, VP1ExecutionScheduler::executeNewEvent() will end, then VP1Gui::executeNewEvent() will end, then they will start again: first VP1Gui then VP1ExecutionScheduler.
+			} else if ( m_d->batchModeNEvents > 0 ) {
+			    if ( m_d->batchModeNEvents == m_d->eventsProcessed+1) { // here we use +1 because this is performed after the creation of the event snapshot. //TODO: maybe we can move this to a more natural place, at the beginning or at the end of an event
+			    	VP1Msg::messageWarningAllRed("******************************************************************");
+			    	VP1Msg::messageWarningAllRed("'batch mode' with 'batch-n-events' option. Processed the " + QString::number(m_d->eventsProcessed+1) + " events set by the user. Now exiting VP1");
+			    	VP1Msg::messageWarningAllRed("******************************************************************");
+			    	m_d->mainwindow->close();
+			    } else {
+			    	VP1Msg::messageWarningAllRed("'batch mode' with 'batch-n-events' option. Moving to the next event...");
+			    	// N.B. calling QApplication::quit() here it makes VP1 move to the next event;
+			    	QApplication::quit();
+			    	// Now, VP1ExecutionScheduler::executeNewEvent() will end, then VP1Gui::executeNewEvent() will end, then they will start again: first VP1Gui then VP1ExecutionScheduler.
+			    }
+			}
+			else {
+				// We come here if the user did not choose to run batch mode on all events.
+				// Thus, we want to close VP1 completely.
 				// So, in order to do that, we have to call "MainWindow::close()"
+				VP1Msg::messageWarningRed("'batch mode'. Done. Now exiting VP1");
 				m_d->mainwindow->close();
 			}
+
+
 		}
 	}
 }

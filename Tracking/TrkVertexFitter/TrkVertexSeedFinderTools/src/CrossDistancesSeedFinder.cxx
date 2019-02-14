@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -267,5 +267,26 @@ namespace Trk
     return std::vector<Amg::Vector3D>(0);
 
   }
+
+  void CrossDistancesSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
+    //implemented to satisfy inheritance
+  }
+
+  int CrossDistancesSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
+						const std::vector<const Trk::TrackParameters*>  & /* b */) const{
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  int CrossDistancesSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
+					   std::vector<float> & /* c */, std::vector<float> & /* d */) const{
+   //implemented to satisfy inheritance
+    return 0;
+  }
+
+  void CrossDistancesSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
+    //implemented to satisfy inheritance
+  }
+
 
 }

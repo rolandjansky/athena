@@ -16,7 +16,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
 
 // Include boost stuff

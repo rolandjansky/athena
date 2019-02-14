@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArRTMParamExtractor : public AthAlgorithm
 {
@@ -39,6 +40,8 @@ class LArRTMParamExtractor : public AthAlgorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
   
  private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   std::vector<std::string> m_keylist;
   bool m_testmode, m_dumpOmegaScan, m_dumpResOscill;

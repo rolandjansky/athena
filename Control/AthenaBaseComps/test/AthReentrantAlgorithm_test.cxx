@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -35,7 +35,7 @@ SG_BASE (AthenaBaseCompsTest::MyObj, AthenaBaseCompsTest::MyBase);
 using AthenaBaseCompsTest::MyObj;
 
 
-IProxyDict* pdict = nullptr;
+std::atomic<IProxyDict*> pdict (nullptr);
 
 
 class MyAlg

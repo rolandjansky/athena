@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
@@ -57,7 +57,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
 
   /** converts MuonPrdPatterns into MuonPatternCombinationCollection
    * MuonPatternCombinationCollection are default output for PatternFinder */
-  virtual const MuonPatternCombinationCollection* makePatternCombinations(const MuonPrdPatternCollection* muonpatterns)const;
+  virtual MuonPatternCombinationCollection* makePatternCombinations(const MuonPrdPatternCollection* muonpatterns)const;
 
   /** method to set association map between phi and eta hits */
   virtual void setPhiEtaHitAssMap(std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >*);

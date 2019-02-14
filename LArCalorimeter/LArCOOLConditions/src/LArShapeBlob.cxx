@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArShapeBlob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
 
 LArShapeBlob::LArShapeBlob():
   m_nChannels(0),

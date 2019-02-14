@@ -15,7 +15,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "boost/io/ios_state.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -319,16 +318,15 @@ void TileDetDescrManager::create_elements()
       emin = -etmp;
     }
     
+    if ( m_verbose )
+      std::cout << std::setiosflags(std::ios::fixed)
+                << std::setw(9) << std::setprecision(2);
+
     // and now create calo descriptors per every module ( 6 * 64 = 384 in total)
     double phi  = descr->phi_min() + dphi/2.;
 
-    boost::io::ios_base_all_saver coutsave (std::cout);
     for (int iphi=0; iphi<nphi; ++iphi) {
       
-      if ( m_verbose && ( 0 == iphi ) )
-        std::cout << std::setiosflags(std::ios::fixed)
-                  << std::setw(9) << std::setprecision(2);
-
       int module = iphi; // we count modules from 0 to N always
 
       //Temporary solution for cell volumes
@@ -855,6 +853,8 @@ void TileDetDescrManager::create_elements()
       }
       phi += dphi;
     }
+    if ( m_verbose )
+      std::cout << std::resetiosflags(std::ios::fixed);
   }
 
   MLOG(DEBUG) << n_cells << " cells and "
@@ -882,7 +882,6 @@ void TileDetDescrManager::add_calodescr(CaloDetDescriptor* descr)
   m_calo_descr_map[index] = descr;
 
   if (m_verbose) {
-    boost::io::ios_base_all_saver coutsave (std::cout);
     std::cout << std::setiosflags(std::ios::fixed)
               << std::setw(9) << std::setprecision(4);
     std::cout << "new Tile CaloDetDescriptor" << std::endl;
@@ -905,6 +904,7 @@ void TileDetDescrManager::add_calodescr(CaloDetDescriptor* descr)
     std::cout << " calo_r_max " << descr->calo_r_max() << std::endl;
     std::cout << " calo_z_min " << descr->calo_z_min() << std::endl;
     std::cout << " calo_z_max " << descr->calo_z_max() << std::endl;
+    std::cout << std::resetiosflags(std::ios::fixed);
   }
 }
 

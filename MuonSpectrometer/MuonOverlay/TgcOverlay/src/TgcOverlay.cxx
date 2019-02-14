@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
@@ -15,9 +15,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
@@ -28,9 +25,6 @@
 TgcOverlay::TgcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_MultiHitOverlayBase(name, pSvcLocator)
 {
-  /** Modifiable properties in job options */
-  declareProperty("CopySDO", m_copySDO);
-  declareProperty("TGCSDO", m_sdo);
 }
 
 //================================================================
@@ -95,20 +89,6 @@ StatusCode TgcOverlay::overlayExecute() {
     this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
   }
   ATH_MSG_INFO("TGC Result   = "<<shortPrint(outputContainer.cptr()));
-
-  //----------------------------------------------------------------
-  ATH_MSG_DEBUG("Processing MC truth data");
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just TGC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy TGC-specific MC truth objects to the output.
-  if ( m_copySDO )
-    this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("TgcOverlay::execute() end");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -64,30 +64,30 @@ namespace Muon
     virtual StatusCode finalize  ();
       
     /** INSERT main method here.*/
-    MuonSegmentCombinationCollection* combineSegments(    const MuonSegmentCombinationCollection& mdtCombiColl, 
-							  const MuonSegmentCombinationCollection& csc4DCombiColl, 
-							  const MuonSegmentCombinationCollection& csc2DCombiColl,
-							  MuonSegmentCombPatternCombAssociationMap* segPattMap);
+    std::unique_ptr<MuonSegmentCombinationCollection> combineSegments(    const MuonSegmentCombinationCollection& mdtCombiColl, 
+									  const MuonSegmentCombinationCollection& csc4DCombiColl, 
+									  const MuonSegmentCombinationCollection& csc2DCombiColl,
+									  MuonSegmentCombPatternCombAssociationMap* segPattMap);
 
-    void trackParameters( const Muon::MuonSegment& seg ,double &theta,double &curvature,int &imeth );
+    void trackParameters( Muon::MuonSegment& seg ,double &theta,double &curvature,int &imeth );
     //    void fulltrackParameters( const Muon::MuonSegment& seg ,HepMatrix & T , HepMatrix & CovT ,int &imeth );
-    void extrapolateSegment( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
+    void extrapolateSegment( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
 
-    void fit2Segments( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
-    void fit2SegmentsC( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
-    void fit2SegmentsSL( const Muon::MuonSegment& seg , const Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
+    void fit2Segments( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
+    void fit2SegmentsC( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
+    void fit2SegmentsSL( Muon::MuonSegment& seg , Muon::MuonSegment& sege, Amg::VectorX & Res, Amg::VectorX & Pull );
 
   private:
           
-    MuonSegmentCombinationCollection*  processCombinationCollection(const MuonSegmentCombinationCollection& mdtCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
+    std::unique_ptr<MuonSegmentCombinationCollection>  processCombinationCollection(const MuonSegmentCombinationCollection& mdtCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
     void processCscCombinationCollection( const MuonSegmentCombinationCollection& cscCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) ;
     void process2DCscCombinationCollection( const MuonSegmentCombinationCollection& csc2DcombiCol);
 
     void muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
 
-    Muon::MCSCSegmentInfo segInfo( const Muon::MuonSegment* seg );
+    Muon::MCSCSegmentInfo segInfo( Muon::MuonSegment* seg );
 
-    unsigned int missedHits( const Muon::MuonSegment* segment );  
+    unsigned int missedHits( Muon::MuonSegment* segment );  
 
 
 
@@ -117,7 +117,7 @@ namespace Muon
     double m_phiAssociationCut2;  
     bool m_addUnassociatedMiddleEndcapSegments;
 
-    typedef std::map<const Muon::MuonSegment*,Muon::MCSCSegmentInfo>  SegInfoMap;
+    typedef std::map<Muon::MuonSegment*,Muon::MCSCSegmentInfo>  SegInfoMap;
     typedef SegInfoMap::iterator SegInfoIt;
     int    m_segmentIndex;
     SegInfoMap m_segInfoMap;
@@ -126,7 +126,7 @@ namespace Muon
     SegInfoMap m_seg4DCscInfoMap;
     SegInfoMap m_segMdtInfoMap;
 
-    std::map<const Muon::MuonSegment*, const MuonPatternCombination* > m_segAssoMap; 
+    std::map<Muon::MuonSegment*, const MuonPatternCombination* > m_segAssoMap; 
     std::set <Identifier> m_cscIdSet;
        
       

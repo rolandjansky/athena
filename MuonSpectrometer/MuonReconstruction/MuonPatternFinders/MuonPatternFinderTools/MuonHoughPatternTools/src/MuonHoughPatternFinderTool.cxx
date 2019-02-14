@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
@@ -157,16 +157,16 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  const MuonPatternCombinationCollection* MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-									    const std::vector<const CscPrepDataCollection*>& cscCols,  
-									    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-									    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-									    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+								      const std::vector<const CscPrepDataCollection*>& cscCols,  
+								      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+								      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+								      const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
     // read event_data:
     const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
 
     // analyse data
-    const MuonPatternCombinationCollection* patCombiCol = 0;
+    MuonPatternCombinationCollection* patCombiCol = 0;
     if( hitcontainer ) {
       patCombiCol = analyse( *hitcontainer );
     }else{
@@ -229,7 +229,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  const MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
@@ -251,7 +251,7 @@ namespace Muon {
    
     
     const MuonPrdPatternCollection* combinedpatterns = 0;
-    const MuonPatternCombinationCollection* patterncombinations = 0;
+    MuonPatternCombinationCollection* patterncombinations = 0;
     
     // make + write muonpatterncombinations
     if ( !etapatterns->empty() ) {
@@ -318,14 +318,14 @@ namespace Muon {
 	    ATH_MSG_VERBOSE ("CSC combo segments loop, segmentcombo " << (*msc));
 	    for (unsigned int ss=0; ss<(*msc)->numberOfStations(); ss++)
 	      {
-		const Muon::MuonSegmentCombination::SegmentVec* segmentsInCombo = (*msc)->stationSegments(ss);
+		Muon::MuonSegmentCombination::SegmentVec* segmentsInCombo = (*msc)->stationSegments(ss);
           
-		Muon::MuonSegmentCombination::SegmentVec::const_iterator ms = segmentsInCombo->begin();
-		Muon::MuonSegmentCombination::SegmentVec::const_iterator ms_end = segmentsInCombo->end();
+		Muon::MuonSegmentCombination::SegmentVec::iterator ms = segmentsInCombo->begin();
+		Muon::MuonSegmentCombination::SegmentVec::iterator ms_end = segmentsInCombo->end();
           
 		for (; ms != ms_end; ++ms)
 		  {
-		    ATH_MSG_VERBOSE ("CSC segments loop, segment: " << (*ms));
+		    ATH_MSG_VERBOSE ("CSC segments loop, segment: " << (*ms).get());
 		    std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> phi_set;
 		    std::vector<const Trk::PrepRawData*> eta_vector;
 		    std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>::iterator,bool> phi_pair;

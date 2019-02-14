@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONSTEST_LARSHAPETOSCSHAPE_H
@@ -10,8 +10,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -45,10 +45,10 @@ class LArShapeToSCShape
   /// Default constructor: 
   LArShapeToSCShape();
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingSCKey{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
 
   ToolHandle<ICaloSuperCellIDTool> m_scidTool;
-  ToolHandle<LArSuperCellCablingTool> m_scCablingTool;
-  ToolHandle<LArCablingService> m_cablingService;
   
 
 }; 

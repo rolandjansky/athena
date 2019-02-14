@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTBEAM_BYTESTREAMTOOL_H
@@ -29,7 +29,7 @@
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBLArDigitContainer.h"
 #include "TBEvent/TBLArCalibDigitContainer.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -123,7 +123,7 @@ private:
     }else return false;
   }
   
-  LArCablingService *m_larCablingSvc;
+  LArCablingLegacyService *m_larCablingSvc;
   
   // pointers to raw objects :
   TBTDC * m_tbtdc;

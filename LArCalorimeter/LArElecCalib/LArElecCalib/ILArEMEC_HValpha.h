@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILAREMEC_HVALPHA_H
@@ -26,11 +26,7 @@ class ILArEMEC_HValpha {
   // online ID
   virtual const float& EMEC_HValpha(const HWIdentifier& id)  const = 0 ;
   
-  // offline ID 
-  virtual const float& EMEC_HValpha(const Identifier& id)  const =0;
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
-  
 
 } ;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //01/2009: T. Guillemin
@@ -12,6 +12,8 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 class CaloDepthTool;
 class CaloDetDescrManager;
@@ -39,6 +41,8 @@ class LArTimePhysPrediction : public AthAlgorithm
   std::string m_groupingType;
   std::string m_CaloDepth;
   CaloDepthTool*  m_CaloDepthTool;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
 
   int m_nchannels_max;
   std::vector<std::vector<double> > m_vLCalib_EMB;

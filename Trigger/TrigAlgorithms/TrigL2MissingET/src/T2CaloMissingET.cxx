@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -46,7 +46,6 @@ T2CaloMissingET::T2CaloMissingET(const std::string& name, ISvcLocator* pSvcLocat
     m_timersvc("TrigTimerSvc/TrigTimerSvc","T2CaloMissingET"),
     m_met_feature(NULL),
     m_cachedTE(NULL),
-    m_cablingSvc(NULL),
     m_LArOnlineID(NULL),
     m_CaloCell_ID(NULL)
 {
@@ -110,10 +109,17 @@ HLT::ErrorCode T2CaloMissingET::hltInitialize(){
     m_detid.push_back(FCALHAD);
   }
 
-  if(toolSvc()->retrieveTool("LArCablingService",m_cablingSvc).isFailure()) {
-    *m_log << MSG::FATAL << "Could not get LArCablingService" << endmsg;
+#ifdef USECABLINGSERVICE
+  if(m_cablingKey.initialize().isFailure()) {
+    *m_log << MSG::FATAL << "Could not get LAr Cabling map with key " << m_cablingKey.key() << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
+
+  if(m_RodKey.initialize().isFailure()) {
+    *m_log << MSG::FATAL << "Could not get LAr FebRod map with key " << m_RodKey.key() << endmsg;
+    return HLT::BAD_JOB_SETUP;
+  }
+#endif
 
   StoreGateSvc* detStore = 0;
   if (service( "DetectorStore", detStore ).isFailure()) {
@@ -280,6 +286,20 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
   if ( debug ) (*m_log) << MSG::DEBUG << "Size of detid:" << m_detid.size() << endmsg;
 
+#ifdef USECABLINGSERVICE
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling = *cablingHdl;
+  if(!cabling) {
+     (*m_log) << MSG::ERROR << "Do not have cabling map !" << endmsg;
+     return HLT::ERROR;
+  }
+  SG::ReadCondHandle<LArFebRodMapping> rodHdl{m_RodKey};
+  const LArFebRodMapping* rodmap = *rodHdl;
+  if(!rodmap) {
+     (*m_log) << MSG::ERROR << "Do not have LAr FEB-ROD map !" << endmsg;
+     return HLT::ERROR;
+  }
+#endif
   //bool BSerrors = false;
   //if (m_data->report_error()) BSerrors = true;
 
@@ -310,7 +330,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       int ichannel=0;
       do {
         HWIdentifier onlChId = m_LArOnlineID->channel_Id(febid2,ichannel);
-        offChId = m_cablingSvc->cnvToIdentifier(onlChId);
+        offChId = cabling->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
           (*m_log) << MSG::ERROR 
@@ -320,7 +340,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       } while(!offChId.is_valid());
 
       int caloSamp = m_CaloCell_ID->sampling(offChId); 
-      HWIdentifier modId = m_cablingSvc->getReadoutModuleID(febid2); //ReadOutModuleId
+      HWIdentifier modId = rodmap->getReadoutModuleID(febid2); //ReadOutModuleId
       int subdet = m_larROModSvc.em_hec_fcal(modId);  // em=0, hec=1, fcal=2
       int caloId = m_larROModSvc.barrel_ec(modId);    // barrel:0 or EndCAp:1
 

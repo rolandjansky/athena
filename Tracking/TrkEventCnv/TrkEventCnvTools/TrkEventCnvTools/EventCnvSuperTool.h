@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_EVENTCNVSUPERTOOL
@@ -8,8 +8,9 @@
 #include "TrkEventCnvTools/IEventCnvSuperTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
+
+#include <atomic>
 
 class Identifier;
 class AtlasDetectorID;
@@ -36,16 +37,16 @@ namespace Trk
 
       virtual StatusCode finalize();
 
-      Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id);
+      const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& id) const;
 
         /** From passed Identifier*/
-      virtual const Trk::Surface* getSurface(const Identifier& id);
+      virtual const Trk::Surface* getSurface(const Identifier& id) const;
 
         /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
-      virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT );
+      virtual void recreateRIO_OnTrack( RIO_OnTrack *RoT ) const;
 
         /** Take the passed RoT and prepare the PRD ElementLink for writing to disc*/
-      virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot);	
+      virtual void prepareRIO_OnTrack( RIO_OnTrack* Rot) const;
 
       virtual bool canHandleInDet() const            { return m_haveIdCnvTool;}
       virtual bool canHandleMuonSpectrometer() const { return m_haveMuonCnvTool;}
@@ -64,7 +65,7 @@ namespace Trk
       bool                                m_doMuons; //!< Property deciding whether to attempt Muon conversions
       bool                                m_doID;    //!< Property deciding whether to attempt ID conversions
 
-      int                                 m_errCount; //!< Current number of ERROR/WARNING messages sent to output
+      mutable std::atomic_int             m_errCount; //!< Current number of ERROR/WARNING messages sent to output
       int                                 m_maxErrCount; //!< Maximum number of permissable ERROR/WARNING messages sent to output.
     };
   }

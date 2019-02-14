@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyProperty.h 
@@ -19,13 +19,14 @@
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 struct _object; 
 typedef _object PyObject;
 
 
-class PyProperty
+class ATLAS_NOT_THREAD_SAFE PyProperty
   : public PropertyWithHandlers<>
 { 
 

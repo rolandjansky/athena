@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  // for find
@@ -21,7 +21,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkEventPrimitives/FitQuality.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegment/MuonSegment.h"
 
 // #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -120,11 +119,9 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_maxMdtHits(0),
     m_maxRpcHits(0),
     m_maxTgcHits(0),
-    m_segmentCombiColl(0),
     m_patternCombiColl(0),
     m_segments(0),
     m_spectrometerTracks(0),
-    m_segmentCombiCollInternal(0),
     m_patternCombiCollInternal(0),
     m_segmentsInternal(0),
     m_spectrometerTracksInternal(0),
@@ -647,14 +644,14 @@ TrigMuonEFStandaloneTrackTool::getSpectrometerTracks(const IRoiDescriptor* muonR
   
   
   /// Making Object to cache pointers for segfinder: SC holds Pointers that are all deleted at end of event
-  if( not m_segments and not m_segmentCombiColl ) {
+  if( not m_segments ) {
     ATH_MSG_DEBUG( "No Muon Segments built. Check configuration! Stop here to process the RoI" );
     return HLT::MISSING_FEATURE;
   }
   //
   // build tracks
   //
-  return buildTracks(m_segmentCombiColl, m_segments, cache, monVars.MS, timers, 3);
+  return buildTracks(m_segments, cache, monVars.MS, timers, 3);
 }
 
 
@@ -794,10 +791,8 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
     } else msg()<< MSG::DEBUG << " L2 Muon Container retrieved with key " << l2muonKey << endmsg;
   }
   // reset cached pointers
-  m_segmentCombiColl=0;
   m_patternCombiColl=0;
   m_segments= 0;
-  m_segmentCombiCollInternal=0;
   m_patternCombiCollInternal=0;
   m_segmentsInternal= 0;
   m_spectrometerTracks = 0;
@@ -1568,7 +1563,6 @@ if (m_useMdtData>0) {
     if (segFinderTime) segFinderTime->start();
 
     cache = itSCmap->second;      
-    if(cache->SegColl() ) m_segmentCombiCollInternal = cache->SegColl();
     if(cache->PattColl()) m_patternCombiCollInternal = cache->PattColl();
     if(cache->Segments()) m_segmentsInternal = cache->Segments();
     
@@ -1599,44 +1593,44 @@ if (m_useMdtData>0) {
       }
     }
     
-    Muon::IMooSegmentCombinationFinder::Output* output = 0;
+    Muon::IMooSegmentCombinationFinder::Output output;
+    std::unique_ptr<MuonPatternCombinationCollection> pattColl(new MuonPatternCombinationCollection());
+    output.patternCombinations=pattColl.get();
+    std::unique_ptr<Trk::SegmentCollection> segColl(new Trk::SegmentCollection());
+    output.segmentCollection=segColl.get();
     if(m_useL2Hits){
       if(mdtCols2.size()>0){
-    	output = m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols);
-    	if(!output || (output->segmentCombinations)->size()==0){ 
-    	  ATH_MSG_DEBUG("didn't find mstrk with l2 hits, use all mdt hits in roi");
-    	  output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
-    	}
+    	m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols, output);
+    	if(output.segmentCollection->size()==0){
+	  ATH_MSG_DEBUG("didn't find mstrk with l2 hits, use all mdt hits in roi");
+	  m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+	}
       }
-      else output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
+      else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
     }
-    else output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
-    if ( !output ) {
+    else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+    if (!output.segmentCollection) {
+      if (segFinderTime) segFinderTime->stop();
+      ATH_MSG_WARNING("Segment finder returned an invalid pointer for the segments");
+      cleanSegmentCollections();
+      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN);
+    }
+    if ( output.segmentCollection->empty() ) {
       if (segFinderTime) segFinderTime->stop();
       ATH_MSG_DEBUG("Segment finder return nothing: stop here to process the RoI");
       return HLT::MISSING_FEATURE;
     }
-    if (!output->segmentCombinations) {
-      if (segFinderTime) segFinderTime->stop();
-      ATH_MSG_WARNING("Segment finder returned an invalid pointer for the segmentCombinations");
-      cleanSegmentCollections();
-      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN);
-    }
-  
     
-    /// SegmentCache object takes pointers to be given to m_segmentCombiColl, m_patternCombiColl and segments
+    /// SegmentCache object takes pointers to be given to m_patternCombiColl and segments
     ATH_MSG_DEBUG("SegmentCache object taking pointers");
-    m_segmentCombiCollInternal=output->segmentCombinations;
-    m_patternCombiCollInternal=output->patternCombinations;
-    m_segmentsInternal=output->segmentCollection ;
+    m_patternCombiCollInternal=pattColl.release();
+    m_segmentsInternal=segColl.release();
     
-    delete output; // right now offline tool will not delete it
     for(auto mdtcoll : mdtCols2) if(mdtcoll) delete mdtcoll;
     
     if (m_doCache) {
       ATH_MSG_DEBUG("Setting up caching");
       cache = new SegmentCache();
-      cache->AddSegmentCollection(m_segmentCombiCollInternal);
       cache->AddPatternCollection(m_patternCombiCollInternal);
       cache->AddSegments(m_segmentsInternal);	 
       cache->SetNROI(m_roi_num_seg);//Setting roi number to SC obj for caching info 
@@ -1648,22 +1642,9 @@ if (m_useMdtData>0) {
       monVars.wasCached = 0;
     }
     
-    ATH_MSG_DEBUG("m_segmentCombiColl = "<< m_segmentCombiCollInternal);
-    if(m_segmentCombiCollInternal){
-      ATH_MSG_DEBUG("m_segmentCombiColl->size() = "<< m_segmentCombiCollInternal->size());
-      // Dump segments
-      if (msgLvl(MSG::DEBUG)) {
-	msg() << MSG::DEBUG << "REGTEST MuonEF Found " << m_segmentCombiCollInternal->size() << " combined segment collection" << endmsg;
-	for(unsigned int nSeg=0; nSeg!=m_segmentCombiCollInternal->size(); nSeg++) {
-	  if((*(m_segmentCombiCollInternal))[nSeg]){  msg() << MSG::DEBUG << "Combined segment collection " << nSeg << " contains "
-			   << ((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations() << " stations" << endmsg;
-	    for(unsigned int nStat=0; nStat!=((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations(); nStat++) {
-	      if(((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)) msg() << MSG::DEBUG << "  - segment collection " << nStat << " contains "
-	    		      << ((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)->size() << " segments" << endmsg;
-	    }
-	  }
-	}
-      }
+    ATH_MSG_DEBUG("m_segments = "<< m_segmentsInternal);
+    if(m_segmentsInternal){
+      ATH_MSG_DEBUG("Found "<< m_segmentsInternal->size()<<" segments");
     }
 
     ATH_MSG_DEBUG("Stopping segFinderTime");
@@ -1674,12 +1655,6 @@ if (m_useMdtData>0) {
 
   ATH_MSG_DEBUG("Starting dataOutputTime");
   if (dataOutputTime) dataOutputTime->start();
-  if(m_segmentCombiCollInternal) {
-    typedef ConstDataVector<MuonSegmentCombinationCollection> constvec_t;
-    constvec_t* tmpvec = new constvec_t (m_segmentCombiCollInternal->begin(),
-                                         m_segmentCombiCollInternal->end());
-    m_segmentCombiColl = tmpvec->asDataVector();
-  }
   if(m_patternCombiCollInternal) {
     typedef ConstDataVector<MuonPatternCombinationCollection> constvec_t;
     constvec_t* tmpvec = new constvec_t (m_patternCombiCollInternal->begin(),
@@ -1698,15 +1673,11 @@ if (m_useMdtData>0) {
   ATH_MSG_DEBUG("Doing addElement for m_patternCombiColl");
   addElement( m_patternCombisCache, m_patternCombiColl );
   addElement( m_patternCombisCache, m_patternCombiCollInternal );
-  ATH_MSG_DEBUG("Doing addElement for m_segmentCombiColl");
-  addElement( m_segmentCombisCache, m_segmentCombiColl );
-  addElement( m_segmentCombisCache, m_segmentCombiCollInternal );
   ATH_MSG_DEBUG("Doing addElement for m_segments");
   addElement( m_segmentsCache, m_segments );
   addElement( m_segmentsCache, m_segmentsInternal );
 
   int nSeg = 0;
-  if(m_segmentCombiColl) nSeg = segmentMonitoring(m_segmentCombiColl, monVars);
   if(m_segments){
     std::vector<const Muon::MuonSegment*> muonSegCollection;
     for(Trk::SegmentCollection::const_iterator itSeg = m_segments->begin(); itSeg!= m_segments->end(); ++itSeg){
@@ -1725,7 +1696,7 @@ if (m_useMdtData>0) {
 
 //________________________________________________________________________
 HLT::ErrorCode
-TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollection* segments, const Trk::SegmentCollection* segment_collection,
+TrigMuonEFStandaloneTrackTool::buildTracks(const Trk::SegmentCollection* segment_collection,
 					   SegmentCache* cache,
 					   TrigMuonEFMSMonVars& monVars,
 					   std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex )
@@ -1771,21 +1742,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
       for(Trk::SegmentCollection::const_iterator itSeg = segment_collection->begin(); itSeg!= segment_collection->end(); ++itSeg){
         muonSegCollection.push_back(dynamic_cast<const Muon::MuonSegment*>(*itSeg));
       }
-    } else if ( segments and segments->size() ) {
-      ATH_MSG_VERBOSE("Converting MuonSegmentCombinationCollection into std::vector<const Muon::MuonSegment*>");
-      MuonSegmentCombinationCollection::const_iterator itSegComb = segments->begin(), itSegComb_end = segments->end();
-      for ( ; itSegComb != itSegComb_end; ++itSegComb ) {
-	if(!(*itSegComb)) continue;
-        const MuonSegmentCombination* segComb = *itSegComb;
-        unsigned int nStations=0;
-	if(segComb) nStations = segComb->numberOfStations();
-        for ( unsigned int iStation = 0; iStation < nStations; ++iStation ) {
-          const std::vector<const MuonSegment*>* segs = segComb->stationSegments(iStation);
-          if ( segs ) muonSegCollection.insert(muonSegCollection.end(), segs->begin(), segs->end());
-        }
-      }
     }
-
     if ( muonSegCollection.size() ) {
       ATH_MSG_DEBUG("Doing Muon track finding with muon segment collection of size " << muonSegCollection.size());
       m_spectrometerTracksInternal = m_trackBuilderTool->find(muonSegCollection);
@@ -1811,7 +1768,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
   // store for deletion at the end of event
   addElement( m_spectrometerTracksCache, m_spectrometerTracks );
   addElement( m_spectrometerTracksCache, m_spectrometerTracksInternal );
-    
+
   // Dump tracks
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("REGTEST MuonEF Found " << m_spectrometerTracks->size() << " tracks");
@@ -2142,36 +2099,6 @@ void TrigMuonEFStandaloneTrackTool::cleanSegmentCollections()
   /// Before deleting the collections, we check whether the objects within them are stored in the association map.
   /// If they are then we remove them from the map (see savannah #71203)
 
-  if (m_segmentCombiColl) {
-    if ( m_segmentCombiColl->size() > 0 ) {
-      const IMuonPatternSegmentAssociationTool::AssociationMap& assMap = m_assocTool->map();
-      IMuonPatternSegmentAssociationTool::AssociationMap* nonConstMap = const_cast<IMuonPatternSegmentAssociationTool::AssociationMap*>(&assMap);
-      bool printedHeader = false;
-      MuonSegmentCombinationCollection::const_iterator itS = m_segmentCombiColl->begin(), itS_end = m_segmentCombiColl->end();
-      for ( ; itS != itS_end; ++itS ) {
-        const MuonSegmentCombination* combi = *itS;
-        // bug hunting printout
-        int n = m_assocTool->count( combi );
-        if ( n ) {
-	  // bug hunting printout
-	  if ( !printedHeader ) {
-	    ATH_MSG_INFO(__FUNCTION__ << " Event where by-hand clean-up needed:");
-	    printedHeader = true;
-	  }
-	  ATH_MSG_INFO("  About to Delete segmentCombi @ " << combi << ",so first remove it from "
-		       << n << " entrie(s) in associationMap");
-        }
-	
-        // hacky FIX for bug #71203 (clean fix would use assocTool->remove(combi), but that does not exist yet)
-        if( nonConstMap ) nonConstMap->erase( combi );
-      }
-      if ( printedHeader ) msg() << endmsg; // prints out run,event,etc.
-    }
-    
-    delete m_segmentCombiColl;
-    m_segmentCombiColl=0;
-  }
-  
   if (m_patternCombiColl) {
     if ( m_patternCombiColl->size() > 0 ) {
       const IMuonPatternSegmentAssociationTool::AssociationMap& assMap = m_assocTool->map();
@@ -2206,39 +2133,6 @@ void TrigMuonEFStandaloneTrackTool::cleanSegmentCollections()
   if (m_segments) 
     delete m_segments;
   m_segments=0;  
-}
-
-
-//________________________________________________________________________
-void TrigMuonEFStandaloneTrackTool::recordSegments()
-{
-  // store the MuonSegmentCombinationCollection in StoreGate for debug purposes
-  MuonSegmentCombinationCollection* segmentCombColl = 0;
-  std::string segmentCombCollLocation = "TrigMuonEFSegments";
-  if( evtStore()->contains<MuonSegmentCombinationCollection>(segmentCombCollLocation) ){
-    if (evtStore()->retrieve(segmentCombColl,segmentCombCollLocation).isFailure()){
-      msg() << MSG::WARNING << "Could not retrieve MuonSegmentCombinationCollection at "
-	    << segmentCombCollLocation << endmsg;
-    }
-  }
-  else{
-    ATH_MSG_DEBUG("Recording new segment combination collection with key "
-		  << segmentCombCollLocation);
-    segmentCombColl = new MuonSegmentCombinationCollection();
-    if(evtStore()->record(segmentCombColl,segmentCombCollLocation,true).isFailure()){
-      msg() << MSG::WARNING << "Could not record MuonSegmentCombinationCollection at "
-	    << segmentCombCollLocation << endmsg;
-      delete segmentCombColl;
-      segmentCombColl = 0;
-    }
-  }
-  
-  if (segmentCombColl && m_segmentCombiColl) {
-    for (MuonSegmentCombinationCollection::const_iterator itSegm = m_segmentCombiColl->begin(); itSegm!= m_segmentCombiColl->end(); ++itSegm) {
-      const Muon::MuonSegmentCombination* segm  = *itSegm;
-      segmentCombColl->push_back( new Muon::MuonSegmentCombination(*segm) );
-    }
-  }
 }
 
 //________________________________________________________________________
@@ -2451,7 +2345,6 @@ void TrigMuonEFStandaloneTrackTool::handle(const Incident &inc)
     clearCacheVector( m_spectrometerTracksCache );
     clearCacheVector( m_extrapolatedTracksCache );
     clearCacheVector( m_patternCombisCache );
-    clearCacheVector( m_segmentCombisCache );
     clearCacheVector( m_segmentsCache );
     clearCacheVector(m_mdtcollCache);
 
@@ -2492,13 +2385,6 @@ TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDescriptor* muonR
 }
 
 //________________________________________________________________________
-const MuonSegmentCombinationCollection* 
-TrigMuonEFStandaloneTrackTool::segmentCombis()
-{
-  return m_segmentCombiColl;
-}
-
-//________________________________________________________________________
 const MuonPatternCombinationCollection* 
 TrigMuonEFStandaloneTrackTool::patternCombis()
 {
@@ -2524,14 +2410,6 @@ const TrackCollection*
 TrigMuonEFStandaloneTrackTool::extrapolatedTracks()
 { 
   return m_extrapolatedTracks;
-}
-
-//________________________________________________________________________
-const MuonSegmentCombinationCollection* 
-TrigMuonEFStandaloneTrackTool::segmentCombisToAttach()
-{ 
-  removeElement(m_segmentCombisCache, m_segmentCombiColl);
-  return m_segmentCombiColl;
 }
 
 //________________________________________________________________________
@@ -2659,29 +2537,6 @@ std::vector<std::vector<IdentifierHash> > TrigMuonEFStandaloneTrackTool::getHash
 
   return CurrentHashlist;
 
-}
-
-//________________________________________________________________________
-int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const MuonSegmentCombinationCollection* segmentCombiColl, TrigMuonEFSegmentMonVars& monVars){
-  
-  int nSeg = 0;
-  if(!segmentCombiColl){
-    ATH_MSG_WARNING("MuonSegmentCombinationCollection is empty. Segment monitoring will not be done");
-    return nSeg;
-  }
-  monVars.numberOfSegComb.push_back(segmentCombiColl->size());
-  for (MuonSegmentCombinationCollection::const_iterator sc = segmentCombiColl->begin();
-       sc != segmentCombiColl->end(); ++sc){
-    if(*sc){
-      monVars.numberOfStations.push_back((*sc)->numberOfStations());
-      for(unsigned int nStat=0; nStat < (*sc)->numberOfStations(); nStat++) {
-	const std::vector<const MuonSegment*>* statSegments = (*sc)->stationSegments(nStat);
-	nSeg += segmentMonitoring(*statSegments, monVars);
-      }
-    }
-  }
-  
-  return nSeg;
 }
 
 //________________________________________________________________________

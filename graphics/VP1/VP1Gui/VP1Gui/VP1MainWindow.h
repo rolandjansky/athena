@@ -120,6 +120,7 @@ public slots:
   void selectedChannelChanged(IVP1ChannelWidget*);
 
   void loadConfigurationFromFile(QString file);
+  void replaceConfigurationFile(QString file);
 
   void addToMessageBox( const QString&, const QString& extrastyleopts = "",
 			const QString& title = "", const QString& titleextrastyleopts = "" );

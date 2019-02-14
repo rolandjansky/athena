@@ -229,13 +229,6 @@
 
   <!--  <class name="ILArPedestal" />  done in ElecCalib -->
 
-  <!--
-  <exclusion>
-    <class pattern="LArConditionsVsCalib<*>" >
-      <method pattern="*" />
-    </class>
-  </exclusion>
-  -->
 
   <exclusion>
     <class name="integral_constant<bool,true>" />

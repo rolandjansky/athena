@@ -159,7 +159,7 @@ class TestAlg (Alg):
         self.record_mc()
 
         ccc = make_calo_cells (self.detStore)
-        if not self.tool1.process (ccc):
+        if not self.tool1.process (ccc, self.getContext()):
             return StatusCode.Failure
 
         self.compare_cells (ccc, exp_cells)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheAnalysis.h
@@ -29,13 +29,13 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
 #include "TTree.h"
 
 class LArDetDescrManager ;
-class LArCablingService;
 class ITriggerTime;
 
 namespace MyAnalysis {
@@ -132,7 +132,7 @@ namespace MyAnalysis {
     
   int m_nevt;
 
-  LArCablingService * m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   StringProperty m_triggerTimeToolName;
   ITriggerTime* m_triggerTimeTool;

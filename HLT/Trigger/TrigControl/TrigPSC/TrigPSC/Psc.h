@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,6 +18,8 @@
 
 // Gaudi Includes
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 // STL includes
 #include <map>
@@ -135,6 +137,8 @@ namespace psc {
     std::string         m_nameEventLoopMgr;   ///< name of the event loop manager
     bool                m_interactive;        ///< Running in interactive mode (athenaHLT)
     psc::Config*        m_config;             ///< Config derived from ptree
+
+    SmartIF<ISvcLocator> m_svcLoc;     ///< Service locator handle
   };
 }
 

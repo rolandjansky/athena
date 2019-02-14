@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_HID2RESRCID_H
@@ -7,7 +7,7 @@
 
 // #include "ByteStreamData/RESrcID.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h" 
+#include "LArCabling/LArCablingLegacyService.h" 
 
 
 #include <stdint.h> 
@@ -69,7 +69,7 @@ public:
 
 private: 
   bool m_initialized;
-  LArCablingService* m_cablingSvc; 
+  LArCablingLegacyService* m_cablingSvc; 
   const LArOnlineID* m_onlineHelper; 
   typedef std::map<HWIdentifier, uint32_t> COLL_MAP ; 
   COLL_MAP m_coll2ROD ; 

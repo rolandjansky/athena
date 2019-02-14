@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SegmentCache.h"
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
-#include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
@@ -13,7 +11,6 @@
 SegmentCache::SegmentCache(){
   m_segments=0;
   m_pattcoll=0;
-  m_segcoll=0;
   m_msTracks = 0;
   m_saTracks = 0;
   m_nroi=0;
@@ -26,11 +23,6 @@ SegmentCache::SegmentCache(){
  */
 SegmentCache::~SegmentCache(){
   
-}
-
-
-void SegmentCache::AddSegmentCollection(const MuonSegmentCombinationCollection* coll) {
-  m_segcoll = coll;
 }
 
 void SegmentCache::AddPatternCollection(const MuonPatternCombinationCollection* pat) {

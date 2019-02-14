@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -12,12 +12,13 @@
 #define ReadLArRaw_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <fstream>
 
 /////////////////////////////////////////////////////////////////////////////
 
-class LArCablingService ;
 class LArOnlineID;
 class LArRoI_Map; 
 class LArEM_ID;
@@ -36,10 +37,8 @@ class ReadLArRaw:public AthAlgorithm {
   std::string m_dumpFile;
   std::ofstream m_outFile;
 
-
-  // Provide the LArCablingService
-  ToolHandle<LArCablingService> m_cablingService;
-
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  
   const LArOnlineID * m_onlineID;
   const LArEM_ID*     m_larem_id;
 

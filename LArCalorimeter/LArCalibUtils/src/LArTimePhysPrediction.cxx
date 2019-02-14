@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimePhysPrediction.h"
@@ -23,7 +23,6 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <TMath.h>
-#include "LArCabling/LArCablingService.h"
 
 typedef LArCaliWaveContainer::ConstConditionsMapIterator CaliCellIt;
 typedef LArCaliWaveContainer::LArCaliWaves::const_iterator CaliWaveIt;
@@ -65,6 +64,9 @@ StatusCode LArTimePhysPrediction::initialize()
   ATH_MSG_INFO ( "LArTimePhysPrediction in initialize()" );
   ATH_CHECK( service("THistSvc", m_thistSvc) );
   
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_calibMapKey.initialize() );
+
   //Initialize ntuples
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1){
@@ -152,9 +154,19 @@ StatusCode LArTimePhysPrediction::stop()
   m_CaloDepthTool=dynamic_cast<CaloDepthTool*>(algTool);
   ATH_MSG_INFO ( "CaloDepthTool retrieved with name " << m_CaloDepth );
   
-  //LArCablingSvc
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK( larCablingSvc.retrieve() );
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR( "Do not have calib line mapping from key " << m_calibMapKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have calib line mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+
   
   //Define helpers
   LArWaveHelper larWaveHelper;
@@ -221,15 +233,15 @@ StatusCode LArTimePhysPrediction::stop()
 	const CaloCell_ID* caloCID = caloDDM->getCaloCell_ID();
 	
 	try {
-	  id = larCablingSvc->cnvToIdentifier(chid);   
+	  id = cabling->cnvToIdentifier(chid);   
 	} catch ( const LArID_Exception& ) {
-	  ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel " << MSG::hex << chid << MSG::dec );
+	  ATH_MSG_ERROR ( "LArCabling exception caught for channel " << MSG::hex << chid << MSG::dec );
 	  continue;
 	}
 
 	Channel = onlineHelper->channel(chid);
 
-	const std::vector<HWIdentifier>& calibLineV = larCablingSvc->calibSlotLine(chid);
+	const std::vector<HWIdentifier>& calibLineV = clCont->calibSlotLine(chid);
         std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();   
 	CalibLine = onlineHelper->channel(*calibLineIt) ;
 	

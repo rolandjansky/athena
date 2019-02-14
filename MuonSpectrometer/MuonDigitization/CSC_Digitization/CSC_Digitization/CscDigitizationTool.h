@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H
@@ -20,8 +20,6 @@
 
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
-
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM

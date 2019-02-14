@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRodDecoder class 
@@ -41,7 +41,7 @@ static const InterfaceID IID_ILArRodDecoder
 LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
     m_larblockstruct(0),
-    m_larCablingSvc("LArCablingService"),
+    m_larCablingSvc("LArCablingLegacyService"),
     m_LArCellEthreshold(-100.),
     m_larCell(false), 
     m_readtdc(false),
@@ -118,7 +118,7 @@ LArRodDecoder::initialize()
   
   sc=m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve LArCablingLegacyService" << endmsg;
     return StatusCode::FAILURE;
   }
   

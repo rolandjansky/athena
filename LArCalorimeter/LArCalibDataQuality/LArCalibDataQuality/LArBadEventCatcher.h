@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emeacs, this is -*-C++-*-
@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-class LArCablingService;
 class LArOnlineID;
 
 /** 
@@ -55,6 +54,7 @@ public:
   
  private:
 
+
   std::string decipherFebError(const uint32_t errword) const;
 
 
@@ -62,8 +62,6 @@ public:
  
   //Online ID helper
   const LArOnlineID* m_onlineID;
-  //Cabling Service  
-  ToolHandle<LArCablingService> m_larCablingSvc;
 
   
   //jobProperties

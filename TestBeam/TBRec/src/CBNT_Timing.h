@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNT_TIMING_H
@@ -11,10 +11,10 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/LArEM_ID.h"
+ #include "LArCabling/LArOnOffIdMapping.h"
 
 class StoreGateSvc;
 class LArOnlineID;
-class LArCablingService;
 
 #include <fstream>
 #include <string>
@@ -38,7 +38,7 @@ class CBNT_Timing : public CBNT_TBRecBase
   static const int NOTIME = -999;
   static const int NOENERGY = -999;
 
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnlineID* m_onlineHelper;
   const LArEM_ID* m_emId;
 

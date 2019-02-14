@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -8,6 +8,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArCalibTools/LArCond2NtupleBase.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArOFCBinAlg: public LArCond2NtupleBase {
 
@@ -24,6 +25,7 @@ class LArOFCBinAlg: public LArCond2NtupleBase {
 
 
  private:
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   std::string m_inputContainer;
   std::string m_outputContainer;
   std::string m_fileName;

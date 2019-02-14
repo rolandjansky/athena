@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LAruA2MeVSC.h"
@@ -30,8 +30,3 @@ const float& LAruA2MeVSC::UA2MEV(const HWIdentifier& hwid) const {
    return this->getDataByHash(hash, 0);
 }
 
-// retrieving LAruA2MeV using offline ID  
-const float& LAruA2MeVSC::UA2MEV(const Identifier& cellID) const  {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return LAruA2MeVSC::UA2MEV(hwid); 
-}

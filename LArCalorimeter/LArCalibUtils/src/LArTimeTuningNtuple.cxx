@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimeTuningNtuple.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
@@ -65,6 +64,10 @@ StatusCode LArTimeTuningNtuple::initialize(){
   }
   
   m_ntuplePtr=nt;
+
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -130,9 +133,18 @@ StatusCode LArTimeTuningNtuple::stop(){
     return StatusCode::FAILURE;
   }
   
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK(  larCablingSvc.retrieve() );
-  
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling){
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
+       return StatusCode::FAILURE;
+  } 
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
   if (m_CellTimeOffsetKey.length()>0) {
     
     LArCellTimeOffset *cellTimeOffset=nullptr;
@@ -146,7 +158,7 @@ StatusCode LArTimeTuningNtuple::stop(){
       m_nCellNt=0;
       for (;it!=it_e;it++) {
         
-	Identifier id = larCablingSvc->cnvToIdentifier(it->first);     
+	Identifier id = cabling->cnvToIdentifier(it->first);     
 
 	m_cellTimeNt[m_nCellNt]      = cellTimeOffset->TimeOffset(it->first);
 	m_cellSlotNt[m_nCellNt]      = m_larOnlineHelper->slot(it->first);
@@ -158,7 +170,7 @@ StatusCode LArTimeTuningNtuple::stop(){
 	m_cellPhiNt[m_nCellNt]       = emId->phi(id) ;
 	m_cellGainNt[m_nCellNt]      = -999 ; /*** FIX ME ***/
 	m_cellChannelNt[m_nCellNt]   = m_larOnlineHelper->channel(it->first);
-	const std::vector<HWIdentifier>& calibLineV = larCablingSvc->calibSlotLine(it->first);
+	const std::vector<HWIdentifier>& calibLineV = clCont->calibSlotLine(it->first);
         std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();   
 	m_cellCalibLineNt[m_nCellNt] = m_larOnlineHelper->channel(*calibLineIt) ;
 	

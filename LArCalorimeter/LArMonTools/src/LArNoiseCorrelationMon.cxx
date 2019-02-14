@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
@@ -78,8 +78,7 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
   : ManagedMonitorToolBase(type, name, parent), 
     m_strHelper(nullptr),
     m_LArOnlineIDHelper(nullptr),
-    m_badChannelMask("BadLArRawChannelMask"),
-    m_LArCablingService("LArCablingService")
+    m_badChannelMask("BadLArRawChannelMask")
 {
   /** FEBs to be monitored. If empty, all FEBs will be monitored*/
   std::vector<std::string> empty_vector(0);
@@ -147,8 +146,8 @@ LArNoiseCorrelationMon::initialize()
   ATH_CHECK(detStore()->retrieve( m_LArOnlineIDHelper, "LArOnlineID" ));
 
     
-  /** Get LAr Calbling Service*/
-  ATH_CHECK(m_LArCablingService.retrieve());
+  /** Init cabling kay */
+  ATH_CHECK(m_cablingKey.initialize());
 
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
@@ -257,6 +256,14 @@ LArNoiseCorrelationMon::fillHistograms()
   } else {
     ATH_MSG_DEBUG ( " Pass trigger selection " );
   }
+
+  /*retrieve cabling*/
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have cabling map with key: "<<m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
   
 
   /*retrieve pedestal*/
@@ -283,7 +290,7 @@ LArNoiseCorrelationMon::fillHistograms()
     CaloGain::CaloGain gain = pLArDigit->gain();
     float pedestal = pedestals->pedestal(id,gain);    
 
-    if(!isGoodChannel(id,pedestal))
+    if(!isGoodChannel(id,pedestal,cabling))
 	continue;
     
     /** Retrieve samples*/
@@ -312,7 +319,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	CaloGain::CaloGain gain2 = pLArDigit2->gain();
 	float pedestal2 = pedestals->pedestal(id2,gain2);
 
-	if(!isGoodChannel(id2,pedestal2))  continue;
+	if(!isGoodChannel(id2,pedestal2,cabling))  continue;
 
 	/** get the channel number */
 	m_ch2 = m_LArOnlineIDHelper->channel(id2);
@@ -374,7 +381,7 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 
 /*---------------------------------------------------------*/
 /** check if channel is ok for monitoring */
- bool LArNoiseCorrelationMon::isGoodChannel(const HWIdentifier ID,const float ped) const
+ bool LArNoiseCorrelationMon::isGoodChannel(const HWIdentifier ID,const float ped, const LArOnOffIdMapping *cabling) const
  {
     /** Remove problematic channels*/
    if (m_ignoreKnownBadChannels && m_badChannelMask->cellShouldBeMasked(ID))
@@ -385,7 +392,7 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
       return false;
     
     /**skip disconnected channels:*/
-    if(!m_LArCablingService->isOnlineConnected(ID))
+    if(!cabling->isOnlineConnected(ID))
       return false;
 
     return true;

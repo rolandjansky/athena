@@ -25,7 +25,6 @@
 #include "GaudiKernel/ContextSpecificPtr.h"
 
 // STL includes
-#include <mutex>
 #include <string>
 
 // Forward declarations
@@ -85,15 +84,6 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   virtual int                           getChip(const Identifier& stripId) const override;
 
  private:
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
-  // Pointer of SCT_ConfigurationCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ConfigurationCondData> m_condData;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey{this, "CondKey", "SCT_ConfigurationCondData", "SCT DAQ configuration"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EGAMMAOQFLAGSBUILDER_H
@@ -18,7 +18,6 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/CaloCell_ID.h"

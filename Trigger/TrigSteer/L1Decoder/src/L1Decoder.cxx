@@ -10,7 +10,7 @@
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator)    
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -22,7 +22,7 @@ StatusCode L1Decoder::initialize() {
     renounce( m_RoIBResultKey );
   else
     ATH_CHECK( m_RoIBResultKey.initialize( ) );
-  
+
   ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_startStampKey.initialize() );
 
@@ -41,7 +41,7 @@ StatusCode L1Decoder::initialize() {
   }
 
   ATH_CHECK( m_trigFSRoIKey.initialize() ) ;
-
+  ATH_CHECK( m_FSDecisions.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -84,7 +84,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
     TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
     fsRoIsColl->push_back( fsRoI );
-   
+
     auto handle = SG::makeHandle( m_trigFSRoIKey, ctx );
     ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
   }
@@ -96,7 +96,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   /*
   auto chainsInfo = std::make_unique<DecisionContainer>();
   auto chainsAux = std::make_unique<DecisionAuxContainer>();
-  chainsInfo->setStore(chainsAux.get());  
+  chainsInfo->setStore(chainsAux.get());
   ATH_MSG_DEBUG("Recording chains");
   auto handle = SG::makeHandle( m_chainsKey, ctx );
   ATH_CHECK( handle.record( std::move( chainsInfo ), std::move( chainsAux ) ) );
@@ -110,8 +110,8 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   HLT::IDVec prescaledChains; // Chains which are activated but do not run in the first pass (seeded but prescaled out)
 
   std::set_difference( activeChains.begin(), activeChains.end(),
-           l1SeededChains.begin(), l1SeededChains.end(),
-           std::back_inserter(prescaledChains) );
+		       l1SeededChains.begin(), l1SeededChains.end(),
+		       std::back_inserter(prescaledChains) );
 
   ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    
   ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded", ctx ) );
@@ -122,7 +122,11 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   // for now all the chains that were pre-scaled out are set to re-run in the second pass
   HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun", ctx ) );
-
+  {
+    SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
+    ATH_CHECK( saveChainsInfo( activeChains, handleFSDecisions.ptr(), "unprescaled", ctx) );    
+    handleFSDecisions.ptr()->at(0)->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
+  }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_enableCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);
@@ -131,13 +135,13 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     ATH_CHECK(m_trigCostSvcHandle->startEvent(ctx, doCostMonitoring));
   }
 
-  ATH_MSG_DEBUG( "Unpacking RoIs" );  
+  ATH_MSG_DEBUG( "Unpacking RoIs" );
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
   for ( auto unpacker: m_roiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
   }
 
-  ATH_MSG_DEBUG( "Unpacking RoIs for re-running" );      
+  ATH_MSG_DEBUG( "Unpacking RoIs for re-running" );
   HLT::IDSet rerunChainSet( rerunChains.begin(), rerunChains.end() );
   for ( auto unpacker: m_rerunRoiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );

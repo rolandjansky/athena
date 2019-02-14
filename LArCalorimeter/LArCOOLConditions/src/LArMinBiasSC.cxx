@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArMinBiasSC.h"
@@ -31,8 +31,3 @@ const float& LArMinBiasSC::minBiasRMS(const HWIdentifier& hwid) const {
   return this->getDataByHash(hash, 0);
 }
 
-// retrieving LArMinBias using offline ID  
-const float& LArMinBiasSC::minBiasRMS(const Identifier& cellID) const  {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return LArMinBiasSC::minBiasRMS(hwid);
-}

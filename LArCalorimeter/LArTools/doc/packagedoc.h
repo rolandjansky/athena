@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,8 @@ This package provides tools for LAr identifier mapping.
 @section LArTools_SignalMap Signal channel cabling mapping
 
 LArCablingService (an AlgTool) provides the cabling mapping for signal channels, between online and offline identifiers.
+LArCablingService will be removed, LArCablingLegacyService will be provided for clients which should retire soon
+
 It also provide the definition of LArReadoutModuleID (defined in LArIdentifier package), and the mapping from FEB ID to 
 the backend readout module.
 

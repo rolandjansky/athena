@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -13,7 +13,6 @@
 #include "LArElecCalib/LArCalibErrorCode.h"
 #include <vector>
 
-class LArCablingService;
 class CondAttrListCollection;
 
 class LArOFCFlat: public ILArOFC, public LArCondFlatBase {
@@ -42,14 +41,6 @@ class LArOFCFlat: public ILArOFC, public LArCondFlatBase {
                          int gain,
                          int tbin=0) const ;
   
-  // retrieving coefficients using offline ID
-  
-  virtual OFCRef_t OFC_a(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const;  
-  virtual OFCRef_t OFC_b(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const;
 
 
   OFCRef_t OFC_a(const IdentifierHash& hs,int gain) const {
@@ -71,16 +62,13 @@ class LArOFCFlat: public ILArOFC, public LArCondFlatBase {
 
   // retrieving time offset using online/offline ID
 
-  virtual  float timeOffset(const Identifier&  CellID, int gain) const;
   virtual  float timeOffset(const HWIdentifier&  CellID, int gain) const;
 
   //For the TB / cosmic case: retrieve the number of time-bins (aka "phases")
   virtual unsigned nTimeBins(const HWIdentifier&  CellID, int gain) const;
-  virtual unsigned nTimeBins(const Identifier&  CellID, int gain) const;
  
   //For the TB / cosmic case: retrieve the witdth of the time bin (default 24 bins in 25 ns)
   virtual float timeBinWidth(const HWIdentifier&  CellID, int gain) const;
-  virtual float timeBinWidth(const Identifier&  CellID, int gain) const;
 
 
  private: 
