@@ -25,9 +25,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, localY )
   
   void TrackStateValidation_v1::setLocalPosition(float localX, float localY) {
-    static Accessor< float > acc1( "localX" );
+    static const Accessor< float > acc1( "localX" );
     acc1( *this ) = localX;
-    static Accessor< float > acc2( "localY" );
+    static const Accessor< float > acc2( "localY" );
     acc2( *this ) = localY;
   }
 
@@ -35,9 +35,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, localPhi )
 
   void TrackStateValidation_v1::setLocalAngles(float localTheta, float localPhi) {
-    static Accessor< float > acc1( "localTheta" );
+    static const Accessor< float > acc1( "localTheta" );
     acc1( *this ) = localTheta;
-    static Accessor< float > acc2( "localPhi" );
+    static const Accessor< float > acc2( "localPhi" );
     acc2( *this ) = localPhi;
   }
 
@@ -45,9 +45,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, unbiasedResidualY )
 
   void TrackStateValidation_v1::setUnbiasedResidual(float unbiasedResidualX, float unbiasedResidualY) {
-    static Accessor< float > acc1( "unbiasedResidualX" );
+    static const Accessor< float > acc1( "unbiasedResidualX" );
     acc1( *this ) = unbiasedResidualX;
-    static Accessor< float > acc2( "unbiasedResidualY" );
+    static const Accessor< float > acc2( "unbiasedResidualY" );
     acc2( *this ) = unbiasedResidualY;
   }
 
@@ -55,9 +55,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, unbiasedPullY )
 
   void TrackStateValidation_v1::setUnbiasedPull(float unbiasedPullX, float unbiasedPullY) {
-    static Accessor< float > acc1( "unbiasedPullX" );
+    static const Accessor< float > acc1( "unbiasedPullX" );
     acc1( *this ) = unbiasedPullX;
-    static Accessor< float > acc2( "unbiasedPullY" );
+    static const Accessor< float > acc2( "unbiasedPullY" );
     acc2( *this ) = unbiasedPullY;
   }
 
@@ -65,9 +65,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, biasedResidualY )
 
   void TrackStateValidation_v1::setBiasedResidual(float biasedResidualX, float biasedResidualY) {
-    static Accessor< float > acc1( "biasedResidualX" );
+    static const Accessor< float > acc1( "biasedResidualX" );
     acc1( *this ) = biasedResidualX;
-    static Accessor< float > acc2( "biasedResidualY" );
+    static const Accessor< float > acc2( "biasedResidualY" );
     acc2( *this ) = biasedResidualY;
   }
 
@@ -75,9 +75,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackStateValidation_v1, float, biasedPullY )
 
   void TrackStateValidation_v1::setBiasedPull(float biasedPullX, float biasedPullY) {
-    static Accessor< float > acc1( "biasedPullX" );
+    static const Accessor< float > acc1( "biasedPullX" );
     acc1( *this ) = biasedPullX;
-    static Accessor< float > acc2( "biasedPullY" );
+    static const Accessor< float > acc2( "biasedPullY" );
     acc2( *this ) = biasedPullY;
   }
 

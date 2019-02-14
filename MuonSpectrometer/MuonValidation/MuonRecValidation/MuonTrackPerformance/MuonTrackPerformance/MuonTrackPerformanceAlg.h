@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKPERFORMANCEALG_H
@@ -16,7 +16,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTruthData/TruthTrajectory.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -206,7 +205,6 @@ private:
   bool handleTracks();
   bool handleTrackTruth( const TrackCollection& trackCollection );
 
-  bool handleSegmentCombinations();
   bool handleSegmentCombi( const Muon::MuonSegmentCombination& combi );
   bool handleSegmentTruth( const std::vector<const Muon::MuonSegment*>& segments );
 
@@ -275,7 +273,6 @@ private:
   bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
 
   SG::ReadHandleKey<TrackCollection> m_trackKey{this,"TrackInputLocation","MuonSpectrometerTracks","input tracks"};            //!< Location of the track input container
-  SG::ReadHandleKey<MuonSegmentCombinationCollection> m_segmentCombiKey{this,"SegmentLocation","MuonSegments","segments"};     //!< Location of the segments
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","EventInfo key"};
   const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 

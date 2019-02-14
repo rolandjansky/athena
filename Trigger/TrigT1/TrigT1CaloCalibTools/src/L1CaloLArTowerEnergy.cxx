@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloLArTowerEnergy.h"
@@ -15,7 +15,7 @@ namespace LVL1{
     m_ttService(nullptr),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_badChannelTool("LArBadChanLegacyTool"),
-    m_larCablingSvc("LArCablingService"),
+    m_larCablingSvc("LArCablingLegacyService"),
     m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   {
   }

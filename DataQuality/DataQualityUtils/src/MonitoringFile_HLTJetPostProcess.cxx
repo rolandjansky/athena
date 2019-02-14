@@ -36,6 +36,8 @@
 
 namespace dqutils {
 
+  static const bool hltjet_debug = false;
+
   void 
   MonitoringFile::HLTJetPostProcess( std::string inFilename, bool /* isIncremental */ ) 
   {

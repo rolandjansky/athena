@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOOLBASE_DITAU_H
@@ -42,17 +42,13 @@
          //-----------------------------------------------------------------
          //! Execute - called for each Ditau candidate
          //-----------------------------------------------------------------
-         virtual StatusCode execute( DiTauCandidateData *data );
+         virtual StatusCode execute( DiTauCandidateData *data,
+                                     const EventContext& ctx) const;
  
          //-----------------------------------------------------------------
          //! Cleanup - called for each Ditau rejected candidate
          //-----------------------------------------------------------------
          virtual void cleanup( DiTauCandidateData *data );
- 
-         //-----------------------------------------------------------------
-         //! Event finalizer - called at the end of each event
-         //-----------------------------------------------------------------
-         virtual StatusCode eventFinalize( DiTauCandidateData *data );
  
          //-----------------------------------------------------------------
          //! Finalizer

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARRAWCHANNELMONTOOL_H
@@ -18,7 +18,7 @@
 //#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
 // --- boost ---
@@ -148,7 +148,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   const CaloDetDescrManager *m_calo_description_mgr_ptr;
   const CaloIdManager       *m_calo_id_mgr_ptr; //!< offline calo structure
 
-  ToolHandle<LArCablingService>    m_cabel_service_tool;//!< LAr connections
+  ToolHandle<LArCablingLegacyService>    m_cabel_service_tool;//!< LAr connections
   ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;   //!< Calorimeter noise
   ToolHandle<ILArBadChannelMasker> m_masking_tool;      //!< LAr Masking
 

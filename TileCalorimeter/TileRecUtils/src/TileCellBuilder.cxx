@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -48,7 +48,7 @@ const InterfaceID& TileCellBuilder::interfaceID( ) {
 //Constructor
 TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : base_class(type, name, parent)
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
   , m_qualityCut(254) // cut on overflow in quality (if quality is 255 - assume that channel is bad)
@@ -66,22 +66,16 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileTBID(0)
   , m_tileHWID(0)
   , m_cabling(0)
-  , m_DQstatus(0)
   , m_tileDCS("TileDCSTool")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
-  , m_RChType(TileFragHash::Default)
-  , m_RChUnit(TileRawChannelUnit::ADCcounts)
-  , m_maxTimeCorr(75.0)
   , m_notUpgradeCabling(true)
   , m_run2(false)
 {
-  declareInterface<ICaloCellMakerTool>( this );
   declareInterface<TileCellBuilder>( this );
 
-  memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
-  memset(m_drawerRunStatus, 0, sizeof(m_drawerRunStatus));
-  memset(m_eventErrorCounter, 0, sizeof(m_eventErrorCounter));
+  //memset(m_drawerRunStatus, 0, sizeof(m_drawerRunStatus));
+  //memset(m_eventErrorCounter, 0, sizeof(m_eventErrorCounter));
 
   // never set energy to zero, but set it to some small number
   // this will help TopoCluster to assign proper weight to the cell if needed
@@ -231,6 +225,7 @@ StatusCode TileCellBuilder::initialize() {
   }
 
   ATH_CHECK( m_dspRawChannelContainerKey.initialize(m_mergeChannels) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
 
@@ -262,27 +257,8 @@ void TileCellBuilder::reset(bool /* fullSizeCont */, bool printReset) {
   
   // prepare empty vector for all cell pointers
   m_fullSizeCont = true;
-  m_allCells.resize(m_tileID->cell_hash_max(), 0);
   
-  m_MBTSCells = NULL;
-  m_E4prCells = NULL;
-
-  ATH_MSG_INFO( "size of temp vector set to " << m_allCells.size() );
   ATH_MSG_INFO( "taking RawChannels from '" << m_rawChannelContainerKey.key() << "'" );
-}
-
-void TileCellBuilder::set_type_and_unit(TileFragHash::TYPE type
-    , TileRawChannelUnit::UNIT unit) {
-
-  // this method might be called from TileROD_Decoder
-  // otherwise it's not needed - type and unit are available from 
-  // TileRawChannelContainer itself (see TileCellBuilder::process() below)
-
-  m_RChType = type;
-  m_RChUnit = unit;
-
-  ATH_MSG_INFO( "type of container is '" << m_RChType << "'" );
-  ATH_MSG_INFO( "RawChannel unit [0=ADC, 1=pCb, 2=CspCb, 3=MeV] are '" << m_RChUnit << "'" );
 }
 
 StatusCode TileCellBuilder::finalize() {
@@ -292,16 +268,16 @@ StatusCode TileCellBuilder::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
+StatusCode TileCellBuilder::process (CaloCellContainer* theCellContainer,
+                                     const EventContext& ctx) const
+{
   //**
   //* Get TileRawChannels
   //**
 
-  memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
+  TileDrawerEvtStatusArray drawerEvtStatus;
 
-  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey, ctx);
 
   if (!rawChannelContainer.isValid()) {
     ATH_MSG_WARNING( " Could not find container " << m_rawChannelContainerKey.key() );
@@ -311,45 +287,52 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     
     ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannels found ");
 
-    m_RChType = rawChannelContainer->get_type();
-    m_RChUnit = rawChannelContainer->get_unit();
+
+    VecParams params;
+    params.m_RChType = rawChannelContainer->get_type();
+    params.m_RChUnit = rawChannelContainer->get_unit();
+    params.m_correctAmplitude = m_correctAmplitude;
+    params.m_correctTime = m_correctTime;
+    params.m_of2 = m_of2;
     unsigned int bsflags = rawChannelContainer->get_bsflags();
-    if (m_correctAmplitude || m_correctTime) {
+    if (params.m_correctAmplitude || params.m_correctTime) {
       int DataType = (bsflags & 0x30000000) >> 28;
       if (DataType < 3) { // real data
         bool of2 = ((bsflags & 0x4000000) != 0);
-        if (of2 != m_of2) {
-          m_of2 = of2;
-          ATH_MSG_WARNING( "OF2 flag in data is " << ((m_of2)?"True":"False"));
+        if (of2 != params.m_of2) {
+          params.m_of2 = of2;
+          ATH_MSG_WARNING( "OF2 flag in data is " << ((params.m_of2)?"True":"False"));
         }
-        m_maxTimeCorr = 63.9375; // 64-1/16 ns is hard limit in DSP
-        if (m_correctAmplitude && ((bsflags & 0x3000000) != 0)) {
+        params.m_maxTimeCorr = 63.9375; // 64-1/16 ns is hard limit in DSP
+        if (params.m_correctAmplitude && ((bsflags & 0x3000000) != 0)) {
           ATH_MSG_WARNING( "Using results of Opt filter with interations from DSP, disabling amplitude correction" );
-          m_correctAmplitude = false;
+          params.m_correctAmplitude = false;
         }
-        if (m_correctTime && ((bsflags & 0x3000000) == 0)) {
+        if (params.m_correctTime && ((bsflags & 0x3000000) == 0)) {
           ATH_MSG_WARNING( "Using results of Opt filter without interations from DSP, disabling time correction" );
-          m_correctTime = false;
+          params.m_correctTime = false;
         }
       } else {
-        m_maxTimeCorr = ((bsflags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
-        if (m_correctAmplitude && ((bsflags & 0x6000) != 0)) {
+        params.m_maxTimeCorr = ((bsflags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
+        if (params.m_correctAmplitude && ((bsflags & 0x6000) != 0)) {
           ATH_MSG_WARNING( "Amplitude correction was done already in optimal filter, disabling it here" );
-          m_correctAmplitude = false;
+          params.m_correctAmplitude = false;
         }
-        if (m_correctTime && ((bsflags & 0x9000) != 0)) {
+        if (params.m_correctTime && ((bsflags & 0x9000) != 0)) {
           ATH_MSG_WARNING( "Time correction was done already in optimal filter or best phase is used, disabling it here" );
-          m_correctTime = false;
+          params.m_correctTime = false;
         }
       }
     }
 
+    std::unique_ptr<TileCellContainer> MBTSCells;
     if (!m_MBTSContainerKey.key().empty()) {
-      m_MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+      MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
 
+    std::unique_ptr<TileCellContainer> E4prCells;
     if (!m_E4prContainerKey.key().empty()) {
-      m_E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+      E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
 
     SelectAllObject<TileRawChannelContainer> selAll(rawChannelContainer.cptr());
@@ -363,7 +346,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       ATH_MSG_DEBUG( "Merging " << m_rawChannelContainerKey.key()
                      << " and " << m_dspRawChannelContainerKey.key() );
 
-      SG::ReadHandle<TileRawChannelContainer> dspRawChannelContainer(m_dspRawChannelContainerKey);
+      SG::ReadHandle<TileRawChannelContainer> dspRawChannelContainer(m_dspRawChannelContainerKey, ctx);
 
       if (!dspRawChannelContainer.isValid()) {
         // no DSP channels, build cells from primary container
@@ -392,11 +375,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
         TileRawChannelUnit::UNIT dspUnit = dspContainer->get_unit();
         unsigned int dspFlags = dspContainer->get_bsflags();
         int DataType = (dspFlags & 0x30000000) >> 28;
-        float dspTimeCut = m_maxTimeCorr;
+        float dspTimeCut = params.m_maxTimeCorr;
         bool dspCorrectAmplitude = false, dspCorrectTime = false, dspOf2 = true;
         if (DataType < 3) { // real data
           dspOf2 = ((dspFlags & 0x4000000) != 0);
-          if (dspOf2 != m_of2) ATH_MSG_DEBUG( "OF2 flag in DSPcontainer is " << ((dspOf2)?"True":"False"));
+          if (dspOf2 != params.m_of2) ATH_MSG_DEBUG( "OF2 flag in DSPcontainer is " << ((dspOf2)?"True":"False"));
           dspTimeCut = 63.9375; // 64-1/16 ns is hard limit in DSP
           dspCorrectAmplitude = ((dspFlags & 0x3000000) == 0);
           dspCorrectTime = ((dspFlags & 0x3000000) != 0);
@@ -463,19 +446,31 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           dspVec.push_back(*dspItr);
         }
 
+        VecParams params1 = params;
+        VecParams params2;
+        params2.m_RChType = dspType;
+        params2.m_RChUnit = dspUnit;
+        params2.m_maxTimeCorr = dspTimeCut;
+        params2.m_correctAmplitude = dspCorrectAmplitude;
+        params2.m_correctTime = dspCorrectTime;
+        params2.m_of2 = dspOf2;
+
         // build here with special iterator over 2 vectors
         DoubleVectorIterator<std::vector<const TileRawChannel *>, const TileRawChannel *> vecBeg(
-            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
-            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 0);
+            params,
+            &oflVec, params1,
+            &dspVec, params2, 0);
         DoubleVectorIterator<std::vector<const TileRawChannel *>, const TileRawChannel *> vecEnd(
-            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
-            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 2);
+            params,
+            &oflVec, params1,
+            &dspVec, params2, 2);
 
         ATH_MSG_DEBUG("Build raw channels from two vectors:"
                       << " offline vector size = " << oflVec.size()
                       << ", dsp vector size = " << dspVec.size() );
 
-        build(ctx, vecBeg, vecEnd, theCellContainer);
+        build (ctx, drawerEvtStatus, params, vecBeg, vecEnd, theCellContainer,
+               MBTSCells.get(), E4prCells.get());
         begin = end;
       }
 
@@ -503,17 +498,18 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
       
       ATH_MSG_DEBUG( " Calling build() method for rawChannels from " << m_rawChannelContainerKey.key() );
-      build(ctx, begin, end, theCellContainer);
+      build (ctx, drawerEvtStatus, params, begin, end, theCellContainer,
+             MBTSCells.get(), E4prCells.get());
     }
     
     if (!m_MBTSContainerKey.key().empty()) {
-      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey);
-      ATH_CHECK( MBTSContainer.record(std::move(m_MBTSCells)) );
+      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey, ctx);
+      ATH_CHECK( MBTSContainer.record(std::move(MBTSCells)) );
     }
     
     if (!m_E4prContainerKey.key().empty()) {
-      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey);
-      ATH_CHECK( E4prContainer.record(std::move(m_E4prCells)) );
+      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey, ctx);
+      ATH_CHECK( E4prContainer.record(std::move(E4prCells)) );
     }
     
     CaloCell_ID::SUBCALO caloNum = CaloCell_ID::TILE;
@@ -542,8 +538,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   int drConsecNum = 0;
 
   for (int p = 1; p < 5; ++p) {
-    TileDrawerEvtStatus * evt = m_drawerEvtStatus[p];
-    TileDrawerRunStatus * run = m_drawerRunStatus[p];
+    TileDrawerEvtStatus * evt = drawerEvtStatus[p];
+    //TileDrawerRunStatus * run = m_drawerRunStatus[p];
     int drAbsent = 0;
     int drMasked = 0;
     int drConsec = 0;
@@ -556,11 +552,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       if (evt[d].nChannels == 0) {
         ++drConsec;
         ++drAbsent;
-        ++(run[d].drawerAbsent);
+        //++(run[d].drawerAbsent);
       } else if (evt[d].nMaskedChannels >= evt[d].nChannels) {
         ++drConsec;
         ++drMasked;
-        ++(run[d].drawerMasked);
+        //++(run[d].drawerMasked);
       } else {
         if (drConsec > drConsecMax) {
           drConsecMax = drConsec;
@@ -571,7 +567,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
         }
         drConsec = 0;
         if (evt[d].nMaskedChannels > 0) {
-          ++(run[d].channelsMasked);
+          //++(run[d].channelsMasked);
         }
         if (evt[d].nBadQuality) ++hasBadQ;
         if (evt[d].nOverflow) ++hasOver;
@@ -613,7 +609,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     flag |= fl << (p - 1);
   }
 
-  // number of cosecutively masked modules (if it's > 15 we have error already set)
+  // number of consecutively masked modules (if it's > 15 we have error already set)
   flag |= (std::min(15, drConsecMaxMax) << 16);
 
   if (drConsecMaxMax > 1 && error < xAOD::EventInfo::Warning) {
@@ -632,12 +628,12 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   std::cout<<"partition flag 0x0"<<std::hex<<flag<<std::dec<<" error "<<error<<std::endl;
 #endif
 
-  ++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
-  ++m_eventErrorCounter[3]; // count separately total number of events
+  //++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
+  //++m_eventErrorCounter[3]; // count separately total number of events
   
 
   // retrieve EventInfo
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
 
   if (eventInfo.isValid()) {
 
@@ -655,7 +651,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
     }
 
-  } else {
+  }
+  else {
     ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
   }
   
@@ -667,7 +664,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
 //************************************************************************
 void TileCellBuilder::correctCell(TileCell* pCell, int correction, int pmt, int gain
-    , float ener, float time, unsigned char iqual, unsigned char qbit, int ch_type) {
+    , float ener, float time, unsigned char iqual, unsigned char qbit, int ch_type) const {
 //************************************************************************
 
 // Merge two pmts in one cell if needed
@@ -696,14 +693,22 @@ void TileCellBuilder::correctCell(TileCell* pCell, int correction, int pmt, int 
   }
 }
 
-unsigned char TileCellBuilder::qbits(int ros, int drawer, bool count_over
-    , bool good_time, bool good_ener, bool overflow, bool underflow, bool overfit) {
-
-  ++m_drawerEvtStatus[ros][drawer].nChannels;
+unsigned char TileCellBuilder::qbits (TileDrawerEvtStatusArray& drawerEvtStatus,
+                                      TileFragHash::TYPE RChType,
+                                      int ros,
+                                      int drawer,
+                                      bool count_over,
+                                      bool good_time,
+                                      bool good_ener,
+                                      bool overflow,
+                                      bool underflow,
+                                      bool overfit) const
+{
+  ++drawerEvtStatus[ros][drawer].nChannels;
   // new feature in rel 17.2.7 - count underflows and overflows
   if (count_over) {
-    if (overflow) ++m_drawerEvtStatus[ros][drawer].nOverflow;
-    if (underflow) ++m_drawerEvtStatus[ros][drawer].nUnderflow;
+    if (overflow) ++drawerEvtStatus[ros][drawer].nOverflow;
+    if (underflow) ++drawerEvtStatus[ros][drawer].nUnderflow;
   }
 #ifdef ALLOW_DEBUG_COUT
   if (overflow)  std::cout << "channel with overflow " << ((count_over)?"":"MBTS") << std::endl;
@@ -712,14 +717,14 @@ unsigned char TileCellBuilder::qbits(int ros, int drawer, bool count_over
 #endif
 
   unsigned char qbit = (overfit) ? (TileFragHash::FitFilter & TileCell::MASK_ALGO)
-                                 : (m_RChType & TileCell::MASK_ALGO);
+                                 : (RChType & TileCell::MASK_ALGO);
   if (good_time) qbit |= TileCell::MASK_TIME;
   if (overflow || underflow) qbit |= TileCell::MASK_OVER;
       
   if (good_ener) {
     qbit |= TileCell::MASK_AMPL;
     if (count_over) {
-      ++m_drawerEvtStatus[ros][drawer].nSomeSignal;
+      ++drawerEvtStatus[ros][drawer].nSomeSignal;
     }
   }
 
@@ -727,7 +732,11 @@ unsigned char TileCellBuilder::qbits(int ros, int drawer, bool count_over
 }
 
 // masking for MBTS with single channel
-bool TileCellBuilder::maskBadChannel(TileCell* pCell, HWIdentifier hwid) {
+bool
+TileCellBuilder::maskBadChannel (TileDrawerEvtStatusArray& drawerEvtStatus,
+                                 const TileDQstatus* DQstatus,
+                                 TileCell* pCell, HWIdentifier hwid) const
+{
   int ros = m_tileHWID->ros(hwid);
   int drawer = m_tileHWID->drawer(hwid);
   int chan = m_tileHWID->channel(hwid);
@@ -738,22 +747,22 @@ bool TileCellBuilder::maskBadChannel(TileCell* pCell, HWIdentifier hwid) {
   // check quality first
   bool bad = ((int) pCell->qual1() > m_qualityCut);
   if (bad) {
-    ++m_drawerEvtStatus[ros][drawer].nBadQuality;
+    ++drawerEvtStatus[ros][drawer].nBadQuality;
 
   } else {
     // check bad status in DB
     bad = chStatus.isBad();
 
     // Now checking the DQ status
-    if (!bad && m_notUpgradeCabling) {
-      bad = !(m_DQstatus->isAdcDQgood(ros, drawer, chan, gain)
+    if (!bad && m_notUpgradeCabling && DQstatus) {
+      bad = !(DQstatus->isAdcDQgood(ros, drawer, chan, gain)
             && isChanDCSgood(ros, drawer, chan));
     }
   }
 
   if (bad) {
     // only one channel in this cell and it is bad
-    ++m_drawerEvtStatus[ros][drawer].nMaskedChannels;
+    ++drawerEvtStatus[ros][drawer].nMaskedChannels;
 
     //pCell->setEnergy(m_zeroEnergy,0.0,TileID::LOWGAIN,CaloGain::INVALIDGAIN); // reset energy completely, indicate problem putting low gain
     //pCell->setTime(0.0); // reset time completely
@@ -781,7 +790,10 @@ bool TileCellBuilder::maskBadChannel(TileCell* pCell, HWIdentifier hwid) {
   
 
 // masking for normal cells
-bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
+bool TileCellBuilder::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus,
+                                       const TileDQstatus* DQstatus,
+                                       TileCell* pCell) const
+{
   bool single_PMT_C10 = false;
 
   const CaloDetDescrElement* caloDDE = pCell->caloDDE();
@@ -802,15 +814,15 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
   // check quality first
   bool bad1 = ((int) pCell->qual1() > m_qualityCut);
   if (bad1) {
-    ++m_drawerEvtStatus[ros1][drawer1].nBadQuality;
+    ++drawerEvtStatus[ros1][drawer1].nBadQuality;
 
   } else {
     // check bad status in DB
     bad1 = (gain1 < 0) || chStatus1.isBad();
 
     // Now checking the DQ status
-    if (!bad1 && m_notUpgradeCabling) {
-      bad1 = !(m_DQstatus->isAdcDQgood(ros1, drawer1, chan1, gain1)
+    if (!bad1 && m_notUpgradeCabling && DQstatus) {
+      bad1 = !(DQstatus->isAdcDQgood(ros1, drawer1, chan1, gain1)
               && isChanDCSgood(ros1, drawer1, chan1));
     }
   }
@@ -820,7 +832,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
     if (bad1) {
       // only one channel in this cell and it is bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
 
       if (gain1 == CaloGain::INVALIDGAIN) {
         pCell->setEnergy(m_zeroEnergy, 0.0, TileID::LOWGAIN, CaloGain::INVALIDGAIN); // reset energy completely, indicate problem putting low gain
@@ -854,15 +866,15 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
     // check quality first
     bool bad2 = ((int) pCell->qual2() > m_qualityCut);
     if (bad2) {
-      ++m_drawerEvtStatus[ros2][drawer2].nBadQuality;
+      ++drawerEvtStatus[ros2][drawer2].nBadQuality;
 
     } else {
       // check bad status in DB
       bad2 = (gain2 < 0) || chStatus2.isBad();
 
       // Now checking the DQ status
-      if (!bad2 && m_notUpgradeCabling) {
-        bad2 = !(m_DQstatus->isAdcDQgood(ros2, drawer2, chan2, gain2)
+      if (!bad2 && m_notUpgradeCabling && DQstatus) {
+        bad2 = !(DQstatus->isAdcDQgood(ros2, drawer2, chan2, gain2)
                 && isChanDCSgood(ros2, drawer2, chan2));
       }
     }
@@ -898,7 +910,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
           pCell->setEnergy(pCell->ene2()/2., pCell->ene2()/2., gain2, gain2);
           //bad1 = bad2;
           bad1 = true;
-          --m_drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
+          --drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
         if (m_run2 || !chStatus2.isBad()) {
@@ -911,14 +923,14 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
           pCell->setEnergy(pCell->ene1()/2., pCell->ene1()/2., gain1, gain1);
           //bad2 = bad1;
           bad2 = true;
-          --m_drawerEvtStatus[ros2][drawer2].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
+          --drawerEvtStatus[ros2][drawer2].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       }
     }
     if (bad1 && bad2) {
       // both channels are bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
-      ++m_drawerEvtStatus[ros2][drawer2].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros2][drawer2].nMaskedChannels;
 
       if (gain1 == CaloGain::INVALIDGAIN || gain2 == CaloGain::INVALIDGAIN) {
         if (gain1 == CaloGain::INVALIDGAIN) gain1 = 0; // this is TileID::LOWGAIN; - commented out to make Coverity happy
@@ -935,7 +947,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
     } else if (bad1 && !bad2) {
       // first channel is bad
-      ++m_drawerEvtStatus[ros1][drawer1].nMaskedChannels;
+      ++drawerEvtStatus[ros1][drawer1].nMaskedChannels;
 
       float ene2 = pCell->ene2();
       pCell->setEnergy(ene2, ene2, gain2, gain2); // use energy/gain from second pmt for both pmts
@@ -958,7 +970,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
     } else if (!bad1 && bad2) {
       // second channel is bad
-      ++m_drawerEvtStatus[ros2][drawer2].nMaskedChannels;
+      ++drawerEvtStatus[ros2][drawer2].nMaskedChannels;
 
       float ene1 = pCell->ene1();
       pCell->setEnergy(ene1, ene1, gain1, gain1);  // use energy/gain from first pmt for both pmts
@@ -1008,11 +1020,19 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
 
 template<class ITERATOR, class COLLECTION>
-void TileCellBuilder::build(const EventContext& ctx,
-                            const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
-
+void TileCellBuilder::build (const EventContext& ctx,
+                             TileDrawerEvtStatusArray& drawerEvtStatus,
+                             VecParams& params,
+                             const ITERATOR & begin,
+                             const ITERATOR & end,
+                             COLLECTION* coll,
+                             TileCellContainer* MBTSCells,
+                             TileCellContainer* E4prCells) const
+{
+  // Now retrieve the TileDQstatus
+  const TileDQstatus* DQstatus = nullptr;
   if(m_notUpgradeCabling) {
-    m_DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
+    DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
   }
 
   /* zero all counters and sums */
@@ -1034,6 +1054,8 @@ void TileCellBuilder::build(const EventContext& ctx,
   //* existing ones). Add each new TileCell to the output collection
   //**
 
+  std::vector<TileCell*> allCells (m_tileID->cell_hash_max(), nullptr);
+
   for (ITERATOR rawItr = begin; rawItr != end; ++rawItr) {
 
     const TileRawChannel* pChannel = (*rawItr);
@@ -1052,19 +1074,19 @@ void TileCellBuilder::build(const EventContext& ctx,
     float time = pChannel->uncorrTime(); // take uncorrected time (if available)
     float amp = pChannel->amplitude();
 
-    TileRawChannelUnit::UNIT oldUnit = m_RChUnit;
-    if (m_correctAmplitude && time > m_timeMinThresh && time < m_timeMaxThresh) { // parabolic correction
-      if (m_RChUnit > TileRawChannelUnit::OnlineADCcounts) { // convert from online units to ADC counts
+    TileRawChannelUnit::UNIT oldUnit = params.m_RChUnit;
+    if (params.m_correctAmplitude && time > m_timeMinThresh && time < m_timeMaxThresh) { // parabolic correction
+      if (params.m_RChUnit > TileRawChannelUnit::OnlineADCcounts) { // convert from online units to ADC counts
         oldUnit = TileRawChannelUnit::ADCcounts;
-        amp = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, gain, amp, m_RChUnit);
+        amp = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, gain, amp, params.m_RChUnit);
         if (amp > m_ampMinThresh) // amp cut in ADC counts
-          amp *= TileRawChannelBuilder::correctAmp(time,m_of2);
-      } else if (m_RChUnit == TileRawChannelUnit::ADCcounts
-                 || m_RChUnit == TileRawChannelUnit::OnlineADCcounts) {
+          amp *= TileRawChannelBuilder::correctAmp(time,params.m_of2);
+      } else if (params.m_RChUnit == TileRawChannelUnit::ADCcounts
+                 || params.m_RChUnit == TileRawChannelUnit::OnlineADCcounts) {
         if (amp > m_ampMinThresh)
-          amp *= TileRawChannelBuilder::correctAmp(time,m_of2);
+          amp *= TileRawChannelBuilder::correctAmp(time,params.m_of2);
       } else {
-        ATH_MSG_ERROR( "Units in raw channel container is " << m_RChUnit );
+        ATH_MSG_ERROR( "Units in raw channel container is " << params.m_RChUnit );
         ATH_MSG_ERROR( "But amplitude correction works only with ADC counts " );
         ATH_MSG_ERROR( "Please, disable CIS calibration in optimal filter " );
       }
@@ -1073,10 +1095,10 @@ void TileCellBuilder::build(const EventContext& ctx,
     float qual = pChannel->quality();
 
     // check that time was really reconstructed
-    bool good_time = (fabs(time) < m_maxTimeCorr);
-    bool non_zero_time = (m_RChType == TileFragHash::OptFilterDspCompressed)
+    bool good_time = (fabs(time) < params.m_maxTimeCorr);
+    bool non_zero_time = (params.m_RChType == TileFragHash::OptFilterDspCompressed)
                           ? ((qual > 2.99 && qual < 4.01))
-                          : ((qual > 0.0 || m_RChType == TileFragHash::OptFilterDsp));
+                          : ((qual > 0.0 || params.m_RChType == TileFragHash::OptFilterDsp));
 
     // new feature in rel 17.2.7 - pedestal keeps information about overflow and underflow
     // if there is an underflow, 10000 is added to pedestal value
@@ -1112,7 +1134,7 @@ void TileCellBuilder::build(const EventContext& ctx,
     }
 
     // apply time correction if needed
-    if (m_correctTime && good_time && non_zero_time)
+    if (params.m_correctTime && good_time && non_zero_time)
       time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
     else
       time = pChannel->time();
@@ -1140,7 +1162,7 @@ void TileCellBuilder::build(const EventContext& ctx,
 
     if (index == -3) { // E4' cells
 
-      if (m_E4prCells) { // do something with them only if container exists
+      if (E4prCells) { // do something with them only if the container exists
         ++nE4pr;
 
         // convert ADC counts to MeV. like for normal cells
@@ -1150,7 +1172,8 @@ void TileCellBuilder::build(const EventContext& ctx,
         eE4prTot += ener;
         unsigned char iqual = iquality(qual);
         // for E4' cell qbit use only non_zero_time flag and check that energy is above standatd energy threshold in MeV
-        unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
+        unsigned char qbit = qbits(drawerEvtStatus, params.m_RChType,
+                                   ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
                                    , overflow, underflow, overfit);
         CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
                                    ? CaloGain::TILEONEHIGH
@@ -1183,17 +1206,18 @@ void TileCellBuilder::build(const EventContext& ctx,
             msg(MSG::VERBOSE) << endmsg;
         }
 
-        if (m_maskBadChannels && maskBadChannel(pCell, adc_id))
+        if (m_maskBadChannels && maskBadChannel(drawerEvtStatus, DQstatus,
+                                                pCell, adc_id))
           ATH_MSG_VERBOSE ( "cell with id=" << m_tileTBID->to_string(cell_id)
                              << " bad channel masked, new energy=" << pCell->energy() );
 
-        m_E4prCells->push_back(pCell); // store cell in container
+        E4prCells->push_back(pCell); // store cell in container
 
       }
 
     } else if (index == -2) { // MBTS cells
 
-      if (m_MBTSCells) { // do something with them only if contaier existst
+      if (MBTSCells) { // do something with them only if contaier existst
         ++nMBTS;
 
         // convert ADC counts to pCb and not to MeV
@@ -1203,7 +1227,8 @@ void TileCellBuilder::build(const EventContext& ctx,
         eMBTSTot += ener;
         unsigned char iqual = iquality(qual);
         // for MBTS qbit use AND of good_time and non_zero_time and check that energy is above MBTS energy threshold in pC
-        unsigned char qbit = qbits(ros, drawer, false, (good_time && non_zero_time)
+        unsigned char qbit = qbits(drawerEvtStatus, params.m_RChType,
+                                   ros, drawer, false, (good_time && non_zero_time)
            , (fabs(ener) > m_eneForTimeCutMBTS), overflow, underflow, overfit);
         CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
                                    ? CaloGain::TILEONEHIGH
@@ -1236,11 +1261,12 @@ void TileCellBuilder::build(const EventContext& ctx,
             msg(MSG::VERBOSE) << endmsg;
         }
 
-        if (m_maskBadChannels && maskBadChannel(pCell, adc_id))
+        if (m_maskBadChannels && maskBadChannel(drawerEvtStatus, DQstatus,
+                                                pCell, adc_id))
           ATH_MSG_VERBOSE ( "cell with id=" << m_tileTBID->to_string(cell_id)
                              << " bad channel masked, new energy=" << pCell->energy() );
 
-        m_MBTSCells->push_back(pCell); // store cell in container
+        MBTSCells->push_back(pCell); // store cell in container
 
       }
     } else if (index != -1) { // connected channel
@@ -1252,7 +1278,8 @@ void TileCellBuilder::build(const EventContext& ctx,
 
       unsigned char iqual = iquality(qual);
       // for normal cell qbit use only non_zero_time flag and check that energy is above standatd energy threshold in MeV
-      unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
+      unsigned char qbit = qbits(drawerEvtStatus, params.m_RChType,
+                                 ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
           , overflow, underflow, overfit);
 
 
@@ -1265,7 +1292,7 @@ void TileCellBuilder::build(const EventContext& ctx,
          int index2 = m_tileID->cell_hash(cell_id2);
          TileCell* pCell2 = tileCellsP.nextElementPtr();
          ++nCell;
-         m_allCells[index2] = pCell2;
+         allCells[index2] = pCell2;
          const CaloDetDescrElement* dde2 = m_tileMgr->get_cell_element(index2);
          pCell2->set(dde2, cell_id2);
          pCell2->setEnergy_nonvirt(0, 0, CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN);
@@ -1281,13 +1308,13 @@ void TileCellBuilder::build(const EventContext& ctx,
 
      }
 
-      TileCell* pCell = m_allCells[index];
+      TileCell* pCell = allCells[index];
       if (pCell) {
         ++nTwo;
         correctCell(pCell, 2, pmt, gain, ener, time, iqual, qbit, 0); // correct & merge 2 PMTs in one cell
       } else {
         ++nCell;
-        m_allCells[index] = pCell = tileCellsP.nextElementPtr();
+        allCells[index] = pCell = tileCellsP.nextElementPtr();
         const CaloDetDescrElement* dde = m_tileMgr->get_cell_element(index);
         pCell->set(dde, cell_id);
         pCell->setEnergy_nonvirt(0, 0, CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN);
@@ -1320,7 +1347,8 @@ void TileCellBuilder::build(const EventContext& ctx,
       if (msgLvl(MSG::VERBOSE)) {
 
         unsigned char iqual = iquality(qual);
-        unsigned char qbit = qbits(0, drawer, false, non_zero_time, false, overflow, underflow, overfit); //fake ros number here
+        unsigned char qbit = qbits(drawerEvtStatus, params.m_RChType,
+                                   0, drawer, false, non_zero_time, false, overflow, underflow, overfit); //fake ros number here
 
         msg(MSG::VERBOSE) << " channel with adc_id=" << m_tileHWID->to_string(adc_id)
                           << " is not connected" << endmsg;
@@ -1338,7 +1366,7 @@ void TileCellBuilder::build(const EventContext& ctx,
       }
     }
     if (msgLvl(MSG::VERBOSE)) {
-      if ((m_correctTime && good_time && non_zero_time) || pChannel->sizeTime() > 1) {
+      if ((params.m_correctTime && good_time && non_zero_time) || pChannel->sizeTime() > 1) {
         msg(MSG::VERBOSE) << " OF_time = " << pChannel->uncorrTime()
                           << " corr_time = " << time << endmsg;
       }
@@ -1348,14 +1376,14 @@ void TileCellBuilder::build(const EventContext& ctx,
   //**
   // Now store all TileCells
   //**
-  for (unsigned int index = 0; index < m_allCells.size(); ++index) {
+  for (unsigned int index = 0; index < allCells.size(); ++index) {
 
-    TileCell * pCell = m_allCells[index];
+    TileCell * pCell = allCells[index];
 
     if (pCell) {      // cell exists
 
       if (m_maskBadChannels)
-        if (maskBadChannels(pCell))
+        if (maskBadChannels (drawerEvtStatus, DQstatus, pCell))
           ATH_MSG_VERBOSE ( "cell with id=" << m_tileID->to_string(pCell->ID(), -2)
                            << " bad channels masked, new energy=" << pCell->energy() );
 
@@ -1375,7 +1403,7 @@ void TileCellBuilder::build(const EventContext& ctx,
 
       }
 
-      m_allCells[index] = 0;             // clear pointer for next event
+      allCells[index] = 0;             // clear pointer for next event
     } else if (m_fakeCrackCells) { // can be true only for full-size container
 
       pCell = tileCellsP.nextElementPtr();
@@ -1416,10 +1444,10 @@ void TileCellBuilder::build(const EventContext& ctx,
                     << " nFake=" << nFake
                     << " eneTot=" << eCellTot;
 
-    if (m_MBTSCells)
+    if (MBTSCells)
       msg(MSG::DEBUG) << " nMBTS=" << nMBTS
                       << " eMBTS=" << eMBTSTot;
-    if (m_E4prCells)
+    if (E4prCells)
       msg(MSG::DEBUG) << " nE4pr=" << nE4pr
                       << " eE4pr=" << eE4prTot;
 

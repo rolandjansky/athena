@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,22 +11,18 @@
 #ifndef SCT_ModuleVetoTool_h
 #define SCT_ModuleVetoTool_h
 
-//STL includes
-#include <set>
-#include <vector>
-#include <mutex>
-
-//Interface include
+//Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
 
 //Gaudi includes
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 
-//Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
+//STL includes
+#include <vector>
 
 //forward declarations
 class SCT_ID;
@@ -50,9 +46,11 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
  private:
   StringArrayProperty m_badElements; //list of bad detector elements (= module sides)
@@ -64,12 +62,6 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   std::vector<int> m_layersToMask; 
   std::vector<int> m_disksToMask; 
 
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_ModuleVetoCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ModuleVetoCondData> m_condData;
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey{this, "CondKey", "SCT_ModuleVetoCondData", "SCT modules to be vetoed"};
   // Fill data from m_badElements

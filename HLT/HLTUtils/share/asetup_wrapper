@@ -91,8 +91,7 @@ _VERBOSE="${ASETUP_VERBOSE}"
 _EXTRA_SW_PATH="${ASETUP_EXTRA_SW_PATH}"
 
 echo "$LOG Executing asetup ${ASETUP_ARGS}"
-#source ${AtlasSetup}/scripts/asetup.sh --input=None ${ASETUP_ARGS}  # due to ATLINFR-2817
-source ${AtlasSetup}/scripts/asetup.sh ${ASETUP_ARGS}
+source ${AtlasSetup}/scripts/asetup.sh --input=None ${ASETUP_ARGS}
 
 if [ $? -ne 0 ]; then
     exit $?

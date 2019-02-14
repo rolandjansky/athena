@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/DiTauBuilder.h"
@@ -14,13 +14,12 @@
 #include "xAODTau/DiTauJet.h"
 #include "xAODTau/DiTauJetContainer.h"
 #include "xAODTau/DiTauJetAuxContainer.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 
 DiTauBuilder::DiTauBuilder( const std::string& name, ISvcLocator* pSvcLocator ) : 
-    AthAlgorithm( name, pSvcLocator ),
-    m_diTauContainerName("DiTauJets"),
-    m_diTauAuxContainerName("DiTauAuxJets."),
-    m_seedJetName("AntiKt10LCTopoJets"),
+    AthReentrantAlgorithm( name, pSvcLocator ),
     m_minPt(10000),
     m_maxEta(2.5),
     m_Rjet(1.0),
@@ -28,9 +27,6 @@ DiTauBuilder::DiTauBuilder( const std::string& name, ISvcLocator* pSvcLocator ) 
     m_Rcore(0.1),
     m_tools(this)
 {
-    declareProperty("DiTauContainer", m_diTauContainerName);
-    declareProperty("DiTauAuxContainer", m_diTauAuxContainerName);
-    declareProperty("SeedJetName", m_seedJetName);
     declareProperty("minPt", m_minPt);
     declareProperty("maxEta", m_maxEta);
     declareProperty("Rjet", m_Rjet);
@@ -48,7 +44,6 @@ StatusCode DiTauBuilder::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // no tools allocated
-    StatusCode sc;
     if (m_tools.size() == 0) {
         ATH_MSG_ERROR("no tools given!");
         return StatusCode::FAILURE;
@@ -63,8 +58,7 @@ StatusCode DiTauBuilder::initialize() {
     unsigned int tool_count = 0;
 
     for (; itT != itTE; ++itT) {
-        sc = itT->retrieve();
-        if (sc.isFailure()) {
+        if (itT->retrieve().isFailure()) {
             ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
         } else {
          ++tool_count;
@@ -79,6 +73,8 @@ StatusCode DiTauBuilder::initialize() {
         return StatusCode::FAILURE;
     }
 
+    ATH_CHECK( m_diTauContainerName.initialize() );
+    ATH_CHECK( m_seedJetName.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -91,42 +87,22 @@ StatusCode DiTauBuilder::finalize() {
 }
 
 
-StatusCode DiTauBuilder::execute() {  
+StatusCode DiTauBuilder::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG ("Executing " << name() << "...");
     
-    StatusCode sc;
-
     // ----------------------------------------------------------------------------
     // preparing DiTau Candidate Container and storage in DiTauData
     // ----------------------------------------------------------------------------
     DiTauCandidateData rDiTauData;
 
-    xAOD::DiTauJetContainer* pContainer = 0;
-    xAOD::DiTauJetAuxContainer * pAuxContainer = 0;
-
-    pContainer = new xAOD::DiTauJetContainer();
-    sc = evtStore()->record(pContainer, m_diTauContainerName);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR("could not record DiTauContainer");
-        delete pContainer;
-        return StatusCode::FAILURE;
-    }
-
-    pAuxContainer = new xAOD::DiTauJetAuxContainer();
-    sc = evtStore()->record(pAuxContainer, m_diTauAuxContainerName);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR("could not record DiTauAuxContainer");
-        delete pAuxContainer;
-        return StatusCode::FAILURE;
-    }
-
-    pContainer->setStore(pAuxContainer);
-
+    auto pContainer = std::make_unique<xAOD::DiTauJetContainer>();
+    auto pAuxContainer = std::make_unique<xAOD::DiTauJetAuxContainer>();
+    pContainer->setStore(pAuxContainer.get());
 
     // set properties of DiTau Candidate 
     rDiTauData.xAODDiTau = 0;
-    rDiTauData.xAODDiTauContainer = pContainer; //
-    rDiTauData.diTauAuxContainer = pAuxContainer; //
+    rDiTauData.xAODDiTauContainer = pContainer.get(); //
+    rDiTauData.diTauAuxContainer = pAuxContainer.get(); //
     rDiTauData.seed = 0;
     rDiTauData.seedContainer = 0;
 
@@ -134,18 +110,18 @@ StatusCode DiTauBuilder::execute() {
     rDiTauData.Rsubjet = m_Rsubjet;
     rDiTauData.Rcore = m_Rcore;
 
+    SG::WriteHandle<xAOD::DiTauJetContainer> diTauContainerH 
+      (m_diTauContainerName, ctx);
+    ATH_CHECK( diTauContainerH.record (std::move (pContainer),
+                                       std::move (pAuxContainer)) );
+
     // ----------------------------------------------------------------------------
     // retrieve di-tau seed jets and loop over seeds
     // ----------------------------------------------------------------------------
 
-    const xAOD::JetContainer* pSeedContainer;
-    sc = evtStore()->retrieve(pSeedContainer, m_seedJetName);
-    if (sc.isFailure() || !pSeedContainer) {
-        ATH_MSG_FATAL("could not find seed jets with key:" << m_seedJetName);
-        return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::JetContainer> pSeedContainer (m_seedJetName, ctx);
 
-    rDiTauData.seedContainer = pSeedContainer;
+    rDiTauData.seedContainer = pSeedContainer.get();
 
     for (const auto* seed: *pSeedContainer) {
         ATH_MSG_DEBUG("Seed pt: "<< seed->pt() << "  eta: "<< seed->eta());
@@ -162,9 +138,9 @@ StatusCode DiTauBuilder::execute() {
         rDiTauData.xAODDiTauContainer->push_back(rDiTauData.xAODDiTau);
 
         // handle di-tau candidate
+        StatusCode sc = StatusCode::SUCCESS;
         for (auto tool: m_tools) {
-            sc = tool->execute(&rDiTauData);
-
+            sc = tool->execute(&rDiTauData, ctx);
             if (sc.isFailure()) break;
         }
 
@@ -180,13 +156,7 @@ StatusCode DiTauBuilder::execute() {
     // // TODO: tool finalizers needed here
     // sc = StatusCode::SUCCESS;
 
-    ATH_MSG_DEBUG("execute tool finializers");
     rDiTauData.xAODDiTau = 0;
-    for (auto tool: m_tools) {
-        sc = tool->eventFinalize(&rDiTauData);
-        if (!sc.isSuccess())
-            return StatusCode::FAILURE;
-    }
 
     ATH_MSG_DEBUG("end execute()");
     return StatusCode::SUCCESS;

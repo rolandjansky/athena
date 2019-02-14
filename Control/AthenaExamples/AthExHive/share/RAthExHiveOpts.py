@@ -72,6 +72,9 @@ from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
 topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg()
+
 from AthExHive.AthExHiveConf import *
 topSequence+=HiveAlgR(OutputLevel=DEBUG)
 topSequence+=HiveAlgA(OutputLevel=DEBUG,Time=20)

@@ -9,5 +9,4 @@ def getTgcOverlay(name="TgcOverlay", **kwargs):
     kwargs.setdefault("OutputDigitKey",overlayFlags.outputStore()+"+TGC_DIGITS")
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
-    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
     return CfgMgr.TgcOverlay(name, **kwargs)

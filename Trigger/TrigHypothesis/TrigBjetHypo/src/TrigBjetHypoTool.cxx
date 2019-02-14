@@ -44,7 +44,7 @@ StatusCode TrigBjetHypoTool::initialize()  {
  
   // Retrieve Tools
   // =====================================
-  if ( retrieveTool( "Monitoring Tool",m_monTool ).isFailure() ) return StatusCode::FAILURE;
+  ATH_CHECK( m_monTool.retrieve() );
   // =====================================
   if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );

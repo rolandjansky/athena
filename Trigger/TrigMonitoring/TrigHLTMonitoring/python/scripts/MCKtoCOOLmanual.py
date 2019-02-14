@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Author: X. Hoad <xhoad@cern.ch>
-# for use at P1 from /det/tdaq/hlt/mam/python
+# Script to update MCKs in COOL for use at P1
+# Author: Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import argparse
 import sys

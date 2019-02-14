@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -34,6 +34,7 @@ union ieee754_double
   struct {
     unsigned int negative:1;
     unsigned int exponent:11;
+    // cppcheck-suppress unusedStructMember
     unsigned int quiet_nan:1;
     /* Together these comprise the mantissa.  */
     unsigned int mantissa0:19;

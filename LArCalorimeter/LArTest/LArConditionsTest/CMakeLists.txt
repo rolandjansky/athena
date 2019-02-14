@@ -63,7 +63,7 @@ function (larconditions_run_test testName)
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/larconditions_${testName}.sh
                   ENVIRONMENT ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-12
                   PROPERTIES TIMEOUT 1200
-                  EXTRA_PATTERNS "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py"
+                  EXTRA_PATTERNS "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py|MetaDataSvc|xAODMaker"
                    )
   if( ARG_DEPENDS )
     set_tests_properties( LArConditionsTest_${testName}_ctest

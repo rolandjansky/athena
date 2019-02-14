@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -46,7 +46,6 @@ class LArDigitContainer;
 #include <set>
 
 class LArEM_ID;
-//class LArCablingService;
 class TH1F;
 class TH2F;
 class TProfile2D;

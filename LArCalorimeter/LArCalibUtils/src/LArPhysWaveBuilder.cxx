@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhysWaveBuilder.cxx,v 1.13 2009-04-27 15:46:36 gunal Exp $
@@ -22,7 +22,6 @@
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArCabling/LArCablingService.h"
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -265,6 +264,8 @@ LArPhysWaveBuilder::~LArPhysWaveBuilder()
  */
 StatusCode LArPhysWaveBuilder::initialize()
 {
+   ATH_CHECK(m_cablingKey.initialize());
+
   // Fetch tools and services.
   CHECK( toolSvc()->retrieveTool("LArADC2MeVTool", m_adc2mevTool) );
   if (m_phase_tool_name != "peak")
@@ -299,10 +300,14 @@ StatusCode LArPhysWaveBuilder::execute()
 {
   ATH_MSG_DEBUG ( "LArPhysWaveBuilder in execute()" );
 
-  // We'll defer retrieving the cabling service until the first time
-  // we need it.
-  LArCablingService * cabling = 0;
-  
+  // Retrieve cabling
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if (!cabling) {
+    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
+    return StatusCode::FAILURE;
+  }
+
   // Get the identifier helper.
   const LArEM_ID* emId = CaloIdManager::instance()->getEM_ID();
 
@@ -365,8 +370,6 @@ StatusCode LArPhysWaveBuilder::execute()
     if (! cellwave.id.is_valid()) {
       // Save online id in cell wave
       cellwave.onlineId = chid;
-      if (!cabling)
-        CHECK( toolSvc()->retrieveTool("LArCablingService",cabling) );
 
       if (cabling->isOnlineConnected(chid)) {
         try {
@@ -655,8 +658,14 @@ LArPhysWaveBuilder::write_root (LArPhysWaveContainer* larPhysWaveContainer)
 {
   // Get ID translators.
   const LArEM_ID* emId = CaloIdManager::instance()->getEM_ID();
-  LArCablingService * cabling = 0;
-  CHECK( toolSvc()->retrieveTool("LArCablingService",cabling) );
+
+  // Retrieve cabling
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if (!cabling) {
+    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
+    return StatusCode::FAILURE;
+  }
 
   // Open the root file.
   TFile rootoutputfile(m_rootoutputfile.c_str(),"RECREATE");  

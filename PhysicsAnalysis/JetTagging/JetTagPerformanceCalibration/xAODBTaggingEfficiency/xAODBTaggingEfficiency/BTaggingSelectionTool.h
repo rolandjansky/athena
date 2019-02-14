@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,34 +42,35 @@ class BTaggingSelectionTool: public asg::AsgTool,
   public:  
   /// Create a constructor for standalone usage
   BTaggingSelectionTool( const std::string& name );
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Get an object describing the "selection steps" of the tool
-  virtual const Root::TAccept& getTAccept() const;
+  virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
   /// Get the decision using a generic IParticle pointer
-  virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const;
-  virtual const Root::TAccept& accept( const xAOD::Jet& jet ) const;
+  virtual asg::AcceptData accept( const xAOD::IParticle* p ) const override;
+  virtual asg::AcceptData accept( const xAOD::Jet& jet ) const override;
 
   /// Get the decision using thet jet's pt and mv2c20 weight values
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const;
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c00 weight */, double /* mv2c100 weight */ ) const;
+  virtual asg::AcceptData accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const override;
+  virtual asg::AcceptData accept(double /* jet pt */, double /* jet eta */, double /* mv2c00 weight */, double /* mv2c100 weight */ ) const override;
 
   /// Decide in which quantile of the MV2c20 weight distribution the jet belongs (continuous tagging)
   /// The return value represents the bin index of the quantile distribution
-  virtual int getQuantile( const xAOD::IParticle* ) const;
-  virtual int getQuantile( const xAOD::Jet& ) const;
-  virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */  ) const;
+  virtual int getQuantile( const xAOD::IParticle* ) const override;
+  virtual int getQuantile( const xAOD::Jet& ) const override;
+  virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */  ) const override;
 
-  virtual double getCutValue() const; // Only for 1D flat cut
+  virtual double getCutValue() const override; // Only for 1D flat cut
 
 private:
   /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging
-  virtual bool checkRange( double /* jet pt */, double /* jet eta */ ) const;
+  virtual bool checkRange( double pT, double eta,
+                           asg::AcceptData& acceptData) const;
 
   bool m_initialised;
 
-   /// Object used to store the last decision
-  mutable Root::TAccept m_accept;
+  /// Object used to store selection information.
+  asg::AcceptInfo m_accept;
  
   double m_maxEta;
   double m_minPt;

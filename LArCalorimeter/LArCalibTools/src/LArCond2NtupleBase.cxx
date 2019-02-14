@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCond2NtupleBase.h"
@@ -128,6 +128,7 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_calibMapKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -279,8 +280,14 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
      return false;
  }
- SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
- const LArOnOffIdMapping* cabling=*cablingHdl;
+ const LArOnOffIdMapping* cabling=nullptr;
+ if(m_isSC) {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = *cablingHdl;
+ } else {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdlSC{m_cablingKeySC};
+    cabling = *cablingHdlSC;
+ }
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling !" );
      return false;

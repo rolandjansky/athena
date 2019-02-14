@@ -55,7 +55,7 @@ namespace SCT_Monitoring{
   const int f_mod[] = {FIRST_MOD_EC, FIRST_MOD_B, FIRST_MOD_EA};
   const TString layerName[] = {" disk ", " layer ", " disk "};
   const TString subDetName[] = {"Endcap C", "Barrel", "Endcap A", "General"};
-  const TString subDetNameShort[] = {"EC", "B", "EA"};
+  const TString subDetNameShort[] = {"EC", "B", "EA", "ALL"};
   
   static const long NBINS_LBs = 3000;
   

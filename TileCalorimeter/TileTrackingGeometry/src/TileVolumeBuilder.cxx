@@ -50,11 +50,12 @@
 #include "TrkSurfaces/DiscBounds.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/make_unique.h"
 
-using GeoModelKernelUnits::mm;
+using Gaudi::Units::mm;
 using CxxUtils::make_unique;
 
 // constructor

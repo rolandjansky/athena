@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -100,9 +100,6 @@ namespace iFatras {
       m_pitchPhi += (2.*m_hPhiSec - float(m_NcellPhi) * m_pitchPhi)/float(m_NcellPhi);
   }
   
-  /// Destructor:
-  SCT_Segmentation::~SCT_Segmentation() {}
-
   bool SCT_Segmentation::cellOfPosition(const Amg::Vector2D& localPos, std::pair<int, int>& entryXY) const {
     
     // for debugging

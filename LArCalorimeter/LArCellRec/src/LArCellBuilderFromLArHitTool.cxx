@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCellBuilderFromLArHitTool.h"
@@ -369,10 +369,10 @@ StatusCode LArCellBuilderFromLArHitTool::finalize()
 
 /////////////////////////////////////////////////////////////////// 
 
-StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellContainer )
+StatusCode
+LArCellBuilderFromLArHitTool::process ( CaloCellContainer* theCellContainer,
+                                        const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling(*cablingHdl);
 

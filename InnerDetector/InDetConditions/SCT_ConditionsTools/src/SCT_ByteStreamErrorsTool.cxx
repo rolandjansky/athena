@@ -67,17 +67,29 @@ SCT_ByteStreamErrorsTool::finalize() {
 ////////////////////////////////////////////////////////////////////////////////////
 
 bool
-SCT_ByteStreamErrorsTool::isCondensedReadout() const {
-  const SCT_ByteStreamFractionContainer* fracData{getFracData()};
+SCT_ByteStreamErrorsTool::isCondensedReadout(const EventContext& ctx) const {
+  const SCT_ByteStreamFractionContainer* fracData{getFracData(ctx)};
   if (fracData==nullptr) return false;
   return fracData->majority(SCT_ByteStreamFractionContainer::CondensedMode);
 }
 
 bool
-SCT_ByteStreamErrorsTool::HVisOn() const {
-  const SCT_ByteStreamFractionContainer* fracData{getFracData()};
+SCT_ByteStreamErrorsTool::isCondensedReadout() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isCondensedReadout(ctx);
+}
+
+bool
+SCT_ByteStreamErrorsTool::isHVOn(const EventContext& ctx) const {
+  const SCT_ByteStreamFractionContainer* fracData{getFracData(ctx)};
   if (fracData==nullptr) return true;
   return fracData->majority(SCT_ByteStreamFractionContainer::HVOn);
+}
+
+bool
+SCT_ByteStreamErrorsTool::isHVOn() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isHVOn(ctx);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -103,10 +115,8 @@ SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
  * result in bad hits or no hits for that event */
  
 bool 
-SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  
-  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
+  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash, ctx)) return false;
   
   bool result{true};
 
@@ -119,9 +129,9 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
   const Identifier wafer_id{m_sct_id->wafer_id(elementIdHash)};
   const Identifier module_id{m_sct_id->module_id(wafer_id)};
-  unsigned int badChips{m_config->badChips(module_id)};
-  unsigned int abcdErrorChips2{abcdErrorChips(module_id)};
-  unsigned int tempMaskedChips2{tempMaskedChips(module_id)};
+  unsigned int badChips{m_config->badChips(module_id, ctx)};
+  unsigned int abcdErrorChips2{abcdErrorChips(module_id, ctx)};
+  unsigned int tempMaskedChips2{tempMaskedChips(module_id, ctx)};
   const int side{m_sct_id->side(wafer_id)};
   bool allChipsBad{true};
   const int idMax{static_cast<short>(side==0 ? 6 : 12)};
@@ -137,23 +147,37 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   return result;
 }
 
+bool
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementIdHash, ctx);
+}
+
 bool 
-SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
-    return isGood(elementIdHash);
+    return isGood(elementIdHash, ctx);
   }
   if (h==InDetConditions::SCT_CHIP) {
-    return isGoodChip(elementId);
+    return isGoodChip(elementId, ctx);
   }
 
   return true;
 }
 
 bool
-SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
+bool
+SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId, const EventContext& ctx) const {
   // This check assumes present SCT.
   // Get module number
   const Identifier moduleId{m_sct_id->module_id(stripId)};
@@ -164,7 +188,7 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
 
   const Identifier waferId{m_sct_id->wafer_id(stripId)};
   const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
-  if (m_checkRODSimulatedData and isRODSimulatedData(waferHash)) return false;
+  if (m_checkRODSimulatedData and isRODSimulatedData(waferHash, ctx)) return false;
 
   // tempMaskedChips and abcdErrorChips hold 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
@@ -172,9 +196,9 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
   // bit 6 is chip 6 for side 1.
   // bit 11 is chip 11 for side 1.
   // Temporarily masked chip information
-  const unsigned int v_tempMaskedChips{tempMaskedChips(moduleId)};
+  const unsigned int v_tempMaskedChips{tempMaskedChips(moduleId, ctx)};
   // Information of chips with ABCD errors
-  const unsigned int v_abcdErrorChips{abcdErrorChips(moduleId)};
+  const unsigned int v_abcdErrorChips{abcdErrorChips(moduleId, ctx)};
   // Take 'OR' of tempMaskedChips and abcdErrorChips
   const unsigned int badChips{v_tempMaskedChips | v_abcdErrorChips};
 
@@ -188,7 +212,7 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
   // If there is no bad chip on the side, this check is done.
   if ((side==0 and (badChips & 0x3F)==0) or (side==1 and (badChips & 0xFC0)==0)) return true;
 
-  int chip{getChip(stripId)};
+  int chip{getChip(stripId, ctx)};
   if (chip<0 or chip>=12) {
     ATH_MSG_WARNING("chip number is invalid: " << chip);
     return false;
@@ -201,10 +225,10 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
 }
 
 int
-SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId) const {
+SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext& ctx) const {
   const Identifier waferId{m_sct_id->wafer_id(stripId)};
   const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
-  const InDetDD::SiDetectorElement* siElement{getDetectorElement(waferHash)};
+  const InDetDD::SiDetectorElement* siElement{getDetectorElement(waferHash, ctx)};
   if (siElement==nullptr) {
     ATH_MSG_DEBUG ("InDetDD::SiDetectorElement is not obtained from stripId " << stripId);
     return -1;
@@ -261,13 +285,23 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
  * e.g. for monitoring plots.
  */
 
+const std::set<IdentifierHash>*
+SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
+  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+    StatusCode sc{fillData(ctx)};
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("fillData in getErrorSet fails");
+    }
+
+    return &m_bsErrors[errorType][ctx.slot()];
+  }
+  return nullptr;
+}
+
 const std::set<IdentifierHash>* 
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    return getErrorSet(errorType, ctx);
-  }
-  return nullptr;
+  return getErrorSet(errorType, ctx);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -335,7 +369,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     } else if (elt->second>=SCT_ByteStreamErrors::TempMaskedChip0 and elt->second<=SCT_ByteStreamErrors::TempMaskedChip5) {
       m_tempMaskedChips[slot][module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
     } else {
-      std::pair<bool, bool> badLinks{m_config->badLinks(elt->first)};
+      std::pair<bool, bool> badLinks{m_config->badLinks(elt->first, ctx)};
       bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
       if (result) {
         /// error in a module using RX redundancy - add an error for the other link as well!!
@@ -373,40 +407,59 @@ SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, cons
 /** A bit from a particular word in the ByteStream if the data
  * is coming from the ROD simulator rather than real modules. */
 bool
-SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
-  const SCT_ByteStreamFractionContainer* fracData{getFracData()};
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const EventContext& ctx) const {
+  const SCT_ByteStreamFractionContainer* fracData{getFracData(ctx)};
   if (fracData==nullptr) return false;
   return fracData->majority(SCT_ByteStreamFractionContainer::SimulatedData);
 }
 
+bool
+SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isRODSimulatedData(ctx);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 bool
-SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   const std::set<IdentifierHash>* errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
   return (errorSet->count(elementIdHash)!=0);
 }
 
+bool
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isRODSimulatedData(elementIdHash, ctx);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const {
   const std::map<Identifier, unsigned int>& v_tempMaskedChips{getTempMaskedChips(ctx)};
   std::map<Identifier, unsigned int>::const_iterator it{v_tempMaskedChips.find(moduleId)};
   if (it!=v_tempMaskedChips.end()) return it->second;
   return 0;
 }
 
-unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId) const {
+unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return tempMaskedChips(moduleId, ctx);
+}
+
+unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const {
   const std::map<Identifier, unsigned int>& v_abcdErrorChips{getAbcdErrorChips(ctx)};
   std::map<Identifier, unsigned int>::const_iterator it{v_abcdErrorChips.find(moduleId)};
   if (it!=v_abcdErrorChips.end()) return it->second;
   return 0;
 }
 
-const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData() const {
-  SG::ReadHandle<SCT_ByteStreamFractionContainer> fracCont{m_bsFracContainerName};
+unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return abcdErrorChips(moduleId, ctx);
+}
+
+const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData(const EventContext& ctx) const {
+  SG::ReadHandle<SCT_ByteStreamFractionContainer> fracCont{m_bsFracContainerName, ctx};
   if (not fracCont.isValid()) {
     ATH_MSG_INFO(m_bsFracContainerName.key() << " cannot be retrieved");
     return nullptr;
@@ -414,35 +467,10 @@ const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData() c
   return fracCont.ptr();
 }
 
-const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
-}
-
-const std::set<IdentifierHash>* SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
-  StatusCode sc{fillData(ctx)};
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("fillData in getErrorSet fails");
-  }
-
-  return &m_bsErrors[errorType][ctx.slot()];
+const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }
 
 const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaskedChips(const EventContext& ctx) const { 

@@ -8,6 +8,7 @@ if not hasattr( ServiceMgr, "ByteStreamAddressProviderSvc" ):
  
 ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["TileBeamElemContainer/TileBeamElemCnt",
                                                       "TileDigitsContainer/TileDigitsCnt",
+                                                      "TileDigitsContainer/MuRcvDigitsCnt",
                                                       "TileL2Container/TileL2Cnt",
                                                       "TileLaserObject/TileLaserObj",
 						      "TileMuonReceiverContainer/TileMuRcvCnt"]

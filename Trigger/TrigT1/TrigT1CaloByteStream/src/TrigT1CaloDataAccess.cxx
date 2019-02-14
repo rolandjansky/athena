@@ -216,17 +216,15 @@ StatusCode TrigT1CaloDataAccess::loadCollection(
 }
 
 void TrigT1CaloDataAccess::handle(const Incident & inc ) {
-         const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-          if(!eventInc) {
-              std::cout << " Unable to get EventInfo from either EventStore or BeginRun incident" << std::endl;
-              return;
-          }
-          else {
-		const EventInfo* evt;
-		evt = &eventInc->eventInfo();
-		m_present_event = (evt->event_ID()->event_number());
-		m_ppmBSConverter->eventNumber(m_present_event);
-          }
+  const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
+  if(!eventInc) {
+    msg(MSG::ERROR) << " Unable to cast " << inc.type() << " to EventIncident" << endmsg;
+    return;
+  }
+  else {
+    m_present_event = inc.context().eventID().event_number();
+    m_ppmBSConverter->eventNumber(m_present_event);
+  }
 }
 
 

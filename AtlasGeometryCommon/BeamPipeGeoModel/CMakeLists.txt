@@ -34,3 +34,10 @@ atlas_add_component( BeamPipeGeoModel
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities SGTools StoreGateLib GaudiKernel BeamPipeGeoModelLib )
 
+atlas_add_test( BeamPipeGMConfig_test
+                SCRIPT test/BeamPipeGMConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+# Install files from the package:
+atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/*.py )

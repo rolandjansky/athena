@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthLegacySequence.h
@@ -16,6 +16,7 @@
 #include "AthenaBaseComps/AthCommonMsg.h"
 #include "Gaudi/Sequence.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Athena {
   namespace details {
@@ -42,7 +43,9 @@ namespace Athena {
     private:
       StatusCode execute( const EventContext& ) const override final
       {
-        return const_cast<AthLegacySequenceAdapter*>( this )->execute();
+        AthLegacySequenceAdapter* seq ATLAS_THREAD_SAFE =
+          const_cast<AthLegacySequenceAdapter*>( this );
+        return seq->execute();
       }
       
       DataObjIDColl m_extendedExtraObjects;

@@ -26,7 +26,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/AbsFunction.h"
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/Sin.h"
@@ -44,6 +43,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -117,8 +117,8 @@ void LArGeo::LArDetectorFactoryH62004::getSimulationParameters()
     m_tableYpos = 70.;
   }
 
-  std::cout << " Use cryo X : " <<  m_cryoXpos << " GeoModelKernelUnits::mm" << std::endl;
-  std::cout << " Use table Y : " <<  m_tableYpos << " GeoModelKernelUnits::mm" << std::endl;
+  std::cout << " Use cryo X : " <<  m_cryoXpos << " Gaudi::Units::mm" << std::endl;
+  std::cout << " Use table Y : " <<  m_tableYpos << " Gaudi::Units::mm" << std::endl;
   const_cast<LArGeoTB2004Options*>(largeoTB2004Options)->printMe();
 
 
@@ -156,9 +156,9 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   
   const GeoMaterial *air        = materialManager->getMaterial("std::Air");
 
-  double expHallX = 14000.*GeoModelKernelUnits::mm;
-  double expHallY = 14000.*GeoModelKernelUnits::mm;
-  double expHallZ = 50000.*GeoModelKernelUnits::mm;
+  double expHallX = 14000.*Gaudi::Units::mm;
+  double expHallY = 14000.*Gaudi::Units::mm;
+  double expHallZ = 50000.*Gaudi::Units::mm;
 
   //-----------------------------------------------------------------------------------//  
   // Next make the box that describes the shape of the expHall volume:                 //  
@@ -183,13 +183,13 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   // the element we want to position in the following order:
 
 
-  double Theta = -90. * GeoModelKernelUnits::deg;
-  double Phi   = 0.  * GeoModelKernelUnits::deg;
+  double Theta = -90. * Gaudi::Units::deg;
+  double Phi   = 0.  * Gaudi::Units::deg;
 
   GeoTrf::Transform3D Mrot = GeoTrf::RotateZ3D(Phi) * GeoTrf::RotateX3D(Theta);
-  GeoTrf::Translation3D pos3Vector(- m_cryoXpos*GeoModelKernelUnits::mm
-				   , 0.*GeoModelKernelUnits::mm
-				   , 12250.*GeoModelKernelUnits::mm );
+  GeoTrf::Translation3D pos3Vector(- m_cryoXpos*Gaudi::Units::mm
+				   , 0.*Gaudi::Units::mm
+				   , 12250.*Gaudi::Units::mm );
 
   H6CryostatConstruction  H6CryoCons;
   GeoVPhysVol* CryoEnvelope = 0;
@@ -207,8 +207,8 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   // Add the front beam instrumentation:
   FrontBeamConstructionH62004 FrontBeamConstruction;
   // DB ?
-  const double bard_z = 100.0*GeoModelKernelUnits::cm;
-  const double z_bard=-2160.0*GeoModelKernelUnits::cm+80.1*GeoModelKernelUnits::cm+16.*GeoModelKernelUnits::cm+bard_z;
+  const double bard_z = 100.0*Gaudi::Units::cm;
+  const double z_bard=-2160.0*Gaudi::Units::cm+80.1*Gaudi::Units::cm+16.*Gaudi::Units::cm+bard_z;
   {                                             // (with 350=1/2 length of FrontBeam volume)
     GeoVPhysVol* front = 0;
     front = FrontBeamConstruction.GetEnvelope();
@@ -220,13 +220,13 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   }
   // Add middle chambers
   MiddleBeamConstructionH62004 MiddleBeamConstruction;
-  const double z_bardm=-2160.0*GeoModelKernelUnits::cm+1362.3*GeoModelKernelUnits::cm;
-  const double bttb_pos = 833.5*GeoModelKernelUnits::cm;
+  const double z_bardm=-2160.0*Gaudi::Units::cm+1362.3*Gaudi::Units::cm;
+  const double bttb_pos = 833.5*Gaudi::Units::cm;
   {
      GeoVPhysVol* middle = 0;
      middle = MiddleBeamConstruction.GetEnvelope();
      if(middle != 0 && expHallPhys !=0){
-        double ym_pos = m_tableYpos  * (z_bardm + 2160*GeoModelKernelUnits::cm) * (1./(bttb_pos + 2160*GeoModelKernelUnits::cm));
+        double ym_pos = m_tableYpos  * (z_bardm + 2160*Gaudi::Units::cm) * (1./(bttb_pos + 2160*Gaudi::Units::cm));
 	expHallPhys->add( new GeoNameTag("H62004::Middle"));
 	expHallPhys->add( new GeoTransform( GeoTrf::TranslateY3D(ym_pos) * GeoTrf::TranslateZ3D(z_bardm) ) );
 	expHallPhys->add(middle);
@@ -246,17 +246,17 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
 
 
    // WarmTC after the cryostat
-   double WTC_tild = -1.1*GeoModelKernelUnits::deg;   // 24 GeoModelKernelUnits::mm tild on 1250 GeoModelKernelUnits::mm length !! should go to DB ?
-   double WTC_len = 591.5*GeoModelKernelUnits::mm;
-   double WTC_sci_z = 12.7*GeoModelKernelUnits::mm;
-   double Muon_dist = 120.0*GeoModelKernelUnits::mm;
-   double Muon_z = 1.0*GeoModelKernelUnits::cm;
-   double bcry_zpos = 1225.0*GeoModelKernelUnits::cm;
-   double bcry_rwarm = 129.55*GeoModelKernelUnits::cm;
-   double WTC_x = 0.0*GeoModelKernelUnits::mm;
-   double WTC_y = 0.0*GeoModelKernelUnits::mm;
-   double WTC_z = 460.0*GeoModelKernelUnits::mm - 120.*GeoModelKernelUnits::mm - 10.*GeoModelKernelUnits::mm;
-   double z_m = (86.0*GeoModelKernelUnits::mm + WTC_len + WTC_sci_z + Muon_dist + Muon_z) / 2;
+   double WTC_tild = -1.1*Gaudi::Units::deg;   // 24 Gaudi::Units::mm tild on 1250 Gaudi::Units::mm length !! should go to DB ?
+   double WTC_len = 591.5*Gaudi::Units::mm;
+   double WTC_sci_z = 12.7*Gaudi::Units::mm;
+   double Muon_dist = 120.0*Gaudi::Units::mm;
+   double Muon_z = 1.0*Gaudi::Units::cm;
+   double bcry_zpos = 1225.0*Gaudi::Units::cm;
+   double bcry_rwarm = 129.55*Gaudi::Units::cm;
+   double WTC_x = 0.0*Gaudi::Units::mm;
+   double WTC_y = 0.0*Gaudi::Units::mm;
+   double WTC_z = 460.0*Gaudi::Units::mm - 120.*Gaudi::Units::mm - 10.*Gaudi::Units::mm;
+   double z_m = (86.0*Gaudi::Units::mm + WTC_len + WTC_sci_z + Muon_dist + Muon_z) / 2;
 
    WarmTCConstructionH62004 wtcConstruction;
    {

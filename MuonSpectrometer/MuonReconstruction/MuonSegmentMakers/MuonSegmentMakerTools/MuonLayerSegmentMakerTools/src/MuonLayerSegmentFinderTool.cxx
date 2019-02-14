@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentFinderTool.h"
@@ -13,7 +13,7 @@
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
-
+#include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
@@ -269,13 +269,19 @@ namespace Muon {
     if( mdts.size() > 2 ){
 
       // run segment finder
-      std::unique_ptr<std::vector<const MuonSegment*> > foundSegments(m_segmentMaker->find( intersection.trackParameters->position(),intersection.trackParameters->momentum(),
-                                                                                            mdts, clusters,
-                                                                                            !clusters.empty(), intersection.trackParameters->momentum().mag() ));
-      if( foundSegments ){
-        for( auto seg : *foundSegments ){
-          ATH_MSG_DEBUG( " " << m_printer->print(*seg) );
-          segments.push_back( std::shared_ptr<const MuonSegment>(seg) );
+      std::unique_ptr<Trk::SegmentCollection> segColl(new Trk::SegmentCollection(SG::VIEW_ELEMENTS));
+      m_segmentMaker->find( intersection.trackParameters->position(),intersection.trackParameters->momentum(),
+			    mdts, clusters,
+			    !clusters.empty(), segColl.get(), intersection.trackParameters->momentum().mag() );
+
+      if( segColl ){
+	Trk::SegmentCollection::iterator sit = segColl->begin();
+	Trk::SegmentCollection::iterator sit_end = segColl->end();
+        for( ; sit!=sit_end;++sit){
+	  Trk::Segment* tseg=*sit;
+	  MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
+          ATH_MSG_DEBUG( " " << m_printer->print(*mseg));
+          segments.push_back( std::shared_ptr<const MuonSegment>(mseg) );
         }
       }
     }
@@ -322,9 +328,10 @@ namespace Muon {
        }
     }
 
-     std::unique_ptr< std::vector<const MuonSegment*> > foundSegments ( m_clusterSegMakerNSW->find(clusters) );
-     if( foundSegments )  {
-         for( auto seg : *foundSegments ){
+    std::vector<MuonSegment*> foundSegments;
+    m_clusterSegMakerNSW->find(clusters,foundSegments);
+    if( foundSegments.size()>0 )  {
+         for( auto seg : foundSegments ){
             ATH_MSG_DEBUG( " NSW segment " << m_printer->print(*seg) );
             segments.push_back( std::shared_ptr<const MuonSegment>(seg) );
             ATH_MSG_DEBUG( " total segments " << segments.size() );
@@ -335,11 +342,11 @@ namespace Muon {
   void MuonLayerSegmentFinderTool::findCscSegments( const MuonLayerPrepRawData& layerPrepRawData, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
     // run 2d segment finder
-    MuonSegmentCombinationCollection* combi2D = m_csc2dSegmentFinder->find(layerPrepRawData.cscs);
+    std::unique_ptr<MuonSegmentCombinationCollection> combi2D = m_csc2dSegmentFinder->find(layerPrepRawData.cscs);
     if( combi2D ){
 
       // run 4d segment finder
-      MuonSegmentCombinationCollection* combi4D = m_csc4dSegmentFinder->find( *combi2D );
+      std::unique_ptr<MuonSegmentCombinationCollection> combi4D = m_csc4dSegmentFinder->find( *combi2D );
       if( combi4D ){
 
         // extract segments and clean-up memory
@@ -365,9 +372,7 @@ namespace Muon {
           }
         }
       }
-      delete combi4D;
     }
-    delete combi2D;
   }
 
 }

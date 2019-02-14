@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFMISSINGET_EFMISSINGETFROMFEBHEADER_H
@@ -19,7 +19,7 @@ PURPOSE: Data preparation from FEB Headers (Ex/Ey)
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -88,7 +88,7 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     LArFebEnergyCollection::const_iterator m_Febit;
 
     // things needed to find the sampling:
-    LArCablingService*       m_cablingSvc;
+    LArCablingLegacyService* m_cablingSvc;
     const LArOnlineID*       m_LArOnlineID;
     const CaloCell_ID*       m_CaloCell_ID;
     LArReadoutModuleService  m_larROModSvc;

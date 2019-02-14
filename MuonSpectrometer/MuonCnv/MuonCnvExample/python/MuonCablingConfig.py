@@ -14,7 +14,9 @@ from MuonCnvFlags import muonCnvFlags
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingAlg
 condSequence = AthSequencer("AthCondSeq")
-condSequence += MuonMDT_CablingAlg("MuonMDT_CablingAlg")
+if DetFlags.MDT_on():
+    condSequence += MuonMDT_CablingAlg("MuonMDT_CablingAlg")
+
 
 # defaults have to be re-set now since the jobproperties and trigger flags are now available # SS
 muonCnvFlags.setDefaults()

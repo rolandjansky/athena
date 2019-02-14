@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -55,7 +55,6 @@ EFMissingETFromCells::EFMissingETFromCells(const std::string& type,
   m_maxThreshold=0;
 
   m_data = NULL;
-  m_cablingSvc = NULL;
 
   m_fextype = FexType::CELL;
 
@@ -107,11 +106,6 @@ StatusCode EFMissingETFromCells::initialize()
       return StatusCode::FAILURE;
     }
 
-    StatusCode sc=toolSvc()->retrieveTool("LArCablingService", m_cablingSvc);
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_FATAL( "Failed to retrieve LArCablingService " );
-      return StatusCode::FAILURE;
-    }
   }
 
   m_maxThreshold=m_rmsOneSided;

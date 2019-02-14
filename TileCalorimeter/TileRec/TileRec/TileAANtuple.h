@@ -46,6 +46,8 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileEvent/TileMuonReceiverContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/ITileDCSTool.h"
@@ -97,7 +99,8 @@ class TileAANtuple : public AthAlgorithm {
     virtual ~TileAANtuple();
 
     //Gaudi Hooks
-    StatusCode ntuple_initialize(const TileDQstatus& DQstatus);
+    StatusCode ntuple_initialize(const EventContext& ctx,
+                                 const TileDQstatus& DQstatus);
     StatusCode ntuple_clear();
     StatusCode initialize();
     StatusCode execute();
@@ -105,34 +108,37 @@ class TileAANtuple : public AthAlgorithm {
 
   private:
 
-    StatusCode storeRawChannels(std::string cntID
+    StatusCode storeRawChannels(const EventContext& ctx
+                                 , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
 		  	        , float ene[N_ROS2][N_MODULES][N_CHANS]
 			        , float time[N_ROS2][N_MODULES][N_CHANS]
 			        , float chi2[N_ROS2][N_MODULES][N_CHANS]
 			        , float ped[N_ROS2][N_MODULES][N_CHANS]
 			        , bool fillAll);
                                
-    StatusCode storeMFRawChannels(std::string cntID
+    StatusCode storeMFRawChannels(const EventContext& ctx
+                                  , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
                                   , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                   , float time[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                   , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                   , float ped[N_ROS2][N_MODULES][N_CHANS]
                                   , bool fillAll);
 
-    StatusCode storeDigits(std::string cntID
+    StatusCode storeDigits(const EventContext& ctx
+                           , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
 			   , short sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
 			   , short gain[N_ROS2][N_MODULES][N_CHANS]
 		  	   , bool fillAll);
 
-    StatusCode storeTMDBDecision();
-    StatusCode storeTMDBDigits();
-    StatusCode storeTMDBRawChannel();
+    StatusCode storeTMDBDecision(const EventContext& ctx);
+    StatusCode storeTMDBDigits(const EventContext& ctx);
+    StatusCode storeTMDBRawChannel(const EventContext& ctxx);
 
     StatusCode storeBeamElements(const TileDQstatus& DQstatus);
-    StatusCode storeLaser();
+    StatusCode storeLaser(const EventContext& ctx);
     StatusCode storeDCS();
 
-    StatusCode initNTuple(void);
+    StatusCode initNTuple(const EventContext& ctx);
 
     void fillCellMap(TTree* ntuplePtr);
 
@@ -205,120 +211,124 @@ class TileAANtuple : public AthAlgorithm {
     float m_las_MeasAmp;
     float m_las_Temperature;
 
-    // LASERI
-    int   m_las_D_ADC[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_Ped[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_Alpha[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_Alpha_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_AlphaPed[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
-    float m_las_D_AlphaPed_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    struct Arrays {
+      // LASERI
+      int   m_las_D_ADC[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_Ped[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_Alpha[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_Alpha_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_AlphaPed[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
+      float m_las_D_AlphaPed_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes] = {{0}};
 
-    int   m_las_PMT_ADC[TileLaserObject::nbGains][TileLaserObject::nbPmts];
-    int   m_las_PMT_TDC[TileLaserObject::nbGains][TileLaserObject::nbPmts];
-    float m_las_PMT_Ped[TileLaserObject::nbGains][TileLaserObject::nbPmts];
-    float m_las_PMT_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbPmts];
+      int   m_las_PMT_ADC[TileLaserObject::nbGains][TileLaserObject::nbPmts] = {{0}};
+      int   m_las_PMT_TDC[TileLaserObject::nbGains][TileLaserObject::nbPmts] = {{0}};
+      float m_las_PMT_Ped[TileLaserObject::nbGains][TileLaserObject::nbPmts] = {{0}};
+      float m_las_PMT_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbPmts] = {{0}};
 
-    // LASERII
-    int m_daqtype;
-    int m_chan[32];                   // Mean value for monitoring diodes, PMTs, phocal, CIS
-    float m_chan_Ped[32];             // Corresponding pedestal values
-    float m_chan_Led[32];             // Corresponding LED values
-    float m_chan_Lin[32];             // Corresponding linearity values
-    float m_chan_Alpha[32];           // Corresponding alpha peaks
-    float m_chan_SPed[32];            // Sigma of pedestal values
-    float m_chan_SLed[32];            // Sigma of LED values
-    float m_chan_SLin[32];            // Sigma of linearity values
-    float m_chan_SAlpha[32];          // Sigma of alpha peaks
+      // LASERII
+      int m_chan[32] = {0};             // Mean value for monitoring diodes, PMTs, phocal, CIS
+      float m_chan_Ped[32] = {0};       // Corresponding pedestal values
+      float m_chan_Led[32] = {0};       // Corresponding LED values
+      float m_chan_Lin[32] = {0};       // Corresponding linearity values
+      float m_chan_Alpha[32] = {0};     // Corresponding alpha peaks
+      float m_chan_SPed[32] = {0};      // Sigma of pedestal values
+      float m_chan_SLed[32] = {0};      // Sigma of LED values
+      float m_chan_SLin[32] = {0};      // Sigma of linearity values
+      float m_chan_SAlpha[32] = {0};    // Sigma of alpha peaks
 
-    // Digi/Energy items
+      // Digi/Energy items
 
-    short m_sampleFlt[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES];
-    short m_gainFlt[N_ROS2][N_MODULES][N_CHANS];
+      short m_sampleFlt[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      short m_gainFlt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    short m_sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES];
-    short m_gain[N_ROS2][N_MODULES][N_CHANS];
+      short m_sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      short m_gain[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    short m_rodBCID[N_ROS][N_MODULES];
-    short m_fragSize[N_ROS][N_MODULES];
-    uint16_t m_dmuMask[N_ROS][N_MODULES][2];
-    uint16_t m_slinkCRC[N_ROS][N_MODULES][2];
+      short m_rodBCID[N_ROS][N_MODULES] = {{0}};
+      short m_fragSize[N_ROS][N_MODULES] = {{0}};
+      uint16_t m_dmuMask[N_ROS][N_MODULES][2] = {{0}};
+      uint16_t m_slinkCRC[N_ROS][N_MODULES][2] = {{0}};
 
-    uint32_t m_DMUheader[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUbcid[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUformatErr[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUparityErr[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUmemoryErr[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUDstrobeErr[N_ROS2][N_MODULES][N_DMUS];
-    short m_DMUSstrobeErr[N_ROS2][N_MODULES][N_DMUS];
-    short m_feCRC[N_ROS2][N_MODULES][N_DMUS];
-    short m_rodCRC[N_ROS2][N_MODULES][N_DMUS];
+      uint32_t m_DMUheader[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUbcid[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUformatErr[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUparityErr[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUmemoryErr[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUDstrobeErr[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_DMUSstrobeErr[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_feCRC[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
+      short m_rodCRC[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
 
-    float m_ene[N_ROS2][N_MODULES][N_CHANS];
-    float m_time[N_ROS2][N_MODULES][N_CHANS];
-    float m_ped[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2[N_ROS2][N_MODULES][N_CHANS]; 
+      float m_ene[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_time[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_ped[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2[N_ROS2][N_MODULES][N_CHANS] = {{{0}}}; 
 
-    float m_eFit[N_ROS2][N_MODULES][N_CHANS];
-    float m_tFit[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedFit[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2Fit[N_ROS2][N_MODULES][N_CHANS];
+      float m_eFit[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tFit[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedFit[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2Fit[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eFitc[N_ROS2][N_MODULES][N_CHANS];
-    float m_tFitc[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedFitc[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2Fitc[N_ROS2][N_MODULES][N_CHANS];
+      float m_eFitc[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tFitc[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedFitc[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2Fitc[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eOpt[N_ROS2][N_MODULES][N_CHANS];
-    float m_tOpt[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedOpt[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2Opt[N_ROS2][N_MODULES][N_CHANS];
+      float m_eOpt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tOpt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedOpt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2Opt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eQIE[N_ROS2][N_MODULES][N_CHANS];
-    float m_tQIE[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedQIE[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2QIE[N_ROS2][N_MODULES][N_CHANS];
+      float m_eQIE[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tQIE[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedQIE[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2QIE[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eOF1[N_ROS2][N_MODULES][N_CHANS];
-    float m_tOF1[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedOF1[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2OF1[N_ROS2][N_MODULES][N_CHANS];
+      float m_eOF1[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tOF1[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedOF1[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2OF1[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eDsp[N_ROS2][N_MODULES][N_CHANS];
-    float m_tDsp[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedDsp[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2Dsp[N_ROS2][N_MODULES][N_CHANS];
+      float m_eDsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tDsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedDsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2Dsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    float m_eMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES];
-    float m_tMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES];
-    float m_chi2MF[N_ROS2][N_MODULES][N_CHANS];
-    float m_pedMF[N_ROS2][N_MODULES][N_CHANS];
+      float m_eMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{0}}};
+      float m_tMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{0}}};
+      float m_chi2MF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedMF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-    short m_ROD_GlobalCRC[N_ROS][N_MODULES];
-    short m_ROD_BCID[N_ROS][N_MODULES];
-    short m_ROD_DMUBCIDErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUmemoryErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUSstrobeErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUDstrobeErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUHeadformatErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUHeadparityErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUDataformatErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUDataparityErr[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUfeCRC[N_ROS][N_MODULES][N_DMUS];
-    short m_ROD_DMUrodCRC[N_ROS][N_MODULES][N_DMUS];
-    uint16_t m_ROD_DMUMask[N_ROS][N_MODULES][2];
+      short m_ROD_GlobalCRC[N_ROS][N_MODULES] = {{0}};
+      short m_ROD_BCID[N_ROS][N_MODULES] = {{0}};
+      short m_ROD_DMUBCIDErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUmemoryErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUSstrobeErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUDstrobeErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUHeadformatErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUHeadparityErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUDataformatErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUDataparityErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUfeCRC[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      short m_ROD_DMUrodCRC[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
+      uint16_t m_ROD_DMUMask[N_ROS][N_MODULES][2] = {{{0}}};
 
-    float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]; // TMDB
-    unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]; // TMDB
-    unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]; // TMDB
+      float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS] = {{{0}}}; // TMDB
+      unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES] = {{{{0}}}}; // TMDB
+      unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS] = {{{0}}}; // TMDB
  
-    float m_TEMP[4][64][7];
-    float m_HV[4][64][48];
-    float m_HVSET[4][64][48];
-    int m_DRSTATES[4][64];
-    short m_HVSTATUS[4][64][48];
-    short m_DRSTATUS[4][64];
-    short m_CHSTATUS[4][64][48];
+      float m_TEMP[4][64][7] = {{{0}}};
+      float m_HV[4][64][48] = {{{0}}};
+      float m_HVSET[4][64][48] = {{{0}}};
+      int m_DRSTATES[4][64] = {{0}};
+      short m_HVSTATUS[4][64][48] = {{{0}}};
+      short m_DRSTATUS[4][64] = {{0}};
+      short m_CHSTATUS[4][64][48] = {{{0}}};
+    };
+    std::unique_ptr<Arrays> m_arrays;
+
+    int m_daqtype;
     int m_nBadDr;
     int m_nBadHV;
     int m_nBadDCS;
@@ -326,21 +336,22 @@ class TileAANtuple : public AthAlgorithm {
     int m_nBadTotal;
 
     // jobOptions parameters - container names
-    std::string m_digitsContainer;
-    std::string m_fltDigitsContainer;
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey;
+    SG::ReadHandleKey<TileDigitsContainer> m_fltDigitsContainerKey;
     SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey;
-    std::string m_rawChannelContainer;
-    std::string m_fitRawChannelContainer;
-    std::string m_fitcRawChannelContainer;
-    std::string m_optRawChannelContainer;
-    std::string m_qieRawChannelContainer;
-    std::string m_dspRawChannelContainer;
-    std::string m_mfRawChannelContainer;
-    std::string m_of1RawChannelContainer;
-    std::string m_laserObject;
-    std::string m_tileMuRcvRawChannelContainer; // TMDB
-    std::string m_tileMuRcvDigitsContainer; // TMDB
-    std::string m_tileMuRcvContainer; // TMDB
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_fitRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_fitcRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_optRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_qieRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_dspRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_mfRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_of1RawChannelContainerKey;
+    SG::ReadHandleKey<TileLaserObject> m_laserObjectKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_tileMuRcvRawChannelContainerKey; // TMDB
+    SG::ReadHandleKey<TileDigitsContainer> m_tileMuRcvDigitsContainerKey; // TMDB
+    SG::ReadHandleKey<TileMuonReceiverContainer> m_tileMuRcvContainerKey; // TMDB
+    SG::ReadHandleKey<TileL2Container> m_l2CntKey;
 
    // other jobOptions parameters
     bool m_calibrateEnergy; //!< convert energy to new units or use amplitude from RawChannel directly

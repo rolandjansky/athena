@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -106,8 +106,8 @@ def setupCommonServices():
     svcMgr += CfgMgr.IOVSvc()
     
     # Configure COOL update helper tool
-    # from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
-    # _eventLoopMgr(svcMgr).CoolUpdateTool = TrigCOOLUpdateHelper()
+    from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
+    svcMgr.HltEventLoopMgr.CoolUpdateTool = TrigCOOLUpdateHelper()
             
     # Setup online THistSvc unless specifically configured otherwise
     if _Conf.useOnlineTHistSvc:

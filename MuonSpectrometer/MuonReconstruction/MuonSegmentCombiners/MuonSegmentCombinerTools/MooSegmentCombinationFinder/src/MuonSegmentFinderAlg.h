@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
@@ -29,6 +29,8 @@
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
+#include "MuonPrepRawData/RpcPrepDataCollection.h"
+#include "MuonPrepRawData/TgcPrepDataCollection.h"
 
 namespace Muon {
   class IMuonClusterSegmentFinder;
@@ -75,8 +77,9 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_tgcTruth{this,"TGCTruth","TGC_TruthMap","TGC PRD Multi-truth Collection"};
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_rpcTruth{this,"RPCTruth","RPC_TruthMap","RPC PRD Multi-truth Collection"};
 
-  void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
-  void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
+  void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,Trk::SegmentCollection* segs,
+			      const std::vector<const Muon::RpcPrepDataCollection*> rpcCols, const std::vector<const Muon::TgcPrepDataCollection*> tgcCols);
+  void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,Trk::SegmentCollection* segments);
 
   bool m_printSummary;
   bool m_useNSWMode;
@@ -86,7 +89,6 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   bool                m_doRPCClust;
   bool                m_doClusterTruth;
 };
-
 
 #endif
 

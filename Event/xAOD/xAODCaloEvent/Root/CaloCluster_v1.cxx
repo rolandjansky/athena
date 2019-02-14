@@ -791,7 +791,7 @@ namespace xAOD {
   bool CaloCluster_v1::retrieveMoment( MomentType type, double& value ) const {
 
       // Get the moment accessor:
-      Accessor< float >* acc = momentAccessorV1( type );
+      const Accessor< float >* acc = momentAccessorV1( type );
       if( ! acc ) return false;
       // Check if the moment is available:
       if( ! acc->isAvailable( *this ) ) {

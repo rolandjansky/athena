@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventCnvTools/EventCnvSuperTool.h"
@@ -93,8 +93,8 @@ Trk::EventCnvSuperTool::finalize(){
     return StatusCode::SUCCESS;
 }
 
-Trk::ITrkEventCnvTool*    
-Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
+const Trk::ITrkEventCnvTool*    
+Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
     if (m_detID==0) return 0;
 
     if(m_detID->is_indet(id))
@@ -136,9 +136,9 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
 }
 
 const Trk::Surface* 
-Trk::EventCnvSuperTool::getSurface(const Identifier& id){
+Trk::EventCnvSuperTool::getSurface(const Identifier& id) const {
     const Surface* surface = 0;
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(id);
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(id);
     if (cnvTool!=0) {
         const TrkDetElementBase* detEl = cnvTool->getDetectorElement( id );
         if (detEl!=0)
@@ -152,10 +152,10 @@ Trk::EventCnvSuperTool::getSurface(const Identifier& id){
 }
 
 void
-Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )
+Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
     using namespace std;
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
     if (cnvTool!=0) {
         cnvTool->recreateRIO_OnTrack( RoT );
     } else {
@@ -167,9 +167,9 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )
 }
 
 void
-Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT )
+Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
-    Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
     if (cnvTool!=0) {
         cnvTool->prepareRIO_OnTrack( RoT );
     } else {

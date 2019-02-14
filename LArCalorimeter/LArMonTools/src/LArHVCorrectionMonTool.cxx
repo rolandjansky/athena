@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -46,7 +46,7 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_CaloDetDescrMgr(0),
     m_strHelper(0),
     m_rootStore(0),
-    m_larCablingService("LArCablingService"),
+    m_larCablingService("LArCablingLegacyService"),
     m_hvCorrTool("LArHVCorrTool"),
     m_keyHVScaleCorr("LArHVScaleCorr"),
     m_eventsCounter(0)

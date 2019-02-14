@@ -1,9 +1,9 @@
 # TO RUN THE GUI, PLEASE RUN THE COMMAND:
 # source TrigMaMGUI_P1.sh
 echo
-echo "     Trigger Menu Aware Monitoring Graphical User Interface"
-echo "     by Xanthe Hoad xanthe.hoad@cern.ch"
-echo "     For more info about Menu Aware Monitoring see"
+echo "     Trigger Menu-aware Monitoring Graphical User Interface"
+echo "     for use with TRIGGERDB"
+echo "     For more info about Menu-aware Monitoring see"
 echo "     https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM"
 echo
 
@@ -26,5 +26,8 @@ fi
 #Uncomment the following line to recompile the GUI
 #WARNING: If compiling, please call the script from an empty directory
 #The java compiler at P1 scrambles files when run in a non-empty directory
-#javac $SCRIPTDIR/GUI/TrigMaMGUI.java
-java -cp $SCRIPTDIR/GUI: TrigMaMGUI TRIGGERDBR2MAM
+#javac -version $SCRIPTDIR/GUI/TrigMaMGUI.java
+#java -cp -showversion $SCRIPTDIR/GUI: TrigMaMGUI TRIGGERDBR2MAM
+#Need higher java version, use 1.8
+#/sw/atlas/sw/lcg/external/Java/JDK/1.8.0/amd64/bin/javac -version $SCRIPTDIR/GUI/TrigMaMGUI.java
+/sw/atlas/sw/lcg/external/Java/JDK/1.8.0/amd64/jre/bin/java -cp -showversion $SCRIPTDIR/GUI: TrigMaMGUI TRIGGERDBR2MAM

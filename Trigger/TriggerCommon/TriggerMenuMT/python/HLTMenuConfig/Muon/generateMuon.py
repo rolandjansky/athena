@@ -4,7 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainS
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigUpgradeTest.MuonMenuConfig import l2MuFastRecoCfg, l2MuFastHypoCfg
-from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
 
 
 def generateChains( flags, chainDict ):

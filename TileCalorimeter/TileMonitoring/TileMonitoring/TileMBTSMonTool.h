@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,6 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 
 class CTP_RDO;
@@ -113,10 +115,10 @@ class TileMBTSMonTool: public TileFatherMonTool {
     ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc;
 
     // container names
-    std::string m_TileDigitsContainerID;
-    std::string m_MBTSCellContainerID;
-    std::string m_TileDSPRawChannelContainerID;
-    std::string m_TileBeamElemContainerID;
+    SG::ReadHandleKey<TileDigitsContainer> m_TileDigitsContainerID
+    { this, "TileDigitsContainerName", "TileDigitsCnt", "" };
+    SG::ReadHandleKey<TileCellContainer>   m_MBTSCellContainerID
+    { this, "MBTSContainerName", "MBTSContainer", "" };
 
     int m_numEvents; // event counter
     bool m_isOnline;

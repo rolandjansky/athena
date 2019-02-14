@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfo_v1.h 727083 2016-03-01 15:20:50Z krasznaa $
@@ -21,6 +21,8 @@ extern "C" {
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
+#include "CxxUtils/CachedValue.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration(s):
 class StoreGateSvc;
@@ -250,8 +252,15 @@ namespace xAOD {
          MinimumBias =  1, ///< Minimum bias pileup event
          Cavern      =  2, ///< Cavern background pileup event
          HaloGas     =  3, ///< Halo-gas non-collision background
-         ZeroBias    =  4  ///< Zero bias pileup event
+         ZeroBias    =  4, ///< Zero bias pileup event
+         PileUp_NTYPES
       }; // enum PileUpType
+
+      /// Convert PileUpType enum value to string
+      static const std::string& PileUpType2Name(PileUpType typ);
+
+      /// Convert int to PileUpType enum value
+      static PileUpType PileUpInt2Type(unsigned short typ);
 
       /// Class describing the properties of one pileup sub-event
       ///
@@ -460,7 +469,7 @@ namespace xAOD {
 
 #if not defined(__GCCXML__) and not defined(__ROOTCLING__)
       /// Get the pointer to the event store associated with this event
-      StoreGateSvc* evtStore() const;
+      StoreGateSvc* evtStore ATLAS_NOT_CONST_THREAD_SAFE () const;
       /// Set the pointer to the event store associated with this event
       void setEvtStore( StoreGateSvc* svc );
 #endif // not genreflex or rootcint/rootcling
@@ -473,14 +482,12 @@ namespace xAOD {
       void toTransient();
 
    private:
+      std::vector< EventInfo_v1::SubEvent > makeSubEvents() const;
+
       /// Cached stream tag objects
-      mutable std::vector< StreamTag > m_streamTags;
-      /// Flag for updating the cached stream tags if necessary
-      mutable bool m_updateStreamTags;
+      CxxUtils::CachedValue<std::vector< StreamTag > > m_streamTags;
       /// Cached sub-event objects
-      mutable std::vector< SubEvent > m_subEvents;
-      /// Flag for updating the cached sub-events if necessary
-      mutable bool m_updateSubEvents;
+      CxxUtils::CachedValue<std::vector< SubEvent>  > m_subEvents;
 
 #ifndef __GCCXML__
       /// Transient pointer to the StoreGateSvc instance associated with the

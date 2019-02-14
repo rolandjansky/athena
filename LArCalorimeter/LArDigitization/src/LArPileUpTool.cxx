@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -27,6 +27,7 @@
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 #include <CLHEP/Random/Randomize.h>
 
@@ -484,24 +485,22 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   // if noise on, get random number engine and initialize with well defined seeds
   if (m_NoiseOnOff ||m_addPhase) {
-   //if use run-event number for seed
-   if (m_rndmEvtRun) {
-     const EventInfo* eventInfo;
-     StatusCode sc =  evtStore()->retrieve(eventInfo);
-     int iSeedNumber=1;
-     if (sc.isFailure()) {
-       ATH_MSG_ERROR(" can not retrieve event info. Dummy rndm initialization...");
-       m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,this->name());
+     //if use run-event number for seed
+     if (m_rndmEvtRun) {
+        const EventIDBase* evid = EventIDFromStore( evtStore() );
+        if( evid ) {
+           const int iSeedNumber = evid->event_number()+1;
+           const int iRunNumber = evid->run_number();
+           ATH_MSG_DEBUG(" Run/Event " << evid->run_number() << " " << evid->event_number());
+           ATH_MSG_DEBUG(" iSeedNumber,iRunNumber " << iSeedNumber << " " << iRunNumber);
+           m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,iRunNumber,this->name());
+        }
+        else {
+           ATH_MSG_ERROR(" can not retrieve event info. Dummy rndm initialization...");
+           int iSeedNumber=1;
+           m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,this->name());
+        }
      }
-     else {
-       const EventID* myEventID=eventInfo->event_ID();
-       const int iSeedNumber = myEventID->event_number()+1;
-       const int iRunNumber = myEventID->run_number();
-       ATH_MSG_DEBUG(" Run/Event " <<  myEventID->run_number() << " " << myEventID->event_number());
-       ATH_MSG_DEBUG(" iSeedNumber,iRunNumber " << iSeedNumber << " " << iRunNumber);
-       m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,iRunNumber,this->name());
-     }
-   }
   }
 
   // get the trigger time if requested

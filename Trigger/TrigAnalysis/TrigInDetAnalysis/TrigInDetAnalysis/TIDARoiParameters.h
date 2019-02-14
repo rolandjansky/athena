@@ -1,19 +1,20 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDARoiParameters.h        
-//
-//            Class to store the eta, phi, zed, parameters and ranges 
-//            for the TIDARoiDescriptor class
-//            This is needed, since the RoiDescriptor can contain a vector
-//            of RoiDescriptor* and I couldn;t work out how to have the root
-//            class persistify the members of the class, recursively
-//            within itself          
-//  
-//
-//   $Id: TIDARoiParameters.h, v0.0   Wed  4 Mar 2015 16:09:33 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDARoiParameters.h
+ **
+ **     @brief   Class to store the eta, phi, zed, parameters and ranges 
+ **              for the TIDARoiDescriptor class
+ **              
+ **              This is needed, since the RoiDescriptor can contain a vector
+ **              of RoiDescriptor* and I couldn;t work out how to have the root
+ **              class persistify the members of the class, recursively
+ **              within itself          
+ **
+ **     @author  mark sutton
+ **     @date    Wed  4 Mar 2015 16:09:33 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  TIDAROIPARAMETERS_H

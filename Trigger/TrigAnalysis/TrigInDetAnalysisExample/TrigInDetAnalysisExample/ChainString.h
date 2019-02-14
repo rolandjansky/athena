@@ -1,15 +1,14 @@
-// emacs: this is -*- c++ -*-  
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    ChainString.cxx         
-//            parse an analysis chain specification
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: ChainString.h, v0.0   Thu 30 Apr 2015 14:03:50 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **   @file    ChainString.cxx         
+ **
+ **   @brief   parse an analysis chain specification
+ **
+ **   @author M.Sutton
+ **   @date   Thu 30 Apr 2015 14:03:50 CEST 
+ **
+ **  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TrigInDetAnalysisExample_ChainString_H

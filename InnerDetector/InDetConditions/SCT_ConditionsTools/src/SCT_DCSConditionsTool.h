@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DCSConditionsTool_h
@@ -15,21 +15,17 @@
 
 //
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-//
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
+//
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
 //STL
-#include <list>
 #include <string>
-#include <map>
-#include <mutex>
 
 class SCT_ID;
 
@@ -51,20 +47,28 @@ public:
   //returns the module ID (int), or returns 9999 (not a valid module number) if not able to report
   virtual Identifier getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) const;
   ///Summarise the result from the service as good/bad
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///is it good?, using wafer hash
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
   //Returns HV (0 if there is no information)
+  virtual float modHV(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float modHV(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float modHV(const IdentifierHash& hashId) const override;
   //Returns temp0 (0 if there is no information)
+  virtual float hybridTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float hybridTemperature(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float hybridTemperature(const IdentifierHash& hashId) const override;
   //Returns temp0 + correction for Lorentz angle calculation (0 if there is no information)
+  virtual float sensorTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float sensorTemperature(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float sensorTemperature(const IdentifierHash& hashId) const override;
   //@}
     
@@ -75,17 +79,6 @@ private:
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheState;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheHV;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheTemp0;
-  // Pointer of SCT_DCSStatCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSStatCondData> m_pBadModules;
-  // Pointers of SCT_DCSFloatCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState{this, "CondKeyState", "SCT_DCSStatCondData", "SCT DCS state"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_DCSHVCondData", "SCT DCS HV"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0{this, "CondKeyTemp0", "SCT_DCSTemp0CondData", "SCT DCS temperature on side 0"};

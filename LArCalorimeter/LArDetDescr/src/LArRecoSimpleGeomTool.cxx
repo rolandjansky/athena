@@ -28,7 +28,7 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -170,17 +170,17 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()<14) return false;
 
     const IRDBRecord* rec = (*lar)[11];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
-    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    len =  rec->getDouble("DZ")*Gaudi::Units::cm /2.;
+    dep =  rec->getDouble("DR")*Gaudi::Units::cm;
     rec = (*lar)[12];
-    dep =  dep +rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    dep =  dep +rec->getDouble("DR")*Gaudi::Units::cm;
     rec = (*lar)[13];
-    dep =  dep +rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    dep =  dep +rec->getDouble("DR")*Gaudi::Units::cm;
 
-    //rad = 124.18*GeoModelKernelUnits::cm;
-    //dep = (.305 + 1.38 + .47 )*GeoModelKernelUnits::cm;
-    //len = 270.*GeoModelKernelUnits::cm;
+    //rad = 124.18*Gaudi::Units::cm;
+    //dep = (.305 + 1.38 + .47 )*Gaudi::Units::cm;
+    //len = 270.*Gaudi::Units::cm;
     
     radius.push_back( rad + dep/2.);
     depth.push_back( dep/2. );
@@ -197,13 +197,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 10
     const IRDBRecord* rec = (*lar)[10];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
-    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    len =  rec->getDouble("DZ")*Gaudi::Units::cm /2.;
+    dep =  rec->getDouble("DR")*Gaudi::Units::cm;
 
-    //rad = 122.9*GeoModelKernelUnits::cm;
-    //dep = 1.28*GeoModelKernelUnits::cm;
-    //len = 270.*GeoModelKernelUnits::cm;
+    //rad = 122.9*Gaudi::Units::cm;
+    //dep = 1.28*Gaudi::Units::cm;
+    //len = 270.*Gaudi::Units::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -211,13 +211,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 14
     rec = (*lar)[14];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
-    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    len =  rec->getDouble("DZ")*Gaudi::Units::cm /2.;
+    dep =  rec->getDouble("DR")*Gaudi::Units::cm;
 
-    //rad = 126.335*GeoModelKernelUnits::cm;
-    //dep = 1.2*GeoModelKernelUnits::cm;
-    //len = 284.*GeoModelKernelUnits::cm;
+    //rad = 126.335*Gaudi::Units::cm;
+    //dep = 1.2*Gaudi::Units::cm;
+    //len = 284.*Gaudi::Units::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -225,13 +225,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     // CryoMother nb 0
     rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
-    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    len =  rec->getDouble("DZ")*Gaudi::Units::cm /2.;
+    dep =  rec->getDouble("DR")*Gaudi::Units::cm;
 
     //rad = 2140*mm;
     //dep = 30*mm;
-    //len = 299.6*GeoModelKernelUnits::cm;
+    //len = 299.6*Gaudi::Units::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -239,13 +239,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 5
     rec = (*lar)[5];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
-    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    len =  rec->getDouble("DZ")*Gaudi::Units::cm /2.;
+    dep =  rec->getDouble("DR")*Gaudi::Units::cm;
 
     //rad = 2220*mm;
     //dep = 30*mm;
-    //len = 285*GeoModelKernelUnits::cm;
+    //len = 285*Gaudi::Units::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -262,18 +262,18 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()==0) return false;
     
     const IRDBRecord* rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    dep =  rec->getDouble("RMAX")*GeoModelKernelUnits::cm - rad;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    dep =  rec->getDouble("RMAX")*Gaudi::Units::cm - rad;
 	
     lar = m_recBarrGeo;
     if ( !lar || lar->size()==0) return false;
 
     rec = (*lar)[0];
-    len =  rec->getDouble("ZMAX")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("ZMAX")*Gaudi::Units::cm;
 
-    //rad = 138.5*GeoModelKernelUnits::cm;
-    //dep = (144.7 - 138.5)*GeoModelKernelUnits::cm;
-    //len = 316.5*GeoModelKernelUnits::cm;
+    //rad = 138.5*Gaudi::Units::cm;
+    //dep = (144.7 - 138.5)*Gaudi::Units::cm;
+    //len = 316.5*Gaudi::Units::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -290,13 +290,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()==0) return false;
 
     const IRDBRecord* rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    dep =  rec->getDouble("RMAX")*GeoModelKernelUnits::cm - rad;
-    len =  rec->getDouble("ZMAX")*GeoModelKernelUnits::cm;
+    rad =  rec->getDouble("RMIN")*Gaudi::Units::cm;
+    dep =  rec->getDouble("RMAX")*Gaudi::Units::cm - rad;
+    len =  rec->getDouble("ZMAX")*Gaudi::Units::cm;
 
-    //rad = 1447.3*GeoModelKernelUnits::cm;
-    //dep = (2003.35 - 1447.3)*GeoModelKernelUnits::cm;
-    //len = 316.5*GeoModelKernelUnits::cm;
+    //rad = 1447.3*Gaudi::Units::cm;
+    //dep = (2003.35 - 1447.3)*Gaudi::Units::cm;
+    //len = 316.5*Gaudi::Units::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -353,16 +353,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[49];
 
-    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    ra = ri + rec->getDouble("DR")*GeoModelKernelUnits::cm;
-    dep = rec->getDouble("DZ")*GeoModelKernelUnits::cm;
-    zcent = rec->getDouble("ZMIN")*GeoModelKernelUnits::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*Gaudi::Units::cm;
+    ra = ri + rec->getDouble("DR")*Gaudi::Units::cm;
+    dep = rec->getDouble("DZ")*Gaudi::Units::cm;
+    zcent = rec->getDouble("ZMIN")*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 22.1*GeoModelKernelUnits::cm;
-    //ra = (22.1 + 194.4)*GeoModelKernelUnits::cm;
-    //dep = 6.5*GeoModelKernelUnits::cm;
-    //zcent = (356.1 + dep/2.)*GeoModelKernelUnits::cm;
+    //ri = 22.1*Gaudi::Units::cm;
+    //ra = (22.1 + 194.4)*Gaudi::Units::cm;
+    //dep = 6.5*Gaudi::Units::cm;
+    //zcent = (356.1 + dep/2.)*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -372,16 +372,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     // DDDb : LAr / CryoCylinders / Endcap nb 6
     rec = (*lar)[44];
 
-    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    ra = ri + rec->getDouble("DR")*GeoModelKernelUnits::cm;
-    dep = rec->getDouble("DZ")*GeoModelKernelUnits::cm;
-    zcent = rec->getDouble("ZMIN")*GeoModelKernelUnits::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*Gaudi::Units::cm;
+    ra = ri + rec->getDouble("DR")*Gaudi::Units::cm;
+    dep = rec->getDouble("DZ")*Gaudi::Units::cm;
+    zcent = rec->getDouble("ZMIN")*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 79.*GeoModelKernelUnits::cm;
-    //ra = (ri + 173.)*GeoModelKernelUnits::cm;
-    //dep = 6.*GeoModelKernelUnits::cm;
-    //zcent = (660.5 + dep/2.)*GeoModelKernelUnits::cm;
+    //ri = 79.*Gaudi::Units::cm;
+    //ra = (ri + 173.)*Gaudi::Units::cm;
+    //dep = 6.*Gaudi::Units::cm;
+    //zcent = (660.5 + dep/2.)*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -399,16 +399,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    ra = rec->getDouble("RMAX")*GeoModelKernelUnits::cm;
-    dep = rec->getDouble("TCK")*GeoModelKernelUnits::cm;
-    zcent = rec->getDouble("ZPOS")*GeoModelKernelUnits::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*Gaudi::Units::cm;
+    ra = rec->getDouble("RMAX")*Gaudi::Units::cm;
+    dep = rec->getDouble("TCK")*Gaudi::Units::cm;
+    zcent = rec->getDouble("ZPOS")*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::PRESAMPLER_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 123.174*GeoModelKernelUnits::cm;
-    //ra = 170.2*GeoModelKernelUnits::cm;
-    //dep = 0.4*GeoModelKernelUnits::cm;
-    //zcent = (362.4 + dep/2.)*GeoModelKernelUnits::cm;
+    //ri = 123.174*Gaudi::Units::cm;
+    //ra = 170.2*Gaudi::Units::cm;
+    //dep = 0.4*Gaudi::Units::cm;
+    //zcent = (362.4 + dep/2.)*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -426,16 +426,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
-    ra = rec->getDouble("RMAX")*GeoModelKernelUnits::cm;
-    dep = rec->getDouble("ETOT")*GeoModelKernelUnits::cm;
-    zcent = rec->getDouble("Z1")*GeoModelKernelUnits::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*Gaudi::Units::cm;
+    ra = rec->getDouble("RMAX")*Gaudi::Units::cm;
+    dep = rec->getDouble("ETOT")*Gaudi::Units::cm;
+    zcent = rec->getDouble("Z1")*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::EMEC_NEG) zcent = -1. * zcent;
 
-    //ri = 29.*GeoModelKernelUnits::cm;
-    //ra = 210.*GeoModelKernelUnits::cm;
-    //dep = 53.6*GeoModelKernelUnits::cm;
-    //zcent = (369.1 + dep/2.)*GeoModelKernelUnits::cm;
+    //ri = 29.*Gaudi::Units::cm;
+    //ra = 210.*Gaudi::Units::cm;
+    //dep = 53.6*Gaudi::Units::cm;
+    //zcent = (369.1 + dep/2.)*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -454,19 +454,19 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("ROORIG")*GeoModelKernelUnits::cm;
-    ra = rec->getDouble("REND")*GeoModelKernelUnits::cm;
+    ri = rec->getDouble("ROORIG")*Gaudi::Units::cm;
+    ra = rec->getDouble("REND")*Gaudi::Units::cm;
     // Block0+Block1+Block2
     dep = rec->getDouble("PLATE_0")/2. 
       + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"));
-    dep = dep*GeoModelKernelUnits::cm;
-    zcent = rec->getDouble("ZSTART")*GeoModelKernelUnits::cm + dep/2.;
+    dep = dep*Gaudi::Units::cm;
+    zcent = rec->getDouble("ZSTART")*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC1_NEG) zcent = -1. * zcent;
 
-    //ri = 37.2*GeoModelKernelUnits::cm;
-    //ra = 213.0*GeoModelKernelUnits::cm;
-    //dep = (513.4 - 4.05 - 427.7)*GeoModelKernelUnits::cm;
-    //zcent = 427.7*GeoModelKernelUnits::cm;
+    //ri = 37.2*Gaudi::Units::cm;
+    //ra = 213.0*Gaudi::Units::cm;
+    //dep = (513.4 - 4.05 - 427.7)*Gaudi::Units::cm;
+    //zcent = 427.7*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -486,24 +486,24 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("ROORIG")*GeoModelKernelUnits::cm;
-    ra = rec->getDouble("REND")*GeoModelKernelUnits::cm;
+    ri = rec->getDouble("ROORIG")*Gaudi::Units::cm;
+    ra = rec->getDouble("REND")*Gaudi::Units::cm;
     // Block 3 + Block 4 + Block 5 + Block 6
     dep =  rec->getDouble("PLATE_1")/2. 
       + 4*4*(rec->getDouble("LARG") + rec->getDouble("PLATE_1"));
-    dep = dep*GeoModelKernelUnits::cm;
+    dep = dep*Gaudi::Units::cm;
     // start+depth of HEC1 + gap
     zcent =  rec->getDouble("ZSTART") 
       + rec->getDouble("PLATE_0")/2. 
       + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"))
       +  rec->getDouble("GAPWHL") ;
-    zcent = zcent*GeoModelKernelUnits::cm + dep/2.;
+    zcent = zcent*Gaudi::Units::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC2_NEG) zcent = -1. * zcent;
 
-    //ri = 37.2*GeoModelKernelUnits::cm;
-    //ra = 213.0*GeoModelKernelUnits::cm;
-    //dep = (609.5 - 513.4)*GeoModelKernelUnits::cm;
-    //zcent = (513.4 + dep/2.)*GeoModelKernelUnits::cm;
+    //ri = 37.2*Gaudi::Units::cm;
+    //ra = 213.0*Gaudi::Units::cm;
+    //dep = (609.5 - 513.4)*Gaudi::Units::cm;
+    //zcent = (513.4 + dep/2.)*Gaudi::Units::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -517,15 +517,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*GeoModelKernelUnits::cm;
+    nb = 8.6*Gaudi::Units::cm;
     rmin.push_back( nb );
-    nb = 47.5*GeoModelKernelUnits::cm;
+    nb = 47.5*Gaudi::Units::cm;
     rmax.push_back( nb );
 
-    nb = 45.*GeoModelKernelUnits::cm;
+    nb = 45.*Gaudi::Units::cm;
     depth.push_back( nb/2. );
 
-    nb = (466.85 + nb/2. )*GeoModelKernelUnits::cm;
+    nb = (466.85 + nb/2. )*Gaudi::Units::cm;
     if (alvol == CaloSubdetNames::FCAL1_NEG) nb = -1. * nb;
     z.push_back( nb );
 
@@ -536,15 +536,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*GeoModelKernelUnits::cm;
+    nb = 8.6*Gaudi::Units::cm;
     rmin.push_back( nb );
-    nb = 47.5*GeoModelKernelUnits::cm;
+    nb = 47.5*Gaudi::Units::cm;
     rmax.push_back( nb );
 
-    nb = 45.*GeoModelKernelUnits::cm;
+    nb = 45.*Gaudi::Units::cm;
     depth.push_back( nb/2. );
 
-    nb = (512.3 + nb/2. )*GeoModelKernelUnits::cm;
+    nb = (512.3 + nb/2. )*Gaudi::Units::cm;
     if (alvol == CaloSubdetNames::FCAL2_NEG) nb = -1. * nb;
     z.push_back( nb );
 
@@ -555,15 +555,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*GeoModelKernelUnits::cm;
+    nb = 8.6*Gaudi::Units::cm;
     rmin.push_back( nb );
-    nb = 47.5*GeoModelKernelUnits::cm;
+    nb = 47.5*Gaudi::Units::cm;
     rmax.push_back( nb );
 
-    nb = 45.*GeoModelKernelUnits::cm;
+    nb = 45.*Gaudi::Units::cm;
     depth.push_back( nb/2. );
 
-    nb = (559.75 + nb/2. )*GeoModelKernelUnits::cm;
+    nb = (559.75 + nb/2. )*Gaudi::Units::cm;
     if (alvol == CaloSubdetNames::FCAL3_NEG) nb = -1. * nb;
     z.push_back( nb );
 

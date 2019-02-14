@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,23 +11,14 @@
 #ifndef SCT_SensorsTool_h
 #define SCT_SensorsTool_h
 
-//STL includes
-#include <vector>
-#include <mutex>
-
-//Interface include
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
-//Gaudi includes
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-//Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsData/SCT_SensorsCondData.h"
-
-// Read Handle Key
 #include "StoreGate/ReadCondHandleKey.h"
+
+//STL includes
+#include <vector>
 
 /**
  * @class SCT_SensorsTool
@@ -42,20 +33,18 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   virtual StatusCode finalize() override;
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  virtual void getSensorsData(std::vector<std::string>& userVector, const EventContext& ctx) const override;
   virtual void getSensorsData(std::vector<std::string>& userVector) const override;
+  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber, const EventContext& ctx) const override;
   virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const override;
+  virtual std::string getManufacturer(unsigned int truncatedSerialNumber, const EventContext& ctx) const override;
   virtual std::string getManufacturer(unsigned int truncatedSerialNumber) const override;
+  virtual void printManufacturers(const EventContext& ctx) const override;
   virtual void printManufacturers() const override;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
  private:
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_SensorsCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_SensorsCondData> m_condData;
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_SensorsCondData> m_condKey{this, "CondKey", "SCT_SensorsCondData", "SCT sensor conditions"};
   // Provides SCT_SensorsCondData pointer

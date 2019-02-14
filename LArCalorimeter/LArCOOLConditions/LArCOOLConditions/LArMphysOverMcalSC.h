@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -28,9 +28,6 @@ public:
   // retrieving LArMphysOverMcal using online ID  
   virtual const float& MphysOverMcal(const HWIdentifier& chid, int gain) const;
 
-  // retrieving LArMphysOverMcal using offline ID  
-  virtual const float& MphysOverMcal(const Identifier& id, int gain) const; 
-  
 private:
   //  static const float s_errorcode;
 

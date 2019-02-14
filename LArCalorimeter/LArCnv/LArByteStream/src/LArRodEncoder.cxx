@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRodEncoder class
@@ -16,7 +16,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 
 // static variables
-LArCablingService*    LArRodEncoder::m_cablingSvc=NULL;
+LArCablingLegacyService*    LArRodEncoder::m_cablingSvc=NULL;
 const LArOnlineID*    LArRodEncoder::m_onlineHelper=NULL; 
 LArRodBlockStructure* LArRodEncoder::m_BlStruct=NULL;
 const CaloDetDescrManager* LArRodEncoder::m_CaloDetDescrManager=NULL;
@@ -43,7 +43,7 @@ LArRodEncoder::LArRodEncoder()
     if(sc.isSuccess())
       {
 	sc = 
-	  toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
+	  toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
       } else {  // check if it fails
         // what do you want to do if it fails...
 	log << MSG::FATAL << "Could not get LArCablingService !" << endmsg;

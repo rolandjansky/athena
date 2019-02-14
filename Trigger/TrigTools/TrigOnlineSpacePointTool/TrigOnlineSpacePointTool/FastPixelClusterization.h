@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCLUSTERIZATION_H
@@ -10,7 +10,7 @@
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 #include <vector>
 #include <list>

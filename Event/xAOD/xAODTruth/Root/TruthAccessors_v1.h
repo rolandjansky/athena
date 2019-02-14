@@ -20,23 +20,23 @@ namespace xAOD {
    /// This function holds on to Accessor objects that can be used by each
    /// TruthParticle_v1 object at runtime to get/set parameter values on
    /// themselves.
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    polarizationAccessorV1( TruthParticle_v1::PolParam type );
 
    /// Helper function for getting accessors for integer type PDF information
-   SG::AuxElement::Accessor< int >*
+   const SG::AuxElement::Accessor< int >*
    pdfInfoAccessorV1Int( TruthEvent_v1::PdfParam type );
 
    /// Helper function for getting accessors for floating point PDF information
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    pdfInfoAccessorV1Float( TruthEvent_v1::PdfParam type );
 
    /// Helper function for getting accessors for integer type HI information
-   SG::AuxElement::Accessor< int >*
+   const SG::AuxElement::Accessor< int >*
    heavyIonAccessorV1Int( TruthEvent_v1::HIParam type );
 
    /// Helper function for getting accessors for floating point HI information
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    heavyIonAccessorV1Float( TruthEvent_v1::HIParam type );
 
 } // namespace xAOD

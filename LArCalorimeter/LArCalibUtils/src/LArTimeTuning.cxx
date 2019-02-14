@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimeTuning.h"
@@ -41,7 +41,6 @@ LArTimeTuning::LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator)
   m_SamplingPeriodeUpperLimit(0),
   m_SamplingPeriodeLowerLimit(0),
   m_nIterAverage(0),
-  m_larCablingSvc(0),
   m_emId(0),
   m_gain(),
   m_scope(GLOBAL)
@@ -81,9 +80,7 @@ LArTimeTuning::~LArTimeTuning()
 StatusCode LArTimeTuning::initialize(){
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  // Retrieve LArCablingService
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  ATH_CHECK( larCablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId = caloIdMgr->getEM_ID();
@@ -234,6 +231,13 @@ StatusCode LArTimeTuning::execute() {
   float err_timePeak;
   float err_Peak;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
+
   do { // Iteration, outermost loop
     
     ATH_MSG_DEBUG ( "Iteration " << nIter );
@@ -261,7 +265,7 @@ StatusCode LArTimeTuning::execute() {
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
 
       if ( m_layerSel >=0 ) {
-        Identifier id = m_larCablingSvc->cnvToIdentifier(chid);
+        Identifier id = cabling->cnvToIdentifier(chid);
         int layer = m_emId->sampling(id);
         if ( layer != m_layerSel ) {	   
 	   continue; //Ignore this cell, not corresponding to layer selection

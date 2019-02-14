@@ -90,7 +90,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   std::vector<const ROBFragment*> vecROBFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
-    m_cabling->getAllRods(rodList);
+    m_cabling->getAllRods(rodList, ctx);
     m_robDataProvider->getROBData(rodList , vecROBFrags);
   } 
   else {

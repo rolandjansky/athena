@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/FindDuplicatedLArDigits.h"
@@ -23,7 +23,6 @@ FindDuplicatedLArDigits::FindDuplicatedLArDigits(const std::string& name, ISvcLo
   : AthAlgorithm(name, pSvcLocator),
     m_nProblemEvent(0),
     m_onlineHelper(0),
-    m_larCablingSvc(0),
     m_emId(0),
     m_hecId(0),
     m_fcalId(0)
@@ -56,10 +55,6 @@ StatusCode FindDuplicatedLArDigits::initialize()
     return StatusCode::FAILURE;
   }
 
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( svcLoc->service( "ToolSvc",toolSvc) );
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );

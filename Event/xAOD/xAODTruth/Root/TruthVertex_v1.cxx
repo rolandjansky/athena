@@ -43,7 +43,7 @@ namespace xAOD {
                                       setIncomingParticleLinks )
 
    /// Accessor for the incoming particles
-   static SG::AuxElement::Accessor< TruthVertex_v1::TPLinks_t >
+   static const SG::AuxElement::Accessor< TruthVertex_v1::TPLinks_t >
       incomingParticleLinksAcc( "incomingParticleLinks" );
 
    size_t TruthVertex_v1::nIncomingParticles() const {
@@ -93,7 +93,7 @@ namespace xAOD {
                                       setOutgoingParticleLinks )
 
    /// Accessor for the outgoing particles
-   static SG::AuxElement::Accessor< TruthVertex_v1::TPLinks_t >
+   static const SG::AuxElement::Accessor< TruthVertex_v1::TPLinks_t >
       outgoingParticleLinksAcc( "outgoingParticleLinks" );
 
    size_t TruthVertex_v1::nOutgoingParticles() const {

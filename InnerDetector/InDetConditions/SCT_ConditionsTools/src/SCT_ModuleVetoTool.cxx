@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,17 +24,12 @@ SCT_ModuleVetoTool::SCT_ModuleVetoTool(const std::string &type, const std::strin
   base_class(type, name, parent),
   m_localCondData{},
   m_pHelper{nullptr},
-  m_useDatabase{false},
-  m_maskLayers{false},
-  m_maskSide{-1},
-  m_mutex{},
-  m_cache{},
-  m_condData{}
+  m_useDatabase{false}
   {
     declareProperty("BadModuleIdentifiers", m_badElements);
-    declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" ); 
-    declareProperty("MaskSide",  m_maskSide, "Mask full modules (-1), innwe (0) or outer (1) sides" );  
-    declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1"); 
+    declareProperty("MaskLayers",  m_maskLayers=false, "Mask full layers/disks in overlay" );
+    declareProperty("MaskSide",  m_maskSide=-1, "Mask full modules (-1), innwe (0) or outer (1) sides" );
+    declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1");
     declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
   }
 
@@ -99,7 +94,7 @@ SCT_ModuleVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ModuleVetoTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
   // Bad wafer in properties
@@ -107,7 +102,6 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
   // If database is not used, all wafer IDs here should be good.
   if (not m_useDatabase) return true;
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ModuleVetoCondData* condData{getCondData(ctx)};
   // If database cannot be retrieved, all wafer IDs are good.
   if (condData==nullptr) return true;
@@ -117,9 +111,21 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
+SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(elementId, ctx, h);
+}
+
+bool 
+SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
+}
+
+bool
+SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(hashId, ctx);
 }
 
 StatusCode 
@@ -169,21 +175,6 @@ SCT_ModuleVetoTool::fillData() {
 
 const SCT_ModuleVetoCondData*
 SCT_ModuleVetoTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_ModuleVetoCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+  SG::ReadCondHandle<SCT_ModuleVetoCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
 }

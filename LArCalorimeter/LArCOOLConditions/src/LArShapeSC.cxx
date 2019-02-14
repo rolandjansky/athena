@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArShapeSC.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
 
 LArShapeSC::LArShapeSC()   {}
 
@@ -21,18 +20,6 @@ LArShapeSC::LArShapeSC(const CondAttrListCollection* attrList) {
 
 
 
-
-LArShapeSC::ShapeRef_t LArShapeSC::Shape(const Identifier&  cellID, int /*gain*/, int /*tbin*/, int /*mode*/) const {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return LArShapeSC::Shape(hwid,0);
-}
-
-
-
-LArShapeSC::ShapeRef_t LArShapeSC::ShapeDer(const Identifier&  CellID, int /*gain*/, int /*tbin*/,  int /*mode*/) const {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(CellID);
-  return LArShapeSC::ShapeDer(hwid,0);
-}
 
 LArShapeSC::ShapeRef_t LArShapeSC::Shape(const HWIdentifier& hwid, int  /*gain*/, int, int) const {
   const IdentifierHash hash=m_scOnlineID->channel_Hash(hwid);
@@ -50,25 +37,11 @@ float LArShapeSC::timeOffset(const HWIdentifier& hwid , int) const {
 }
 
 
-float LArShapeSC::timeOffset(const Identifier& CellID, int) const {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(CellID);
-  return this->timeOffset(hwid,0);
-}
-  
-
 unsigned LArShapeSC::nTimeBins(const HWIdentifier&, int) const {
   return 1;
 }
 
-unsigned LArShapeSC::nTimeBins(const Identifier&, int) const {
-  return 1;
-}
- 
 
 float LArShapeSC::timeBinWidth(const HWIdentifier&, int ) const {
-  return (25./24.);
-}
-
-float LArShapeSC::timeBinWidth(const Identifier&, int) const {
   return (25./24.);
 }

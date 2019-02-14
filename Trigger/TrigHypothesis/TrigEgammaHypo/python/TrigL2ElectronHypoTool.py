@@ -2,7 +2,9 @@
 
 def TrigL2ElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
-    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Electron']
+    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
+
 
     name = chainDict['chainName']
     
@@ -15,14 +17,14 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
         from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.Histograms = [         
-            defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
-            defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12),
-            defineHistogram('PtTrack', type='TH1F', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('PtCalo', type='TH1F', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('CaloEta', type='TH1F', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
-            defineHistogram('CaloPhi', type='TH1F', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]        
+            defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
+            defineHistogram('CaloTrackdEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
+            defineHistogram('CaloTrackdPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
+            defineHistogram('CaloTrackEoverP', type='TH1F', path='EXPERT', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12),
+            defineHistogram('PtTrack', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
+            defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
+            defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
+            defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]
 
         monTool.HistPath = 'L2ElectronHypo/'+tool.name()
         tool.MonTool = monTool
@@ -38,8 +40,7 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
     tool.TRTRatio = [ -999. ] * nt
 
 
-    for th, thvalue in enumerate(thresholds):
-        print th, thvalue
+    for th, thvalue in enumerate(thresholds):        
         if float(thvalue) < 15:
             tool.TrackPt[ th ] = 1.0 * GeV 
         elif float(thvalue) >= 15 and float(thvalue) < 20:
@@ -73,6 +74,10 @@ if __name__ == "__main__":
     assert tool, "Not configured simple tool"
 
     tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut", "HLT_2e3_etcut")    
+    assert tool, "Not configured simple tool"
+    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
+
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut", "HLT_e3_e5_etcut")    
     assert tool, "Not configured simple tool"
     assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 

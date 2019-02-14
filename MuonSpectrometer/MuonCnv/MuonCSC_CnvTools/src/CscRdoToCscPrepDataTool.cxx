@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -12,9 +12,6 @@
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 
 #include "CscRdoToCscPrepDataTool.h"
 #include "TrkSurfaces/Surface.h"

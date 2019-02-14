@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscROD_Decoder.h"
@@ -22,10 +22,9 @@ using eformat::helper::SourceIdentifier;
 /** constructor */ 
 Muon::CscROD_Decoder::CscROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-:  AthAlgTool(type,name,parent),
+:  base_class(type,name,parent),
    m_cabling( "CSCcablingSvc" ,name) 
 {
-  declareInterface<ICSC_ROD_Decoder>( this );
   declareProperty("IsCosmics", m_isCosmic = false);
   declareProperty("IsOldCosmics", m_isOldCosmic = false);
 }
@@ -67,20 +66,22 @@ StatusCode Muon::CscROD_Decoder::initialize()
  
   m_hid2re.set( &(*m_cabling), m_cscHelper );
 
-  return StatusCode::SUCCESS;
-}
-
-
-
-void Muon::CscROD_Decoder::fillCollection(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& log) {
-
-  ATH_MSG_DEBUG ( "in CscROD_Decode::fillCollection()" );
-
   if ( m_isCosmic ) {
      m_hid2re.set_isCosmic();
      if ( m_isOldCosmic ) m_hid2re.set_isOldCosmic();
   }
  
+  return StatusCode::SUCCESS;
+}
+
+
+
+void Muon::CscROD_Decoder::fillCollection(const xAOD::EventInfo& eventInfo,
+                                          const ROBFragment& robFrag,
+                                          CscRawDataContainer& rdoIDC) const
+{
+  ATH_MSG_DEBUG ( "in CscROD_Decode::fillCollection()" );
+
   // Check the ROB and ROD fragment . E.P.
   try {
     robFrag.check ();
@@ -107,17 +108,17 @@ void Muon::CscROD_Decoder::fillCollection(const ROBFragment& robFrag,  CscRawDat
       << MSG::hex << rodMinorVersion << MSG::dec );
 
   if ( rodMinorVersion == 0x0200 )
-     this->rodVersion2(robFrag, rdoIDC, log);
+     this->rodVersion2(robFrag, rdoIDC);
   else if ( (rodMinorVersion >> 8) == 4){ // minor ver. 0400 Oct. 2014
-     this->rodVersion2(robFrag, rdoIDC, log);
+     this->rodVersion2(robFrag, rdoIDC);
   }
   else if (rodMinorVersion == 0x1 || // ROD version for CTB and DC3 - for backward compatibility
-           m_eventInfo->event_type()->test(EventType::IS_TESTBEAM)) 
-     this->rodVersion1(robFrag, rdoIDC, log);
+           eventInfo.eventType(xAOD::EventInfo::IS_TESTBEAM)) 
+     this->rodVersion1(robFrag, rdoIDC);
   else if (rodMinorVersion == 0x0) 
      ATH_MSG_DEBUG ( "Empty ROB - doing nothing " );
   else //ROD version for DC2 - old and obselete; for backward compatibility
-     this->rodVersion0(robFrag, rdoIDC, log);  
+     this->rodVersion0(robFrag, rdoIDC);  
 
   return;
 }
@@ -126,7 +127,7 @@ void Muon::CscROD_Decoder::fillCollection(const ROBFragment& robFrag,  CscRawDat
 ////////////////////////////////
 //// To access CscRODReadOut.... 
 ////
-uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detdescr*/){
+uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
   rodReadOut.set(m_cscHelper);
@@ -139,7 +140,7 @@ uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detd
 }
 
 ////
-Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /*detdescr*/){
+Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
   rodReadOut.set(m_cscHelper);
@@ -151,7 +152,7 @@ Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /
 }
 
 ////
-void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples) {
+void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
   rodReadOut.set(m_cscHelper);
@@ -166,7 +167,7 @@ void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::v
 }
 
 
-void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& /*log*/) {
+void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const {
 
 
   ATH_MSG_DEBUG ( " " ) ;
@@ -526,7 +527,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   return;
 }
 
-void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& /*log*/) {  
+void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const {  
 
   ATH_MSG_DEBUG ( "in CscROD_Decode::fillCollection() - ROD version 1" );
 
@@ -666,7 +667,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
 
 }
 
-void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& /*log*/) {  
+void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const {  
 
   ATH_MSG_DEBUG ( "in CscROD_Decode::fillCollection() - ROD version 0" );
 

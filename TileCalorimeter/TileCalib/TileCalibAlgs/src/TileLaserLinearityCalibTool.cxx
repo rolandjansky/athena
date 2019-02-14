@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibAlgs/TileLaserLinearityCalibTool.h"
@@ -44,50 +44,81 @@ TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type
   m_flow(0),
   m_head_temp(0),
   m_las_time(0),
-  m_LG_PMT(),
-  m_LG_PMT_S(),
-  m_LG_diode(),
-  m_LG_diode_S(),
-  m_HG_PMT(),
-  m_HG_PMT_S(),
-  m_HG_diode(),
-  m_HG_diode_S(),
-  m_mean(),
-  m_mean_S(),
-  m_LG_ratio(),
-  m_LG_ratio_S(),
-  m_LG_ratio2(),
-  m_LG_ratio2_S(),
-  m_HG_ratio(),
-  m_HG_ratio_S(),
-  m_HG_ratio2(),
-  m_HG_ratio2_S(),
-  m_entries(),
   m_PMT1_ADC_prev(),
   m_PMT2_ADC_prev(),
   m_first_filter(0),
   m_last_evt_filter(0),
   m_n_same_filt_evts(0),
-  m_complete_turn(0),
-  m_HG_diode_signal(),
-  m_HG_PMT_signal(),
-  m_LG_diode_signal(),
-  m_LG_PMT_signal(),
-  m_signal(),
-  m_LG_ratio_stat(),
-  m_LG_ratio2_stat(),
-  m_HG_ratio_stat(),
-  m_HG_ratio2_stat()
+  m_complete_turn(0)
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
-  declareProperty("rawChannelContainer", m_rawChannelContainerName="");
-  declareProperty("laserObjContainer", m_laserContainerName="");
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
+
+// creating multi-dim arrays on the heap and initialize all elements to zeros
+  m_LG_PMT = new double[NFILTERS][NPMTS]();
+  m_LG_PMT_S = new double[NFILTERS][NPMTS]();
+  m_LG_diode = new double[NFILTERS][NDIODES]();
+  m_LG_diode_S = new double[NFILTERS][NDIODES]();
+  m_HG_PMT = new double[NFILTERS][NPMTS]();
+  m_HG_PMT_S = new double[NFILTERS][NPMTS]();
+  m_HG_diode = new double[NFILTERS][NDIODES]();
+  m_HG_diode_S = new double[NFILTERS][NDIODES]();
+  m_mean = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_mean_S = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio_S = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio2 = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio2_S = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio_S = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio2 = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio2_S = new double[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_entries = new int[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_diode_signal = new RunningStat*[NFILTERS][NDIODES]();
+  m_HG_PMT_signal = new RunningStat*[NFILTERS][NGAINS]();
+  m_LG_diode_signal = new RunningStat*[NFILTERS][NDIODES]();
+  m_LG_PMT_signal = new RunningStat*[NFILTERS][NGAINS]();
+  m_signal = new RunningStat*[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio_stat = new RunningStat*[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_LG_ratio2_stat = new RunningStat*[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio_stat = new RunningStat*[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HG_ratio2_stat = new RunningStat*[NFILTERS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
 }
 
 TileLaserLinearityCalibTool::~TileLaserLinearityCalibTool()
-{}
+{
+
+  delete[] m_LG_PMT;
+  delete[] m_LG_PMT_S;
+  delete[] m_LG_diode;
+  delete[] m_LG_diode_S;
+  delete[] m_HG_PMT;
+  delete[] m_HG_PMT_S;
+  delete[] m_HG_diode;
+  delete[] m_HG_diode_S;
+  delete[] m_mean;
+  delete[] m_mean_S;
+  delete[] m_LG_ratio;
+  delete[] m_LG_ratio_S;
+  delete[] m_LG_ratio2;
+  delete[] m_LG_ratio2_S;
+  delete[] m_HG_ratio;
+  delete[] m_HG_ratio_S;
+  delete[] m_HG_ratio2;
+  delete[] m_HG_ratio2_S;
+  delete[] m_entries;
+  delete[] m_HG_diode_signal;
+  delete[] m_HG_PMT_signal;
+  delete[] m_LG_diode_signal;
+  delete[] m_LG_PMT_signal;
+  delete[] m_signal;
+  delete[] m_LG_ratio_stat;
+  delete[] m_LG_ratio2_stat;
+  delete[] m_HG_ratio_stat;
+  delete[] m_HG_ratio2_stat;
+
+}
 
 
 //
@@ -125,62 +156,39 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   m_last_evt_filter  = 0; 
   m_n_same_filt_evts = 0; 
 
-  for(int f=0; f<8; ++f) 
+  for(int f=0; f<NFILTERS; ++f) 
   {
-    for(int d=0; d<2; ++d) 
+    for(int d=0; d<NPMTS; ++d) 
     {
-      m_LG_PMT[f][d]      = 0;
-      m_LG_PMT_S[f][d]    = 0;
       m_LG_PMT_signal[f][d] = new RunningStat();
-      m_HG_PMT[f][d]      = 0;
-      m_HG_PMT_S[f][d]    = 0;
       m_HG_PMT_signal[f][d] = new RunningStat();
     }
   }
 
-  for(int f=0; f<8; ++f) 
+  for(int f=0; f<NFILTERS; ++f) 
   {
-    for(int d=0; d<4; ++d) 
+    for(int d=0; d<NPARTITIONS; ++d) 
     {
-      m_LG_diode[f][d]       = 0;    
-      m_LG_diode_S[f][d]     = 0;  
       m_LG_diode_signal[f][d]  = new RunningStat();
-
-      m_HG_diode[f][d]       = 0;    
-      m_HG_diode_S[f][d]     = 0;  
       m_HG_diode_signal[f][d]  = new RunningStat();
     }
   }
 
-  for(int f=0; f<8; ++f)        // Filter 
+  for(int f=0; f<NFILTERS; ++f)        // Filter 
   {
-    for(int i=0; i<4; ++i)      // Partition
+    for(int i=0; i<NPARTITIONS; ++i)      // Partition
     {
-      for(int j=0; j<64; ++j)   // Module
+      for(int j=0; j<NDRAWERS; ++j)   // Module
       {
-	for(int k=0; k<48; ++k) // Channel
+	for(int k=0; k<NCHANNELS; ++k) // Channel
 	{ 
-	  for(int l=0; l<2; ++l) // Gain
+	  for(int l=0; l<NGAINS; ++l) // Gain
 	  { 
 	    m_signal[f][i][j][k][l]    = new RunningStat();
-	    m_mean[f][i][j][k][l]    = 0;
-	    m_mean_S[f][i][j][k][l]  = 0;
-	    
 	    m_HG_ratio_stat[f][i][j][k][l]     = new RunningStat();
-	    m_HG_ratio[f][i][j][k][l]   = 0;
-	    m_HG_ratio_S[f][i][j][k][l] = 0;
 	    m_HG_ratio2_stat[f][i][j][k][l]    = new RunningStat();
-	    m_HG_ratio2[f][i][j][k][l]  = 0;
-	    m_HG_ratio2_S[f][i][j][k][l]= 0;
-
 	    m_LG_ratio_stat[f][i][j][k][l]     = new RunningStat();
-	    m_LG_ratio[f][i][j][k][l]   = 0;
-	    m_LG_ratio_S[f][i][j][k][l] = 0;
 	    m_LG_ratio2_stat[f][i][j][k][l]    = new RunningStat();
-	    m_LG_ratio2[f][i][j][k][l]  = 0;
-	    m_LG_ratio2_S[f][i][j][k][l]= 0;
-
-	    m_entries[f][i][j][k][l] = 0;	 
 	  }
 	}
       }
@@ -190,6 +198,9 @@ StatusCode TileLaserLinearityCalibTool::initialize()
 
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   ATH_CHECK( m_tileToolEmscale.retrieve() );
+
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_laserContainerKey.initialize() );
 
   m_cabling = TileCablingService::getInstance();
 
@@ -236,11 +247,11 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   ATH_MSG_DEBUG ( "Retrieving the LASER object and RawChannel" );
 
-  const TileRawChannelContainer * rawCnt = 0;
-  const TileLaserObject* laserObj;
-
-  ATH_CHECK( evtStore()->retrieve(rawCnt, m_rawChannelContainerName) );
-  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_rawChannelContainerKey);
+  SG::ReadHandle<TileLaserObject> laserObj(m_laserContainerKey);
+  
+  ATH_CHECK( rawCnt.isValid() );
+  ATH_CHECK( laserObj.isValid() );
 
   // First we got event time (From 1/1/70)
 
@@ -475,9 +486,9 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 {
   ATH_MSG_INFO ( "execute()" );
 
-  for(int f=0; f<8; ++f) 
+  for(int f=0; f<NFILTERS; ++f) 
   {
-    for(int d=0; d<2; ++d) 
+    for(int d=0; d<NPMTS; ++d) 
     {
       m_LG_PMT[f][d]      = m_LG_PMT_signal[f][d]->Mean();    
       m_LG_PMT_S[f][d]    = m_LG_PMT_signal[f][d]->StandardDeviation();  
@@ -487,9 +498,9 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
     }
   }
 
-  for(int f=0; f<8; ++f) 
+  for(int f=0; f<NFILTERS; ++f) 
   {
-    for(int d=0; d<4; ++d) 
+    for(int d=0; d<NPARTITIONS; ++d) 
     {
       m_LG_diode[f][d]       = m_LG_diode_signal[f][d]->Mean();    
       m_LG_diode_S[f][d]     = m_LG_diode_signal[f][d]->StandardDeviation();    
@@ -499,15 +510,15 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
     }
   }
 
-  for(int f=0; f<8; ++f) 
+  for(int f=0; f<NFILTERS; ++f) 
   {
-    for(int i=0; i<4; ++i) 
+    for(int i=0; i<NPARTITIONS; ++i) 
     {
-      for(int j=0; j<64; ++j) 
+      for(int j=0; j<NDRAWERS; ++j) 
       {
-	for(int k=0; k<48; ++k) 
+	for(int k=0; k<NCHANNELS; ++k) 
 	{ 
-	  for(int l=0; l<2; ++l) 
+	  for(int l=0; l<NGAINS; ++l) 
 	  { 
 	    m_mean[f][i][j][k][l]    = m_signal[f][i][j][k][l]->Mean();
 	    m_mean_S[f][i][j][k][l]  = m_signal[f][i][j][k][l]->StandardDeviation();
@@ -529,33 +540,33 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 
   // remove all RunningStat objects from memory
 
-  for(int f=0; f<8; ++f)
+  for(int f=0; f<NFILTERS; ++f)
   {
-    for(int d=0; d<2; ++d)
+    for(int d=0; d<NPMTS; ++d)
     {
       delete m_LG_PMT_signal[f][d];
       delete m_HG_PMT_signal[f][d];
     }
   }
 
-  for(int f=0; f<8; ++f)
+  for(int f=0; f<NFILTERS; ++f)
   {
-    for(int d=0; d<4; ++d)
+    for(int d=0; d<NPARTITIONS; ++d)
     {
       delete m_LG_diode_signal[f][d];
       delete m_HG_diode_signal[f][d];
     }
   }
 
-  for(int f=0; f<8; ++f)        // Filter
+  for(int f=0; f<NFILTERS; ++f)        // Filter
   {
-    for(int i=0; i<4; ++i)      // Partition
+    for(int i=0; i<NPARTITIONS; ++i)      // Partition
     {
-      for(int j=0; j<64; ++j)   // Module
+      for(int j=0; j<NDRAWERS; ++j)   // Module
       {
-	for(int k=0; k<48; ++k) // Channel
+	for(int k=0; k<NCHANNELS; ++k) // Channel
 	{
-	  for(int l=0; l<2; ++l) // Gain
+	  for(int l=0; l<NGAINS; ++l) // Gain
 	  {
 	    delete m_signal[f][i][j][k][l];
 	    delete m_HG_ratio_stat[f][i][j][k][l];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -162,8 +162,9 @@ void TileCellMaskingTool::killer(std::string component, int ros, int drw, int in
 
 ///////////////////////////////////////////////////////////////////////////////
 
-StatusCode TileCellMaskingTool::process(CaloCellContainer* theCont) {
-
+StatusCode TileCellMaskingTool::process (CaloCellContainer* theCont,
+                                         const EventContext& /*ctx*/) const
+{
   int n_cells = 0, n_masked_1 = 0, n_masked_2 = 0, n_masked_12 = 0;
   double ene_before = 0.0, ene_after = 0.0;
 

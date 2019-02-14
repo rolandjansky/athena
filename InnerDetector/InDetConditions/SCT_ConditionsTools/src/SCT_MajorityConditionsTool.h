@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,8 +24,6 @@
 #include "GaudiKernel/EventContext.h"
 
 // STL includes
-#include <list>
-#include <mutex>
 #include <string>
 
 /**
@@ -47,21 +45,16 @@ class SCT_MajorityConditionsTool: public extends<AthAlgTool, ISCT_DetectorLevelC
   //@}
   
   /**Is the detector good?*/
-  virtual bool                             isGood() const override;
+  virtual bool isGood() const override;
+  virtual bool isGood(const EventContext& ctx) const override;
 
   /**Is a barrel/endcap good?*/
-  virtual bool                             isGood(int bec) const override;
+  virtual bool isGood(int bec) const override;
+  virtual bool isGood(int bec, const EventContext& ctx) const override;
 
  private:
-  bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
-  float                                    m_majorityFraction;              //!< Required fraction in majority state
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_MajorityCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MajorityCondData> m_condData;
+  bool m_overall; //!< Use overall vvalue or ECA/B/ECC
+  float m_majorityFraction; //!< Required fraction in majority state
 
   SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey{this, "CondKey", "SCT_MajorityCondData", "Majority of SCT status"};
   const SCT_MajorityCondData* getCondData(const EventContext& ctx) const;

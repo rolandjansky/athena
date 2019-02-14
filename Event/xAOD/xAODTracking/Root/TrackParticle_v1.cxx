@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticle_v1.cxx 576255 2013-12-19 12:54:41Z emoyse $
@@ -114,7 +114,7 @@ namespace xAOD {
 
   float TrackParticle_v1::phi0() const {
 
-     Accessor< float > acc( "phi" );
+     static  const Accessor< float > acc( "phi" );
      return acc( *this );
   }
 
@@ -130,21 +130,23 @@ namespace xAOD {
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     // reset perigee cache if existing
-    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
-    static Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
-    static Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc2( "z0" );
     acc2( *this ) = z0;
 
-    static Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc3( "phi" );
     acc3( *this ) = phi0;
 
-    static Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc4( "theta" );
     acc4( *this ) = theta;
 
-    static Accessor< float > acc5( "qOverP" );
+    static const Accessor< float > acc5( "qOverP" );
     acc5( *this ) = qOverP;
 
     return;
@@ -153,10 +155,12 @@ namespace xAOD {
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     // reset perigee cache if existing
-    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
+    if(m_perigeeParameters.isValid()) {
+      m_perigeeParameters.reset();
+    }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     Amg::compress(cov,acc(*this));
   }
 
@@ -170,13 +174,13 @@ namespace xAOD {
 
   const std::vector<float>& TrackParticle_v1::definingParametersCovMatrixVec() const {
   // Can't use AUXSTORE_PRIMITIVE_SETTER_AND_GETTER since I have to add Vec to the end of setDefiningParametersCovMatrix to avoid clash.
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     return acc(*this);
   }
 
   void TrackParticle_v1::setDefiningParametersCovMatrixVec(const std::vector<float>& cov){
   // Can't use AUXSTORE_PRIMITIVE_SETTER_AND_GETTER since I have to add Vec to the end of setDefiningParametersCovMatrix to avoid clash.
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     acc(*this)=cov;
   }
 
@@ -185,13 +189,13 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, vz)
 
   void TrackParticle_v1::setParametersOrigin(float x, float y, float z){
-    static Accessor< float > acc1( "vx" );
+    static const Accessor< float > acc1( "vx" );
     acc1( *this ) = x;
 
-    static Accessor< float > acc2( "vy" );
+    static const Accessor< float > acc2( "vy" );
     acc2( *this ) = y;
 
-    static Accessor< float > acc3( "vz" );
+    static const Accessor< float > acc3( "vz" );
     acc3( *this ) = z;
   }
 
@@ -199,25 +203,18 @@ namespace xAOD {
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
 
     // Require the cache to be valid and check if the cached pointer has been set
-    if(m_perigeeParameters.isValid())
+    if(m_perigeeParameters.isValid()){
       return *(m_perigeeParameters.ptr());
-
-    // Perigee needs to be calculated, and cached
-
-    static Accessor< float > acc1( "d0" );
-    static Accessor< float > acc2( "z0" );
-    static Accessor< float > acc3( "phi" );
-    static Accessor< float > acc4( "theta" );
-    static Accessor< float > acc5( "qOverP" );
-    static Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
+    }
+    static const Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc5( "qOverP" );
+    static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(definingParametersCovMatrix());
-    // cov->setZero();
-    // auto it= acc6(*this).begin();
-    // for (size_t irow = 0; irow<5; ++irow)
-    //   for (size_t icol =0; icol<=irow; ++icol)
-    //       cov->fillSymmetric(irow,icol,*it++) ;
-    static Accessor< float > acc7( "beamlineTiltX" );
-    static Accessor< float > acc8( "beamlineTiltY" );
+    static const Accessor< float > acc7( "beamlineTiltX" );
+    static const Accessor< float > acc8( "beamlineTiltY" );
     
     if(!acc7.isAvailable( *this ) || !acc8.isAvailable( *this )){
       Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
@@ -241,9 +238,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, numberDoF)
 
   void TrackParticle_v1::setFitQuality(float chiSquared, float numberDoF){
-    static Accessor< float > acc1( "chiSquared" );
+    static const Accessor< float > acc1( "chiSquared" );
     acc1( *this ) = chiSquared;  
-    static Accessor< float > acc2( "numberDoF" );
+    static const Accessor< float > acc2( "numberDoF" );
     acc2( *this ) = numberDoF;   
   }
 
@@ -261,7 +258,7 @@ namespace xAOD {
 
   size_t TrackParticle_v1::numberOfParameters() const{
     ///@todo - Can we do this in a better way? Not great to force retrieval of one specific parameter - any would do.
-    static Accessor< std::vector<float>  > acc( "parameterX" );
+    static const Accessor< std::vector<float>  > acc( "parameterX" );
     if(! acc.isAvailable( *this )) return 0;
     return acc(*this).size();
   }
@@ -274,14 +271,14 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setTrackParameters(std::vector<std::vector<float> >& parameters){
-    static Accessor< std::vector < float > > acc1( "parameterX" );
-    static Accessor< std::vector < float > > acc2( "parameterY" );
-    static Accessor< std::vector < float > > acc3( "parameterZ" );
-    static Accessor< std::vector < float > > acc4( "parameterPX" );
-    static Accessor< std::vector < float > > acc5( "parameterPY" );
-    static Accessor< std::vector < float > > acc6( "parameterPZ" );
+    static const Accessor< std::vector < float > > acc1( "parameterX" );
+    static const Accessor< std::vector < float > > acc2( "parameterY" );
+    static const Accessor< std::vector < float > > acc3( "parameterZ" );
+    static const Accessor< std::vector < float > > acc4( "parameterPX" );
+    static const Accessor< std::vector < float > > acc5( "parameterPY" );
+    static const Accessor< std::vector < float > > acc6( "parameterPZ" );
 
-    static Accessor< std::vector<uint8_t>  > acc7( "parameterPosition" );
+    static const Accessor< std::vector<uint8_t>  > acc7( "parameterPosition" );
 
     acc1(*this).resize(parameters.size());
     acc2(*this).resize(parameters.size());
@@ -308,38 +305,38 @@ namespace xAOD {
   }
 
   float TrackParticle_v1::parameterX(unsigned int index) const  {
-    static Accessor< std::vector<float>  > acc( "parameterX" );
+    static const Accessor< std::vector<float>  > acc( "parameterX" );
     return acc(*this).at(index);
   }
 
   float TrackParticle_v1::parameterY(unsigned int index) const  {
-    static Accessor< std::vector<float>  > acc( "parameterY" );
+    static const Accessor< std::vector<float>  > acc( "parameterY" );
     return acc(*this).at(index);
   }
 
   float TrackParticle_v1::parameterZ(unsigned int index) const  {
-    static Accessor< std::vector<float>  > acc( "parameterZ" );
+    static const Accessor< std::vector<float>  > acc( "parameterZ" );
     return acc(*this).at(index);
   }
 
   float TrackParticle_v1::parameterPX(unsigned int index) const {
-    static Accessor< std::vector<float>  > acc( "parameterPX" );
+    static const Accessor< std::vector<float>  > acc( "parameterPX" );
     return acc(*this).at(index);
   }
 
   float TrackParticle_v1::parameterPY(unsigned int index) const {
-    static Accessor< std::vector<float>  > acc( "parameterPY" );
+    static const Accessor< std::vector<float>  > acc( "parameterPY" );
     return acc(*this).at(index);
   }
 
   float TrackParticle_v1::parameterPZ(unsigned int index) const {
-    static Accessor< std::vector<float>  > acc( "parameterPZ" );    
+    static const Accessor< std::vector<float>  > acc( "parameterPZ" );    
     return acc(*this).at(index);
   }
 
   xAOD::ParametersCovMatrix_t TrackParticle_v1::trackParameterCovarianceMatrix(unsigned int index) const
   {
-    static Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
+    static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
     // copy the correct values into the temp matrix
     xAOD::ParametersCovMatrix_t tmp;
@@ -351,7 +348,7 @@ namespace xAOD {
   void TrackParticle_v1::setTrackParameterCovarianceMatrix(unsigned int index, std::vector<float>& cov){
     assert(cov.size()==15);
     unsigned int offset = index*15;
-    static Accessor< std::vector < float > > acc( "trackParameterCovarianceMatrices" );
+    static const Accessor< std::vector < float > > acc( "trackParameterCovarianceMatrices" );
     std::vector<float>& v = acc(*this);
     v.resize(offset+15);
     std::copy(cov.begin(),cov.end(),v.begin()+offset );
@@ -359,7 +356,7 @@ namespace xAOD {
 
   xAOD::ParameterPosition TrackParticle_v1::parameterPosition(unsigned int index) const
   {
-    static Accessor< std::vector<uint8_t>  > acc( "parameterPosition" );
+    static const Accessor< std::vector<uint8_t>  > acc( "parameterPosition" );
     return static_cast<xAOD::ParameterPosition>(acc(*this).at(index));
   }
 
@@ -378,14 +375,14 @@ namespace xAOD {
   }
 
   void  TrackParticle_v1::setParameterPosition(unsigned int index, xAOD::ParameterPosition pos){
-    static Accessor< std::vector<uint8_t>  > acc( "parameterPosition" );
+    static const Accessor< std::vector<uint8_t>  > acc( "parameterPosition" );
     acc( *this ).at(index) = static_cast<uint8_t>(pos);
   }
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {    
 
-    static Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
+    static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
     // copy the correct values into the temp matrix
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(); 
@@ -407,18 +404,18 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackFitter,trackFitter, setTrackFitter)
 
   std::bitset<xAOD::NumberOfTrackRecoInfo>   TrackParticle_v1::patternRecoInfo() const {
-    static Accessor< uint64_t > acc( "patternRecoInfo" );
+    static const Accessor< uint64_t > acc( "patternRecoInfo" );
     std::bitset<xAOD::NumberOfTrackRecoInfo> tmp(acc(*this));
     return tmp;
   }
 
   void TrackParticle_v1::setPatternRecognitionInfo(uint64_t patternReco)  {
-    static Accessor< uint64_t > acc( "patternRecoInfo" );
+    static const Accessor< uint64_t > acc( "patternRecoInfo" );
     acc( *this ) = patternReco;
   }
 
   void TrackParticle_v1::setPatternRecognitionInfo(const std::bitset<xAOD::NumberOfTrackRecoInfo>& patternReco)  {
-    static Accessor< uint64_t > acc( "patternRecoInfo" );
+    static const Accessor< uint64_t > acc( "patternRecoInfo" );
   #if __cplusplus < 201100
     uint64_t value = 0;
     unsigned int i = 0;
@@ -436,7 +433,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::ParticleHypothesis, particleHypothesis)
 
   bool TrackParticle_v1::summaryValue(uint8_t& value, const SummaryType &information)  const {
-    xAOD::TrackParticle_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
+    const xAOD::TrackParticle_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
     if( ( ! acc ) || ( ! acc->isAvailable( *this ) ) ) return false;
   // Retrieve the value:
     value = ( *acc )( *this );
@@ -444,7 +441,7 @@ namespace xAOD {
   }
   
   bool TrackParticle_v1::summaryValue(float& value, const SummaryType &information)  const {
-    xAOD::TrackParticle_v1::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
+    const xAOD::TrackParticle_v1::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
     if( ( ! acc ) || ( ! acc->isAvailable( *this ) ) ) return false;
   // Retrieve the value:
     value = ( *acc )( *this );
@@ -452,13 +449,13 @@ namespace xAOD {
   }
   
   void TrackParticle_v1::setSummaryValue(uint8_t& value, const SummaryType &information){
-    xAOD::TrackParticle_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
+    const xAOD::TrackParticle_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
   // Set the value:
     ( *acc )( *this ) = value;
   }
 
   void TrackParticle_v1::setSummaryValue(float& value, const SummaryType &information){
-    xAOD::TrackParticle_v1::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
+    const xAOD::TrackParticle_v1::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
   // Set the value:
     ( *acc )( *this ) = value;
   }
@@ -474,7 +471,7 @@ namespace xAOD {
    const ElementLink< TrackCollection >& TrackParticle_v1::trackLink() const {
 
       // The accessor:
-      static ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
+      static const ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       // Check if one of them is available:
       if( acc.isAvailable( *this ) ) {
@@ -490,7 +487,7 @@ namespace xAOD {
    setTrackLink( const ElementLink< TrackCollection >& el ) {
 
       // The accessor:
-      static Accessor< ElementLink< TrackCollection > > acc( "trackLink" );
+      static const Accessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       // Do the deed:
       acc( *this ) = el;
@@ -500,7 +497,7 @@ namespace xAOD {
    const Trk::Track* TrackParticle_v1::track() const{
 
       // The accessor:
-      static ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
+      static const ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       if( ! acc.isAvailable( *this ) ) {
          return 0;
@@ -510,8 +507,12 @@ namespace xAOD {
       }
 
       return *( acc( *this ) );
-   }
-   
+   } 
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+   
+   void TrackParticle_v1::resetCache(){
+     m_perigeeParameters.reset();
+   }
 
+ 
 } // namespace xAOD

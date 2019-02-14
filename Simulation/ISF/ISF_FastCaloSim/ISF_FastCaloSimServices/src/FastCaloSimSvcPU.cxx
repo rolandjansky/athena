@@ -164,6 +164,7 @@ StatusCode ISF::FastCaloSimSvcPU::finalize()
 
 StatusCode ISF::FastCaloSimSvcPU::setupEvent()
 { 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU setupEvent");
   //std::cout<< "now doing FastCaloSimSvcPU setupEvent"<<std::endl;
    
@@ -257,7 +258,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     ATH_MSG_INFO( m_screenOutputPrefix << "FastCaloSimSvcPU do tool "<<itrTool->name()<<" on m_Container");
     //std::cout<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on m_Container"<<std::endl;
     
-    StatusCode sc = (*itrTool)->process(m_theContainer);
+    StatusCode sc = (*itrTool)->process (m_theContainer, ctx);
     if(sc.isFailure())
     {
      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
@@ -286,7 +287,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
   
   ATH_MSG_INFO( m_screenOutputPrefix << "now doing loop on simulate tools" ); 
   //std::cout<<"now doing loop on simulate tools"<<std::endl;
-  
+
   // loop on simulate tools
   itrTool=m_caloCellMakerTools_simulate.begin();
   endTool=m_caloCellMakerTools_simulate.end();
@@ -296,7 +297,6 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
     if(fcs)
     {
-      const EventContext& ctx = Gaudi::Hive::currentContext();
       if(fcs->setupEvent(ctx, m_rndm).isFailure())
       {
         ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() << " in setupEvent");
@@ -312,7 +312,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
 
 StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
 {
- 
+ const EventContext& ctx = Gaudi::Hive::currentContext();
  ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU releaseEvent");
  //std::cout<<"now doing FastCaloSimSvcPU releaseEvent"<<std::endl;
  
@@ -416,7 +416,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
     ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
 
     //process all particles in a truth container, writes all output into the cell container
-    if( fcs->process(m_theContainer).isFailure() )
+    if( fcs->process(m_theContainer, ctx).isFailure() )
     {
      ATH_MSG_WARNING( m_screenOutputPrefix << "batch simulation of FastCaloSim particles failed" );   
      return StatusCode::FAILURE;
@@ -542,6 +542,7 @@ StatusCode ISF::FastCaloSimSvcPU::simulate(const ISF::ISFParticle& isfp, McEvent
 StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& isfp)
 {
   
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU processOneParticle. Simulating pdgid = "<< isfp.pdgCode());
   //std::cout<<"now doing FastCaloSimSvcPU processOneParticle. Simulating pdgid = "<< isfp.pdgCode()<<std::endl;
   
@@ -569,7 +570,6 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
   
   // loop on tools
   FastShowerCellBuilderTool::Stats stats;
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   for(;itrTool!=endTool;++itrTool)
   {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));

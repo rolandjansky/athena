@@ -37,11 +37,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
+#include "GaudiKernel/EventContext.h"
 
 // Athena includes
 #include "AthenaKernel/IAthenaSummarySvc.h"
 #include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/SealCommon.h"
 #include "CxxUtils/SealSignal.h"
@@ -416,12 +416,10 @@ void CoreDumpSvc::handle(const Incident& incident)
 
   const EventIncident* eventInc(nullptr);
   if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
-    const EventID* eventID = eventInc->eventInfo().event_ID();
-    if (eventID) {
-      std::ostringstream oss;
-      oss << *eventID;
-      currRec.EvId = oss.str();
-    }
+    const EventIDBase& eventID = incident.context().eventID();
+    std::ostringstream oss;
+    oss << eventID;
+    currRec.EvId = oss.str();
   }
 
   if (incident.type()==IncidentType::BeginEvent) {

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackParticle_v1.h 576255 2013-12-19 12:54:41Z emoyse $
 #ifndef XAODTRACKING_VERSIONS_TRACKPARTICLE_V1_H
 #define XAODTRACKING_VERSIONS_TRACKPARTICLE_V1_H
 
@@ -317,7 +316,11 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
         
       /// @}
-    private:
+
+      /// Reset the internal cache of the object
+      void resetCache();
+ 
+private:
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
       /// @brief Cached MeasuredPerigee, built from this object.

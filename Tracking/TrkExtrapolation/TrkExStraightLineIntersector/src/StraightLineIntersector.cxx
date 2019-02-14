@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@ StraightLineIntersector::StraightLineIntersector (const std::string&	type,
 						  const std::string&	name, 
 						  const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_intersectionNumber	(0),
 	m_countExtrapolations	(0)
 {
     declareInterface<Trk::IIntersector>(this);
@@ -89,25 +88,15 @@ StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 						const TrackSurfaceIntersection*	trackIntersection,
 						const double      	/*qOverP*/)
 {
-    // set member data
-    if (trackIntersection->serialNumber() != m_intersectionNumber)
-    {
-	m_position		= trackIntersection->position();
-	m_direction		= trackIntersection->direction();
-	m_transverseLength	= trackIntersection->pathlength();
-	++m_countExtrapolations;
-    }
+  auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+  ++m_countExtrapolations;
 
-    // straight line distance along track to closest approach to line
-    const Amg::Vector3D&	lineDirection = surface.transform().rotation().col(2);
-    distanceToLine (surface.center(),lineDirection);
-    step();
+  // straight line distance along track to closest approach to line
+  const Amg::Vector3D&	lineDirection = surface.transform().rotation().col(2);
+  double stepLength = distanceToLine (*isect, surface.center(),lineDirection);
+  step(*isect, stepLength);
     
-    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
-								       m_direction,
-								       m_transverseLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+  return isect.release();
 }
 	
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
@@ -116,25 +105,15 @@ StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& 
 						     const TrackSurfaceIntersection*	trackIntersection,
 						     const double      		/*qOverP*/)
 {
-    // set member data
-    if (trackIntersection->serialNumber() != m_intersectionNumber)
-    {
-	m_position		= trackIntersection->position();
-	m_direction		= trackIntersection->direction();
-	m_transverseLength	= trackIntersection->pathlength();
-	++m_countExtrapolations;
-    }
+  auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+  ++m_countExtrapolations;
 
-    // straight line distance along track to closest approach to line
-    const Amg::Vector3D&	lineDirection = surface.transform().rotation().col(2);
-    distanceToLine (surface.center(),lineDirection);
-    step();
+  // straight line distance along track to closest approach to line
+  const Amg::Vector3D&	lineDirection = surface.transform().rotation().col(2);
+  double stepLength = distanceToLine (*isect, surface.center(),lineDirection);
+  step(*isect, stepLength);
 
-    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
-								       m_direction,
-								       m_transverseLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+  return isect.release();
 }
             
 /**IIntersector interface method for specific Surface type : CylinderSurface */
@@ -143,25 +122,15 @@ StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surfac
 						   const TrackSurfaceIntersection*		trackIntersection,
 						   const double      		/*qOverP*/)
 {
-    // set member data
-    if (trackIntersection->serialNumber() != m_intersectionNumber)
-    {
-	m_position		= trackIntersection->position();
-	m_direction		= trackIntersection->direction();
-	m_transverseLength	= trackIntersection->pathlength();
-	++m_countExtrapolations;
-    }
+  auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+  ++m_countExtrapolations;
+  
+  // calculate straight line distance along track to intersect with cylinder radius
+  double cylinderRadius = surface.globalReferencePoint().perp();
+  double stepLength = distanceToCylinder(*isect, cylinderRadius);
+  step(*isect, stepLength);
 
-    // calculate straight line distance along track to intersect with cylinder radius
-    double cylinderRadius = surface.globalReferencePoint().perp();
-    distanceToCylinder(cylinderRadius);
-    step();
-
-    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
-								       m_direction,
-								       m_transverseLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+  return isect.release();
 }
 
 /**IIntersector interface method for specific Surface type : DiscSurface */
@@ -170,23 +139,14 @@ StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
 					       const TrackSurfaceIntersection*	trackIntersection,
 					       const double      	/*qOverP*/)
 {
-    if (trackIntersection->serialNumber() != m_intersectionNumber)
-    {
-	m_position		= trackIntersection->position();
-	m_direction		= trackIntersection->direction();
-	m_transverseLength	= trackIntersection->pathlength();
-	++m_countExtrapolations;
-    }
+  auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+  ++m_countExtrapolations;
 
-    // straight line distance along track to intersect with disc
-    distanceToDisc(surface.center().z());
-    step();
+  // straight line distance along track to intersect with disc
+  double stepLength = distanceToDisc(*isect, surface.center().z());
+  step(*isect, stepLength);
   
-    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
-								       m_direction,
-								       m_transverseLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+  return isect.release();
 }
 
 /**IIntersector interface method for specific Surface type : PlaneSurface */
@@ -195,25 +155,15 @@ StraightLineIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
 					       const TrackSurfaceIntersection*	trackIntersection,
 					       const double      	/*qOverP*/)
 {
-    // set member data
-    if (trackIntersection->serialNumber() != m_intersectionNumber)
-    {
-	m_position		= trackIntersection->position();
-	m_direction		= trackIntersection->direction();
-	m_transverseLength	= trackIntersection->pathlength();
-	++m_countExtrapolations;
-    }
+  auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+  ++m_countExtrapolations;
 
-    // straight line distance along track to intersect with plane
-    distanceToPlane (surface.center(),surface.normal());
-    step();
-    distanceToPlane(surface.center(),surface.normal());
+  // straight line distance along track to intersect with plane
+  double stepLength = distanceToPlane (*isect, surface.center(),surface.normal());
+  step(*isect, stepLength);
+  stepLength = distanceToPlane (*isect, surface.center(),surface.normal());
 
-    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
-								       m_direction,
-								       m_transverseLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+  return isect.release();
 }
 
 

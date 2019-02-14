@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,6 @@
 
 //Athena includes
 #include "Identifier/Identifier.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
@@ -51,13 +50,15 @@ public:
   
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
 private:
 
-  const IdentifierSet* getCondData() const;
+  const IdentifierSet* getCondData(const EventContext& ctx) const;
 
   // The vector of bad rods should be kept in a threadsafe way so it can 
   // be called and read safely.

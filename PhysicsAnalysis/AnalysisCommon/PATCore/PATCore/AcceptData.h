@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -21,6 +21,7 @@
 #include <string>
 #include <map>
 #include <bitset>
+#include <cassert>
 #include <PATCore/AcceptInfo.h>
 
 
@@ -140,6 +141,13 @@ namespace asg {
     inline void setCutResult( unsigned int cutPosition, bool cutResult )
     {
       m_accept[cutPosition] = cutResult;
+    }
+
+    AcceptData& operator|= (const AcceptData& other)
+    {
+      assert (m_info == other.m_info);
+      m_accept |= other.m_accept;
+      return *this;
     }
 
 

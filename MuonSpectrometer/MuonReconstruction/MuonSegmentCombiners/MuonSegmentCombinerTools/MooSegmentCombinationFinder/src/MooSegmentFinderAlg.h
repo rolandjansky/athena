@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MOOSEGMENTFINDERALGS_H
@@ -25,6 +25,7 @@ class StoreGateSvc;
 namespace Muon {
   class IMuonClusterSegmentFinder;
   class IMooSegmentCombinationFinder;
+  class IMuonSegmentOverlapRemovalTool;
 }
 
 class MooSegmentFinderAlg : public AthAlgorithm
@@ -40,7 +41,7 @@ class MooSegmentFinderAlg : public AthAlgorithm
 
  private:
   template<class T, class Y>
-  void retrieveCollections( std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key );
+    void retrieveCollections( std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key );
 
   /** extract segments from a MuonSegmentCombinationCollection */
   Trk::SegmentCollection* extractSegmentCollection( const MuonSegmentCombinationCollection& segmentCombinations ) const;
@@ -71,15 +72,15 @@ class MooSegmentFinderAlg : public AthAlgorithm
   
   SG::WriteHandleKey<MuonPatternCombinationCollection>   m_patternCombiLocation;
   SG::WriteHandleKey<Trk::SegmentCollection>                   m_segmentLocation;
-  SG::WriteHandleKey<MuonSegmentCombinationCollection>   m_segmentCombiLocation;
 
   ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder;     //<! pointer to the segment finder
   ToolHandle<Muon::IMuonClusterSegmentFinder> m_clusterSegMaker;
+  ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;
 
 };
 
 template <class T, class Y>
-void MooSegmentFinderAlg::retrieveCollections( std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key ) {
+  void MooSegmentFinderAlg::retrieveCollections( std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key ) {
 
   SG::ReadHandle<Y> cscPrds (key);
   if (cscPrds.isValid()==false) {
@@ -92,6 +93,7 @@ void MooSegmentFinderAlg::retrieveCollections( std::vector<const T*>& cols, SG::
     ATH_MSG_VERBOSE("Retrieved " << cscPrds.key() << " Container " <<  cols.size());
   }
 }
+
 
 
 #endif

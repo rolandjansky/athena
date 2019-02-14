@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,9 +54,13 @@ class FitQuality;
       TrackSegment();
       /** Copy Constructor */
       TrackSegment(const TrackSegment& seg);
+      /** Move Constructor */
+      TrackSegment(TrackSegment&&); 
       /** Assignment operator */
-      TrackSegment& operator=(const TrackSegment& seg);
-  
+      TrackSegment& operator=(const TrackSegment& seg); 
+      /** Move assignment operator*/
+      TrackSegment& operator=(TrackSegment&&);
+    
       /** Constructor with parameters */
       TrackSegment( const LocalParameters& locpars,
                     const Amg::MatrixX& locerr,

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -79,7 +79,7 @@ namespace RootUtils {
 #define PYROOT_DECLARE_ARRAY_CONVERTER( name )                                \
    class T##name##Converter : public TConverter {                             \
    public:                                                                    \
-      T##name##Converter( Py_ssize_t size = -1 ) { fSize = size; }            \
+      T##name##Converter( Py_ssize_t size = -1 ) : fSize (size) { }           \
       virtual Bool_t SetArg( PyObject*, TParameter_t&, CallFunc_t* = 0, Long_t = 0 );\
       virtual PyObject* FromMemory( void* );                                  \
       virtual Bool_t ToMemory( PyObject*, void* );                            \
@@ -160,7 +160,8 @@ namespace RootUtils {
 // pointer/array conversions
    class TVoidArrayConverter : public TConverter {
    public:
-      TVoidArrayConverter( Bool_t keepControl = kTRUE ) { fKeepControl = keepControl; }
+      TVoidArrayConverter( Bool_t keepControl = kTRUE )
+        : fKeepControl ( keepControl ) {}
       virtual Bool_t SetArg( PyObject*, TParameter_t&, CallFunc_t* = 0, Long_t = 0 );
       virtual PyObject* FromMemory( void* address );
       virtual Bool_t ToMemory( PyObject* value, void* address );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,9 +37,28 @@ Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const TrackSurfaceInters
     m_serialNumber	= ++s_serialNumber;
 }
 
-// destructor
-Trk::TrackSurfaceIntersection::~TrackSurfaceIntersection()
-{}
+Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const TrackSurfaceIntersection& other,
+                                                        std::unique_ptr<IIntersectionCache> cache)
+  : m_position (other.m_position),
+    m_direction (other.m_direction),
+    m_pathlength (other.m_pathlength),
+    m_cache (std::move (cache))
+{
+    m_serialNumber	= ++s_serialNumber;
+}
+
+Trk::TrackSurfaceIntersection&
+Trk::TrackSurfaceIntersection::operator=(const TrackSurfaceIntersection& other)
+{
+  if (this != &other) {
+    m_position = other.m_position;
+    m_direction = other.m_direction;
+    m_pathlength = other.m_pathlength;
+    m_cache = other.m_cache->clone();
+    m_serialNumber = other.m_serialNumber;
+  }
+  return *this;
+}
 
 //Overload of << operator for both, MsgStream and std::ostream for debug output
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackSurfaceIntersection& tsfi)

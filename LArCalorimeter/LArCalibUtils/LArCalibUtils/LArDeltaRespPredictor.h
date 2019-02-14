@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,8 @@
 
 #include "LArCalibUtils/LArWFParamTool.h"
 #include "LArCalibUtils/LArDeltaRespTool.h" 
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -34,6 +36,8 @@ class LArDeltaRespPredictor : public AthAlgorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
  
  private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
 
   std::vector<std::string> m_keylist;
 

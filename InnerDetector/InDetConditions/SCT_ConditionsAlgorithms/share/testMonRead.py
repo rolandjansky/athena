@@ -111,7 +111,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.EventSelector.RunNumber  = 310809
 ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
 ServiceMgr.EventSelector.TimeStampInterval = 180 # increment of 3 minutes
-theApp.EvtMax                       = 10
+theApp.EvtMax                       = 20
 
 
 MessageSvc.OutputLevel = INFO

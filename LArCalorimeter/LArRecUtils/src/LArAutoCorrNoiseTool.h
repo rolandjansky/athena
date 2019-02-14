@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
   /**
@@ -26,8 +26,8 @@
 #include "LArElecCalib/ILArAutoCorr.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -77,9 +77,10 @@ class LArAutoCorrNoiseTool: public AthAlgTool,
 
   const LArOnlineID*        m_lar_on_id; 
   const LArOnline_SuperCellID*        m_lar_scon_id; 
-  ToolHandle<LArCablingService> m_cablingService;
-  ToolHandle<LArSuperCellCablingTool> m_cablingSCService;
   ToolHandle<ILArMCSymTool>  m_larmcsym;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
   
   const DataHandle<ILArAutoCorr> m_dd_autocorr; //only electronic part
 

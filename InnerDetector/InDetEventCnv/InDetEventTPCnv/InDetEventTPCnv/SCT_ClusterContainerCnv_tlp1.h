@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CLUSTERCONTAINERCNV_TLP1_H
@@ -27,7 +27,7 @@ class SCT_ClusterContainerCnv_tlp1
 public:
 
   SCT_ClusterContainerCnv_tlp1();
-  virtual ~SCT_ClusterContainerCnv_tlp1() {}
+  virtual ~SCT_ClusterContainerCnv_tlp1() = default;
 
   virtual void	setPStorage( InDet::SCT_ClusterContainer_tlp1 *storage );
 // return list of tokens to extending persistent objects

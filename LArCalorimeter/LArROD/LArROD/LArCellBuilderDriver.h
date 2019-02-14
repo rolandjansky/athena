@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/CaloGain.h"
 
 #include "LArIdentifier/LArOnlineID.h"
@@ -101,7 +100,6 @@ class LArCellBuilderDriver : public AthAlgTool
   
   //LArRoI_Map*                 m_roiMap;
   //LArRawOrdering              m_larRawOrdering; 
-  ToolHandle<LArCablingService> m_larCablingSvc;
   
   std::vector<float>          m_ramps;
   

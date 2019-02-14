@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -37,10 +37,6 @@ public:
   
   virtual float pedestalRMS(const HWIdentifier&  CellID, int gain) const;
 
-  virtual float pedestal(const Identifier&  CellID, int gain) const;
-  
-  virtual float pedestalRMS(const Identifier&  CellID, int gain) const;
-  
 };
 
 #include "AthenaKernel/CondCont.h"

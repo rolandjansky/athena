@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -39,6 +39,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #define TRIGGER_CONF_HLTMENU  "/TRIGGER/HLT/Menu"
 #define TRIGGER_CONF_HLTKEYS  "/TRIGGER/HLT/HltConfigKeys"
@@ -91,15 +92,8 @@ StatusCode
 TrigConf::TrigConfDataIOVChanger::execute() {
 
    // First get the runnumber:
-   const EventInfo* eventInfo = 0;
-   CHECK(m_storeGate->retrieve(eventInfo));
-
-   if (!eventInfo) {
-      ATH_MSG_ERROR("EventInfo from storegate is 0");
-      return StatusCode::FAILURE;
-   }
-
-   unsigned int runNumber = eventInfo->event_ID()->run_number();
+   const EventContext& ctx = Gaudi::Hive::currentContext();
+   unsigned int runNumber = ctx.eventID().run_number();
   
    if(m_LastRun == runNumber)       // already executed in this run?
       return StatusCode::SUCCESS;

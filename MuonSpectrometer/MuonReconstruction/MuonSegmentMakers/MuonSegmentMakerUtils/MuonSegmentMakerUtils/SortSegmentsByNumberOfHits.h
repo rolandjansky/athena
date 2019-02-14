@@ -12,7 +12,7 @@ namespace Muon {
 
   class SortSegmentsByNumberOfHits {
   public:
-    bool operator()( const MuonSegment* seg1, const MuonSegment* seg2){
+    bool operator()( const std::unique_ptr<MuonSegment>& seg1, const std::unique_ptr<MuonSegment>& seg2){
 
       unsigned int nhits1 = seg1->containedMeasurements().size();
       unsigned int nhits2 = seg2->containedMeasurements().size();

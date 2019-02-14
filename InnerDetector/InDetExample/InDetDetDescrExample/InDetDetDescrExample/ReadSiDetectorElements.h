@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_ReadSiDetectorElements_h
@@ -12,10 +12,9 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 #include <vector>
 
@@ -55,7 +54,6 @@ public:
   bool m_doExec;
   bool m_useConditionsTools;
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
-  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
   ToolHandle<ISiLorentzAngleTool> m_siLorentzAngleTool{this, "SiLorentzAngleTool", "SiLorentzAngleTool", "Silicon Lorentz anglet tool"};
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,6 +18,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class CaloCellContainer;
 class CaloCell;
 class LArDigit;
@@ -25,8 +28,6 @@ class TFile;
 class TH1I;
 class TH1F;
 class TH2F;
-class LArSuperCellCablingTool;
-
 
 class SimpleLArDigitsChecks : public AthAlgorithm
 {
@@ -41,8 +42,7 @@ public :
 
 private :
 
-	/** For cell <-> SCell comparisons */
-	ToolHandle<LArSuperCellCablingTool> m_cabling;
+        SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingSCKey{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
 	/** base file */
 	TFile* m_file;
 	/** base histograms about super-cells */

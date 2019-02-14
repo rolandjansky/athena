@@ -36,10 +36,6 @@ svcMgr.PoolSvc.ReadCatalog = ["xmlcatalog_file:SplittableData.xml"]
 svcMgr.EventSelector.InputCollections = [ "PFN:NullableCollection.root" ]
 svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 
-#from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__QueryTag
-#QueryTag = AthPoolEx__QueryTag("QueryTag")
-#svcMgr.EventSelector.HelperTools = [ QueryTag ]
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -54,7 +50,6 @@ topSequence += AthPoolEx__ReadData("ReadData")
 from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
 
 RunEventTagWriter   = RunEventTagWriter("RunEventTagWriter")
-#RunEventTagWriter.OutputLevel = DEBUG
 
 topSequence        += RunEventTagWriter
 
@@ -69,7 +64,6 @@ FullColl.WriteInputDataHeader = TRUE
 FullColl.OutputCollection = "CheckNull.root"
 FullColl.ItemList        += [ "DataHeader#*" ]
 FullColl.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
-#FullColl.Tool = TagTool
 FullColl.OutputLevel = DEBUG
 FullColl.Tool.OutputLevel = INFO
 

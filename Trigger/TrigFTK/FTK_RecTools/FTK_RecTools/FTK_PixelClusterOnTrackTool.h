@@ -25,7 +25,7 @@
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 
 #include "PixelConditionsData/PixelOfflineCalibData.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
 class IModuleDistortionsTool;

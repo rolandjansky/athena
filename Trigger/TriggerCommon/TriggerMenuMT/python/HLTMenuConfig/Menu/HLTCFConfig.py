@@ -107,43 +107,50 @@ def createCFTree(CFseq):
 
 def makeHLTTree(HLTChains):
     """ creates the full HLT tree"""
-    #    TopHLTRootSeq = seqAND("TopHLTRoot") # Root
-    # main HLT top sequence
-    hltTop = seqOR("hltTop")
+
+    # lock flags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.lock()
+
+    # get topSequnece
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
 
     #add the L1Upcacking
-#    TopHLTRootSeq += L1UnpackingSeq
+    #    TopHLTRootSeq += L1UnpackingSeq
 
+    # connect to L1Decoder
+    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
+    if len(l1decoder)  != 1 :
+        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
+
+
+    # set CTP chains before creating the full tree (and the monitor)
+    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
+    l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
+
+    # main HLT top sequence
+    hltTop = seqOR("hltTop")
+ 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
     hltTop +=  steps
     
     # make CF tree
     finalDecisions = decisionTree_From_Chains(steps, HLTChains)
-    EnabledChainNames = [c.name for c in HLTChains]
     
-
+    # make Final Summary
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()
-    
+    #edmCreator = HLTEDMCreator()    
     #edmCreator.TrigCompositeContainer = flatDecisions
     #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-
+    # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-    
-    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
-    if len(l1decoder)  != 1 :
-        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
-
     hypos = collectHypos(steps)
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
@@ -241,9 +248,24 @@ def decisionTree_From_Chains(HLTNode, chains):
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
                 prev = chain.steps[nstep-1].sequences
+                ## for seq in prev:                   
+                ##     filter_input.extend(seq.outputs)
+                ## log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+
+
+                # previous filter name
+                pre_filter_name = CFNaming.filterName(chain.steps[nstep-1].name)
+                # searching the correct sequence outut to connect to the filter
                 for seq in prev:
-                    filter_input.extend(seq.outputs)
-                log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                    for out in seq.outputs:
+                        if pre_filter_name in out:
+                            filter_input.append(out)
+                            log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+
+            if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
+                log.error("ERROR: Filter for step %s has %d inputs! One is expected"%(chain_step.name, len(filter_input)))
+                sys.exit("ERROR, in configuration of sequence "+seq.name)
+                    
 
             # get the filter:
             filter_name = CFNaming.filterName(chain_step.name)
@@ -266,8 +288,8 @@ def decisionTree_From_Chains(HLTNode, chains):
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
-            else:
-                log.debug("len(chain.steps) != nstep+1")
+#            else:
+#                log.debug("len(chain.steps) != nstep+1")
             #end of loop over menu sequences
                 
         #end of loop over chains for this step, now implement CF:

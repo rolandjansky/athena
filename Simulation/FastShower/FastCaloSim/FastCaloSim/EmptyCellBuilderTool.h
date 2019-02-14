@@ -22,12 +22,14 @@ public:
   ~EmptyCellBuilderTool();
 
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer * theCellContainer,
+                              const EventContext& ctx) const override;
 private:
-  void create_empty_calo(CaloCellContainer * theCellContainer);
+  void create_empty_calo(const EventContext& ctx,
+                         CaloCellContainer * theCellContainer) const;
 
 };
 

@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -39,6 +38,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // For run options :
 #include "LArG4RunControl/LArGeoTBGeometricOptions.h"
@@ -110,21 +110,9 @@ StoreGate interface");
   else if ( m_eta_cell > 43.5 ) m_eta_pos = 0.1*( m_eta_cell - 43.5 ) + 2.5; // Inner Wheel
   else m_eta_pos = 0.025*( m_eta_cell - 0.5 ) + 1.425; // Outer Wheel
 
-  if ( m_eta_cell <= 43.5 ) m_phi_pos = -( ( m_phi_cell - 16. )*1.40625 + 0.46875 )*GeoModelKernelUnits::deg; // Outer Wheel
-  else m_phi_pos = -( 4*( m_phi_cell - 4. )*1.40625 + 0.46875 )*GeoModelKernelUnits::deg; // Inner Wheel
+  if ( m_eta_cell <= 43.5 ) m_phi_pos = -( ( m_phi_cell - 16. )*1.40625 + 0.46875 )*Gaudi::Units::deg; // Outer Wheel
+  else m_phi_pos = -( 4*( m_phi_cell - 4. )*1.40625 + 0.46875 )*Gaudi::Units::deg; // Inner Wheel
     
-
-/*
-  printf( "LArDetectorConstructionTBEC\teta_cell = %6.2lf ( eta = %6.2lf     )\n", m_eta_cell, 
-m_eta_pos );
-  printf( "LArDetectorConstructionTBEC\tphi_cell = %6.2lf ( phi = %6.2lf GeoModelKernelUnits::deg )\n", m_phi_cell, 
-m_phi_pos/GeoModelKernelUnits::deg );
-*/
-
-/*
-  printf( "LArDetectorConstructionTBEC\tModuleRotation = %6.2lf GeoModelKernelUnits::deg\n", m_ModuleRotation/GeoModelKernelUnits::deg );
-  printf( "LArDetectorConstructionTBEC\tYShift = %6.1lf GeoModelKernelUnits::mm\n", m_YShift/GeoModelKernelUnits::mm );
-*/
 }
 
 LArGeo::LArDetectorConstructionTBEC::~LArDetectorConstructionTBEC() {}
@@ -166,8 +154,8 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
   // Default values....
   m_hasLeadCompensator = false;
   m_hasPresampler = false;
-  m_ModuleRotation = 0.*GeoModelKernelUnits::deg;
-  m_YShift = 0.*GeoModelKernelUnits::mm;
+  m_ModuleRotation = 0.*Gaudi::Units::deg;
+  m_YShift = 0.*Gaudi::Units::mm;
  
   IRDBRecordset_ptr tbecGeometry   = m_pAccessSvc->getRecordsetPtr("TBECGeometry",detectorKey, detectorNode); 
   if ((*tbecGeometry).size()!=0) {
@@ -192,7 +180,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
 
   std::string baseName = "LAr::TBEC::MotherVolume";
 
-  GeoBox* tbecMotherShape = new GeoBox( 5.*GeoModelKernelUnits::m, 5.*GeoModelKernelUnits::m, 15.*GeoModelKernelUnits::m );
+  GeoBox* tbecMotherShape = new GeoBox( 5.*Gaudi::Units::m, 5.*Gaudi::Units::m, 15.*Gaudi::Units::m );
 
   const GeoLogVol* tbecMotherLogical =
     new GeoLogVol(baseName, tbecMotherShape, Air);
@@ -259,25 +247,25 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   // accordingly.
 
   std::string tbecMotherName = baseName + "::MotherVolume";
-  GeoBox* tbecMotherShape = new GeoBox( 5.*GeoModelKernelUnits::m, 5.*GeoModelKernelUnits::m, 15.*GeoModelKernelUnits::m  );
+  GeoBox* tbecMotherShape = new GeoBox( 5.*Gaudi::Units::m, 5.*Gaudi::Units::m, 15.*Gaudi::Units::m  );
   const GeoLogVol* tbecMotherLogical = new GeoLogVol( tbecMotherName, tbecMotherShape, Air );
   GeoFullPhysVol* tbecMotherPhysical = new GeoFullPhysVol( tbecMotherLogical );
   
-  double xcent = -120.*GeoModelKernelUnits::cm, zcent = 395.7*GeoModelKernelUnits::cm;
-  double zfface = zcent - 60.09*GeoModelKernelUnits::cm;
+  double xcent = -120.*Gaudi::Units::cm, zcent = 395.7*Gaudi::Units::cm;
+  double zfface = zcent - 60.09*Gaudi::Units::cm;
   log << MSG::DEBUG << "eta = " << m_eta_pos;
   if ( m_eta_pos > 5. ) m_eta_pos = 0.;
   else m_eta_pos = 2*atan( exp( -m_eta_pos ) );
-  log << ", positioning cryostat with angle " << m_eta_pos*(1./GeoModelKernelUnits::deg) << " GeoModelKernelUnits::deg";
+  log << ", positioning cryostat with angle " << m_eta_pos*(1./Gaudi::Units::deg) << " Gaudi::Units::deg";
   log << endmsg;
   
   // Tubular axis, dummy
   
   if ( AXIS_ON ) {
   
-     double axisZHalfLength = 5*GeoModelKernelUnits::m;
+     double axisZHalfLength = 5*Gaudi::Units::m;
   
-     GeoTube* axisShape = new GeoTube( 0.*GeoModelKernelUnits::cm, 1.*GeoModelKernelUnits::cm, axisZHalfLength );
+     GeoTube* axisShape = new GeoTube( 0.*Gaudi::Units::cm, 1.*Gaudi::Units::cm, axisZHalfLength );
   
      // x-axis
      std::string XAxisName = baseName + "::XAxis";
@@ -285,7 +273,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
      GeoPhysVol* XAxisPhysVol = new GeoPhysVol( XAxisLogical );
   
      tbecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-     tbecMotherPhysical->add( new GeoTransform( GeoTrf::Transform3D( GeoTrf::Translation3D( axisZHalfLength, 0.*GeoModelKernelUnits::m, 0.*GeoModelKernelUnits::m ) *GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg )) ) );
+     tbecMotherPhysical->add( new GeoTransform( GeoTrf::Transform3D( GeoTrf::Translation3D( axisZHalfLength, 0.*Gaudi::Units::m, 0.*Gaudi::Units::m ) *GeoTrf::RotateY3D( 90.*Gaudi::Units::deg )) ) );
      tbecMotherPhysical->add( XAxisPhysVol );
   
      // y-axis
@@ -294,7 +282,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
      GeoPhysVol* YAxisPhysVol = new GeoPhysVol( YAxisLogical );
   
      tbecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-     tbecMotherPhysical->add( new GeoTransform( GeoTrf::Transform3D( GeoTrf::Translation3D( 0.*GeoModelKernelUnits::m, axisZHalfLength, 0.*GeoModelKernelUnits::m )*GeoTrf::RotateX3D( -90.*GeoModelKernelUnits::deg ) ) ) );
+     tbecMotherPhysical->add( new GeoTransform( GeoTrf::Transform3D( GeoTrf::Translation3D( 0.*Gaudi::Units::m, axisZHalfLength, 0.*Gaudi::Units::m )*GeoTrf::RotateX3D( -90.*Gaudi::Units::deg ) ) ) );
      tbecMotherPhysical->add( YAxisPhysVol );
   
      //z-axis
@@ -311,13 +299,13 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   
   if ( m_hasLeadCompensator ) {
      std::string CompensatorName = baseName + "::LeadCompensator";
-     GeoBox* CompensatorShape = new GeoBox( 152.*GeoModelKernelUnits::cm, 195.*GeoModelKernelUnits::cm, 0.56*GeoModelKernelUnits::cm );
+     GeoBox* CompensatorShape = new GeoBox( 152.*Gaudi::Units::cm, 195.*Gaudi::Units::cm, 0.56*Gaudi::Units::cm );
      const GeoLogVol* CompensatorLogical = new GeoLogVol( CompensatorName, CompensatorShape, Lead );
      GeoPhysVol* CompensatorPhysical = new GeoPhysVol( CompensatorLogical );
 	
      tbecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
 
-     GeoTrf::Vector3D tmpvec1(xcent, 0., 300.*GeoModelKernelUnits::cm);
+     GeoTrf::Vector3D tmpvec1(xcent, 0., 300.*Gaudi::Units::cm);
      GeoTrf::Vector3D tmpvec1Rotated = GeoTrf::RotateY3D(m_eta_pos)*tmpvec1;
      GeoTrf::Translate3D tmpxf1(tmpvec1Rotated.x(),tmpvec1Rotated.y(),tmpvec1Rotated.z());
      tbecMotherPhysical->add(new GeoTransform( tmpxf1 * GeoTrf::RotateY3D(m_eta_pos)));
@@ -341,8 +329,8 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   
   log << MSG::VERBOSE << "Creating beam chambers ..." << std::endl;
   
-  const double beamCZ[ 4 ] = { 17.9*GeoModelKernelUnits::m, 7.673*GeoModelKernelUnits::m, 1.352*GeoModelKernelUnits::m, .256*GeoModelKernelUnits::m };
-  const double beamCSize = 11.*GeoModelKernelUnits::cm, beamCTh = 28*GeoModelKernelUnits::mm; // divided by 2, for half-length
+  const double beamCZ[ 4 ] = { 17.9*Gaudi::Units::m, 7.673*Gaudi::Units::m, 1.352*Gaudi::Units::m, .256*Gaudi::Units::m };
+  const double beamCSize = 11.*Gaudi::Units::cm, beamCTh = 28*Gaudi::Units::mm; // divided by 2, for half-length
   
   GeoBox* BeamCShape = new GeoBox( beamCSize, beamCSize, beamCTh );
   for ( int i = 0; i < 4; i++ ) {
@@ -352,15 +340,15 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   	GeoPhysVol* BeamCPhysical = new GeoPhysVol( BeamCLogical );
 	
 	tbecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-  	tbecMotherPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, zfface - beamCZ[ i ] ) ) );
+  	tbecMotherPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*Gaudi::Units::cm, 0.*Gaudi::Units::cm, zfface - beamCZ[ i ] ) ) );
   	tbecMotherPhysical->add( BeamCPhysical );
   } 
   
   // End cap module
 	log << MSG::DEBUG << std::endl
-	    << "Module deviation: " << m_ModuleRotation * (1./GeoModelKernelUnits::deg) << " GeoModelKernelUnits::deg" << std::endl
-            << "Phi position: " << m_phi_pos * (1./GeoModelKernelUnits::deg) << " GeoModelKernelUnits::deg" << std::endl
-            << "Y shift: " << m_YShift * (1./GeoModelKernelUnits::mm) << " GeoModelKernelUnits::mm"
+	    << "Module deviation: " << m_ModuleRotation * (1./Gaudi::Units::deg) << " Gaudi::Units::deg" << std::endl
+            << "Phi position: " << m_phi_pos * (1./Gaudi::Units::deg) << " Gaudi::Units::deg" << std::endl
+            << "Y shift: " << m_YShift * (1./Gaudi::Units::mm) << " Gaudi::Units::mm"
             << endmsg;
   
   // z = 0 in emecMother is at active region's front face
@@ -371,8 +359,8 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   StatusCode status=detStore->record(sPhysVol,"EMEC_POS");
   if(!status.isSuccess()) throw std::runtime_error ("Cannot store EMEC_POS");  
 
-  GeoTrf::Transform3D Mrot(GeoTrf::RotateZ3D( m_phi_pos + 90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(m_ModuleRotation));
-  GeoTrf::Vector3D pos( -xcent, m_YShift, -51.4/2*GeoModelKernelUnits::cm );
+  GeoTrf::Transform3D Mrot(GeoTrf::RotateZ3D( m_phi_pos + 90*Gaudi::Units::deg)*GeoTrf::RotateY3D(m_ModuleRotation));
+  GeoTrf::Vector3D pos( -xcent, m_YShift, -51.4/2*Gaudi::Units::cm );
   
   if ( LArPhysical != 0 ) {
   
@@ -381,7 +369,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
      LArPhysical->add( emecEnvelope );			  		
   }
   
-  pos-= GeoTrf::Vector3D( 0.*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm, 61.*GeoModelKernelUnits::mm +2.*GeoModelKernelUnits::mm +13.5*GeoModelKernelUnits::mm );
+  pos-= GeoTrf::Vector3D( 0.*Gaudi::Units::mm, 0.*Gaudi::Units::mm, 61.*Gaudi::Units::mm +2.*Gaudi::Units::mm +13.5*Gaudi::Units::mm );
   
   if ( m_hasPresampler ) {
 

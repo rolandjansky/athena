@@ -3,7 +3,7 @@
 ################################################################################
 
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 1
+theApp.EvtMax = 20
 theApp.AuditAlgorithms = True
 
 from AthenaCommon.AppMgr import ServiceMgr

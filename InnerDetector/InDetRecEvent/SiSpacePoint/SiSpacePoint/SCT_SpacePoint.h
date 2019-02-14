@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace InDet
       SCT_SpacePoint(const SCT_SpacePoint &) ;
 
       /** Destructor */
-      ~SCT_SpacePoint() ;
+      virtual ~SCT_SpacePoint() = default;
 
       /** Overloading Assignment Operator */
       SCT_SpacePoint &operator=(const SCT_SpacePoint &);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -78,8 +78,8 @@ int main() {
   /// Read data from reference AOD files
   const char* refdir_s = getenv("D3PDTESTDATA");
 
-  std::string refdir_mc = refdir_s ? refdir_s : "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD";
-  std::string refdir_data = refdir_s ? refdir_s : "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD";
+  std::string refdir_mc = refdir_s ? refdir_s : "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetUtils";
+  std::string refdir_data = refdir_s ? refdir_s : "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetUtils";
 
   ClusterData::fillContainer(refdir_mc + "/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.19_1_1_5.039772.pool.root.1");
   ClusterData::fillContainer(refdir_data + "/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_1_1_5._lb0186._SFO-1._0001.pool.root.1");

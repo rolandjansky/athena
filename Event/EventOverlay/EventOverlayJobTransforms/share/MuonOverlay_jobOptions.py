@@ -6,7 +6,6 @@ from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon.DetFlags import DetFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 from AthenaCommon import CfgGetter
-from AthenaCommon.CfgGetter import getAlgorithm
 
 from RecExConfig.RecFlags import rec as recFlags
 
@@ -34,24 +33,28 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         include("MuonCnvExample/MuonReadBS_jobOptions.py")
 
     if DetFlags.overlay.CSC_on():
-        job += getAlgorithm("CscOverlay")
+        job += CfgGetter.getAlgorithm("CscOverlay")
+        job += CfgGetter.getAlgorithm("CscTruthOverlay")
 
     if DetFlags.overlay.MDT_on():
         job += CfgGetter.getAlgorithm("MdtRdoToMdtDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("MDT_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MdtOverlay")
+        job += CfgGetter.getAlgorithm("MdtTruthOverlay")
         job += CfgGetter.getAlgorithm("OverlayMdtDigitToMdtRDO")
 
     if DetFlags.overlay.RPC_on():
         job += CfgGetter.getAlgorithm("RpcRdoToRpcDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("RPC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("RpcOverlay")
+        job += CfgGetter.getAlgorithm("RpcTruthOverlay")
         job += CfgGetter.getAlgorithm("OverlayRpcDigitToRpcRDO")
 
     if DetFlags.overlay.TGC_on():
         job += CfgGetter.getAlgorithm("TgcRdoToTgcDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("TGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("TgcOverlay")
+        job += CfgGetter.getAlgorithm("TgcTruthOverlay")
         job += CfgGetter.getAlgorithm("OverlayTgcDigitToTgcRDO")
 
     # storegate dump

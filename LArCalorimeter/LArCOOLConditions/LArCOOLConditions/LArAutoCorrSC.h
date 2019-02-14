@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -26,7 +26,6 @@ class LArAutoCorrSC:
   bool good() const { return m_isInitialized && m_nChannels>0; }
 
   virtual  AutoCorrRef_t autoCorr(const HWIdentifier&  CellID, int gain) const ;  
-  virtual  AutoCorrRef_t autoCorr(const Identifier&  CellID, int gain) const;
   
 };
 #include "AthenaKernel/CondCont.h"

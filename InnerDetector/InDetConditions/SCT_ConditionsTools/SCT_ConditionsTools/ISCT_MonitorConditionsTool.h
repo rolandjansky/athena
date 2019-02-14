@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,10 +39,13 @@ class ISCT_MonitorConditionsTool: virtual public ISCT_ConditionsTool {
   
   /// Return a list of bad stip Identifiers
   virtual void badStrips(std::set<Identifier>& strips) const =0;
+  virtual void badStrips(std::set<Identifier>& strips, const EventContext& ctx) const =0;
   /// Return a list of bad stip Identifiers for a given module
   virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const =0;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx) const =0;
   /// Return a (space-separated) string of bad stip numbers (including hyphanated ranges) as they are written to the DB 
   virtual std::string badStripsAsString(const Identifier& moduleId) const =0;
+  virtual std::string badStripsAsString(const Identifier& moduleId, const EventContext& ctx) const =0;
 
  private:
 

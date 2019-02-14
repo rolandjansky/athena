@@ -7,7 +7,8 @@ atlas_subdir( DataQualityUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          DataQuality/DataQualityInterfaces )
+                          DataQuality/DataQualityInterfaces
+                          DataQuality/ZLumiScripts )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex filesystem thread system )
@@ -80,7 +81,7 @@ atlas_add_executable( han-results-print
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( scripts/CreateDB.py scripts/CreateDB_Histo.py scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/historyDisplay.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
+atlas_install_scripts( scripts/CreateDB.py scripts/CreateDB_Histo.py scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/historyDisplay.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
 
 # Aliases:
 atlas_add_alias( DQHistogramPrintStatistics "DQHistogramPrintStatistics.py" )

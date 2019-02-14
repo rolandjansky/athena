@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,8 +8,6 @@
  * @brief implementation
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: TagInfoMgr.cxx,v 1.29 2009-04-29 07:47:40 schaffer Exp $
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -17,11 +15,12 @@
 #include "TagInfoMgr.h"
 
 // Event includes
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
+
+#include "EventInfoUtils/EventIDFromStore.h"
 
 // IOVDbSvc
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -320,7 +319,9 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
         // *****        READ WITH TAGS IN EVENT INFO            *****
         // *****        RDS 04/2009                             *****
         // **********************************************************
-            
+
+       //MN: FIX:  Is this case still in use? If not, remove it
+       
         if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "fillTagInfo: Add in tags from EventInfo" << endmsg;
         const DataHandle<EventInfo> evtH;
         const DataHandle<EventInfo> evtHEnd;
@@ -486,20 +487,18 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "entering fillMetaData" << endmsg;
 
     // Get run number for IOV
-    const EventInfo* evt   = 0;
     unsigned int runNumber = 0;
-    if (StatusCode::SUCCESS != m_storeGate->retrieve(evt)) {
-        // For simulation, we may be in the initialization phase and
-        // must get the run number from the event selector
-        if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
-            m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
-            return (StatusCode::FAILURE);
-        }
+    const EventIDBase* evid = EventIDFromStore( m_storeGate );
+    if( evid ) {
+       runNumber = evid->run_number();
+    } else {
+       // For simulation, we may be in the initialization phase and
+       // must get the run number from the event selector
+       if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
+             m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
+             return (StatusCode::FAILURE);
+       }
     }
-    else {
-        runNumber = evt->event_ID()->run_number();
-    }
-
     // Copy tags to AttributeList
     coral::AttributeList attrList;
     EventType::NameTagPairVec pairs;
@@ -661,11 +660,11 @@ TagInfoMgr::handle(const Incident& inc) {
     }
 
     // Return quickly for BeginEvent if not needed
-    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") return;
+    if (!m_newFileIncidentSeen && inc.type() ==  IncidentType::BeginEvent) return;
 
     // At first BeginRun we retrieve TagInfo and trigger IOVDbSvc to
     // use it
-    if (inc.type() == "BeginRun" && m_isFirstBeginRun) {
+    if (inc.type() == IncidentType::BeginRun && m_isFirstBeginRun) {
 
         // No longer first BeginRun 
         m_isFirstBeginRun = false; 
@@ -674,39 +673,30 @@ TagInfoMgr::handle(const Incident& inc) {
         m_newFileIncidentSeen = false;
 
         // Print out EventInfo
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-        if(!eventInc) {
-            m_log << MSG::ERROR << "handle:  Unable to get EventInfo from BeginRun incident" << endmsg;
-            throw GaudiException( "Unable to get EventInfo from BeginRun incident", "TagInfoMgr::handle", StatusCode::FAILURE );
-        }
-        const EventInfo* evt = &eventInc->eventInfo();
+        // can't use a ref here!
+        const EventIDBase eventID =  inc.context().eventID();
+
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "handle: BeginRun incident - Event info: " << endmsg;
             m_log << MSG::DEBUG << "handle: Event ID: ["
-                  << evt->event_ID()->run_number()   << ","
-                  << evt->event_ID()->event_number() << ":"
-                  << evt->event_ID()->time_stamp() << "] "
+                  << eventID.run_number()   << ","
+                  << eventID.event_number() << ":"
+                  << eventID.time_stamp() << "] "
                   << endmsg;
-            if (evt->event_type()) {
-                m_log << MSG::DEBUG << evt->event_type()->typeToString() << endmsg;
-                m_log << MSG::DEBUG << "handle: Event type: user type "
-                      << evt->event_type()->user_type()
-                      << endmsg;
-            }
         }
         
         // For the moment, we must set IOVDbSvc into the BeginRun
         // state to be able to access TagInfo from the file meta data
 
         // create IOV time from current event coming in with BeginRun incident
-        unsigned int run = evt->event_ID()->run_number();
-        unsigned int lb  = evt->event_ID()->lumi_block();
+        unsigned int run = eventID.run_number();
+        unsigned int lb  = eventID.lumi_block();
         IOVTime curTime;
         curTime.setRunEvent(run, lb);
 
         // save both seconds and ns offset for timestamp
-        uint64_t nsTime = evt->event_ID()->time_stamp()*1000000000LL;
-        nsTime         += evt->event_ID()->time_stamp_ns_offset();
+        uint64_t nsTime = eventID.time_stamp()*1000000000LL;
+        nsTime         += eventID.time_stamp_ns_offset();
         curTime.setTimestamp(nsTime);
 
         if (StatusCode::SUCCESS != m_iovDbSvc->signalBeginRun(curTime,

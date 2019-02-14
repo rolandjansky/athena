@@ -98,4 +98,4 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000 # MC16c 2017 time stamp
-theApp.EvtMax = 2
+theApp.EvtMax = 20

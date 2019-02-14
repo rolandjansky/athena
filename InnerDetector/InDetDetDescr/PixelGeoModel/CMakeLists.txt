@@ -23,7 +23,6 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    DetectorDescription/DetDescrCond/DetDescrConditions
    DetectorDescription/GeometryDBSvc
-   InnerDetector/InDetConditions/InDetCondServices
    InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:
@@ -39,12 +38,17 @@ atlas_add_library( PixelGeoModelLib
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
-   InDetCondServices InDetIdentifier
+   InDetIdentifier
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
 
 atlas_add_component( PixelGeoModel
    src/components/*.cxx
    LINK_LIBRARIES GaudiKernel PixelGeoModelLib )
 
+atlas_add_test( PixelGMConfig_test
+                SCRIPT test/PixelGMConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/*.py )

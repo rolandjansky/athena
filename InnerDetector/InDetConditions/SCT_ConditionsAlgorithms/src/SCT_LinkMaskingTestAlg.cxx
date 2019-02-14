@@ -34,12 +34,12 @@ StatusCode SCT_LinkMaskingTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_LinkMaskingTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_LinkMaskingTestAlg::execute(const EventContext& ctx) const {
 
-  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingTool->isGood(Identifier{167772160}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingTool->isGood(Identifier{167773184}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingTool->isGood(Identifier{167786496}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingTool->isGood(Identifier{167787520}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingTool->isGood(Identifier{167772160}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingTool->isGood(Identifier{167773184}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingTool->isGood(Identifier{167786496}, ctx) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingTool->isGood(Identifier{167787520}, ctx) ? "not masked" : "masked"));
 
   return StatusCode::SUCCESS;
 }

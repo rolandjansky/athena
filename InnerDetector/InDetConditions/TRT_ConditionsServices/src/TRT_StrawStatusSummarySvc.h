@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_STRAWSTATUSSUMMARYSVC_H
@@ -191,7 +191,7 @@ inline void TRT_StrawStatusSummarySvc::setStatus( const TRTCond::ExpandedIdentif
 
 inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusContainer() {
   if(m_isGEANT4) {
-    return &(*m_strawstatusG4);
+    return m_strawstatusG4.cptr();
   }
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
@@ -214,7 +214,7 @@ inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSum
 inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusPermanentContainer() {
 
   if(m_isGEANT4) {
-    return &(*m_strawstatuspermanentG4);
+    return m_strawstatuspermanentG4.cptr();
   }
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
@@ -237,7 +237,7 @@ inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSum
 inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusHTContainer() {
 
   if(m_isGEANT4) {
-    return &(*m_strawstatusHTG4);
+    return m_strawstatusHTG4.cptr();
   }
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();

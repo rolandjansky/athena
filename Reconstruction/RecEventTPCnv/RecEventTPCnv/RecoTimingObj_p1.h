@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_RECOTIMINGOBJ_P1_H
@@ -20,7 +20,7 @@ class RecoTimingObj_p1
    RecoTimingObj_p1() : m_isTimings(true) {};
   
   /** destructor */
-  ~RecoTimingObj_p1() {};
+  ~RecoTimingObj_p1() = default;
   
   // protected:
   

@@ -1,4 +1,142 @@
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/ffdbf25b66] -- built on [2019-02-05T1601]
 Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : 0
+Beam.Type                                : 'collisions'
+Beam.estimatedLuminosity                 : [function]
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+DQ.DataType                              : [function]
+DQ.Environment                           : [function]
+DQ.FileKey                               : 'CombinedMonitoring'
+DQ.disableAtlasReadyFilter               : False
+DQ.doGlobalMon                           : True
+DQ.doMonitoring                          : True
+DQ.doStreamAwareMon                      : True
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.Layout                          : 'atlas'
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.isMC                               : [function]
+LAr.RawChannelSource                     : [function]
+LAr.doAlign                              : [function]
+LAr.doCellEmMisCalib                     : [function]
+LAr.doCellNoiseMasking                   : True
+LAr.doCellSporadicNoiseMasking           : True
+LAr.doHVCorr                             : [function]
+Muon.Align.UseALines                     : False
+Muon.Align.UseAsBuilt                    : False
+Muon.Align.UseBLines                     : 'none'
+Muon.Align.UseILines                     : False
+Muon.Calib.CscF001FromLocalFile          : False
+Muon.Calib.CscNoiseFromLocalFile         : False
+Muon.Calib.CscPSlopeFromLocalFile        : False
+Muon.Calib.CscPedFromLocalFile           : False
+Muon.Calib.CscRmsFromLocalFile           : False
+Muon.Calib.CscStatusFromLocalFile        : False
+Muon.Calib.CscT0BaseFromLocalFile        : False
+Muon.Calib.CscT0PhaseFromLocalFile       : False
+Muon.Calib.EventTag                      : 'MoMu'
+Muon.Calib.applyRtScaling                : True
+Muon.Calib.correctMdtRtForBField         : False
+Muon.Calib.correctMdtRtForTimeSlewing    : False
+Muon.Calib.correctMdtRtWireSag           : False
+Muon.Calib.mdtCalibrationSource          : 'MDT'
+Muon.Calib.mdtMode                       : 'ntuple'
+Muon.Calib.mdtPropagationSpeedBeta       : 0.85
+Muon.Calib.readMDTCalibFromBlob          : True
+Muon.Calib.useMLRt                       : True
+Muon.Chi2NDofCut                         : 20.0
+Muon.createTrackParticles                : True
+Muon.doCSCs                              : True
+Muon.doDigitization                      : True
+Muon.doFastDigitization                  : False
+Muon.doMDTs                              : True
+Muon.doMSVertex                          : False
+Muon.doMicromegas                        : False
+Muon.doPseudoTracking                    : False
+Muon.doRPCClusterSegmentFinding          : False
+Muon.doRPCs                              : True
+Muon.doSegmentT0Fit                      : False
+Muon.doTGCClusterSegmentFinding          : False
+Muon.doTGCs                              : True
+Muon.dosTGCs                             : False
+Muon.enableCurvedSegmentFinding          : False
+Muon.enableErrorTuning                   : False
+Muon.optimiseMomentumResolutionUsingChi2 : False
+Muon.patternsOnly                        : False
+Muon.prdToxAOD                           : False
+Muon.printSummary                        : False
+Muon.refinementTool                      : 'Moore'
+Muon.rpcRawToxAOD                        : False
+Muon.segmentOrigin                       : 'Muon'
+Muon.straightLineFitMomentum             : 2000.0
+Muon.strategy                            : []
+Muon.trackBuilder                        : 'Moore'
+Muon.updateSegmentSecondCoordinate       : [function]
+Muon.useAlignmentCorrections             : False
+Muon.useLooseErrorTuning                 : False
+Muon.useSegmentMatching                  : [function]
+Muon.useTGCPriorNextBC                   : False
+Muon.useTrackSegmentMatching             : True
+Muon.useWireSagCorrections               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITFileName                       : 'myHIT.pool.root'
+Output.RDOFileName                       : 'myROD.pool.root'
+Output.doESD                             : False
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : False
+Scheduler.ShowDataDeps                   : False
+Scheduler.ShowDataFlow                   : False
+Trigger.AODEDMSet                        : []
+Trigger.EDMDecodingVersion               : 2
+Trigger.ESDEDMSet                        : []
+Trigger.L1.CTPVersion                    : 4
+Trigger.L1.doBcm                         : True
+Trigger.L1.doMuons                       : True
+Trigger.L1Decoder.forceEnableAllChains   : False
+Trigger.LVL1ConfigFile                   : [function]
+Trigger.LVL1TopoConfigFile               : [function]
+Trigger.OnlineCondTag                    : 'CONDBR2-HLTP-2016-01'
+Trigger.OnlineGeoTag                     : 'ATLAS-R2-2015-04-00-00'
+Trigger.calo.doOffsetCorrection          : True
+Trigger.dataTakingConditions             : 'FullTrigger'
+Trigger.doHLT                            : True
+Trigger.doL1Topo                         : True
+Trigger.doLVL1                           : [function]
+Trigger.doTriggerConfigOnly              : False
+Trigger.doTruth                          : False
+Trigger.egamma.calibMVAVersiona          : [function]
+Trigger.egamma.clusterCorrectionVersion  : [function]
+Trigger.egamma.pidVersion                : [function]
+Trigger.generateLVL1Config               : False
+Trigger.generateLVL1TopoConfig           : False
+Trigger.menu.combined                    : []
+Trigger.menu.electron                    : []
+Trigger.menu.muon                        : []
+Trigger.menu.photon                      : []
+Trigger.menuVersion                      : [function]
+Trigger.muon.doEFRoIDrivenAccess         : False
+Trigger.run2Config                       : '2018'
+Trigger.triggerConfig                    : 'MCRECO:DEFAULT'
+Trigger.triggerMenuSetup                 : 'MC_pp_v7_tight_mc_prescale'
+Trigger.triggerUseFrontier               : False
+Trigger.useL1CaloCalibration             : False
+Trigger.useRun1CaloEnergyScale           : False
+Trigger.writeBS                          : False
+Trigger.writeL1TopoValData               : True
 Py:Athena            INFO About to setup Rpc Raw data decoding
 Py:ComponentAccumulator   DEBUG Adding component EventSelectorByteStream/EventSelector to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamEventStorageInputSvc/ByteStreamInputSvc to the job
@@ -27,8 +165,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
-Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgSeq.MuonCacheCreator) ... dupe ignored
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
@@ -328,12 +464,82 @@ Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:IOVDbSvc.CondDB   DEBUG Loading basic services for CondDBSetup...
+Py:ConfigurableDb   DEBUG loading confDb files...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libGaudiHive.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libGaudiCommonSvc.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libprofhelp.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthenaPoolMultiTest.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libCaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthViewsDFlow.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthViewsAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthExHelloWorld.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthExHive.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthenaServices.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libSGAudSvc.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libStoreGate.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libStoreGateTests.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthenaPoolExampleAlgorithms.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libIOVDbSvc.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libHepMCAnalysis_i.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libLArMonTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libRecBackgroundAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libISF_Geant4Tools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTrigConfigSvc.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libViewAlgsTest.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTrigT1CaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTrigHIHypo.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libAthenaPythonComps.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libByteStreamCnvSvcBase.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libLUCID_RawDataByteStreamCnv.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libPixelConditionsServices.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libLArCafJobs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libDerivationFrameworkExamples.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libElectronPhotonTagTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libegammaPerformance.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libFastCaloSim.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libFastCaloSimHit.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libISF_FastCaloSimParametrization.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libISF_FastCaloSimServices.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libFTK_RecTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTrigMissingETHypo.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libCaloCellCorrection.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libCaloCondPhysAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libCaloUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libZdcByteStream.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libLArRecUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileCalibAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileMonitoring.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileRecAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileRecUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libCaloRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTileSimAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libLArCellRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libHIJetRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTBRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/libTrigCaloRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/lib/WorkDir.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-04T2257/GAUDI/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/lib/Gaudi.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-04T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/lib/Athena.confdb]...
+Py:ConfigurableDb   DEBUG loading confDb files... [DONE]
+Py:ConfigurableDb   DEBUG loaded 1102 confDb packages
+Py:ConfigurableDb    INFO Read module info for 5456 configurables from 56 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb   DEBUG : Found configurable <class 'GaudiCoreSvc.GaudiCoreSvcConf.MessageSvc'> in module GaudiCoreSvc.GaudiCoreSvcConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool...
+Py:ConfigurableDb   DEBUG : Found configurable <class 'PoolSvc.PoolSvcConf.PoolSvc'> in module PoolSvc.PoolSvcConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaPoolCnvSvc.AthenaPoolCnvSvcConf.AthenaPoolCnvSvc'> in module AthenaPoolCnvSvc.AthenaPoolCnvSvcConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaServices.AthenaServicesConf.MetaDataSvc'> in module AthenaServices.AthenaServicesConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'StoreGate.StoreGateConf.StoreGateSvc'> in module StoreGate.StoreGateConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool... [DONE]
 Py:loadBasicIOVDb   DEBUG Loading basic services for IOVDbSvc...
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
 Py:loadBasicEventInfoMgt   DEBUG Loading basic services for EventInfoMgt...
+EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.EventPersistencySvc) ... dupe ignored
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
 Py:loadBasicEventInfoMgt   DEBUG Loading basic services for EventInfoMgt... [DONE]
 Py:loadBasicIOVDb   DEBUG Loading basic services for IOVDb... [DONE]
@@ -394,7 +600,9 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -471,6 +679,7 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
@@ -556,6 +765,7 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersi
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonRPC_CnvTools.MuonRPC_CnvToolsConf.Muon__RpcRDO_Decoder'> in module MuonRPC_CnvTools.MuonRPC_CnvToolsConf
 Py:ComponentAccumulator   DEBUG Adding component Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -1053,6 +1263,10 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersi
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonCSC_CnvTools.MuonCSC_CnvToolsConf.Muon__CscRDO_Decoder'> in module MuonCSC_CnvTools.MuonCSC_CnvToolsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'CscCalibTools.CscCalibToolsConf.CscCalibTool'> in module CscCalibTools.CscCalibToolsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonCSC_CnvTools.MuonCSC_CnvToolsConf.Muon__CSC_RawDataProviderTool'> in module MuonCSC_CnvTools.MuonCSC_CnvToolsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonCSC_CnvTools.MuonCSC_CnvToolsConf.Muon__CscROD_Decoder'> in module MuonCSC_CnvTools.MuonCSC_CnvToolsConf
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -1070,8 +1284,13 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Mu
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaPoolCnvSvc.AthenaPoolCnvSvcConf.AthenaPoolCnvSvc'> in module AthenaPoolCnvSvc.AthenaPoolCnvSvcConf
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
 Py:Athena            INFO Print Config
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
 |-Atomic                                  = False
 |-AuditAlgorithms                         = False
 |-AuditBeginRun                           = False
@@ -1083,42 +1302,29 @@ Py:Athena            INFO Print Config
 |-AuditRestart                            = False
 |-AuditStart                              = False
 |-AuditStop                               = False
+|-Cardinality                             = 0
 |-ContinueEventloopOnFPE                  = False
+|-DetStore                   @0x7f84f50af850 = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                                  = True
 |-ErrorCounter                            = 0
 |-ErrorMax                                = 1
+|-EvtStore                   @0x7f84f50af7d0 = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                @0x7f84f36e0170 = []  (default: [])
+|-ExtraOutputs               @0x7f84f36e00e0 = []  (default: [])
 |-FilterCircularDependencies              = True
 |-IgnoreFilterPassed                      = False
 |-IsIOBound                               = False
+|-Members                    @0x7f84f3636c68 = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'MuonCacheCreator/MuonCacheCreator', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
 |                                            (default: [])
 |-ModeOR                                  = False
 |-MonitorService                          = 'MonitorSvc'
+|-NeededResources            @0x7f84f36e0050 = []  (default: [])
 |-OutputLevel                             = 0
 |-RegisterForContextService               = False
 |-Sequential                              = False
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
-|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
-| |-AuditAlgorithms                         = False
-| |-AuditBeginRun                           = False
-| |-AuditEndRun                             = False
-| |-AuditExecute                            = False
-| |-AuditFinalize                           = False
-| |-AuditInitialize                         = False
-| |-AuditReinitialize                       = False
-| |-AuditRestart                            = False
-| |-AuditStart                              = False
-| |-AuditStop                               = False
-| |-DisableViewWarning                      = False
-| |-Enable                                  = True
-| |-ErrorCounter                            = 0
-| |-ErrorMax                                = 1
-| |-FilterCircularDependencies              = True
-| |-IsIOBound                               = False
-| |-MonitorService                          = 'MonitorSvc'
-| |-OutputLevel                             = 0
-| |-RegisterForContextService               = False
-| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
+|-Timeline                                = True
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1130,17 +1336,26 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f84f3c7fc10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3c7fb90 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0098 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e0200 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e01b8 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f84f42bd718 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
 | |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
+| |-RegionSelectionSvc         @0x7f84f3c7fc90 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1149,6 +1364,11 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f84f42bd810 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore          @0x7f84f3c2ea50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f84f3c2ea90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f84f3c4d320 = []  (default: [])
+| | |-ExtraOutputs      @0x7f84f3c4d050 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RPCSec                         = 'StoreGateSvc+RPC_SECTORLOGIC'
@@ -1162,6 +1382,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStop                        = False
 | | | |-AuditTools                       = False
 | | | |-DataErrorPrintLimit              = 1000
+| | | |-DetStore            @0x7f84f3c2eb50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            @0x7f84f3c2eb90 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         @0x7f84f3c4d1b8 = []  (default: [])
+| | | |-ExtraOutputs        @0x7f84f3c4d170 = []  (default: [])
 | | | |-MonitorService                   = 'MonitorSvc'
 | | | |-OutputLevel                      = 0
 | | | |-Sector13Data                     = False
@@ -1180,15 +1404,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f84f3c0ebd0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3c0eb50 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e03f8 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e04d0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e0440 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f84f4e539b0 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
 | |                                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1197,7 +1429,12 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f84f4e53aa0 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 | | |                                   (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
+| | |-DetStore          @0x7f84f3c9d0d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f84f3c9d110 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f84f3c9a200 = []  (default: [])
+| | |-ExtraOutputs      @0x7f84f3c9a050 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
@@ -1209,6 +1446,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f84f3c9d1d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f84f3c9d210 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f84f3c90e60 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f84f3c90fc8 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ShowStatusWords                = False
@@ -1216,6 +1457,38 @@ Py:Athena            INFO Print Config
 | | | \----- (End of Private AlgTool Muon::TGC_RodDecoderReadout/TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder) -----
 | | \----- (End of Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool) -----
 | \----- (End of Algorithm Muon::TgcRawDataProvider/TgcRawDataProvider) ------------------------------
+|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
+| |-AuditAlgorithms                         = False
+| |-AuditBeginRun                           = False
+| |-AuditEndRun                             = False
+| |-AuditExecute                            = False
+| |-AuditFinalize                           = False
+| |-AuditInitialize                         = False
+| |-AuditReinitialize                       = False
+| |-AuditRestart                            = False
+| |-AuditStart                              = False
+| |-AuditStop                               = False
+| |-Cardinality                             = 0
+| |-CscCacheKey                @0x7f84f3efafc0 = 'CscCache'  (default: 'StoreGateSvc+')
+| |-DetStore                   @0x7f84f3c1f9d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DisableViewWarning                      = False
+| |-Enable                                  = True
+| |-ErrorCounter                            = 0
+| |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3c1f950 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f3713ab8 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f3713a70 = []  (default: [])
+| |-FilterCircularDependencies              = True
+| |-IsIOBound                               = False
+| |-MdtCsmCacheKey             @0x7f84f3fb0060 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f3713830 = []  (default: [])
+| |-OutputLevel                             = 0
+| |-RegisterForContextService               = False
+| |-RpcCacheKey                @0x7f84f3efad20 = 'RpcCache'  (default: 'StoreGateSvc+')
+| |-TgcCacheKey                @0x7f84f3db6150 = 'TgcCache'  (default: 'StoreGateSvc+')
+| |-Timeline                                = True
+| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1227,15 +1500,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f84f3c0de10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3c0dd90 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0128 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e0518 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e0560 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f84f3eb7a50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
 | |                                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MDT_RawDataProviderTool/MdtRawDataProvider.MDT_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -1244,7 +1525,14 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
+| | |-CsmContainerCacheKey @0x7f84f3fb0060 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7f84f4e53d70 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             @0x7f84f3748dd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7f84f3748e10 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f84f3752170 = []  (default: [])
+| | |-ExtraOutputs         @0x7f84f37521b8 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
+| | |-OutputLevel          @  0x226f1d8 = 1  (default: 0)
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
 | | |-ReadKey                           = 'ConditionStore+MuonMDT_CablingMap'
 | | |=/***** Private AlgTool MdtROD_Decoder/MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder *****
@@ -1255,6 +1543,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f84f3748ed0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f84f3748f10 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f84f37c5e60 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f84f37c5e18 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ReadKey                        = 'ConditionStore+MuonMDT_CablingMap'
@@ -1273,15 +1565,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f84f3c6ad50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3c6acd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0638 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e05a8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e02d8 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f84f3eb7c50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
 | |                                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CSC_RawDataProviderTool/CscRawDataProvider.CSC_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -1290,7 +1590,15 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
+| | |-CscContainerCacheKey @0x7f84f3efafc0 = 'CscCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7f84f3beb050 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             @0x7f84f370add0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
+| | |-EvtStore             @0x7f84f370ae10 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f84f37135f0 = []  (default: [])
+| | |-ExtraOutputs         @0x7f84f3713758 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
+| | |-OutputLevel          @  0x226f1d8 = 1  (default: 0)
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
 | | |=/***** Private AlgTool Muon::CscROD_Decoder/CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder *****
 | | | |-AuditFinalize                  = False
@@ -1300,6 +1608,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f84f370aed0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f84f370af10 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f84f37132d8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f84f3713290 = []  (default: [])
 | | | |-IsCosmics                      = False
 | | | |-IsOldCosmics                   = False
 | | | |-MonitorService                 = 'MonitorSvc'
@@ -1318,19 +1630,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f84f4088d20 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
 | |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
+| |-DetStore                   @0x7f84f3745850 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f37457d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0488 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e0758 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e0680 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f84f71c8b40 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f84f37458d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool ******
 | | |-AuditFinalize                                   = False
 | | |-AuditInitialize                                 = False
@@ -1340,11 +1662,16 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                                       = False
 | | |-AuditTools                                      = False
 | | |-DecodeData                                      = True
+| | |-DetStore                           @0x7f84f36b2a10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           @0x7f84f36b2a90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        @0x7f84f3717050 = []  (default: [])
+| | |-ExtraOutputs                       @0x7f84f37171b8 = []  (default: [])
 | | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
 | | |-MonitorService                                  = 'MonitorSvc'
 | | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
 | | |-OutputLevel                                     = 0
 | | |-RPCInfoFromDb                                   = False
+| | |-RdoDecoderTool                     @0x7f84f3b254b0 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
 | | |                                                    (default: 'Muon::RpcRDO_Decoder')
 | | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
 | | |-etaphi_coincidenceTime                          = 20.0
@@ -1362,6 +1689,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f84f36b2b10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f84f36b2b50 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f84f37172d8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f84f3717290 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool.Muon::RpcRDO_Decoder) -----
@@ -1378,20 +1709,30 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f84f36ba050 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 | |                                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
+| |-DetStore                   @0x7f84f369d750 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f369d6d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e05f0 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e07a0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e07e8 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+TGC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f84f71c8b40 = False  (default: False)
+| |-RegionSelectorSvc          @0x7f84f369d7d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Setting                                 = 0
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool ******
 | | |-AuditFinalize                                        = False
 | | |-AuditInitialize                                      = False
@@ -1401,6 +1742,10 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                                            = False
 | | |-AuditTools                                           = False
 | | |-DecodeData                                           = True
+| | |-DetStore                                @0x7f84f36b28d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                @0x7f84f36b2cd0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             @0x7f84f36bf3f8 = []  (default: [])
+| | |-ExtraOutputs                            @0x7f84f36bf170 = []  (default: [])
 | | |-FillCoinData                                         = True
 | | |-MonitorService                                       = 'MonitorSvc'
 | | |-OutputCoinCollection                                 = 'TrigT1CoinDataCollection'
@@ -1409,7 +1754,9 @@ Py:Athena            INFO Print Config
 | | |-RDOContainer                                         = 'StoreGateSvc+TGCRDO'
 | | |-TGCHashIdOffset                                      = 26000
 | | |-dropPrdsWithZeroWidth                                = True
+| | |-outputCoinKey                           @0x7f84f36bf3b0 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
+| | |-prepDataKeys                            @0x7f84f36bf488 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
@@ -1425,19 +1772,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f84f7269890 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 | |                                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
+| |-DetStore                   @0x7f84f3737710 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f3737690 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0878 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e0908 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e08c0 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+MDT_DriftCircles'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f84f71c8b40 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f84f3737790 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool ******
 | | |-AuditFinalize                        = False
 | | |-AuditInitialize                      = False
@@ -1448,9 +1805,13 @@ Py:Athena            INFO Print Config
 | | |-AuditTools                           = False
 | | |-CalibratePrepData                    = True
 | | |-DecodeData                           = True
+| | |-DetStore                @0x7f84f36b2e90 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-DiscardSecondaryHitTwin              = False
 | | |-DoPropagationCorrection              = False
 | | |-DoTofCorrection                      = True
+| | |-EvtStore                @0x7f84f36b2f50 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             @0x7f84f36cabd8 = []  (default: [])
+| | |-ExtraOutputs            @0x7f84f36caa70 = []  (default: [])
 | | |-MonitorService                       = 'MonitorSvc'
 | | |-OutputCollection                     = 'StoreGateSvc+MDT_DriftCircles'
 | | |-OutputLevel                          = 0
@@ -1477,19 +1838,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-CscRdoToCscPrepDataTool    @0x7f84f3c28cb0 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 | |                                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
+| |-DetStore                   @0x7f84f371cd10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f371cc10 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e09e0 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e06c8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e0950 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+CSC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f84f71c8b40 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f84f371cd90 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool *****
 | | |-AuditFinalize                    = False
 | | |-AuditInitialize                  = False
@@ -1499,11 +1870,19 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                        = False
 | | |-AuditTools                       = False
 | | |-CSCHashIdOffset                  = 22000
+| | |-CscCalibTool        @0x7f84f725f860 = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool   @0x7f84f36cb790 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
 | | |-DecodeData                       = True
+| | |-DetStore            @0x7f84f36d22d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore            @0x7f84f36d23d0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs         @0x7f84f36be6c8 = []  (default: [])
+| | |-ExtraOutputs        @0x7f84f36be7a0 = []  (default: [])
 | | |-MonitorService                   = 'MonitorSvc'
 | | |-OutputCollection                 = 'StoreGateSvc+CSC_Measurements'
 | | |-OutputLevel                      = 0
 | | |-RDOContainer                     = 'StoreGateSvc+CSCRDO'
+| | |-RawDataProviderTool @0x7f84f3eb7e50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
+| | |-useBStoRdoTool      @0x7f84f71c8b20 = True  (default: False)
 | | |=/***** Private AlgTool Muon::CSC_RawDataProviderTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool *****
 | | | |-AuditFinalize                     = False
 | | | |-AuditInitialize                   = False
@@ -1513,6 +1892,12 @@ Py:Athena            INFO Print Config
 | | | |-AuditStop                         = False
 | | | |-AuditTools                        = False
 | | | |-CscContainerCacheKey              = 'StoreGateSvc+'
+| | | |-Decoder              @0x7f84f3beb230 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | | |-DetStore             @0x7f84f36d24d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
+| | | |-EvtStore             @0x7f84f36d2510 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs          @0x7f84f3c3d6c8 = []  (default: [])
+| | | |-ExtraOutputs         @0x7f84f3c9ab90 = []  (default: [])
 | | | |-MonitorService                    = 'MonitorSvc'
 | | | |-OutputLevel                       = 0
 | | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
@@ -1524,6 +1909,10 @@ Py:Athena            INFO Print Config
 | | | | |-AuditStart                     = False
 | | | | |-AuditStop                      = False
 | | | | |-AuditTools                     = False
+| | | | |-DetStore          @0x7f84f36d2550 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          @0x7f84f36d25d0 = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       @0x7f84f3c32f38 = []  (default: [])
+| | | | |-ExtraOutputs      @0x7f84f3c32440 = []  (default: [])
 | | | | |-IsCosmics                      = False
 | | | | |-IsOldCosmics                   = False
 | | | | |-MonitorService                 = 'MonitorSvc'
@@ -1538,6 +1927,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                      = False
 | | | |-AuditStop                       = False
 | | | |-AuditTools                      = False
+| | | |-DetStore           @0x7f84f36d2410 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           @0x7f84f36d2450 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        @0x7f84f36becb0 = []  (default: [])
+| | | |-ExtraOutputs       @0x7f84f36be440 = []  (default: [])
 | | | |-IsOnline                        = True
 | | | |-Latency                         = 100.0
 | | | |-MonitorService                  = 'MonitorSvc'
@@ -1564,6 +1957,11 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-CscCalibTool      @0x7f84f36d2350 = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          @0x7f84f36d2310 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f84f36d2390 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f84f36befc8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f84f36bee60 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscRDO_Decoder) -----
@@ -1580,30 +1978,83 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f84f36fb850 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f84f36fb7d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f84f36e0ab8 = []  (default: [])
+| |-ExtraOutputs               @0x7f84f36e0bd8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f84f36e0b90 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
+| |-cluster_builder            @0x7f84f36431d0 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
 | |                                            (default: 'CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
 | \----- (End of Algorithm CscThresholdClusterBuilder/CscThesholdClusterBuilder) ---------------------
 \----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO ['CondInputLoader', 'MuonMDT_CablingAlg']
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'ByteStreamAttListMetadataSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'RPCcablingServerSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'MuonRPC_CablingSvc', 'LVL1TGC::TGCRecRoiSvc', 'TGCcablingServerSvc', 'AthenaPoolCnvSvc', 'MuonMDT_CablingSvc', 'AtlasFieldSvc', 'MdtCalibrationDbSvc', 'MdtCalibrationSvc', 'CSCcablingSvc', 'MuonCalib::CscCoolStrSvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO   IOVDbMetaDataTool/IOVDbMetaDataTool,
+Py:ComponentAccumulator    INFO   ByteStreamMetadataTool/ByteStreamMetadataTool,
+Py:ComponentAccumulator    INFO   Muon::MuonIdHelperTool/Muon::MuonIdHelperTool,
+Py:ComponentAccumulator    INFO   RPCCablingDbTool/RPCCablingDbTool,
+Py:ComponentAccumulator    INFO   Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   MDTCablingDbTool/MDTCablingDbTool,
+Py:ComponentAccumulator    INFO   MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool,
+Py:ComponentAccumulator    INFO   Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool,
+Py:ComponentAccumulator    INFO   CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool,
+Py:ComponentAccumulator    INFO ]
 Py:Athena            INFO Save Config
 
 JOs reading stage finished, launching Athena from pickle file
 
+Tue Feb  5 18:14:21 CET 2019
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/ffdbf25b66] -- built on [2019-02-05T1601]
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
-Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO now loading MuonRdoDecode_Cache.pkl  ... 
+Py:ConfigurableDb    INFO Read module info for 5456 configurables from 56 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
+                                          running on lxplus115.cern.ch on Tue Feb  5 18:14:35 2019
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 7252 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
@@ -1618,6 +2069,10 @@ ByteStreamAddre...   INFO -- Will fill Store with id =  0
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-04T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus115.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
@@ -1626,13 +2081,26 @@ PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
 PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Global tag: CONDBR2-BLKPA-2018-13 set from joboptions
 IOVDbFolder          INFO Inputfile tag override disabled for /GLOBAL/BField/Maps
+IOVDbSvc             INFO Folder /GLOBAL/BField/Maps will be written to file metadata
 IOVDbSvc             INFO Initialised with 8 connections and 19 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool','ByteStreamMetadataTool/ByteStreamMetadataTool'])
 IOVDbSvc             INFO Opening COOL connection for COOLONL_MDT/CONDBR2
+ClassIDSvc           INFO  getRegistryEntries: read 2797 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 161 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 716 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 129 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3031 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Opening COOL connection for COOLONL_RPC/CONDBR2
@@ -1713,6 +2181,10 @@ GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+GeoModelSvc.Muo...   INFO create MuonDetectorTool - package version = MuonGeoModel-00-00-00
+GeoModelSvc.Muo...   INFO (from GeoModelSvc)    AtlasVersion = <ATLAS-R2-2016-01-00-01>  MuonVersion = <>
+GeoModelSvc.Muo...   INFO Keys for Muon Switches are  (key) ATLAS-R2-2016-01-00-01 (node) ATLAS
+GeoModelSvc.Muo...   INFO (from GeoModelSvc) in AtlasVersion = <ATLAS-R2-2016-01-00-01>  default MuonVersion is <MuonSpectrometer-R.08.01>
 GeoModelSvc.Muo...   INFO Properties have been set as follows: 
 GeoModelSvc.Muo...   INFO     LayoutName                     R
 GeoModelSvc.Muo...   INFO     IncludeCutouts                 0
@@ -1827,6 +2299,7 @@ AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary!
 MuGM:MuonFactory     INFO MMIDHELPER retrieved from DetStore
 MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ************************
 MuGM:MuonFactory     INFO  *** Start building the Muon Geometry Tree **********************
+MuGM:RDBReadAtlas    INFO Start retriving dbObjects with tag = <ATLAS-R2-2016-01-00-01> node <ATLAS>
 RDBAccessSvc      WARNING Could not get the tag for XtomoData node. Returning 0 pointer to IRDBQuery
 MuGM:RDBReadAtlas    INFO After getQuery XtomoData
 In DblQ00Xtomo(data)
@@ -1856,6 +2329,7 @@ MuGM:ProcCutouts     INFO  Processing Cutouts DONE
 MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
 MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
 MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
+MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-R2-2016-01-00-01> and node=<ATLAS>
 MuGM:MuonFactory     INFO  TreeTop added to the Manager
 MuGM:MuonFactory     INFO  Muon Layout R.08.01
 MuGM:MuonFactory     INFO Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)
@@ -1879,9 +2353,13 @@ MuGM:MuonFactory     INFO  *****************************************************
 
 MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1758/0
 MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 44864Kb 	 Time = 0.83S
 GeoModelSvc.Muo...   INFO CondAttrListCollection not found in the DetectorStore
 GeoModelSvc.Muo...   INFO Unable to register callback on CondAttrListCollection for any folder in the list 
 GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and deformations from COOL 
+ClassIDSvc           INFO  getRegistryEntries: read 1455 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 1794 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' )   ->
@@ -1891,12 +2369,17 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' ) 
+ClassIDSvc           INFO  getRegistryEntries: read 1370 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 743 CLIDRegistry entries for module ALL
 RpcRawDataProvider   INFO RpcRawDataProvider::initialize
 RpcRawDataProvider   INFO  'DoSeededDecoding':False
+ClassIDSvc           INFO  getRegistryEntries: read 1699 CLIDRegistry entries for module ALL
+MuonRPC_CablingSvc   INFO Initializing MuonRPC_CablingSvc - package version MuonRPC_Cabling-00-00-00
 ToolSvc.RPCCabl...   INFO Initializing - folders names are: conf /RPC/CABLING/MAP_SCHEMA / corr /RPC/CABLING/MAP_SCHEMA_CORR
 MuonRPC_CablingSvc   INFO RPCCablingDbTool retrieved with statusCode = SUCCESS with handle TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')
 MuonRPC_CablingSvc   INFO Register call-back  against 2 folders listed below 
 MuonRPC_CablingSvc   INFO  Folder n. 1 </RPC/CABLING/MAP_SCHEMA>     found in the DetStore
+ClassIDSvc           INFO  getRegistryEntries: read 501 CLIDRegistry entries for module ALL
 MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA>
 MuonRPC_CablingSvc   INFO  Folder n. 2 </RPC/CABLING/MAP_SCHEMA_CORR>     found in the DetStore
 MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA_CORR>
@@ -1911,19 +2394,25 @@ RpcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 RpcRawDataProvi...   INFO  Tool = RpcRawDataProvider.RPC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderTool
 TgcRawDataProvider   INFO TgcRawDataProvider::initialize
+ClassIDSvc           INFO  getRegistryEntries: read 878 CLIDRegistry entries for module ALL
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder
 TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 TgcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 TgcRawDataProvi...   INFO  Tool = TgcRawDataProvider.TGC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 MuonTGC_CablingSvc   INFO for 1/12 sector initialize
 ToolSvc.TGCCabl...   INFO initialize
+ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0xb210200]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
+ClassIDSvc           INFO  getRegistryEntries: read 922 CLIDRegistry entries for module ALL
+MdtRawDataProvi...  DEBUG Property update for OutputLevel : new value = 1
 MdtRawDataProvi...VERBOSE Starting init
 MdtRawDataProvi...VERBOSE Getting m_robDataProvider
 MdtRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 MdtRawDataProvi...VERBOSE Getting MuonDetectorManager
 MdtRawDataProvi...VERBOSE Getting m_decoder
+MdtRawDataProvi...  DEBUG Property update for OutputLevel : new value = 1
 MdtRawDataProvi...   INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvi...   INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
@@ -1931,16 +2420,20 @@ MdtRawDataProvi...   INFO  Tool = MdtRawDataProvider.MDT_RawDataProviderTool is 
 MdtRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
 MdtRawDataProvi...   INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderTool
 MdtRawDataProvi...  DEBUG Adding private ToolHandle tool MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder (MdtROD_Decoder)
-CscRawDataProvi...VERBOSE ServiceLocatorHelper::service: found service ActiveStoreSvc
+ClassIDSvc           INFO  getRegistryEntries: read 661 CLIDRegistry entries for module ALL
+CscRawDataProvi...  DEBUG Property update for OutputLevel : new value = 1
 CscRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRawDataProvi...VERBOSE ServiceLocatorHelper::service: found service JobOptionsSvc
 CscRawDataProvi...   INFO  Tool = CscRawDataProvider.CSC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 CscRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
+CscRawDataProvi...  DEBUG Property update for OutputLevel : new value = 1
 CscRawDataProvi...  DEBUG  Found the CscIdHelper. 
 CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderTool
 CscRawDataProvi...  DEBUG Adding private ToolHandle tool CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder (Muon::CscROD_Decoder)
+ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
+RpcRdoToRpcPrep...   INFO package version = MuonRPC_CnvTools-00-00-00
 RpcRdoToRpcPrep...   INFO properties are 
 RpcRdoToRpcPrep...   INFO processingData                     0
 RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
@@ -1955,14 +2448,17 @@ RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcR
 TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 MdtCalibrationSvc    INFO Processing configuration for layouts with BMG chambers.
+ClassIDSvc           INFO  getRegistryEntries: read 194 CLIDRegistry entries for module ALL
 AtlasFieldSvc        INFO initialize() ...
 AtlasFieldSvc        INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
+ClassIDSvc           INFO  getRegistryEntries: read 163 CLIDRegistry entries for module ALL
 AtlasFieldSvc        INFO magnet currents will be read from COOL folder /EXT/DCS/MAGNETS/SENSORDATA
 AtlasFieldSvc        INFO Booked callback for /EXT/DCS/MAGNETS/SENSORDATA
 AtlasFieldSvc        INFO initialize() successful
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for module ALL
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 CscRdoToCscPrep...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRdoToCscPrep...   INFO  Tool = CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
@@ -1970,9 +2466,19 @@ CscRdoToCscPrep...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscR
 CscRdoToCscPrep...   INFO The Muon Geometry version is R.08.01
 CscRdoToCscPrep...   INFO initialize() successful in CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CSC_RawDataProviderTool
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
+ClassIDSvc           INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_PSLOPE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1bd04700]+259 bound to CondAttrListCollection[CSC_T0PHASE]
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 CscRdoToCscPrep...WARNING Implicit circular data dependency detected for id  ( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' ) 
 HistogramPersis...WARNING Histograms saving not required.
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
 EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
 EventSelector        INFO reinitialization...
@@ -1984,10 +2490,12 @@ ToolSvc.Luminos...   INFO BunchLumisTool.empty() is TRUE, skipping...
 ToolSvc.Luminos...   INFO BunchGroupTool.empty() is TRUE, skipping...
 ToolSvc.Luminos...   INFO LBLBFolderName is empty, skipping...
 EventSelector        INFO Retrieved InputCollections from InputSvc
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ByteStreamInputSvc   INFO Picked valid file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+ClassIDSvc           INFO  getRegistryEntries: read 1156 CLIDRegistry entries for module ALL
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA'
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/CABLING/MAP_SCHEMA'
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA'
@@ -2065,6 +2573,7 @@ phi high-pt    mu11  mu15   mu15
 
 
 RPCcabling           INFO CablingRPC---InitMaps from COOL: going to read configuration
+RPCcabling           INFO CablingRPC--->> RPC cabling map from COOL <<
 RPCcabling           INFO CablingRPC--- ReadConf: map has size 222202
 RPCcabling           INFO CablingRPC--- ReadConf: map n. of lines read is 924
 RPCcabling           INFO CablingRPC--- ReadConf: version is 5.0 Atlas R_07_03_RUN2ver104
@@ -2102,17 +2611,19 @@ AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] 
 AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] Toroids_SCurrent , 4 , 20397.7
 AtlasFieldSvc        INFO Currents read from DCS: solenoid 7729.99 toroid 20399.9
 AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7729.99 toroidCurrent=20399.9)
+AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+ClassIDSvc           INFO  getRegistryEntries: read 672 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLONL_MDT/CONDBR2
 IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMapSchema_BMG_01 for folder /MDT/CABLING/MAP_SCHEMA
 IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMezzanineSchema_M5-RUN2 for folder /MDT/CABLING/MEZZANINE_SCHEMA
 IOVDbSvc             INFO Disconnecting from COOLONL_MDT/CONDBR2
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )  readCdoMez->size()= 24
+MuonMDT_CablingAlg   INFO Range of input is {[0,l:0] - [INVALID]}
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MuonMDT_CablingAlg   INFO Range of input is {[327264,l:4294640031] - [327265,l:4294640030]}
+MuonMDT_CablingAlg   INFO recorded new MuonMDT_CablingMap with range {[327264,l:4294640031] - [327265,l:4294640030]} into Conditions Store
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG fillCollection: starting
@@ -2226,6 +2737,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6048000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 1
@@ -2233,6 +2745,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6050000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
@@ -2242,6 +2755,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6248000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 3
@@ -2249,6 +2763,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6250000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 7
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
@@ -2258,6 +2773,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 4
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6448000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 15
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 5
@@ -2265,6 +2781,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 4
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6450000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
@@ -2400,12 +2917,14 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6049000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 1
 MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6051000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 10
@@ -2416,6 +2935,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6249000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 3
@@ -2423,6 +2943,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6251000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
@@ -2431,6 +2952,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 4
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6449000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
 MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 2 chan: 22
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
@@ -2446,6 +2968,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 4
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6451000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 5
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
@@ -2553,18 +3076,21 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Collection ID = 0x604a000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 1
 MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
 MdtRawDataProvi...  DEBUG Name : 0
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6052000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
 MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 2
 MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Collection ID = 0x624a000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
 MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 0 chan: 20
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
@@ -2576,6 +3102,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 2
 MdtRawDataProvi...  DEBUG Eta  : 2
 MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Collection ID = 0x6252000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 5
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 7
 MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 7 chan: 12
@@ -2587,6 +3114,7 @@ MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result:
 MdtRawDataProvi...  DEBUG Name : 4
 MdtRawDataProvi...  DEBUG Eta  : 1
 MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Collection ID = 0x644a000000000000 does not exist, create it 
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
 MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 9
@@ -2608,6 +3136,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x80
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x80 24 8 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 8
@@ -2617,28 +3146,55 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 112
+CscRawDataProvi...  DEBUG RPU Header word 0x5000070
 CscRawDataProvi...  DEBUG RPU ID original = 5
 CscRawDataProvi...  DEBUG RPU ID Updated = 5
 CscRawDataProvi...  DEBUG RPU size = 112
 CscRawDataProvi...  DEBUG SCA Address = 724315438
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x20202
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Second cluster word 0x600006c
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
 CscRawDataProvi...  DEBUG Cluster Data Words = 108
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 12
+CscRawDataProvi...  DEBUG cluster location word 0x10a2d
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 46
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31725  6  51 :: measphi0 L2 strId 46 nStr 4 T0 nSampWords 8 [7.51.-1.1.1.2.2.0.46]
+CscRawDataProvi...  DEBUG cluster location word 0x10a35
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 54
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31733  6  51 :: measphi0 L2 strId 54 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.0.54]
+CscRawDataProvi...  DEBUG cluster location word 0x10c2c
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 45
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31916  7  51 :: measphi0 L3 strId 45 nStr 5 T0 nSampWords 10 [7.51.-1.1.1.2.3.0.45]
+CscRawDataProvi...  DEBUG cluster location word 0x10c37
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 56
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31927  7  51 :: measphi0 L3 strId 56 nStr 4 T0 nSampWords 8 [7.51.-1.1.1.2.3.0.56]
+CscRawDataProvi...  DEBUG cluster location word 0x10e2d
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 46
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 32109  8  51 :: measphi0 L4 strId 46 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.0.46]
+CscRawDataProvi...  DEBUG cluster location word 0x10e39
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 58
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 32121  8  51 :: measphi0 L4 strId 58 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.0.58]
+CscRawDataProvi...  DEBUG cluster location word 0x10903
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 4
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55491  9  51 :: measphi1 L1 strId 4 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.1.1.4]
+CscRawDataProvi...  DEBUG cluster location word 0x10b08
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 9
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55544  9  51 :: measphi1 L2 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.1.9]
+CscRawDataProvi...  DEBUG cluster location word 0x10b1e
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 31
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55566  9  51 :: measphi1 L2 strId 31 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.1.31]
+CscRawDataProvi...  DEBUG cluster location word 0x10d07
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 8
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55591  9  51 :: measphi1 L3 strId 8 nStr 5 T0 nSampWords 10 [7.51.-1.1.1.2.3.1.8]
+CscRawDataProvi...  DEBUG cluster location word 0x10d1e
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 31
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55614  9  51 :: measphi1 L3 strId 31 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.3.1.31]
+CscRawDataProvi...  DEBUG cluster location word 0x10f08
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 9
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55640  9  51 :: measphi1 L4 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.1.9]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 12 for RPU ID 5
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2647,6 +3203,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x81
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x81 16 0 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 0
@@ -2656,38 +3213,52 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 122
+CscRawDataProvi...  DEBUG RPU Header word 0xd00007a
 CscRawDataProvi...  DEBUG RPU ID original = 13
 CscRawDataProvi...  DEBUG RPU ID Updated = 11
 CscRawDataProvi...  DEBUG RPU size = 122
 CscRawDataProvi...  DEBUG SCA Address = 2358087311
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x2000002
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Second cluster word 0x7000076
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 7
 CscRawDataProvi...  DEBUG Cluster Data Words = 118
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 11
 CscRawDataProvi...  DEBUG cluster location word 0x810
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 17
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 784  0  50 :: measphi0 L1 strId 17 nStr 4 T0 nSampWords 8 [7.50.-1.1.1.2.1.0.17]
 CscRawDataProvi...  DEBUG cluster location word 0x868
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000007 105
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 872  0  50 :: measphi0 L1 strId 105 nStr 7 T0 nSampWords 14 [7.50.-1.1.1.2.1.0.105]
 CscRawDataProvi...  DEBUG cluster location word 0xe11
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x1000000a 18
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 1361  3  50 :: measphi0 L4 strId 18 nStr 10 T0 nSampWords 20 [7.50.-1.1.1.2.4.0.18]
 CscRawDataProvi...  DEBUG cluster location word 0xe41
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 66
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 1409  3  50 :: measphi0 L4 strId 66 nStr 4 T0 nSampWords 8 [7.50.-1.1.1.2.4.0.66]
 CscRawDataProvi...  DEBUG cluster location word 0x916
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 23
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24790  4  50 :: measphi1 L1 strId 23 nStr 5 T0 nSampWords 10 [7.50.-1.1.1.2.1.1.23]
 CscRawDataProvi...  DEBUG cluster location word 0xb16
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 23
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24838  4  50 :: measphi1 L2 strId 23 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.2.1.23]
 CscRawDataProvi...  DEBUG cluster location word 0xd03
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 4
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24867  4  50 :: measphi1 L3 strId 4 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.4]
 CscRawDataProvi...  DEBUG cluster location word 0xd15
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 22
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24885  4  50 :: measphi1 L3 strId 22 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.22]
 CscRawDataProvi...  DEBUG cluster location word 0xd2d
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 46
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24909  4  50 :: measphi1 L3 strId 46 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.46]
 CscRawDataProvi...  DEBUG cluster location word 0xf15
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 22
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24933  4  50 :: measphi1 L4 strId 22 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.4.1.22]
 CscRawDataProvi...  DEBUG cluster location word 0xf1e
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 31
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24942  4  50 :: measphi1 L4 strId 31 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.4.1.31]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 11 for RPU ID 11
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2696,6 +3267,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x82
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x82 25 9 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 9
@@ -2705,6 +3277,7 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 50
+CscRawDataProvi...  DEBUG RPU Header word 0x5000032
 CscRawDataProvi...  DEBUG RPU ID original = 5
 CscRawDataProvi...  DEBUG RPU ID Updated = 5
 CscRawDataProvi...  DEBUG RPU size = 50
@@ -2714,13 +3287,24 @@ CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 C
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Second cluster word 0x200002e
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 2
 CscRawDataProvi...  DEBUG Cluster Data Words = 46
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 5
+CscRawDataProvi...  DEBUG cluster location word 0x12c17
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 24
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33431  7  51 :: measphi0 L3 strId 24 nStr 5 T0 nSampWords 10 [7.51.-1.2.1.2.3.0.24]
+CscRawDataProvi...  DEBUG cluster location word 0x12e16
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 23
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33622  8  51 :: measphi0 L4 strId 23 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.0.23]
+CscRawDataProvi...  DEBUG cluster location word 0x12e1a
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 27
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33626  8  51 :: measphi0 L4 strId 27 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.0.27]
+CscRawDataProvi...  DEBUG cluster location word 0x12d24
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 37
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 56004  9  51 :: measphi1 L3 strId 37 nStr 4 T0 nSampWords 8 [7.51.-1.2.1.2.3.1.37]
+CscRawDataProvi...  DEBUG cluster location word 0x12f24
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 37
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 56052  9  51 :: measphi1 L4 strId 37 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.1.37]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 5 for RPU ID 5
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2729,6 +3313,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x83
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x83 17 1 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 1
@@ -2738,27 +3323,52 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 116
+CscRawDataProvi...  DEBUG RPU Header word 0xd000074
 CscRawDataProvi...  DEBUG RPU ID original = 13
 CscRawDataProvi...  DEBUG RPU ID Updated = 11
 CscRawDataProvi...  DEBUG RPU size = 116
 CscRawDataProvi...  DEBUG SCA Address = 1920169077
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x1010102
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Second cluster word 0x6000070
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
 CscRawDataProvi...  DEBUG Cluster Data Words = 112
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 11
+CscRawDataProvi...  DEBUG cluster location word 0x2818
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 25
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2328  0  50 :: measphi0 L1 strId 25 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.1.0.25]
+CscRawDataProvi...  DEBUG cluster location word 0x2a17
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000006 24
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2519  1  50 :: measphi0 L2 strId 24 nStr 6 T0 nSampWords 12 [7.50.-1.2.1.2.2.0.24]
+CscRawDataProvi...  DEBUG cluster location word 0x2c17
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 24
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2711  2  50 :: measphi0 L3 strId 24 nStr 5 T0 nSampWords 10 [7.50.-1.2.1.2.3.0.24]
+CscRawDataProvi...  DEBUG cluster location word 0x2e18
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 25
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2904  3  50 :: measphi0 L4 strId 25 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.4.0.25]
+CscRawDataProvi...  DEBUG cluster location word 0x2ebc
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 189
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 3068  3  50 :: measphi0 L4 strId 189 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.4.0.189]
+CscRawDataProvi...  DEBUG cluster location word 0x2909
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 10
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25161  4  50 :: measphi1 L1 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.1.1.10]
+CscRawDataProvi...  DEBUG cluster location word 0x2b09
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 10
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25209  4  50 :: measphi1 L2 strId 10 nStr 5 T0 nSampWords 10 [7.50.-1.2.1.2.2.1.10]
+CscRawDataProvi...  DEBUG cluster location word 0x2d09
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 10
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25257  4  50 :: measphi1 L3 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.3.1.10]
+CscRawDataProvi...  DEBUG cluster location word 0x2d16
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 23
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25270  4  50 :: measphi1 L3 strId 23 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.3.1.23]
+CscRawDataProvi...  DEBUG cluster location word 0x2f09
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 10
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25305  4  50 :: measphi1 L4 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.4.1.10]
+CscRawDataProvi...  DEBUG cluster location word 0x2f28
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 41
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25336  4  50 :: measphi1 L4 strId 41 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.4.1.41]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 11 for RPU ID 11
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2767,6 +3377,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x84
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x84 26 10 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 10
@@ -2776,6 +3387,7 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 114
+CscRawDataProvi...  DEBUG RPU Header word 0x5000072
 CscRawDataProvi...  DEBUG RPU ID original = 5
 CscRawDataProvi...  DEBUG RPU ID Updated = 5
 CscRawDataProvi...  DEBUG RPU size = 114
@@ -2785,14 +3397,27 @@ CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 C
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Second cluster word 0x400006e
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 4
 CscRawDataProvi...  DEBUG Cluster Data Words = 110
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 6
+CscRawDataProvi...  DEBUG cluster location word 0x14c03
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 4
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 34947  7  51 :: measphi0 L3 strId 4 nStr 5 T0 nSampWords 10 [7.51.-1.3.1.2.3.0.4]
+CscRawDataProvi...  DEBUG cluster location word 0x14c66
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000013 103
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 35046  7  51 :: measphi0 L3 strId 103 nStr 19 T0 nSampWords 38 [7.51.-1.3.1.2.3.0.103]
+CscRawDataProvi...  DEBUG cluster location word 0x1491b
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 28
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56283  9  51 :: measphi1 L1 strId 28 nStr 3 T0 nSampWords 6 [7.51.-1.3.1.2.1.1.28]
+CscRawDataProvi...  DEBUG cluster location word 0x14d09
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000006 10
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56361  9  51 :: measphi1 L3 strId 10 nStr 6 T0 nSampWords 12 [7.51.-1.3.1.2.3.1.10]
+CscRawDataProvi...  DEBUG cluster location word 0x14d1f
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 32
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56383  9  51 :: measphi1 L3 strId 32 nStr 3 T0 nSampWords 6 [7.51.-1.3.1.2.3.1.32]
+CscRawDataProvi...  DEBUG cluster location word 0x14d23
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x1000000d 36
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56387  9  51 :: measphi1 L3 strId 36 nStr 13 T0 nSampWords 26 [7.51.-1.3.1.2.3.1.36]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 6 for RPU ID 5
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2801,6 +3426,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x85
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x85 18 2 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 2
@@ -2810,23 +3436,40 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 90
+CscRawDataProvi...  DEBUG RPU Header word 0xd00005a
 CscRawDataProvi...  DEBUG RPU ID original = 13
 CscRawDataProvi...  DEBUG RPU ID Updated = 11
 CscRawDataProvi...  DEBUG RPU size = 90
 CscRawDataProvi...  DEBUG SCA Address = 1482250843
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x20100
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Second cluster word 0x4000056
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 4
 CscRawDataProvi...  DEBUG Cluster Data Words = 86
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 7
+CscRawDataProvi...  DEBUG cluster location word 0x4a18
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000008 25
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4056  1  50 :: measphi0 L2 strId 25 nStr 8 T0 nSampWords 16 [7.50.-1.3.1.2.2.0.25]
+CscRawDataProvi...  DEBUG cluster location word 0x4a3a
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 59
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4090  1  50 :: measphi0 L2 strId 59 nStr 4 T0 nSampWords 8 [7.50.-1.3.1.2.2.0.59]
+CscRawDataProvi...  DEBUG cluster location word 0x4c1a
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000006 27
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4250  2  50 :: measphi0 L3 strId 27 nStr 6 T0 nSampWords 12 [7.50.-1.3.1.2.3.0.27]
+CscRawDataProvi...  DEBUG cluster location word 0x4b11
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 18
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25601  4  50 :: measphi1 L2 strId 18 nStr 3 T0 nSampWords 6 [7.50.-1.3.1.2.2.1.18]
+CscRawDataProvi...  DEBUG cluster location word 0x4b18
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 25
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25608  4  50 :: measphi1 L2 strId 25 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.2.1.25]
+CscRawDataProvi...  DEBUG cluster location word 0x4b1e
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 31
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25614  4  50 :: measphi1 L2 strId 31 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.2.1.31]
+CscRawDataProvi...  DEBUG cluster location word 0x4d14
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 21
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25652  4  50 :: measphi1 L3 strId 21 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.3.1.21]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 7 for RPU ID 11
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2835,6 +3478,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x86
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x86 27 11 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 11
@@ -2844,6 +3488,7 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 58
+CscRawDataProvi...  DEBUG RPU Header word 0x500003a
 CscRawDataProvi...  DEBUG RPU ID original = 5
 CscRawDataProvi...  DEBUG RPU ID Updated = 5
 CscRawDataProvi...  DEBUG RPU size = 58
@@ -2853,12 +3498,21 @@ CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 C
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Second cluster word 0x1000036
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 1
 CscRawDataProvi...  DEBUG Cluster Data Words = 54
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 4
+CscRawDataProvi...  DEBUG cluster location word 0x16c2f
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 48
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36527  7  51 :: measphi0 L3 strId 48 nStr 3 T0 nSampWords 6 [7.51.-1.4.1.2.3.0.48]
+CscRawDataProvi...  DEBUG cluster location word 0x16c56
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000008 87
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36566  7  51 :: measphi0 L3 strId 87 nStr 8 T0 nSampWords 16 [7.51.-1.4.1.2.3.0.87]
+CscRawDataProvi...  DEBUG cluster location word 0x16e57
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000007 88
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36759  8  51 :: measphi0 L4 strId 88 nStr 7 T0 nSampWords 14 [7.51.-1.4.1.2.4.0.88]
+CscRawDataProvi...  DEBUG cluster location word 0x16f04
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 5
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 56788  9  51 :: measphi1 L4 strId 5 nStr 5 T0 nSampWords 10 [7.51.-1.4.1.2.4.1.5]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 4 for RPU ID 5
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2867,6 +3521,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x87
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x87 19 3 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 3
@@ -2876,26 +3531,49 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 92
+CscRawDataProvi...  DEBUG RPU Header word 0xd00005c
 CscRawDataProvi...  DEBUG RPU ID original = 13
 CscRawDataProvi...  DEBUG RPU ID Updated = 11
 CscRawDataProvi...  DEBUG RPU size = 92
 CscRawDataProvi...  DEBUG SCA Address = 404298267
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x1010101
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Second cluster word 0x6000058
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
 CscRawDataProvi...  DEBUG Cluster Data Words = 88
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 10
+CscRawDataProvi...  DEBUG cluster location word 0x6855
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 86
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5461  0  50 :: measphi0 L1 strId 86 nStr 4 T0 nSampWords 8 [7.50.-1.4.1.2.1.0.86]
+CscRawDataProvi...  DEBUG cluster location word 0x6a7c
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 125
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5692  1  50 :: measphi0 L2 strId 125 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.2.0.125]
+CscRawDataProvi...  DEBUG cluster location word 0x6c77
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 120
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5879  2  50 :: measphi0 L3 strId 120 nStr 5 T0 nSampWords 10 [7.50.-1.4.1.2.3.0.120]
+CscRawDataProvi...  DEBUG cluster location word 0x6e71
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 114
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 6065  3  50 :: measphi0 L4 strId 114 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.4.0.114]
+CscRawDataProvi...  DEBUG cluster location word 0x691b
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 28
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25947  4  50 :: measphi1 L1 strId 28 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.28]
+CscRawDataProvi...  DEBUG cluster location word 0x691f
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 32
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25951  4  50 :: measphi1 L1 strId 32 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.32]
+CscRawDataProvi...  DEBUG cluster location word 0x6924
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 37
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25956  4  50 :: measphi1 L1 strId 37 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.37]
+CscRawDataProvi...  DEBUG cluster location word 0x6b17
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 24
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25991  4  50 :: measphi1 L2 strId 24 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.2.1.24]
+CscRawDataProvi...  DEBUG cluster location word 0x6d17
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000004 24
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 26039  4  50 :: measphi1 L3 strId 24 nStr 4 T0 nSampWords 8 [7.50.-1.4.1.2.3.1.24]
+CscRawDataProvi...  DEBUG cluster location word 0x6f2a
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 43
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 26106  4  50 :: measphi1 L4 strId 43 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.4.1.43]
 CscRawDataProvi...  DEBUG ****Total Cluster count = 10 for RPU ID 11
 CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
@@ -2904,6 +3582,7 @@ CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
 CscRawDataProvi...  DEBUG  
 CscRawDataProvi...  DEBUG ===================================================
 CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG DetDescr tag = ATLAS-R2-2016-01-00-01
 CscRawDataProvi...  DEBUG Online ROD id is 0x88
 CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x88 28 12 106
 CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 12
@@ -2913,32 +3592,46 @@ CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
 CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
 CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
 CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 74
+CscRawDataProvi...  DEBUG RPU Header word 0x500004a
 CscRawDataProvi...  DEBUG RPU ID original = 5
 CscRawDataProvi...  DEBUG RPU ID Updated = 5
 CscRawDataProvi...  DEBUG RPU size = 74
 CscRawDataProvi...  DEBUG SCA Address = 1499093852
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x2000001
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 2
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 0
 CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Second cluster word 0x5000046
 CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 5
 CscRawDataProvi...  DEBUG Cluster Data Words = 70
 CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 8
+CscRawDataProvi...  DEBUG cluster location word 0x18831
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 50
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 37681  5  51 :: measphi0 L1 strId 50 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.0.50]
+CscRawDataProvi...  DEBUG cluster location word 0x188ab
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 172
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 37803  5  51 :: measphi0 L1 strId 172 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.0.172]
+CscRawDataProvi...  DEBUG cluster location word 0x18e03
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000005 4
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 38211  8  51 :: measphi0 L4 strId 4 nStr 5 T0 nSampWords 10 [7.51.-1.5.1.2.4.0.4]
+CscRawDataProvi...  DEBUG cluster location word 0x18908
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 9
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57032  9  51 :: measphi1 L1 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.1.9]
+CscRawDataProvi...  DEBUG cluster location word 0x1892e
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000002 47
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57070  9  51 :: measphi1 L1 strId 47 nStr 2 T0 nSampWords 4 [7.51.-1.5.1.2.1.1.47]
+CscRawDataProvi...  DEBUG cluster location word 0x18b00
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000002 1
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57072  9  51 :: measphi1 L2 strId 1 nStr 2 T0 nSampWords 4 [7.51.-1.5.1.2.2.1.1]
+CscRawDataProvi...  DEBUG cluster location word 0x18d0d
+CscRawDataProvi...  DEBUG  cluster time size word : stripId (CscIdHelper) 0x10000003 14
 CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57133  9  51 :: measphi1 L3 strId 14 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.3.1.14]
+CscRawDataProvi...  DEBUG cluster location word 0x18f1c
 CscRawDataProvi...WARNING DEBUG message limit (500) reached for CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder. Suppressing further output.
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2950,10 +3643,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2965,10 +3654,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2980,10 +3665,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2995,10 +3676,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3010,10 +3687,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3025,10 +3698,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3040,10 +3709,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3055,10 +3720,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3070,10 +3731,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3085,10 +3742,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3100,10 +3753,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3115,10 +3764,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3130,10 +3775,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3145,10 +3786,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3160,10 +3797,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3175,10 +3808,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3190,10 +3819,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3205,10 +3830,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3221,10 +3842,40 @@ CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
+IncidentProcAlg2     INFO Finalize
 AtlasFieldSvc        INFO finalize() successful
 EventInfoByteSt...   INFO finalize 
 IdDictDetDescrCnv    INFO in finalize
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/25 ((     0.21 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/271 ((     0.17 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216598 ((     1.96 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/300 ((     0.03 ))s
+IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 0/0 objs/chan/bytes 0/1186/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 0/0 objs/chan/bytes 0/1186/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/444470 ((     1.68 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/58804 ((     0.03 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562972 ((     0.17 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8101322 ((     0.26 ))s
+IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/7408 ((     1.09 ))s
+IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/331329 ((     0.27 ))s
+IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/359591 ((     0.15 ))s
+IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/422629 ((     1.27 ))s
+IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/363009 ((     0.09 ))s
+IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/422831 ((     0.67 ))s
+IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/236289 ((     0.98 ))s
+IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322855 ((     0.10 ))s
+IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3234 ((     0.71 ))s
+IOVDbSvc             INFO  bytes in ((      9.85 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     2.00 ))s
+IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     2.15 ))s
+IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 1 nFolders: 2 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     4.24 ))s
+IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.17 ))s
+IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     1.09 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.21 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
@@ -3248,12 +3899,17 @@ ToolSvc.TGCCabl...   INFO finalize
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
+cObj_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 18
+ChronoStatSvc        INFO Time User   : Tot= 11.2  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Listing sources of suppressed message: 
+=====================================================
  Message Source              |   Level |    Count
+-----------------------------+---------+-------------
  CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder|   DEBUG |    35169
  MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder|   DEBUG |   854603
+=====================================================
 Py:Athena            INFO leaving with code 0: "successful run"

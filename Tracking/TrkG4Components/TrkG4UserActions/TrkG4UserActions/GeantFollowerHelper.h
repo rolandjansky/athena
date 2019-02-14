@@ -61,40 +61,45 @@ namespace Trk
       std::string                    m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
 
       TTree*                         m_validationTree;            //!< Root Validation Tree
-      /** Ntuple variables : initial parameters*/
-      mutable float                  m_t_x;
-      mutable float                  m_t_y;
-      mutable float                  m_t_z;
-      mutable float                  m_t_theta;
-      mutable float                  m_t_eta;
-      mutable float                  m_t_phi;
-      mutable float                  m_t_p;
-      mutable float                  m_t_charge;
-      mutable int                    m_t_pdg;
-      /** Ntuple variables : g4 step parameters */
-      mutable int                    m_g4_steps;
-      mutable float                  m_g4_p[MAXPROBES];
-      mutable float                  m_g4_eta[MAXPROBES];
-      mutable float                  m_g4_theta[MAXPROBES];
-      mutable float                  m_g4_phi[MAXPROBES];
-      mutable float                  m_g4_x[MAXPROBES];
-      mutable float                  m_g4_y[MAXPROBES];
-      mutable float                  m_g4_z[MAXPROBES];
-      mutable float                  m_g4_tX0[MAXPROBES];
-      mutable float                  m_g4_t[MAXPROBES];
-      mutable float                  m_g4_X0[MAXPROBES];
-      /** Ntuple variables : trk follow up parameters */
-      mutable int                    m_trk_status[MAXPROBES];
-      mutable float                  m_trk_p[MAXPROBES];
-      mutable float                  m_trk_eta[MAXPROBES];
-      mutable float                  m_trk_theta[MAXPROBES];
-      mutable float                  m_trk_phi[MAXPROBES];
-      mutable float                  m_trk_x[MAXPROBES];
-      mutable float                  m_trk_y[MAXPROBES];
-      mutable float                  m_trk_z[MAXPROBES];
-      mutable float                  m_trk_lx[MAXPROBES];
-      mutable float                  m_trk_ly[MAXPROBES];
-
+      /** Ntuple variables : initial parameters
+          Split this out into a separate, dynamically-allocated block.
+          Otherwise, the CaloCellNoiseAlg is so large that it violates
+          the ubsan sanity checks. **/
+      struct TreeData {
+          mutable float                  m_t_x {0};
+          mutable float                  m_t_y {0};
+          mutable float                  m_t_z {0};
+          mutable float                  m_t_theta {0};
+          mutable float                  m_t_eta {0};
+          mutable float                  m_t_phi {0};
+          mutable float                  m_t_p {0};
+          mutable float                  m_t_charge {0};
+          mutable int                    m_t_pdg {0};
+          /** Ntuple variables : g4 step parameters */
+          mutable int                    m_g4_steps {0};
+          mutable float                  m_g4_p[MAXPROBES] {0};
+          mutable float                  m_g4_eta[MAXPROBES] {0};
+          mutable float                  m_g4_theta[MAXPROBES] {0};
+          mutable float                  m_g4_phi[MAXPROBES] {0};
+          mutable float                  m_g4_x[MAXPROBES] {0};
+          mutable float                  m_g4_y[MAXPROBES] {0};
+          mutable float                  m_g4_z[MAXPROBES] {0};
+          mutable float                  m_g4_tX0[MAXPROBES] {0};
+          mutable float                  m_g4_t[MAXPROBES] {0};
+          mutable float                  m_g4_X0[MAXPROBES] {0};
+          /** Ntuple variables : trk follow up parameters */
+          mutable int                    m_trk_status[MAXPROBES] {0};
+          mutable float                  m_trk_p[MAXPROBES] {0};
+          mutable float                  m_trk_eta[MAXPROBES] {0};
+          mutable float                  m_trk_theta[MAXPROBES] {0};
+          mutable float                  m_trk_phi[MAXPROBES] {0};
+          mutable float                  m_trk_x[MAXPROBES] {0};
+          mutable float                  m_trk_y[MAXPROBES] {0};
+          mutable float                  m_trk_z[MAXPROBES] {0};
+          mutable float                  m_trk_lx[MAXPROBES] {0};
+          mutable float                  m_trk_ly[MAXPROBES] {0};
+      };
+      std::unique_ptr<TreeData> m_treeData;
   };
 
 }

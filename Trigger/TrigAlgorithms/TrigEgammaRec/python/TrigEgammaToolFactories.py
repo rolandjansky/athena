@@ -182,6 +182,14 @@ def configureClusterCorrections(slwAlg):
             slwAlg += tool
             slwAlg.ClusterCorrectionTools += [tool.getFullName()]
 
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr (condSeq,"LArHVCondAlg"):
+    from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
+    hvcond = LArHVCondAlg(doHV=False,doAffectedHV=False)
+    condSeq+=hvcond
+
 TrigCaloClusterMaker_slw = Factory(TrigCaloClusterMaker,name='TrigCaloClusterMaker_slw',ClustersOutputName="TriggerClustersegSW",
         postInit=[configureClusterBuilder,configureClusterCorrections,configureTrigCaloClusterMonitoring])
 

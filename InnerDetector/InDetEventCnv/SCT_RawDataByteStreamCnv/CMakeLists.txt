@@ -35,6 +35,15 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps StoreGateLib SGtests Identifier EventInfo xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
 
+# Run tests:
+atlas_add_test( TestSCTDecode
+                SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTDecode.py
+                PROPERTIES TIMEOUT 600
+                ENVIRONMENT THREADS=5 )
+atlas_add_test( TestSCTEncode
+                SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_headers( SCT_RawDataByteStreamCnv )
-
+atlas_install_joboptions( share/*.py )

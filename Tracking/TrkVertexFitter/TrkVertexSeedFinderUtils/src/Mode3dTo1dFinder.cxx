@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -17,7 +17,7 @@ namespace Trk
 
   Mode3dTo1dFinder::Mode3dTo1dFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_mode1dfinder("Trk::FsmwMode1dFinder", this)
+    m_mode1dfinder("Trk::FsmwMode1dFinder")
   {   
     declareProperty("Mode1dFinder", m_mode1dfinder);
     declareInterface<IMode3dFinder>(this);
@@ -96,6 +96,26 @@ namespace Trk
     return Amg::Vector3D(m_mode1dfinder->getMode(allx),
 			 m_mode1dfinder->getMode(ally),
 			 m_mode1dfinder->getMode(allz));
+  }
+
+
+  void Mode3dTo1dFinder::setPriVtxPosition(double /* x */, double /* y */) {
+    //implemented to satisfy inheritance
+  }
+
+  unsigned int Mode3dTo1dFinder::Modes1d(std::vector<float> &/* a */, std::vector<float> &/* b */, 
+					 std::vector<float> &/* c */, std::vector<float> &/* d */){
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  const std::vector<int> & Mode3dTo1dFinder::AcceptedCrossingPointsIndices() const{
+    //implemented to satisfy inheritance
+    return m_acceptedCrossingPoint;
+  }
+
+  void Mode3dTo1dFinder::getCorrelationDistance( double &/* cXY */, double &/* cZ */ ){
+    //implemented to satisfy inheritance
   }
 
 }

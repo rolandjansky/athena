@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_IUNASSOCIATEDHITSGETTERTOOL_H
@@ -28,7 +28,7 @@ class IUnassociatedHitsGetterTool : virtual public IAlgTool
    *
    * This is implemented in terms of @c getTypeinfo().
    */
-  virtual const MinBiasPRDAssociation* get (bool allowMissing = false) = 0;
+  virtual const MinBiasPRDAssociation* get (bool allowMissing = false) const = 0;
 
   /**
    * @brief Type-safe wrapper for @c releaseObjectUntyped.
@@ -41,7 +41,7 @@ class IUnassociatedHitsGetterTool : virtual public IAlgTool
    *
    * This is implemented in terms of @c releaseObjectTypeinfo().
    */
-  virtual void releaseObject (const MinBiasPRDAssociation* p) = 0;
+  virtual void releaseObject (const MinBiasPRDAssociation* p) const = 0;
 
   
 };

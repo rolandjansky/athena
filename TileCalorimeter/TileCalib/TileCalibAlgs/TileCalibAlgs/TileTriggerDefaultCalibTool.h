@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILETRIGGERDEFAULTCALIBTOOL_H
@@ -8,10 +8,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h" 
 //#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <string> 
@@ -58,29 +61,35 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileCablingService* m_tileCablingService;
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerContainerKey{this,
+      "TriggerTowerContainer", "xAODTriggerTowers", "Trigger Tower container"};
  
+  using Tile = TileCalibUtils;
+
   // Results Tile
-  float m_meanTile[5][64][48];
-  float m_rmsTile[5][64][48];
-  float m_meanTileDAC[5][64][48];
-  float m_rmsTileDAC[5][64][48];
-  int   m_ietaTile[5][64][48];
-  int   m_iphiTile[5][64][48];
-  int   m_ipmtTile[5][64][48];
-  int   m_nEvtTile[5][64][48];
+  float (*m_meanTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_rmsTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_meanTileDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_rmsTileDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_ietaTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_iphiTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_ipmtTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_nEvtTile)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
 
   // Results L1Calo
-  float m_meanL1Calo[5][64][48];
-  float m_rmsL1Calo[5][64][48];
-  float m_meanL1CaloDAC[5][64][48];
-  float m_rmsL1CaloDAC[5][64][48];
-  int   m_ietaL1Calo[5][64][48];
-  int   m_iphiL1Calo[5][64][48];
-  int   m_ipmtL1Calo[5][64][48];
-  int   m_nEvtL1Calo[5][64][48];
+  float (*m_meanL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_rmsL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_meanL1CaloDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_rmsL1CaloDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_ietaL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_iphiL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_ipmtL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  int   (*m_nEvtL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
 
-  float m_meanTileL1Calo[5][64][48];
-  float m_rmsTileL1Calo[5][64][48];
+  float (*m_meanTileL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
+  float (*m_rmsTileL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
 
   float m_DACvalue;
 

@@ -108,3 +108,10 @@ def getRadLengthActionTool(name="G4UA::RadLengthActionTool", **kwargs):
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__RadLengthActionTool(name, **kwargs)
+
+def getLooperThresholdSetTool(name="G4UA::LooperThresholdSetTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__LooperThresholdSetTool(name, **kwargs)

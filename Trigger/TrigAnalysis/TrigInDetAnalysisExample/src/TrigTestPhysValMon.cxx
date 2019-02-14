@@ -1,14 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrigTestPhysValMon.cxx         
-//   
-//            implementation of an IHLTMonToolAC 
-//                   
-// 
-//
-//   $Id: TrigTestPhysValMon.cxx, v0.0  Wed 28 Oct 2009 02:23:23 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTestPhysValMon.cxx
+ **
+ **     @brief   implementation of an IHLTMonToolAC 
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:23:23 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysisExample/TrigTestPhysValMon.h"

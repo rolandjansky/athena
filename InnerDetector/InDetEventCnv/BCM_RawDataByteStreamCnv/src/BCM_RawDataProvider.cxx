@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,7 +29,6 @@ BCM_RawDataProvider::BCM_RawDataProvider(const std::string& name, ISvcLocator* p
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("BCM_RawDataProviderTool")
 {
-  declareProperty ("RDOKey"      , m_RDO_Key = "BCM_RDOs");
   declareProperty ("ProviderTool", m_rawDataTool);
 }
 
@@ -59,6 +58,8 @@ StatusCode BCM_RawDataProvider::initialize() {
     return StatusCode::FAILURE;
   } else
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endmsg;
+
+  ATH_CHECK( m_RDO_Key.initialize() );
  
   return StatusCode::SUCCESS;
 }
@@ -69,11 +70,7 @@ StatusCode BCM_RawDataProvider::initialize() {
 StatusCode BCM_RawDataProvider::execute() {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Create BCM RDO Container" << endmsg;
-  BCM_RDO_Container *container = new BCM_RDO_Container();
-  if (evtStore()->record(container, m_RDO_Key).isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Unable to record BCM RDO Container" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  auto container = std::make_unique<BCM_RDO_Container>();
 
   // ask ROBDataProviderSvc for the vector of ROBFragment for all BCM ROBIDs
   // std::vector<const ROBFragment*> listOfRobf_all;
@@ -113,10 +110,12 @@ StatusCode BCM_RawDataProvider::execute() {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments is " << listOfRobf.size() << endmsg;
 
   // ask BCM_RawDataProviderTool to decode it and to fill the container
-  if (m_rawDataTool->convert(listOfRobf,container).isFailure())
+  if (m_rawDataTool->convert(listOfRobf,container.get()).isFailure())
     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of collections in container is " << container->size() << endmsg;
+
+  ATH_CHECK( SG::makeHandle (m_RDO_Key).record (std::move (container)) );
 
   return StatusCode::SUCCESS;
 }

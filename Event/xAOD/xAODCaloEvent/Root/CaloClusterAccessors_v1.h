@@ -21,7 +21,7 @@ namespace xAOD {
    /// @param moment The cluster moment for which an Accessor should be returned
    /// @returns A pointer to an Accessor if successful, <code>0</code> if not
    ///
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    momentAccessorV1( xAOD::CaloCluster_v1::MomentType moment );
 
 } // namespace xAOD

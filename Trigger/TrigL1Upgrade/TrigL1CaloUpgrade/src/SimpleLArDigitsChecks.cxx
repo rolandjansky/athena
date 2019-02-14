@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,6 @@
 #include "SimpleLArDigitsChecks.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "xAODTracking/VertexContainer.h"
@@ -25,7 +24,7 @@
 #include "TH1I.h"
 #include <math.h>
 
-SimpleLArDigitsChecks::SimpleLArDigitsChecks( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_cabling("LArSuperCellCablingTool")  {
+SimpleLArDigitsChecks::SimpleLArDigitsChecks( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator)  {
 }
 
 SimpleLArDigitsChecks::~SimpleLArDigitsChecks(){}
@@ -120,10 +119,7 @@ StatusCode SimpleLArDigitsChecks::initialize(){
 
 	m_file->cd("/");
 
-	// for cell <-> SCell comparison
-	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endmsg;
-	}
+        CHECK(m_cablingSCKey.initialize());
 
 	return StatusCode::SUCCESS;
 }
@@ -139,22 +135,28 @@ StatusCode SimpleLArDigitsChecks::finalize(){
 StatusCode SimpleLArDigitsChecks::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute SimpleLArDigitsChecks" << endmsg;
+	ATH_MSG_DEBUG( "execute SimpleLArDigitsChecks" );
         const CaloCellContainer* scells;
         const LArDigitContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endmsg;
+		ATH_MSG_WARNING( "did not find cell container" );
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(allcalo,"LArDigitSCL1").isFailure() ){
-		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endmsg;
+		ATH_MSG_WARNING( "did not find lardigit container for regular cells" );
 		return StatusCode::SUCCESS;
 	}
 	const xAOD::VertexContainer* nvtx(NULL);
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endmsg;
+		ATH_MSG_WARNING( "did not find Vectices container" );
 		return StatusCode::SUCCESS;
 	}
+        SG::ReadCondHandle<LArOnOffIdMapping> scHdl{m_cablingSCKey};
+        const LArOnOffIdMapping* scCont{*scHdl};
+        if(!scCont) {
+           ATH_MSG_WARNING("Do not have mapping object " << m_cablingSCKey.key());
+           return StatusCode::SUCCESS;
+        }
 	unsigned int count_sCells=0;
 	unsigned int count_sCells_Layer0=0;
 	unsigned int count_sCells_Layer1=0;
@@ -235,7 +237,7 @@ StatusCode SimpleLArDigitsChecks::execute(){
 		if ( index > -1 ) {
 		     m_EtSCells_perLayer [index]->Fill( scell->et() );
 		     if ( scell->et() > thre ) {
-			HWIdentifier hwid = m_cabling->createSignalChannelIDFromHash( scell->caloDDE()->calo_hash() );
+			HWIdentifier hwid = scCont->createSignalChannelIDFromHash( scell->caloDDE()->calo_hash() );
         		for(auto digit : *allcalo) {
 			     if ( digit->hardwareID() != hwid ) continue;
 			     int max=0;

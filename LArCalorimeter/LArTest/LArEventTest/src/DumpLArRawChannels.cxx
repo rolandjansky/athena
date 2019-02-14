@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/DumpLArRawChannels.h"
@@ -14,7 +14,6 @@ DumpLArRawChannels::DumpLArRawChannels(const std::string& name, ISvcLocator* pSv
   : AthAlgorithm(name, pSvcLocator),
     m_chan(0),
     m_onlineHelper(0),
-    m_larCablingSvc(0),
     m_emId(0),
     m_thistSvc ("THistSvc",     name) 
 {m_count=0;
@@ -45,7 +44,7 @@ StatusCode DumpLArRawChannels::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   m_outfile.open(m_FileName.c_str(),std::ios::out);
 
@@ -85,6 +84,13 @@ StatusCode DumpLArRawChannels::execute()
 
  const DataHandle < LArRawChannelContainer > channel_cont;
  
+ SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+ const LArOnOffIdMapping* cabling=*larCablingHdl;
+ if(!cabling) {
+     ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
+     return StatusCode::FAILURE;
+ }
+
  if (m_key.size())
    ATH_CHECK( evtStore()->retrieve(channel_cont,m_key) );
  else
@@ -119,12 +125,12 @@ StatusCode DumpLArRawChannels::execute()
     std::cout << "Channel: " << m_onlineHelper->channel_name(chid);
     m_outfile << "Channel: " << m_onlineHelper->channel_name(chid);
 
-    if (!m_larCablingSvc->isOnlineConnected(chid)) {
+    if (!cabling->isOnlineConnected(chid)) {
       std::cout << " disconnected" << std::endl;
       m_outfile << " disconnected" << std::endl;
       continue;
     }
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+    const Identifier id=cabling->cnvToIdentifier(chid);
 
     if(!m_emId->is_lar_em(id)) {
       eta=m_emId->eta(id); 

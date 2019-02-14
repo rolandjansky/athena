@@ -25,6 +25,7 @@
 #include <TBox.h>
 #include <TLine.h>
 #include <TROOT.h>
+#include <TEfficiency.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -336,9 +337,9 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
-  fileName = SplitReference(node->GetAttribute("location"), fileName);
-  std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
+    fileName = SplitReference(node->GetAttribute("location"), fileName);
+    std::string refInfo = node->GetAttribute("info");
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
     if( key == 0 ) {
@@ -906,7 +907,8 @@ Visit( const MiniConfigTreeNode* node ) const
         TObject* tmpobj = key->ReadObj();
         TH1* tmph = dynamic_cast<TH1*>(tmpobj);
         TGraph* tmpg = dynamic_cast<TGraph*>(tmpobj);
-        if( tmph == 0 && tmpg == 0 )
+        TEfficiency* tmpe = dynamic_cast<TEfficiency*>(tmpobj);
+        if( tmph == 0 && tmpg == 0 && tmpe == 0 )
           continue;
         
         objName = objPath;
@@ -1237,7 +1239,13 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir = parDir->mkdir( dirName.c_str() );
+      TDirectory* dir;
+      if (!parDir->FindKey(dirName.c_str())) {
+	dir = parDir->mkdir( dirName.c_str() );
+      }
+      else{
+	std::cout << "Failed to make directory " << dirName.c_str() << std::endl;
+      }
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );
       return dir;

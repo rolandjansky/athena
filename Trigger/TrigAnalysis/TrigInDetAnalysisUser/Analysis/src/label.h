@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    label.h        
-//
-//                   
-//  
-//
-//   $Id: label.h, v0.0   Sun 26 Aug 2012 21:32:27 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    label.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 26 Aug 2012 21:32:27 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  LABEL_H

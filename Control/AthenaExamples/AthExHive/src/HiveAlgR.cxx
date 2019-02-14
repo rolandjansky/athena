@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef REENTRANT_GAUDI
 
 #include "HiveAlgR.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <thread>
 #include <chrono>
@@ -43,9 +41,9 @@ StatusCode HiveAlgR::execute(const EventContext& ctx) const {
   info() << "execute_R: " << index() << " on " << ctx << endmsg;
 
 
-  SG::ReadHandle<EventInfo> evt(m_evt);
-  ATH_MSG_INFO("   EventInfo:  r: " << evt->event_ID()->run_number()
-               << " e: " << evt->event_ID()->event_number() );
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
+               << " e: " << evt->eventNumber() );
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);

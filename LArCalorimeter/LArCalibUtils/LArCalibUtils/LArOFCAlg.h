@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArOFCAlgorithm_H
@@ -24,6 +24,8 @@
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "LArRawConditions/LArShapeComplete.h"
 
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -36,7 +38,6 @@ class LArOnlineID;
 class CaloDetDescrManager; 
 class LArDSPConfig;
 
-class LArCablingService  ; 
 #include "GaudiKernel/ToolHandle.h"
 
 class LArOFCAlg:public AthAlgorithm {
@@ -52,6 +53,8 @@ public:
   //Eigen::VectorXd  getATauCoef();
 
 private:
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   struct perChannelData_t {
     //Input:
@@ -93,7 +96,7 @@ private:
 			      std::vector<float>& vecOFCa, std::vector<float>& vecOFCb // Output variables;
 			      ) const; 
 
-  void process(perChannelData_t&) const;
+  void process(perChannelData_t&, const LArOnOffIdMapping* cabling) const;
 
 
   bool verify(const HWIdentifier chid, const std::vector<float>& OFCa, const std::vector<float>& OFCb, 
@@ -102,7 +105,7 @@ private:
   void printOFCVec(const std::vector<float>& vec, MsgStream& mLog) const;
 
   
-  StatusCode     initPhysWaveContainer();
+  StatusCode     initPhysWaveContainer(const LArOnOffIdMapping* cabling);
   StatusCode     initCaliWaveContainer();
 
     
@@ -124,7 +127,6 @@ private:
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2;
 
-  ToolHandle<LArCablingService> m_cablingService;
   const LArOnlineID*       m_onlineID; 
   const CaloDetDescrManager* m_calo_dd_man;
   const LArOFCBinComplete* m_larPhysWaveBin;
@@ -159,7 +161,7 @@ private:
  
 
 
-  bool useDelta(const HWIdentifier chid, const int jobOFlag) const;
+  bool useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const;
 
   static const float m_fcal3Delta[5];
   static const float m_fcal2Delta[5];
@@ -169,15 +171,16 @@ private:
   //Functor for processing with TBB
   class Looper {
   public:
-    Looper(std::vector<perChannelData_t>* p, const LArOFCAlg* a) : m_perChanData(p), m_ofcAlg(a) {};
+    Looper(std::vector<perChannelData_t>* p, const LArOnOffIdMapping* cabling, const LArOFCAlg* a) : m_perChanData(p), m_cabling(cabling), m_ofcAlg(a) {};
     void operator() (tbb::blocked_range<size_t>& r) const {
       //std::cout << "TBB grainsize " << r.end() - r.begin() << std::endl;
       for (size_t i=r.begin();i!=r.end();++i) {
-	m_ofcAlg->process(m_perChanData->at(i));
+	m_ofcAlg->process(m_perChanData->at(i),m_cabling);
       }
     }
   private:
     std::vector<perChannelData_t>* m_perChanData;
+    const LArOnOffIdMapping* m_cabling;
     const LArOFCAlg* m_ofcAlg;
   };
 

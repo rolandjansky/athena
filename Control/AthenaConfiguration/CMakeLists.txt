@@ -17,6 +17,10 @@ atlas_add_test( ComponentAccumulatorTest
    SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulator 
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( UnifyPropertiesTest
+   SCRIPT python -m unittest -v AthenaConfiguration.UnifyProperties
+   POST_EXEC_SCRIPT nopost.sh )
+
 atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )

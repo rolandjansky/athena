@@ -1,11 +1,9 @@
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
+
 
 
 //
@@ -16,9 +14,10 @@
 
 #include "AsgTools/ToolStore.h"
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <TInterpreter.h>
 #include <TROOT.h>
+#include <regex>
 #else
 #include <GaudiKernel/AlgTool.h>
 #include <AsgTools/MessageCheck.h>
@@ -105,7 +104,7 @@ namespace asg
       AnaToolCleanup cleanup;
       ANA_CHECK (config.makeTool (name, nullptr, th, cleanup));
       res_result.reset (new AnaToolShare (th, cleanup));
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
       if (!th.empty())
       {
 	th->release ();
@@ -123,7 +122,7 @@ namespace asg
 // legacy code
 //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 namespace asg
 {
@@ -135,53 +134,42 @@ namespace asg
     {
       using namespace msgToolHandle;
 
-      ATH_MSG_DEBUG("Creating tool of type " << type);
-	
-      // Load the ROOT dictionary
-      TClass* toolClass = TClass::GetClass( type.c_str() );
-      if(!toolClass){
-	ATH_MSG_ERROR("Unable to load class dictionary for type " << type);
-	return StatusCode::FAILURE;
+      std::regex typeExpr ("[A-Za-z_][A-Za-z0-9_]*(::[A-Za-z_][A-Za-z0-9_]*)*");
+      if (!std::regex_match (type, typeExpr))
+      {
+        ANA_MSG_ERROR ("type \"" << type << "\" does not match format expression");
+        return StatusCode::FAILURE;
       }
-	
-      // In order to call a non-default constructor with the ROOT dictionary,
-      // we have to perform some low-level ROOT interpreter magic. First, we
-      // need the name of the constructor, which we get by stripping off the
-      // namespace prefix.
-      std::string constructorName = type.substr( type.rfind(":") + 1 );
-	
-      // Next, we prepare the constructor function.
-      auto callFunc = gInterpreter->CallFunc_Factory();
-      long offset = 0; // not relevant for ctors
-      const char* argForm = "const std::string&";
-      gInterpreter->CallFunc_SetFuncProto(callFunc, toolClass->GetClassInfo(),
-					  constructorName.c_str(), argForm,
-					  &offset);
-	
-      // Make sure the function is well-formed
-      if(!gInterpreter->CallFunc_IsValid(callFunc)) {
-	ATH_MSG_ERROR("Invalid constructor call for type " << type <<
-		      " and constructor " << constructorName);
-	gInterpreter->CallFunc_Delete(callFunc);
-	return StatusCode::FAILURE;
+      std::regex nameExpr ("[A-Za-z_][A-Za-z0-9_]*((\\.|::)[A-Za-z_][A-Za-z0-9_]*)*");
+      if (!std::regex_match (name, nameExpr))
+      {
+        ANA_MSG_ERROR ("name \"" << name << "\" does not match format expression");
+        return StatusCode::FAILURE;
       }
-	
-      // Set the name constructor argument
-      gInterpreter->CallFunc_SetArg(callFunc, &name);
-	
-      // Call the function. Here it's a little strange, because the ROOT function
-      // returns a 'long', so we have to cast it back to a useful pointer.
-      tool = reinterpret_cast<asg::AsgTool*>
-	( gInterpreter->CallFunc_ExecInt(callFunc, 0));
-	
-      // Cleanup the CallFunc
-      gInterpreter->CallFunc_Delete(callFunc);
-	
-      // Construct tool from dictionary with TClass::New.
-      // Doesn't work. Requires a default constructor.
-      ////asg::AsgTool* tool = static_cast<asg::AsgTool*>( toolClass->New() );
-      ////tool->setName(name);
-	
+
+      // Load the ROOT dictionary.  Apparently that is needed in some
+      // cases to make the line below work, i.e. some dictionaries
+      // work, other dictionaries fail.
+      for (const char *typeName : {"asg::AsgTool", type.c_str()})
+      {
+        TClass* toolClass = TClass::GetClass (typeName);
+        if(!toolClass){
+          ANA_MSG_ERROR("Unable to load class dictionary for type " << type);
+          return StatusCode::FAILURE;
+        }
+      }
+ 
+      ANA_MSG_DEBUG ("Creating tool of type " << type);
+      tool = (AsgTool*) (gInterpreter->Calc(("dynamic_cast<asg::AsgTool*>(new " + type + " (\"" + name + "\"))").c_str()));
+      if (tool == nullptr)
+      {
+        ANA_MSG_ERROR ("failed to create tool of type " << type);
+        ANA_MSG_ERROR ("make sure you created a dictionary for your tool");
+        return StatusCode::FAILURE;
+      }
+
+      ANA_MSG_DEBUG ("Created tool of type " << type);
+
       return StatusCode::SUCCESS;
     }
   }
@@ -307,7 +295,7 @@ namespace asg
 	return false;
       if (!m_type.empty())
 	return false;
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       if (m_factory)
 	return false;
 #endif
@@ -341,7 +329,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   StatusCode AnaToolConfig ::
   allocateTool (AsgTool*& toolPtr, const std::string& toolName) const
   {
@@ -373,7 +361,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     StatusCode AnaToolConfig ::
     applyPropertiesAthena (const std::string& toolName,
 			   AnaToolCleanup& cleanup) const
@@ -411,7 +399,7 @@ namespace asg
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     StatusCode AnaToolConfig ::
     makeToolRootCore (const std::string& toolName, IAsgTool*& toolPtr,
 		      AnaToolCleanup& cleanup) const
@@ -438,7 +426,7 @@ namespace asg
 #endif
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// \brief manage the reference count on a tool
 
     struct ToolRefManager
@@ -509,7 +497,7 @@ namespace asg
       else
         toolName = "ToolSvc." + name;
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       interfaceType_t *baseToolPtr = nullptr;
       AnaToolCleanup baseCleanup;
       ANA_CHECK (makeToolRootCore (toolName, baseToolPtr, baseCleanup));
@@ -582,7 +570,7 @@ namespace asg
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     AnaToolPropertyCopyTool ::
     AnaToolPropertyCopyTool (const std::string& val_type,
                              const std::string& val_name)

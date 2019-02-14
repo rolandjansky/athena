@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DecisionHandling_HLTIdentifier_h
@@ -10,9 +10,9 @@
 #include <set>
 #include <map>
 
-
-
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
+
 /**
  * @brief An trigger identifier class, used to provide mapping fromt the human readable IDs to efficienct unsigned ints
  **/
@@ -54,7 +54,7 @@ public:
   bool operator < ( unsigned id ) const { return numeric() < id; } 
 private:
   unsigned m_id;
-  static bool s_reportStringIDs;
+  static bool s_reportStringIDs ATLAS_THREAD_SAFE;
   
 };
  typedef std::vector<HLT::Identifier> IDVec;

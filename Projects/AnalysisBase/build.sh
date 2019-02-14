@@ -8,12 +8,13 @@ _time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shif
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t type] [-b dir] [-g generator] [-c] [-m] [-i] [-p] [-a]"
+    echo "Usage: build.sh [-t type] [-b dir] [-g generator] [-c] [-m] [-i] [-p] [-a] [-x opt]"
     echo ""
     echo "  General flags:"
     echo "    -t: The (optional) CMake build type to use."
     echo "    -b: The (optional) build directory to use."
     echo "    -g: The (optional) CMake generator to use."
+    echo "    -x: Custom argument(s) to pass to the CMake configuration"
     echo "    -a: Abort on error."
     echo "  Build step selection:"
     echo "    -c: Execute the CMake step."
@@ -35,7 +36,8 @@ EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
 NIGHTLY=true
-while getopts ":t:b:g:hcmipa" opt; do
+EXTRACMAKE=()
+while getopts ":t:b:g:hcmipax:" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -60,6 +62,9 @@ while getopts ":t:b:g:hcmipa" opt; do
             ;;
         a)
             NIGHTLY=false
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -122,7 +127,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # Now run the actual CMake configuration:
     _time_ cmake -G "${GENERATOR}" \
          -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-         ${USE_LAUNCHERS} \
+         ${USE_LAUNCHERS} ${EXTRACMAKE[@]} \
          ${AnalysisBaseSrcDir} 2>&1 | tee cmake_config.log
 fi
 

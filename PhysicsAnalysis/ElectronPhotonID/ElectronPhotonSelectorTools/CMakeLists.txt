@@ -52,8 +52,7 @@ endif()
 
 atlas_add_dictionary( ElectronPhotonSelectorToolsDict
   ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsCoreDict.h
-  ElectronPhotonSelectorTools/selectionCore.xml
-  LINK_LIBRARIES ElectronPhotonSelectorToolsLib )
+  ElectronPhotonSelectorTools/selectionCore.xml)
 
 atlas_add_dictionary( ElectronPhotonSelectorToolsPythonDict
   ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsPythonDict.h

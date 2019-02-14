@@ -1,6 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    chains.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include <iostream>
 #include <string>

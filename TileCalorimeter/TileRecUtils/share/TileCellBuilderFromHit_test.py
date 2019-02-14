@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileCellBuilderFromHit_test.py
 # Author: scott snyder
@@ -231,7 +231,7 @@ class TestAlg (Alg):
         self.record_hits (hits, rctype, bsflags, 'TileHitCnt')
 
         ccc = ROOT.CaloCellContainer()
-        if not tool.process (ccc):
+        if not tool.process (ccc, self.getContext()):
             return StatusCode.Failure
 
         self.compare_cells (ccc, exp_cells, noise_thresh)
@@ -428,6 +428,9 @@ def maketool (name, bct, noise=0, **kw):
 ToolSvc += maketool ('tool1', bct1)
 ToolSvc += maketool ('tool2', bct2, maskBadChannels = True)
 ToolSvc += maketool ('tool3', bct1, noise = 0.1)
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
 
 testalg1 = TestAlg ('testalg1')
 topSequence += testalg1

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 namespace InDet {
 
@@ -46,7 +46,7 @@ public:
 
   //! AlgTool constructor 
   SCT_ClusterOnTrackTool(const std::string&,const std::string&,const IInterface*);
-  virtual ~SCT_ClusterOnTrackTool ();
+  virtual ~SCT_ClusterOnTrackTool () = default;
   //! AlgTool initialisation
   virtual StatusCode initialize();
   //! AlgTool termination

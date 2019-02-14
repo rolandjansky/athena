@@ -11,15 +11,11 @@
  */
 #include "EventInfo/EventIncident.h"
 
-EventIncident::EventIncident(const EventInfo& event,
-			     const std::string& source,
-			     const std::string& type) :
-  Incident(source, type), m_eventInfo(event) {}
-
-EventIncident::EventIncident(const EventInfo& event,
-			     const std::string& source,
+EventIncident::EventIncident(const std::string& source,
 			     const std::string& type,
-			     EventContext& ctx) :
-  Incident(source, type, ctx), m_eventInfo(event) {}
+			     const EventContext& ctx) 
+  : Incident(source, type, ctx)
+{}
 
-EventIncident::~EventIncident() {}
+EventIncident::~EventIncident() 
+{}

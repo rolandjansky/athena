@@ -14,14 +14,12 @@
 import os, sys  
 import argparse
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 import xmlrpclib
 
 from ROOT import TFile,TChain
 from ROOT import gStyle
 
-
-#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
   
@@ -67,7 +65,7 @@ tree = TChain("POOLCollectionTree")
 file = {}
 for fileNames in listOfFiles:
   print "Adding %s"%(fileNames)
-  tree.AddFile("root://eosatlas.cern.ch/%s"%(fileNames))
+  tree.AddFile("root://eosatlas/%s"%(fileNames))
 
 entries = tree.GetEntries()
 if entries != 0:

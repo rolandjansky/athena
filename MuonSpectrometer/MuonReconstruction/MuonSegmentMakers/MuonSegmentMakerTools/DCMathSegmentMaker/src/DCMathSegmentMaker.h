@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATHSEGMENTMAKER_H
@@ -192,11 +192,29 @@ class MdtDriftCircleOnTrack;
     typedef std::vector<Cluster2D> ClusterVec;
     typedef ClusterVec::iterator   ClusterIt;
     typedef ClusterVec::const_iterator   ClusterCit;
+    typedef std::pair<ClusterVec,ClusterVec> ClusterVecPair;
 
     struct TubeEnds {
       TubeEnds() : lxmin(0), lxmax(0), phimin(0), phimax(0) {}
       double lxmin;
       double lxmax;
+      double phimin;
+      double phimax;
+    };
+
+    struct segmentCreationInfo {//miscellaneous objects needed for segment creation
+    segmentCreationInfo(ClusterVecPair& spVecs, TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal, double pmin, double pmax):
+      geom(multiGeo),phimin(pmin),phimax(pmax){
+	ClusterVec spacePoints=spVecs.first;
+	ClusterVec phiHits=spVecs.second;
+	clusters=ClusterVecPair(spacePoints,phiHits);
+	globalTrans=gToStation;
+	amdbTrans=amdbToGlobal;
+      }
+      ClusterVecPair clusters;
+      TrkDriftCircleMath::MdtMultiChamberGeometry* geom;
+      Amg::Transform3D globalTrans;
+      Amg::Transform3D amdbTrans;
       double phimin;
       double phimax;
     };
@@ -222,7 +240,7 @@ class MdtDriftCircleOnTrack;
                                                 const std::vector<const MdtDriftCircleOnTrack*>& mdts,
                                               const std::vector<const MuonClusterOnTrack*>&  clusters, bool hasPhiMeasurements);
     */
-    std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) const ;
+    void find( const std::vector<const Trk::RIO_OnTrack*>& rios, Trk::SegmentCollection* segColl=nullptr ) const ;
     
     /** find segments starting from a list of RIO_OnTrack objects in multiple chambers, implementation of IMuonSegmentMaker interface routine 
        Will call:
@@ -231,8 +249,8 @@ class MdtDriftCircleOnTrack;
                                                 const std::vector<const MdtDriftCircleOnTrack*>& mdts,
                                               const std::vector<const MuonClusterOnTrack*>&  clusters, bool hasPhiMeasurements);
      */
-    std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-					   const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const ;
+    void find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
+	       const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const ;
      
    /** find segments starting from:
 	- a list of MdtDriftCircleOnTrack objects
@@ -247,8 +265,9 @@ class MdtDriftCircleOnTrack;
 			 		       const std::vector<const MuonClusterOnTrack*>&  clusters, 
 					       bool hasPhiMeasurements, double momentum );
     */
-    std::vector<const MuonSegment*>* find(const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-					  const std::vector<const MuonClusterOnTrack*>&  clusters) const ;
+    void find(const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+	      const std::vector<const MuonClusterOnTrack*>&  clusters,
+	      Trk::SegmentCollection* segColl=nullptr) const ;
 
     /** find segments starting from:
 	- an estimate of the global position and direction of the particle in the chamber
@@ -260,10 +279,10 @@ class MdtDriftCircleOnTrack;
 	
 	The global direction is used to perform a seeded search for segments. 
     */
-    std::vector<const MuonSegment*>* find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
-					   const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-					   const std::vector<const MuonClusterOnTrack*>&  clusters, 
-					   bool hasPhiMeasurements = false, double momentum = 1e9 ) const;
+    void find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
+	       const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+	       const std::vector<const MuonClusterOnTrack*>&  clusters, 
+					   bool hasPhiMeasurements = false, Trk::SegmentCollection* segColl=nullptr, double momentum = 1e9, double sinAngleCut=0 ) const;
 
     /** find segments starting from:
 	- a track prediction
@@ -279,10 +298,11 @@ class MdtDriftCircleOnTrack;
 					       const std::vector<const MuonClusterOnTrack*>&  clusters, 
 					       bool hasPhiMeasurements, double momentum );
     */
-    std::vector<const MuonSegment*>* find( const Trk::TrackRoad& road,
-					   const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
-					   const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-					   bool hasPhiMeasurements = false, double momentum = 1e9) const;       
+    void find( const Trk::TrackRoad& road,
+	       const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
+	       const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
+	       Trk::SegmentCollection* segColl,
+	       bool hasPhiMeasurements = false, double momentum = 1e9) const;
 
 
     /** associate trigger hits to an existing segment
@@ -307,27 +327,34 @@ class MdtDriftCircleOnTrack;
     /** calculate error scaling factor */
     double errorScaleFactor( const Identifier& id, double curvature, bool hasPhiMeasurements ) const; 
 
-    void calculateHoles( Identifier chid, Amg::Vector3D gpos, Amg::Vector3D gdir, bool hasMeasuredCoordinate ) const;
+    std::vector<Identifier> calculateHoles( Identifier chid, Amg::Vector3D gpos, Amg::Vector3D gdir, bool hasMeasuredCoordinate, 
+					    std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec, std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec ) const;
 
-    TrkDriftCircleMath::DCVec createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale ) const;
-    ClusterVec create1DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
-    ClusterVec create2DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
+    TrkDriftCircleMath::DCVec createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale, std::set<Identifier>& chamberSet, 
+					   double phimin, double phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal ) const;
+    ClusterVecPair create1DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
+    ClusterVecPair create2DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
     
     void handleChamber( IdHitMap& gasGapHitMap ) const;
-    ClusterVec createSpacePoints( ChIdHitMap& chIdHitMap ) const;
-    ClusterVec createSpacePoints( IdHitMap& gasGapHitMap ) const;
+    ClusterVecPair createSpacePoints( ChIdHitMap& chIdHitMap ) const;
+    ClusterVecPair createSpacePoints( IdHitMap& gasGapHitMap ) const;
     Cluster2D createSpacePoint( const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, const MuonClusterOnTrack* phiHit ) const;
     Cluster2D createRpcSpacePoint( const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, const std::vector<const MuonClusterOnTrack*>& phiHits ) const;
     Cluster2D createTgcSpacePoint( const Identifier& gasGapId, const MuonClusterOnTrack* etaHit, const MuonClusterOnTrack* phiHit ) const;
-    TrkDriftCircleMath::CLVec createClusterVec( const std::vector<const MuonClusterOnTrack*>& clusters, const Identifier& chid ) const;
+    TrkDriftCircleMath::CLVec createClusterVec( const Identifier& chid, ClusterVec& spVec, Amg::Transform3D gToStation ) const;
     
-    void associateMDTsToSegment( const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, 
-				 const std::vector<const MdtDriftCircleOnTrack*>& mdts ) const;
-    std::pair<int,int> associateClustersToSegment( const TrkDriftCircleMath::Segment& segment, const Identifier& chid ) const;
-    DataVector<const Trk::MeasurementBase>* createROTVec() const;
+    std::vector<const Trk::MeasurementBase*> associateMDTsToSegment( const Amg::Vector3D& gdir, TrkDriftCircleMath::Segment& segment, 
+								     const std::vector<const MdtDriftCircleOnTrack*>& mdts, TrkDriftCircleMath::MdtMultiChamberGeometry* multiGeo, 
+								     Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal, 
+								     std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec, 
+								     std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec ) const;
+    std::pair<std::pair<int,int>,bool> associateClustersToSegment( const TrkDriftCircleMath::Segment& segment, const Identifier& chid, Amg::Transform3D gToStation, 
+								   ClusterVecPair& spVecs, double phimin, double phimax,
+								   std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const;
+    DataVector<const Trk::MeasurementBase>* createROTVec(std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const;
 
-    double distanceToSegment( const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos ) const;
-    std::pair<double,double> residualAndPullWithSegment( const TrkDriftCircleMath::Segment& segment, const Cluster2D& spacePoint ) const; 
+    double distanceToSegment( const TrkDriftCircleMath::Segment& segment, const Amg::Vector3D& hitPos, Amg::Transform3D gToStation ) const;
+    std::pair<double,double> residualAndPullWithSegment( const TrkDriftCircleMath::Segment& segment, const Cluster2D& spacePoint, Amg::Transform3D gToStation ) const; 
 
     TrkDriftCircleMath::MdtChamberGeometry createChamberGeometry( const Identifier& chid, const Amg::Transform3D& gToStation ) const;
 
@@ -335,7 +362,8 @@ class MdtDriftCircleOnTrack;
 
     bool updateSegmentPhi( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir, 
 			   Amg::Vector2D& segLocPos, Trk::LocalDirection& segLocDir, 
-			   Trk::PlaneSurface& surf, const std::vector<const Trk::MeasurementBase*>& rots ) const;
+			   Trk::PlaneSurface& surf, const std::vector<const Trk::MeasurementBase*>& rots,
+			   double phimin, double phimax) const;
     
     /** rotate the angle XZ until all hits are in bounds. 
 	returns a pair of bool, double, the bool is false if the code did not update the dXdZ. the double is the updated dXdZ */
@@ -351,20 +379,19 @@ class MdtDriftCircleOnTrack;
     void updatePhiRanges( double phiminNew, double phimaxNew, double& phiminRef, double& phimaxRef ) const;
 
     /** check whether phi is consistent with segment phi */
-    bool checkPhiConsistency( double phi ) const;
+    bool checkPhiConsistency( double phi, double phimin, double phimax ) const;
 
     /** update the global direction, keeping the phi of the input road direction but using the local angle YZ */
     Amg::Vector3D updateDirection( double linephi, const Trk::PlaneSurface& surf, 
 				   const Amg::Vector3D& roaddir, bool isCurvedSegment ) const;
 
 
-    void addEtaHits( std::vector<const MuonClusterOnTrack*>& clusters ) const;
-
+    std::vector<const Trk::MeasurementBase*> addEtaHits( std::vector<const MuonClusterOnTrack*>& clusters, bool isEndcap ) const;
 
     MuonSegment* createSegment( TrkDriftCircleMath::Segment& segment, const Identifier& chid,
 				const Amg::Vector3D& roadpos, const Amg::Vector3D& roaddir2,
 				const std::vector<const MdtDriftCircleOnTrack*>& mdts, 
-				bool hasPhiMeasurements ) const;
+				bool hasPhiMeasurements, segmentCreationInfo& sInfo ) const;
     
     const MdtPrepData* findMdt( const Identifier& id ) const;
 
@@ -386,7 +413,7 @@ class MdtDriftCircleOnTrack;
     ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
     ToolHandle<IDCSLFitProvider>              m_dcslFitProvider;
 
-    mutable double m_sinAngleCut;        //<! cut on the angle between the segment and the prediction
+    double m_sinAngleCut;        //<! cut on the angle between the segment and the prediction
     bool m_debugSpacePoints; //<! additional debug output for space point formation
     bool m_doGeometry; //<! use chamber geometry in segment finding
     bool m_curvedErrorScaling; //<! rescale errors for low momenta
@@ -408,29 +435,6 @@ class MdtDriftCircleOnTrack;
     bool m_updatePhiUsingPhiHits;
     bool m_assumePointingPhi;
     bool m_redo2DFit;
-
-    mutable ClusterVec m_spVec;  //<! vector to store space points
-    mutable ClusterVec m_phiVec; //<! vector to store phi clusters not used to create space points
-
-    mutable TrkDriftCircleMath::MdtMultiChamberGeometry* m_multiGeo; //<! pointer to MDT chamber geometry
-    mutable TrkDriftCircleMath::DCStatistics             m_dcStatistics; //<! cache statistics on chamber occupancy
-    mutable TrkDriftCircleMath::DCSLFitter* m_dcslFitter; //<! pointer to selected fitter
-    mutable TrkDriftCircleMath::DCSLFitter  m_defaultFitter; //<! default fitter
-    mutable TrkDriftCircleMath::DCSLHitSelector  m_hitSelector; //<! hit selector
-
-    mutable double m_phimin;
-    mutable double m_phimax;
-    mutable std::set<Identifier> m_deltaVec;      //<! list of tubes with a delta electron
-    mutable std::set<Identifier> m_outoftimeVec;  //<! list of tubes with a out-of-time hit
-    mutable std::vector<Identifier> m_holeVec;       //<! list of tubes with a hole
-    mutable std::vector<std::pair<double,const Trk::MeasurementBase*> > m_rioDistVec; //<! vector to store the distance of a ROT to the segment
-    
-    mutable bool           m_refit;        //<! if true the segment will be refitted with a 3D fit
-    mutable bool           m_isEndcap;     //<! are we in the barrel or endcap?
-    mutable Amg::Transform3D m_gToStation;   //<! global to station transform
-    mutable Amg::Transform3D m_amdbToGlobal; //<! station to global transform
-    mutable std::vector<const Trk::MeasurementBase*> m_measurementsToBeDeleted;
-    mutable unsigned int m_nmultipleHitWarnings;
 
     SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
     SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;

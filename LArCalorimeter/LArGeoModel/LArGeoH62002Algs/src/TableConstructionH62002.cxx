@@ -24,7 +24,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -42,6 +41,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
@@ -138,8 +138,8 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   std::string baseName = "LAr::TBH62002";
   std::string H62002TableName = baseName + "::Table";
 
-  const double H62002TableXY  =  150.*GeoModelKernelUnits::mm;
-  const double H62002TableZ   = 1200.*GeoModelKernelUnits::mm;
+  const double H62002TableXY  =  150.*Gaudi::Units::mm;
+  const double H62002TableZ   = 1200.*Gaudi::Units::mm;
 
 
   GeoBox* H62002TableShape = new GeoBox( H62002TableXY, H62002TableXY, H62002TableZ );   
@@ -156,13 +156,13 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   log << "Create F1/F2 Scintillators ..." << std::endl;
   
   // Universal size:
-  const double Fx = 10.0*GeoModelKernelUnits::mm;
-  const double Fy = 10.0*GeoModelKernelUnits::mm;
-  const double Fz = 10.0*GeoModelKernelUnits::mm;
+  const double Fx = 10.0*Gaudi::Units::mm;
+  const double Fy = 10.0*Gaudi::Units::mm;
+  const double Fz = 10.0*Gaudi::Units::mm;
 
   std::vector<double> v_ScintZ;
-  v_ScintZ.push_back(2195.*GeoModelKernelUnits::mm); // <--  = btas_pos
-  v_ScintZ.push_back(2320.*GeoModelKernelUnits::mm);
+  v_ScintZ.push_back(2195.*Gaudi::Units::mm); // <--  = btas_pos
+  v_ScintZ.push_back(2320.*Gaudi::Units::mm);
   const double ScintDx = Fx;
   const double ScintDy = Fy;
   const double ScintDz = Fz;
@@ -175,7 +175,7 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   GeoPhysVol* ScintPhysical = new GeoPhysVol( ScintLogical );    
   for ( unsigned int i = 0; i < v_ScintZ.size(); i++ ) {
     m_H62002TablePhysical->add( new GeoIdentifierTag(i) );
-    m_H62002TablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (v_ScintZ[ i ]-H62002TableZ) ) ) );
+    m_H62002TablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*Gaudi::Units::cm, 0.*Gaudi::Units::cm, (v_ScintZ[ i ]-H62002TableZ) ) ) );
     log << MSG::INFO << " Position the F Scintillator at: " << v_ScintZ[ i ] << endmsg ;
     m_H62002TablePhysical->add( ScintPhysical );
   } 
@@ -190,16 +190,16 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   //------ Get the MWPCs from LArGeoH6Cryostats
   const int MwpcNumber = 3;
   std::vector<double> v_MwpcPos;
-  v_MwpcPos.push_back(105.*GeoModelKernelUnits::mm);
-  v_MwpcPos.push_back(825.*GeoModelKernelUnits::mm); 
-  v_MwpcPos.push_back(1815.*GeoModelKernelUnits::mm);
-  double WireStep = 1.*GeoModelKernelUnits::mm;
+  v_MwpcPos.push_back(105.*Gaudi::Units::mm);
+  v_MwpcPos.push_back(825.*Gaudi::Units::mm); 
+  v_MwpcPos.push_back(1815.*Gaudi::Units::mm);
+  double WireStep = 1.*Gaudi::Units::mm;
   MWPCConstruction mwpcXConstruction (WireStep);
   GeoVPhysVol* mwpcEnvelope = mwpcXConstruction.GetEnvelope();
   for ( int imwpc = 0; imwpc<MwpcNumber ; imwpc++)
     { 
       m_H62002TablePhysical->add(new GeoIdentifierTag(imwpc+2));
-      m_H62002TablePhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (v_MwpcPos[imwpc]-H62002TableZ) ) ) );
+      m_H62002TablePhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*Gaudi::Units::cm, 0.*Gaudi::Units::cm, (v_MwpcPos[imwpc]-H62002TableZ) ) ) );
       m_H62002TablePhysical->add(mwpcEnvelope);    
     }
   //------ Done with creating an MWPC from LArGeoH6Cryostats

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RADDAMAGESUMMARYTOOL_H
@@ -7,10 +7,10 @@
 
 #include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ChargeTrappingTool.h"
+
+#include <string>
 
 class IdentifierHash;
 
@@ -32,7 +32,9 @@ class SCT_RadDamageSummaryTool: public extends<AthAlgTool, ISCT_RadDamageSummary
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
  
+  virtual void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2, const EventContext& ctx) const override;
   virtual void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& zpos, const EventContext& ctx) const override;
   virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& zpos) const override;
 
  private:

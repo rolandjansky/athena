@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -24,8 +24,6 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArHVCablingTool.h"
 
 /********************************************************/
 TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -40,7 +38,6 @@ TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLo
   m_OnlineTest("OFF"),
   m_OfflineTest("OFF"),
   m_SubDetector("OFF"),
-  //m_cablingSvc(0),
   m_lvl1Helper(0),
   m_emHelper(0),
   m_hecHelper(0),
@@ -48,7 +45,6 @@ TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLo
   m_onlineHelper(0),
   m_hvHelper(0),
   m_electrodeHelper(0)
-  //m_hvcablingTool(0)
 {
   declareProperty("Detector", m_Detector ) ; 
   if( m_Detector != "ALL"   &&
@@ -163,12 +159,8 @@ StatusCode TestLArHWID_Algo::initialize(){
 // ==============================================================
   ATH_MSG_INFO ( " initializing " );
 
-  //ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_cablingSvc) );
-  //ATH_MSG_ERROR ("initialize() failed locating ToolSvc" );
   ATH_CHECK(m_cablingReadKey.initialize());
 
-  //ATH_CHECK( toolSvc()->retrieveTool("LArHVCablingTool", m_hvcablingTool) );
-  //ATH_MSG_DEBUG ( "initialize() successfully retrieved LArHVCablingTool" );
   ATH_CHECK(m_HVReadKey.initialize());
 
   // Calo

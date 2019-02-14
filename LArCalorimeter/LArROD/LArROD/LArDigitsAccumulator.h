@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,8 +19,8 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h"
 
 class LArDigitsAccumulator : public AthAlgorithm
 {
@@ -47,12 +47,12 @@ public:
 
 private:
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
   const LArOnlineID* m_onlineHelper;
 
   typedef std::vector<LArAccumulatedDigit*> ACCUMDIGIT_VEC;
   ACCUMDIGIT_VEC m_my_vec;
 
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
 
  /** 
    * @brief LArAccumulatedDigitContainer name.

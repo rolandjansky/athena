@@ -12,6 +12,8 @@
 
 #include "xAODEventInfo/EventInfo.h"  /*SubEvent*/
 #include "PileUpTools/PileUpToolBase.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 #include "TRTDigit.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -25,10 +27,8 @@
 #include <set>
 #include <utility> /* pair */
 
-class PileUpMergeSvc;
 class ITRT_PAITool;
 class ITRT_SimDriftTimeTool;
-class IAtRndmGenSvc;
 class TRT_ID;
 class TRTProcessingOfStraw;
 class TRTElectronicsProcessing;
@@ -94,8 +94,7 @@ public:
   StatusCode finalize();
 
 private:
-
-  CLHEP::HepRandomEngine * m_pHRengine;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
 
   Identifier getIdentifier( int hitID,
 			    IdentifierHash& hashId,
@@ -105,15 +104,22 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize();
-  StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers);
+  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
+                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
+                            CLHEP::HepRandomEngine *elecProcRndmEngine,
+                            CLHEP::HepRandomEngine *fakeCondRndmEngine);
+  StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+                           CLHEP::HepRandomEngine *rndmEngine,
+                           CLHEP::HepRandomEngine *strawRndmEngine,
+                           CLHEP::HepRandomEngine *elecProcRndmEngine,
+                           CLHEP::HepRandomEngine *elecNoiseRndmEngine);
   StatusCode createAndStoreRDOs();
 
   // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
   int StrawGasType(Identifier& TRT_Identifier) const;
 
   unsigned int getRegion(int hitID);
-  double getCosmicEventPhase();
+  double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
@@ -136,7 +142,7 @@ private:
   TRTNoise* m_pNoise;
 
   //unsigned int m_timer_eventcount;
-  ServiceHandle <IAtRndmGenSvc> m_atRndmGenSvc;  /**< Random number service */
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 
   const InDetDD::TRT_DetectorManager* m_manager;

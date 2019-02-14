@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
@@ -19,9 +19,7 @@
 #include "MuonRecToolInterfaces/IMuonCombiTrackMaker.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
-#include "MuonSegment/MuonSegmentCombination.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -128,10 +126,6 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   /** get list of hashIDs used in roi (used for internal caching in TrigMuSuperEF) **/
   virtual std::vector<std::vector<IdentifierHash> > getHashList(const IRoiDescriptor* muonRoI);
 
-  /** return last created MuonSegmentCombinationCollection. Caller is responsible for deletion of object.
-      Call this function if you want to attach the object to the TriggerElement */
-  virtual const MuonSegmentCombinationCollection* segmentCombisToAttach();
-
   /** return last created MuonPatternCombinationCollection. Caller is responsible for deletion of object.
       Call this function if you want to attach the object to the TriggerElement */
   virtual const MuonPatternCombinationCollection* patternCombisToAttach();
@@ -153,10 +147,6 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   virtual const xAOD::TrackParticleContainer* trackParticleContainerToAttach();
   virtual const xAOD::TrackParticleAuxContainer* trackParticleAuxContainerToAttach();
 
-  /** return last created MuonSegmentCombinationCollection. Object will be deleted by tool at the end of the event.
-      NB: You can not attach this object to the TriggerElement */
-  virtual const MuonSegmentCombinationCollection* segmentCombis();
-
   /** return last created MuonPatternCombinationCollection. Object will be deleted by tool at the end of the event.
       NB: You can not attach this object to the TriggerElement */
   virtual const MuonPatternCombinationCollection* patternCombis();
@@ -176,12 +166,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   int segmentMonitoring(const std::vector<const Muon::MuonSegment*>& segmentVector,
 			TrigMuonEFSegmentMonVars& monVars);
 		         
-  int segmentMonitoring(const MuonSegmentCombinationCollection* segmentCombiColl,
-			TrigMuonEFSegmentMonVars& monVars);
-  
   virtual void handle(const Incident &inc);
 
-  virtual void recordSegments();
   virtual void recordPatterns();
   virtual void recordSpectrometerTracks();
 
@@ -237,8 +223,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
 			      std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
 
   /** Build tracks out of input segments */
-  HLT::ErrorCode buildTracks(const MuonSegmentCombinationCollection* segments,
-			     const Trk::SegmentCollection* segment_collection,
+  HLT::ErrorCode buildTracks(const Trk::SegmentCollection* segment_collection,
 			     SegmentCache* cache,
 			     TrigMuonEFMSMonVars& monVars,
 			     std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
@@ -350,11 +335,9 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
 
   // features written to TriggerElement
   //  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
-  const MuonSegmentCombinationCollection* m_segmentCombiColl;
   const MuonPatternCombinationCollection* m_patternCombiColl;
   const Trk::SegmentCollection*           m_segments;
   const TrackCollection*                  m_spectrometerTracks;
-  const MuonSegmentCombinationCollection* m_segmentCombiCollInternal;
   const MuonPatternCombinationCollection* m_patternCombiCollInternal;
   const Trk::SegmentCollection*           m_segmentsInternal;
   const TrackCollection*                  m_spectrometerTracksInternal;
@@ -376,7 +359,6 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::vector<const TrackCollection*> m_spectrometerTracksCache;
   std::vector<TrackCollection*> m_extrapolatedTracksCache;
   std::vector<const MuonPatternCombinationCollection*> m_patternCombisCache;
-  std::vector<const MuonSegmentCombinationCollection*> m_segmentCombisCache;
   std::vector<const Trk::SegmentCollection*> m_segmentsCache;
   std::vector<Muon::MdtPrepDataCollection*> m_mdtcollCache;
 

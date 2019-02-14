@@ -24,8 +24,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/DecisionHandling
                           Control/AthenaMonitoring
                           Trigger/TrigMonitoring/TrigCostMonitorMT
+                          Trigger/TrigAlgorithms/TrigPartialEventBuilding
                           )
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )
 
 # Component(s) in the package:
@@ -34,7 +35,7 @@ atlas_add_library( TrigOutputHandlingLib
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
-                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib AthenaMonitoringLib )
+                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib )
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx

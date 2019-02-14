@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,10 +19,6 @@
 #include "InDetRawData/PixelRDORawData.h"
 // forward declare not possible (typedef)
 #include "InDetPrepRawData/PixelClusterCollection.h"
-// forward declare of this causes a compilation error (which I do not fully understand) 
-// in LazyOfflineSpacePointTool in a trigger package (T.L.)
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-
 
 class PixelID;
 

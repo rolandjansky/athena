@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARNOISEMC_H
@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArNoise for MC

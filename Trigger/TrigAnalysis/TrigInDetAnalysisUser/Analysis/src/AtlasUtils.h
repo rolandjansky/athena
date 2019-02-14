@@ -1,9 +1,16 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    AtlasUtils.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __ATLASUTILS_H
-#define __ATLASUTILS_H
+
+#ifndef ANALYSIS_ATLASUTILS_H
+#define ANALYSIS_ATLASUTILS_H
 
 #include <stdio.h>
 #include <cmath>
@@ -338,4 +345,4 @@ inline void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle,char *te
   l.DrawLatex(x,y,text);
 }
 
-#endif // __ATLASUTILS_H
+#endif // ANALYSIS_ATLASUTILS_H

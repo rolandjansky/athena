@@ -9,7 +9,6 @@ atlas_subdir( MuonDQAUtils )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
-                          Event/EventInfo
                           Event/EventKernel
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
@@ -36,11 +35,11 @@ atlas_add_library( MuonDQAUtilsLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventInfo EventKernel GaudiKernel ParticleEvent AnalysisTriggerEvent JetTagEvent JetEvent muonEvent Particle egammaEvent LWHists TrigMuonEvent TrigSteeringEvent StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventKernel GaudiKernel ParticleEvent AnalysisTriggerEvent JetTagEvent JetEvent muonEvent Particle egammaEvent LWHists TrigMuonEvent TrigSteeringEvent StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} )
 
 atlas_add_component( MuonDQAUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests EventInfo EventKernel GaudiKernel ParticleEvent AnalysisTriggerEvent JetTagEvent JetEvent muonEvent Particle egammaEvent LWHists TrigMuonEvent TrigSteeringEvent MuonDQAUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests EventKernel GaudiKernel ParticleEvent AnalysisTriggerEvent JetTagEvent JetEvent muonEvent Particle egammaEvent LWHists TrigMuonEvent TrigSteeringEvent MuonDQAUtilsLib )
 

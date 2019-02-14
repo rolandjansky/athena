@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNT_TBRecBase.h"
@@ -11,8 +11,7 @@
 
 CBNT_TBRecBase::CBNT_TBRecBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
-  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),
-  m_larCablingSvc("LArCablingService")
+  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL)
 {
 }
 
@@ -36,6 +35,7 @@ StatusCode CBNT_TBRecBase::initialize() {
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
 
+
   if (!m_emId) {
     (*m_log) << MSG::ERROR << "Could not access lar EM ID helper" << endmsg;
     return StatusCode::FAILURE;
@@ -58,11 +58,6 @@ StatusCode CBNT_TBRecBase::initialize() {
       (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
     }
 
-  sc = m_larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc." << endmsg;
-    return sc;
-  }
 
   m_initialized=true;
   return StatusCode::SUCCESS;

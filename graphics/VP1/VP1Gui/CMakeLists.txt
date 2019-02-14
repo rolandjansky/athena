@@ -35,8 +35,3 @@ atlas_add_library( VP1Gui VP1Gui/*.h src/*.h src/*.cxx src/*.qrc
    Qt5::PrintSupport
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES} Qt5::Network )
 
-   
-# Install files from the package:
-##atlas_install_scripts( share/* ) # installs into bin/
-atlas_install_runtime( share/* ) # install into share/
-   

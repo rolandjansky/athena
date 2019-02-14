@@ -121,7 +121,6 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   }
 
   ATH_CHECK(m_trackKey.initialize());
-  ATH_CHECK(m_segmentCombiKey.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
 
   ATH_CHECK(m_mcEventColl.initialize(m_doTruth));
@@ -145,56 +144,10 @@ StatusCode MuonTrackPerformanceAlg::execute()
   }
   m_eventInfo=evInfo.cptr();
   handleTracks();
-  if( m_doSegments ) handleSegmentCombinations();
 
   ++m_nevents;
 
   return StatusCode::SUCCESS;
-}
-
-bool MuonTrackPerformanceAlg::handleSegmentCombinations() {
-
-
-  SG::ReadHandle<MuonSegmentCombinationCollection> combiCol(m_segmentCombiKey);
-
-  if (!combiCol.isValid() ) {
-    *m_log << MSG::WARNING << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiKey.key() <<endmsg;
-    return true;
-  }else{
-    if( m_debug ) *m_log << MSG::DEBUG << " Retrieved MuonSegmentCombinationCollection "  << combiCol->size() << endmsg;
-  }
-
-  std::vector<const Muon::MuonSegment*> segments;
-
-
-  MuonSegmentCombinationCollection::const_iterator cit = combiCol->begin();
-  MuonSegmentCombinationCollection::const_iterator cit_end = combiCol->end();
-  for(; cit!=cit_end;++cit ){
-    const Muon::MuonSegmentCombination* combi = *cit;
-    if( !combi ) {
-      if( m_debug ) *m_log << MSG::DEBUG  << " empty Mdt MuonSegmentCombination!!! " << endmsg;
-      continue;
-    }
-    handleSegmentCombi(*combi);
-      
-    // loop over chambers in combi and extract segments
-    unsigned int nstations = combi->numberOfStations();
-    for(unsigned int i=0; i<nstations; ++i){
-      // loop over segments in station
-      const Muon::MuonSegmentCombination::SegmentVec* stationSegs = combi->stationSegments( i ) ;
-      // check if not empty
-      if( !stationSegs || stationSegs->empty() ) continue;
-      segments.insert(segments.end(),stationSegs->begin(),stationSegs->end());
-    }
-  }
-    
-  if( m_doTruth ){
-
-    handleSegmentTruth(segments);
-
-  }
-
-  return true;
 }
 
 bool MuonTrackPerformanceAlg::handleSegmentTruth( const std::vector<const Muon::MuonSegment*>& segments ) {
@@ -250,7 +203,7 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
     Muon::MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
     for (;ipsg!=ipsg_end;++ipsg){
 
-      const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(*ipsg);
+      const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>((*ipsg).get());
 
       if( !seg ){
 	*m_log << MSG::WARNING << " MuonSegmentCombination contains a segment that is not a MuonSegment!! " << endmsg;
@@ -259,8 +212,6 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
 	
     }
   }
-
-
     
   return true;
 }

@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    DrawLabel.h        
-//
-//                   
-//  
-//
-//   $Id: DrawLabel.h, v0.0   Sun 11 Nov 2012 01:18:14 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    DrawLabel.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 11 Nov 2012 01:18:14 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  DRAWLABEL_H

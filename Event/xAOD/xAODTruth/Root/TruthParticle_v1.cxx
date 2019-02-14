@@ -56,10 +56,10 @@ namespace xAOD {
    //
 
    /// Accessor for the production vertex
-   static SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
+   static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
       prodVtxLinkAcc( "prodVtxLink" );
    /// Accessor for the decay vertex
-   static SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
+   static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
       decayVtxLinkAcc( "decayVtxLink" );
 
    bool TruthParticle_v1::hasProdVtx() const {
@@ -198,13 +198,13 @@ namespace xAOD {
 
 
    void TruthParticle_v1::setE( float value ) {
-      static Accessor< float > acc( "e" );
+      static const Accessor< float > acc( "e" );
       acc( *this ) = value;
       return;
    }
    
    void TruthParticle_v1::setM( float value ) {
-      static Accessor< float > acc( "m" );
+      static const Accessor< float > acc( "m" );
       acc( *this ) = value;
       return;
    }
@@ -289,7 +289,7 @@ namespace xAOD {
                                                  PolParam param ) const {
 
       // Get the accessor object:
-      Accessor< float >* acc = polarizationAccessorV1( param );
+      const Accessor< float >* acc = polarizationAccessorV1( param );
       if( ! acc ) {
          // The user asked for a non-existent parameter type. o.O
          std::cerr << "xAOD::TruthParticle_v1::polarizationParameter ERROR "
@@ -312,7 +312,7 @@ namespace xAOD {
                                                     PolParam param ) {
 
       // Get the accessor object:
-      Accessor< float >* acc = polarizationAccessorV1( param );
+      const Accessor< float >* acc = polarizationAccessorV1( param );
       if( ! acc ) {
          // The user asked for a non-existent parameter type. o.O
          std::cerr << "xAOD::TruthParticle_v1::setPolarizationParameter ERROR "
@@ -329,7 +329,7 @@ namespace xAOD {
    float TruthParticle_v1::polarizationPatameter( PolParam param ) const {
 
       // Get the accessor object:
-      Accessor< float >* acc = polarizationAccessorV1( param );
+      const Accessor< float >* acc = polarizationAccessorV1( param );
       if( ! acc ) {
          // Throw an exception:
          throw std::runtime_error( "Unrecognized polarization parameter "

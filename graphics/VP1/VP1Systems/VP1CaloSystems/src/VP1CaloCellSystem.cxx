@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloSystems/VP1CaloCellSystem.h"
@@ -40,7 +40,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -114,7 +114,7 @@ public:
 
 	const TileInfo*            tile_info;
 	const TileCablingService*  tile_cabling;
-	LArCablingService*         lar_cabling;
+	LArCablingLegacyService*   lar_cabling;
 	const LArOnlineID*         lar_onlineID;
 	const ICaloBadChanTool*    calo_badchannel;
 
@@ -538,9 +538,9 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 		m_clockwork->noTileDigitsGlobal = true;
 	}
 
-	status = toolSvc()->retrieveTool("LArCablingService",m_clockwork->lar_cabling);
+	status = toolSvc()->retrieveTool("LArCablingLegacyService",m_clockwork->lar_cabling);
 	if (status.isFailure() || m_clockwork->lar_cabling == 0) {
-		messageDebug("Failed to locate LAr Cabling Service");
+		messageDebug("Failed to locate LAr Cabling Legacy Service");
 		m_clockwork->lar_cabling = 0;
 		m_clockwork->noLArDigitsGlobal = true;
 	}

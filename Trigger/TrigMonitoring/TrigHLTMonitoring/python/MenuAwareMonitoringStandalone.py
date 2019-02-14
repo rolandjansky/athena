@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-#
-# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)
-#
+# Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
 import sys,os
 # import subprocess. Required to get user
@@ -28,46 +27,33 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.6'
-
+        self.version = '1.4.8'
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
-
-         # create oracle interaction object
+         # create oracle interaction objects
         self.oi = OracleInterface()
-
         # holder for current user
         self.current_user = ""
         self.__get_current_user__()
-
         # Since this code is Athena-independent, we use a dummy 'Athena version'
         # If called from MenuAwareMonitoring, this will be updated to the real version
-        self.current_athena_version = "MaM P1 GUI"
-
+        self.current_athena_version = "MaMStandalone"
+        self.current_nightly_version = "MaMStandalone"
         # holder for default global_info
         self.default_global_info = {}
-
         # holder for current local global_info
         self.local_global_info = {}
         self.local_global_info['MONITORING_TOOL_DICT'] = {}
-
         # pointer to local tool info
         self.local = self.local_global_info['MONITORING_TOOL_DICT']
-
         # flag to record if we have connected to Oracle
         self.connected_to_oracle = False
         self.connection_alias = ""
-
         # flag to indicate if we are connected to the replica database with a readonly connection
         self.readonly_db_connection = False
-        # second flag so MAM doesn't break - will remove this later
-        self.replica_db_connection = False
-
         # greetings
         print "Welcome to Menu-aware Monitoring (MaM) version",self.version
-        print "Please report any bugs to xanthe.hoad@cern.ch"
-        print "You are",self.current_user
-
+        print "See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more info"
         # now connect to oracle
         self.__connect_to_oracle__(alias,database_username,database_password,database_name,database_directory)
         if self.connected_to_oracle == False:
@@ -78,34 +64,23 @@ class MenuAwareMonitoringStandalone:
                 print "Some Menu-aware Monitoring functions will not be available to you"
         else:
             self.connection_alias = alias
-            self.replica_db_connection = self.readonly_db_connection
 
 
     def __connect_to_oracle__(self,alias,database_username,database_password,database_name,database_directory):
         "Connect to the Oracle server."
 
-        # if we are already connected
         if self.connected_to_oracle:
-
-            # info for user
-            print "We are already connected to the Oracle database"
-
-        # else if we are not
+            print "MaM is already connected to the Oracle database"
         else:
-            # info for user
-            print "We are now connecting to the Oracle database"
-
             if alias is "CUSTOM_DB":
                 print "Connecting to database",database_name,"with provided username, password and directory"
-                print "Caution: MaM may not work as expected while using a custom DB"
+                print "WARNING: MaM may not work as expected while using a custom DB"
                 self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
                 self.connected_to_oracle = True
 
             elif alias in ("TRIGGERDB","TRIGGERDBREPR","TRIGGERDBREPR_R","TRIGGERDBR2MAM"):
-
                 # get the connection from authentication.xml
                 connectionSvcs = self._getConnectionServicesForAlias(alias)
-                # print "Connection Services %s" % connectionSvcs
                 for connectionSvc in connectionSvcs:
                     print "Trying connection service",connectionSvc
                     if 'oracle' in connectionSvc:
@@ -143,7 +118,7 @@ class MenuAwareMonitoringStandalone:
                                 self.readonly_db_connection = True
                             break
                         except:
-                            print "Oracle connection via Frontier not possible."
+                            print "Oracle connection via Frontier not possible"
                             self.connected_to_oracle = False
                     else:
                         print "Error while connecting to Oracle database, no connections found"
@@ -156,13 +131,8 @@ class MenuAwareMonitoringStandalone:
     def __disconnect_from_oracle__(self):
         "Disconnect from the Oracle server."
 
-        # if we are connected to Oracle
         if self.connected_to_oracle:
-
-            # info for user
             print "We are now disconnecting from the Oracle database"
-
-            # disconnect from oracle
             if self.oi.disconnect_from_oracle(): #returns True if disconnection is successful
                 self.connected_to_oracle = False
                 self.readonly_db_connection = False
@@ -179,7 +149,8 @@ class MenuAwareMonitoringStandalone:
             # TRIGGERDBREPR_R uses this path
             DBLOOKUP_PATH = 'CORAL_DBLOOKUP_PATH'
         if alias is "TRIGGERDBREPR_R":
-            # _R means we access the regular auth files instead of the ones with read/write access, need to change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
+            # _R means we access the regular auth files instead of the ones with read/write access
+            # need to now change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
             alias = "TRIGGERDBREPR"
         dblookupfilename = self._getFileLocalOrPath('dblookup.xml',DBLOOKUP_PATH)
         if dblookupfilename == None: return None
@@ -245,9 +216,10 @@ class MenuAwareMonitoringStandalone:
         """looks for filename in local directory and then in all paths specified in environment variable 'pathenv'
         returns path/filename if existing, otherwise None """
 
-        if os.path.exists(filename):
-            print( "Using local file %s" % filename)
-            return filename
+        #Removed: breaks some Tier0Tests
+        #if os.path.exists(filename):
+        #    print( "Using local file %s" % filename)
+        #    return filename
 
         pathlist = os.getenv(pathenv,'').split(os.pathsep)
         resolvedfilename = self.FindFile(filename, pathlist, os.R_OK)
@@ -280,21 +252,17 @@ class MenuAwareMonitoringStandalone:
 
         # if the input is not a string, make it one
         if type(smck_config) is not str:
-
             # use json to turn the config into a string
             smck_config_json = json.dumps(smck_config, ensure_ascii=True, sort_keys=True)
-
         # else if it is a string
         else:
-
             # use input string as string to hash
-            print "__get_config_hash__ has been passed a string, rather than an smck_config dict. This is unexpected, so you are being notified in case something has gone wrong. If it has, please contact the author: Ben Smart bsmart@cern.ch"
+            print "__get_config_hash__ has been passed a string, rather than an smck_config dict. This is unexpected! Continuing anyway..."
             print "input =",smck_config
             smck_config_json = smck_config
 
         # calculate hash
         return_hash = hashlib.sha512(smck_config_json.encode()).hexdigest()
-
         # return hash
         return return_hash
 
@@ -304,8 +272,6 @@ class MenuAwareMonitoringStandalone:
 
         # is this session interactive? If not, return ""
         if self.__is_session_interactive__():
-
-            # info for user
             print "Please enter a comment to be attached to this upload to the database."
             print "The comment is limited in length to 1000 characters"
 
@@ -314,10 +280,8 @@ class MenuAwareMonitoringStandalone:
 
             # check that comment length is valid
             while len(user_input) > 1000:
-
                 # warn user that their input is too long, and give them the change to re-enter a comment
                 print "Your comment was too long, (it was",len(user_input),"characters long). Please enter a shorter comment."
-
                 # get user input
                 user_input = raw_input("comment: ")
 
@@ -325,7 +289,6 @@ class MenuAwareMonitoringStandalone:
             return user_input
 
         else:
-
             # this is not an interactive session, so we can not ask for input
             return ""
 
@@ -337,48 +300,36 @@ class MenuAwareMonitoringStandalone:
         # is this session interactive? If not, return "ALL"
         if self.__is_session_interactive__():
 
-            # info for user
+            # if need be, then this list can be extended at a later date
+            valid_input = ['ALL','ESD','AOD']
+
             print "Please specify which processing step(s) you wish this input to be for."
             print "The default is 'ALL' for all processing steps."
-            print "Valid options are 'ESD', 'AOD', and 'ALL'."
+            print "Valid options are:",valid_input
             print "Hit <enter> without any input to select the default option (ALL)"
 
             # now get user input
             user_input = raw_input("processing step: ").upper()
-
             # if input is blank, interpret this as 'ALL'
             if user_input == "":
                 user_input = "ALL"
-
-                # confirmation to user
                 print "You have selected",user_input
-
-            # valid input
-            # if need be, then this list can be extended at a later date
-            valid_input = ['ALL','ESD','AOD']
 
             # check for valid input
             # if input is not valid, ask for it again
             while not valid_input.__contains__(user_input):
-
                 # warning to user that input was not understood
                 print "The input",user_input,"was not recognised. Please specify a valid option."
-
-                # get user input
                 user_input = raw_input("processing step: ")
-
                 # if input is blank, interpret this as 'ALL'
                 if user_input == "":
                     user_input = "ALL"
-
-                    # confirmation to user
                     print "You have selected",user_input
 
             # return selected processing step
             return user_input
 
         else:
-
             # this is not an interactive session, so we can not ask for input
             return "ALL"
 
@@ -387,51 +338,40 @@ class MenuAwareMonitoringStandalone:
         """If running interactively, ask user for the processing stream(s) an upload will be valid for.
         'ALL' is the default."""
 
+
         # is this session interactive? If not, return "ALL"
         if self.__is_session_interactive__():
 
-            # info for user
+            # if need be, then this list can be extended at a later date
+            valid_input = ['ALL','BULK','EXPRESS']
+
             print "Please specify which processing stream(s) you wish this input to be for."
             print "The default is 'ALL' for all processing streams."
-            print "Valid options are 'BULK', 'EXPRESS', and 'ALL'."
+            print "Valid options are:",valid_input
             print "Hit <enter> without any input to select the default option (ALL)"
 
             # now get user input
             user_input = raw_input("processing stream: ").upper()
-
             # if input is blank, interpret this as 'ALL'
             if user_input == "":
                 user_input = "ALL"
-
-                # confirmation to user
                 print "You have selected",user_input
-
-            # valid input
-            # if need be, then this list can be extended at a later date
-            valid_input = ['ALL','BULK','EXPRESS']
 
             # check for valid input
             # if input is not valid, ask for it again
             while not valid_input.__contains__(user_input):
-
                 # warning to user that input was not understood
                 print "The input",user_input,"was not recognised. Please specify a valid option."
-
-                # get user input
                 user_input = raw_input("processing stream: ")
-
                 # if input is blank, interpret this as 'ALL'
                 if user_input == "":
                     user_input = "ALL"
-
-                    # confirmation to user
                     print "You have selected",user_input
 
             # return selected processing stream
             return user_input
 
         else:
-
             # this is not an interactive session, so we can not ask for input
             return "ALL"
 
@@ -459,8 +399,6 @@ class MenuAwareMonitoringStandalone:
 
             # if type(input_smk) is not int, then ask the user to input an SMK
             while type(input_smk) is not int:
-
-                # info for user
                 print "Please enter an SMK integer to be linked."
 
                 # now get user input
@@ -474,8 +412,6 @@ class MenuAwareMonitoringStandalone:
 
             # if type(input_mck_id) is not int, then ask the user to input an MCK
             while type(input_mck_id) is not int:
-
-                # info for user
                 print "Please enter an MCK_ID integer to be linked."
 
                 # now get user input
@@ -489,10 +425,8 @@ class MenuAwareMonitoringStandalone:
 
         # if this session is not interactive
         else:
-
             # if the inputs are not valid
             if (type(input_mck_id) is not int) or (type(input_smk) is not int):
-
                 # return, as inputs are not valid
                 # print for logfile
                 print "Menu-aware monitoring: link_smk_to_mck(",input_smk,",",input_mck_id,",",comment,") inputs not valid. MCK and SMK must be integers."
@@ -513,11 +447,8 @@ class MenuAwareMonitoringStandalone:
 
         # check if this link already exists as the active link
         if self.oi.check_if_smk_to_mck_link_exists_and_is_active(input_smk,input_mck_id):
-
             # ensure all other links for this smk are deactivated
             self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
-
-            # info for user, and return
             print "SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK."
             return
 
@@ -526,9 +457,12 @@ class MenuAwareMonitoringStandalone:
 
         if len(active_smk_to_mck_link_search_results) > 0:
             # we have found an active link. Upload should not proceed for safety.
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
+            print "Will now print full link details:"
             print active_smk_to_mck_link_search_results
-            print "Deactivate this link first if you want to create a new link. You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI), but be sure this is what you want to do."
+            print "Deactivate this link first if you want to create a new link."
+            print "You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI)."
+            print "You should make sure this is what you really want to do first before proceeding!"
             return
 
         # get the current user for the creator
@@ -540,27 +474,18 @@ class MenuAwareMonitoringStandalone:
 
         # try to upload the link
         try:
-
-            # info for user
             print "Now attempting to link MCK",input_mck_id,"to SMK",input_smk
-
             if not self.oi.check_if_smk_to_mck_link_exists(input_smk,input_mck_id):
                 # link does not exist
                 # upload the link
                 self.oi.upload_mck_to_smk_link(input_mck_id,input_smk,creator,comment)
-
             self.oi.activate_smk_mck_link(input_smk,input_mck_id)
-
-            # info for user
             print "MCK",input_mck_id,"has been linked to SMK",input_smk
-
             # ensure all other links for this smk are deactivated (should already be true)
             self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
 
         # if the upload fails in some way
         except:
-
-            # info for user
             print "An exception occurred:",sys.exc_info()[0],sys.exc_info()[1]
             print "Error in link upload."
 
@@ -572,23 +497,25 @@ class MenuAwareMonitoringStandalone:
         active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
 
         if len(active_smk_to_mck_link_search_results) > 0:
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
+            print "Will now print full link details."
             print active_smk_to_mck_link_search_results
+
+            if GUI is False:
+                print "Requested force deactivate all links for SMK",input_smk
+                print "Do you really want to do this?"
+                user_input = raw_input("y/n: ")
+                if user_input != 'y':
+                    print "Aborted."
+                    return
+
+            print "Force deactivating all links for SMK",input_smk,"..."
+            self.oi.deactivate_all_links_for_given_smk(input_smk)
+            print "All links deactivated."
+
         else:
             print "SMK",input_smk,"is not linked to any MCK."
             return
-
-        if GUI is False:
-            print "Will force deactivate all links for SMK",input_smk,". Do you really want to do this?"
-            user_input = raw_input("y/n: ")
-
-            if user_input != 'y':
-                print "Aborted."
-                return
-
-        print "Force deactivating all links for SMK",input_smk,"..."
-        self.oi.deactivate_all_links_for_given_smk(input_smk)
-        print "All links deactivated."
 
 
     def print_all_mck_to_smk_links(self,print_deactivated_links=False):
@@ -596,7 +523,7 @@ class MenuAwareMonitoringStandalone:
         print_all_mck_to_smk_links(True) to print all links."""
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # get list of all mck_to_smk links
@@ -608,7 +535,6 @@ class MenuAwareMonitoringStandalone:
 
         # loop over the list in reverse (lowest smk to largest smk)
         for link in mck_to_smk_links:
-
             # print the results
             if link['ACTIVE'] == '1':
                 print "SMK",link['SMK'],"is linked to MCK",link['MCK'],"(ACTIVE LINK)"
@@ -620,7 +546,7 @@ class MenuAwareMonitoringStandalone:
         "Input can either be an SMCK_ID or an SMCK_TOOL_PATCH_VERSION. Output will be the the correct SMCK_ID."
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # check for empty print_output_here
@@ -630,17 +556,14 @@ class MenuAwareMonitoringStandalone:
 
         # test if smck_identifier can be an int (smck_id)
         try:
-
             # input could be 1.0 or 1, etc.
             smck_id = int(float(smck_identifier))
-
             # if we've got this far then we at least have an int
             # but is it a valid smck_id?
             smck_info = self.oi.read_smck_info_from_db(smck_id)
 
             # if smck_id is not valid, then smck_info will equal -1
             if smck_info == -1:
-
                 # print warning and return -1, as the smck_identifier is not valid
                 if print_output_here:
                     print "No SMCK found with",smck_identifier
@@ -648,19 +571,15 @@ class MenuAwareMonitoringStandalone:
 
             # else if it has been found, then return smck_id as it is valid smck_id
             else:
-
                 # return smck_id
                 return smck_id
 
         # if smck_identifier is not a number
         except ValueError:
-
             # get smck_id
             smck_id = self.oi.get_smck_id_from_smck_tool_patch_version(smck_identifier)
-
             # if no smck_id is found
             if smck_id == -1:
-
                 # print warning and return -1
                 if print_output_here:
                     print "No SMCK found with",smck_identifier
@@ -668,7 +587,6 @@ class MenuAwareMonitoringStandalone:
 
             # else if it has been found, then return smck_id
             else:
-
                 # return smck_id
                 return smck_id
 
@@ -677,7 +595,7 @@ class MenuAwareMonitoringStandalone:
         "Get an SMCK configuration from the Oracle database."
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # check for empty print_output_here
@@ -690,15 +608,11 @@ class MenuAwareMonitoringStandalone:
 
         # if an smck_id has not been found
         if smck_id == -1:
-
             # return -1, as no smck_info can be obtained
             return -1
-
         else:
-
             # get smck_info
             smck_info = self.oi.read_smck_info_from_db(smck_id)
-
             # return this smck_info
             return smck_info
 
@@ -707,23 +621,18 @@ class MenuAwareMonitoringStandalone:
         """ Check if two releases versions are compatible.
         If they do, MAM will apply MCKs from either release in the other."""
 
-        project1 = "DummyProject"
-        project2 = project1
-
-        if ( "-" in version1 ) and ( "-" in version2 ):
-            project1 = version1.split("-")[0]
-            version1 = version1.split("-")[1]
-            project2 = version2.split("-")[0]
-            version2 = version2.split("-")[1]
-
-        if ( version1.startswith(version2) or version1.startswith(version2) ) and project1.upper() == project2.upper():
-            return True
+        if type(version2) is list:
+            if version1 in version2:
+                return True
+        elif version1 == version2:
+                return True
+        return False
 
 
     def clone_mck_for_new_release(self,mck_id,project="",version=""):
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         if self.readonly_db_connection == True:
@@ -768,7 +677,6 @@ class MenuAwareMonitoringStandalone:
 
         # create the new mck, this modifies mck_info
         self.oi.upload_mck(mck_info)
-
         clone_mck_id = mck_info['MCK_ID']
 
         # link this new mck to the original smck_ids
@@ -785,7 +693,7 @@ class MenuAwareMonitoringStandalone:
         Optional comment can be provided."""
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         if self.readonly_db_connection == True:
@@ -799,8 +707,6 @@ class MenuAwareMonitoringStandalone:
 
         # if the input is empty, then we exit
         if input_smck_list == []:
-
-            # info for user
             if print_output_here:
                 print "No list of SMCK has been provided."
                 print "No MCK upload is possible without a list of SMCKs."
@@ -822,11 +728,9 @@ class MenuAwareMonitoringStandalone:
                 # smck is real and not already in the list, so add it
                 smck_ids.append(smck_id)
 
-
         # check if all smck_id have been found
         # TODO - CHECK THAT THE -1 CRITERIA IS CORRECT (ie do we need '-1' instead? I don't think so)
         if smck_ids.__contains__(-1):
-
             # one or more smck are missing. Abort mck upload
             if print_output_here:
                 print "One or more of the SMCK requested are missing. Aborting MCK upload."
@@ -855,8 +759,6 @@ class MenuAwareMonitoringStandalone:
 
         # if mck does already exist, then say so and exit
         if mck_id != -1:
-
-            # info for user
             if print_output_here:
                 print "This MCK already exists. It is MCK",mck_id
             return
@@ -878,11 +780,9 @@ class MenuAwareMonitoringStandalone:
 
         # link this mck to the smck_ids
         for smck_id in smck_ids:
-
             # upload this link
             self.oi.upload_mck_smck_link(mck_id,smck_id)
 
-        # info for user
         if print_output_here:
             print "This MCK has been uploaded. It is MCK",int(mck_id)
 
@@ -894,7 +794,7 @@ class MenuAwareMonitoringStandalone:
         Optional comment can be provided."""
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         if self.readonly_db_connection == True:
@@ -923,25 +823,18 @@ class MenuAwareMonitoringStandalone:
 
         # loop over input
         for smck_identifier in input_smck_list:
-
             # get smck_id
             smck_id = self.__get_smck_id_from_smck_identifier__(smck_identifier)
-
             # if an smck_id has not been found
             if smck_id == -1:
-
-                # info for user
                 if print_output_here:
                     print "Problem with requested SMCK",smck_identifier
-
             # add this smck_id to the smck_ids list
             smck_ids.append(smck_id)
-
 
         # check if all smck_id have been found
         # TODO - CHECK THAT THE -1 CRITERIA IS CORRECT (ie do we need '-1' instead? I don't think so)
         if smck_ids.__contains__(-1):
-
             # one or more smck are missing. Abort mck upload
             if print_output_here:
                 print "One or more of the SMCK requested are missing. Aborting MCK upload."
@@ -952,8 +845,6 @@ class MenuAwareMonitoringStandalone:
 
         # if mck does already exist, then say so and exit
         if mck_id != -1:
-
-            # info for user
             if print_output_here:
                 print "This MCK already exists. It is MCK",int(mck_id)
             return
@@ -974,11 +865,9 @@ class MenuAwareMonitoringStandalone:
 
         # link this mck to the smck_ids
         for smck_id in smck_ids:
-
             # upload this link
             self.oi.upload_mck_smck_link(mck_id,smck_id)
 
-        # info for user
         if print_output_here:
             print "This MCK has been uploaded. It is MCK",int(mck_id)
 
@@ -994,13 +883,10 @@ class MenuAwareMonitoringStandalone:
 
         # create a file-like-object to read the json from
         input_file = open( input_json_filename , "r" )
-
         # json decode the local global info, and pass it to self.local_global_info, converting unicode to str
         self.local_global_info = self.oi.__unicode_to_str__( json.load(input_file) )
-
         # update self.local
         self.__update_local_pointer__()
-
         # close the input file
         input_file.close()
 
@@ -1010,7 +896,7 @@ class MenuAwareMonitoringStandalone:
         and upload these configurations to the database."""
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         if self.readonly_db_connection == True:
@@ -1022,125 +908,42 @@ class MenuAwareMonitoringStandalone:
 
         # check that there are SMCK in this upload
         if len(self.local_global_info['MONITORING_TOOL_DICT']) == 0:
-
-            # info for user
             print "The file",input_json_filename,"contains no tool configurations to be uploaded."
             return
 
         # then we extract whether this is a default configuration or not
         default = int(self.local_global_info['MCK']['MCK_DEFAULT'])
 
-        # and we extract the comment, athena version, stream, step, and user
-        """
-        comment = self.local_global_info['MCK']['MCK_COMMENT']
-        athena_version = self.local_global_info['MCK']['MCK_ATHENA_VERSION']
-        user = self.local_global_info['MCK']['MCK_CREATOR']
-        for value in self.local_global_info['MONITORING_TOOL_DICT'].values():
-            processing_stream = value['SMCK_PROCESSING_STREAM']
-            processing_step = value['SMCK_PROCESSING_STEP']
-            break
-        """
-
-        # if this is a default config, then use upload_default
+        # Don't upload defaults to the DB
         if default == 1:
-            print "Defaults should not be uploaded to the DB."
-            #self.upload_default(comment,athena_version,user,print_output_here)
-        else:
-            # depreciated:
-            #self.upload_all_local_changes_as_smck(processing_step,processing_stream,comment,athena_version,user,print_output_here)
-
-            # upload this self.local_global_info to the database, and get the new mck_id and smck_ids
-            mck_id, smck_ids = self.oi.upload_mck_and_smck(self.local_global_info)
-
-            # print smck info
-            print "The following SMCK have been created or already exist:"
-            print ""
-
-            for smck_id in smck_ids:
-
-                # get smck_info
-                tool_value = self.get_smck_info_from_db(smck_id)
-
-                # print info for this smck
-                print "SMCK_ID =",tool_value['SMCK_ID']
-                print "SMCK_TOOL_PATCH_VERSION =",tool_value['SMCK_TOOL_PATCH_VERSION']
-
-            # also print mck info
-            print ""
-            print "An MCK has been created or already exists, linking to the above SMCK:"
-            print "MCK_ID =",mck_id
-            print ""
-
-            # if we are running silently, still return the new_mck_id and new_smck_ids
-            # (ie. in case this function has been called by another function, which might like to know the new_mck_id and new_smck_ids)
-            return mck_id, smck_ids
-
-
-    def get_default_mck_id_from_db(self,input_athena_version=""):
-        """Get the MCK number (MCK_ID) of the default for this Athena version.
-        If input_athena_version=='', the current Athena version is used."""
-
-        if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "Defaults cannot be uploaded to the DB."
             return
 
-        # if no input Athena version is provided, then use the current version
-        if input_athena_version == "":
-            input_athena_version = self.current_athena_version
+        # upload this self.local_global_info to the database, and get the new mck_id and smck_ids
+        mck_id, smck_ids = self.oi.upload_mck_and_smck(self.local_global_info)
 
-        # search for default mck
-        return self.oi.read_default_mck_id_from_db(input_athena_version)
+        # print smck info
+        print "The following SMCK have been created (or already exist):"
+        for smck_id in smck_ids:
+            # get smck_info
+            tool_value = self.get_smck_info_from_db(smck_id)
+            # print info for this smck
+            print "SMCK_ID =",tool_value['SMCK_ID']
+            print "SMCK_TOOL_PATCH_VERSION =",tool_value['SMCK_TOOL_PATCH_VERSION']
 
+        # also print mck info
+        print "An MCK has also been created (or already exists), linking to the above SMCK:"
+        print "MCK_ID =",int(mck_id)
 
-    def get_default_from_db(self,input_athena_version="",print_output_here=""):
-        """Prints default MCK number (MCK_ID) for an Athena version.
-        If no Athena version is specified, the current Athena version being run in is used.
-        All default information is made available in the <ThisVariable>.default_global_info dictionary."""
-
-        if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
-            return
-
-        # check for empty print_output_here
-        # if it is found, use self.print_output
-        if print_output_here == "":
-            print_output_here = self.print_output
-
-        # info for user
-        if print_output_here:
-            print "Attempting to get default tool configuration from database"
-
-        # if no input Athena version is provided, then use the current version
-        if input_athena_version == "":
-            input_athena_version = self.current_athena_version
-
-        # search for default mck
-        default_mck = self.get_default_mck_id_from_db(input_athena_version)
-
-        # if a valid default mck exists
-        if default_mck >= 0:
-
-            # info for user
-            if print_output_here:
-                print "Default MCK for Athena version "+input_athena_version+" is",default_mck
-
-            # fill self.default_global_info
-            self.default_global_info = self.get_global_info_from_db(default_mck)
-
-        # if there is no default for this Athena version
-        else:
-
-            # info for user
-            if print_output_here:
-                print "No default for Athena version "+self.current_athena_version+" has been uploaded"
-                print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.upload_default()\""
+        # return the new_mck_id and new_smck_ids
+        return mck_id, smck_ids
 
 
     def get_global_info_from_db(self,mck_id):
         "For an input MCK number (MCK_ID), get all related MCK and SMCK info, and return it as a dictionary."
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # get mck_info for this mck
@@ -1153,10 +956,8 @@ class MenuAwareMonitoringStandalone:
 
         # loop over smck_ids and get smck_info
         for smck_id in smck_ids:
-
             # get smck_info
             smck_info = self.oi.read_smck_info_from_db(smck_id)
-
             # generate monitoring_tool_dict key, a combination of the tool name,
             # the processing step (if not ALL),
             # and the processing stream (if not ALL)
@@ -1165,87 +966,11 @@ class MenuAwareMonitoringStandalone:
                 smck_key += "_"+smck_info['SMCK_PROCESSING_STEP']
             if smck_info['SMCK_PROCESSING_STREAM'] != "ALL":
                 smck_key += "_"+smck_info['SMCK_PROCESSING_STREAM']
-
             # add this smck_info to monitoring_tool_dict
             global_info['MONITORING_TOOL_DICT'][smck_key] = smck_info
 
         # return global_info
         return global_info
-
-
-    def upload_default(self,comment="",athena_version="",user="",print_output_here=""):
-        "Upload all current trigger-monitoring tool configurations as default for this Athena version."
-
-        print "Defaults should not be uploaded to the DB."
-
-        # check for empty print_output_here
-        # if it is found, use self.print_output
-        if print_output_here == "":
-            print_output_here = self.print_output
-
-        # check for empty athena_version
-        # if it is found, use self.current_athena_version
-        if athena_version == "":
-            athena_version=self.current_athena_version
-
-        # check for empty user
-        # if it is found, use self.current_user
-        if user == "":
-            user=self.current_user
-
-        # search for default mck
-        default_mck = self.get_default_mck_id_from_db(athena_version)
-
-        # if it already exists
-        if default_mck >= 0:
-
-            if print_output_here:
-                print "There already exists a default MCK for this Athena version:"
-                print "Athena version: "+athena_version
-                print "Default MCK:",default_mck
-
-        else:
-
-            # if no comment is provided, then ask for one
-            if comment=="":
-                comment = self.__ask_for_comment__()
-
-            # fill mck_info
-            self.local_global_info['MCK'] = {}
-            self.local_global_info['MCK']['MCK_DEFAULT'] = 1
-            self.local_global_info['MCK']['MCK_ATHENA_VERSION'] = athena_version
-            self.local_global_info['MCK']['MCK_CREATOR'] = user
-            self.local_global_info['MCK']['MCK_COMMENT'] = comment
-
-            # update self.local
-            self.__update_local_pointer__()
-
-            # for each local tool
-            for tool, smck_info in self.local_global_info['MONITORING_TOOL_DICT'].iteritems():
-
-                # fill smck_info
-                smck_info['SMCK_PROCESSING_STEP'] = "ALL"
-                smck_info['SMCK_PROCESSING_STREAM'] = "ALL"
-                smck_info['SMCK_DEFAULT'] = 1
-                smck_info['SMCK_CREATOR'] = user
-                smck_info['SMCK_COMMENT'] = comment
-
-            # upload this self.local_global_info to the database, and get the new mck_id and smck_ids
-            mck_id, smck_ids = self.oi.upload_mck_and_smck(self.local_global_info)
-
-            # info for user
-            if print_output_here:
-                print "The default for this Athena version ("+athena_version+") has been uploaded"
-                print "It has been given the MCK",mck_id
-                print ""
-                print "The following tools have had their current configurations uploaded as defaults:"
-                print ""
-                for smck_id in smck_ids:
-                    smck_info = self.oi.read_smck_info_from_db(smck_id)
-                    print "Tool:",smck_info['SMCK_TOOL_TYPE']
-                    print "SMCK:",smck_id
-                    print "SMCK tool patch version:",smck_info['SMCK_TOOL_PATCH_VERSION']
-                    print ""
 
 
     def get_default_from_json(self,input_json_filename=""):
@@ -1261,170 +986,37 @@ class MenuAwareMonitoringStandalone:
         input_file.close()
 
 
-    def upload_all_local_changes_as_smck(self,processing_step="",processing_stream="",comment="",athena_version="",user="",print_output_here=""):
-        """Upload all local configuration changes wrt the default.
-        Optional processing step, stream, and comment can be provided."""
+    def dump_mck_to_json(self,mck_id,output_json_filename=""):
+        "Dump the contents of an MCK to a json file, including the contents of linked SMCKs"
 
-        print "This function is depreciated, please use mam.make_patch_json and mam.ms.upload_config_from_json instead."
-
-        if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+        mck_info = self.oi.read_mck_info_from_db(mck_id)
+        if mck_info == -1:
+            print "MCK",mck_id,"has not been recognised as a valid MCK."
             return
 
-        if self.readonly_db_connection == True:
-            print "Your connection is read only, so this function is not available to you."
-            return
+        smck_ids = self.oi.read_mck_links_from_db(mck_id)
 
-        # check for empty print_output_here
-        # if it is found, use self.print_output
-        if print_output_here == "":
-            print_output_here = self.print_output
+        if output_json_filename == "":
+            output_json_filename = "MCK_"+str(mck_id)+".json"
 
-        # check for empty athena_version
-        # if it is found, use self.current_athena_version
-        if athena_version == "":
-            athena_version=self.current_athena_version
+        output_file = open( output_json_filename, "w" )
 
-        # check for empty user
-        # if it is found, use self.current_user
-        if user == "":
-            user=self.current_user
+        mck_dump_info = {}
+        # datetime.datetime objects are not JSON serializable
+        # seeing as this info is not used later, we replace with the ctime
+        mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
+        mck_dump_info['MCK'] = mck_info
 
-        # search for default mck
-        default_mck = self.get_default_mck_id_from_db(athena_version)
+        # combine rest of the MCK info in the MONITORING_TOOL_DICT
+        mck_dump_info['MONITORING_TOOL_DICT'] = {}
+        for smck_id in smck_ids:
+            smck_info = self.oi.read_smck_info_from_db(smck_id)
+            smck_info['SMCK_CREATION_DATE'] = smck_info['SMCK_CREATION_DATE'].ctime()
+            tool_type = smck_info['SMCK_TOOL_TYPE']
+            mck_dump_info['MONITORING_TOOL_DICT'][tool_type] = smck_info
 
-        # if the default does not exist
-        if default_mck < 0:
-
-            # info for user
-            if print_output_here:
-                print "No default for Athena version "+athena_version+" has been uploaded"
-                print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.upload_default()\""
-            return
-
-        # if no tools are running locally
-        if len(self.local_global_info['MONITORING_TOOL_DICT']) == 0:
-
-            # exit and suggest to the user how to start the tools, if they so wish
-            if print_output_here:
-                print "No trigger monitoring tools are currently set up locally and read in, so they can not have their local configurations uploaded as SMCK."
-                print "To set up and read in all trigger monitoring tools locally, please run \"<ThisVariable>.setup_all_local_tools()\""
-                print "To read in all local tools currently set up, please run \"<ThisVariable>.get_current_local_info()\""
-
-            return
-
-        # get default from database
-        self.get_default_from_db(athena_version)
-
-        # create diff of global_info
-        # we want diffed_global_info2,
-        # which is the 'patch' to apply to the default to get the current local configuration
-        diffed_global_info1, diffed_global_info2 = self.__calculate_diff__(self.default_global_info,self.local_global_info,False)
-
-        # if there are no local differences wrt the default, then we upload nothing and exit
-        if diffed_global_info2 == {}:
-            # info for user
-            if print_output_here:
-                print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for Athena version "+athena_version+"."
-                print "Nothing shall be uploaded to the Oracle database as a result."
-            return
-
-        # if no processing_step is provided, then ask for one
-        if processing_step=="":
-            processing_step = self.__ask_for_processing_step__()
-
-        # if no processing_step is provided, then ask for one
-        if processing_stream=="":
-            processing_stream = self.__ask_for_processing_stream__()
-
-        # if no comment is provided, then ask for one
-        if comment=="":
-            comment = self.__ask_for_comment__()
-
-        # fill extra mck_info
-        diffed_global_info2['MCK'] = {}
-        diffed_global_info2['MCK']['MCK_DEFAULT'] = 0
-        diffed_global_info2['MCK']['MCK_ATHENA_VERSION'] = athena_version
-        diffed_global_info2['MCK']['MCK_CREATOR'] = user
-        diffed_global_info2['MCK']['MCK_COMMENT'] = comment
-
-        # in case we want to remove any diffed_global_info2['MONITORING_TOOL_DICT'] items, we must make a list of the keys,
-        # and then delete these keys after we have finished iterating over diffed_global_info2['MONITORING_TOOL_DICT']
-        # It is not possible to delete elements while iterating over a list or dict
-        keys_to_delete = []
-
-        # fill extra smck_info for all tools
-        for tool_key, tool_value in diffed_global_info2['MONITORING_TOOL_DICT'].iteritems():
-
-            # fill extra smck_info
-            tool_value['SMCK_PROCESSING_STEP'] = processing_step
-            tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
-            if not tool_value.__contains__('SMCK_CONFIG'):
-                tool_value['SMCK_CONFIG'] = {}
-            tool_value['SMCK_CONFIG']['PackageName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['PackageName']
-            tool_value['SMCK_CONFIG']['ToolName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolName']
-            tool_value['SMCK_CONFIG']['ToolSvcName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolSvcName']
-            if not tool_value['SMCK_CONFIG'].__contains__('ToolInfo'):
-                tool_value['SMCK_CONFIG']['ToolInfo'] = {}
-            tool_value['SMCK_CONFIG']['SliceType'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['SliceType']
-            tool_value['SMCK_CONFIG']['MonitCategoryName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['MonitCategoryName']
-            if not tool_value['SMCK_CONFIG'].__contains__('MonitCategoryInfo'):
-                tool_value['SMCK_CONFIG']['MonitCategoryInfo'] = {}
-            tool_value['SMCK_CONFIG_HASH'] = self.__get_config_hash__(tool_value['SMCK_CONFIG'])
-            tool_value['SMCK_TOOL_TYPE'] = tool_key
-            tool_value['SMCK_SLICE_TYPE'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SLICE_TYPE']
-            tool_value['SMCK_DEFAULT'] = 0
-            tool_value['SMCK_ATHENA_VERSION'] = athena_version
-            tool_value['SMCK_SVN_TAG'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SVN_TAG']
-            tool_value['SMCK_CREATOR'] = user
-            tool_value['SMCK_COMMENT'] = comment
-
-            # if tool_value['SMCK_CONFIG']['ToolInfo'] and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] are both empty, then we don't want to include this as a new SMCK
-            if tool_value['SMCK_CONFIG']['ToolInfo'] == {} and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] == {}:
-                keys_to_delete.append(tool_key)
-
-        # if there are any items in keys_to_delete to be deleted from diffed_global_info2['MONITORING_TOOL_DICT'] then delete them now
-        for tool_key in keys_to_delete:
-            diffed_global_info2['MONITORING_TOOL_DICT'].__delitem__(tool_key)
-
-        # if there are no items in diffed_global_info2['MONITORING_TOOL_DICT'] then we do not want to upload anything
-        if len(diffed_global_info2['MONITORING_TOOL_DICT']) == 0:
-
-            # info for user
-            if print_output_here:
-                print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for Athena version "+athena_version+"."
-                print "Nothing shall be uploaded to the Oracle database as a result."
-            return
-
-        # upload global_info (diffed_global_info2)
-        new_mck_id, new_smck_ids = self.oi.upload_mck_and_smck(diffed_global_info2)
-
-        # info for user
-        if print_output_here:
-
-            # print smck info
-            print "The following SMCK have been created or already exist:"
-            print ""
-
-            for smck_id in new_smck_ids:
-
-                # get smck_info
-                tool_value = self.get_smck_info_from_db(smck_id)
-
-                # print info for this smck
-                print "SMCK_ID =",tool_value['SMCK_ID']
-                print "SMCK_TOOL_PATCH_VERSION =",tool_value['SMCK_TOOL_PATCH_VERSION']
-
-            # also print mck info
-            print ""
-            print "An MCK has been created or already exists, linking to the above SMCK:"
-            print "MCK_ID =",new_mck_id
-            print ""
-
-        # if we are running silently, still return the new_mck_id and new_smck_ids
-        # (ie. in case this function has been called by another function, which might like to know the new_mck_id and new_smck_ids)
-        else:
-            return new_mck_id, new_smck_ids
+        json.dump(mck_dump_info, output_file, ensure_ascii=True, sort_keys=True)
+        output_file.close()
 
 
     def search(self,flag1="",input1="",print_output_here=""):
@@ -1433,7 +1025,7 @@ class MenuAwareMonitoringStandalone:
             flag1 specifies what kind of input input1 is."""
 
         if self.connected_to_oracle == False:
-            print "You are not connected to the database, so this function is not available."
+            print "MaM is not connected to the database, so this function is not available."
             return
 
         # check for empty print_output_here
@@ -1454,8 +1046,6 @@ class MenuAwareMonitoringStandalone:
 
         # if the input or flag are missing
         if flag1 == "":
-
-            #info for user
             if print_output_here:
                 print "search takes two arguments: flag, input."
                 print "The input is what is to be searched for."
@@ -1467,17 +1057,13 @@ class MenuAwareMonitoringStandalone:
                 print "'SMCK_TOOL_TYPE','HLTMuonMon'"
                 print "'MCK_CREATOR','bsmart'"
                 print "'SMCK_SLICE_TYPE','Muon'"
-                print ""
                 print "Recognised flags are:"
 
                 # print available columns
                 for row in database_column_list:
-
                     # print this column name, with a preceding -
                     print row['COLUMN_NAME']
 
-                # nice spacing for the user
-                print ""
                 print "You can leave the input blank to print all entries for the flag, but you must enter a flag."
 
             # if we do not have the flag, then we can not search, and so must exit
@@ -1493,31 +1079,23 @@ class MenuAwareMonitoringStandalone:
 
         # loop over columns
         for row in database_column_list:
-
             # check if this column matches
             if flag1.upper() == row['COLUMN_NAME']:
-
                 # then extract the table name and column name
                 table_name = row['TABLE_NAME']
                 column_name = row['COLUMN_NAME']
-
                 # and set column_match and break out of this loop
                 column_match = True
                 break
 
         # check that we have found the column
         if not column_match:
-
-            #info for user
             if print_output_here:
                 print "The flag '"+flag1+"' has not been recognised as a valid flag. Recognised flags are:"
-
                 # print available columns
                 for row in database_column_list:
-
                     # print this column name, with a preceding -
                     print "-"+row['COLUMN_NAME']
-
             # no valid flag (column) means we can not search, and so must exit
             return
 
@@ -1529,46 +1107,31 @@ class MenuAwareMonitoringStandalone:
         # the input they have provided could be hashed, and the hash could be searched for
         if flag1 == "smck_config":
 
-            # info for the user
             if print_output_here:
-
                 # explain problem
-                print ""
                 print "You have attempted to search for an SMCK_CONFIG."
                 print "Unfortunately, due to limitations in Oracle, this is not possible."
                 print "This is because the SMCK_CONFIG is stored as a CLOB, and in Oracle it is not possible to perform SQL query comparisons to CLOB objects, (WHERE SMCK_CONFIG = user_input)."
-
                 # explain the alternative
-                print ""
                 print "To allow for SMCK_CONFIG comparisons, each config is hashed (using sha512) and hashes are compared."
                 print "Your input will now be hashed, and that hash will be searched for."
                 print "As this may not be exactly what you intended, do take care when interpreting these search results."
-                print ""
-
                 # convert the flag
                 flag1 = 'smck_config_hash'
-
                 # convert the input to a hash
                 input1 = self.__get_config_hash__(input1)
-
 
         # now lets search
         search_results_list = self.oi.column_search(input1,table_name,column_name)
 
         # and print our results in a neat manner
         if print_output_here:
-
             # remind the user what was searched for
-            print ""
-            print input1,"has been searched for in the column",column_name,"of table",table_name,"in the menu-aware monitoring Oracle database."
-            print ""
+            print input1,"has been searched for in the column",column_name,"of table",table_name,"in the Menu-aware Monitoring Oracle database."
 
             # if no results have been found
             if len(search_results_list) == 0:
-
-                # let the user know
                 print "No results have been found."
-                print ""
                 return
 
             # else if results have been found
@@ -1576,7 +1139,6 @@ class MenuAwareMonitoringStandalone:
 
             # loop over the search results
             for n, row_dict in enumerate(search_results_list):
-
                 # create a name for the row
                 # this is just "Result_n" where n is the row number
                 row_name = "Result_"+str(n)
@@ -1589,11 +1151,9 @@ class MenuAwareMonitoringStandalone:
                 # added bonus for the user
                 # if this is an mck table, then we shall find and print out the list of smck that this mck links to
                 if table_name == "MCK_TABLE":
-
                     # get the smck_ids
                     smck_ids = self.oi.read_mck_links_from_db(row_dict['MCK_ID'])
 
-                    # info for user
                     print ""
                     if smck_ids is -1:
                         print row_name,"is an MCK which links to no SMCKs. This MCK is empty."
@@ -1613,10 +1173,8 @@ class MenuAwareMonitoringStandalone:
 
                         # for each smck_id
                         for smck_id in smck_ids:
-
                             # get the smck_info
                             smck_info = self.oi.read_smck_info_from_db(smck_id)
-
                             # add it to smck_info_dict
                             smck_info_dict[smck_id] = smck_info
 
@@ -1631,10 +1189,8 @@ class MenuAwareMonitoringStandalone:
                         # now we print stuff
                         # for each smck_id
                         for smck_id in smck_ids:
-
                             # get the smck_info from the above dictionary
                             smck_info = smck_info_dict[smck_id]
-
                             # print some formatted info on this smck
                             print "[ SMCK_ID = "+str(smck_id).ljust(id_ljust)+" , SMCK_TOOL_PATCH_VERSION = "+str(smck_info['SMCK_TOOL_PATCH_VERSION']).ljust(version_ljust)+" , SMCK_SLICE_TYPE = "+str(smck_info['SMCK_SLICE_TYPE']).ljust(slice_ljust)+" ]"
 
@@ -1659,58 +1215,42 @@ class MenuAwareMonitoringStandalone:
 
         # loop over the first dictionary
         for key, value1 in dict1.iteritems():
-
             # if this key is in the second dictionary
             if dict2.__contains__(key):
-
                 # get the value in the second dictionary
                 value2 = dict2[key]
-
                 # first check if the values are equal
                 # (if they are equal, then we don't want to put anything for this key into the return dictionaries)
                 if str(value1) != str(value2):
-
                     # are value1 and value2 dictionaries? if so, recursively call __calculate_diff__
                     if type(value1) is dict and type(value2) is dict:
-
                         # recursively call __calculate_diff__ and fill return dictionaries
                         return_dict1_temp, return_dict2_temp = self.__calculate_diff__(value1,value2,diff_all)
-
                         # check that the output is not identical
                         # this catches the case when diff_all==False
                         # where str(value1) != str(value2) because at least one of the dicts contains a key that the other doesn't
                         # but all the matching keys have identical values
                         # which causes the return_dicts to be equal (blank)
                         if return_dict1_temp != return_dict2_temp:
-
                             # fill return dictionaries
                             return_dict1[key] = return_dict1_temp
                             return_dict2[key] = return_dict2_temp
-
                     else:
-
                         # fill return dictionaries with the different values
                         return_dict1[key] = value1
                         return_dict2[key] = value2
-
             # else if this key is not in the second dictionary
             else:
-
                 #if we are adding all differences to the return dicts
                 if diff_all:
-
                     # then add this key and value to the first return dict
                     return_dict1[key] = value1
-
         #if we are adding all differences to the return dicts
         if diff_all:
-
             # loop over the second dictionary
             for key, value2 in dict2.iteritems():
-
                 # if this key is not in the first dictionary
                 if not dict1.__contains__(key):
-
                     # then add this key and value to the second return dict
                     return_dict2[key] = value2
 
@@ -1723,20 +1263,15 @@ class MenuAwareMonitoringStandalone:
 
         # loop over the keys (and values) in dict1
         for key, value1 in dict1.iteritems():
-
             # if the value is a dict
             if type(value1) is dict:
-
                 # first print this dict key
                 print tab_space+name1+"['"+key+"']:"
-
                 # recursively call this function
                 # add some space to tab_space, to indent the sub-dictionary
                 self.__print_one_dict__(value1,"   "+tab_space,name1)
-
             # if the value is a list
             elif type(value1) is list:
-
                 # print the items nicely (no unicode u' features)
                 print tab_space+name1+"['"+key+"'] = [",
                 for n, item in enumerate(value1):
@@ -1747,14 +1282,13 @@ class MenuAwareMonitoringStandalone:
                     if n != len(value1)-1:
                         print ",",
                 print "]"
-
             # else if this value is not a dict or a list, then we should print
             else:
                 print tab_space+name1+"['"+key+"'] =",value1
 
 
     def create_sqlite_file_to_copy_to_cool(self,mck,run,runend="",info="",project="",version=""):
-        """Create ad sqlite file which can be used to manually add data to COOL"""
+        """Create an sqlite file which can be used to manually add data to COOL"""
         # this way https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CoolPublishing#Updating_data_on_the_online_data
 
         if runend and run >= runend:
@@ -1777,7 +1311,7 @@ class MenuAwareMonitoringStandalone:
             print "If you want to assign an MCK to a new release consider using the function mam.ms.clone_mck_for_new_release(mck_id,project="",version="")"
             print "Continuing but ignoring project and version variables..."
 
-        # TO ADD: check that run exists
+        # TODO: check that run exists
         # something similar to http://acode-browser.usatlas.bnl.gov/lxr/ident?_i=getOnlineRun
 
         from PyCool import cool
@@ -1790,7 +1324,7 @@ class MenuAwareMonitoringStandalone:
 
         # column definition
         schema = [('MonConfigKey', cool.StorageType.UInt32),    # the mck
-                  ('Info', cool.StorageType.String4k)]          # optional info (currently unused)
+                  ('Info', cool.StorageType.String4k)]          # optional info
 
         # create sqlite file
         print 'Creating sqlite file'

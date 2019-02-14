@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Jet_p1.cxx 
@@ -12,11 +12,4 @@
 
 // JetEventTPCnv includes
 #include "JetEventTPCnv/Jet_p1.h"
-
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-Jet_p1::~Jet_p1()
-{}
 

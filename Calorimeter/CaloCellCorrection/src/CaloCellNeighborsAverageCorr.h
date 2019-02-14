@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCELLCORRECTION_CALOCELLNEIGHBORSAVERAGECORR_H
@@ -17,9 +17,8 @@ class CaloCell_ID;
 class TileID;
 
 //inspiration from http://alxr.usatlas.bnl.gov/lxr-stb3/source/atlas/Calorimeter/CaloRec/CaloRec/CaloCellCopyTool.h#032
-class CaloCellNeighborsAverageCorr :  public AthAlgTool, 
-                                      virtual public ICaloCellMakerTool
-
+class CaloCellNeighborsAverageCorr
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 
 public:
@@ -32,11 +31,12 @@ public:
 
   /** initialize method
   */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** process calo cell collection to apply corrections
   */
-  StatusCode process( CaloCellContainer * theCellContainer);
+  virtual StatusCode process ( CaloCellContainer * theCellContainer,
+                               const EventContext& ctx) const override;
 
 private:
 

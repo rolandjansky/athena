@@ -14,10 +14,11 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
+bool xAOD::TrigComposite::s_throwOnCopyError = true;
+
 int main() {
 
   using namespace TrigCompositeUtils;
-  xAOD::TrigComposite::s_throwOnCopyError = true;
 
   errorcheck::ReportMessage::hideFunctionNames (true);
 

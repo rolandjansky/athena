@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,10 +61,6 @@ SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
                      stripDirection, thicknessDirection),
     m_scheme(crystals, diodes, cells, shift),
     m_swapStripReadout(swapStripReadout) {
-}
-
-// Destructor:
-SCT_ModuleSideDesign::~SCT_ModuleSideDesign() {
 }
 
 void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,

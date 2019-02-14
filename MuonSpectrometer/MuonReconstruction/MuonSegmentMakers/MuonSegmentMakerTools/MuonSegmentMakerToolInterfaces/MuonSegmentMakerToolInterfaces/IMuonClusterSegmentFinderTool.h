@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONROADFINDERTOOL_H
@@ -9,6 +9,7 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "TrkSegment/SegmentCollection.h"
 #include <vector>
 
 static const InterfaceID IID_IMuonClusterSegmentFinderTool("Muon::IMuonClusterSegmentFinderTool", 1, 0);
@@ -25,7 +26,7 @@ namespace Muon {
     /** access to tool interface */
     static const InterfaceID& interfaceID();
 
-    virtual std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) const = 0;
+    virtual void find(std::vector< const Muon::MuonClusterOnTrack* >& clusters, std::vector<Muon::MuonSegment*>& segments, Trk::SegmentCollection* segColl=0) const = 0;
 
   };
   

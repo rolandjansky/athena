@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,9 +13,8 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
-
-#include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
+#include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 
@@ -29,20 +28,20 @@ namespace Muon
   public:
     
     struct Output {
-      const MuonPatternCombinationCollection* patternCombinations;
-      const Trk::SegmentCollection*           segmentCollection;
-      const MuonSegmentCombinationCollection* segmentCombinations;
-      
-      Output() : patternCombinations(0),segmentCollection(0),segmentCombinations(0) {}
+      MuonPatternCombinationCollection* patternCombinations;
+      Trk::SegmentCollection*           segmentCollection;
+
+    Output() : patternCombinations(0),segmentCollection(0) {}
     };
 
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual Output* findSegments( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-				  const std::vector<const CscPrepDataCollection*>& cscCols,  
-				  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-				  const std::vector<const RpcPrepDataCollection*>& rpcCols ) = 0;
+    virtual void findSegments( const std::vector<const MdtPrepDataCollection*>& mdtCols,
+			       const std::vector<const CscPrepDataCollection*>& cscCols,
+			       const std::vector<const TgcPrepDataCollection*>& tgcCols,
+			       const std::vector<const RpcPrepDataCollection*>& rpcCols,
+			       Output& output) = 0;
     
   };
 

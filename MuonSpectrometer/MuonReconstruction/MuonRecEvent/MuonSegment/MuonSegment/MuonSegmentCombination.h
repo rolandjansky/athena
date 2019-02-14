@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,12 +13,9 @@ namespace Trk {
   class Segment;
 }
 
-namespace Muon {
-  class MuonSegment;
-}
-
 #include <vector>
-
+#include <memory>
+#include "MuonSegment/MuonSegment.h"
 
 namespace Muon {
 
@@ -32,8 +29,8 @@ namespace Muon {
   */
   class MuonSegmentCombination {
   public:
-    typedef std::vector< const MuonSegment* > SegmentVec;
-    typedef std::vector< SegmentVec* >    SegmentVecVec;
+    typedef std::vector< std::unique_ptr<MuonSegment> > SegmentVec;
+    typedef std::vector< std::unique_ptr<SegmentVec> >  SegmentVecVec;
   public:
     /** Default constructor */
     MuonSegmentCombination();
@@ -53,13 +50,13 @@ namespace Muon {
 	whether there are already segments for the given station. 
 	This is up to the user.
     */
-    bool addSegments( SegmentVec* );
+    bool addSegments( std::unique_ptr<SegmentVec> );
 
     /** Number of stations with segment */
     unsigned int numberOfStations() const;
 
     /** Access to segments in a given station */
-    const SegmentVec* stationSegments( unsigned int index ) const;
+    SegmentVec* stationSegments( unsigned int index ) const;
 
     /** Number of ambiguities */
     unsigned int numberOfAmbiguities() const;
@@ -102,9 +99,9 @@ namespace Muon {
       return m_nGood[isEta];
     }
 
-  inline  bool MuonSegmentCombination::addSegments( SegmentVec* segs )
+  inline  bool MuonSegmentCombination::addSegments( std::unique_ptr<SegmentVec> segs )
   {
-    m_segmentsPerStation.push_back( segs );
+    m_segmentsPerStation.push_back( std::move(segs) );
     return true;
   }
 
@@ -113,10 +110,10 @@ namespace Muon {
     return m_segmentsPerStation.size();
   }
   
-  inline const MuonSegmentCombination::SegmentVec* 
+  inline MuonSegmentCombination::SegmentVec* 
     MuonSegmentCombination::stationSegments( unsigned int index ) const
   {
-    if( index < numberOfStations() ) return m_segmentsPerStation[index];
+    if( index < numberOfStations() ) return m_segmentsPerStation[index].get();
     return 0;
   }
 

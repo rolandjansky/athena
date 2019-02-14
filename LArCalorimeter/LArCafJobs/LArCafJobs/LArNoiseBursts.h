@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArNoiseBursts_H
@@ -52,7 +52,6 @@ class LArOnlineID;
 class LArElectrodeID;
 class HWIdentifier;
 class LArOnlineIDStrHelper;
-class LArCablingService;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;

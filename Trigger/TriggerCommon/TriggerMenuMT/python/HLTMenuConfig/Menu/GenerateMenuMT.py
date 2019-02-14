@@ -13,6 +13,7 @@ AlgScheduler.ShowDataFlow( True )
 
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
@@ -28,12 +29,14 @@ import os, traceback, operator, commands, time
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
+
 _func_to_modify_the_menu = None
 _func_to_modify_signatures = None
 
 class GenerateMenuMT:   
     
-    def __init__(self):
+    def __init__(self, logLevel=DEBUG):
+        log.setLevel(logLevel)
         self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []
@@ -51,13 +54,13 @@ class GenerateMenuMT:
 
     def setTriggerConfigHLT(self):
         # setting the hlt menu configuration
-        #(HLTPrescales) = self.setupMenu()
+        (HLTPrescales) = self.setupMenu()
         self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile())
         self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
         log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
 
         
-    def getChainConfig(self, chainDicts):
+    def generateChainConfig(self, chainDicts):
         """
         == Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -86,11 +89,8 @@ class GenerateMenuMT:
                     chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)                    
                 except:
                     log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
-
-
                     continue
-            else:
-                
+            else:                
                 log.error('Chain %s ignored - either trigger signature is turned off or the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
             
@@ -103,7 +103,7 @@ class GenerateMenuMT:
 
         if len(listOfChainConfigs) == 0:  
             log.error('No Chain Configuration found ')
-            return None
+            return False
         
         elif len(listOfChainConfigs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
@@ -127,16 +127,17 @@ class GenerateMenuMT:
 
         log.debug('Creating one big list of of enabled signatures and chains')
         chains = []
-        # we can already use new set of flags
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu as setupMenuFlags
-        setupMenuFlags( ConfigFlags ) 
-        ConfigFlags.lock()
+        ## we can already use new set of flags
+        #from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        #from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu as setupMenuFlags
+        #setupMenuFlags( ConfigFlags ) 
+        #ConfigFlags.lock()
         
-        #if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
-        if ConfigFlags.Trigger.menu.electron and self.doEgammaChains:
-            chains += ConfigFlags.Trigger.menu.electron
-            log.debug("egamma chains "+str(ConfigFlags.Trigger.menu.egamma))
+        #if ConfigFlags.Trigger.menu.electron and self.doEgammaChains:
+        if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
+            chains += TriggerFlags.EgammaSlice.signatures() 
+            #chains += ConfigFlags.Trigger.menu.electron
+            #log.debug("egamma chains "+str(ConfigFlags.Trigger.menu.egamma))
         else:
             self.doEgammaChains   = False
 
@@ -191,9 +192,9 @@ class GenerateMenuMT:
         # go over the slices and put together big list of signatures requested
         #(L1Prescales, HLTPrescales, streamConfig) = MenuPrescaleConfig(self.triggerPythonConfig)
         # that does not seem to work
-        #(self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
-        #return (self.HLTPrescales)
-        pass
+        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
+        return (self.HLTPrescales)
+        #pass
 
 
 
@@ -214,7 +215,7 @@ class GenerateMenuMT:
             chainDict['chainCounter'] = chainCounter
 
             log.debug("Next: getting chain configuration for chain %s ", chain) 
-            chainConfig= self.getChainConfig(chainDict)
+            chainConfig= self.generateChainConfig(chainDict)
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             self.triggerConfigHLT.allChainConfigs.append(chainConfig)
@@ -255,4 +256,6 @@ class GenerateMenuMT:
                 print step
 
         makeHLTTree(finalListOfChainConfigs)
+        # the return values used for debugging, might be removed later
+        return finalListOfChainConfigs
             

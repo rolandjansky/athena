@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCELLCONTAINERCORRECTORTOOL_H
@@ -13,9 +13,8 @@ class StoreGateSvc;
 
 #include "GaudiKernel/ToolHandle.h"
 
-class CaloCellContainerCorrectorTool: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class CaloCellContainerCorrectorTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:    
   CaloCellContainerCorrectorTool(const std::string& type, 
@@ -25,9 +24,10 @@ public:
   typedef ToolHandleArray<CaloCellCorrection> ::iterator 
     CellCorrectionToolIterator;   
 
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process ( CaloCellContainer* theCellContainer,
+                               const EventContext& ctx ) const override;
 
 
  private:
@@ -40,7 +40,9 @@ public:
 
   bool m_caloSelection ;
 
-  StatusCode processOnCellIterators(const CaloCellContainer::iterator  &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd );
+  StatusCode processOnCellIterators(const CaloCellContainer::iterator  &  itrCellBeg,
+                                    const CaloCellContainer::iterator & itrCellEnd,
+                                    const EventContext& ctx) const;
   
 
 };

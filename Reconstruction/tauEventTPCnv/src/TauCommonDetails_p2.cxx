@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauCommonDetails_p1.h
@@ -16,4 +16,3 @@
 
 TauCommonDetails_p2::TauCommonDetails_p2(){}
 
-TauCommonDetails_p2::~TauCommonDetails_p2(){}

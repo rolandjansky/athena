@@ -1,6 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ **     @file    AtlasStyle.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 //
 // ATLAS Style, based on a style file from BaBar
 //

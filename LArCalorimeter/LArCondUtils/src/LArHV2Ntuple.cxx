@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV2Ntuple.h"
@@ -30,7 +30,6 @@
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -51,8 +50,7 @@
     m_hv(0),
     m_current(0),
     m_barrelec(0), m_posneg(0), m_FT(0),m_slot(0),m_channel(0),
-    m_caloId(0), m_onlId(0),
-    m_cabling("LArCablingService")
+    m_caloId(0), m_onlId(0)
   {
     declareProperty("AddCellID",m_addcells);
   }
@@ -68,6 +66,8 @@
   {
     ATH_MSG_INFO  ("LArHV2Ntuple initialize()" );
     ATH_CHECK( service("THistSvc",m_thistSvc) );
+
+    ATH_CHECK( m_cablingKey.initialize() );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("bec",&m_bec,"bec/I");
@@ -87,24 +87,7 @@
      m_tree->Branch("channel",&m_channel,"channel/I");
      ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
      ATH_CHECK( detStore()->retrieve(m_onlId, "LArOnlineID") );
-     ATH_CHECK( m_cabling.retrieve() );
      ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
-     std::vector<Identifier>::const_iterator cell_b=m_caloId->cell_begin();
-     std::vector<Identifier>::const_iterator cell_e=m_caloId->cell_end();
-     for(;cell_b!=cell_e; ++cell_b) {
-         if(m_caloId->is_tile(*cell_b)) continue;
-         HWIdentifier onlid = m_cabling->createSignalChannelID(*cell_b);
-         std::vector<int> hvlines = GetHVLines(*cell_b);
-         for(unsigned i=0; i<hvlines.size(); ++i ) {
-            if(m_hvonlId_map.find(hvlines[i]) == m_hvonlId_map.end()) { // new key
-               std::vector<HWIdentifier> vec;
-               vec.push_back(onlid);
-               m_hvonlId_map[hvlines[i]] = vec;
-            } else { // existing key
-               m_hvonlId_map[hvlines[i]].push_back(onlid);
-            }
-         }
-     }// end map filling
   }
 
  
@@ -118,6 +101,30 @@
     //.............................................
     
   ATH_MSG_DEBUG ( "LArHV2Ntuple execute()" );
+  if(m_hvonlId_map.size()==0) {
+     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+     const LArOnOffIdMapping* cabling{*cablingHdl};
+     if(!cabling) {
+        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+        return StatusCode::FAILURE;
+     }
+     std::vector<Identifier>::const_iterator cell_b=m_caloId->cell_begin();
+     std::vector<Identifier>::const_iterator cell_e=m_caloId->cell_end();
+     for(;cell_b!=cell_e; ++cell_b) {
+         if(m_caloId->is_tile(*cell_b)) continue;
+         HWIdentifier onlid = cabling->createSignalChannelID(*cell_b);
+         std::vector<int> hvlines = GetHVLines(*cell_b);
+         for(unsigned i=0; i<hvlines.size(); ++i ) {
+            if(m_hvonlId_map.find(hvlines[i]) == m_hvonlId_map.end()) { // new key
+               std::vector<HWIdentifier> vec;
+               vec.push_back(onlid);
+               m_hvonlId_map[hvlines[i]] = vec;
+            } else { // existing key
+               m_hvonlId_map[hvlines[i]].push_back(onlid);
+            }
+         }
+     }// end map filling
+  }
 
   const LArHVManager *manager = NULL;
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {

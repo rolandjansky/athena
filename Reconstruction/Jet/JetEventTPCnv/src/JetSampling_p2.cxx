@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSampling_p2.cxx 
@@ -86,7 +86,4 @@ JetSampling_p2::JetSampling_p2()
   m_erad_cells.assign(0);
   m_erad_tracks.assign(0);
 }
-
-JetSampling_p2::~JetSampling_p2()
-{}
 

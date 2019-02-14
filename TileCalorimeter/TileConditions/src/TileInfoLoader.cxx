@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -17,22 +17,6 @@
 //
 //*****************************************************************************
 
-// Gaudi includes
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
-#include "StoreGate/StoreGateSvc.h"
-#include "PathResolver/PathResolver.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/TileTBID.h"
-#include "CaloIdentifier/CaloLVL1_ID.h"
-
 // Tile includes
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
@@ -41,6 +25,23 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
+#include "CaloIdentifier/CaloLVL1_ID.h"
+
+// Athena includes
+#include "StoreGate/StoreGateSvc.h"
+#include "PathResolver/PathResolver.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 
 #include "TMatrixD.h"
 #include "cstdio"
@@ -60,13 +61,6 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   , m_OFWeights(new TileOptFilterWeights())
   , m_eorCalled(true)
 {
-
-  //==========================================================
-  //=== Tools used by TileInfo
-  //==========================================================
-  declareProperty("TileCondToolEmscale"    , m_info->m_tileToolEmscale    , "TileCondToolEmscale"    );
-  declareProperty("TileCondToolNoiseSample", m_info->m_tileToolNoiseSample, "TileCondToolNoiseSample");
-  declareProperty("TileCondToolTiming"     , m_info->m_tileToolTiming     , "TileCondToolTiming"     );
 
   //==========================================================
   //=== expected number of ADC samples in digitization

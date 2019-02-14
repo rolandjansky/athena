@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationConditionsTool.h"
@@ -12,11 +12,6 @@
 // Constructor
 SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string &type, const std::string &name, const IInterface *parent) :
   base_class(type, name, parent),
-  m_mutex{},
-  m_cache{},
-  m_cacheElements{},
-  m_condData{},
-  m_detectorElements{},
   m_pHelper{nullptr},
   m_checkStripsInsideModules{true}
 { 
@@ -53,10 +48,9 @@ bool SCT_ConfigurationConditionsTool::canReportAbout(InDetConditions::Hierarchy 
 }
 
 // Is an element with this Identifier and hierachy good?
-bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In isGood, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -68,25 +62,36 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
     result = (not condData->isBadStrip(m_pHelper->wafer_hash(m_pHelper->wafer_id(elementId)),
                                        m_pHelper->strip(elementId)));
     // If strip itself is not bad, check if it's in a bad module
-    if (result and m_checkStripsInsideModules) result = (not isStripInBadModule(elementId));
+    if (result and m_checkStripsInsideModules) result = (not isStripInBadModule(elementId, ctx));
   } else if (h == InDetConditions::SCT_MODULE) {
     result = (not condData->isBadModuleId(elementId));
   } else if (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT) {
     result = (not condData->isBadWaferId(elementId));
   } else if (h == InDetConditions::SCT_CHIP) {
-    result = isGoodChip(elementId);
+    result = isGoodChip(elementId, ctx);
   }
   return result;
 }
 
+bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
 // Is a wafer with this IdentifierHash good?
-bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
+bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   const Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
+}
+
+bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(hashId, ctx);
 }
 
 // Is a chip with this Identifier good?
-bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId) const {
+bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId, const EventContext& ctx) const {
   // This check assumes present SCT.
   // Get module number
   const Identifier moduleId{m_pHelper->module_id(stripId)};
@@ -96,7 +101,7 @@ bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId) cons
   }
 
   // badChips word for the module
-  const unsigned int v_badChips{badChips(moduleId)};
+  const unsigned int v_badChips{badChips(moduleId, ctx)};
   // badChips holds 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
   // bit 5 is chip 5 for side 0.
@@ -113,7 +118,7 @@ bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId) cons
   // If there is no bad chip on the side, this check is done.
   if ((side==0 and (v_badChips & 0x3F)==0) or (side==1 and (v_badChips & 0xFC0)==0)) return true;
 
-  int chip{getChip(stripId)};
+  int chip{getChip(stripId, ctx)};
   if (chip<0 or chip>=12) {
     ATH_MSG_WARNING("chip number is invalid: " << chip);
     return false;
@@ -126,8 +131,7 @@ bool SCT_ConfigurationConditionsTool::isGoodChip(const Identifier& stripId) cons
 }
 
 // Check if a strip is within a bad module
-bool SCT_ConfigurationConditionsTool::isStripInBadModule(const Identifier& stripId) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+bool SCT_ConfigurationConditionsTool::isStripInBadModule(const Identifier& stripId, const EventContext& ctx) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In isStripInBadModule, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -139,8 +143,7 @@ bool SCT_ConfigurationConditionsTool::isStripInBadModule(const Identifier& strip
 }
 
 // Check if a wafer is within a bad module
-bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& waferId) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& waferId, const EventContext& ctx) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In isWaferInBadModule, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -152,15 +155,14 @@ bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& wafer
 }
 
 // Find the chip number containing a particular strip Identifier
-int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId) const {
-
+int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId, const EventContext& ctx) const {
   // Find side and strip number
   const int side{m_pHelper->side(stripId)};
   int strip{m_pHelper->strip(stripId)};
 
   // Check for swapped readout direction
   const IdentifierHash waferHash{m_pHelper->wafer_hash(m_pHelper->wafer_id(stripId))};
-  const InDetDD::SiDetectorElement* pElement{getDetectorElement(waferHash)};
+  const InDetDD::SiDetectorElement* pElement{getDetectorElement(waferHash, ctx)};
   if (pElement==nullptr) {
     ATH_MSG_FATAL("Element pointer is NULL in 'badStrips' method");
     return invalidChipNumber;
@@ -171,8 +173,12 @@ int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId) const {
   return (side==0 ? strip/stripsPerChip : strip/stripsPerChip + 6);
 }
 
-const std::set<Identifier>* SCT_ConfigurationConditionsTool::badModules() const {
+int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getChip(stripId, ctx);
+}
+
+const std::set<Identifier>* SCT_ConfigurationConditionsTool::badModules(const EventContext& ctx) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badModules, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -182,8 +188,12 @@ const std::set<Identifier>* SCT_ConfigurationConditionsTool::badModules() const 
   return condData->getBadModuleIds();
 }
 
-void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
+const std::set<Identifier>* SCT_ConfigurationConditionsTool::badModules() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badModules(ctx);
+}
+
+void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx, bool ignoreBadModules, bool ignoreBadChips) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badStrips, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -208,11 +218,15 @@ void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId, std:
     if (m_pHelper->module_id(m_pHelper->wafer_id(badStripId)) == moduleId) strips.insert(badStripId);
   }
 }
+
+void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badStrips(moduleId, strips, ctx, ignoreBadModules, ignoreBadChips);
+}
        
-std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const IdentifierHash& hash) const {
+std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const IdentifierHash& hash, const EventContext& ctx) const {
   // Bad links for a given module
   // Bad convetion is used. true is for good link and false is for bad link...
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badLinks, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -222,8 +236,12 @@ std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const Identifier
   return condData->areBadLinks(hash);
 }
 
-const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationConditionsTool::badLinks() const {
+std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const IdentifierHash& hash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badLinks(hash, ctx);
+}
+
+const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationConditionsTool::badLinks(const EventContext& ctx) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badLinks, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -233,8 +251,12 @@ const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationConditio
   return condData->getBadLinks();
 }
 
-const std::map<Identifier, unsigned int>* SCT_ConfigurationConditionsTool::badChips() const {
+const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationConditionsTool::badLinks() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badLinks(ctx);
+}
+
+const std::map<Identifier, unsigned int>* SCT_ConfigurationConditionsTool::badChips(const EventContext& ctx) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badChips, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -244,9 +266,13 @@ const std::map<Identifier, unsigned int>* SCT_ConfigurationConditionsTool::badCh
   return condData->getBadChips();
 }
 
-unsigned int SCT_ConfigurationConditionsTool::badChips(const Identifier& moduleId) const {
-  // Bad chips for a given module
+const std::map<Identifier, unsigned int>* SCT_ConfigurationConditionsTool::badChips() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badChips(ctx);
+}
+
+unsigned int SCT_ConfigurationConditionsTool::badChips(const Identifier& moduleId, const EventContext& ctx) const {
+  // Bad chips for a given module
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badChips, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -256,9 +282,12 @@ unsigned int SCT_ConfigurationConditionsTool::badChips(const Identifier& moduleI
   return condData->getBadChips(moduleId);
 }
 
-void 
-SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
+unsigned int SCT_ConfigurationConditionsTool::badChips(const Identifier& moduleId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return badChips(moduleId, ctx);
+}
+void 
+SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, const EventContext& ctx, bool ignoreBadModules, bool ignoreBadChips) const {
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In badStrips, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -287,45 +316,20 @@ SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ig
   }
 }
 
-const SCT_ConfigurationCondData*
-SCT_ConfigurationConditionsTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_ConfigurationCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+void 
+SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  badStrips(strips, ctx, ignoreBadModules, ignoreBadChips);
 }
 
-const InDetDD::SiDetectorElement* SCT_ConfigurationConditionsTool::getDetectorElement(const IdentifierHash& waferHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
+const SCT_ConfigurationCondData*
+SCT_ConfigurationConditionsTool::getCondData(const EventContext& ctx) const {
+  SG::ReadCondHandle<SCT_ConfigurationCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
+}
 
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
+const InDetDD::SiDetectorElement* SCT_ConfigurationConditionsTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }

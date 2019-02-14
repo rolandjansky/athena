@@ -13,15 +13,15 @@ namespace Muon{
 
   class MuonSegmentCombiOverlapSummary {
   public:
-    std::vector< std::pair<const MuonSegment*,const MuonSegment*> > shared; //!< segments shared between combies
-    std::vector<const MuonSegment*> uniqueFirst; //!< segments that are only part of the first combi
-    std::vector<const MuonSegment*> uniqueSecond;  //!< segments that are only part of the second combi
+    std::vector< std::pair<MuonSegment*,MuonSegment*> > shared; //!< segments shared between combies
+    std::vector<MuonSegment*> uniqueFirst; //!< segments that are only part of the first combi
+    std::vector<MuonSegment*> uniqueSecond;  //!< segments that are only part of the second combi
     
     /** segments that are in both combis, but the one in the first is a subset of the second */
-    std::vector< std::pair<const MuonSegment*,const MuonSegment*> > subsetFirst;  
+    std::vector< std::pair<MuonSegment*,MuonSegment*> > subsetFirst;  
 
     /** segments that are in both combis, but the second in the first is a subset of the first */
-    std::vector< std::pair<const MuonSegment*,const MuonSegment*> > subsetSecond;
+    std::vector< std::pair<MuonSegment*,MuonSegment*> > subsetSecond;
   };
 }
 

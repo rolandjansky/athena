@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/ReadLArDigits.h"
@@ -14,7 +14,6 @@ ReadLArDigits::SortDigits::SortDigits(const LArOnlineID* onlineHelper)
 }
 
 ReadLArDigits::ReadLArDigits(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
   m_emId(NULL),
   m_onlineHelper(NULL),
   m_ntuplePtr(NULL)
@@ -38,10 +37,7 @@ StatusCode ReadLArDigits::initialize()
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
 
-  if (m_larCablingSvc.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_cablingKey.initialize());
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
@@ -166,7 +162,12 @@ StatusCode ReadLArDigits::execute()
     return StatusCode::FAILURE;
    }
  
-
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling{*cablingHdl};
+ if(!cabling) {
+    ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+    return StatusCode::FAILURE;
+ }
  if (m_outfile.is_open()) {
    SortDigits sortDigits(m_onlineHelper);
    std::sort(larDigitCont->begin(),larDigitCont->end(),sortDigits);
@@ -184,7 +185,7 @@ StatusCode ReadLArDigits::execute()
    const std::vector<short>& vSamples=(*it)->samples();
    m_cellIndex++;
     try {
-      const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+      const Identifier id=cabling->cnvToIdentifier(chid);
       if (m_emId->is_lar_em(id))
 	{m_eta[cellCounter]=m_emId->eta(id); 
 	 m_phi[cellCounter]=m_emId->phi(id);

@@ -15,8 +15,7 @@
   <class name="std::vector<DataLink<xAOD::EgammaContainer_v1> >" />
   <class name="ElementLink<xAOD::EgammaContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::EgammaContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::EgammaContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::EgammaContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::EgammaContainer_v1> > >" />
   <class name="SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > >"/>  
 
   <!-- Electron_v1 dictionaries: -->
@@ -40,8 +39,7 @@
   <class name="std::vector<DataLink<xAOD::ElectronContainer_v1> >" />
   <class name="ElementLink<xAOD::ElectronContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::ElectronContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::ElectronContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::ElectronContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::ElectronContainer_v1> > >" />
 
   <!-- Photon_v1 dictionaries: -->
   <class name="xAOD::Photon_v1" >
@@ -65,8 +63,7 @@
   <class name="std::vector<DataLink<xAOD::PhotonContainer_v1> >" />
   <class name="ElementLink<xAOD::PhotonContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::PhotonContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::PhotonContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::PhotonContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::PhotonContainer_v1> > >" />
 
   <!-- Objects from the namespace -->
   <variable pattern="xAOD::EgammaParameters::*" />

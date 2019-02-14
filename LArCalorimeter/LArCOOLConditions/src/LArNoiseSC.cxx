@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArNoiseSC.h"
@@ -27,9 +27,3 @@ const float& LArNoiseSC::noise(const HWIdentifier& hwid, int /*gain*/) const {
   return this->getDataByHash(hash, 0);
 }
 
-// retrieving LArNoise using offline ID  
-const float& LArNoiseSC::noise(const Identifier& cellID, int /*gain*/) const  {
-  const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return this->noise(hwid,0);
-
-}

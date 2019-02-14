@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArCabling
+                          LArCalorimeter/LArRecConditions
                           PRIVATE
                           LArCalorimeter/LArTools )
 
@@ -29,14 +30,14 @@ atlas_add_library( LArRawConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRawConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaKernel AthContainers SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib LArCablingLib
+                   LINK_LIBRARIES CaloIdentifier AthenaKernel AthContainers SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib LArCablingLib LArRecConditions
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRawConditions1Dict
                       LArRawConditions/LArRawConditionsDict1.h
                       LArRawConditions/selection1.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions LArRecConditions)
 
 atlas_add_dictionary( LArRawConditions2Dict
                       LArRawConditions/LArRawConditionsDict2.h

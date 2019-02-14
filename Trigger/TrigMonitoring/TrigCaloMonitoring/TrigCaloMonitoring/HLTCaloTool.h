@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 
 class StoreGateSvc;
 class IAlgToolEFCalo;
-class LArCablingService;
+class LArCablingLegacyService;
 class LArOnlineID;
 class TileID;
 
@@ -42,7 +42,7 @@ private:
 	/** use or not ntuples */
 	bool m_ntuple;
 	const LArOnlineID * m_onlineHelper;
-        ToolHandle<LArCablingService>     m_cablingSvc;
+        ToolHandle<LArCablingLegacyService>     m_cablingSvc;
         const TileID* m_tileID;
 
 

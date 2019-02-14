@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 ################################################################################
@@ -28,14 +28,24 @@ svcMgr.ByteStreamCnvSvc.GetDetectorMask = True
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "ROIB::RoIBResult" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 
+# Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
+# This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+svcMgr += LVL1ConfigSvc()
+
+# Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+
 # Initialise L1 decoding tools
 from L1Decoder.L1DecoderConf import CTPUnpackingTool
 ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains = True)
 # Can add other tools here if needed
 
-# Define the "menu"
-chainCTPMap = {"HLT_MTCalibPeb1": "L1_NIML1A",
-               "HLT_MTCalibPeb2": "L1_NIML1A"}
+# Define the "menu" - L1 items do not matter if we set ForceEnableAllChains = True,
+# but they have to be defined in the L1 menu xml
+chainCTPMap = {"HLT_MTCalibPeb1": "L1_RD0_FILLED",
+               "HLT_MTCalibPeb2": "L1_RD0_FILLED"}
 
 # Schedule the L1Decoder algo with the above tools
 from L1Decoder.L1DecoderConf import L1Decoder
@@ -57,6 +67,8 @@ hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
 hypoTool1.RandomAcceptRate = 0.75
 hypoTool1.BurnTimePerCycleMillisec = 100
 hypoTool1.NumBurnCycles = 3
+hypoTool1.PEBROBList = [0x42002a, 0x42002b] # example LAr EMBC ROBs
+hypoTool1.PEBSubDetList = [0x65, 0x66] # RPC A and C side
 
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
 hypoTool2.RandomAcceptRate = 0.25
@@ -88,16 +100,17 @@ serialiser = TriggerEDMSerialiserTool()
 serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPebDecisions",
                                      "xAOD::TrigCompositeAuxContainer_v1#MTCalibPebDecisionsAux."]
 
+# StreamTag definitions
+streamExamplePEB = ['ExamplePEB', 'calibration', "True", "False"]
+streamPhysicsMain = ['Main', 'physics', "True", "True"]
+
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
 stmaker.ChainDecisions = "HLTSummary"
+stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions]
 stmaker.ChainToStream = {}
-stmaker.ChainToStream["HLT_MTCalibPeb1"] = "DataScouting_05_Jets"
-stmaker.ChainToStream["HLT_MTCalibPeb2"] = "Main"
-stmaker.StreamSubDets = {}
-stmaker.StreamSubDets["Main"] = [0x41, 0x42]
-stmaker.StreamRobs = {}
-stmaker.StreamRobs["Main"] = [0x42002e, 0x420060, 0x420064]
+stmaker.ChainToStream["HLT_MTCalibPeb1"] = streamExamplePEB
+stmaker.ChainToStream["HLT_MTCalibPeb2"] = streamPhysicsMain
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()

@@ -4,12 +4,12 @@ Initializing Gaudi ApplicationMgr using job opts ./CaloCellFastCopyTool_test_gen
 JobOptionsSvc        INFO Job options successfully read in from ./CaloCellFastCopyTool_test_generated.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun Jul  8 09:27:22 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
+                                          running on spar0102.usatlas.bnl.gov on Sat Sep  8 22:10:54 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 7122 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7296 CLIDRegistry entries for module ALL
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
@@ -22,131 +22,131 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
-StoreGateSvc_Impl   DEBUG Recorded object @0x26c3bd0 with key AllCalo of type CaloCellContainer(CLID 2802)
- in DataObject @0x26b6e60
+StoreGateSvc_Impl   DEBUG Recorded object @0x1ec8870 with key AllCalo of type CaloCellContainer(CLID 2802)
+ in DataObject @0x1ea6fe0
  object not modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 CopyToolTest[1]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[1]      INFO In initialize 
 CopyToolTest[1]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[1]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[1]     DEBUG CaloCell hash max: 187652
 CopyToolTest[1]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[1]      INFO In initialize 
 CopyToolTest[1]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[1]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[1]     DEBUG CaloCell hash max: 187652
 CopyToolTest[1]     DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[3]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[3]      INFO In initialize 
 CopyToolTest[3]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[3]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[3]     DEBUG CaloCell hash max: 187652
 CopyToolTest[3]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[4]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[4]      INFO In initialize 
 CopyToolTest[4]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[4]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[4]     DEBUG CaloCell hash max: 187652
 CopyToolTest[4]     DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[13]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[13]     INFO In initialize 
 CopyToolTest[13]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[13]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[13]    DEBUG CaloCell hash max: 187652
 CopyToolTest[13]    DEBUG Number of accepted hashes: 0
-CopyToolTest[13]    ERROR ../src/CaloCellFastCopyTool.cxx:333 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[13]    FATAL ../src/CaloCellFastCopyTool.cxx:116 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: dispatchCopy (srcCont.cptr(), theCont)
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[13]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
+CopyToolTest[13]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[14]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[14]     INFO In initialize 
 CopyToolTest[14]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[14]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[14]    DEBUG CaloCell hash max: 187652
 CopyToolTest[14]    DEBUG Number of accepted hashes: 512
-CopyToolTest[14]    ERROR ../src/CaloCellFastCopyTool.cxx:322 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[14]    FATAL ../src/CaloCellFastCopyTool.cxx:116 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: dispatchCopy (srcCont.cptr(), theCont)
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[14]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
+CopyToolTest[14]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[15]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[15]     INFO In initialize 
 CopyToolTest[15]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[15]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[15]    DEBUG CaloCell hash max: 187652
 CopyToolTest[15]    DEBUG Number of accepted hashes: 0
-CopyToolTest[15]    ERROR ../src/CaloCellFastCopyTool.cxx:333 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[15]    FATAL ../src/CaloCellFastCopyTool.cxx:116 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: dispatchCopy (srcCont.cptr(), theCont)
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[15]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
+CopyToolTest[15]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[16]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[16]     INFO In initialize 
 CopyToolTest[16]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[16]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[16]    DEBUG CaloCell hash max: 187652
 CopyToolTest[16]    DEBUG Number of accepted hashes: 512
-CopyToolTest[16]    ERROR ../src/CaloCellFastCopyTool.cxx:322 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[16]    FATAL ../src/CaloCellFastCopyTool.cxx:116 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: dispatchCopy (srcCont.cptr(), theCont)
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[16]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
+CopyToolTest[16]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[5]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[5]      INFO In initialize 
 CopyToolTest[5]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[5]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[5]     DEBUG CaloCell hash max: 187652
 CopyToolTest[5]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[6]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[6]      INFO In initialize 
 CopyToolTest[6]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[6]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[6]     DEBUG CaloCell hash max: 187652
 CopyToolTest[6]     DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[7]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[7]      INFO In initialize 
 CopyToolTest[7]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[7]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[7]     DEBUG CaloCell hash max: 187652
 CopyToolTest[7]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[8]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[8]      INFO In initialize 
 CopyToolTest[8]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[8]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[8]     DEBUG CaloCell hash max: 187652
 CopyToolTest[8]     DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[9]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[9]      INFO In initialize 
 CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 
 CopyToolTest[9]     DEBUG Accepted sub calos: 3; 
 CopyToolTest[9]     DEBUG CaloCell hash max: 187652
 CopyToolTest[9]     DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[10]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[10]     INFO In initialize 
 CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[10]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[10]    DEBUG CaloCell hash max: 187652
 CopyToolTest[10]    DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[11]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[11]     INFO In initialize 
 CopyToolTest[11]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[11]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[11]    DEBUG CaloCell hash max: 187652
 CopyToolTest[11]    DEBUG Number of accepted hashes: 0
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[12]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[12]     INFO In initialize 
 CopyToolTest[12]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[12]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[12]    DEBUG CaloCell hash max: 187652
 CopyToolTest[12]    DEBUG Number of accepted hashes: 512
-StoreGateSvc_Impl   DEBUG Recorded object @0x26ea280 with key AllCalloFull of type CaloCellContainer(CLID 2802)
- in DataObject @0x4debd90
+StoreGateSvc_Impl   DEBUG Recorded object @0x1ecc0c0 with key AllCalloFull of type CaloCellContainer(CLID 2802)
+ in DataObject @0x45cb870
  object not modifiable when retrieved
 CopyToolTest[9]      INFO In initialize 
 CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 
@@ -159,9 +159,9 @@ CopyToolTest[9]     DEBUG Accepted sub calos: 3;
 CopyToolTest[9]     DEBUG CaloCell hash max: 187652
 CopyToolTest[9]     DEBUG Number of accepted hashes: 0
 StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key AllCalloFull and clid 2802
- Pre-existing valid DataProxy @0x2761d30 found in Store for key AllCalloFull with clid 2802
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x4df2780
- recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x7325850
+ Pre-existing valid DataProxy @0x45cb940 found in Store for key AllCalloFull with clid 2802
+StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x45cbad0
+ recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x6b05390
 CopyToolTest[10]     INFO In initialize 
 CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
 CopyToolTest[10]    DEBUG Accepted sub calos: 3; 

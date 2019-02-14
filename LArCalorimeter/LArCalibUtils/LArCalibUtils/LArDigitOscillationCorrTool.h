@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,10 +22,10 @@
 #include "LArElecCalib/ILArH6Oscillation.h"
 #include "LArElecCalib/ILArRamp.h"
 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-class LArCablingService ;
 class LArDigitContainer;
 class LArDigit;
 
@@ -71,7 +71,7 @@ class LArDigitOscillationCorrTool: public AthAlgTool,
  const LArHEC_ID*   m_hecId;
  const LArOnlineID* m_lar_on_id; 
  
- ToolHandle<LArCablingService> m_cablingService;
+ SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
 };
 
 

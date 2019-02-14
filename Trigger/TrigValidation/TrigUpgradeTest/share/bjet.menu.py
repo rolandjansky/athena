@@ -11,7 +11,9 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 # We should retrieve all the steps here
-from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
+from TrigUpgradeTest.bjetMenuDefs import getBJetSequence, inDetSetup
+
+inDetSetup()
 
 step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
 step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
@@ -22,15 +24,7 @@ testChains  = [
     Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step2] )
     ]                                                                                                                                                                                   
 
-#################################
-# Configure L1Decoder
-#################################
 
-
-      
-# this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 
 #################################
 

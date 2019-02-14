@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigComposite_v1.cxx 784384 2016-11-15 16:37:49Z tamartin $
@@ -39,279 +39,13 @@ namespace xAOD {
     return *this;
   }
 
-   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
-                                      name, setName )
-
-   template<>
-   bool TrigComposite_v1::hasDetail<uint32_t>( const std::string& name ) const {
-     return hasDetail<int32_t>(name);
-   }
-
-   template<>
-   bool TrigComposite_v1::hasDetail<std::vector<uint32_t>>( const std::string& name ) const {
-     return hasDetail<std::vector<int32_t>>(name);
-   }
-
-   template<>
-   bool TrigComposite_v1::hasDetail<std::vector<uint16_t>>( const std::string& name ) const {
-     return hasDetail<std::vector<int32_t>>(name);
-   }
-
-   template<>
-   bool TrigComposite_v1::hasDetail<std::string>( const std::string& name ) const {
-     return hasDetail<std::vector<int32_t>>(name);
-   }
-
-   template<>
-   bool TrigComposite_v1::hasDetail<std::vector<std::string>>( const std::string& name ) const {
-     return hasDetail<std::vector<int32_t>>(name);
-   }
-
    /////////////////////////////////////////////////////////////////////////////
    //
-   //                   Simple detail accessor functions
+   //                   Built in accessor functions
    //
 
-   bool TrigComposite_v1::setDetail( const std::string& name, int32_t value ) {
-
-      // It should be pretty strange if this should fail:
-      try {
-         auxdata< int32_t >( name ) = value;
-      } catch(const std::exception& exc) {
-         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in int32_t: [" << exc.what() << "]" << std::endl;
-         return false;
-      }
-
-      // Return gracefully:
-      return true;
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name, uint32_t value ) {
-     return setDetail(name, (int32_t)value); // place for conversion if needed
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name, float value ) {
-
-      // It should be pretty strange if this should fail:
-      try {
-         auxdata< float >( name ) = value;
-      } catch(const std::exception& exc) {
-         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in float: [" << exc.what() << "]" << std::endl;
-         return false;
-      }
-
-      // Return gracefully:
-      return true;
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< int32_t >& value ) {
-
-      // It should be pretty strange if this should fail:
-      try {
-         auxdata< std::vector< int32_t > >( name ) = value;
-      } catch(const std::exception& exc) {
-         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<int32_t>: [" << exc.what() << "]" << std::endl;
-         return false;
-      }
-
-      // Return gracefully:
-      return true;
-   }
-
-
-   bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< uint32_t >& value ) {
-
-      // It should be pretty strange if this should fail:
-     std::vector<int32_t> temp(value.begin(), value.end()); //
-      try {
-         auxdata< std::vector< int32_t > >( name ) = temp;
-      } catch(const std::exception& exc) {
-         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<uint32_t>: [" << exc.what() << "]" << std::endl;
-         return false;
-      }
-
-      // Return gracefully:
-      return true;
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< uint16_t >& value ) {
-
-      std::vector<uint32_t> temp;
-      temp.reserve( value.size() / 2 );
-
-      // Pack shorts for space efficiency
-      for (size_t i = 0; i < value.size(); i += 2) {
-        const uint16_t a = value.at(i);
-        const uint16_t b = (i + 1 < value.size() ? value.at(i + 1) : std::numeric_limits<uint16_t>::max() );
-        const uint32_t combine = ( (b << 16) | (a & 0xffff) );
-        temp.push_back( combine );
-      }
-
-      return setDetail(name, temp);
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< float >& value ) {
-
-      // It should be pretty strange if this should fail:
-      try {
-         auxdata< std::vector< float > >( name ) = value;
-      } catch(const std::exception& exc) {
-         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<float>: [" << exc.what() << "]" << std::endl;
-         return false;
-      }
-
-      // Return gracefully:
-      return true;
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name, const std::string& value ) {
-
-      std::vector<uint32_t> serialForm;
-      HLT::StringSerializer::serialize(value, serialForm);
-      return setDetail(name, serialForm);
-   }
-
-   bool TrigComposite_v1::setDetail( const std::string& name, const std::vector< std::string >& value ) {
-
-      std::vector<uint32_t> serialForm;
-      HLT::StringSerializer::serialize(value, serialForm);
-      return setDetail(name, serialForm);
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     int32_t& value ) const {
-
-      // Object used to access the auxiliary data:
-      Accessor< int32_t > acc( name );
-
-      // Enable the check once it will work correctly:
-      if( ! acc.isAvailable( *this ) ) {
-         return false;
-      }
-
-      // Retrieve this detail:
-      value = acc( *this );
-      return true;
-   }
-
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     uint32_t& value ) const {
-     int32_t v = 0;
-     const bool status = getDetail(name, v); 
-     value = v; // place for cast
-     return status;
-     
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     float& value ) const {
-
-      // Object used to access the auxiliary data:
-      Accessor< float > acc( name );
-
-      // Enable the check once it will work correctly:
-      if( ! acc.isAvailable( *this ) ) {
-         return false;
-      }
-
-      // Retrieve this detail:
-      value = acc( *this );
-      return true;
-   }
-
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< int32_t >& value ) const {
-
-      // Object used to access the auxiliary data:
-      Accessor< std::vector< int32_t > > acc( name );
-
-      // Enable the check once it will work correctly:
-      if( ! acc.isAvailable( *this ) ) {
-         return false;
-      }
-
-      // Retrieve this detail:
-      value = acc( *this );
-      return true;
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< uint32_t >& value ) const {
-
-     std::vector<int32_t> temp;
-     const bool status = getDetail(name, temp);
-     
-     value.reserve(temp.size());
-     for ( int32_t i: temp )
-       value.push_back(i);
-     return status;
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< uint16_t >& value ) const {
-
-     std::vector<uint32_t> temp;
-     const bool status = getDetail(name, temp);
-     value.reserve(temp.size() * 2);
-
-     // Unpack shorts
-     static const uint32_t mask = std::numeric_limits<uint16_t>::max();
-     for (size_t i = 0; i < temp.size(); ++i) {
-       const uint32_t packed = temp.at(i);
-       const uint16_t a = packed & mask;
-       const uint16_t b = packed >> 16;
-       value.push_back(a);
-       // Use this to tell if the second half of the int was used or not
-       if (b != std::numeric_limits<uint16_t>::max()) {
-         value.push_back(b);
-       }
-     }
-
-     return status;
-   }
-
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< float >& value ) const {
-
-      // Object used to access the auxiliary data:
-      Accessor< std::vector< float > > acc( name );
-
-      // Enable the check once it will work correctly:
-      if( ! acc.isAvailable( *this ) ) {
-         return false;
-      }
-
-      // Retrieve this detail:
-      value = acc( *this );
-      return true;
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::string& value ) const {
-
-      std::vector<uint32_t> temp;
-      const bool status = getDetail(name, temp);
-
-      HLT::StringSerializer::deserialize(temp.begin(), temp.end(), value);
-      return status;
-   }
-
-   bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< std::string >& value ) const {
-
-      std::vector<uint32_t> temp;
-      const bool status = getDetail(name, temp);
-
-      HLT::StringSerializer::deserialize(temp.begin(), temp.end(), value);
-      return status;
-   }
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
+                                      name, setName )
 
    //
    /////////////////////////////////////////////////////////////////////////////
@@ -544,7 +278,6 @@ namespace xAOD {
    //
    /////////////////////////////////////////////////////////////////////////////
 
-} // namespace xAOD
 
 std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
   os << "TrigComposite_v1 '" << tc.name() << "' link: name, key, index, CLID" << std::endl;
@@ -556,3 +289,5 @@ std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
   }
   return os;
 }
+
+} // namespace xAOD

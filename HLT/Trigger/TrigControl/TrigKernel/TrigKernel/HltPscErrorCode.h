@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PscErrorCode_H
@@ -21,7 +21,8 @@ namespace hltonl {
     NO_HLT_RESULT         = 7,
     OUTPUT_BUILD_FAILURE  = 8,
     OUTPUT_SEND_FAILURE   = 9,
-    AFTER_RESULT_SENT     = 10
+    AFTER_RESULT_SENT     = 10,
+    COOL_UPDATE           = 11
   };
 
   /// helper class to map HLT PSC error code on a string name or a int index
@@ -48,6 +49,7 @@ inline hltonl::MapPscErrorCode::MapPscErrorCode() {
   add(hltonl::PSCErrorCode::OUTPUT_BUILD_FAILURE,  "PSCErrorCode::OUTPUT_BUILD_FAILURE");
   add(hltonl::PSCErrorCode::OUTPUT_SEND_FAILURE,   "PSCErrorCode::OUTPUT_SEND_FAILURE");
   add(hltonl::PSCErrorCode::AFTER_RESULT_SENT,     "PSCErrorCode::AFTER_RESULT_SENT");
+  add(hltonl::PSCErrorCode::COOL_UPDATE,           "PSCErrorCode::COOL_UPDATE");
   // return values in case of invalid code
   invalidCode("UNDEFINED",-1);
 }

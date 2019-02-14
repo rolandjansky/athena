@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // New SCT_DCSConditions Tool, based on existing tool in SCT_ConditionsAlgs
@@ -19,26 +19,14 @@ const float SCT_DCSConditionsTool::s_defaultTemperature{-40.};
 
 SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_readAllDBFolders{true},
-  m_returnHVTemp{true},
-  m_barrel_correction{-3.7},
-  m_ecInner_correction{-13.1},
-  m_ecOuter_correction{-15.5},
-  m_mutex{},
-  m_cacheState{},
-  m_cacheHV{},
-  m_cacheTemp0{},
-  m_pBadModules{},
-  m_pModulesHV{},
-  m_pModulesTemp0{},
   m_pHelper{nullptr}
 { 
     //declare variables which will be filled by jobOptions
-    declareProperty("ReadAllDBFolders", m_readAllDBFolders);
-    declareProperty("ReturnHVTemp", m_returnHVTemp);
-    declareProperty("TempBarrelCorrection", m_barrel_correction);
-    declareProperty("TempEcInnerCorrection", m_ecInner_correction);
-    declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
+    declareProperty("ReadAllDBFolders", m_readAllDBFolders=true);
+    declareProperty("ReturnHVTemp", m_returnHVTemp=true);
+    declareProperty("TempBarrelCorrection", m_barrel_correction=-3.7);
+    declareProperty("TempEcInnerCorrection", m_ecInner_correction=-13.1);
+    declareProperty("TempEcOuterCorrection", m_ecOuter_correction=-15.5);
 }
 
 StatusCode SCT_DCSConditionsTool::initialize() {
@@ -86,12 +74,11 @@ Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDet
 }
 
 //Returns if element Id is good or bad
-bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
-  Identifier moduleId=getModuleID(elementId, h);
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
+  Identifier moduleId{getModuleID(elementId, h)};
   if (not moduleId.is_valid()) return true; // not canreportabout
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
     const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
     if (!condDataState) return false; // no cond data
     else if (condDataState->output(castId(moduleId))==0) return true; //No params are listed as bad
@@ -101,22 +88,31 @@ bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions:
   }
 }
 
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(elementId, ctx, h);
+}
+
 //Does the same for hashIds
+bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
+  Identifier waferId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(waferId)};
+  return isGood(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
 bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) const {
-  Identifier waferId = m_pHelper->wafer_id(hashId);
-  Identifier moduleId = m_pHelper->module_id(waferId);
-  return isGood(moduleId, InDetConditions::SCT_MODULE);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isGood(hashId, ctx);
 }
 
 /////////////////////////////////// 
 
 // some lame helper methods: 
 // returns HV (s_defaultHV(-30) if there is no information)
-float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) const {
-  Identifier moduleId = getModuleID(elementId, h);
+float SCT_DCSConditionsTool::modHV(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
+  Identifier moduleId{getModuleID(elementId, h)};
   if (not moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_DCSFloatCondData* condDataHV{getCondDataHV(ctx)};
   if (!condDataHV) return s_defaultHV; // no cond data
 
@@ -127,19 +123,28 @@ float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions:
   return s_defaultHV; //didn't find the module, return s_defaultHV(-30)
 }
 
+float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return modHV(elementId, ctx, h);
+}
+
 //Does the same for hashIds
+float SCT_DCSConditionsTool::modHV(const IdentifierHash& hashId, const EventContext& ctx) const {
+  Identifier waferId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(waferId)};
+  return modHV(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
 float SCT_DCSConditionsTool::modHV(const IdentifierHash& hashId) const {
-  Identifier waferId = m_pHelper->wafer_id(hashId);
-  Identifier moduleId = m_pHelper->module_id(waferId);
-  return modHV(moduleId,InDetConditions::SCT_MODULE);
-} 
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return modHV(hashId, ctx);
+}
 
 //Returns temp0 (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
-  Identifier moduleId = getModuleID(elementId, h);
+float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
+  Identifier moduleId{getModuleID(elementId, h)};
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
   if (!condDataTemp0) return s_defaultTemperature; // no cond data
 
@@ -148,21 +153,30 @@ float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDe
     return temperature;
   }
   return s_defaultTemperature;//didn't find the module, return -40. 
-} 
+}
+
+float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return hybridTemperature(elementId, ctx, h);
+}
 
 //Does the same for hashIds
+float SCT_DCSConditionsTool::hybridTemperature(const IdentifierHash& hashId, const EventContext& ctx) const {
+  Identifier waferId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(waferId)};
+  return hybridTemperature(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
 float SCT_DCSConditionsTool::hybridTemperature(const IdentifierHash& hashId) const {
-  Identifier waferId = m_pHelper->wafer_id(hashId);
-  Identifier moduleId = m_pHelper->module_id(waferId);
-  return hybridTemperature(moduleId, InDetConditions::SCT_MODULE);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return hybridTemperature(hashId, ctx);
 }
 
 //Returns temp0 + correction for Lorentz angle calculation (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
-  Identifier moduleId = getModuleID(elementId, h);
+float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
+  Identifier moduleId{getModuleID(elementId, h)};
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
   if (!condDataTemp0) return s_defaultTemperature; // no cond data
 
@@ -183,74 +197,39 @@ float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDe
   return s_defaultTemperature;  //didn't find the module, return s_defaultTemperature(-40).
 } 
 
+float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return sensorTemperature(elementId, ctx, h);
+}
+
 //Does the same for hashIds
+float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId, const EventContext& ctx) const {
+  Identifier waferId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(waferId)};
+  return sensorTemperature(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
 float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId) const {
-  Identifier waferId = m_pHelper->wafer_id(hashId);
-  Identifier moduleId = m_pHelper->module_id(waferId);
-  return sensorTemperature(moduleId, InDetConditions::SCT_MODULE);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return sensorTemperature(hashId, ctx);
 }
 
 ///////////////////////////////////
 
 const SCT_DCSStatCondData*
 SCT_DCSConditionsTool::getCondDataState(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheState.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheState.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheState[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
-    }
-    m_pBadModules.set(*condData);
-    m_cacheState[slot] = evt;
-  }
-  return m_pBadModules.get();
+  SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState, ctx};
+  return condData.retrieve();
 }
 
 const SCT_DCSFloatCondData*
 SCT_DCSConditionsTool::getCondDataHV(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheHV.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheHV.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheHV[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
-    }
-    m_pModulesHV.set(*condData);
-    m_cacheHV[slot] = evt;
-  }
-  return m_pModulesHV.get();
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV, ctx};
+  return condData.retrieve();
 }
 
 const SCT_DCSFloatCondData*
 SCT_DCSConditionsTool::getCondDataTemp0(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheTemp0.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheTemp0.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheTemp0[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
-    }
-    m_pModulesTemp0.set(*condData);
-    m_cacheTemp0[slot] = evt;
-  }
-  return m_pModulesTemp0.get();
+  SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0, ctx};
+  return condData.retrieve();
 }

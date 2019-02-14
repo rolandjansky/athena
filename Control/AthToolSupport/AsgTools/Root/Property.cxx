@@ -76,6 +76,11 @@ StatusCode Property::getString (std::string& /*result*/) const {
   return StatusCode::FAILURE;
 }
 
+StatusCode Property::getCastString (std::string& /*result*/) const {
+  std::cout << "Property::getCastString: method not implemented" << std::endl;
+  return StatusCode::FAILURE;
+}
+
 StatusCode Property::setString (const std::string& /*value*/) {
   std::cout << "Property::setString: method not implemented" << std::endl;
   return StatusCode::FAILURE;

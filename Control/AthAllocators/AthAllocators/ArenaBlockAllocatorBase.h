@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaBlockAllocatorBase.h 470529 2011-11-24 23:54:22Z ssnyder $
@@ -49,7 +49,7 @@ public:
   /**
    * @brief Destructor.
    */
-  ~ArenaBlockAllocatorBase();
+  virtual ~ArenaBlockAllocatorBase();
 
 
   /// Don't allow copy construction or assignment.
@@ -93,7 +93,7 @@ public:
    * It may not be possible to release the number of elements requested;
    * this should be implemented on a best-effort basis.
    */
-  virtual void reserve (size_t size);
+  virtual void reserve (size_t size) override;
 
 
   /**
@@ -104,19 +104,19 @@ public:
    * @c destructor should be called on them if it was provided
    * (preceded by @c clear if provided and @c mustClear was set).
    */
-  virtual void erase();
+  virtual void erase() override;
 
 
   /**
    * @brief Return the statistics block for this allocator.
    */
-  virtual Stats stats() const;
+  virtual Stats stats() const override;
 
 
   /**
    * @brief Return the name of this allocator.
    */
-  virtual const std::string& name() const;
+  virtual const std::string& name() const override;
 
 
   /**

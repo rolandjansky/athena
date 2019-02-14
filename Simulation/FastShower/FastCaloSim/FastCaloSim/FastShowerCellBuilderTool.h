@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
 //#include "TruthHelper/GenAccessIO.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
@@ -98,14 +98,16 @@ public:
   virtual StatusCode initialize() override final;
 
   // update theCellContainer
-  virtual StatusCode process(CaloCellContainer* theCellContainer) override final;
+  virtual StatusCode process (CaloCellContainer* theCellContainer,
+                              const EventContext& ctx) const override final;
   StatusCode setupEvent (const EventContext& ctx,
                          TRandom3& rndm) const;
   StatusCode releaseEvent (Stats& stats) const;
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
   // but setupEvent() should be called before the first particle and releaseEvent() after the last particle
   StatusCode process_particle(CaloCellContainer* theCellContainer, std::vector<Trk::HitInfo>* hitVector,
-                              Amg::Vector3D initMom, double mass, int pdgId, int barcode,
+                              const Amg::Vector3D& initMom,
+                              double mass, int pdgId, int barcode,
                               FastShowerInfoContainer* fastShowerInfoContainer,
                               TRandom3& rndm,
                               Stats& stats,
@@ -148,8 +150,8 @@ private:
     FastShower::LongitudinalShape* m_longshape;
   */
   ServiceHandle<IPartPropSvc>    m_partPropSvc;
-  ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine{};
+  ServiceHandle<IAthRNGSvc>      m_rndmSvc;
+  ATHRNG::RNGWrapper*            m_randomEngine = nullptr;
   std::string                    m_randomEngineName{"FastCaloSimRnd"};         //!< Name of the random number stream
 
   //CaloDepthTool*                 m_calodepth;

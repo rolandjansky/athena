@@ -1,19 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
 #define SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
-
-//STL
-#include <map>
-#include <set>
-#include <list>
-#include <mutex>
-
-// Gaudi includes
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,6 +13,12 @@
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/EventContext.h"
+
+//STL
+#include <set>
 
 //forward declarations
 class SCT_ID;
@@ -48,24 +44,29 @@ public:
 
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
 
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
   /// List of bad strip Identifiers
   virtual void badStrips(std::set<Identifier>& strips) const override;
+  virtual void badStrips(std::set<Identifier>& strips, const EventContext& ctx) const override;
   
   /// List of bad strip Identifiers for a given module
   virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const override;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx) const override;
 
   /// String of bad strip numbers for a given module
   virtual std::string badStripsAsString(const Identifier& moduleId) const override;
+  virtual std::string badStripsAsString(const Identifier& moduleId, const EventContext& ctx) const override;
 
 private:
   // ------------------------------------------------------------------------------------
   // local stuff 
   // ------------------------------------------------------------------------------------
-  std::string getList(const Identifier& imodule) const;
+  std::string getList(const Identifier& imodule, const EventContext& ctx) const;
 
   bool stripIsNoisy(const int strip, const std::string& defectList) const;
 
@@ -98,17 +99,10 @@ private:
 
   static std::string s_separator;
 
-  IntegerProperty              m_nhits_noisychip;
-  IntegerProperty              m_nhits_noisywafer;
-  IntegerProperty              m_nhits_noisymodule;
+  IntegerProperty              m_nhits_noisychip{this, "Nnoisychip", 64};
+  IntegerProperty              m_nhits_noisywafer{this, "Nnoisywafer", 384};
+  IntegerProperty              m_nhits_noisymodule{this, "Nnoisycmodule", 768};
   const SCT_ID*                m_pHelper;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_MonitorCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorCondData> m_condData;
 
   SG::ReadCondHandleKey<SCT_MonitorCondData> m_condKey{this, "CondKey", "SCT_MonitorCondData", "SCT noisy strips"};
   const SCT_MonitorCondData* getCondData(const EventContext& ctx) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeader.cxx
@@ -149,7 +149,7 @@ void DataHeaderElement::addHash(IStringPool* pool) {
       return;
    }
    std::set<CLID> clids = getClassIDs();
-   for (std::set<CLID>::iterator iter = clids.begin(), last = clids.end(); iter != last; iter++) {
+   for (std::set<CLID>::iterator iter = clids.begin(), last = clids.end(); iter != last; ++iter) {
       m_hashes.push_back(pool->stringToKey(m_key, *iter));
    }
 }
@@ -165,7 +165,7 @@ SG::TransientAddress* DataHeaderElement::getAddress(const std::string& key,
    TokenAddress* tokAdd = new TokenAddress(this->getStorageType(), primaryClID, "", m_key, contextId , token);
    SG::TransientAddress* sgAddress = new SG::TransientAddress(primaryClID, key, tokAdd);
    for (std::set<CLID>::const_iterator iter = m_clids.begin(), last = m_clids.end();
-	   iter != last; iter++) {
+	   iter != last; ++iter) {
       sgAddress->setTransientID(*iter);
    }
    sgAddress->setAlias(m_alias);
@@ -267,11 +267,11 @@ void DataHeader::insertProvenance(const DataHeaderElement& dhe) {
 //______________________________________________________________________________
 void DataHeader::addHash(IStringPool* pool) {
    for (std::vector<DataHeaderElement>::iterator iter = m_dataHeader.begin(),
-		   last = m_dataHeader.end(); iter != last; iter++) {
+		   last = m_dataHeader.end(); iter != last; ++iter) {
       iter->addHash(pool);
    }
    for (std::vector<DataHeaderElement>::iterator iter = m_inputDataHeader.begin(),
-		   last = m_inputDataHeader.end(); iter != last; iter++) {
+		   last = m_inputDataHeader.end(); iter != last; ++iter) {
       iter->addHash(pool);
    }
 }

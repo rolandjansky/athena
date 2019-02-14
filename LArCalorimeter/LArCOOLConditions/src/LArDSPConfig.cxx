@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArDSPConfig.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
 
 LArDSPConfig::LArDSPConfig():
   m_attrList(nullptr),m_pBlob(nullptr),m_nFebs(0) 

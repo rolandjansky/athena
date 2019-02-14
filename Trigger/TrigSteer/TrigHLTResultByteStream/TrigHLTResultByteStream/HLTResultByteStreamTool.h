@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -77,8 +77,7 @@ namespace HLT {
     FullEventAssembler<HLTSrcIdMap>* eventAssembler(std::string objName); //!< helper method
 
   private:
-    static std::string s_l2ResultName, s_efResultName, s_hltResultName, s_dataScoutingResultName; //!< LVL2 and EF StoreGate keys
-    static eformat::SubDetector s_idL2, s_idEF; //!< eformat TDAQ "subdetector"
+    static const std::string s_l2ResultName, s_efResultName, s_hltResultName, s_dataScoutingResultName; //!< LVL2 and EF StoreGate keys
 
     FullEventAssembler<HLTSrcIdMap> m_feaL2, m_feaEF; //!< helper for reading
   };

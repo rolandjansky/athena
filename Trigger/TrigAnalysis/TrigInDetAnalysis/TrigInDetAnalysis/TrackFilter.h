@@ -1,19 +1,20 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackFilter.h        
-//            base class for a single track selection filter 
-//            so you can set parameters for complex track 
-//            selection       
-// 
-//
-//   $Id: TrackFilter.h, v0.0   Fri 16 Oct 2009 02:11:32 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackFilter.h
+ **
+ **     @brief   base class for a single track selection filter 
+ **              allowing parameter setting for complex track 
+ **              selection       
+ **
+ **     @author  mark sutton
+ **     @date    Fri 16 Oct 2009 02:11:32 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKFILTER_H
-#define __TRACKFILTER_H
+#ifndef TIDA_TRACKFILTER_H
+#define TIDA_TRACKFILTER_H
 
 #include <iostream>
 
@@ -40,7 +41,7 @@ inline std::ostream& operator<<( std::ostream& s, const TrackFilter&  ) {
   return s;
 }
 
-#endif  // __TRACKFILTER_H 
+#endif  // TIDA_TRACKFILTER_H 
 
 
 

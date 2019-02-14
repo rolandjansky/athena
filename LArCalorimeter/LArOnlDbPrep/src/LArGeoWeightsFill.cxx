@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnlDbPrep/LArGeoWeightsFill.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGate.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include <fstream>
@@ -21,7 +20,6 @@
 LArGeoWeightsFill::LArGeoWeightsFill(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_onlineID(0),
-  m_cablingSvc("LArCablingService"),
   m_ttService("CaloTriggerTowerService")
 {
   declareProperty("Key",m_key="GeoWeights");
@@ -39,7 +37,7 @@ StatusCode LArGeoWeightsFill::initialize() {
 
   ATH_MSG_DEBUG ( "start initialize()" );
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
-  ATH_CHECK( m_cablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_ttService.retrieve() );
   return StatusCode::SUCCESS;
 }   
@@ -86,11 +84,17 @@ StatusCode LArGeoWeightsFill::stop() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO ( "theCaloDDM retrieved" );
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling{*cablingHdl};
+    if(!cabling) {
+        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+        return StatusCode::FAILURE;
+    }
 
     for (unsigned hs=0;hs<hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
 
-      if(!m_cablingSvc->isOnlineConnected(chid)){
+      if(!cabling->isOnlineConnected(chid)){
 	ATH_MSG_DEBUG ( "cell chid: " << chid.get_compact() << " not connected channel, skip  " );
 	//Set values for disconnected cells to 0
 	pcostheta[hs]=0.0; 
@@ -99,7 +103,7 @@ StatusCode LArGeoWeightsFill::stop() {
 	pofflineTTid[hs]=0;
 	continue;
       }
-      const Identifier id=m_cablingSvc->cnvToIdentifier(chid);
+      const Identifier id=cabling->cnvToIdentifier(chid);
       const CaloDetDescrElement *caloDDE = theCaloDDM->get_element(id);
       if(!caloDDE){
 	ATH_MSG_ERROR ( "Failed to return CaloDetDescrElement" );

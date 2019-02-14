@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -59,9 +59,6 @@
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigitTool.h"
 
@@ -269,19 +266,6 @@ StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
   //  decoder.set(m_cscHelper);
 
   m_acSvc->setStore( &*evtStore() );
-
-  /*
-  const DataHandle<EventInfo> eventInfo;
-  status = evtStore()->retrieve(eventInfo);
-  if (status.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve event info from TDS. - abort ..."  );
-    return status;
-  }
-  const std::string detdescr = eventInfo->event_type()->get_detdescr_tags();
-  ATH_MSG_DEBUG( "DetDescr tags = " << detdescr  );
-  */
-
-  //  decoder.set(detdescr);
 
   // clean up the digit container
   m_cscContainer->cleanup();

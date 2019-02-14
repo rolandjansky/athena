@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_CALOLARRETRIEVER_H
@@ -11,7 +11,7 @@
 #include <map>
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -70,7 +70,7 @@ namespace JiveXML{
 
       const CaloIdManager* m_calo_id_man;
       const CaloCell_ID*   m_calocell_id;
-      ToolHandle<LArCablingService> m_larCablingSvc;
+      SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     
       /// for properties
       std::string m_sgKey; 

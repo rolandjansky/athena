@@ -53,46 +53,50 @@ PdgId=13
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
 
-HLTMonManager = topSequence.HLTMonManager
 
-from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConf import TrigJpsiMonTool
-TPMonTool = TrigJpsiMonTool( name="TPMonTool")
-#ToolSvc += TPMonTool
-HLTMonManager.AthenaMonTools += [ TPMonTool ]
+# remove dependence on the TrigIDJpsiMonitoring in anticipation 
+# of removing that package
 
+# HLTMonManager = topSequence.HLTMonManager
 
-TPMonTool.matchR = 0.1
-TPMonTool.pTCutOffline = 4000.0
-TPMonTool.d0Cut = 1000.0
-TPMonTool.z0Cut = 2000.0
-TPMonTool.d0CutOffline = 1000.0
-TPMonTool.z0CutOffline = 2000.0
-#TPMonTool.pTCutOffline = 4000.0
-#TPMonTool.d0Cut = 1000.0
-#TPMonTool.d0CutOffline = 1000.0
-#TPMonTool.matchR = 1.0
-#TPMonTool.z0CutOffline = 2000.0
-
-#TPMonTool.Chain0 = "EF_2mu13_Zmumu_IDTrkNoCut"
-TPMonTool.Chain0 = "EF_mu24i_tight";
-#TPMonTool.Chain1 = "EF_2mu4T_Jpsimumu_IDTrkNoCut"
-TPMonTool.Chain1 = ""
-#TPMonTool.Chain2 = ""
-#TPMonTool.Chain3 = ""
-
-#TPMonTool.IDSCAN = "";
-#TPMonTool.SiTrack = "";
-TPMonTool.EF = "InDetTrigParticleCreation_Muon_EFID";
-#TPMonTool.StratA = "TrigL2SiTrackFinder_MuonA";
-#TPMonTool.StratB = "TrigL2SiTrackFinder_MuonB";
-#TPMonTool.StratC = "TrigL2SiTrackFinder_MuonC";
-TPMonTool.StratA = "";
-TPMonTool.StratB = "";
-TPMonTool.StratC = "";
+# from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConf import TrigJpsiMonTool
+# TPMonTool = TrigJpsiMonTool( name="TPMonTool")
+# #ToolSvc += TPMonTool
+# HLTMonManager.AthenaMonTools += [ TPMonTool ]
 
 
-#TPMonTool.TRTSF = "";
-#TPMonTool.EFTRT = "";
+# TPMonTool.matchR = 0.1
+# TPMonTool.pTCutOffline = 4000.0
+# TPMonTool.d0Cut = 1000.0
+# TPMonTool.z0Cut = 2000.0
+# TPMonTool.d0CutOffline = 1000.0
+# TPMonTool.z0CutOffline = 2000.0
+# #TPMonTool.pTCutOffline = 4000.0
+# #TPMonTool.d0Cut = 1000.0
+# #TPMonTool.d0CutOffline = 1000.0
+# #TPMonTool.matchR = 1.0
+# #TPMonTool.z0CutOffline = 2000.0
+
+# #TPMonTool.Chain0 = "EF_2mu13_Zmumu_IDTrkNoCut"
+# TPMonTool.Chain0 = "EF_mu24i_tight";
+# #TPMonTool.Chain1 = "EF_2mu4T_Jpsimumu_IDTrkNoCut"
+# TPMonTool.Chain1 = ""
+# #TPMonTool.Chain2 = ""
+# #TPMonTool.Chain3 = ""
+
+# #TPMonTool.IDSCAN = "";
+# #TPMonTool.SiTrack = "";
+# TPMonTool.EF = "InDetTrigParticleCreation_Muon_EFID";
+# #TPMonTool.StratA = "TrigL2SiTrackFinder_MuonA";
+# #TPMonTool.StratB = "TrigL2SiTrackFinder_MuonB";
+# #TPMonTool.StratC = "TrigL2SiTrackFinder_MuonC";
+# TPMonTool.StratA = "";
+# TPMonTool.StratB = "";
+# TPMonTool.StratC = "";
+
+
+# #TPMonTool.TRTSF = "";
+# #TPMonTool.EFTRT = "";
 
 
 

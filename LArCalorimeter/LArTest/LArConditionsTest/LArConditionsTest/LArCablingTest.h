@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCABLINGTEST_H
@@ -9,8 +9,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
-class LArCablingService;
+
 class LArOnlineID;
 class CaloCell_ID;
 
@@ -25,13 +29,17 @@ class LArCablingTest : public AthAlgorithm
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  ToolHandle<LArCablingService> m_larCablingSvc;
+
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+    SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+    SG::ReadCondHandleKey<LArFebRodMapping>  m_RodKey{this, "FebRodKey", "LArFebRodMap", "SG ROD mapping key"};
+
   bool m_print;
   unsigned m_mode;
   const LArOnlineID* m_onlineId;
   const CaloCell_ID* m_caloCellId;
 
-  void print (const HWIdentifier& hwid, std::ostream& out); 
+  void print (const HWIdentifier& hwid, std::ostream& out, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont); 
 };
 
 #endif

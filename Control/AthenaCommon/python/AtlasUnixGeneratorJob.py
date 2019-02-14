@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixGeneratorJob.py
 ## @brief py-module to configure the Athena AppMgr for generator (UNIX) jobs
@@ -24,6 +24,13 @@ def _setupAtlasUnixGeneratorJob():
 
     # Persistency services
     svcMgr.EventPersistencySvc.CnvServices += [ "McCnvSvc" ]
+
+    # Temporarily inject the xAOD::EventInfo converter here to allow for adiabatic migration of the clients
+    from AthenaCommon.AlgSequence import AthSequencer
+    topSequence = AthSequencer("AthAlgSeq")
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg(DoBeginRun = False, AODKey = 'McEventInfo')
+
     return
 
 ## load basic services configuration at module import

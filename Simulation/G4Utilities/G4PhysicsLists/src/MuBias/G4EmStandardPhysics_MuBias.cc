@@ -46,7 +46,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
+#include "G4EmParameters.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -395,10 +395,10 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
-  G4EmProcessOptions opt;
-  opt.SetVerbose(m_verbose);
+  G4EmParameters* emp = G4EmParameters::Instance();
+  emp->SetVerbose(m_verbose);
   //  opt.SetApplyCuts(true);
-  opt.SetPolarAngleLimit(CLHEP::pi);
+  emp->SetMscThetaLimit(CLHEP::pi);
 
   // Deexcitation
   //

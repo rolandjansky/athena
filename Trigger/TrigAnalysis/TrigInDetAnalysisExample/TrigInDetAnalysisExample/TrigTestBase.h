@@ -1,10 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTestBase.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:38 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __TRIGTESTBASE_H
-#define __TRIGTESTBASE_H
+
+#ifndef TIDAEXAMPLE_TRIGTESTBASE_H
+#define TIDAEXAMPLE_TRIGTESTBASE_H
 
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -174,4 +180,4 @@ protected:
 
 
 
-#endif //  __TRIGTESTBASE_H
+#endif //  TIDAEXAMPLE_TRIGTESTBASE_H

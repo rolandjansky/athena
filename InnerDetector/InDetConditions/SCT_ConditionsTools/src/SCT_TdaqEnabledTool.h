@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,24 +11,14 @@
 #ifndef SCT_TdaqEnabledTool_h
 #define SCT_TdaqEnabledTool_h
 
-#include <list>
-#include <mutex>
-
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
-
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
-// Read Handle Key
-#include "StoreGate/ReadHandleKey.h"
+#include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
-// Event Info
-#include "EventInfo/EventInfo.h"
+#include "GaudiKernel/EventContext.h"
 
 class SCT_ID;
 
@@ -52,22 +42,16 @@ public:
 
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
 
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
  private:
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_TdaqEnabledCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_TdaqEnabledCondData> m_condData;
-   
   const SCT_ID* m_pHelper;
   bool m_useDatabase;
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey{this, "CondKey", "SCT_TdaqEnabledCondData", "Active SCT RODs"};
 
   const SCT_TdaqEnabledCondData* getCondData(const EventContext& ctx) const;

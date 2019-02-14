@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,8 +17,16 @@
 #define DQTGlobalWZFinderTool_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <stdint.h>
 #include "DataQualityTools/DataQualityFatherMonTool.h"
+
+#include "xAODTracking/VertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -113,16 +121,6 @@ private:
       int m_this_lb; //remove _t
       int m_eventNumber; //remove _t
       
-      std::string m_electronContainerName;
-      std::string m_egDetailContainerName;
-
-      std::string m_VxPrimContainerName;
-      std::string m_VxContainerName;
-
-      std::string m_METName;
-      std::string m_muonContainerName;
-      std::string m_jetCollectionName;
-      std::string m_tracksName;
       Float_t m_electronEtCut;
       Float_t m_muonPtCut;
       Float_t m_metCut;
@@ -133,16 +131,23 @@ private:
       ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
 
             
-      // to guard against endless messages 
-      bool m_printedErrorEleContainer;
-      bool m_printedErrorMuColl;
-      bool m_printedErrorMet;
-      bool m_printedErrorTrackContainer;
-
       std::vector<std::string> m_Jpsi_mm_trigger;
       std::vector<std::string> m_Z_mm_trigger;
       std::vector<std::string> m_Z_ee_trigger;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
+    { this, "EventInfoKey", "EventInfo", "" };
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_MissingETContainerKey
+    { this, "MetName", "MET_Reference_AntiKt4EMTopo", "" };
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronContainerKey
+    { this, "ElectronContainerName", "Electrons", "" };
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey
+    { this, "MuonContainerName", "Muons", "" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContainerKey
+    { "PrimaryVertices" };
+  //  SG::ReadHandleKey<xAOD::JetContainer> m_JetContainerKey;
+  
+  
 };
 
 #endif
