@@ -28,8 +28,8 @@ atlas_add_test( AthConfigFlagsTest
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( GenerateBootstrapTest
-   SCRIPT test/test_gen_bootstrap.sh 
-   #ignore location of bootstrap file and whether it was already downloaded 
+   SCRIPT test/test_gen_bootstrap.sh
+   #ignore location of bootstrap file and whether it was already downloaded
    EXTRA_PATTERNS ".*\/share\/bootstrap*pkl|File.*exists in the current directory"
    )
 
