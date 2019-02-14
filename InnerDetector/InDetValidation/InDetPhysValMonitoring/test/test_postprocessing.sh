@@ -19,7 +19,7 @@ script="`basename \"$0\"`"
 individual_ESD_1=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.09244569._000001.ESD.root
 individual_ESD_2=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.09244569._000002.ESD.root
 #combined_ESD=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.ESD.root
-combined_ESD=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.09244569._000001.ESD.root,$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.09244569._000002.ESD.root
+combined_ESD=$individual_ESD_1,$individual_ESD_2
 
 dcubemon_postprocessing=physval_muons_1GeV.root
 dcubecfg_postprocessing=$artdata/InDetSLHC_Example/dcube/config/postprocessing_physval.xml
