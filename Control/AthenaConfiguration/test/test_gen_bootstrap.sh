@@ -1,4 +1,6 @@
 #!/bin/sh
+#Generate threaded and serial bootstrap pickles and diff them
+#If there's a major change in AthenaCommon or Gaudi it will get picked up here
 
 athena --config-only=bootstrap_test.pkl AthenaConfiguration/zeroJO.py &> /dev/null
 get_files -remove -data bootstrap.pkl
