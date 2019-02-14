@@ -711,7 +711,7 @@ namespace AtlasRoot {
         m_zeeNom.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
         m_zeeNom_data2016.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
         m_zeeNom_data2015.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
-        m_zeeNom_data2018.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2018")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom_data2018.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2018")));  m_zeeNom_data2018->SetDirectory(nullptr);
         m_zeeFwdk.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
         m_zeeFwdb.reset(dynamic_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
       }
@@ -736,7 +736,7 @@ namespace AtlasRoot {
         m_zeeSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
+         m_zeeSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else{
         m_zeeSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
@@ -744,9 +744,9 @@ namespace AtlasRoot {
       
       m_uA2MeV_2015_first2weeks_correction = nullptr;
       if(m_esmodel == egEnergyCorr::es2017){
-        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2015_5TeV){	
-        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if(m_esmodel == egEnergyCorr::es2017_summer_final) {
         m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
@@ -754,7 +754,7 @@ namespace AtlasRoot {
       else if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
         m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution//es2017_R21_ofc0_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr); 
+        m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else{
         m_resNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat")));        m_resNom->SetDirectory(nullptr); 
       }
@@ -775,7 +775,7 @@ namespace AtlasRoot {
         m_resSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else{ 
         m_resSyst.reset( dynamic_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
@@ -2176,6 +2176,8 @@ namespace AtlasRoot {
         }
       }
     }
+
+    std::cout << " runnnumber, eta,value " << runnumber << " " << eta << " " << value << std::endl;
 
 
     if (var == egEnergyCorr::Scale::ZeeStatUp or var == egEnergyCorr::Scale::ZeeStatDown) {
