@@ -43,6 +43,7 @@ namespace CP
       
     m_systematicsList.addHandle (m_egammasHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -56,8 +57,11 @@ namespace CP
         ANA_CHECK (m_egammasHandle.getCopy (egammas, sys));
         for (xAOD::Egamma *egamma : *egammas)
         {
-          m_selectionAccessor->setBits
-            (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));
+          if (m_preselection.getBool (*egamma))
+          {
+            m_selectionAccessor->setBits
+              (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));
+          }
         }
         return StatusCode::SUCCESS;
       });
