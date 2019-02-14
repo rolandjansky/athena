@@ -61,7 +61,7 @@ def __diff():
 
     confs = [ __merge( __loadSingleFile( f )) for f in args.file ] 
     
-    allkeys = set( confs[0].keys() + confs[0].keys())
+    allkeys = set( confs[0].keys() + confs[1].keys())
 
     for comp in allkeys:
         if comp not in confs[0]:
