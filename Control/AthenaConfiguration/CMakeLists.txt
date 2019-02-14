@@ -25,9 +25,13 @@ atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( AllConfigFlagsTest
-   SCRIPT python -m AthenaConfiguration.AllConfigFlags
-   POST_EXEC_SCRIPT nopost.sh )
+if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
+    atlas_add_test( AllConfigFlagsTest
+    		    SCRIPT python -m AthenaConfiguration.AllConfigFlags
+   		    POST_EXEC_SCRIPT nopost.sh )
+endif()
+
+
 
 
 # Check python syntax:
