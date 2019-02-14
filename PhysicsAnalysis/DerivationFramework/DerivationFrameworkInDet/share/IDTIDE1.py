@@ -14,6 +14,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 
+from AthenaCommon.Logging import logging
+msg = logging.getLogger( "IDTIDE1" )
+_info = msg.info
+
 #Steering options
 idDxAOD_doPix=True
 idDxAOD_doSct=True
@@ -32,7 +36,7 @@ IsMonteCarlo=DerivationFrameworkIsMonteCarlo
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
 IDTIDE1IPETool = Trk__TrackToVertexIPEstimator(name = "IDTIDE1IPETool")
 ToolSvc += IDTIDE1IPETool
-print IDTIDE1IPETool
+_info(IDTIDE1IPETool)
 
 #Setup tools
 if idDxAOD_doTrt:
@@ -56,7 +60,7 @@ IDTIDE1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "I
                                                                        ContainerName = "InDetTrackParticles")
 ToolSvc += IDTIDE1TrackToVertexWrapper 
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
-print IDTIDE1TrackToVertexWrapper
+_info(IDTIDE1TrackToVertexWrapper)
 
 # Add decoration with truth parameters if running on simulation
 if IsMonteCarlo:
@@ -65,7 +69,7 @@ if IsMonteCarlo:
                                                                         DecorationPrefix = "")
     ToolSvc += TruthDecor
     augmentationTools.append(TruthDecor)
-    print TruthDecor
+    _info(TruthDecor)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
@@ -79,7 +83,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           OutputLevel =INFO)
 ToolSvc += DFTSOS
 augmentationTools.append(DFTSOS)
-print DFTSOS
+_info(DFTSOS)
 
 # Sequence for skimming kernel (if running on data) -> PrepDataToxAOD -> ID TIDE kernel
 IDTIDESequence = CfgMgr.AthSequencer("IDTIDESequence")
@@ -172,7 +176,7 @@ if not IsMonteCarlo:
   ToolSvc += IDTIDE_ORTool
 
   skimmingTools.append(IDTIDE_ORTool)
-  print "IDTIDE1.py IDTIDE_ORTool: ", IDTIDE_ORTool
+  _info( "IDTIDE1.py IDTIDE_ORTool: %s", IDTIDE_ORTool)
   
   # Add the skimming kernel to the sequence
   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -185,8 +189,7 @@ if idDxAOD_doTrt:
   xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
   xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
   xAOD_TRT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add TRT xAOD TrackMeasurementValidation:"
-  print xAOD_TRT_PrepDataToxAOD
+  _info( "Add TRT xAOD TrackMeasurementValidation: %s" , xAOD_TRT_PrepDataToxAOD)
   IDTIDESequence += xAOD_TRT_PrepDataToxAOD
 
 if idDxAOD_doSct:
@@ -194,23 +197,19 @@ if idDxAOD_doSct:
   xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
   xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
   xAOD_SCT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add SCT xAOD TrackMeasurementValidation:"
-  print xAOD_SCT_PrepDataToxAOD
+  _info("Add SCT xAOD TrackMeasurementValidation: %s", xAOD_SCT_PrepDataToxAOD)
   IDTIDESequence += xAOD_SCT_PrepDataToxAOD
 
 if idDxAOD_doPix:
   from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
   PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
   IDTIDESequence += PixelChargeToTConversionSetter 
-  print "Add Pixel xAOD ToTConversionSetter:"
-  print PixelChargeToTConversionSetter
-  print PixelChargeToTConversionSetter.properties()
+  _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
   xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
   xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add Pixel xAOD TrackMeasurementValidation:"
-  print xAOD_PixelPrepDataToxAOD
+  _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
   IDTIDESequence += xAOD_PixelPrepDataToxAOD
 
 
