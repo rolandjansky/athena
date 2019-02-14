@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_DIJET_H
@@ -24,7 +24,7 @@ class TrigHLTJetHypo_Dijet : public TrigHLTJetHypoBase {
 
   TrigHLTJetHypo_Dijet(const std::string& name, 
                                ISvcLocator* pSvcLocator);
-  HLT::ErrorCode hltInitialize();
+  virtual HLT::ErrorCode hltInitialize() override;
 
   ~TrigHLTJetHypo_Dijet();
 
