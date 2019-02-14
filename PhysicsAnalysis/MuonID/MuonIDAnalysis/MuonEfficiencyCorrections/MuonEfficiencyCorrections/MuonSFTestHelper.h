@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUONEFFICIENCYCORRECTION_MUONSFTESTHELPER_H
@@ -9,8 +9,10 @@
 #include "xAODMuon/Muon.h"
 
 // Tool Includes
-#include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
-#include <MuonEfficiencyCorrections/MuonTriggerScaleFactors.h>
+#include <MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h>
+#include <MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h>
+#include <MuonAnalysisInterfaces/IMuonSelectionTool.h>
+
 
 #include <AsgTools/ToolHandle.h>
 #include <AsgTools/AnaToolHandle.h>
@@ -23,7 +25,7 @@
 #include <map>
 #include <TTree.h>
 #include <TH1.h>
-
+#include <TFile.h>
 //Helper class to test the Muon efficiency SFs plus their systematics
 namespace TestMuonSF {
     //#########################
@@ -153,19 +155,22 @@ namespace TestMuonSF {
     //###################################################
     class MuonInfoBranches: public MuonEffiBranches {
         public:
-            MuonInfoBranches(TTree* tree);
+            MuonInfoBranches(TTree* tree, const ToolHandle<CP::IMuonSelectionTool>& sel_tool);
             virtual ~MuonInfoBranches();
             virtual bool init();
             virtual std::string name() const;
             virtual CP::CorrectionCode fill(const xAOD::Muon& muon);
 
         private:
+            const ToolHandle<CP::IMuonSelectionTool>& m_selection_tool;
             float m_pt;
             float m_eta;
             float m_phi;
             unsigned int m_quality;
             unsigned int m_author;
             unsigned int m_type;
+            bool m_passLowPt;
+            bool m_passHighPt;
     };
 
     class MuonSFTestHelper {
@@ -187,6 +192,9 @@ namespace TestMuonSF {
             void addReplicaTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle);
             void addReplicaTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle);
 
+            void setSelectionTool(const asg::AnaToolHandle<CP::IMuonSelectionTool> & sel_tool);
+            void setSelectionTool(const ToolHandle<CP::IMuonSelectionTool> & sel_tool);
+            
             TTree* tree() const;
             std::shared_ptr<TTree> tree_shared() const;
             CP::CorrectionCode fill(const xAOD::MuonContainer* muons);
@@ -199,6 +207,7 @@ namespace TestMuonSF {
             std::shared_ptr<TTree> m_tree;
             TTree* m_tree_raw_ptr;
             std::vector<EffiBranch_Ptr> m_Branches;
+            ToolHandle<CP::IMuonSelectionTool> m_sel_tool;
     };
 
 }

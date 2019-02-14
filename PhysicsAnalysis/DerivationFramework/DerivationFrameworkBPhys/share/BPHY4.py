@@ -31,7 +31,6 @@ BPHY4FourMuonTool = DerivationFramework__FourMuonTool(
   useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
   TrkVertexFitterTool         = BPHY4_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
   TrackSelectorTool           = BPHY4_VertexTools.InDetTrackSelectorTool,
-  ConversionFinderHelperTool  = BPHY4_VertexTools.InDetConversionHelper,
   VertexPointEstimator        = BPHY4_VertexTools.VtxPointEstimator)
   
 ToolSvc += BPHY4FourMuonTool

@@ -8,6 +8,8 @@
 #include <AsgTools/ToolHandle.h>
 
 #include <IsolationSelection/IsoVariableHelper.h>
+#include <IsolationSelection/IsolationCloseByCorrectionTool.h>
+
 #include <IsolationSelection/Defs.h>
 
 
@@ -30,6 +32,11 @@ namespace CP {
             void BackupPreFix(const std::string &PreFix);
             void DefaultIsolation(const std::string &DecorName);
             void CorrectedIsolation(const std::string &DecorName);
+            /// set the list of all clusters from the Cluster container matched
+            /// by the IsolationCloseByCorrectionTool... A bit awkward path, 
+            /// but otherwise we do not get
+            /// consistency in the validation plots
+            void SetClusters(const ClusterCollection& clusters);
             
         private:
 
@@ -51,7 +58,11 @@ namespace CP {
             std::vector<bool> m_corr_passIso;
             
             std::vector<float> m_assoc_track_pt;
+            
             std::vector<float> m_assoc_cluster_et;
+            std::vector<float> m_assoc_cluster_eta;
+            std::vector<float> m_assoc_cluster_phi;
+            
             
             struct IsolationBranches {
                 std::vector<float> original_cones;
@@ -69,6 +80,8 @@ namespace CP {
             SelectionAccessor m_acc_used_for_corr;
             SelectionAccessor m_acc_passDefault;
             SelectionAccessor m_acc_passCorrected;
+            
+            ClusterCollection m_clusters;
          
     };
 

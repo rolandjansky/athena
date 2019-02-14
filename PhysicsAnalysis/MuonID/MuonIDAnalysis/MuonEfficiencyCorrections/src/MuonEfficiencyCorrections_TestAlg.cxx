@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 // Local include(s):
@@ -19,6 +19,7 @@ namespace CP {
                 m_effi_SF_tools(),
                 m_comparison_tools(),
                 m_prw_Tool("CP::PileupReweighting/PileupReweightingTool", this),
+                m_sel_tool("CP::MuonSelectionTool/SelectionTool",this),
                 m_test_helper(),
                 m_comparison_helper(),
                 m_first_release_name("First"),
@@ -26,6 +27,8 @@ namespace CP {
         declareProperty("SGKey", m_sgKey = "Muons");
         // prepare the handle
         declareProperty("PileupReweightingTool", m_prw_Tool);
+        declareProperty("MuonSelectionTool", m_sel_tool);
+        
         declareProperty("EfficiencyTools", m_effi_SF_tools);
         declareProperty("EfficiencyToolsForComparison", m_comparison_tools);
 
@@ -40,21 +43,23 @@ namespace CP {
     StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
         ATH_MSG_DEBUG("SGKey = " << m_sgKey);
         ATH_CHECK(m_prw_Tool.retrieve());
+        ATH_CHECK(m_sel_tool.retrieve());
         ATH_MSG_DEBUG("PileupReweightingTool  = " << m_prw_Tool);
         if (m_effi_SF_tools.empty()) {
             ATH_MSG_FATAL("Please provide at least one muon sf- tool");
             return StatusCode::FAILURE;
         }
         if (m_comparison_tools.empty()) {
-            m_test_helper = std::unique_ptr < TestMuonSF::MuonSFTestHelper > (new TestMuonSF::MuonSFTestHelper());
+            m_test_helper = std::make_unique < TestMuonSF::MuonSFTestHelper > ();
         } else {
-            m_test_helper = std::unique_ptr < TestMuonSF::MuonSFTestHelper > (new TestMuonSF::MuonSFTestHelper(m_first_release_name));
-            m_comparison_helper = std::unique_ptr < TestMuonSF::MuonSFTestHelper > (new TestMuonSF::MuonSFTestHelper(m_test_helper->tree(), m_second_release_name));
+            m_test_helper = std::make_unique < TestMuonSF::MuonSFTestHelper > (m_first_release_name);
+            m_comparison_helper = std::make_unique < TestMuonSF::MuonSFTestHelper> (m_test_helper->tree(), m_second_release_name);
             for (auto & SFTool : m_comparison_tools) {
                 ATH_CHECK(SFTool.retrieve());
                 m_comparison_helper->addTool(SFTool);
             }
         }
+        m_test_helper->setSelectionTool(m_sel_tool);
         for (auto & SFTool : m_effi_SF_tools) {
             ATH_CHECK(SFTool.retrieve());
             m_test_helper->addTool(SFTool);

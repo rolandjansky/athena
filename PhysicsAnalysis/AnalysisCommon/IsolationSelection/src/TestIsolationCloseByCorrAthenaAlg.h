@@ -54,6 +54,8 @@ namespace CP {
                 ATH_CHECK(evtStore()->record(shallowcopy.second, "Shallow" + ContainerName + "Aux."));
                 return StatusCode::SUCCESS;
             }
+            
+            const CP::IsolationCloseByCorrectionTool* correction_tool() const;
             ServiceHandle<ITHistSvc> m_histSvc;
 
             ToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByCorrTool;

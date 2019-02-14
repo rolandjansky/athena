@@ -1,4 +1,6 @@
-// $Id: ToolStore.cxx 802972 2017-04-15 18:13:17Z krumnack $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 
 // System include(s):
 #include <map>
@@ -90,16 +92,22 @@ namespace asg {
    }
 
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
+      using namespace msgToolHandle;
 
       ToolMap_t::const_iterator itool = tools().find( name );
-      if( itool == tools().end() ) {
-         if( ! silent ) {
-            std::cout << "asg::ToolStore::get       WARNING Tool with name \""
-                      << name << "\" not found" << std::endl;
-         }
-         return 0;
+      if( itool != tools().end() )
+        return itool->second;
+
+      if (name.find ("ToolSvc.") != 0) {
+        itool = tools().find( "ToolSvc." + name );
+        if( itool != tools().end() )
+          return itool->second;
       }
-      return itool->second;
+
+      if( ! silent ) {
+        ANA_MSG_WARNING ("Tool with name \"" << name << "\" not found");
+      }
+      return nullptr;
    }
 
    StatusCode ToolStore::remove( const IAsgTool* tool ) {
@@ -116,7 +124,7 @@ namespace asg {
    }
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   void ToolStore::dumpToolConfig () {
     using namespace asg::msgProperty;
 

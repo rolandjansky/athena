@@ -18,12 +18,12 @@
 
 #include "AthContainers/ConstDataVector.h"
 
-#include "JetRecTools/TrackAssistTool.h"
+#include "JetRecTools/TrackAssistHelper.h"
 
 class SATScaleTool 
 : public IJetExecuteTool,
   public asg::AsgTool,
-  public TrackAssistTool
+  public TrackAssistHelper
 {
   ASG_TOOL_CLASS(SATScaleTool, IJetExecuteTool)
 

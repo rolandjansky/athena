@@ -41,8 +41,8 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_configFile;
 
     // variables to be used for making selection
-    float m_mass;
-    float m_D2;
+    // float m_mass;
+    // float m_D2;
 
     // parameters to store specific cut values
     std::string m_strMassCutLow;

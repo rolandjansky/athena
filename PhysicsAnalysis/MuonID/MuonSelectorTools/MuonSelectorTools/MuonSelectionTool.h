@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
@@ -13,10 +13,12 @@
 #include "PATCore/IAsgSelectionTool.h"
 #include "TFile.h"
 #include "TH2D.h"
-#include "TSystem.h" // Replace with PathResolver   
+#include "TSystem.h" // Replace with PathResolver
+#include "TMVA/Reader.h"
 
 // Local include(s):
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+
 
 namespace CP {
 
@@ -96,6 +98,7 @@ namespace CP {
       /// Returns true if the muon passes the standard MCP low pt cuts. To set the value on the muon, instead call setPassesLowPtEfficiencyCuts(xAOD::Muon&) const
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
+      bool passedLowPtEfficiencyMVACut(const xAOD::Muon&) const;
 
       /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
       bool passedErrorCutCB(const xAOD::Muon&) const;
@@ -136,6 +139,15 @@ namespace CP {
      bool m_SiHolesCutOff;
      bool m_TurnOffMomCorr;
      bool m_useAllAuthors;
+     bool m_use2stationMuonsHighPt;
+     bool m_useMVALowPt;
+     
+     std::string m_eventInfoContName;
+
+     std::string m_MVAreaderFile_EVEN_MuidCB;
+     std::string m_MVAreaderFile_ODD_MuidCB;
+     std::string m_MVAreaderFile_EVEN_MuGirl;
+     std::string m_MVAreaderFile_ODD_MuGirl;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
@@ -150,6 +162,25 @@ namespace CP {
      std::string m_calibration_version;
      // possible override for the calibration version
      std::string m_custom_dir;
+
+     //Need run number (or random run number) to apply period-dependent selections.
+     //If selection depends only on data taking year, this can be specified by passing
+     //argument needOnlyCorrectYear=true, in which case the random run number decoration
+     //from the pile-up reweighting tool is not needed.
+     unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
+
+     //TMVA readers for low-pT working point
+     TMVA::Reader* readerE_MUID;
+     TMVA::Reader* readerO_MUID;
+     TMVA::Reader* readerE_MUGIRL;
+     TMVA::Reader* readerO_MUGIRL;
+
+     //TMVA initialize function
+     void PrepareReader(TMVA::Reader* reader);
+
+     //variables for the TMVA readers
+     Float_t *lowPTmva_middleHoles, *lowPTmva_muonSeg1ChamberIdx, *lowPTmva_muonSeg2ChamberIdx, *lowPTmva_momentumBalanceSig,
+       *lowPTmva_scatteringCurvatureSig, *lowPTmva_scatteringNeighbourSig, *lowPTmva_energyLoss, *lowPTmva_muonSegmentDeltaEta;
 
    }; // class MuonSelectionTool
 

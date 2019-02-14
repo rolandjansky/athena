@@ -30,7 +30,8 @@ namespace lwt {
 namespace FlavorTagDiscriminants {
 
   enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
-  enum class SortOrder {ABS_D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
+  enum class SortOrder {
+    ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
 
   // Structures to define DL2 input.
@@ -89,8 +90,8 @@ namespace FlavorTagDiscriminants {
     typedef std::pair<std::string, std::vector<double> > NamedSeq;
     typedef xAOD::Jet Jet;
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
-    typedef std::function<bool(const xAOD::TrackParticle*,
-                               const xAOD::TrackParticle*)> TrackSort;
+    typedef std::function<double(const xAOD::TrackParticle*,
+                                 const xAOD::Jet&)> TrackSortVar;
     typedef std::function<bool(const xAOD::TrackParticle*)> TrackSelect;
 
     // getter functions
@@ -137,7 +138,7 @@ namespace FlavorTagDiscriminants {
       typedef SG::AuxElement AE;
       typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
       AE::ConstAccessor<TrackLinks> m_track_associator;
-      TrackSort m_sort_function;
+      TrackSortVar m_sort_var_getter;
       TrackSelect m_select_function;
     };
 
@@ -192,7 +193,7 @@ namespace FlavorTagDiscriminants {
   // Filler functions
   namespace internal {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
-    TrackSort get_track_sort(SortOrder);
+    TrackSortVar get_track_sort(SortOrder);
     TrackSelect get_track_select(TrackSelection);
     SeqGetter get_seq_getter(const DL2TrackInputConfig&);
   }

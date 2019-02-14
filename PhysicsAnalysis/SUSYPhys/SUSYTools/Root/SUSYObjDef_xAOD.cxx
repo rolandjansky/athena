@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -93,6 +93,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noElId(false),
     m_force_noMuId(false),
     m_doTTVAsf(true),
+    m_doModifiedEleId(false),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
@@ -453,6 +454,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleBaselineId", m_eleIdBaseline);
   declareProperty( "EleBaselineConfig", m_eleConfigBaseline);
   declareProperty( "EleBaselineCrackVeto", m_eleBaselineCrackVeto);
+  declareProperty( "EleModifiedId", m_doModifiedEleId );
   declareProperty( "EleId", m_eleId);
   declareProperty( "EleConfig", m_eleConfig);
   declareProperty( "EleIso", m_eleIso_WP);
@@ -1099,6 +1101,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Ele.CrackVeto"] = "EleCrackVeto";
   m_conf_to_prop["EleBaseline.CrackVeto"] = "EleBaselineCrackVeto";
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
+  m_conf_to_prop["Ele.DoModifiedId"] = "EleModifiedId";
   m_conf_to_prop["Muon.ForceNoId"] = "MuonForceNoId";
   m_conf_to_prop["Muon.TTVASF"] = "MuonTTVASF";
   m_conf_to_prop["Muon.passedHighPt"] = "MuonRequireHighPtCuts";
@@ -1158,6 +1161,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
@@ -1167,7 +1171,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map1.txt");
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 

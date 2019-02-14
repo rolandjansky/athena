@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/TopConfig.h"
@@ -47,6 +47,8 @@ namespace top{
 
     m_jetSubstructureName("None"),
 
+    m_recomputeCPvars(true),
+
     // Do systematics? - this needs many more configuration options
     m_systematics("SetMe"),
     /// special syst config
@@ -84,6 +86,9 @@ namespace top{
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
     m_doLooseEvents(false),
+    // Runs systematics on the given selection
+    m_doTightSysts(true),
+    m_doLooseSysts(true),
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -184,6 +189,7 @@ namespace top{
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
+    m_jetPtGhostTracks(17000.),
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
@@ -584,6 +590,9 @@ namespace top{
 
     }
 
+    // Force recomputation of CP variables?
+    if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
+
     // Bootstrapping weights (permitted in MC and Data)
     if(settings->value("SaveBootstrapWeights") == "True") {
       this->setSaveBootstrapWeights(true);
@@ -594,6 +603,8 @@ namespace top{
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
       m_doTightEvents = (settings->value("DoTight") == "MC" || settings->value("DoTight") == "Both");
+      m_doLooseSysts  = (settings->value("DoSysts") == "Loose" || settings->value("DoSysts") == "Both") && m_doLooseEvents;
+      m_doTightSysts  = (settings->value("DoSysts") == "Tight" || settings->value("DoSysts") == "Both") && m_doTightEvents;
     }
     else {
       m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
@@ -722,6 +733,7 @@ namespace top{
     this->jetPtcut( std::stof(settings->value("JetPt")) );
     this->jetEtacut( std::stof(settings->value("JetEta")) );
     this->fwdJetAndMET( settings->value("FwdJetAndMET") );
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")) );
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
     this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );
@@ -955,6 +967,16 @@ namespace top{
     std::copy( std::istream_iterator<std::string>(pileup_config_AF_ss),
                std::istream_iterator<std::string>(),
                std::back_inserter(m_pileup_reweighting.config_files_AF) );
+
+    std::istringstream actual_mu_FS_ss(settings->value( "PRWActualMu_FS" ));
+    std::copy( std::istream_iterator<std::string>(actual_mu_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.actual_mu_FS) );
+
+    std::istringstream actual_mu_AF_ss(settings->value( "PRWActualMu_AF" ));
+    std::copy( std::istream_iterator<std::string>(actual_mu_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.actual_mu_AF) );
 
     m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
 
@@ -1562,6 +1584,7 @@ namespace top{
           for(auto s : syst){
               (* m_systMapJetGhostTrack)[s.hash()] = s;
               (* m_systDecoKeyMapJetGhostTrack)[s.hash()] = m_decoKeyJetGhostTrack + "_" + s.name();
+	      m_list_systHashAll->push_back( s.hash() );
               m_jetGhostTrackSystematics.push_back(s.name());
           }
 
@@ -1572,6 +1595,9 @@ namespace top{
                                   m_jetGhostTrackSystematics.end());
           m_jetGhostTrackSystematics.erase(last,
                                         m_jetGhostTrackSystematics.end());
+					
+	  m_list_systHashAll->sort();
+	  m_list_systHashAll->unique();
       }
   }
 
@@ -1838,6 +1864,12 @@ namespace top{
         m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
       }
     }
+    if (m_useJetGhostTrack){
+      for (Itr i=m_systMapJetGhostTrack->begin();i!=m_systMapJetGhostTrack->end();++i) {
+        m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
+      }
+    
+    }
     for (Itr i=m_systMapMET->begin();i!=m_systMapMET->end();++i) {
       m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
     }
@@ -1871,14 +1903,18 @@ namespace top{
     unsigned int TTreeIndex(0);
     if (m_doTightEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doTightSysts){
+	  m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
     if (m_doLooseEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doLooseSysts){
+	  m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
 

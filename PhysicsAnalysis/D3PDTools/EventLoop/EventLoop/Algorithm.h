@@ -61,7 +61,7 @@ namespace EL
     /// description: the worker that is controlling us
     /// guarantee: no-fail
   public:
-    Worker *wk () const;
+    IWorker *wk () const;
 
 
     /// \brief book the given histogram
@@ -163,6 +163,19 @@ namespace EL
 
     /// effects: do all the processing that needs to be done once per
     ///   file
+    ///
+    /// Warning: The user should not expect this to be called at any
+    /// particular point in execution.  If a file is split between
+    /// multiple jobs this will be called in only one of these jobs,
+    /// and not the others.  It usually gets called before the first
+    /// event in a file, but that is **not** guaranteed and relying on
+    /// this is a bug.  Take a look at \ref changeInput if you want
+    /// something that is guaranteed to be executed at the beginning
+    /// of each input file.
+    ///
+    /// Warning: The execution order of changeInput and fileExecute is
+    /// currently unspecified.
+    ///
     /// guarantee: basic
     /// failures: algorithm dependent
     /// rationale: this is to read per-file accounting data, e.g. the
@@ -183,6 +196,21 @@ namespace EL
     /// effects: do all changes to work with a new input file,
     ///   e.g. set new branch addresses.  if firstFile is set, this
     ///   method is called just before init() is called
+    ///
+    /// Warning: If a file is split across multiple jobs this will be
+    /// called more than once.  This only happens for specific batch
+    /// drivers and/or if it is explicitly configured by the user.
+    /// With PROOF it could even happen multiple times within the same
+    /// job, and while PROOF is no longer supported that behavior may
+    /// come back if support for a similar framework is added in the
+    /// future.  As such, this method should not be used for
+    /// accounting that relies to be called exactly once per file,
+    /// take a look at fileExecute() if you want something that is
+    /// guaranteed to be executed exactly once per input file.
+    ///
+    /// Warning: The execution order of changeInput and fileExecute is
+    /// currently unspecified.
+    ///
     /// guarantee: basic
     /// failures: algorithm dependent
   private:
@@ -301,10 +329,11 @@ namespace EL
     ///   algorithm.  this allows it to do it without having to
     ///   duplicate most of the interface.
     friend class Worker;
+    friend class Detail::AlgorithmStateModule;
 
     // description: members directly corresponding to accessors
   private:
-    Worker *m_wk; //!
+    IWorker *m_wk; //!
 
     /// \brief the value of \ref evtStore
   private:

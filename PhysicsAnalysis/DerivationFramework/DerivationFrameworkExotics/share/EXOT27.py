@@ -60,7 +60,6 @@ EXOT27Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # jet finding) only if the kernel's selections pass.
 EXOT27Seq = CfgMgr.AthSequencer("EXOT27Sequence")
 DerivationFrameworkJob += EXOT27Seq
-# As we create skimming algs, etc add them to this list
 # As we add extra variables add them to this dictionary (key is container name,
 # aux data in the value)
 EXOT27ExtraVariables = defaultdict(set)
@@ -69,9 +68,16 @@ EXOT27ExtraVariables = defaultdict(set)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
   "PrimaryVertices", "BTagging_AntiKt4EMTopo", "MET_Reference_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow"
   ]
 EXOT27AllVariables = [
   ]
+# Note which small-r jets are used in this list, will be useful later (doing it
+# here as it is close to the EXOT27SmartContainers declaration which is what
+# ensures that they will be added to the output).
+OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]
+
+
 if DerivationFrameworkIsMonteCarlo:
   EXOT27AllVariables += [
     "TruthParticles",
@@ -334,8 +340,13 @@ sel_list = []
 # Common SR selection
 # Resolved requirement - analysis level selection is 1 central jet with pT > 45
 # GeV. Use 30 GeV and |eta| < 2.8 to allow for future differences in calibration
-sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " +
-    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 1")
+sel_list += [("count(({0}.DFCommonJets_Calib_pt > 30.*GeV) && " +
+    "(abs({0}.DFCommonJets_Calib_eta) < 2.8)) >= 1").format(jets)
+    for jets in ["AntiKt4EMTopoJets"] ]
+
+# NB - this selection is only applied to the TopoJets as the PFlow jets don't
+# have the DFCommonJets_Calib_* decorations. Is this going to be an issue? Do we
+# need to remove this whole part of the preselection?
 # NB - this selection is almost comically loose - is there really nothing
 # tighter we can apply?
 

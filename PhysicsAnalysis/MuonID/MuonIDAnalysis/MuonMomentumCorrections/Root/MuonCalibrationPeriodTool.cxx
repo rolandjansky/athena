@@ -99,9 +99,9 @@ namespace CP {
             sagittaCorrPhaseSpace17 = true;
             
             statComb18 = false;
-            sagittaCorr18 = false;
-            sagittaMCDistortion18 = true;
-            sagittaCorrPhaseSpace18 = false;
+            sagittaCorr18 = true;
+            sagittaMCDistortion18 = false;
+            sagittaCorrPhaseSpace18 = true;
             
         }  else if (m_calib_mode == MuonCalibrationPeriodTool::additionalMCsys){
             ATH_MSG_INFO("Data will be untouched. Instead an additional systematic will be added (recommended setup 2)");
@@ -189,9 +189,9 @@ namespace CP {
         m_calibTool_18(),
         m_activeTool(nullptr),
         m_evInfo(nullptr),
-        m_sagittaRelease1516("sagittaBiasDataAll_25_07_17"),
-        m_sagittaRelease17("sagittaBiasDataAll_30_07_18"),
-        m_sagittaRelease18("sagittaBiasDataAll_30_07_18"),
+        m_sagittaRelease1516("sagittaBiasDataAll_03_02_19"),
+        m_sagittaRelease17("sagittaBiasDataAll_03_02_19"),
+        m_sagittaRelease18("sagittaBiasDataAll_03_02_19"),
         m_release("Recs2018_05_20"),
         m_calib_mode(CalibMode::additionalMCsys),
         m_StatComb1516(false),

@@ -21,7 +21,7 @@ DiTauEfficiencyCorrectionsTool::DiTauEfficiencyCorrectionsTool( const std::strin
   , m_vCommonEfficiencyTools()
   , m_bIsData(false)
   , m_bIsConfigured(false)
-  , m_iRunNumber(0)
+  // , m_iRunNumber(0)
 {
   declareProperty( "EfficiencyCorrectionTypes",    m_vEfficiencyCorrectionTypes    = {} );
   declareProperty( "InputFilePathRecoHadTau",      m_sInputFilePathRecoHadTau      = "" );

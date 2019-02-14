@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -26,18 +26,18 @@ namespace CP
 
   public:
     virtual SelectionType
-    getBits (const xAOD::IParticle& particle) const override;
+    getBits (const SG::AuxElement& element) const override;
 
   public:
-    virtual void setBits (xAOD::IParticle& particle,
+    virtual void setBits (SG::AuxElement& element,
                           SelectionType selection) const override;
 
   public:
     virtual bool
-    getBool (const xAOD::IParticle& particle) const override;
+    getBool (const SG::AuxElement& element) const override;
 
   public:
-    virtual void setBool (xAOD::IParticle& particle,
+    virtual void setBool (SG::AuxElement& element,
                           bool selection) const override;
 
 
@@ -49,6 +49,10 @@ namespace CP
     /// \brief th underlying accessor
   private:
     SG::AuxElement::Accessor<char> m_accessor;
+
+    /// \brief th underlying accessor
+  private:
+    SG::AuxElement::ConstAccessor<char> m_constAccessor;
   };
 }
 

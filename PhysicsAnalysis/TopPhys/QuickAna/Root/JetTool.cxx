@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2014.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -213,6 +207,16 @@ namespace ana
       ATH_CHECK( m_bsel_tool.setProperty("FlvTagCutDefinitionsFileName", bTagCalibFile) );
       ATH_CHECK( m_bsel_tool.initialize() );
 
+      std::vector< int > OPs = {85, 77, 70, 60};
+      for( std::vector< int >::iterator op_it = OPs.begin(); op_it!=OPs.end(); ++op_it ) {
+        ATH_CHECK( ASG_MAKE_ANA_TOOL(m_bsel_tools[ *op_it ], BTaggingSelectionTool) );
+        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("TaggerName", m_btagger) );
+        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("OperatingPoint", "FixedCutBEff_"+std::to_string(*op_it)) );
+        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("JetAuthor", m_jetContainer) );
+        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("FlvTagCutDefinitionsFileName", bTagCalibFile) );
+        ATH_CHECK( m_bsel_tools[ *op_it ].initialize() );
+      }
+
       ATH_CHECK( ASG_MAKE_ANA_TOOL(m_bsel_OR_tool, BTaggingSelectionTool) );
       ATH_CHECK( m_bsel_OR_tool.setProperty("TaggerName", m_btagger) );
       ATH_CHECK( m_bsel_OR_tool.setProperty("OperatingPoint", m_btagWP_OR) );
@@ -269,6 +273,12 @@ namespace ana
       // B-Jet criteria
       bool isbjet = ( inBTagKinRange && jvt_pass && m_bsel_tool->accept(jet) );
       jet.auxdecor<char>("bjet") = isbjet;
+
+      for( auto pair = m_bsel_tools.rbegin(); pair != m_bsel_tools.rend(); ++pair ) {
+        if( pair->second->accept(jet) && inBTagKinRange) {
+          jet.auxdecor< int >( "LowestBTagOP" ) = pair->first;
+        }
+      }
 
       // Apply the dedicated bjet decoration for overlap removal as well.
       // Working point can be different from standard one.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -68,7 +68,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolation","Isolation to use : FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
     registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -78,6 +78,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
                                                "Default (does nothing on forward jets), fJVT (apply fJVT cut if pT<50GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
+    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 17 GeV.", "17000.");
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
@@ -192,7 +193,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
     registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
     registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
-
+    registerParameter("RecomputeCPVariables", "Run the CP tools to force computation of variables that may already exist in derivations? (default: True)", "True");
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
     registerParameter("ElectronVariableSaveList", "The list of electron variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
@@ -212,6 +213,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");
+    registerParameter("DoSysts","Run systematics on given selection: Both (default), Tight, Loose", "Both");
 
     registerParameter("OverlapRemovalLeptonDef","Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions", "Tight");
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
@@ -291,6 +293,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
     registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_FS", "List of actual mu files for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_AF", "List of actual mu files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ namespace DerivationFramework {
       /** tools
        */
       ToolHandle<Trk::V0Tools>                    m_v0Tools;
-      ToolHandle<Analysis::JpsiFinder>            m_jpsiFinder;
+      ToolHandle<Analysis::ICandidateSearch>      m_jpsiFinder;
       ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
       ServiceHandle<IBeamCondSvc>                 m_beamSpotSvc;
       

@@ -163,11 +163,11 @@ namespace HTTxAOD {
 
 
     // Properties of HEPTopTagger algorithm
-    bool   m_isData;
+    // bool   m_isData;
 
     bool   m_CutCalibratedSubjetPt;
-    bool   m_InclusiveSubjets_areaCorrection;
-    bool   m_ExclusiveSubjets_areaCorrection;
+    // bool   m_InclusiveSubjets_areaCorrection;
+    // bool   m_ExclusiveSubjets_areaCorrection;
     bool   m_ExclusiveSubjets_Rparam;
     bool   m_CorrectSubjetJES;
     bool   m_SortTopCandInPt;
@@ -181,7 +181,7 @@ namespace HTTxAOD {
 
     int    m_TaggerAlgorithm;
 
-    double m_MinFatjetPt;
+    // double m_MinFatjetPt;
     double m_MinFatjetM;
     double m_MaxFatjetEta;
 
@@ -210,7 +210,7 @@ namespace HTTxAOD {
     double m_FilterR;
     std::string m_groomedContName;
 
-    bool   debug;
+    // bool   debug;
 
     // Output Variables
 

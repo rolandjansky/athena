@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -24,8 +24,11 @@ bool xAOD::EgammaHelpers::isPhoton(const xAOD::Egamma *eg){
 }
 // ==================================================================
 bool xAOD::EgammaHelpers::isConvertedPhoton(const xAOD::Egamma *eg){
-  const xAOD::Photon *ph = dynamic_cast<const xAOD::Photon*>(eg);
-  return (ph && (ph->nVertices()>0) );
+  if (!eg || eg->type()!=xAOD::Type::Photon){
+        return false;
+  }
+  const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(eg);
+  return (ph->nVertices()>0);
 }
 // ==================================================================
 bool xAOD::EgammaHelpers::isBarrel(const xAOD::Egamma *eg){
@@ -71,13 +74,13 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
     if (eg->type()==xAOD::Type::Electron) {
       const xAOD::Electron* el = static_cast<const xAOD::Electron*> (eg);
       if (el) {
-	return getTrackParticles(el, useBremAssoc, allParticles);
+        return getTrackParticles(el, useBremAssoc, allParticles);
       }
     }
     else if (eg->type()==xAOD::Type::Photon) {
       const xAOD::Photon* ph = static_cast<const xAOD::Photon*> (eg);  
       if (ph) {
-	return getTrackParticles(ph, useBremAssoc);
+        return getTrackParticles(ph, useBremAssoc);
       }
     }
   }
@@ -91,13 +94,13 @@ const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParti
     if (eg->type()==xAOD::Type::Electron) {
       const xAOD::Electron* el = static_cast<const xAOD::Electron*> (eg);
       if (el) {
-	return getTrackParticlesVec(el, useBremAssoc, allParticles);
+        return getTrackParticlesVec(el, useBremAssoc, allParticles);
       }
     }
     else if (eg->type()==xAOD::Type::Photon) {
       const xAOD::Photon* ph = static_cast<const xAOD::Photon*> (eg);  
       if (ph) {
-	return getTrackParticlesVec(ph, useBremAssoc);
+        return getTrackParticlesVec(ph, useBremAssoc);
       }
     }
   }

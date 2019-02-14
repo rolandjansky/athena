@@ -1,19 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef QUICK_ANA__VALIDATION_HISTS_H
 #define QUICK_ANA__VALIDATION_HISTS_H
-
-//        Copyright Iowa State University 2014.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 // This module still needs to be documented.  The interface provided
 // in this module is intended for experts only.  The module is
@@ -50,7 +44,7 @@ namespace ana
     /// guarantee: strong
     /// failures: out of memory I
   public:
-    ValidationHists (EL::Worker *val_worker,
+    ValidationHists (EL::IWorker *val_worker,
 		     const InternalConfiguration& configuration);
 
 
@@ -89,7 +83,7 @@ namespace ana
 
     /// description: the worker we are using
   private:
-    EL::Worker *m_worker;
+    EL::IWorker *m_worker;
 
     /// description: the actual histograms we are using
   private:

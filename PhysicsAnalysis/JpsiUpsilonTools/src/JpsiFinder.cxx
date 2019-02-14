@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -14,25 +14,15 @@
 
 #include "JpsiUpsilonTools/JpsiFinder.h"
 #include "xAODBPhys/BPhysHelper.h"
-//#include "Particle/TrackParticle.h"
-//#include "muonEvent/MuonContainer.h"
-//#include "VxVertex/VxContainer.h"
-//#include "VxVertex/ExtendedVxCandidate.h"
-//#include "VxVertex/VxTrackAtVertex.h"
-#include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkV0Fitter/TrkV0VertexFitter.h"
-//#include "TrkParticleBase/TrackParticleBase.h"
-//#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
-
+#include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
@@ -69,14 +59,6 @@ namespace Analysis {
             ATH_MSG_INFO("Retrieved tool " << m_trkSelector);
         }
         
-        // uploading the V0 tools
-        if ( m_V0Tools.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_V0Tools);
-        }
-        
         // Get the vertex point estimator tool from ToolSvc
         if ( m_vertexEstimator.retrieve().isFailure() ) {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_vertexEstimator);
@@ -84,7 +66,7 @@ namespace Analysis {
         } else {
             ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
         }
-        
+
         // Get the helpertool from ToolSvc
         if ( m_helpertool.retrieve().isFailure() ) {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_helpertool);
@@ -106,7 +88,7 @@ namespace Analysis {
         }
         
         if (m_doTagAndProbe) ATH_MSG_WARNING("You have requested tag and probe mode. Duplicate mu+trk pairs WILL be allowed, charge ordering WILL NOT be done. Tag track will be first in each candidate");
-        
+
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -147,9 +129,8 @@ namespace Analysis {
     m_TrkParticleCollection("TrackParticleCandidate"),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_iV0VertexFitter("Trk::V0VertexFitter"),
-    m_V0Tools("Trk::V0Tools"),
     m_trkSelector("InDet::TrackSelectorTool"),
-    m_helpertool("InDet::ConversionFinderUtils"),
+    m_helpertool("InDet::ConversionFinderUtils"),//unused remove later
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_mcpCuts(true),
     m_doTagAndProbe(false)
@@ -183,7 +164,6 @@ namespace Analysis {
         declareProperty("MuonTrackKeys",m_MuonTrackKeys);
         declareProperty("TrkVertexFitterTool",m_iVertexFitter);
         declareProperty("V0VertexFitterTool",m_iV0VertexFitter);
-        declareProperty("V0Tools",m_V0Tools);
         declareProperty("TrackSelectorTool",m_trkSelector);
         declareProperty("ConversionFinderHelperTool",m_helpertool);
         declareProperty("VertexPointEstimator",m_vertexEstimator);
@@ -519,7 +499,7 @@ namespace Analysis {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    xAOD::Vertex* JpsiFinder::fit(std::vector<const xAOD::TrackParticle*> inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) {
+    xAOD::Vertex* JpsiFinder::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) {
         
         Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
@@ -587,7 +567,7 @@ namespace Analysis {
     // getPairs: forms up 2-plets of tracks
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const xAOD::TrackParticle*> TracksIn){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs(const std::vector<const xAOD::TrackParticle*> &TracksIn){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
@@ -614,7 +594,7 @@ namespace Analysis {
     // getPairs: forms up 2-plets of muons
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const xAOD::Muon*> muonsIn){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs(const std::vector<const xAOD::Muon*> &muonsIn){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
@@ -646,7 +626,7 @@ namespace Analysis {
     // getPairs2Colls: forms up 2-plets of tracks from two independent collections
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs2Colls(std::vector<const xAOD::TrackParticle*> tracks, std::vector<const xAOD::Muon*> muons, bool tagAndProbe){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs2Colls(const std::vector<const xAOD::TrackParticle*> &tracks, const std::vector<const xAOD::Muon*> &muons, bool tagAndProbe){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
@@ -695,7 +675,7 @@ namespace Analysis {
     // getInvariantMass: returns invariant mass
     // ---------------------------------------------------------------------------------
     
-    double JpsiFinder::getInvariantMass(JpsiCandidate jpsiIn,std::vector<double> massHypotheses){
+    double JpsiFinder::getInvariantMass(const JpsiCandidate &jpsiIn, const std::vector<double> &massHypotheses){
       double mass1 = massHypotheses.at(0);
       double mass2 = massHypotheses.at(1);
       
@@ -717,7 +697,7 @@ namespace Analysis {
     // particles (true for oppositely charged)
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::selectCharges(std::vector<JpsiCandidate> jpsisIn, std::string selection) {
+    std::vector<JpsiCandidate> JpsiFinder::selectCharges(const std::vector<JpsiCandidate> &jpsisIn, const std::string &selection) {
         
         bool opposite(false),same(false),all(false);
         if (selection=="OPPOSITE") opposite=true;
@@ -726,10 +706,9 @@ namespace Analysis {
         
         JpsiCandidate tmpJpsi;
         std::vector<JpsiCandidate> jpsis;
-        std::vector<JpsiCandidate>::iterator jpsiItr;
         double qOverP1=0.;
         double qOverP2=0.;
-        for(jpsiItr=jpsisIn.begin();jpsiItr!=jpsisIn.end();jpsiItr++){
+        for(auto jpsiItr=jpsisIn.cbegin();jpsiItr!=jpsisIn.cend();jpsiItr++){
             bool oppCh(false),sameCh(false);
             tmpJpsi = *jpsiItr;
             qOverP1=(*jpsiItr).trackParticle1->qOverP();
