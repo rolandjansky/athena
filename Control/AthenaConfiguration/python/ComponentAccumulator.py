@@ -555,7 +555,7 @@ class ComponentAccumulator(object):
         return
 
 
-    def store(self,outfile,nEvents=10,useBSFile=True):
+    def store(self,outfile,nEvents=10,useBSFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
         if (useBSFile):
@@ -573,18 +573,22 @@ class ComponentAccumulator(object):
           bsfile=open(bsfilename)
           self._jocat=pickle.load(bsfile)
           self._jocfg=pickle.load(bsfile)
-          self._pycomps=pickle.load(bsfile)
           bsfile.close()
   
         else:
-          from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-          from AthenaConfiguration.AllConfigFlags import ConfigFlags
-          flags = ConfigFlags.clone()
-          flags.Concurrency.NumThreads = 1
-          flags.Concurrency.NumConcurrentEvents = 1
-          basecfg = MainServicesThreadedCfg(flags)
-          basecfg.merge(self)
-          self = basecfg
+          from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg, MainServicesSerialCfg
+          if threaded:
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            flags = ConfigFlags.clone()
+            flags.Concurrency.NumThreads = 1
+            flags.Concurrency.NumConcurrentEvents = 1
+            basecfg = MainServicesThreadedCfg(flags)
+            basecfg.merge(self)
+            self = basecfg
+          else: #Serial
+            basecfg = MainServicesSerialCfg()
+            basecfg.merge(self)
+            self = basecfg
           self.printConfig()
           self._jocat={}
           self._jocfg={}
@@ -608,7 +612,6 @@ class ComponentAccumulator(object):
                                                       'CoreDumpSvc/CoreDumpSvc',\
                                                       'JobOptionsSvc/JobOptionsSvc']"
 
-          self._pycomps={}
           for seqName, algoList in flatSequencers( self._sequence ).iteritems():
             self._jocat[seqName] = {}
             self._jocat[seqName]["Members"] = "[]"
@@ -671,7 +674,6 @@ class ComponentAccumulator(object):
 
         pickle.dump( self._jocat, outfile )
         pickle.dump( self._jocfg, outfile )
-        pickle.dump( self._pycomps, outfile )
         self._wasMerged=True
 
     def wasMerged(self):
