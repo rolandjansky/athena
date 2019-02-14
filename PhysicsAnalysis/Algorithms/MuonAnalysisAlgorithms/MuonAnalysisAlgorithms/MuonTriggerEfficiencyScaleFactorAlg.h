@@ -11,6 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -54,6 +55,11 @@ namespace CP
   private:
     SysReadHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the EventInfo we use"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results
   private:
