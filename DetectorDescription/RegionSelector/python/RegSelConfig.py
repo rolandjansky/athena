@@ -92,6 +92,12 @@ def RegSelConfig( flags ):
     acc.addPublicTool(trtTable)
     acc.addService( regSel )
 
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    acc.merge( LArGMCfg(  flags ) )
+    acc.merge( TileGMCfg( flags ) )
+
     return acc, regSel
 
 if __name__ == "__main__":
@@ -112,13 +118,8 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg() 
-    #cfg = ComponentAccumulator()
 
     ## move up
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    cfg.merge( LArGMCfg( ConfigFlags ) )
-    cfg.merge( TileGMCfg( ConfigFlags ) )
 
 # when trying AOD
 #    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -133,15 +134,21 @@ if __name__ == "__main__":
     cfg.merge( acc )
 
 
-
     from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg
     testerAlg = RegSelTestAlg()
     testerAlg.Mt=True    
-
     testerAlg.OutputLevel=DEBUG
     cfg.addEventAlgo( testerAlg )
+    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    apcs=AthenaPoolCnvSvc()
+    cfg.addService(apcs)
+    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    cfg.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
+
+    cfg.getService("IOVDbSvc").OutputLevel=DEBUG
+    
     cfg.store( file( "test.pkl", "w" ) )
     print "used flags"
     ConfigFlags.dump()
-    cfg.run(10)
+    cfg.run(0)
     print "All OK"
