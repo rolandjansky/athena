@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
 #    updates for aMC@NLO by Josh McFayden <mcfayden@cern.ch>
@@ -504,9 +506,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         configCard = subprocess.Popen(['cat',config_card_loc])
         configCard.wait()
     
-    
-        #generate = subprocess.Popen(['bin/aMCatNLO','launch','-p','-f'],stdin=subprocess.PIPE)
-        #generate.communicate()
         
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         remove_shower = subprocess.Popen(['rm','Cards/shower_card.dat'])
@@ -566,16 +565,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
             ### NLO RUN ###
 
-            # Should not be needed any more - run with 1000 events during integration step instead...
-            ## In case a MadSpin card was specified setup MadSpin
-            #if madspin_card_loc:
-            #    # modify run card for nevents 250
-            #    modify_run_card(settings={'nevents': 250})
-            #    # Generate some events -> trigger MadSpin code generation, compilation and setup (overweight estimation)
-            #    run = subprocess.Popen(['./bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+str(run_name)], stdin=subprocess.PIPE)
-            #    run.communicate()
-            #    # The folders with the generated events and decayed events are removed when running from the gridpack
-
 
             gridpack_name=(run_name+'_gridpack.tar.gz')
             mglog.info('Creating gridpack (%s)...'%gridpack_name)
@@ -588,25 +577,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             os.rename(gridpack_dir,proc_dir) 
 
 
-
-
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
-
-
-    
-#    if isNLO:
-#
-#        mglog.info('Moving generated events to be in correct format for arrange_output().')
-#        mglog.info('Unzipping generated events.')
-#        unzip = subprocess.Popen(['gunzip','-f','Events/'+run_name+'/events.lhe.gz'])
-#        unzip.wait()
-#        
-#        mglog.info('Moving file over to '+'Events/'+run_name+'/unweighted_events.lhe')
-#        shutil.move('Events/'+run_name+'/events.lhe','Events/'+run_name+'/unweighted_events.lhe')
-#        
-#        mglog.info('Re-zipping into dataset name '+'Events/'+run_name+'/unweighted_events.lhe.gz')
-#        rezip = subprocess.Popen(['gzip','Events/'+run_name+'/unweighted_events.lhe'])
-#        rezip.wait()
         
     os.chdir(currdir)
 
@@ -644,16 +615,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
 
     print_cards(run_card=gridpack_dir+'/Cards/run_card.dat',param_card=gridpack_dir+'/Cards/param_card.dat')
-
-    # Work in progress...
-    #if card_check:
-    #    mglog.info('Checking that cards in %s and %s are consistent.'%(gridpack_dir,card_check))
-    #    file_grid=open(gridpack_dir+'/Cards/proc_card_mg5.dat','r')
-    #    file_proc=open('proc_card_mg5.dat','r')
-    #
-    #    for line in difflib.unified_diff(file_grid.readlines(), file_proc.readlines(), 
-    #                                     fromfile='file1', tofile='file2', lineterm=''):
-    #        print line
 
 
     mglog.info('Generating events from gridpack')
@@ -741,20 +702,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         configCard = subprocess.Popen(['cat',config_card_loc])
         configCard.wait()
 
-        #genxs_loc=gridpack_dir+'/bin/internal/gen_crossxhtml.py'
-        #oldcard = open(genxs_loc,'r')
-        #newcard = open(genxs_loc+'.tmp','w')
-        #for line in oldcard:
-        #    if 'if \'lhe\' in self.parton:' in line:
-        #        mglog.info('Fixing %s card'%(genxs_loc))
-        #        newcard.write('            if \'lhe\' in self.parton: \n')
-        #        newcard.write('                link=\'\'\n')
-        #    else:
-        #        newcard.write(line)
-        #oldcard.close()
-        #newcard.close()
-        #shutil.move(genxs_loc+'.tmp',genxs_loc)
-    
         mglog.info('For your information, ls of '+currdir+':')
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
@@ -901,9 +848,6 @@ def setupFastjet(isNLO, proc_dir=None):
     oldcard.close()
     newcard.close()
     shutil.move(config_card+'.tmp',config_card)
-    #mglog.info('New %s card:'%config_card)
-    #configCard = subprocess.Popen(['cat',config_card])             
-    #configCard.wait()
 
     return
 
@@ -1099,9 +1043,6 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
         oldcard.close()
         newcard.close()
         shutil.move(config_card+'.tmp',config_card)
-        #mglog.info('New me5_configuration.txt card:')
-        #configCard = subprocess.Popen(['cat',config_card])             
-        #configCard.wait()
 
         mglog.info('Creating links for LHAPDF')
         if os.path.islink(proc_dir+'/lib/PDFsets'):
@@ -2463,18 +2404,6 @@ def is_gen_from_gridpack(grid_pack=None):
 
 def is_NLO_run(proc_dir='PROC_mssm_0'):
     isNLO=False
-    #proc_card_loc=proc_dir+'/Cards/proc_card_mg5.dat'
-    #proccard = open(proc_card_loc,'r')
-    #for line in proccard:
-    #    #This is probably better but needs checking:
-    #    #m = re.search('\[.*QCD.*\]', name)
-    #    #if m and m.group():       
-    #    if 'generate' in line and ('[QCD]' in line or '[real=QCD]' in line):
-    #        mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
-    #        isNLO=True
-    #        break
-    #proccard.close()
-
 
     lo_config_card_loc=proc_dir+'/Cards/me5_configuration.txt'
     nlo_config_card_loc=proc_dir+'/Cards/amcatnlo_configuration.txt'

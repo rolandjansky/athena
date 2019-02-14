@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 # utils to set systematics according to base fragment
 
 # use some helper functions from MadGraphUtils
