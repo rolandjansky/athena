@@ -2177,8 +2177,6 @@ namespace AtlasRoot {
       }
     }
 
-    std::cout << " runnnumber, eta,value " << runnumber << " " << eta << " " << value << std::endl;
-
 
     if (var == egEnergyCorr::Scale::ZeeStatUp or var == egEnergyCorr::Scale::ZeeStatDown) {
       const double sign = (var == egEnergyCorr::Scale::ZeeStatUp) ? 1 : -1;
