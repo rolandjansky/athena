@@ -35,6 +35,8 @@ SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
 
   declareProperty( "TaggerMode",   m_modeName="");
 
+  declareProperty( "CalibArea", m_calibarea="");
+
 }
 
 
@@ -61,7 +63,8 @@ StatusCode SmoothedTopTagger::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;

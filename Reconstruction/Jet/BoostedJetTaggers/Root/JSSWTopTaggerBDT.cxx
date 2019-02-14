@@ -35,7 +35,8 @@ JSSWTopTaggerBDT::JSSWTopTaggerBDT( const std::string& name ) :
 
     declareProperty( "TaggerType",    m_tagType="XXX");
 
-    declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/");
+    declareProperty( "CalibArea",      m_calibarea = "");
+    declareProperty( "CalibAreaTMVA",  m_calibarea_tmva = "BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/");
     declareProperty( "TMVAConfigFile", m_tmvaConfigFileName="XXX");
 
 
@@ -53,7 +54,8 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -76,7 +78,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_tagType = configReader.GetValue("TaggerType" ,"");
 
     // get the CVMFS calib area where stuff is stored
-    m_calibarea = configReader.GetValue("CalibArea" ,"");
+    m_calibarea_tmva = configReader.GetValue("CalibAreaTMVA" ,"");
 
     // get the name/path of the JSON config
     m_tmvaConfigFileName = configReader.GetValue("TMVAConfigFile" ,"");
@@ -94,7 +96,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea              : "<<m_calibarea );
+    ATH_MSG_INFO( "calibarea_tmva         : "<<m_calibarea_tmva );
     ATH_MSG_INFO( "tmvaConfigFileName     : "<<m_tmvaConfigFileName );
     ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
     ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
@@ -145,12 +147,12 @@ StatusCode JSSWTopTaggerBDT::initialize(){
   ATH_MSG_INFO( "  Score cut low  : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea.empty() ){
+  if( m_calibarea_tmva.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea.compare("Local")==0){
-    std::string localCalibArea = "BoostedJetTaggers/share/JSSWTopTaggerBDT/";
+  else if(m_calibarea_tmva.compare("Local")==0){
+    std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerBDT/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea));
     // convert the JSON config file name to the full path
     m_tmvaConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_tmvaConfigFileName);
@@ -159,7 +161,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_tmvaConfigFileName).c_str() );
+    m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibarea_tmva+m_tmvaConfigFileName).c_str() );
   }
 
   // read json file for DNN weights

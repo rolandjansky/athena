@@ -67,6 +67,7 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_kerasConfigFileName;
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
+    std::string m_calibarea_keras;
 
     // for internal usage
     mutable TAGCLASS m_TagClass;
