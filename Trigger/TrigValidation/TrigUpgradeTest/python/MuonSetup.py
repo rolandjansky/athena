@@ -498,7 +498,6 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
                                                                                         DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                     MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
                                                      UseCSC = muonRecFlags.doCSCs(),
                                                      UseMDT = False,
                                                      UseRPC = False,
