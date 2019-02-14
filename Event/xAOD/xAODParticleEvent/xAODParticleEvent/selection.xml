@@ -27,14 +27,6 @@
   <!-- <class name="xAOD::IParticleLinkAuxContainer_v1"
          id="3BA65D0C-E2DC-4D7A-84F6-4A1D0EA8728D" /> -->
 
-  <!-- Smart pointers to IParticleLinkContainer_v1: -->
-  <!-- <class name="DataLink<xAOD::IParticleLinkContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::IParticleLinkContainer_v1> >" />
-  <class name="ElementLink<xAOD::IParticleLinkContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::IParticleLinkContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::IParticleLinkContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::IParticleLinkContainer_v1> >" /> -->
-
 
   <!-- Particle_v1 dictionaries: -->
   <class name="xAOD::Particle_v1" />
@@ -50,8 +42,7 @@
   <class name="std::vector<DataLink<xAOD::ParticleContainer_v1> >" />
   <class name="ElementLink<xAOD::ParticleContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::ParticleContainer_v1> >" />
-  <class name="ElementLinkVector<xAOD::ParticleContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::ParticleContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::ParticleContainer_v1> > >" />
 
 
 
