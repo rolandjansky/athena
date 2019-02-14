@@ -41,6 +41,7 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   m_muonIdHelper(0),
   m_fullEventDone(false),
   m_stgcPrepDataContainer(0)
+
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
   
@@ -233,8 +234,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     } 
   } //end it = rdoColl
 
-
-
   if(m_merge) {
 
 // merge the eta and phi prds that fire closeby strips
@@ -258,6 +257,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 // merge only same channel/strip numbers
         stripDifference = 1;
       }
+
+      
+
       for (unsigned int i=0; i<sTgcprds.size(); ++i){
          // skip the merged prds
          if(sTgcflag[i]==1) continue;
@@ -269,7 +271,8 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
          int gasGap  = m_stgcIdHelper->gasGap(id_prd);
          int layer   = m_stgcIdHelper->multilayer(id_prd);
          int channelType = m_stgcIdHelper->channelType(id_prd);
-         ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
+         ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " 
+			 << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
          for (unsigned int j=i+1; j<sTgcprds.size(); ++j){
            Identifier id_prdN = sTgcprds[j].identify();
            int stripN = m_stgcIdHelper->channel(id_prdN);
@@ -277,7 +280,8 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            int layerN   = m_stgcIdHelper->multilayer(id_prdN);
            int channelTypeN = m_stgcIdHelper->channelType(id_prdN);
            if( gasGapN==gasGap && layerN==layer && channelType == channelTypeN) {
-             ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
+             ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " 
+			     << stripN << " gasGap " << gasGapN << " layer " << layerN );
              if(abs(strip-stripN)<stripDifference) {
                merge = true;
                jmerge = j;
@@ -364,7 +368,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
        // clear vector and delete elements
        sTgcflag.clear();
        sTgcprds.clear();
-     } // loop over eta and Wire prds
+    } // loop over eta and Wire prds
      sTgcWireprds.clear();
      sTgcPadprds.clear();
   }
