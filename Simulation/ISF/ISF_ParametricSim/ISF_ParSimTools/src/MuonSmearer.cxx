@@ -10,16 +10,6 @@
 #include "ISF_ParSimTools/MuonSmearer.h"
 // ISF
 #include "ISF_Event/ISFParticle.h"
-// RandGauss
-#include "CLHEP/Random/RandGauss.h"
-
-// ROOFIT
-#include <RooFit.h>
-#include <RooMultiVarGaussian.h>
-#include <RooArgList.h>
-#include <RooRealVar.h>
-#include <RooDataSet.h>
-
 
 // C++ STL
 #include <fstream>
@@ -42,10 +32,7 @@ iParSim::MuonSmearer::MuonSmearer(const std::string& t, const std::string& n, co
   m_eta_max(),
   m_para_code(1),
   m_file_para(0),
-  m_randomSvc("AtDSFMTGenSvc", n),
-  m_randomEngine(0),
-  m_randomEngineName("ParSimRnd")
-
+  m_randMultiGauss()
 {
     // Mode of the param simulation: 1 ID only, 2 MS only, 3 combined
     declareProperty("MuonSmearerMode"          ,    m_para_code                );
@@ -59,7 +46,6 @@ iParSim::MuonSmearer::MuonSmearer(const std::string& t, const std::string& n, co
 }
 
 //================ Destructor =================================================
-
 iParSim::MuonSmearer::~MuonSmearer()
 {}
 
@@ -104,18 +90,6 @@ StatusCode iParSim::MuonSmearer::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Random number service
-  if ( m_randomSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR( "[ --- ] Could not retrieve " << m_randomSvc );
-      return StatusCode::FAILURE;
-  }
-  //Get own engine with own seeds:
-  m_randomEngine = m_randomSvc->GetEngine(m_randomEngineName);
-  if (!m_randomEngine) {
-      ATH_MSG_ERROR( "[ --- ] Could not get random engine '" << m_randomEngineName << "'" );
-      return StatusCode::FAILURE;
-  }
-
   ATH_MSG_VERBOSE( "initialize() successful." );
   return StatusCode::SUCCESS;
 
@@ -127,7 +101,7 @@ unsigned int iParSim::MuonSmearer::pdg() const
 }
 
 /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP) const
+bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine *randomEngine) const
 {
 
   // Input from MC event generator
@@ -148,80 +122,84 @@ bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP) const
   xaodTP->auxdata<float>("truth_qOverP") = qOverP_truth;
   xaodTP->auxdata<float>("truth_pt")     = pt_truth;
   xaodTP->auxdata<float>("truth_eta")    = eta_truth;
-  
-  // create 5 dim vector to store corrections  
-  RooArgList xVec;// this is filled with the output of the MVG; e.g. this are the corrections to our 5 track params
-  RooRealVar* x;
-  for (int i = 0; i < 5; i++) {    
-    std::string xname = "x";
-    if     (i == 0) xname = "d0_corr";
-    else if(i == 1) xname = "z0_corr";
-    else if(i == 2) xname = "phi_corr";
-    else if(i == 3) xname = "theta_corr";
-    else            xname = "qoverp_corr";
-
-    x = new RooRealVar(xname.c_str(), xname.c_str(), 0.);
-    xVec.add(*x);
-  }
-  
+    
   // get pt and eta bins 
   int ptbin  = getPtBin(pt_truth);
   int etabin = getEtaBin(eta_truth);
           
   if(ptbin < 0 || etabin < 0){
     if(ptbin  < 0){ 
-      ATH_MSG_DEBUG("No pt bin available for : "  << pt_truth <<". Particle will not be smeared.");
+      ATH_MSG_WARNING("No pt bin available for : "  << pt_truth <<". Particle will not be smeared.");
       return false;
     }
     if(etabin < 0){ 
-      ATH_MSG_DEBUG("No eta bin available for : " << eta_truth <<". Particle will not be smeared."); 
+      ATH_MSG_WARNING("No eta bin available for : " << eta_truth <<". Particle will not be smeared."); 
       return false;
     }
   }
-
-  // The covariance matrix and the offset vector
-  TMatrixDSym* cov   = new TMatrixDSym(5);
-  TVectorD*    muVec = new TVectorD(5);
-
+ 
   // Retrieve the covariance matrix and muVec from the root file and store them in "cov" and "muVec"
   TString name;
   name.Form("covmat_ptbin%.2i_etabin%.2i",ptbin,etabin);
-  m_file_para->GetObject(name,cov);
+  auto cov = std::unique_ptr<TMatrixDSym> (
+      dynamic_cast<TMatrixDSym*> (m_file_para->Get(name))
+  );
   if(!cov){
-    ATH_MSG_DEBUG("No covariance matrix available for pt bin : " << ptbin << " and eta bin : " << etabin);
+    ATH_MSG_WARNING("No covariance matrix available for pt bin : " << ptbin << " and eta bin : " << etabin);
     return false;
-  }  
+  } 
   name.Form("meanvec_ptbin%.2i_etabin%.2i",ptbin,etabin);
-  m_file_para->GetObject(name,muVec);
+  auto muVec = std::unique_ptr<TVectorD> (
+      dynamic_cast<TVectorD*> (m_file_para->Get(name))
+  );
   if(!muVec){
-    ATH_MSG_DEBUG("No mean vector available for pt bin : " << ptbin << " and eta bin : " << etabin);
+    ATH_MSG_WARNING("No mean vector available for pt bin : " << ptbin << " and eta bin : " << etabin);
     return false;
   }
+ 
   // flip sign of mean qoverp, because mean was computed using absolute values of |qoverp|: |qoverp_reco| - |qoverp_truth|
   // this is not needed for qoverp elements of covariance matrix, because the matrix was computed using no absolute values
   (*muVec)[4] *= charge_truth;
-
-  //  now make the multivariate Gaussian
-  RooMultiVarGaussian mvg ("mvg", "mvg", xVec, *muVec, *cov);
-  RooDataSet* data = mvg.generate(xVec,1);
-
-  const double d0corr     = data->get(0)->getRealValue("d0_corr");   
-  const double z0corr     = data->get(0)->getRealValue("z0_corr");
-  const double phicorr    = data->get(0)->getRealValue("phi_corr");
-  const double thetacorr  = data->get(0)->getRealValue("theta_corr");  
-  const double qoverpcorr = data->get(0)->getRealValue("qoverp_corr");
-
+  
+  // Hep Vector of means
+  CLHEP::HepVector muHepVector(5);
+  // Hep Covariance matrix
+  CLHEP::HepSymMatrix covHepMatrix(5);
+  // Fill Hep Vector and Covariance matrix
+  for (unsigned int i = 0; i < 5; i++) {
+      muHepVector[i] = (*muVec)[i];
+      for (unsigned int j = 0; j <= i; j++) {
+          covHepMatrix[i][j] = (*cov)(i,j);
+      }
+  }
+  
+  // Make a new random gauss generator with engine, muVec, and covMatrix
+  auto randMultiGauss = std::unique_ptr<CLHEP::RandMultiGauss> (
+      // pass randomEngine as a reference so CLHEP doesn't delete it
+      new CLHEP::RandMultiGauss(*randomEngine, muHepVector, covHepMatrix)
+  );
+  
+  // Generate correlated random gaussian numbers
+  CLHEP::HepVector muHepVectorSmeared = randMultiGauss->fire();
+  const double d0corr     = muHepVectorSmeared[0];
+  const double z0corr     = muHepVectorSmeared[1];
+  const double phicorr    = muHepVectorSmeared[2];
+  const double thetacorr  = muHepVectorSmeared[3];
+  const double qoverpcorr = muHepVectorSmeared[4];
+  
   // Decorate Track Particles with the Truth difference
   xaodTP->auxdata<float>("d0corr")     = d0corr;
   xaodTP->auxdata<float>("z0corr")     = z0corr;
   xaodTP->auxdata<float>("phicorr")    = phicorr;
   xaodTP->auxdata<float>("thetacorr")  = thetacorr;
   xaodTP->auxdata<float>("qOverPcorr") = qoverpcorr;
-
+  
+  // Update track parameters
   xaodTP->setDefiningParameters(d0_truth + d0corr, z0_truth + z0corr,
                                 phi_truth + phicorr, theta_truth + thetacorr,
                                 qOverP_truth + qoverpcorr);
 
+   
   // Defining parameters covariance matrix
   double covMatrix[15] = {
                   (*cov)(0,0),
@@ -230,11 +208,10 @@ bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP) const
                   (*cov)(3,0), (*cov)(3,1), (*cov)(3,2), (*cov)(3,3),
                   (*cov)(4,0), (*cov)(4,1), (*cov)(4,2), (*cov)(4,3), (*cov)(4,4)
   };
+  
+  // Set Covariance matrix
   const std::vector< float > covMatrixVec( covMatrix, covMatrix + 15 );               
   xaodTP->setDefiningParametersCovMatrixVec(covMatrixVec);
-  
-  delete cov;
-  delete muVec;
 
   return true;
 }

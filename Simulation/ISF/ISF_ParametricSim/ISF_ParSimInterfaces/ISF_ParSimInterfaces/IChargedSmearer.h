@@ -19,6 +19,8 @@
 #include "xAODTracking/TrackParticle.h"  // Instead of namespace xAOD
 #include <utility>
 
+// Random Number Generation
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace ISF {
   class ISFParticle;
@@ -47,7 +49,7 @@ namespace iParSim {
        /** Return the xAOD::TrackPartilce object - return 0 means efficiency correction killed the particle */
        //virtual const xAOD::TrackParticle* smear(const ISF::ISFParticle& isp) const = 0;
 
-       virtual bool smear(xAOD::TrackParticle* xaodTP) const = 0;
+       virtual bool smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine *randomEngine) const = 0;
 
        
        /** Return the abs(pdg) to which they should be applied : 0 means default */

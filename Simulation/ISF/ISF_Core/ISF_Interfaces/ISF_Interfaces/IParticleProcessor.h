@@ -12,6 +12,9 @@
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
 
+// Random Number Generation
+#include "CLHEP/Random/RandomEngine.h"
+
 namespace ISF {
   
   class ISFParticle;    
@@ -39,7 +42,7 @@ namespace ISF {
 
        /** Creates a new ISFParticle from a given ParticleState, 
           universal transport tool */
-       virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp) = 0;
+       virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine = nullptr) = 0;
   };
 
 } // end of namespace
