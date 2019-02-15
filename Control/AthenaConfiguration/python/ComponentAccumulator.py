@@ -558,7 +558,7 @@ class ComponentAccumulator(object):
     def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
-        if (useBSFile):
+        if (useBootStrapFile):
           import glob
           # first load basics from the bootstrap-pickle
           # a better solution to be discussed
