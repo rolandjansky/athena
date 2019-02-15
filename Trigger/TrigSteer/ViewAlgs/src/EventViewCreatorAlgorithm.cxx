@@ -83,7 +83,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 	  auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
 	  viewVector->push_back( newView );
 	  contexts.emplace_back( context );
-	  contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
+	  contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
 	  
 	  // link decision to this view
 	  outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
