@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODBaseDict.h 618909 2014-09-29 10:16:52Z krasznaa $
 #ifndef XAODBASE_XAODBASEOBJECTTYPEDICT_H
 #define XAODBASE_XAODBASEOBJECTTYPEDICT_H
 

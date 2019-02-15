@@ -2,6 +2,6 @@
 <lcgdict>
 
   <!-- An attempt to make the ObjectType enumeration visible in Python...  -->
-  <enum name="xAOD::Type::ObjectType" />
+  <enum name="xAODType::ObjectType" />
 
 </lcgdict>

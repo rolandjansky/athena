@@ -10,14 +10,6 @@
 ##              Migrated from TrigEgammaElectronCutIDTool_medium1.py LowLumi_2012
 ##===============================================================================
 
-import cppyy
-try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except :
-    pass
-
-from ROOT import egammaPID
-
 # Import a needed helper
 from PATCore.HelperUtils import *
 
