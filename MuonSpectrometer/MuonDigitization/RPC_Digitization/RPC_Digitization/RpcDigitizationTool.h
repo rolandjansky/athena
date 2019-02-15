@@ -40,7 +40,6 @@ the same strip before the dead time is ignored.
 
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
 
@@ -74,7 +73,7 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class RpcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class RpcDigitizationTool : public PileUpToolBase {
 
 public:
   RpcDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
@@ -103,11 +102,6 @@ public:
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
   virtual StatusCode processAllSubEvents() override final;
-
-  /** When being run from RPC_Digitizer, this method is called during
-      the event loop. Just calls processAllSubEvents - leaving for
-      back-compatibility (IMuonDigitizationTool) */
-  virtual StatusCode digitize() override final;
 
 private:
 
