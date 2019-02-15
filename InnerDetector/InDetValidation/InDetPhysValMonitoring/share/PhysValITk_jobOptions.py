@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # $Id: PhysVal_jobOptions.py 714189 2015-12-11 17:33:02Z sroe $
 
 #-----------------------------------------------------------------------
@@ -20,24 +22,13 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 #FNAME=[ "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/bb/50/DAOD_IDTRKVALID.11169418._000001.pool.root.1",
 #        "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/1e/72/DAOD_IDTRKVALID.11169418._000002.pool.root.1" ]
 #.......................................................................
-# uncomment for step 2.2, mu=0 single muon pt=100GeV:
-#FNAME=[ "root://eosatlas.cern.ch///eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/b3/4c/DAOD_IDTRKVALID.11973958._000201.pool.root.1" ]
+# uncomment this for testing: step 3, mu=0 file. For a quick run also set theApp.EvtMax to 10 or so
+# todo: replace this with cergroup file, once we get some step3 files there 
+FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_test_18082018/ttbar/step3/DAOD_IDTRKVALID_digi.pool.root" ]
 
-runDAOD = False # these are AOD or ESD
-try:
-   FNAME = os.environ["inputESDFile"]
-except KeyError:
-   try:
-      FNAME = os.environ["inputDAOD_IDTRKVALIDFile"]
-      runDAOD = True # these are DAOD-s
-   except KeyError:
-      try:
-         FNAME = os.environ["inputAODFile"]
-      except KeyError:
-         sys.exit("No input file specified in environment - exit")
-
-FNAME = FNAME.split(",")
-
+# uncomment to set a single input file via the athena command line options (athena -c "INFILE='blah.root'" )
+#if "INFILE" in globals():
+#      FNAME= [INFILE]
 #.......................................................................
 # uncomment to read multiple files:
 #import glob
@@ -49,6 +40,31 @@ FNAME = FNAME.split(",")
 #   FNAME = [line.rstrip('\n') for line in inSamp]
 # runDAOD = True # set to False for AOD/ESD and True for IDTRKVALDAODs
 #.......................................................................
+# this flag is necessary to run correctly over DAODs.
+# It is set automatically from the name
+#as long as the names are following standard convention 
+runDAOD = False # these are DAOD-s
+
+# This codeblock is for handling inputFileName passed as environment variable
+try:
+   FNAME = os.environ["inputESDFile"]
+except KeyError:
+   try:
+      FNAME = os.environ["inputDAOD_IDTRKVALIDFile"]
+      runDAOD = True # these are DAOD-s
+   except KeyError:
+      try:
+         FNAME = os.environ["inputAODFile"]
+      except KeyError:
+         print "No input file specified in environment - Using the default input file mentioned in the script"
+
+if isinstance(FNAME,str):
+	FNAME = FNAME.split(",")
+#-----------------------------------------------------------------------
+
+if "DAOD_IDTRKVALID" in FNAME[0]:
+      print "Set up for DAOD processing"
+      runDAOD=True
 #-----------------------------------------------------------------------
 
 # make AthenaCommonFlags aware of which file we are using
@@ -97,7 +113,8 @@ xmlTags = [ ["ATLAS-P2-SFCAL-01-05-01","ExtBrl_32",""],
             ["ATLAS-P2-ITK-19-00-00","InclBrl_4","InclinedQuads"],
             ["ATLAS-P2-ITK-20-00-00","InclBrl_4","InclinedDuals"],
             # step 3
-            ["ATLAS-P2-ITK-17-00-00","InclBrl_4","InclinedAlternative"]
+            ["ATLAS-P2-ITK-17-00-00","InclBrl_4","InclinedAlternative"],
+            ["ATLAS-P2-ITK-17-00-01","InclBrl_4","InclinedAlternative"]
             ]
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
@@ -114,7 +131,7 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
       if geoTag=="ATLAS-P2-ITK-10-00-00" or geoTag=="ATLAS-P2-ITK-09-00-00" :
          include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
       else:
-         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')      
+         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')
       break
    
 # Just turn on the detector components we need
@@ -137,6 +154,11 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
       print "postInclude for ",layoutDescr, " layout"
       include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
+      if layoutOption=="InclinedAlternative" :
+         # in step3 we are using hit identifier translation to cope with the L0/L1 rings.
+         # If you want to run wo translation set this to False
+         print "Setting Layout translation helper to true"
+         ToolSvc.LayoutTranslationHelper.translateIdentifiersForInclinedAlternative=True
       break
 
 #-----------------------------------------------------------------------
@@ -167,7 +189,7 @@ monMan.Environment         = "altprod"
 monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
-monMan.FileKey = "physval"
+monMan.FileKey = "MyPhysVal"
 topSequence += monMan
 
 #-------------------------------------------------------------
@@ -175,8 +197,7 @@ topSequence += monMan
 #-------------------------------------------------------------
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool")
-##### DO NOT USE THESE !!!!! !!!! !!! ################
-##### DO NOT COMMENT THEM OUT !!!!! ##################
+##### hard-coded cuts in r20.20, leave these as is, variations will not have an intended effect 
 InDetTrackSelectorTool.minPt            = 400           # Mev
 InDetTrackSelectorTool.maxD0            = 2              # mm
 InDetTrackSelectorTool.maxZ0            = 250          # mm
@@ -187,24 +208,10 @@ InDetTrackSelectorTool.OutputLevel = INFO
 #InDetTrackSelectorTool.vecEtaCutoffsForSiHitsCut = [0,1.0,1.2,1.8,2.2]
 #InDetTrackSelectorTool.vecMinNSiHitsAboveEta = [11,11,11,13,10]
 
-##### Temporary cuts - Will be fixed in 20.20.8.X ######
-############################################ USE THESE ONES!!!! #################################
-######### IF THE CUT YOU NEED IS NOT DEFINED BELOW, ADD IT TO InDetTrackSelectorTool. ABOVE #####
-#from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackCutSvc
-#InDetTrackCutSvcIDPVM = InDet__InDetTrackCutSvc("InDetTrackCutSvcIDPVM")
-#InDetTrackCutSvcIDPVM.MaxD0 = 2. #mm
-#InDetTrackCutSvcIDPVM.MaxZ0 = 250. #mm
-#InDetTrackCutSvcIDPVM.MaxEta = 4.0
-#InDetTrackCutSvcIDPVM.MinSiHits = 6 # Pixel + SCT
-#InDetTrackCutSvcIDPVM.MinPixelHits = 0 
-#InDetTrackCutSvcIDPVM.MinSCTHits = 0
-
-
-#svcMgr += InDetTrackCutSvcIDPVM
-#InDetTrackSelectorTool.TrackSelectionSvc = InDetTrackCutSvcIDPVM
-
-ToolSvc += InDetTrackSelectorTool
-##### Temporary cuts - Will be fixed in 20.20.8.X ######
+## reco-level cuts were done using 
+## ... InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackCutSvc
+## ... in r20.20. This is not available in 21.9
+## ... todo (LM): add reco-level selectors once we have sth in r21.9
 
 print "Set Up InDetTrackSelectorTool"
 
@@ -217,6 +224,7 @@ TrackTruthSelectionTool = AthTruthSelectionTool()
 # ie in case of eta range 3.2, that's where you want your maxEta cut to be 
 TrackTruthSelectionTool.maxEta     = 4.0
 TrackTruthSelectionTool.maxPt      = -1
+# Note: Please set the following to < 1000 (e.g. 990) when running on 1 GeV single particles. 
 TrackTruthSelectionTool.minPt      = 1000 # We want to look at the efficiency for 1000 MeV truth particles
 TrackTruthSelectionTool.maxBarcode = int(200e3)
 TrackTruthSelectionTool.pdgId      = -1
@@ -252,7 +260,7 @@ monMan.AthenaMonTools += [InDetPhysValMonitoringTool]
 # set up output file 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["physval DATAFILE='physval.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["MyPhysVal DATAFILE='MyPhysVal.root' OPT='RECREATE'"]
 
 # set out message verbosity 
 from AthenaCommon.AppMgr import theApp
@@ -269,4 +277,3 @@ saveToAscii("config.txt")
 # monitor CPU/memory etc.
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
-
