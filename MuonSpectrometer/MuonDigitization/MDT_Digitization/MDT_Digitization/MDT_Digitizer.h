@@ -1,30 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONDIGITIZATION_MDT_DIGITIZER_H
-#define MUONDIGITIZATION_MDT_DIGITIZER_H 
+#ifndef MDT_DIGITIZATION_MDT_DIGITIZER_H
+#define MDT_DIGITIZATION_MDT_DIGITIZER_H
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
-class IMuonDigitizationTool;
+class IPileUpTool;
 
 class MDT_Digitizer : public AthAlgorithm {
-
  public:
 
+  /** Constructor with parameters */
   MDT_Digitizer(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MDT_Digitizer();
-    
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+
+  /** Destructor */
+  virtual ~MDT_Digitizer() = default;
+
+  /** Basic algorithm methods */
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-
-   ToolHandle<IMuonDigitizationTool> m_digTool;
+   ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "MdtDigitizationTool", "MdtDigitizationTool name"};
 };
 
-#endif // MUONDIGITIZATION_MDT_DIGITIZER_H
-
+#endif // MDT_DIGITIZATION_MDT_DIGITIZER_H

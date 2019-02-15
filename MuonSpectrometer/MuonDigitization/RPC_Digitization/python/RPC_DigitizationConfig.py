@@ -154,5 +154,5 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     return RpcDigitizationTool(name, **kwargs)
 
 def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("RPC_DigitizationTool","Rpc_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Rpc_OverlayDigitizationTool")
     return CfgMgr.RPC_Digitizer(name,**kwargs)

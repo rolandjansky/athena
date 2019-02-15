@@ -84,5 +84,5 @@ def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     return MdtDigitizationTool(name,**kwargs)
 
 def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("MDT_DigitizationTool","Mdt_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Mdt_OverlayDigitizationTool")
     return CfgMgr.MDT_Digitizer(name,**kwargs)
