@@ -3,7 +3,7 @@
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
-_time_() { local c="$*" ; ( time -p $c ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
+_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
 
 # Function printing the usage information for the script
 usage() {
@@ -117,8 +117,8 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    _time_ make install/fast \
-	DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+    DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} \
+    _time_ make install/fast 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
