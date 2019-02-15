@@ -65,9 +65,9 @@ def __diff():
 
     for comp in allkeys:
         if comp not in confs[0]:
-            print "... component %-54s" % comp, "absent in 1st file"
+            print "... component %-54s" % comp, "absent in", args.file[0]
         elif comp not in confs[1]:
-            print "... component %-54s" % comp, "absent in 2nd file"
+            print "... component %-54s" % comp, "absent in", args.file[1]
         elif confs[0][comp] != confs[1][comp]:
             print "... component %-54s" % comp, "present in both files but with different settings"
             print "... in file: ", args.file[0]
