@@ -1,0 +1,3 @@
+ApplicationMgr.ExtSvc={"MagField::AtlasFieldSvc/AtlasFieldSvc"};
+AtlasFieldSvc.UseDCS=false;
+AtlasFieldSvc.UseMapsFromCool=false;
