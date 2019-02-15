@@ -347,14 +347,15 @@ print summMaker
 
 serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
 
-serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.",
-                                      "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
-                                      "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
+                                     "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.viewIndex",
+                                     "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
+                                      "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.decisions",
+                                      "xAOD::TrigCompositeContainer_v1#remap_ElectronL2Decisions",
+                                      "xAOD::TrigCompositeAuxContainer_v2#remap_ElectronL2DecisionsAux.decisions",
                                       "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
-                                      #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
-
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.viewIndex"  
+                                      ]
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
 
@@ -395,8 +396,8 @@ deserialiser.Prefix="SERIALISED_"
 deserialiser.OutputLevel=DEBUG
 
 # # add prefix + remove version to class name
-# l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
-#StreamESD.ItemList += l
+l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
+StreamESD.ItemList += l
 
 
 
@@ -424,7 +425,7 @@ svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
 
 ################################################################################
 # assemble top list of algorithms
-hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, StreamESD, streamBS, deserialiser ] )
+hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, deserialiser, StreamESD, streamBS ] )
 
 
 

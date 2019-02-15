@@ -1,1 +1,9 @@
-StoreGateSvc.OutputLevel=0;
+StoreGateSvc.OutputLevel=7;
+serial_deserial_test.OutputLevel=1;
+deserialiser.OutputLevel=1;
+deserialiser.Prefix="DESERIALISED_";
+ToolSvc.serialiser.OutputLevel=1;
+ToolSvc.serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer_v1#EMClusters", 
+                                        "xAOD::TrigEMClusterAuxContainer_v2#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat", 
+					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions",
+					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2"	 ];
