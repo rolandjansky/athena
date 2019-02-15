@@ -572,6 +572,7 @@ class ComponentAccumulator(object):
           bsfile=open(bsfilename)
           self._jocat=pickle.load(bsfile)
           self._jocfg=pickle.load(bsfile)
+          self._pycomps=pickle.load(bsfile)
           bsfile.close()
   
         else:
