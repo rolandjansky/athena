@@ -21,64 +21,31 @@
 #include <array>
 #include <tuple>
 
-/// @class CaloTowerGeometrySvc
-///
-/// @brief Tower geometry store and description provider
-///
-/// This service sets up a lookup table storing the geometrical area overlap fraction of a calorimeter cell
-/// with towers in a given grid. This lookup table is set up at instantiation of the service. It can only be 
-/// defined at that time. The default setup is a @f$ \Delta\eta\times\Delta\phi = 0.1 \times \pi/32 @f$ grid.
-/// Any regular grid can be constructed. The grid definition can be provided as property.
-///
-/// The cell-to-tower information is stored internally as a (random access) lookup table. For a given cell,
-/// the hash index is used to retrieve a list of towers this cell overlaps with, and the overlap paramater
-/// (area fraction used as a geometrical weight). This indices and geometrical weights are represented by
-/// a list of pairs of @c int and @c double numbers. Each cell can potential overlap with more than one 
-/// tower. A more detailed description of towers and the geometrical overlap is available on the
-/// <a href="https://twiki.cern.ch/twiki/bin/view/AtlasSandboxProtected/CaloTowerPerformance">calorimeter tower project page</a>.  
-///
-/// The lookup table is implemented for random access and using the cell hash identifier to retrieve the 
-/// requested list of twoer indices and weights. Several retrieval mechanisms are supported (see documentation
-/// of the corresponding methods). 
-///
-/// To map the azimuth of a cell to a tower, @f$ -\pi < \phi < \pi @f$ is used (ATLAS standard). For
-/// consistency, all @f$ \phi @f$ values are mapped into this range. 
-///
-/// The service inherits from @c AthService and thus from the @c Service base class in Gaudi. The managed tower grid
-/// is defined by service properties, with the following naming convention:  
-/// - pseudorapidity range
-///     - number of bins <tt>TowerEtaBins</tt> (default 100)
-///     - lower boundary of pseudorapidity range <tt>TowerEtaMin</tt> (default -5.0)
-///     - upper boundary of pseudorapidity range <tt>TowerEtaMax</tt> (default  5.0)
-/// - azimuth range
-///     - number of bins <tt>TowerPhiBins</tt> (default 64)
-///     - lower boundary of azimuthal range <tt>TowerPhiMin</tt> (default -&pi;)
-///     - upper boundary of azimuthal range <tt>TowerPhiMax</tt> (default &pi;) 
-/// 
-/// Addtional properties of this service define the granularity of the cell splitting in the ATLAS FCal. This
-/// is used to map the FCal readout cells (rectangular slabs) onto the tower grid and calculate the geometrical
-/// (area) overlap fraction, which is used to distribute the cell energy to the towers. 
-/// - horizontal FCal cell splitting (along @a x axis)
-///     - number of @a x slices in FCal1 <tt>FCal1NSlicesX</tt> (default 4)
-///     - number of @a x slices in FCal2 <tt>FCal2NSlicesX</tt> (default 4)
-///     - number of @a x slices in FCal3 <tt>FCal3NSlicesX</tt> (default 6)
-/// - vertical FCal cell splitting (along @a y axis)
-///     - number of @a y slices in FCal1 <tt>FCal1NSlicesY</tt> (default 4)
-///     - number of @a y slices in FCal2 <tt>FCal2NSlicesY</tt> (default 6)
-///     - number of @a y slices in FCal3 <tt>FCal3NSlicesY</tt> (default 6)
-///
-/// @warning It is recommended to @b not change the parameters for the FCal cell slicing. This configuration option is provided for expert use for R & D purposes only.   
-///  
-/// @todo Allow regional grids (varying segmentation as function of @f$ \eta @f$ . This requires additional interfaces (or interface changes) and 
-///       and modifications of the index construction.
-///
-/// @author Peter Loch <loch@physics.arizona.edu>
-///
+///@name Forward declarations
+///@{
+///template<class T> class SvcFactory;
+///@}
+
+///@brief Interface accessor for @c CaloTowerGeometrySvc
+static const InterfaceID IID_CaloTowerGeometrySvc( "CaloTowerGeometrySvc", 1, 0 );
+
 class CaloTowerGeometrySvc : public AthService
 {
+protected:
+
+  ///@brief To allow interface queries by the service factory (?)
+  friend class SvcFactory<CaloTowerGeometrySvc>;
+
 public:
 
+  ///@name Gaudi interfaces and implementations
   ///@{
+  static const InterfaceID& interfaceID() { return IID_CaloTowerGeometrySvc; }      ///< Interface indentifier needed by Gaudi
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppcInterface);  ///< Interface query with fallbacks
+  ///@}
+
+  ///@{
+  typedef std::size_t                  uint_t;           ///< Type for unsigned integer
   typedef IdentifierHash::value_type   index_t;          ///< Type for scalar (pseudorapidity,azimuth) index (is an unsigned int type)
   typedef std::tuple<index_t,index_t>  towerindex_t;     ///< Type for composite (tower) index 
   typedef std::tuple<index_t,double>   element_t;        ///< Type storing tower index and geometrical weight
@@ -98,32 +65,33 @@ public:
 
   ///@name Implementation of (Ath)Service interfaces
   ///@{
-  virtual StatusCode initialize() override; ///< Initialize service
-  virtual StatusCode finalize()   override; ///< Finalize service
+  virtual StatusCode initialize() override;                                      ///< Initialize service
+  virtual StatusCode finalize()   override;                                      ///< Finalize service
+  //  virtual StatusCode queryInterface(const InterfaceID& iid,void** ppvInterface); ///< Need to fix compiler issue (FIXME)   
   ///@}
 
   // --- Full documentation of this block after end of class definition!
   ///@name Retrieve towers for cells
   ///@{
-  StatusCode      access(const CaloCell* pCell,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts)   const;
-  StatusCode      access(IdentifierHash cellHash,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const;
-  elementvector_t getTowers(const CaloCell* pCell)                                                              const;
-  elementvector_t getTowers(IdentifierHash cellHash)                                                            const; 
+  StatusCode      access(const CaloCell* pCell,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts)   const;
+  StatusCode      access(IdentifierHash cellHash,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts) const;
+  elementvector_t getTowers(const CaloCell* pCell)                                                               const;
+  elementvector_t getTowers(IdentifierHash cellHash)                                                             const; 
   ///@}
 
   ///@name Tower bin descriptors and other size information
   ///@{
-  std::size_t maxCellHash() const; ///< Maximum cell hash value
-  std::size_t etaBins()     const; ///< Number of pseudorapidity bins
-  double      etaMin()      const; ///< Lower boundary of pseudorapidity range
-  double      etaMax()      const; ///< Upper boundary of pseudorapidity range 
-  double      etaWidth()    const; ///< Width of pseudorapidity bin  
-  std::size_t phiBins()     const; ///< Number of azimuth bins
-  double      phiMin()      const; ///< Lower boundary of azimuth
-  double      phiMax()      const; ///< Upper boundary of azimuth
-  double      phiWidth()    const; ///< Width of azimuth bin
-  std::size_t towerBins()   const; ///< Total number of towers
-  double      towerArea()   const; ///< Area of individual tower 
+  uint_t maxCellHash() const; ///< Maximum cell hash value
+  uint_t etaBins()     const; ///< Number of pseudorapidity bins
+  double etaMin()      const; ///< Lower boundary of pseudorapidity range
+  double etaMax()      const; ///< Upper boundary of pseudorapidity range 
+  double etaWidth()    const; ///< Width of pseudorapidity bin  
+  uint_t phiBins()     const; ///< Number of azimuth bins
+  double phiMin()      const; ///< Lower boundary of azimuth
+  double phiMax()      const; ///< Upper boundary of azimuth
+  double phiWidth()    const; ///< Width of azimuth bin
+  uint_t towerBins()   const; ///< Total number of towers
+  double towerArea()   const; ///< Area of individual tower 
   ///@}
 
   ///@name Tower index calculators, translaters, manipulators and converters
@@ -190,25 +158,26 @@ protected:
   double       m_towerEtaWidth; ///< Width of tower bin in pseudorapidity
   double       m_towerPhiWidth; ///< Width of tower bin in azimuth 
   double       m_towerArea;     ///< Area of individual tower
-  std::size_t  m_towerBins;     ///< Maximum number of towers
-  std::size_t  m_maxCellHash;   ///< Maximum cell hash value
+  uint_t       m_towerBins;     ///< Maximum number of towers
+  uint_t       m_maxCellHash;   ///< Maximum cell hash value
   ///@}
   
   ///@name Properties
   ///@{
   ///@brief Internally stored tower grid descriptors
-  std::size_t m_towerEtaBins; ///< Number of @f$ \eta @f$ bins 
-  double      m_towerEtaMin;  ///< Lower boundary @f$ \eta_{\rm min} @f$
-  double      m_towerEtaMax;  ///< Upper boundary @f$ \eta_{\rm max} @f$
-  std::size_t m_towerPhiBins; ///< Number of @f$ \phi @f$ bins 
-  double      m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
-  double      m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
-  double      m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
-  double      m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
-  double      m_fcal2Xslice;  ///< Number of x slices for cells in FCal2
-  double      m_fcal2Yslice;  ///< Number of y slices for cells in FCal2
-  double      m_fcal3Xslice;  ///< Number of x slices for cells in FCal3
-  double      m_fcal3Yslice;  ///< Number of y slices for cells in FCal3
+  uint_t m_towerEtaBins; ///< Number of @f$ \eta @f$ bins 
+  double m_towerEtaMin;  ///< Lower boundary @f$ \eta_{\rm min} @f$
+  double m_towerEtaMax;  ///< Upper boundary @f$ \eta_{\rm max} @f$
+  bool   m_adjustEta;    ///< Adjust FCal cells to eta boundary (default @c true ) 
+  uint_t m_towerPhiBins; ///< Number of @f$ \phi @f$ bins 
+  double m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
+  double m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
+  double m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
+  double m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
+  double m_fcal2Xslice;  ///< Number of x slices for cells in FCal2
+  double m_fcal2Yslice;  ///< Number of y slices for cells in FCal2
+  double m_fcal3Xslice;  ///< Number of x slices for cells in FCal3
+  double m_fcal3Yslice;  ///< Number of y slices for cells in FCal3
   ///@} 
 
   ///@name Process flags, helpers and numerical constants
@@ -238,7 +207,7 @@ protected:
 // formatting by doxygen in html).                 //
 //-------------------------------------------------//
 
-///@fn StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const
+///@fn StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts) const
 ///
 ///@brief Retrieve the list of towers associated with a calorimeter cell referenced by a pointer
 ///
@@ -248,10 +217,10 @@ protected:
 ///@return Returns @c StatusCode::SUCCESS if list of towers found, else @s StatusCode::FAILURE.
 ///
 ///@param[in] pCell      pointer to non-modifiable @c CaloCell object.
-///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c std::size_t ); vector is filled if cell is successfully mapped. 
+///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c index_t ); vector is filled if cell is successfully mapped. 
 ///@param[in] towerWghts reference to modifiable vector of weights (payload type @c double ); vector is filled if cell is successfully mapped. 
 
-///@fn StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const;
+///@fn StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts) const;
 ///
 ///@brief Retrieve the list of towers associated with a calorimeter cell referenced its hash identifier
 ///
@@ -261,7 +230,7 @@ protected:
 ///@return Returns @c StatusCode::SUCCESS if list of towers found, else @s StatusCode::FAILURE.
 ///
 ///@param[in] cellHash   hash identifier referencing a calorimeter cell.
-///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c std::size_t ); vector is filled if cell is successfully mapped. 
+///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c index_t ); vector is filled if cell is successfully mapped. 
 ///@param[in] towerWghts reference to modifiable vector of weights (payload type @c double ); vector is filled if cell is successfully mapped.
 
 ///@fn CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(const CaloCell* pCell) const;
@@ -282,6 +251,64 @@ protected:
 ///
 ///@param[in] cellHash   hash identifier referencing a calorimeter cell.
 
+//---------------------//
+// Class documentation //
+//---------------------//
+
+/// @class CaloTowerGeometrySvc
+///
+/// @brief Tower geometry store and description provider
+///
+/// This service sets up a lookup table storing the geometrical area overlap fraction of a calorimeter cell
+/// with towers in a given grid. This lookup table is set up at instantiation of the service. It can only be 
+/// defined at that time. The default setup is a @f$ \Delta\eta\times\Delta\phi = 0.1 \times \pi/32 @f$ grid.
+/// Any regular grid can be constructed. The grid definition can be provided as property.
+///
+/// The cell-to-tower information is stored internally as a (random access) lookup table. For a given cell,
+/// the hash index is used to retrieve a list of towers this cell overlaps with, and the overlap paramater
+/// (area fraction used as a geometrical weight). This indices and geometrical weights are represented by
+/// a list of pairs of @c int and @c double numbers. Each cell can potential overlap with more than one 
+/// tower. A more detailed description of towers and the geometrical overlap is available on the
+/// <a href="https://twiki.cern.ch/twiki/bin/view/AtlasSandboxProtected/CaloTowerPerformance">calorimeter tower project page</a>.  
+///
+/// The lookup table is implemented for random access and using the cell hash identifier to retrieve the 
+/// requested list of twoer indices and weights. Several retrieval mechanisms are supported (see documentation
+/// of the corresponding methods). 
+///
+/// To map the azimuth of a cell to a tower, @f$ -\pi < \phi < \pi @f$ is used (ATLAS standard). For
+/// consistency, all @f$ \phi @f$ values are mapped into this range. 
+///
+/// The service inherits from @c AthService and thus from the @c Service base class in Gaudi. The managed tower grid
+/// is defined by service properties, with the following naming convention:  
+/// - pseudorapidity range
+///     - number of bins <tt>TowerEtaBins</tt> (default 100)
+///     - lower boundary of pseudorapidity range <tt>TowerEtaMin</tt> (default -5.0)
+///     - upper boundary of pseudorapidity range <tt>TowerEtaMax</tt> (default  5.0)
+/// - azimuth range
+///     - number of bins <tt>TowerPhiBins</tt> (default 64)
+///     - lower boundary of azimuthal range <tt>TowerPhiMin</tt> (default -&pi;)
+///     - upper boundary of azimuthal range <tt>TowerPhiMax</tt> (default &pi;) 
+/// 
+/// Addtional properties of this service define the granularity of the cell splitting in the ATLAS FCal. This
+/// is used to map the FCal readout cells (rectangular slabs) onto the tower grid and calculate the geometrical
+/// (area) overlap fraction, which is used to distribute the cell energy to the towers. 
+/// - horizontal FCal cell splitting (along @a x axis)
+///     - number of @a x slices in FCal1 <tt>FCal1NSlicesX</tt> (default 4)
+///     - number of @a x slices in FCal2 <tt>FCal2NSlicesX</tt> (default 4)
+///     - number of @a x slices in FCal3 <tt>FCal3NSlicesX</tt> (default 6)
+/// - vertical FCal cell splitting (along @a y axis)
+///     - number of @a y slices in FCal1 <tt>FCal1NSlicesY</tt> (default 4)
+///     - number of @a y slices in FCal2 <tt>FCal2NSlicesY</tt> (default 6)
+///     - number of @a y slices in FCal3 <tt>FCal3NSlicesY</tt> (default 6)
+///
+/// @warning It is recommended to @b not change the parameters for the FCal cell slicing. This configuration option is provided for expert use for R & D purposes only.   
+///  
+/// @todo Allow regional grids (varying segmentation as function of @f$ \eta @f$ . This requires additional interfaces (or interface changes) and 
+///       and modifications of the index construction.
+///
+/// @author Peter Loch <loch@physics.arizona.edu>
+///
+
 //------------------//
 // Inline Functions //
 //------------------//
@@ -298,20 +325,20 @@ inline StatusCode CaloTowerGeometrySvc::f_setupSvc() {
 //------------------------------------//
 // Public access to tower descriptors //
 //------------------------------------//
-inline std::size_t CaloTowerGeometrySvc::maxCellHash() const { return m_maxCellHash;   }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::maxCellHash() const { return m_maxCellHash;   }
 
-inline std::size_t CaloTowerGeometrySvc::etaBins()   const { return m_towerEtaBins;  }
-inline double CaloTowerGeometrySvc::etaMin()         const { return m_towerEtaMin;   }
-inline double CaloTowerGeometrySvc::etaMax()         const { return m_towerEtaMax;   }
-inline double CaloTowerGeometrySvc::etaWidth()       const { return m_towerEtaWidth; }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::etaBins()   const { return m_towerEtaBins;  }
+inline double                       CaloTowerGeometrySvc::etaMin()    const { return m_towerEtaMin;   }
+inline double                       CaloTowerGeometrySvc::etaMax()    const { return m_towerEtaMax;   }
+inline double                       CaloTowerGeometrySvc::etaWidth()  const { return m_towerEtaWidth; }
 
-inline std::size_t CaloTowerGeometrySvc::phiBins()   const { return m_towerPhiBins;  }
-inline double CaloTowerGeometrySvc::phiMin()         const { return m_towerPhiMin;   }
-inline double CaloTowerGeometrySvc::phiMax()         const { return m_towerPhiMax;   }
-inline double CaloTowerGeometrySvc::phiWidth()       const { return m_towerPhiWidth; }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::phiBins()   const { return m_towerPhiBins;  }
+inline double                       CaloTowerGeometrySvc::phiMin()    const { return m_towerPhiMin;   }
+inline double                       CaloTowerGeometrySvc::phiMax()    const { return m_towerPhiMax;   }
+inline double                       CaloTowerGeometrySvc::phiWidth()  const { return m_towerPhiWidth; }
 
-inline std::size_t CaloTowerGeometrySvc::towerBins() const { return m_towerBins;     }
-inline double CaloTowerGeometrySvc::towerArea()      const { return m_towerArea;     } 
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::towerBins() const { return m_towerBins;     }
+inline double                       CaloTowerGeometrySvc::towerArea() const { return m_towerArea;     } 
 
 //----------------//
 // Index checking //

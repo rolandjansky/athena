@@ -29,7 +29,7 @@ class CaloTopoClusterFromTowerMaker : public AthAlgTool, virtual public CaloClus
 {
 public:
 
-  /// @brief Tool constructor
+  ///@brief Tool constructor
   CaloTopoClusterFromTowerMaker(const std::string& type,const std::string& name,const IInterface* pParent);
 
   ///@name @c AthAlgTool and @c CaloClusterCellProcessor interface implementations
@@ -41,12 +41,18 @@ public:
 
 private:
 
+  ///@name Internally used types
+  ///@{
+  typedef std::vector<CaloProtoCluster*> protocont_t; ///< Container for @c CaloProtoCluster pointers
+  typedef std::size_t                    uint_t;      ///< Unsigned integral type
+  ///@}
+
   /// @name Tool properties
   /// @{
   ServiceHandle<CaloTowerGeometrySvc>           m_towerGeometrySvc;         ///< Tower geometry service
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerKey;      ///< Topo-cluster container key
   SG::ReadHandleKey<CaloCellContainer>          m_cellContainerKey;         ///< Calorimeter cell container
-  SG::WriteHandleKey<CaloCellClusterWeights>    m_cellClusterWeightKey;     ///< Cell signal weights in clusters
+  SG::WriteHandleKey<CaloCellClusterWeights>    m_cellClusterWeightKey;     ///< Cell signal weights in clusters key
   bool                                          m_orderByPt;                ///< Orders cluster container by @f$ p_{\text{T}} @f$, default @c true
   bool                                          m_prepareLCW;               ///< Prepare LCW calibration, default is @c false
   bool                                          m_useCellsFromClusters;     ///< Use cells from topo-clusters if @c true, else use all cells, default is @c true
@@ -56,23 +62,18 @@ private:
 
   /// @name Constants and parameters
   /// @{
-  int                m_numberOfCells;          ///< Number of cells (highest cell index) 
-  int                m_numberOfSamplings;      ///< Number of samplings
-  int                m_numberOfTowers;         ///< Number of towers
+  uint_t             m_numberOfCells;          ///< Number of cells (highest cell index) 
+  uint_t             m_numberOfSamplings;      ///< Number of samplings
+  uint_t             m_numberOfTowers;         ///< Number of towers
   static double      m_energyThresholdDef;     ///< Default energy threshold
   static std::string m_defaultKey;             ///< Default container key
   /// @}
 
   ///@name Internally used helpers
   ///@{
-  xAOD::CaloCluster::ClusterSize getClusterSize(size_t etaBins,size_t phiBins); ///< Returns a cluster size tag from number of eta and phi bins in tower grid
-  xAOD::CaloCluster::ClusterSize getClusterSize(size_t towerBins);              ///< Returns a cluster size tag from number of towers (bins) in tower grid
+  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins); ///< Returns a cluster size tag from number of eta and phi bins in tower grid
+  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins);              ///< Returns a cluster size tag from number of towers (bins) in tower grid
   int cleanupCells(CaloClusterCellLink* clk);                                   ///< Checks @c CaloClusterCellLink for consistency
-  ///@}
-
-  ///@name Internally used types
-  ///@{
-  typedef std::vector<CaloProtoCluster*> protocont_t; ///< Container for @c CaloProtoCluster pointers
   ///@}
 
   ///@name Tower builders

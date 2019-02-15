@@ -32,8 +32,6 @@ public:
   typedef store_t::iterator                   iterator;        ///< @brief Iterator type 
   /// @}
 
-  /// @name Constructors
-  /// @{
   /// @brief Default constructor
   ///
   /// The constructed data object provides a reserved and sized store appropriate for the total number of cells in the calorimeter.
@@ -45,8 +43,8 @@ public:
   /// 
   /// @param size requested store size
   CaloCellClusterWeights(size_t size);
-  /// @}
-
+  /// @brief Copy constructor
+  CaloCellClusterWeights(const CaloCellClusterWeights& cellClusterWeights);
   /// @brief Destructor 
   virtual ~CaloCellClusterWeights();
 

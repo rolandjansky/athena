@@ -1,4 +1,6 @@
 /* Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration */
+#include "GaudiKernel/MsgStream.h"
+
 #include "AthenaKernel/Units.h"
 
 #include "CaloRec/CaloTopoClusterFromTowerMaker.h"
@@ -25,6 +27,12 @@
 #include <memory>
 #include <vector>
 
+namespace {
+  MsgStream& operator<<(MsgStream& mstr,const SG::ReadHandleKey<CaloCellContainer>&          ckey) { mstr << ckey.key(); return mstr; }
+  MsgStream& operator<<(MsgStream& mstr,const SG::ReadHandleKey<xAOD::CaloClusterContainer>& ckey) { mstr << ckey.key(); return mstr; }
+  MsgStream& operator<<(MsgStream& mstr,const SG::WriteHandleKey<CaloCellClusterWeights>&    ckey) { mstr << ckey.key(); return mstr; }
+}
+
 ///////////////////////////////////
 // CaloTopoClusterFromTowerMaker //
 ///////////////////////////////////
@@ -46,22 +54,29 @@ CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& 
   , m_applyCellEnergyThreshold(false)
   , m_energyThreshold(m_energyThresholdDef-1.)
   , m_numberOfCells(0)
-  , m_numberOfSamplings((std::size_t)CaloSampling::Unknown)
+  , m_numberOfSamplings(static_cast<uint_t>(CaloSampling::Unknown))
   , m_numberOfTowers(0)
 {
   declareInterface<CaloClusterCollectionProcessor>(this);
-  declareProperty("CaloTowerGeometrySvc",        m_towerGeometrySvc,         "Service providing tower geometry");
-  declareProperty("CaloCellContainerKey",        m_cellContainerKey,         "SG Key for CaloCellContainer (input)");
-  declareProperty("CaloTopoClusterContainerKey", m_clusterContainerKey,      "SG Key for CaloClusterContainer (input)");
-  declareProperty("CellClusterWeightKey",        m_cellClusterWeightKey,     "SG Key for CellClusterWeights (output)");
-  declareProperty("OrderClusterByPt",            m_orderByPt,                "Turn on/off pT-ordering of CaloClusterContainer (output)");
-  declareProperty("ApplyCellEnergyThreshold",    m_applyCellEnergyThreshold, "Turn on/off cell energy thresholds");
-  declareProperty("CellEnergyThreshold",         m_energyThreshold,          "Energy threshold for cells filled in clusters");
-  declareProperty("PrepareLCW",                  m_prepareLCW,               "Prepare data structure to apply LCW");
+  declareProperty("CaloTowerGeometrySvc",        m_towerGeometrySvc=ServiceHandle<CaloTowerGeometrySvc>("CaloTowerGeometrySvc",name), "Service providing tower geometry");
+  declareProperty("CaloCellContainerKey",        m_cellContainerKey,                                                                  "SG Key for CaloCellContainer (input)");
+  declareProperty("BuildTopoTowers",             m_useCellsFromClusters,                                                              "Turn on/off topo-tower formation");
+  declareProperty("CaloTopoClusterContainerKey", m_clusterContainerKey,                                                               "SG Key for CaloClusterContainer (input)");
+  declareProperty("CellClusterWeightKey",        m_cellClusterWeightKey,                                                              "SG Key for CellClusterWeights (output)");
+  declareProperty("OrderClusterByPt",            m_orderByPt,                                                                         "Turn on/off pT-ordering of CaloClusterContainer (output)");
+  declareProperty("ApplyCellEnergyThreshold",    m_applyCellEnergyThreshold,                                                          "Turn on/off cell energy thresholds");
+  declareProperty("CellEnergyThreshold",         m_energyThreshold,                                                                   "Energy threshold for cells filled in clusters");
+  declareProperty("PrepareLCW",                  m_prepareLCW,                                                                        "Prepare data structure to apply LCW");
 }
 
 StatusCode CaloTopoClusterFromTowerMaker::initialize()
 {
+  //--------------------//
+  // Set up handle keys //
+  //--------------------//
+
+  ATH_CHECK(m_cellContainerKey.initialize());
+  
   //---------------------//
   // Check configuration //
   //---------------------//
@@ -86,9 +101,11 @@ StatusCode CaloTopoClusterFromTowerMaker::initialize()
       ATH_MSG_WARNING("[ignore] cannot apply energy thresholds to topo-towers!");
       m_applyCellEnergyThreshold = false;
     }
+    ATH_CHECK(m_clusterContainerKey.initialize());
     // check on request for LCW
     if ( m_prepareLCW ) { 
-      ATH_MSG_INFO("[accept] prepare for LCW calibration - create CaloCellClusterWeights object with key <" << m_cellClusterWeightKey << ">");
+      ATH_CHECK(m_cellClusterWeightKey.initialize());
+      ATH_MSG_INFO("[accept] prepare for LCW calibration - initialize CaloCellClusterWeights key object <" << m_cellClusterWeightKey << ">");
     } else {
       ATH_MSG_INFO("[accept] use EM scale");
     }
@@ -158,7 +175,7 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
   /////////////////////////
 
   protocont_t pProtoCont(m_numberOfTowers,(CaloProtoCluster*)0);
-  for ( auto itow(0); itow<m_numberOfTowers; ++itow) { pProtoCont[itow] = new CaloProtoCluster(pCellCont.cptr()); }
+  for ( uint_t itow(0); itow<m_numberOfTowers; ++itow) { pProtoCont[itow] = new CaloProtoCluster(pCellCont.cptr()); }
 
   //////////////////////////////////////////////////////
   // Apply overall cell filter and fill protoclusters //
@@ -205,7 +222,7 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
   xAOD::CaloCluster::ClusterSize csize = this->getClusterSize(m_numberOfTowers);
   int ictr(0);
   // loop proto-clusters
-  for ( std::size_t ipc(0); ipc<pProtoCont.size(); ++ipc ) {
+  for ( uint_t ipc(0); ipc<pProtoCont.size(); ++ipc ) {
     CaloProtoCluster* pProto = pProtoCont.at(ipc);            // pick up pointer to proto-cluster
     if ( pProto != 0 ) {                                      // this should never be the case (FIXME: needed?)
       CaloClusterCellLink* lptr = pProto->releaseCellLinks(); // take over CaloClusterCellLink object
@@ -227,7 +244,7 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
 
   // common tasks: check clusters
   if ( this->msgLvl(MSG::DEBUG) ) {  
-    std::size_t idc(0);
+    uint_t idc(0);
     for ( auto pClus : *pClusCont ) { 
       if ( pClus->getCellLinks() == 0 || pClus->getCellLinks()->size() == 0 ) {
 	ATH_MSG_WARNING( formatStr("Cluster at index #%05i has invalid pointer (%p) or no cells",idc,(void*)pClus) );
@@ -257,10 +274,10 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
 bool CaloTopoClusterFromTowerMaker::buildEMTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
 {
   // -- EM scale clusters
-  std::vector<bool> cellTags(m_numberOfCells,false); std::size_t nctr(0);
+  std::vector<bool> cellTags(m_numberOfCells,false); uint_t nctr(0);
   for ( auto pClus : pClusCont ) { 
     for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
-      std::size_t cidx((std::size_t)(*fCell)->caloDDE()->calo_hash());
+      uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
       if ( cidx < cellTags.size() ) {
 	if ( !cellTags.at(cidx) ) { cellTags[cidx] = this->addCellToProtoCluster(*fCell,pProtoCont); ++nctr; }  
       } else {
@@ -277,21 +294,23 @@ bool CaloTopoClusterFromTowerMaker::buildEMTopoTowers(const xAOD::CaloClusterCon
 // LCW
 bool CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
 { 
+  // -- write handle object on the stack
+  SG::WriteHandle<CaloCellClusterWeights> cellClusterWeightHandle(m_cellClusterWeightKey);
   // -- LCW scale clusters
-  SG::WriteHandle<CaloCellClusterWeights> cellClusterWeights(m_cellClusterWeightKey);
-  if ( !cellClusterWeights.isValid() ) { 
-    ATH_MSG_ERROR("Cannot create write handle for CaloCellClusterWeights with key <" << m_cellClusterWeightKey << ">");
-    return StatusCode::FAILURE;
-  } // end cannot establish write handle!
-  std::size_t nctr(0);
+  CaloCellClusterWeights cellClusterWeights(m_towerGeometrySvc->maxCellHash());
+  // if ( !cellClusterWeights.isValid() ) { 
+  //   ATH_MSG_ERROR("Cannot create write handle for CaloCellClusterWeights with key <" << m_cellClusterWeightKey << ">");
+  //   return StatusCode::FAILURE;
+  // } // end cannot establish write handle!
+  uint_t nctr(0);
   for ( auto pClus : pClusCont ) { 
     for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) {
-      if ( !cellClusterWeights->check(*fCell) ) { this->addCellToProtoCluster(*fCell,pProtoCont); ++nctr; }
-      cellClusterWeights->set(*fCell,fCell.weight());
+      if ( !cellClusterWeights.check(*fCell) ) { this->addCellToProtoCluster(*fCell,pProtoCont); ++nctr; }
+      cellClusterWeights.set(*fCell,fCell.weight());
     } // end cells-in-cluster loop
   } // end cluster loop
-  //
-  return nctr > 0;
+  // record
+  return cellClusterWeightHandle.record(std::make_unique<CaloCellClusterWeights>(cellClusterWeights)).isSuccess();
 }
 
 /////////////////
@@ -302,7 +321,7 @@ bool CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClusterCo
 bool CaloTopoClusterFromTowerMaker::buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
 {
   // loop cell container - counter icl replaces cell hash index for NULL pointers in cell container
-  std::size_t icl(0); std::size_t nctr(0);
+  uint_t icl(0); uint_t nctr(0);
   for ( auto cptr : pCellCont ) { 
     if ( cptr == 0 ) { 
       ATH_MSG_WARNING( formatStr("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) );  
@@ -319,7 +338,7 @@ bool CaloTopoClusterFromTowerMaker::buildInclTowers(const CaloCellContainer& pCe
 bool CaloTopoClusterFromTowerMaker::buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
 {
   // loop cell container
-  std::size_t icl(0); std::size_t nctr(0);
+  uint_t icl(0); uint_t nctr(0);
   for ( auto cptr : pCellCont ) {
     if ( cptr == 0 ) { 
       // FIXME check pointer value
@@ -339,10 +358,10 @@ bool CaloTopoClusterFromTowerMaker::addCellToProtoCluster(const CaloCell* cptr,p
   if ( cptr == 0 ) { return false; }
 
   // get towers for cell from geometry service
-  std::size_t nctr(0);
+  uint_t nctr(0);
   for ( auto elm : m_towerGeometrySvc->getTowers(cptr) ) { 
     auto towerIdx(m_towerGeometrySvc->towerIndex(elm));
-    if ( !m_towerGeometrySvc->isInvalidIndex(towerIdx) ) { pProtoCont[towerIdx]->addCell(static_cast<std::size_t>(cptr->caloDDE()->calo_hash()),m_towerGeometrySvc->cellWeight(elm)); ++nctr; }
+    if ( !m_towerGeometrySvc->isInvalidIndex(towerIdx) ) { pProtoCont[towerIdx]->addCell(static_cast<uint_t>(cptr->caloDDE()->calo_hash()),m_towerGeometrySvc->cellWeight(elm)); ++nctr; }
   }
   return nctr > 0;
 }
@@ -351,10 +370,10 @@ bool CaloTopoClusterFromTowerMaker::addCellToProtoCluster(const CaloCell* cptr,p
 // Helpers //
 /////////////
 
-xAOD::CaloCluster::ClusterSize CaloTopoClusterFromTowerMaker::getClusterSize(std::size_t etaBins,std::size_t phiBins)
+xAOD::CaloCluster::ClusterSize CaloTopoClusterFromTowerMaker::getClusterSize(uint_t etaBins,uint_t phiBins)
 { return this->getClusterSize(etaBins*phiBins); }
 
-xAOD::CaloCluster::ClusterSize CaloTopoClusterFromTowerMaker::getClusterSize(std::size_t nTowers)
+xAOD::CaloCluster::ClusterSize CaloTopoClusterFromTowerMaker::getClusterSize(uint_t nTowers)
 {
   // check for tower sizes
   return nTowers == 6400                    // known "standard" towers 0,1 x 0.1
@@ -379,7 +398,7 @@ int CaloTopoClusterFromTowerMaker::cleanupCells(CaloClusterCellLink* clk)
       ATH_MSG_WARNING( formatStr("CaloCellContainer[%6i] - removed from tower - cell pointer invalid (%p)",hid,(void*)pCell) );
       fcell = clk->removeCell(fcell); ++nrc;
     } else {
-      if ( pCell->caloDDE()->calo_hash() >= m_numberOfCells || pCell->caloDDE()->getSampling() >= m_numberOfSamplings ) {
+      if ( static_cast<uint_t>(pCell->caloDDE()->calo_hash()) >= m_numberOfCells || pCell->caloDDE()->getSampling() >= m_numberOfSamplings ) {
 	ATH_MSG_WARNING( formatStr("CaloCellContainer[%6i] - removed from tower - cell hash index (%6zu/%6zu) or sampling id (%3zu/%3zu) invalid",
 				   hid,pCell->caloDDE()->calo_hash(),m_numberOfCells,pCell->caloDDE()->getSampling(),m_numberOfSamplings) );
 	fcell = clk->removeCell(fcell); ++nrc; 

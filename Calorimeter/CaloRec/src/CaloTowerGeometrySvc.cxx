@@ -20,6 +20,7 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_towerEtaBins(100)                         // Default tower definition is "hadronic" //
   , m_towerEtaMin(-5.0)                         // towers of size 0.1 x pi/32.            // 
   , m_towerEtaMax(5.0)                          //----------------------------------------//
+  , m_adjustEta(true)
   , m_towerPhiBins(64)                          
   , m_towerPhiMin(-_pi)                         //----------------------------------------//
   , m_towerPhiMax(_pi)                          // FCal vertical and horizontal cell      //
@@ -29,13 +30,15 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_fcal2Yslice(6.)                           // where Nx(y) are the number of x(y)     //
   , m_fcal3Xslice(6.)                           // slices.                                //
   , m_fcal3Yslice(6.)                           //----------------------------------------//
-{                                               
-  declareProperty("TowerEtaBins",m_towerEtaBins,    "Number of pseudorapidity bins in tower grid");
-  declareProperty("TowerEtaMin", m_towerEtaMin,     "Lower boundary of pseudorapidity range");
-  declareProperty("TowerEtaMax", m_towerEtaMax,     "Upper boundary of pseudorapidity range");
-  declareProperty("TowerPhiBins",m_towerPhiBins,    "Number of azimuthal bins in tower grid");
-  declareProperty("TowerPhiMin", m_towerPhiMin,     "Lower boundary of azimuthal range");
-  declareProperty("TowerPhiMax", m_towerPhiMax,     "Upper boundary of azimuthal range");
+{
+  // Properties                                               
+  declareProperty("TowerEtaBins",               m_towerEtaBins, "Number of pseudorapidity bins in tower grid");
+  declareProperty("TowerEtaMin",                m_towerEtaMin,  "Lower boundary of pseudorapidity range");
+  declareProperty("TowerEtaMax",                m_towerEtaMax,  "Upper boundary of pseudorapidity range");
+  declareProperty("AdjustFCalToTowerEtaBounds", m_adjustEta,    "Adjust FCal cells to eta boundaries");
+  declareProperty("TowerPhiBins",               m_towerPhiBins, "Number of azimuthal bins in tower grid");
+  declareProperty("TowerPhiMin",                m_towerPhiMin,  "Lower boundary of azimuthal range");
+  declareProperty("TowerPhiMax",                m_towerPhiMax,  "Upper boundary of azimuthal range");
   // change only for R&D
   declareProperty("FCal1NSlicesX", m_fcal1Xslice,   "Number of X slices for FCal1 cells");
   declareProperty("FCal1NSlicesY", m_fcal1Yslice,   "Number of Y slices for FCal1 cells");
@@ -43,6 +46,20 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   declareProperty("FCal2NSlicesY", m_fcal2Yslice,   "Number of Y slices for FCal2 cells");
   declareProperty("FCal3NSlicesX", m_fcal3Xslice,   "Number of X slices for FCal3 cells");
   declareProperty("FCal3NSlicesY", m_fcal3Yslice,   "Number of Y slices for FCal3 cells");
+}
+
+//-------------//
+// Gaudi stuff //
+//-------------//
+
+StatusCode CaloTowerGeometrySvc::queryInterface(const InterfaceID& riid,void** ppvInterface)
+{
+  if ( CaloTowerGeometrySvc::interfaceID().versionMatch(riid) ) { 
+    *ppvInterface = this;
+    return StatusCode::SUCCESS;
+  } else {
+    return AthService::queryInterface(riid,ppvInterface); 
+  }
 }
 
 //-------------------------//
@@ -60,7 +77,7 @@ StatusCode CaloTowerGeometrySvc::initialize()
   // prepare FCal segmentation 
   m_ndxFCal[0] = m_fcal1Xslice; m_ndxFCal[1] = m_fcal2Xslice; m_ndxFCal[2] = m_fcal3Xslice;
   m_ndyFCal[0] = m_fcal1Yslice; m_ndyFCal[1] = m_fcal2Yslice; m_ndyFCal[2] = m_fcal3Yslice;
-  for ( std::size_t i(0); i<m_ndxFCal.size(); ++i ) { m_wgtFCal[i] = 1./(m_ndxFCal.at(i)*m_ndyFCal.at(i)); }
+  for ( uint_t i(0); i<m_ndxFCal.size(); ++i ) { m_wgtFCal[i] = 1./(m_ndxFCal.at(i)*m_ndyFCal.at(i)); }
 
   // other derived quantities
   if ( m_towerEtaBins > 0 ) { 
@@ -156,26 +173,51 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridFCal(const CaloDetDescrElement*
 
   int nXslice((int)m_ndxFCal[cLayer]);     // FCal number of x slices
   int nYslice((int)m_ndyFCal[cLayer]);     // FCal number of y slices
+  double cXstp(cXwid/((double)nXslice));   // FCal slice x width
+  double cYstp(cYwid/((double)nYslice));   // FCal slice y width 
 
   // fill cell fragments
-  double xoff(cXpos-cXwid/2.); double yoff(cYpos-cYwid/2.);
-  for ( int ix(0); ix < nXslice; ++ix ) {
-    double x(xoff+ix*cXwid);
-    for ( int iy(0); iy < nYslice; ++iy ) { 
-      double y(yoff+iy*cYwid);
+  //  double xoff(cXpos-cXwid/2.+cXstp/2.); double yoff(cYpos-cYwid/2.+cYstp/2.);
+  double x(cXpos-(cXwid-cXstp)/2.); 
+  double xlim(cXpos+cXwid/2.); double ylim(cYpos+cYwid/2.);
+  double etaOrig(0.); 
+  //  for ( int ix(0); ix < nXslice; ++ix ) {
+  //   double x(xoff+ix*cXstp);
+  while ( x < xlim ) { 
+    //    for ( int iy(0); iy < nYslice; ++iy ) { 
+    //      double y(yoff+iy*cYstp);
+    double y(cYpos-(cYwid-cYstp)/2.);
+    while ( y < ylim ) { 
       double r(std::sqrt(x*x+y*y+cZpos2));
       double eta(-0.5*std::log((r-cZpos)/(r+cZpos)));
+      bool etaAdjusted(false);
+      if ( m_adjustEta ) { 
+	if ( eta < m_towerEtaMin ) {
+	  etaAdjusted = true;
+	  etaOrig     = eta;
+	  eta = m_towerEtaMin+m_towerEtaWidth/2.; 
+	} else if ( eta > m_towerEtaMax ) {
+	  etaAdjusted = true;
+	  etaOrig     = eta;
+	  eta = m_towerEtaMax-m_towerEtaWidth/2.;
+	}
+      }
       double phi(CaloPhiRange::fix(std::atan2(y,x)));
       index_t towerIdx(this->towerIndex(eta,phi));
       // tower index not valid
       if ( isInvalidIndex(towerIdx) ) { 
-	ATH_MSG_ERROR("Found invalid tower index for FCal cell (eta,phi) = (" << eta << "," << phi << ") at (x,y) = (" << x << "," << y << ")");
-	return StatusCode::FAILURE;
-      }
-      // add tower to lookup
-      //      m_towerLookup[pCaloDDE->calo_hash()].emplace_back(towerIdx,cWght);
-      f_assign(pCaloDDE->calo_hash(),towerIdx,cWght);
+	ATH_MSG_WARNING("Found invalid tower index for FCal cell (eta,phi) = (" << eta << "," << phi << ") at (x,y,z) = (" << x << "," << y << "," << cZpos << ") [cell ignored]");
+      } else { 
+	// add tower to lookup
+	if ( etaAdjusted ) { 
+	  ATH_MSG_WARNING("FCal cell direction (eta,phi) = (" << etaOrig << "," << phi << ") for cell at (x,y,z) = (" 
+			  << x << "," << y << "," << cZpos << ") adjusted to (eta,phi) = (" << eta << "," << phi << ") [cell adjusted]");
+	}
+	f_assign(pCaloDDE->calo_hash(),towerIdx,cWght);
+      } // tower index ok
+      y += cYstp;
     } // loop on y fragments
+    x += cXstp;
   } // loop on x fragments
   return StatusCode::SUCCESS;
 }
@@ -189,8 +231,8 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
   double cPhiWid(pCaloDDE->dphi());               // projective cell width in azimuth
 
   // check cell-tower overlap area fractions
-  std::size_t kEta((std::size_t)(cEtaWid/m_towerEtaWidth+0.5)); kEta = kEta == 0 ? 1 : kEta; // fully contained cell may have 0 fragments (protection)
-  std::size_t kPhi((std::size_t)(cPhiWid/m_towerPhiWidth+0.5)); kPhi = kPhi == 0 ? 1 : kPhi; 
+  uint_t kEta(static_cast<uint_t>(cEtaWid/m_towerEtaWidth+0.5)); kEta = kEta == 0 ? 1 : kEta; // fully contained cell may have 0 fragments (protection)
+  uint_t kPhi(static_cast<uint_t>(cPhiWid/m_towerPhiWidth+0.5)); kPhi = kPhi == 0 ? 1 : kPhi; 
 
   // print out
   if ( kEta > 1 || kPhi > 1 ) {
@@ -206,9 +248,9 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
   double oPhi(cPhiPos-sPhi/2.);                  // offset (azimuth)
 
   // loop over cell fragments
-  for ( std::size_t ie(1); ie<=kEta; ++ie ) {
+  for ( uint_t ie(1); ie<=kEta; ++ie ) {
     double ceta(oEta+((double)ie-0.5)*sEta);     // eta of fragment
-    for ( std::size_t ip(1); ip<=kPhi; ++ip ) {
+    for ( uint_t ip(1); ip<=kPhi; ++ip ) {
       double cphi(oPhi+((double)ip-0.5)*sPhi);   // phi fragment
       // tower index
       index_t towerIdx(this->towerIndex(ceta,cphi));
@@ -230,7 +272,7 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
 double CaloTowerGeometrySvc::f_assign(IdentifierHash cellHash,index_t towerIdx,double wght) 
 {
   // check if cell-tower already related
-  std::size_t cidx((std::size_t)cellHash);
+  uint_t cidx(static_cast<uint_t>(cellHash));
   for ( auto elm : m_towerLookup.at(cidx) ) { 
     if ( towerIndex(elm) == towerIdx ) { std::get<1>(elm) += wght; return cellWeight(elm); }
   }
@@ -243,15 +285,15 @@ double CaloTowerGeometrySvc::f_assign(IdentifierHash cellHash,index_t towerIdx,d
 // Access //
 //--------//
 
-StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const
+StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts) const
 { return this->access(f_caloDDE(pCell)->calo_hash(),towerIdx,towerWghts); }
 
-StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const 
+StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<index_t>& towerIdx,std::vector<double>& towerWghts) const 
 {
   towerIdx.clear();
   towerWghts.clear();
 
-  std::size_t cidx((std::size_t)cellHash);
+  uint_t cidx(static_cast<uint_t>(cellHash));
 
   if ( cidx >= m_towerLookup.size() ) { 
     ATH_MSG_WARNING("Invalid cell hash index " << cellHash << ", corresponding index " << cidx << " not found in tower lookup");
@@ -261,7 +303,7 @@ StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<std:
   if ( towerIdx.capacity()   < m_towerLookup.at(cidx).size() ) { towerIdx.reserve(m_towerLookup.at(cidx).size());   }
   if ( towerWghts.capacity() < m_towerLookup.at(cidx).size() ) { towerWghts.reserve(m_towerLookup.at(cidx).size()); }
 
-  for ( const auto& elm : m_towerLookup.at(cidx) ) { towerIdx.push_back((std::size_t)towerIndex(elm)); towerWghts.push_back(cellWeight(elm)); }
+  for ( const auto& elm : m_towerLookup.at(cidx) ) { towerIdx.push_back(towerIndex(elm)); towerWghts.push_back(cellWeight(elm)); }
 
   return StatusCode::SUCCESS;
 }
@@ -272,7 +314,7 @@ CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(const Calo
 CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(IdentifierHash cellHash) const
 {
   // check input
-  std::size_t cidx((std::size_t)cellHash); 
+  uint_t cidx(static_cast<uint_t>(cellHash)); 
   return cidx < m_towerLookup.size() ? m_towerLookup.at(cidx) : elementvector_t();  
 } 
 
@@ -282,7 +324,7 @@ CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(Identifier
 
 double CaloTowerGeometrySvc::cellWeight(IdentifierHash cellHash,index_t towerIdx) const
 {
-  index_t cidx((index_t)cellHash);
+  index_t cidx(static_cast<uint_t>(cellHash));
   double cwght(0.);
 
   if ( cidx < m_towerLookup.size() ) {
@@ -306,7 +348,7 @@ CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(IdentifierHash cell
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(double eta) const
 { 
   return eta >= m_towerEtaMin && eta <= m_towerEtaMax 
-    ? index_t(std::min((std::size_t)((eta-m_towerEtaMin)/m_towerEtaWidth),m_towerEtaBins-1))
+    ? index_t(std::min(static_cast<uint_t>((eta-m_towerEtaMin)/m_towerEtaWidth),m_towerEtaBins-1))
     : invalidIndex(); 
 }
 
@@ -320,7 +362,6 @@ CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(double phi) const
 {
   double dphi(CaloPhiRange::diff(phi,m_towerPhiMin));
   return dphi >= m_towerPhiMin && dphi <= m_towerPhiMax 
-    ? index_t(std::min((std::size_t)((phi-m_towerPhiMin)/m_towerPhiWidth),m_towerPhiBins-1))
+    ? index_t(std::min(static_cast<uint_t>((phi-m_towerPhiMin)/m_towerPhiWidth),m_towerPhiBins-1))
     : invalidIndex();
 }
-
