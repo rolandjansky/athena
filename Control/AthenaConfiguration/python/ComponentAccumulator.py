@@ -6,7 +6,6 @@ from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,fla
 from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle, PrivateToolHandleArray
 import ast
@@ -545,7 +544,7 @@ class ComponentAccumulator(object):
                 self._jocat[name][k]=str([ v1.getFullName() for v1 in v ])
             else:
                 print name,k,v
-                if not self._jocat.has_key(name):
+                if name not in self._jocat:
                     self._jocat[name] = {}
                 self._jocat[name][k]=str(v)
 
@@ -592,6 +591,7 @@ class ComponentAccumulator(object):
           self.printConfig()
           self._jocat={}
           self._jocfg={}
+          self._pycomps={}
           self._jocfg["ApplicationMgr"]={}
           self._jocfg["ApplicationMgr"]["ExtSvc"] = "['ToolSvc/ToolSvc', \
                                                       'AuditorSvc/AuditorSvc', \
@@ -674,6 +674,7 @@ class ComponentAccumulator(object):
 
         pickle.dump( self._jocat, outfile )
         pickle.dump( self._jocfg, outfile )
+        pickle.dump( self._pycomps, outfile )
         self._wasMerged=True
 
     def wasMerged(self):
