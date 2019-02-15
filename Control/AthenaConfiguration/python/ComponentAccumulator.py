@@ -38,6 +38,9 @@ class ComponentAccumulator(object):
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
 
+        # small CAs can have only tools
+        self._privateTools=[]
+
         #To check if this accumulator was merged:
         self._wasMerged=False
 
@@ -366,7 +369,19 @@ class ComponentAccumulator(object):
     def getService(self, name=None):        
         """ Returns single service, exception if either not found or to many found"""
         return self.__getOne( self._publicTools, name, "Services")
+    
+    def addPrivateTool(self, newTool):
+        if not isinstance(newTool,ConfigurableAlgTool):
+            raise TypeError("Attempt to add wrong type: %s as private AlgTool" % type( newTool ).__name__)
+        self._deduplicate(newTool,self._privateTools)
 
+    def getPrivateTools(self):
+        return self._privateTools
+
+    def getPrivateTool(self, name=None):        
+        """ Returns single private tool, exception if either not found or to many found"""
+        return self.__getOne( self._publicTools, name, "PrivateTools")
+        
 
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
