@@ -13,7 +13,7 @@ mglog = Logging.logging.getLogger('MadGraphUtils')
 
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import *
-from MadGraphSystematicsUtils import *
+import MadGraphSystematicsUtils
 
 def setup_path_protection():
     # Addition for models directory
@@ -937,7 +937,7 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
                 else:
                     pdfs_used.append(s)
         if 'systematics_arguments' in mydict:
-            systematics_arguments=parse_systematics_arguments(mydict['systematics_arguments'])
+            systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict['systematics_arguments'])
             if 'pdf' in systematics_arguments:
                 sys_pdf=systematics_arguments['pdf'].replace(',',' ').replace('@',' ').split()
                 for s in sys_pdf:
@@ -2160,7 +2160,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     # guess NLO from run card -- not the most robust way to do this but otherwise arguments of build_run_card would need to change
     isNLO=isNLO_from_run_card(run_card_old)
     # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
-    setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)
+    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)
 
     # Grab the old run card and move it into place
     # Get the run card from the installation
@@ -2449,7 +2449,7 @@ def run_card_consistency_check(isNLO=False,path='.'):
                     mglog.warning('Using syscalc setting %s with new systematics script. Systematics script is default from 2.6.2 and steered differently (https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule)'%(s))
                     found_syscalc_setting=True
             if found_syscalc_setting:
-                syst_arguments=convertSysCalcArguments(mydict)
+                syst_arguments=MadGraphSystematicsUtils.convertSysCalcArguments(mydict)
                 mglog.info('Converted syscalc arguments to systematics arguments: '+syst_arguments)
                 syst_settings_update={'systematics_arguments':syst_arguments}
                 for s in syscalc_settings:
@@ -2460,9 +2460,9 @@ def run_card_consistency_check(isNLO=False,path='.'):
     # usually the pdf and systematics should be set during build_run_card
     # but check again in case the user did not call the function or provides a different card here
     mglog.info('Checking PDF and systematics settings')
-    if not base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
+    if not MadGraphSystematicsUtils.base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
         # still need to set pdf and systematics
-        syst_settings=get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
+        syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
 
     mglog.info('Finished checking run card - All OK!')
@@ -2512,7 +2512,7 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
 
     systematics_arguments=''
     if checkSettingExists('systematics_arguments',run_card_dict):
-        sys_dict=parse_systematics_arguments(run_card_dict['systematics_arguments'])
+        sys_dict=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
         for s in sys_dict:
             systematics_arguments+=' --'+s+'='+sys_dict[s]
 
