@@ -230,22 +230,29 @@ namespace FlavorTagDiscriminants {
       AE::ConstAccessor<float> z0("btag_ip_z0");
       AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
       AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
+      AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
       AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
       AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
+      AE::ConstAccessor<unsigned char> sct_shared("numberOfSCTSharedHits");
       switch (selection) {
       case TrackSelection::ALL: return [](const Tp*) {return true;};
-        // the following numbers come from Nikol, Dec 2018:
+        // the following numbers come from Nicole, Dec 2018:
         // pt > 1 GeV
-        // d0 < 1 mm
-        // z0 sin(theta) < 1.5 mm
+        // abs(d0) < 1 mm
+        // abs(z0 sin(theta)) < 1.5 mm
         // >= 7 si hits
         // <= 2 si holes
         // <= 1 pix holes
       case TrackSelection::IP3D_2018:
         return [=](const Tp* tp) {
+                 // from the track selector tool
+                 if (std::abs(tp->eta()) > 2.5) return false;
+                 double n_module_shared = (
+                   pix_shared(*tp) + double(sct_shared(*tp)) / 2);
+                 if (n_module_shared > 1) return false;
                  if (tp->pt() <= 1e3) return false;
                  if (d0(*tp) >= 0.1) return false;
-                 if (z0(*tp) * std::sin(tp->theta()) >= 0.15) return false;
+                 if (std::abs(z0(*tp)) >= 1.5) return false;
                  if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
                  if (pix_holes(*tp) + sct_holes(*tp) > 2) return false;
                  if (pix_holes(*tp) > 1) return false;
