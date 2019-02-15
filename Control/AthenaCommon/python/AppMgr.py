@@ -397,6 +397,7 @@ class AthAppMgr( AppMgr ):
             props[k] = self.getDefaultProperty(k)
             if hasattr(self, k):
                props[k] = getattr(self, k)
+      props['Dlls'] = []
       props['CreateSvc'] = []
       return props
 
