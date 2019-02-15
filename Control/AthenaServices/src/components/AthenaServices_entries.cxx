@@ -34,6 +34,7 @@
 #include "../ToyNextPassFilterTool.h"
 #include "../ConditionsCleanerSvc.h"
 #include "../DelayedConditionsCleanerSvc.h"
+#include "../DecisionAlg.h"
 
 DECLARE_COMPONENT( AthenaOutputStream )
 DECLARE_COMPONENT( AthenaConditionStream )
@@ -71,3 +72,4 @@ DECLARE_COMPONENT( ToyNextPassFilterAlg )
 DECLARE_COMPONENT( ToyNextPassFilterTool )
 DECLARE_COMPONENT( Athena::ConditionsCleanerSvc )
 DECLARE_COMPONENT( Athena::DelayedConditionsCleanerSvc )
+DECLARE_COMPONENT( DecisionAlg )

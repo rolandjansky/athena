@@ -96,6 +96,12 @@ topSequence+=Splitter7
 topSequence+=Splitter48
 topSequence+=Triggered
 
+# Add a non-outputstream decision
+from AthenaServices.AthenaServicesConf import DecisionAlg
+dummy = DecisionAlg("Dummy")
+dummy.AcceptAlgs  = ["Splitter2"]
+topSequence += dummy
+
 #--------------------------------------------------------------
 #---  Set up the streams for the filters
 #     Note that this uses a cascading exclusive stream model
@@ -109,17 +115,24 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 ToolSvc = Service( "ToolSvc" )
 
-# We use 5 test output streams
-# Define them
+# Filtered stream 2
 Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", False, noTag=False )
 Stream2.CheckNumberOfWrites = False
+# Filtered stream 1
 Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", False, noTag=False )
 Stream1.WritingTool.AttributeListKey="SimpleTagDecisions"
 Stream1.CheckNumberOfWrites = False
+# Filtered stream 3
 Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", False, noTag=False )
 Stream3.CheckNumberOfWrites = False
+# Unfiltered stream
+StreamAll = AthenaPoolOutputStream( "StreamAll", "AthenaPoolMultiTest_StreamAll.root", False, noTag=False )
+StreamAll.CheckNumberOfWrites = False
+StreamAll.WritingTool.AttributeListKey="SimpleTagDecisions"
+# Events that didn't satisfy any filters
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
+# Events that failed at least one filter
 Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Bad.CheckNumberOfWrites = False
 
@@ -129,22 +142,22 @@ Bad.CheckNumberOfWrites = False
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-#Stream2.MetadataItemList   += exampleMetadataList
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 # bit 1
 Stream1.TakeItemsFromInput = True
-#Stream1.MetadataItemList   += exampleMetadataList
 Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 Stream3.TakeItemsFromInput = True
-#Stream3.MetadataItemList   += exampleMetadataList
 Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
 Stream3.VetoAlgs  += ["Splitter2"]
+# Unfiltered
+StreamAll.TakeItemsFromInput = True
+StreamAll.ForceRead=TRUE
 # missed
 Others.TakeItemsFromInput = True
 Others.ForceRead=TRUE
