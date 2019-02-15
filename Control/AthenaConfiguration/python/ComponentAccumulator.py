@@ -555,7 +555,7 @@ class ComponentAccumulator(object):
         return
 
 
-    def store(self,outfile,nEvents=10,useBSFile=True,threaded=False):
+    def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
         if (useBSFile):
