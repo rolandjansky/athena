@@ -11,6 +11,7 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 #include "xAODCore/ShallowCopy.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <iostream>
