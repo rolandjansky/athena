@@ -46,6 +46,12 @@ Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package ver
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
 Bad                  INFO I/O reinitialization...
+DecisionSvc          INFO Inserting stream: StreamAll with no Algs
+StreamAll.Strea...   INFO Initializing StreamAll.StreamAllTool - package version AthenaServices-00-00-00
+StreamAll.Strea...   INFO Initializing StreamAll.StreamAll_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+StreamAll            INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll_MakeEventStreamInfo'])
+StreamAll            INFO Data output: AthenaPoolMultiTest_StreamAll.root
+StreamAll            INFO I/O reinitialization...
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -64,6 +70,8 @@ Splitter48           INFO EventInfo event: 0 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
+Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll.root
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:61404
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2
@@ -412,6 +420,7 @@ Stream2              INFO Records written: 8
 Stream3              INFO Records written: 6
 Others               INFO Records written: 2
 Bad                  INFO Records written: 1
+StreamAll            INFO Records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
@@ -426,18 +435,28 @@ ItemListSvc         DEBUG    - EventStreamInfo_Others
 ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
+ItemListSvc         DEBUG  --> Overlap with StreamAll (6) items
 ItemListSvc         DEBUG STREAM Stream1 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream1
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
+ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
 ItemListSvc         DEBUG STREAM Stream2 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream2
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
+ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
 ItemListSvc         DEBUG STREAM Stream3 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream3
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
+ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
+ItemListSvc         DEBUG STREAM StreamAll has (8) items
+ItemListSvc         DEBUG    - EventStreamInfo_StreamAll
+ItemListSvc         DEBUG  --> Overlap with Others (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
