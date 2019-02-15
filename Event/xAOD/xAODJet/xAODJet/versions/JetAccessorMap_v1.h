@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETACCESSSORMAP_V1_H
@@ -27,7 +27,7 @@
 #define JET_DEFINE_ATT_ACCESSOR( NAME )                                 \
   case xAOD::JetAttribute::NAME:                                        \
   {                                                                     \
-    static  AccessorWrapper< T > a( #NAME );   \
+    const static  AccessorWrapper< T > a( #NAME );   \
     return &a;                                                          \
   }                                                                     \
   break
@@ -37,7 +37,7 @@
 #define JET_DEFINE_ASSO_ACCESSOR( NAME )            \
   case xAOD::JetAttribute::NAME:                    \
   {                                                 \
-    static VectorIParticleAccessor_t a( #NAME );    \
+    const static VectorIParticleAccessor_t a( #NAME );    \
     return &a;                                      \
   }                                                 \
   break
@@ -45,7 +45,7 @@
 #define JET_DEFINE_ASSOBJ_ACCESSOR( NAME )            \
   case xAOD::JetAttribute::NAME:                    \
   {                                                 \
-    static  ObjectAccessorWrapper< T > a( #NAME );   \
+    const static  ObjectAccessorWrapper< T > a( #NAME );   \
     return &a;                                      \
   }                                                 \
   break
@@ -59,7 +59,7 @@ namespace xAOD {
     /// Define a template struct. 
     template<class T>
     struct AccessorMap_v1 {
-      static  AccessorWrapper<T>*
+      static const AccessorWrapper<T>*
       accessor( xAOD::JetAttribute::AttributeID moment ) {
         switch( moment ) {          
 
@@ -207,12 +207,12 @@ namespace xAOD {
 
 
     /// Returns a name given the AttributeID.
-    std::string name_v1(xAOD::JetAttribute::AttributeID id );
+    std::string name_v1(xAOD::JetAttribute::AttributeID id ) ;
 
 
     template<typename T>
     struct ObjectAccessorMap_v1 {
-      static  ObjectAccessorWrapper< T > *
+      static  const ObjectAccessorWrapper< T > *
       accessor( xAOD::JetAttribute::AssoParticlesID id ) {
         switch(id) {
           JET_DEFINE_ASSOBJ_ACCESSOR( GhostTrack );
@@ -229,32 +229,7 @@ namespace xAOD {
     };
     
     /// Returns a name given the AssoParticlesID
-    std::string assoName_v1(xAOD::JetAttribute::AssoParticlesID id );
-    
-    // struct JetAssoParticleAccessors_v1 {
-    //   typedef SG::AuxElement::Accessor< std::vector< ElementLink< xAOD::IParticleContainer> > > VectorIParticleAccessor_t;
-
-    //   static VectorIParticleAccessor_t *
-    //   accessor( xAOD::JetAttribute::AssoParticlesID id ) {
-    //     switch( id ) {
-          
-    //       JET_DEFINE_ASSO_ACCESSOR( GhostTracks ) ;
-    //       JET_DEFINE_ASSO_ACCESSOR( GhostTruthParticles ) ;
-    //       JET_DEFINE_ASSO_ACCESSOR( GhostMuonSegment ) ;
-          
-    //     default:
-    //       std::cerr << "xAOD::Jet_v1 ERROR Unknown associated particles ("
-    //                 << id << ") requested" << std::endl;
-    //       return 0;
-    //     }
-    //   }
-
-    //   static const char* assoName(xAOD::JetAttribute::AssoParticlesID id){ return s_map[id] ; }
-
-    // protected:
-    //   static const char* s_map[] ;  
-    // };
-
+    std::string assoName_v1(xAOD::JetAttribute::AssoParticlesID id ) ;
   
   }
 }

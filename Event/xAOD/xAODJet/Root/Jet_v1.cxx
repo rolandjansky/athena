@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,7 @@ namespace xAOD {
   {
   }
 
-  static JetAttributeAccessor::AccessorWrapper<JetFourMom_t> momentumAcc;
+  static const JetAttributeAccessor::AccessorWrapper<JetFourMom_t> momentumAcc;
   
   
   Jet_v1::Jet_v1(const Jet_v1& o ) : IParticle( o )
@@ -105,9 +105,9 @@ namespace xAOD {
 
 
   /// The accessor for the cluster element links
-  static SG::AuxElement::Accessor< std::vector< ElementLink< IParticleContainer > > >
+  static const SG::AuxElement::Accessor< std::vector< ElementLink< IParticleContainer > > >
       constituentAcc( "constituentLinks" );
-  static SG::AuxElement::Accessor< std::vector< float> >
+  static const SG::AuxElement::Accessor< std::vector< float> >
       constituentWeightAcc( "constituentWeights" );
 
   void Jet_v1::addConstituent( const ElementLink< IParticleContainer >& link,
@@ -133,7 +133,7 @@ namespace xAOD {
   }
 
 
-  static SG::AuxElement::Accessor< int > constitScaleAcc( "ConstituentScale" );
+  static const SG::AuxElement::Accessor< int > constitScaleAcc( "ConstituentScale" );
 
   JetConstitScale Jet_v1::getConstituentsSignalState() const {
     if( constitScaleAcc.isAvailable(*this) ) return (JetConstitScale)constitScaleAcc(*this) ;
@@ -176,12 +176,12 @@ namespace xAOD {
     return;
   }
 
-  static JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetEMScaleAcc("JetEMScaleMomentum");
-  static JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetConstitScaleAcc("JetConstitScaleMomentum");
-
+  static const JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetEMScaleAcc("JetEMScaleMomentum");
+  static const JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetConstitScaleAcc("JetConstitScaleMomentum");
+ 
   /// Access by the enum to the historical states
   JetFourMom_t Jet_v1::jetP4(JetScale s) const {
-    switch( s ){ 
+   switch( s ){ 
     case JetEMScaleMomentum: return jetEMScaleAcc.getAttribute( *this );
     case JetConstitScaleMomentum : return jetConstitScaleAcc.getAttribute( *this );
     case JetAssignedScaleMomentum: return jetP4();
@@ -214,7 +214,6 @@ namespace xAOD {
     }
   }
 
-
   /// Generic access to states
   JetFourMom_t Jet_v1::jetP4(const std::string& statename) const {
     if(statename=="JetAssignedScaleMomentum") return jetP4();
@@ -231,90 +230,19 @@ namespace xAOD {
   }
 
 
-
-
   void Jet_v1::reset() {
-    m_assoParticleCache.clear();
     if(m_fastJetLink) delete m_fastJetLink; 
     m_fastJetLink = NULL;
   }
-
 
   const fastjet::PseudoJet * Jet_v1::getPseudoJet() const {
     if(m_fastJetLink) return m_fastJetLink->pseudoJet;
     return NULL;
   }
 
-
-
-
-
-  // /// //////////////////////////////
-  // /// setAssociatedParticles specialization for IParticle
-  // template<>
-  // bool Jet_v1::setAssociatedParticles< IParticle >(const std::string &name, const std::vector<const IParticle*> & vec){
-
-  //   std::vector< ElementLink< IParticleContainer > > & elv = this->auxdata< std::vector< ElementLink< IParticleContainer > > >( name );
-  //   m_assoParticleCache[name] = vec ;
-    
-  //   for(size_t i=0; i< vec.size() ; i++) { 
-  //     ElementLink<IParticleContainer> el;
-  //     el.toIndexedElement( *( dynamic_cast< const IParticleContainer* >( vec[i]->container() ) ), vec[i]->index() );      
-  //     elv.push_back(el); 
-  //     elv.back().toPersistent(); // The EL will not change anymore since it is purely internal. We can call toPersistent() to be sure it will be saved as expected.
-  //   }
-    
-
-  //   return true ; /// fixme : return false  if the above lines fail ?
-  // }
-
-
- ////////////////////////////////////////////////////////
- //  const std::vector<const IParticle*> &  Jet_v1::getAssociatedParticles(const std::string &name) const {
- //    // check if the vector<IParticle*> has been cached already :
- //    VectIPartMap_t::iterator it = m_assoParticleCache.find( name );
- //    if( it != m_assoParticleCache.end() ) return it->second;
-    
- //    // Build vector<IParticle*> from the internal EL :
- //    // Get the vector<EL>
- //    const std::vector< ElementLink< IParticleContainer > > & elv = this->auxdata< std::vector< ElementLink< IParticleContainer > > >( name );    
- //    // get an empty vector<IP*>
- //    std::vector<const IParticle*>  &ipvec = m_assoParticleCache[name]; 
- //    // fill it...
- //    ipvec.resize( elv.size() );      
- //    for(size_t i=0;i<elv.size(); i++) ipvec[i] = *(elv[i]) ;        
-
- //    return ipvec;    
- //  }
-
- // ////////////////////////////////////////////////////////
- //  const std::vector<const IParticle*> &  Jet_v1::getAssociatedParticles(AssoParticlesID type) const {
- //    // check if the enum is valid.
- //    JetAssoParticleAccessors_v1::VectorIParticleAccessor_t *acc = JetAssoParticleAccessors_v1::accessor( type);
- //    if( acc ) { /// then we'resure the AssoParticlesID is defined
- //      // check if the vector<IParticle*> has been cached already :
- //      VectIPartMap_t::iterator it = m_assoParticleCache.find( JetAssoParticleAccessors_v1::assoName(type ) );
- //      if( it != m_assoParticleCache.end() ) return it->second;
-
- //      // Build vector<IParticle*> from the internal EL :
- //      // Get the vector<EL>
- //      const std::vector< ElementLink< IParticleContainer > > & elv =  (*acc)(*this );
- //      std::vector<const IParticle*>  &ipvec = m_assoParticleCache[JetAssoParticleAccessors_v1::assoName(type)];
-
- //      ipvec.resize( elv.size() );      
- //      for(size_t i=0;i<elv.size(); i++) ipvec[i] = *(elv[i]) ;        
-
- //      return ipvec;    
- //    }
- //    // else return a static vector
- //    static std::vector<const IParticle*>  s_ipvec;
- //    return s_ipvec;
- //  }
-
-
-  static SG::AuxElement::Accessor<int> inputAcc("InputType");
-  static SG::AuxElement::Accessor<int> algAcc("AlgorithmType");
-  static SG::AuxElement::Accessor<float> spAcc("SizeParameter");
+  static const SG::AuxElement::Accessor<int> inputAcc("InputType");
+  static const SG::AuxElement::Accessor<int> algAcc("AlgorithmType");
+  static const SG::AuxElement::Accessor<float> spAcc("SizeParameter");
 
   float Jet_v1::getSizeParameter() const {
     return spAcc(*this);
@@ -323,7 +251,6 @@ namespace xAOD {
   JetAlgorithmType::ID Jet_v1::getAlgorithmType()const {
     return (JetAlgorithmType::ID) algAcc(*this);
   }
-
 
   JetInput::Type Jet_v1::getInputType()const {
     return (JetInput::Type) inputAcc(*this);
@@ -335,9 +262,9 @@ namespace xAOD {
 
 
 #ifndef SIMULATIONBASE
-  static SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
+  static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
      btagAcc1( "btagging" );
-  static SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
+  static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
      btagAcc2( "btaggingLink" );
 
   /// Access to btagging objects
