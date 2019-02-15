@@ -19,6 +19,7 @@
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
+#include "JetTagTools/JetTagUtils.h"
 
 #include <iostream>
 #include <string>
@@ -120,6 +121,23 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 
   //Create a xAOD::BTaggingContainer in any case (must be done) 
   std::string bTaggingContName = m_BTagName;
+
+  //modify can be called twice by standalone btagging algorithm for PFlow jets, the first one is tagged with EMTopo calibration (keeping same name as before)
+  //the second one is tagged with PFlow calibration ("_PFlowTune" added to the names of all containers)
+  bool pflow = false;
+  if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) {
+    if (jets.size() > 0) {
+      xAOD::JetContainer::iterator itB = jets.begin();
+      xAOD::Jet& jet = **itB;
+      std::string author = JetTagUtils::getJetAuthor(jet);
+      if (author == "AntiKt4EMPFlow") {
+        //already one AntiKt4EMPFlow tagged, the second one is the self tune one's
+        ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " in store, pflow tune scenario");
+        bTaggingContName += "_PFlowTune";
+        pflow = true;
+      }
+    }
+  } 
  
   std::vector<xAOD::BTagging *> btagsList;
   xAOD::BTaggingContainer * bTaggingContainer(0);
@@ -129,7 +147,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   // Tagging information exists already or not, as in that case it needs to be overwritten rather than created.
   bool retag = false;
   
-  if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
+  if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName ) && !pflow) { //prepare re-tagging
     //BTaggingContainer in SG - overwrite it (copying BTagging objects if in "augmentation" mode)
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " in store, re-tagging scenario");
     retag = true;
@@ -148,13 +166,14 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (m_augment)
       ATH_MSG_WARNING("#BTAG# augmentation requested for non-existent BTaggingContainer");
     //No BTaggingContainer not in SG and not re-tagging - record it in SG
-    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
+    ATH_MSG_WARNING("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
     bTaggingContainer = new xAOD::BTaggingContainer();
     xAOD::BTaggingAuxContainer* bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
     CHECK( evtStore()->record(bTaggingAuxContainer, bTaggingContName+"Aux.") );
     bTaggingContainer->setStore(bTaggingAuxContainer);
     CHECK( evtStore()->record(bTaggingContainer, bTaggingContName) );
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
+    ATH_MSG_WARNING("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
   }
 
   // The SV need to be remade in case of re-tagging, or simply used if b-tagging information is merely to be extended.

@@ -87,6 +87,18 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
         if (!ret) {
           ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
         }
+        // Try to run the same (public) tools on the same AntiKt4EMPFlowJets
+        if (m_JetCollectionName == "AntiKt4EMPFlowJets") {
+          std::string suffix = "_PFlowTune";
+          //shallow copy 
+          ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " and registration with new name " << m_JetCollectionName + suffix);
+          std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > pflow_shallowCopy = xAOD::shallowCopyContainer( *jets );
+          //Record in StoreGate the copy of AntiKt4EMPFlowJets with renaming
+          CHECK( evtStore()->record( pflow_shallowCopy.first, m_JetCollectionName + suffix) );
+          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix) );
+          //tag it, the other one is already tagged
+          int ret = m_JetBTaggerTool->modify(*pflow_shallowCopy.first);
+        }        
       }
       else { //Shallow copy for re-tagging already tagged jet
         const xAOD::JetContainer * jetsAOD = 0;

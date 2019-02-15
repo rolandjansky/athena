@@ -1286,6 +1286,7 @@ class Configuration:
       input: JetCollection:       The name of the jet collection.
              Verbose:             Print a debug message."""
       author = self.getOutputFilesPrefix() + JetCollection # Get correct name with prefix
+      print self.BTagTag()+'MANU is registarting ' + JetCollection
       if not (self._OutputFilesBaseName + author) in BTaggingFlags.btaggingAODList:
         BTaggingFlags.btaggingAODList.append(self._OutputFilesBaseName + author)
       if not (self._OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB') in BTaggingFlags.btaggingAODList:
@@ -1330,6 +1331,10 @@ class Configuration:
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
               self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              if (JetCollection == "AntiKt4EMPFlow"):
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_PFlowTune", Verbose)
+                print(self.BTagTag()+" MANU - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
+              
               if not JetCollection in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]
           return btagtool

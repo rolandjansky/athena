@@ -73,4 +73,6 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKt4EMPFlow","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKt4EMPFlowAux","xAOD::BTaggingAuxContainer"],
+                        ["BTagging_AntiKt4EMPFlow_PFlowTune","xAOD::BTaggingContainer"],
+                        ["BTagging_AntiKt4EMPFlow_PFlowTuneAux","xAOD::BTaggingAuxContainer"],
 ]
