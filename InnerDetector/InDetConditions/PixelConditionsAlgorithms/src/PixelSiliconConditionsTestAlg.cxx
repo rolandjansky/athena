@@ -16,6 +16,7 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
 {  
   ATH_MSG_INFO("Calling initialize");
 
+// OLD  ATH_CHECK(m_siliconTool.retrieve());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_moduleDataKey.initialize());
@@ -27,24 +28,21 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
 
-  for (int i=0; i<2048; i++) {
-    std::cout << "STSTST Hash ID=" << IdentifierHash(i)
-              << " ModuleStatus=" << SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getModuleStatus(IdentifierHash(i))
-              << " ChipStatus="   << SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getChipStatus(IdentifierHash(i))
-              << std::endl;
-  }
+  SG::ReadCondHandle<PixelModuleData> hv(m_readKeyHV);
+  SG::ReadCondHandle<PixelModuleData> temp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelModuleData> deadmap(m_moduleDataKey);
 
-//  for (int i=0; i<2048; i++) {
-//    std::cout << "Hash ID=" << IdentifierHash(i) 
-//              << " ModuleStatus=" << SG::ReadCondHandle<PixelModuleData>(m_condKey)->getModuleStatus(IdentifierHash(i))
-//              << " ChipStatus=" << SG::ReadCondHandle<PixelModuleData>(m_condKey)->getChipStatus(IdentifierHash(i))
-//              << " TDAQModuleStatus=" << SG::ReadCondHandle<PixelModuleData>(m_condKey)->getTDAQModuleStatus(IdentifierHash(i))
-//              << std::endl;
-//  }
+  // Check HV
+  for (int i=0; i<2048; i++) { std::cout << "PIXEL HV : " << i << " " << hv->getBiasVoltage(i) << std::endl; }
+// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL HV : " << i << " " << m_siliconTool->biasVoltage(IdentifierHash(i)) << std::endl; }
 
+  // Check temperature
+  for (int i=0; i<2048; i++) { std::cout << "PIXEL Temperature : " << i << " " << temp->getTemperature(i) << std::endl; }
+// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Temperature : " << i << " " << m_siliconTool->temperature(IdentifierHash(i)) << std::endl; }
 
-  int hitDiscConfig = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLHitDiscConfig();
-  std::cout << "STSTST PixelModuleData " << hitDiscConfig << std::endl;
+  // Check deadmap
+  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(i) << std::endl; }
+// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(IdentifierHash(i)) << std::endl; }
 
   return StatusCode::SUCCESS;
 }
