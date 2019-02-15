@@ -51,22 +51,11 @@ def _createCfgFlags():
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
 
-
 #Detector Flags:
-    acf.addFlag('Detector.SimulatePixel', False)
-    acf.addFlag("Detector.SimulateSCT",   False)
-    acf.addFlag("Detector.SimulateTRT",   False)
-    acf.addFlag("Detector.SimulateMuon",  False)
-    acf.addFlag("Detector.SimulateCavern",False)
-    acf.addFlag("Detector.Simulate", lambda prevFlags : (prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
-                                                         prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateMuon or
-                                                         prevFlags.Detector.SimulateCavern))
-    acf.addFlag("Detector.OverlayPixel", False)
-    acf.addFlag("Detector.OverlaySCT",   False)
-    acf.addFlag("Detector.OverlayTRT",   False)
-    acf.addFlag("Detector.OverlayMuon",  False)
-    acf.addFlag("Detector.Overlay", lambda prevFlags : (prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
-                                                        prevFlags.Detector.OverlayTRT or prevFlags.Detector.OverlayMuon ))
+    def __detector():
+        from AthenaConfiguration.DetectorConfigFlags import createDetectorConfigFlags
+        return createDetectorConfigFlags()
+    acf.addFlagsCategory( "Detector", __detector )
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
@@ -82,7 +71,7 @@ def _createCfgFlags():
 
 
     def __lar():
-        from LArCellRec.LArConfigFlags import createLArConfigFlags
+        from LArConfiguration.LArConfigFlags import createLArConfigFlags
         return createLArConfigFlags()
     acf.addFlagsCategory( "LAr", __lar ) 
 

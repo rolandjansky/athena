@@ -13,10 +13,6 @@
 
 namespace Monitored {
 
-  /**
-   * Monitoring of (double-convertable) collections
-   */
-
   // Forward declares
   template <class T> class ValuesCollection;
   template <class T> class ObjectsCollection;
@@ -54,29 +50,9 @@ namespace Monitored {
    */
   template <class T> ObjectsCollection<T>
   Collection(std::string name, const T& collection,
-             std::function<double(const typename ObjectsCollection<T>::const_value_type&)>
-                 converterToDouble) {
+             std::function<double(const typename ObjectsCollection<T>::const_value_type&)> converterToDouble) {
     return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
   }
-
-  // TEMPORARY: for backwards compatibility
-  namespace MonitoredCollection {
-
-
-    template <class T>
-    [[deprecated("Use Monitored::Collection instead (see MR athena!20403)")]]
-    ValuesCollection<T> declare(std::string name, const T& collection) {
-      return ValuesCollection<T>(std::move(name), collection);
-    }
-
-    template <class T>
-    [[deprecated("Use Monitored::Collection instead (see MR athena!20403)")]]
-    ObjectsCollection<T> declare(std::string name, const T& collection,
-            std::function<double(const typename ObjectsCollection<T>::const_value_type&)>
-                converterToDouble) {
-      return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
-    }
-  } // namespace MonitoredCollection
 
   namespace detail {
     /// Get element type for containers
@@ -103,9 +79,6 @@ namespace Monitored {
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     friend ValuesCollection<T> Collection<T>(std::string name, const T& collection);
-    // TEMPORARY: for backwards compatibility
-    friend ValuesCollection<T> MonitoredCollection::declare<T>(std::string name,
-                                                               const T& collection);
 
     ValuesCollection(ValuesCollection&&) = default;
 
@@ -138,24 +111,14 @@ namespace Monitored {
     // fails to match the friend.
     template <class U> friend ObjectsCollection<U>
     Collection(std::string name, const U& collection,
-               std::function<double(const typename ObjectsCollection<U>::const_value_type&)>
-                   converterToDouble);
-
-    // TEMPORARY: for backwards compatibility
-    template <class U> friend ObjectsCollection<U> MonitoredCollection::declare(
-        std::string name, const U& collection,
-        std::function<double(const typename ObjectsCollection<U>::const_value_type&)>
-            converterToDouble);
+               std::function<double(const typename ObjectsCollection<U>::const_value_type&)> converterToDouble);
 
     ObjectsCollection(ObjectsCollection&&) = default;
 
     const std::vector<double> getVectorRepresentation() const override {
-      // Could be replaced with std::size in C++17
-      auto N = std::distance(std::begin(m_collection), std::end(m_collection));
-
       // Reserve space and fill vector
       std::vector<double> result;
-      result.reserve(N);
+      result.reserve(std::size(m_collection));
       for (auto value : m_collection) result.push_back(m_converterToDouble(value));
 
       return result;

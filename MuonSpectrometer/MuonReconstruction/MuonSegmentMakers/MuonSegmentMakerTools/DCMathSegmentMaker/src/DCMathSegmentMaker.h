@@ -331,7 +331,7 @@ class MdtDriftCircleOnTrack;
 					    std::set<Identifier>& deltaVec, std::set<Identifier>& outoftimeVec, std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec ) const;
 
     TrkDriftCircleMath::DCVec createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale, std::set<Identifier>& chamberSet, 
-					   double phimin, double phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal ) const;
+					   double& phimin, double& phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal ) const;
     ClusterVecPair create1DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
     ClusterVecPair create2DClusters( const std::vector<const MuonClusterOnTrack*>& clusters ) const;
     

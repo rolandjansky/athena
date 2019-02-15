@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -225,8 +225,18 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
     ATH_MSG_DEBUG("egammaRec container is null! Returning an empty vector ...");
     return secondaryClusters;
   }
-  const auto seedEgammaRec =egammaRecs->at(electronIndex);
+
+  const auto seedEgammaRec = egammaRecs->at(electronIndex);
   const xAOD::CaloCluster *seedCluster = seedEgammaRec->caloCluster();
+
+  double emFrac(1.);
+  if (!seedCluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+     ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
+  }
+
+  float qoverp = seedEgammaRec->trackParticle()->qOverP();
+  float seedEOverP = seedEgammaRec->caloCluster()->e() * emFrac * fabs(qoverp);
+  bool doBremSatellite = (seedEOverP > m_secEOverPCut);
   
   for (std::size_t i = 0 ; i < egammaRecs->size();++i) {    
     //if already used continue
@@ -261,25 +271,20 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
       if(matchSameTrack) {
 	++m_nSameTrackClusters;
 	++m_nExtraClusters;
-      } else {
-	if (seedEgammaRec->trackParticle()) {
-	  float qoverp    = seedEgammaRec->trackParticle()->qOverP();
-	  float seedEOverP(seedEgammaRec->caloCluster()->e() * fabs(qoverp));
+      } else if (doBremSatellite){
 	  
-	  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
-	  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
-	  float perigeeExtrapEta (pgExtrapEta(*seedEgammaRec->trackParticle()));
-	  float perigeeExtrapPhi (pgExtrapPhi(*seedEgammaRec->trackParticle()));
-	  if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.)
-	    passesSimpleBremSearch = PassesSimpleBremSearch(seedCluster,
-							    clus,
-							    perigeeExtrapEta,
-							    perigeeExtrapPhi,
-							    seedEOverP);
-	  if (passesSimpleBremSearch) {
-	    ++m_nSimpleBremSearchClusters;
-	    ++m_nExtraClusters;
-	  }
+	static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
+	static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
+	float perigeeExtrapEta (pgExtrapEta(*seedEgammaRec->trackParticle()));
+	float perigeeExtrapPhi (pgExtrapPhi(*seedEgammaRec->trackParticle()));
+	if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.)
+	  passesSimpleBremSearch = PassesSimpleBremSearch(seedCluster,
+	      					    clus,
+	      					    perigeeExtrapEta,
+	      					    perigeeExtrapPhi);
+	if (passesSimpleBremSearch) {
+	  ++m_nSimpleBremSearchClusters;
+	  ++m_nExtraClusters;
 	}
       }
     }
@@ -320,16 +325,11 @@ bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
 bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
 							 const xAOD::CaloCluster *sec,
 							 float perigeeExtrapEta,
-							 float perigeeExtrapPhi,
-							 float seedEOverP) const
+							 float perigeeExtrapPhi) const
 {
 
   if (!seed || !sec)
     return false;
-
-  if (seedEOverP > m_secEOverPCut){
-    return false;
-  }
 
   ATH_MSG_DEBUG("Running PassesSimpleBremSearch");
 

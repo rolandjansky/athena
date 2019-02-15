@@ -32,7 +32,7 @@ StatusCode iParSim::PionSmearer::initialize()
 
 
 /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-bool iParSim::PionSmearer::smear(xAOD::TrackParticle* xaodTP) const
+bool iParSim::PionSmearer::smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine*) const
 {
   
   // DEFINING PARAMETERS COVARIANCE MATRIX //

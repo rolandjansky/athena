@@ -24,6 +24,10 @@
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
+// Random Number Generation
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace ISF {
     class ISFParticle;
@@ -69,6 +73,11 @@ namespace iParSim {
 
       /** Trk Tracking Geometry Service   */
       ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;  //!< ServiceHandle to the TrackingGeometrySvc
+      
+      /** Random Service and Engine */
+      ServiceHandle<IAthRNGSvc>  m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
+      ATHRNG::RNGWrapper*        m_randomEngineWrapper;                          //!< Random number engine wrapper
+      std::string                m_randomEngineName;                             //!< Name of the random number stream
 
 
   }; 

@@ -17,13 +17,14 @@
 /** Constructor **/
 iParSim::ParametricSimSvc::ParametricSimSvc(const std::string& name, ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
-  m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name)
+  m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name),
+  m_randomEngineWrapper(),
+  m_randomEngineName("ParSimRnd")
 
 {
   // retrieve the simulation tool and the transport tool
   declareProperty("ParticleSmearers"     ,  m_particleSmearers     ); 
   declareProperty("TrackingGeometrySvc"  ,  m_trackingGeometrySvc  ,  "TrackingGeometrySvc used for track extrapolation" );
-
 }
 
 iParSim::ParametricSimSvc::~ParametricSimSvc() 
@@ -42,6 +43,12 @@ StatusCode iParSim::ParametricSimSvc::initialize()
     ATH_MSG_ERROR("Could not retrieve " << m_trackingGeometrySvc << ". Exiting.");
     return StatusCode::FAILURE;
   }*/
+  
+  // Random number service
+  ATH_CHECK( m_randomSvc.retrieve() );
+  
+  // retreive the random engine wrapper
+  m_randomEngineWrapper = m_randomSvc->getEngine(this, m_randomEngineName);
 
   ATH_MSG_INFO( "initialize() successful." );
   return StatusCode::SUCCESS;
@@ -57,6 +64,11 @@ StatusCode iParSim::ParametricSimSvc::finalize()
 StatusCode iParSim::ParametricSimSvc::setupEvent()
 { 
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event");
+  
+  // set the seed for this event
+  std::string rngName = name() + m_randomEngineName;
+  m_randomEngineWrapper->setSeed( rngName, Gaudi::Hive::currentContext() );
+  
   return StatusCode::SUCCESS;
 }  
 
@@ -73,7 +85,8 @@ StatusCode iParSim::ParametricSimSvc::simulate(const ISF::ISFParticle& isp, McEv
   ATH_MSG_VERBOSE( m_screenOutputPrefix << "Particle " << isp << " received for simulation." );
   for (auto& smearer : m_particleSmearers ){
       /** Process Particle from particle broker */
-      ISF::ISFParticle* nISP = smearer->process(isp);
+      CLHEP::HepRandomEngine *randomEngine = *m_randomEngineWrapper;
+      ISF::ISFParticle* nISP = smearer->process(isp, randomEngine);
       ATH_MSG_VERBOSE( m_screenOutputPrefix << "Simulation created : " << ( nISP ? "" : "no") << " new particle");
       if (nISP) {
         // new particle into the stack
