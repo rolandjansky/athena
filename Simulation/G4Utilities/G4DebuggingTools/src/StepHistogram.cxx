@@ -15,6 +15,7 @@
 #include "SimHelpers/ServiceAccessor.h"
 
 #include "G4Step.hh"
+#include "G4StepPoint.hh"
 #include "G4VProcess.hh"
 
 #include <iostream>
@@ -29,22 +30,42 @@ namespace G4UA{
   
   void StepHistogram::UserSteppingAction(const G4Step * aStep){
 
+    // track
     G4Track *tr = aStep->GetTrack();
-    G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
 
+    // pre-step point
+    G4StepPoint *PreStepPoint = aStep->GetPreStepPoint();
+
+    // post-step point
+    G4StepPoint *PostStepPoint = aStep->GetPostStepPoint();
+
+    // pre-step kinetic energy
+    double stepKinetic = PreStepPoint->GetKineticEnergy();
+
+    // post-step kinetic energy
+    double postStepKinetic = PostStepPoint->GetKineticEnergy();
+
+    // pre-step position
+    G4ThreeVector myPos = PreStepPoint->GetPosition();
+
+    // particle name
     G4String particleName = "nucleus";
     if (!(tr->GetDefinition()->GetParticleType() == "nucleus"))
       particleName = G4DebuggingHelpers::ClassifyParticle(tr->GetParticleDefinition());
 
-    G4String volumeName = tr->GetVolume()->GetName();
+    // pre-step volume
+    G4String volumeName = PreStepPoint->GetPhysicalVolume()->GetName();
     volumeName = G4DebuggingHelpers::ClassifyVolume(volumeName);
 
-    G4String materialName = tr->GetMaterial()->GetName();
+    // pre-step material
+    G4String materialName = PreStepPoint->GetMaterial()->GetName();
     materialName = G4DebuggingHelpers::ClassifyMaterial(materialName);
 
-    G4String processName = aStep->GetPostStepPoint()->GetProcessDefinedStep() ?
-                           aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() : "Unknown";
+    // process name (uses post-step point)
+    G4String processName = PostStepPoint->GetProcessDefinedStep() ?
+                           PostStepPoint->GetProcessDefinedStep()->GetProcessName() : "Unknown";
 
+    // secondaries
     const std::vector<const G4Track*>* secondaries = aStep->GetSecondaryInCurrentStep();
 
     // 2D map
@@ -75,13 +96,23 @@ namespace G4UA{
 
     // step kinetic energy
     InitializeFillHistogram(m_report.histoMapMap_vol_stepKineticEnergy, "vol_stepKineticEnergy", particleName, volumeName,
-                            1000, -9, 7, log10(tr->GetKineticEnergy()), 1.);
+                            1000, -9, 7, log10(stepKinetic), 1.);
     InitializeFillHistogram(m_report.histoMapMap_mat_stepKineticEnergy, "mat_stepKineticEnergy", particleName, materialName,
-                            1000, -9, 7, log10(tr->GetKineticEnergy()), 1.);
+                            1000, -9, 7, log10(stepKinetic), 1.);
     InitializeFillHistogram(m_report.histoMapMap_prc_stepKineticEnergy, "prc_stepKineticEnergy", particleName, processName,
-                            1000, -9, 7, log10(tr->GetKineticEnergy()), 1.);
-    InitializeFillHistogram(m_report.histoMapMap_stepSecondaryKinetic, "stepKineticEnergy", particleName, "AllATLAS",
-                            1000, -9, 7, log10(tr->GetKineticEnergy()), 1.);
+                            1000, -9, 7, log10(stepKinetic), 1.);
+    InitializeFillHistogram(m_report.histoMapMap_stepKinetic, "stepKineticEnergy", particleName, "AllATLAS",
+                            1000, -9, 7, log10(stepKinetic), 1.);
+
+    // post step kinetic energy
+    InitializeFillHistogram(m_report.histoMapMap_vol_postStepKineticEnergy, "vol_postStepKineticEnergy", particleName, volumeName,
+                            1000, -9, 7, log10(postStepKinetic), 1.);
+    InitializeFillHistogram(m_report.histoMapMap_mat_postStepKineticEnergy, "mat_postStepKineticEnergy", particleName, materialName,
+                            1000, -9, 7, log10(postStepKinetic), 1.);
+    InitializeFillHistogram(m_report.histoMapMap_prc_postStepKineticEnergy, "prc_postStepKineticEnergy", particleName, processName,
+                            1000, -9, 7, log10(postStepKinetic), 1.);
+    InitializeFillHistogram(m_report.histoMapMap_postStepKinetic, "postStepKineticEnergy", particleName, "AllATLAS",
+                            1000, -9, 7, log10(postStepKinetic), 1.);
 
     // step energy deposit
     InitializeFillHistogram(m_report.histoMapMap_vol_stepEnergyDeposit, "vol_stepEnergyDeposit", particleName, volumeName,
@@ -117,13 +148,12 @@ namespace G4UA{
 
     // first step (after initial step)
     if (tr->GetCurrentStepNumber()==1) {
-      m_initialKineticEnergyOfStep = tr->GetKineticEnergy();
-      m_initialKineticEnergyOfStep += aStep->GetTotalEnergyDeposit();
-      for (const auto &track : *secondaries) {
-        m_initialKineticEnergyOfStep += track->GetKineticEnergy();
-      }
+      // initial kinetic energy
+      m_initialKineticEnergyOfStep = stepKinetic;
+
       // save track ID for checking if we later have the same track
       m_trackID = tr->GetTrackID();
+
       // initial energy
       InitializeFillHistogram(m_report.histoMapMap_InitialE, "InitialE", particleName, "AllATLAS",
                               1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
@@ -229,6 +259,7 @@ namespace G4UA{
   void StepHistogram::Report::merge(const Report & rep) {
     mergeMaps(histoMapMap_vol_stepSize, rep.histoMapMap_vol_stepSize);
     mergeMaps(histoMapMap_vol_stepKineticEnergy, rep.histoMapMap_vol_stepKineticEnergy);
+    mergeMaps(histoMapMap_vol_postStepKineticEnergy, rep.histoMapMap_vol_postStepKineticEnergy);
     mergeMaps(histoMapMap_vol_stepPseudorapidity, rep.histoMapMap_vol_stepPseudorapidity);
     mergeMaps(histoMapMap_vol_stepEnergyDeposit, rep.histoMapMap_vol_stepEnergyDeposit);
     mergeMaps(histoMapMap_vol_stepEnergyNonIonDeposit, rep.histoMapMap_vol_stepEnergyNonIonDeposit);
@@ -236,6 +267,7 @@ namespace G4UA{
 
     mergeMaps(histoMapMap_mat_stepSize, rep.histoMapMap_mat_stepSize);
     mergeMaps(histoMapMap_mat_stepKineticEnergy, rep.histoMapMap_mat_stepKineticEnergy);
+    mergeMaps(histoMapMap_mat_postStepKineticEnergy, rep.histoMapMap_mat_postStepKineticEnergy);
     mergeMaps(histoMapMap_mat_stepPseudorapidity, rep.histoMapMap_mat_stepPseudorapidity);
     mergeMaps(histoMapMap_mat_stepEnergyDeposit, rep.histoMapMap_mat_stepEnergyDeposit);
     mergeMaps(histoMapMap_mat_stepEnergyNonIonDeposit, rep.histoMapMap_mat_stepEnergyNonIonDeposit);
@@ -243,6 +275,7 @@ namespace G4UA{
 
     mergeMaps(histoMapMap_prc_stepSize, rep.histoMapMap_prc_stepSize);
     mergeMaps(histoMapMap_prc_stepKineticEnergy, rep.histoMapMap_prc_stepKineticEnergy);
+    mergeMaps(histoMapMap_prc_postStepKineticEnergy, rep.histoMapMap_prc_postStepKineticEnergy);
     mergeMaps(histoMapMap_prc_stepPseudorapidity, rep.histoMapMap_prc_stepPseudorapidity);
     mergeMaps(histoMapMap_prc_stepEnergyDeposit, rep.histoMapMap_prc_stepEnergyDeposit);
     mergeMaps(histoMapMap_prc_stepEnergyNonIonDeposit, rep.histoMapMap_prc_stepEnergyNonIonDeposit);
@@ -251,7 +284,8 @@ namespace G4UA{
     mergeMaps(histoMapMap_numberOfSteps, rep.histoMapMap_numberOfSteps);
     mergeMaps(histoMapMap_numberOfStepsPerInitialE, rep.histoMapMap_numberOfStepsPerInitialE);
     mergeMaps(histoMapMap_InitialE, rep.histoMapMap_InitialE);
-    mergeMaps(histoMapMap_stepSecondaryKinetic, rep.histoMapMap_stepSecondaryKinetic);
+    mergeMaps(histoMapMap_stepKinetic, rep.histoMapMap_stepKinetic);
+    mergeMaps(histoMapMap_postStepKinetic, rep.histoMapMap_postStepKinetic);
 
     mergeMaps(histoMapMap2D_vol_RZ, rep.histoMapMap2D_vol_RZ);
     mergeMaps(histoMapMap2D_mat_RZ, rep.histoMapMap2D_mat_RZ);

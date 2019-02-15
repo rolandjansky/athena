@@ -46,6 +46,7 @@ class HITowerWeightTool : virtual public asg::AsgTool, virtual public IHITowerWe
   virtual float getWeightMag(float eta, float phi, int sampling) const;
   
 private:
+  bool m_applycorrection;
   std::string m_input_file;
   std::string m_config_dir;
   bool m_init;

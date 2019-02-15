@@ -19,7 +19,6 @@
 #include "G4PropagatorInField.hh"
 #include "G4TrackingManager.hh"
 #include "G4StackManager.hh"
-#include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
 
 // CLHEP includes
@@ -153,6 +152,32 @@ void G4AtlasAlg::initializeOnce()
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
   }
 
+  std::vector<std::string> localCommands;
+  // Load custom libraries
+  if (!m_libList.empty()) {
+    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ");
+    std::string g4command="/load "+m_libList;
+    localCommands.push_back(g4command);
+  }
+  // Load custom physics
+  if (!m_physList.empty()) {
+    ATH_MSG_INFO("requesting a specific physics list "<< m_physList);
+    std::string g4command="/Physics/GetPhysicsList "+m_physList;
+    localCommands.push_back(g4command);
+  }
+  // Load custom magnetic field
+  if (!m_fieldMap.empty()) {
+    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap);
+    ATH_MSG_INFO("the field is initialized straight away");
+    std::string g4command="/MagneticField/Select "+m_fieldMap;
+    localCommands.push_back(g4command);
+    g4command = "/MagneticField/Initialize";
+    localCommands.push_back(g4command);
+  }
+
+  localCommands.reserve(localCommands.size()+m_g4commands.size());
+  localCommands.insert(std::end(localCommands), std::begin(m_g4commands), std::end(m_g4commands));
+
   // Create the (master) run manager
   if(m_useMT) {
 #ifdef G4MULTITHREADED
@@ -177,30 +202,10 @@ void G4AtlasAlg::initializeOnce()
     runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
     runMgr->SetPhysListTool(m_physListTool.typeAndName() );
-  }
-
-  // G4 user interface commands
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-
-  // Load custom libraries
-  if (!m_libList.empty()) {
-    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ");
-    std::string temp="/load "+m_libList;
-    ui->ApplyCommand(temp);
-  }
-  // Load custom physics
-  if (!m_physList.empty()) {
-    ATH_MSG_INFO("requesting a specific physics list "<< m_physList);
-    std::string temp="/Physics/GetPhysicsList "+m_physList;
-    ui->ApplyCommand(temp);
-  }
-  // Load custom magnetic field
-  if (!m_fieldMap.empty()) {
-    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap);
-    ATH_MSG_INFO("the field is initialized straight away");
-    std::string temp="/MagneticField/Select "+m_fieldMap;
-    ui->ApplyCommand(temp);
-    ui->ApplyCommand("/MagneticField/Initialize");
+    // Send UI commands
+    for (auto g4command : localCommands) {
+      runMgr->AddG4Command(g4command);
+    }
   }
 
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu") {
@@ -217,11 +222,6 @@ void G4AtlasAlg::initializeOnce()
   }
   else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
-  }
-
-  // Send UI commands
-  for (auto g4command : m_g4commands) {
-    ui->ApplyCommand( g4command );
   }
 
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
