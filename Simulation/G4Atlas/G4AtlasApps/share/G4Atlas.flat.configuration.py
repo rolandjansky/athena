@@ -227,8 +227,10 @@ if not simFlags.ISFRun:
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
             if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"] #MicroMegas only
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
+                stream1.ItemList += ["MMSimHitCollection#*"]
+                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
+
         ## Lucid
         if DetFlags.Lucid_on():
             stream1.ItemList += ["LUCID_SimHitCollection#*"]
