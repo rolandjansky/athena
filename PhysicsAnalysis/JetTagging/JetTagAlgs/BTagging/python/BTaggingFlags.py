@@ -15,8 +15,8 @@ class _BTaggingFlags:
     _JetPtMinRef = [ 'JetPtMinRef' ]
 
     _tags = [ 'IP1D',
-              'IP2D', 'IP2DFlip', 'IP2DPos', 'IP2DNeg', 'IP2DSpc', 'IP2DSpcFlip', 'IP2DSpcPos', 'IP2DSpcNeg',
-              'IP3D', 'IP3DFlip', 'IP3DPos', 'IP3DNeg', 'IP3DSpc', 'IP3DSpcFlip', 'IP3DSpcPos', 'IP3DSpcNeg',
+              'IP2D', 'IP2DFlip', 'IP2DPos', 'IP2DNeg', 'IP2DSpc', 'IP2DSpcFlip', 'IP2DSpcPos', 'IP2DSpcNeg', 'IP2DTrigHybrid',
+              'IP3D', 'IP3DFlip', 'IP3DPos', 'IP3DNeg', 'IP3DSpc', 'IP3DSpcFlip', 'IP3DSpcPos', 'IP3DSpcNeg', 'IP3DTrigHybrid',
               'SV0', 'MultiSVbb1','MultiSVbb2',
               'SV1', 'SV1Flip',
               'SV2', 'SV2Flip',
@@ -25,7 +25,7 @@ class _BTaggingFlags:
               'BasicJetFitter', 'JetFitterTag', 'JetFitterTagFlip','JetFitterNN', 'JetFitterCOMBNN', 'JetFitterNNFlip',
               'TrackCounting', 'TrackCountingFlip',
               'QGTag',
-              'MV1', 'MV1c', 'MV2', 'MV2c10',
+              'MV1', 'MV1c', 'MV2', 'MV2c10','MV2c10TrigHybrid',
               'MV2c10mu','MV2c10rnn','MV2c100','MV2cl100',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip',
@@ -213,6 +213,8 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'IP2DSpcNeg':
           setattr(self, attr, False)
+        if attr == 'IP2DTrigHybrid':
+          setattr(self, attr, False)
         if attr == 'IP3D':
           setattr(self, attr, True)
         if attr == 'IP3DFlip':
@@ -228,6 +230,8 @@ class _BTaggingFlags:
         if attr == 'IP3DSpcPos':
           setattr(self, attr, False)
         if attr == 'IP3DSpcNeg':
+          setattr(self, attr, False)
+        if attr == 'IP3DTrigHybrid':
           setattr(self, attr, False)
         if attr == 'SV0':
           setattr(self, attr, False)
@@ -274,13 +278,15 @@ class _BTaggingFlags:
         if attr == 'MV1c':
           setattr(self, attr, False)
         if attr == 'MV2c00':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV2c10':
           setattr(self, attr, True)
         if attr == 'MV2c10rnn':
           setattr(self, attr, True)
-        if attr == 'MV2c20':
+        if attr == 'MV2c10TrigHybrid':
           setattr(self, attr, True)
+        if attr == 'MV2c20':
+          setattr(self, attr, False)
         if attr == 'MV2c100':
           setattr(self, attr, True)
         if attr == 'MV2c10mu':
@@ -288,9 +294,9 @@ class _BTaggingFlags:
         if attr == 'MV2cl100':
           setattr(self, attr, True)
         if attr == 'MV2m':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV2c10hp':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV2c00Flip':
           setattr(self, attr, False)
         if attr == 'MV2c10Flip':
@@ -332,7 +338,7 @@ class _BTaggingFlags:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip'])
 
       for attr in self._TriggerTaggers:
-        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c10'])#,'MV2c00','MV2c20', 'MV2c10hp'])
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c10']) # 'IP2DTrigHybrid','IP3DTrigHybrid','MV2c10TrigHybrid'
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')
