@@ -368,7 +368,7 @@ class ComponentAccumulator(object):
 
     def getService(self, name=None):        
         """ Returns single service, exception if either not found or to many found"""
-        return self.__getOne( self._publicTools, name, "Services")
+        return self.__getOne( self._services, name, "Services")
     
     def addPrivateTool(self, newTool):
         if not isinstance(newTool,ConfigurableAlgTool):
@@ -380,7 +380,7 @@ class ComponentAccumulator(object):
 
     def getPrivateTool(self, name=None):        
         """ Returns single private tool, exception if either not found or to many found"""
-        return self.__getOne( self._publicTools, name, "PrivateTools")
+        return self.__getOne( self._privateTools, name, "PrivateTools")
         
 
     def addEventInput(self,condObj):
