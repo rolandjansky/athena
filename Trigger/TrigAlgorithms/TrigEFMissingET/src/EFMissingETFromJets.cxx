@@ -125,7 +125,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
     float scale = 1.;
     if (m_applyTileGap3Correction) {
       // get the uncalibrated energy and tile gap 3 fractions
-      static xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& acc_ePerSample =
+      static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& acc_ePerSample =
         *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
       static xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t> acc_uncalibrated("JetConstitScaleMomentum");
       const std::vector<float>& eInSampling = acc_ePerSample.getAttribute(*aJet);

@@ -32,9 +32,6 @@ namespace xAOD {
     }
 
 
-
-
-
     template<>
     class ObjectAccessorWrapper<Dummy> : public Named {
     public:
