@@ -46,6 +46,8 @@ def generateMenu( flags ):
     mainSequenceName = 'HLTAllSteps'
     menuAcc.addSequence( seqAND(mainSequenceName) )
 
+    chainAccumulators = []
+
     for name, cfgFlag in list(flags._flagdict.iteritems()):
         if not 'Trigger.menu.' in name:
             continue
@@ -68,17 +70,19 @@ def generateMenu( flags ):
 
             # call generating function and pass to CF builder
 
-            chainAcc, chain = signatureToGenerator[signature](flags, chainDict)
+            chain = signatureToGenerator[signature](flags, chainDict)
             menuChains.append( chain )
-            menuAcc.merge(chainAcc)
 
 
     _log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder    
 
-    generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)
+    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)
 
+    chainsAcc.printConfig()
+
+    menuAcc.merge( chainsAcc )
     menuAcc.printConfig()
 
     _log.info('CF is built')

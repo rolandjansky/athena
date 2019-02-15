@@ -38,8 +38,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.photon = [
-        get_flag_item('HLT_g10_etcut', 'L1_EM7', ['RATE:SinglePhoton', 'BW:Photon']),
-        get_flag_item('HLT_g15_etcut', 'L1_EM12', ['RATE:SinglePhoton', 'BW:Photon'])
+       get_flag_item('HLT_g10_etcut', 'L1_EM7', ['RATE:SinglePhoton', 'BW:Photon']),
+       get_flag_item('HLT_g15_etcut', 'L1_EM12', ['RATE:SinglePhoton', 'BW:Photon'])
     ]
 
     # flags.Trigger.menu.combined = [
@@ -50,7 +50,9 @@ def setupMenu(flags):
 
 if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+    from AthenaCommon.Logging import logging
+    logging.getLogger('ComponentAccumulator').setLevel(7)
+    
     acc = ComponentAccumulator()
 
     from AthenaCommon.Configurable import Configurable
@@ -59,7 +61,8 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     setupMenu(ConfigFlags)
 
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -68,6 +71,13 @@ if __name__ == "__main__":
     menu = generateMenu( ConfigFlags )
 
     acc.merge(menu)
+    # print all hypo algs and their hypo tools for debugging
+    from AthenaCommon.CFElements import flatAlgorithmSequences    
+    fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
+    for seq, algs in fs.iteritems():
+        for alg in algs:
+            if 'HypoTools' in alg.getProperties():
+                print alg.getName(), [ t.getFullName() for t in alg.HypoTools ]
 
     f = open('newJOMenu.pkl', 'wb')
     acc.store(f)
