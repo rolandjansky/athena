@@ -235,7 +235,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "TrackBuilderTool               " << m_trackBuilderTool << endmsg;
     msg() << MSG::DEBUG
-	  << "MdtRawDataProvider             " << m_mdtRawDataProvider << endmsg;
+	  << "CscRawDataProvider             " << m_cscRawDataProvider << endmsg;
     msg() << MSG::DEBUG
 	  << "MdtRawDataProvider             " << m_mdtRawDataProvider << endmsg;
     msg() << MSG::DEBUG
