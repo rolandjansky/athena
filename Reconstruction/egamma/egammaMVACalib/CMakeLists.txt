@@ -45,11 +45,6 @@ atlas_add_component( egammaMVACalib
 	LINK_LIBRARIES ${ROOT_LIBRARIES} egammaMVACalibLib PathResolver MVAUtils GaudiKernel)
 endif()
 
-atlas_add_dictionary( egammaMVACalibDict
-	egammaMVACalib/egammaMVACalibDict.h
-	egammaMVACalib/selection.xml
-	LINK_LIBRARIES egammaMVACalibLib )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
