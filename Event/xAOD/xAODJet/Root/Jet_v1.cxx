@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
-// EDM include(s):
-#include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
 #include "xAODJet/versions/Jet_v1.h"

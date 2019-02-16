@@ -16,7 +16,6 @@
 #include <iostream>
 
 // EDM include(s):
-#include "AthLinks/ElementLinkVector.h"
 #include "xAODBase/IParticleContainer.h"
 
 #include "AthContainers/AuxElement.h"
