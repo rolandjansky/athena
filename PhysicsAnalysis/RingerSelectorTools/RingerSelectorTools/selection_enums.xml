@@ -1,0 +1,8 @@
+<lcgdict>
+
+  <!-- Add every enum within Ringer namespace -->
+  <enum pattern="Ringer::*"/>
+  <class pattern="Ringer::ElectronTAccept*" />
+  <class pattern="Ringer::BitdefElectron*" />
+
+</lcgdict>
