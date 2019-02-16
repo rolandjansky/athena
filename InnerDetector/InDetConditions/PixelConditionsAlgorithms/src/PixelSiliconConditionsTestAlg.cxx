@@ -20,6 +20,7 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_moduleDataKey.initialize());
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -43,6 +44,8 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
   // Check deadmap
   for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(i) << std::endl; }
 // OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(IdentifierHash(i)) << std::endl; }
+
+  for (int i=0; i<2048; i++) { std::cout << "PIXEL LorentzAngle : " << i << " " << m_lorentzAngleTool->getTanLorentzAngle(IdentifierHash(i)) << std::endl; }
 
   return StatusCode::SUCCESS;
 }
