@@ -218,28 +218,19 @@ namespace CP
     float beamspot_z0=trk.vz();
     float theta=trk.theta();
     // check the vertex, return false if the vertex is a dummy one
-    
-    if(&vx!=NULL)
+    if(vx.vertexType()!=xAOD::VxType::NoVtx)  // select good vertex
     {
-      if(vx.vertexType()!=xAOD::VxType::NoVtx)  // select good vertex
+      float vx_z0=vx.z();
+      if(fabs((trk_z0-vx_z0+beamspot_z0)*sin(theta))<m_dz_cut && fabs(trk_d0)<=m_d0_cut) // cut 
       {
-        float vx_z0=vx.z();
-        if(fabs((trk_z0-vx_z0+beamspot_z0)*sin(theta))<m_dz_cut && fabs(trk_d0)<=m_d0_cut) // cut 
-        {
-          dz=fabs((trk_z0-vx_z0+beamspot_z0)*sin(theta));
-          return true;
-        }
-        else return false;
+        dz=fabs((trk_z0-vx_z0+beamspot_z0)*sin(theta));
+        return true;
       }
-      else
-      {
-        ATH_MSG_DEBUG("The Vertex is a fake one, will not do track-vertex association");
-        return false;
-      }
+      else return false;
     }
     else
     {
-      ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
+      ATH_MSG_DEBUG("The Vertex is a fake one, will not do track-vertex association");
       return false;
     }
 
