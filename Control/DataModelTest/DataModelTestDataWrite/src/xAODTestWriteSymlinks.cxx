@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -11,7 +11,6 @@
 
 
 #include "xAODTestWriteSymlinks.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -28,7 +27,6 @@ xAODTestWriteSymlinks::xAODTestWriteSymlinks (const std::string &name,
                                               ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator)
 {
-  declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("S2Key", m_s2Key = "S2");
   declareProperty ("S1Key", m_s1Key = "S2");
   declareProperty ("AliasKey", m_aliasKey = "S2alias");
@@ -42,7 +40,6 @@ StatusCode xAODTestWriteSymlinks::initialize()
 {
   m_s1Key = m_s2Key.key();
 
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_s2Key.initialize() );
   ATH_CHECK( m_s1Key.initialize() );
   ATH_CHECK( m_aliasKey.initialize() );
@@ -55,9 +52,8 @@ StatusCode xAODTestWriteSymlinks::initialize()
  */
 StatusCode xAODTestWriteSymlinks::execute (const EventContext& ctx) const
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
   SG::WriteHandle<DMTest::S2> s2 (m_s2Key, ctx);
-  unsigned int eventNumber = eventInfo->event_ID()->event_number();
+  unsigned int eventNumber = ctx.eventID().event_number();
   ATH_CHECK( s2.record (std::make_unique<DMTest::S2> (eventNumber*100)) );
   ATH_CHECK( s2.alias (m_aliasKey) );
   ATH_CHECK( s2.symLink (m_s1Key) );

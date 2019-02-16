@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,8 +17,6 @@
 #define DATAMODELTESTDATAWRITE_XAODTESTWRITEHVEC_H
 
 
-//#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
 #include "DataModelTestDataWrite/HVec.h"
 #include "DataModelTestDataWrite/HView.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -63,8 +61,6 @@ public:
 
 
 private:
-  //SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::WriteHandleKey<DMTest::HVec> m_hvecKey;
   SG::WriteHandleKey<DMTest::HView> m_hviewKey;
 };

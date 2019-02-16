@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #define DATAMODELTESTDATAWRITE_XAODTESTWRITE_H
 
 
-#include "EventInfo/EventInfo.h"
 #include "DataModelTestDataCommon/CVec.h"
 #include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataWrite/GVec.h"
@@ -67,7 +66,6 @@ private:
   StatusCode write_cvec_with_data (unsigned int count,
                                    const EventContext& ctx) const;
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
   SG::WriteHandleKey<DMTest::CVec> m_ctrigKey;
   SG::WriteHandleKey<DMTest::GVec> m_gvecKey;
