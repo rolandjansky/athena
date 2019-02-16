@@ -468,7 +468,7 @@ namespace InDetDD {
     bool TRT_DetectorManager::setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
                                                                  const Amg::Transform3D & delta,
                                                                  FrameType frame,
-                                                                 GeoVAlignmentStore* /*alignStore*/) const
+                                                                 GeoVAlignmentStore* alignStore) const
     {
     //---------------------
     // For Local:
@@ -532,7 +532,7 @@ namespace InDetDD {
             if (!child) {
                 msg(MSG::ERROR) << "global frame specified, but child == 0" << endmsg;
             } else {
-                const GeoTrf::Transform3D & childXF = child->getDefAbsoluteTransform();
+                const GeoTrf::Transform3D & childXF = child->getDefAbsoluteTransform(alignStore);
                 extXF->alignableTransform()->setDelta(childXF.inverse() * delta * childXF);
             }
 
@@ -547,8 +547,8 @@ namespace InDetDD {
               ATH_MSG_ERROR("Child can't be null if frame is 'other'");
               return false;
             } else {
-	            const GeoTrf::Transform3D & xfChild = child->getDefAbsoluteTransform();
-	            const GeoTrf::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
+	            const GeoTrf::Transform3D & xfChild = child->getDefAbsoluteTransform(alignStore);
+	            const GeoTrf::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform(alignStore);
 	            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * delta * xfFrame.inverse() * xfChild);
             }
         }

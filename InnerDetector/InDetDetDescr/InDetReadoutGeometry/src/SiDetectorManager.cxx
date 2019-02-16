@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -85,7 +85,7 @@ namespace InDetDD
         const GeoVFullPhysVol* child = extXF->child();
         if (child && extXF->alignableTransform()) {
             // the definitiv absolut transform is in CLHEP -> do the calculation in CLHEP
-            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform();
+            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform(alignStore);
             // calucluate the corrected delta according to the formula above
             GeoTrf::Transform3D correctedDelta = transform.inverse()*localToGlobalXF      // (A*B*C).inverse() * T
 	                                         * delta                                  // l
@@ -122,7 +122,7 @@ namespace InDetDD
         const GeoVFullPhysVol * child = extXF->child();
         if (child && extXF->alignableTransform()) {
             // do the calculation in CLHEP  
-            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform();
+            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform(alignStore);
             extXF->alignableTransform()->setDelta(transform.inverse() * delta * transform, alignStore);
             return true;
         } else {
