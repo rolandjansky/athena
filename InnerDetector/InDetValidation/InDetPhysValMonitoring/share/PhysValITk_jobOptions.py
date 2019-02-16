@@ -46,34 +46,37 @@ FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_
 runDAOD = False # these are DAOD-s
 
 # This codeblock is for handling inputFileName passed as environment variable
-try:
-   FNAME = os.environ["inputESDFile"]
-except KeyError:
-   try:
-      FNAME = os.environ["inputDAOD_IDTRKVALIDFile"]
-      runDAOD = True # these are DAOD-s
-   except KeyError:
-      try:
-         FNAME = os.environ["inputAODFile"]
-      except KeyError:
-         print "No input file specified in environment - Using the default input file mentioned in the script"
+# try:
+#   FNAME = os.environ["inputESDFile"]
+# except KeyError:
+#   try:
+#       FNAME = os.environ["inputDAOD_IDTRKVALIDFile"]
+#       runDAOD = True # these are DAOD-s
+#   except KeyError:
+#       try:
+#          FNAME = os.environ["inputAODFile"]
+#       except KeyError:
+#          print "No input file specified in environment - Using the default input file mentioned in the script"
 
-if isinstance(FNAME,str):
-	FNAME = FNAME.split(",")
-#-----------------------------------------------------------------------
-
-if "DAOD_IDTRKVALID" in FNAME[0]:
-      print "Set up for DAOD processing"
-      runDAOD=True
+# if isinstance(FNAME,str):
+# 	FNAME = FNAME.split(",")
 #-----------------------------------------------------------------------
 
 # make AthenaCommonFlags aware of which file we are using
 # AthenaCommonFlags are used run-time configuration (InputFilePeeker)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-svcMgr.EventSelector.InputCollections = FNAME
-athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
+# svcMgr.EventSelector.InputCollections = FNAME
+# athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
+if len(athenaCommonFlags.FilesInput.get_Value()) == 0:
+   athenaCommonFlags.FilesInput = FNAME
 #-----------------------------------------------------------------------
+
+if "DAOD_IDTRKVALID" in svcMgr.EventSelector.InputCollections[0]:
+      print "Set up for DAOD processing"
+      runDAOD=True
+#-----------------------------------------------------------------------
+
 # pre- and post- includes files needed to read input files
 from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetGeo = 'atlas'
