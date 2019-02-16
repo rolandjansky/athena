@@ -86,12 +86,17 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   ATH_MSG_DEBUG("Reading new event for event context " << *eventContext);
 
-  eformat::write::FullEventFragment l1r;
+  // Find the cache corresponding to the current slot
+  EventCache* cache = m_eventsCache.get(*eventContext);
+
+  // Free the memory allocated to the previous event processed in the current slot
+  cache->releaseEvent();
+
   using DCStatus = hltinterface::DataCollector::Status;
   DCStatus status = DCStatus::NO_EVENT;
   do {
     try {
-      status = hltinterface::DataCollector::instance()->getNext(l1r);
+      status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
       if (status == DCStatus::NO_EVENT)
         ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
     }
@@ -117,32 +122,13 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   }
   ATH_MSG_VERBOSE("DataCollector::getNext returned Status::OK");
 
-  // convert write::FullEventFragment to read::FullEventFragment (RawEvent)
-  const eformat::write::node_t* top = l1r.bind();
-  const size_t l1rFragmentSize = l1r.size_word();
-  uint32_t* buf = new uint32_t[l1rFragmentSize];
-  auto copiedSize = eformat::write::copy(*top,buf,l1rFragmentSize);
-  if(copiedSize!=l1rFragmentSize){
-    ATH_MSG_ERROR("Event serialization failed");
-    return nullptr;
-  }
+  // Create a cached FullEventFragment object from the cached raw data
+  cache->fullEventFragment.reset(new RawEvent(cache->rawData.get()));
 
-  // newRawEvent points to memory allocated by buf
-  RawEvent* newRawEvent = new RawEvent(buf);
-
-  // find the cache corresponding to the current slot
-  EventCache* cache = m_eventsCache.get(*eventContext);
-
-  // free the memory allocated to the previous event processed in the current slot
-  // -- if we make sure ROBDataProviderSvc does this, then TrigByteStreamInputSvc won't need a cache
-  releaseEvent(cache);
-
-  // put the new raw event into the cache
-  cache->rawEvent = newRawEvent;
-
-  m_robDataProviderSvc->setNextEvent(*eventContext,newRawEvent);
+  // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
+  m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return newRawEvent;
+  return cache->fullEventFragment.get();
 }
 
 // =============================================================================
@@ -162,22 +148,16 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 }
 
 // =============================================================================
-void TrigByteStreamInputSvc::releaseEvent(EventCache* cache)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  if (cache->rawEvent) {
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = cache->rawEvent->start();
-    delete[] fragment;
-    fragment = nullptr;
-    delete cache->rawEvent;
-    cache->rawEvent = nullptr;
-    // cache->eventStatus = 0;
+void TrigByteStreamInputSvc::EventCache::releaseEvent() {
+  if (this->rawData) {
+    delete[] this->rawData.release();
   }
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  if (this->fullEventFragment) {
+    delete this->fullEventFragment.release();
+  }
 }
 
 // =============================================================================
 TrigByteStreamInputSvc::EventCache::~EventCache() {
-  delete rawEvent;
-  rawEvent = 0;
+  releaseEvent();
 }
