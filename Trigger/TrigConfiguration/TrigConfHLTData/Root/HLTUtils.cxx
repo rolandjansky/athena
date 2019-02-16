@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
-#include <mutex>
 
 #include "TrigConfL1Data/HelperFunctions.h"
 
@@ -27,6 +26,10 @@
 using namespace TrigConf;
 using namespace std;
 
+std::mutex HLTUtils::s_mutex;
+
+std::string HLTUtils::s_newCategory("##NewCategory");
+
 //
 // \brief function used to generate uniqu  ID (integer) from string
 //        In fact uniqueness is not 100% guaranteed. Thread safe
@@ -39,8 +42,7 @@ namespace HashChecking {
   typedef std::map<std::string, HashMap> CategoryMap;
   static CategoryMap AllHashesByCategory;
   void checkGeneratedHash (HLTHash hash,  const std::string& s,   const std::string& category) {
-    static std::mutex s_mutex;
-    std::lock_guard<std::mutex> lock(s_mutex);
+    std::lock_guard<std::mutex> lock(HLTUtils::s_mutex);
     HashMap& hashes = AllHashesByCategory[category];
     if ( hashes[hash] == "" )
       hashes[hash] = s;
@@ -72,7 +74,6 @@ HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category
 }
 
 const std::string HLTUtils::hash2string( HLTHash hash, const std::string& category ) {
-  static std::mutex s_mutex;
   std::lock_guard<std::mutex> lock(s_mutex);
   HashChecking::CategoryMap::const_iterator mapForCategoryIt = HashChecking::AllHashesByCategory.find(category);
   if ( mapForCategoryIt == HashChecking::AllHashesByCategory.end() ) {
@@ -84,6 +85,46 @@ const std::string HLTUtils::hash2string( HLTHash hash, const std::string& catego
   return hashMapIt->second;
 }
 
+void HLTUtils::hashes2file( const std::string& fileName) {
+  std::lock_guard<std::mutex> lock(s_mutex);
+  std::ofstream fout(fileName);
+  for (const auto& categoryMapElement : HashChecking::AllHashesByCategory) {
+    const std::string& categoryName = categoryMapElement.first;
+    const HashChecking::HashMap& categoryMap = categoryMapElement.second;
+    fout << s_newCategory << std::endl << categoryName << std::endl;
+    for (const auto& mapElement : categoryMap) {
+      const HLTHash hash = mapElement.first;
+      std::string name = mapElement.second;
+      name.erase(std::remove(name.begin(), name.end(), '\n'), name.end());
+      fout << hash << std::endl << name << std::endl;
+    }
+  }
+}
+
+void HLTUtils::file2hashes( const std::string& fileName) {
+  std::ifstream fin(fileName);
+  if (!fin.is_open()) {
+    return;
+  }
+  std::string line;
+  std::string category;
+  // Note: this method is a to aid with development/debugging. 
+  // It won't be used in production code, hence it is light on error checking.
+  while(std::getline(fin, line)) {
+    if (line == s_newCategory) {
+      std::getline(fin, category);
+      continue;
+    }
+    HLTHash hash = std::stoul(line);
+    std::string name;
+    std::getline(fin, category);
+    HLTHash check = string2hash(name, category);
+    if (check != hash) {
+      std::cerr << "Inconsistency in file2hashes(" << fileName << ") function,"
+                   " item " << name << " has hash " << hash << " not " << check << std::endl;
+    }
+  }
+}
 
 
 /*****

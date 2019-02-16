@@ -1,15 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for medium++ menu
-
-import cppyy
-try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except :
-    pass
-
-from ROOT import egammaPID
 
 # Import a needed helper
 from PATCore.HelperUtils import *

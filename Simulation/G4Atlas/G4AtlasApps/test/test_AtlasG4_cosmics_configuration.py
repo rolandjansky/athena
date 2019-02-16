@@ -110,10 +110,10 @@ class TestAtlasG4Cosmics(unittest.TestCase):
 
 
     def test___CosmicGenerator_is_at_start_of_AthAlgSeq(self):
-        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[1] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now.
+        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[1] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now.
         expected_last_ath_alg_sequence_entry = "CosmicGenerator/CosmicGenerator"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
@@ -195,10 +195,10 @@ class TestAtlasG4Cosmics(unittest.TestCase):
 
 
     def test___BeamEffectsAlg_is_before_G4AtlasAlg_in_AthAlgSeq(self):
-        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[3] # Position 1 is the Sim Timer Alg, xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
+        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[3] # Position 1 is the Sim Timer Alg, xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
@@ -225,10 +225,10 @@ class TestAtlasG4Cosmics(unittest.TestCase):
 
 
     def test___G4AtlasAlg_is_at_end_of_AthAlgSeq(self):
-        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[-1]
+        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[-1]
         expected_last_ath_alg_sequence_entry = "G4AtlasAlg/G4AtlasAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)

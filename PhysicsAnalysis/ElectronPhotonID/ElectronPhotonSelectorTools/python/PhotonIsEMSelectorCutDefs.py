@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the PhotonIsEMSelectorCutDefs
 # This one is used for stadard photons cuts menus
@@ -13,9 +13,6 @@ from ROOT import egammaPID
 
 # Import a needed helper
 from PATCore.HelperUtils import *
-
-# Define GeV
-GeV = 1000.0
 
 ## obsolete the old cut-def should be updated with the new selectors.
 def PhotonIsEMSelectorConfig2011(theTool) :

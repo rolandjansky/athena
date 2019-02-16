@@ -50,37 +50,37 @@ namespace InDet {
   
     virtual StatusCode initialize();
   
-    virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack );
+    virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const;
   
     /** use the passed identifier to recreate the detector element and PRD links on the passed RIO_OnTrack
         @param[in] rioOnTrack The RIO_OnTrack we're interested in
         @return  std::pair of the pointers to the two corresponding objects*/
     virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
-      getLinks( const Trk::RIO_OnTrack& rioOnTrack    );
+      getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const;
       
     /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
-    virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot);
+    virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const;
   
     /** @copydoc Trk::ITrkEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
-    virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT );
+    virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const;
   
     /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const;
 
     /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const;
 
   
   private:
 
     /** use the passed identifier to recreate the pixel cluster link on the passed RIO_OnTrack*/
-    virtual const Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash);
+    virtual const Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash) const;
   
     /** use the passed identifier to recreate the SCT cluster link on the passed RIO_OnTrack*/
-    virtual const Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+    virtual const Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash ) const;
   
     /** use the passed identifier to recreate the TRT Drift circle link on the passed RIO_OnTrack*/
-    virtual const Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash );
+    virtual const Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash ) const;
 
     /** use the passed IdentifierHash to get SiDetectorElement*/
     const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;

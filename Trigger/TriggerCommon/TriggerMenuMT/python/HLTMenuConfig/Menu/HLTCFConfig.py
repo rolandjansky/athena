@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
 import copy
@@ -19,7 +20,7 @@ def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
-    summary.InputDecision = "L1DecoderSummary"  
+    summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary
 
@@ -295,7 +296,7 @@ def decisionTree_From_Chains(HLTNode, chains):
         #end of loop over chains for this step, now implement CF:
     
         log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)
-        
+
         #first make the filter step
         stepFilter = createStepFilterNode(stepCF_name, CFseq_list, dump=False)
         HLTNode += stepFilter
@@ -333,7 +334,8 @@ def decisionTree_From_Chains(HLTNode, chains):
 
 def generateDecisionTree(HLTNode, chains):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
-
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
     from collections import defaultdict
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
 
@@ -352,6 +354,8 @@ def generateDecisionTree(HLTNode, chains):
     for nstep in chainStepsMatrix:
         CFsequences = []
         stepDecisions = []
+        stepAccs = []
+        stepHypos = []
 
         for chainName in chainStepsMatrix[nstep]:
             chainsInCell = chainStepsMatrix[nstep][chainName]
@@ -359,6 +363,25 @@ def generateDecisionTree(HLTNode, chains):
             if not chainsInCell:
                 continue
 
+
+            stepCategoryAcc = ComponentAccumulator()            
+
+            stepHypo = None
+
+            for chain in chainsInCell:
+                for seq in chain.steps[nstep].sequences:
+                    if seq.ca:
+                        stepCategoryAcc.merge( seq.ca )
+
+                    alg = seq.hypo.Alg
+                    if stepHypo is None:
+                        stepHypo = alg
+                        stepHypos.append( alg )
+                    stepCategoryAcc.addEventAlgo( alg )
+
+            stepAccs.append( stepCategoryAcc )
+                
+            stepCategoryAcc.printConfig( True, True )
             firstChain = chainsInCell[0]
 
             if nstep == 0:
@@ -375,12 +398,14 @@ def generateDecisionTree(HLTNode, chains):
             sfilter = buildFilter(filterName,  filter_input)
 
             chainStep = firstChain.steps[nstep]
+
             CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sfilter )
             CFsequences.append( CFseq )
 
+
             for sequence in chainStep.sequences:
                 stepDecisions += sequence.outputs
-
+        
             for chain in chainsInCell:
                 sfilter.setChains(chain.name)
 
@@ -389,6 +414,12 @@ def generateDecisionTree(HLTNode, chains):
         stepName = 'Step{}'.format(nstep)
         stepFilter = createStepFilterNode(stepName, CFsequences, dump=False)
         stepCF = createStepRecoNode('{}_{}'.format(HLTNode.name(), stepName), CFsequences, dump=False)
+
+        from AthenaCommon.CFElements import findOwningSequence
+        for oneAcc, cfseq, hypo in zip( stepAccs, CFsequences, stepHypos):
+            owning = findOwningSequence( stepCF, hypo.getName() )
+            acc.addSequence( owning )
+            acc.merge( oneAcc, sequenceName = owning.getName() )
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
 
         HLTNode += stepFilter
@@ -399,8 +430,8 @@ def generateDecisionTree(HLTNode, chains):
         stepCF_ControlFlow_to_dot(stepCF)
 
     all_DataFlow_to_dot(HLTNode.name(), allSequences)
-
     matrixDisplay( allSequences )
+    return acc
 
 
 def findFilter(filter_name, cfseqList):
@@ -432,7 +463,7 @@ def buildFilter(filter_name,  filter_input):
     sfilter = RoRSequenceFilterNode(name=filter_name)
     for i in filter_input: sfilter.addInput(i)
     for i in filter_input: sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
-        
+
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())
     log.debug("Filter Done: %s", sfilter.Alg.name())

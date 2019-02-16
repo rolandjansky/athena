@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
@@ -8,10 +8,14 @@
 #include <atomic>
 
 #include "GaudiKernel/ToolHandle.h"
+
 #include "AthenaBaseComps/AthService.h"
+#include "AthContainers/ConstDataVector.h"
+#include "StoreGate/WriteHandle.h"
+
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "StoreGate/WriteHandle.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 #include "TrigCostDataStore.h"
@@ -47,6 +51,11 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   virtual StatusCode initialize() override;
 
   /**
+   * @brief Finalize, act on m_saveHashes.
+   */
+  virtual StatusCode finalize() override;
+
+  /**
    * @brief Implementation of ITrigCostMTSvc::startEvent.
    * @param[in] context The event context
    * @param[in] enableMonitoring Sets if the event should be monitored or not. Not monitoring will save CPU
@@ -71,9 +80,10 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   private: 
 
-  Gaudi::Property<bool>      m_monitorAll{this, "MonitorAll", true, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool>      m_printTimes{this, "PrintTimes", true, "Sends per-algorithm timing to MSG::INFO."};
-  Gaudi::Property<unsigned>  m_eventSlots{this, "EventSlots", 0, "Number of concurrent processing slots."};
+  Gaudi::Property<bool>      m_monitorAll{this, "MonitorAll", false, "Monitor every HLT event, e.g. for offline validation."};
+  Gaudi::Property<bool>      m_printTimes{this, "PrintTimes", false, "Sends per-algorithm timing to MSG::INFO."};
+  Gaudi::Property<bool>      m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
+  Gaudi::Property<unsigned>  m_eventSlots{this, "EventSlots", 0,     "Number of concurrent processing slots."};
 
   /**
    * @return If the event is flagged as being monitored. Allows for a quick return if not
@@ -88,12 +98,20 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    */
   StatusCode checkSlot(const EventContext& context) const;
 
+  /**
+   * @breif Internal function to return a RoI from an extended event context context
+   * @param[in] context The event context
+   * @return RoIId from the ATLAS extended event context. Or, AlgorithmIdentifier::s_noView = -1 for no RoIIdentifier
+   */
+  int32_t getROIID(const EventContext& context);
+
 
   std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
 
-  TrigCostDataStore<TrigTimeStamp> m_algStartTimes; //!< Thread-safe store of algorithm start times.
-  TrigCostDataStore<TrigTimeStamp> m_algStopTimes; //!< Thread-safe store of algorithm stop times.
+  TrigCostDataStore<TrigTimeStamp> m_algStartTime; //!< Thread-safe store of algorithm start times.
+  TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
   TrigCostDataStore<std::thread::id> m_algThreadID; //!< Thread-safe store of algorithm's thread ID hash.
+  TrigCostDataStore<int32_t> m_algROIID; //!< Thread-safe store of algorithm's ROI identifier.
 
 };
 

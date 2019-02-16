@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyComponentMgr.cxx 
@@ -34,15 +34,11 @@ SG_BASES1(PyObject, SG::NoBase);
 
 using namespace PyAthena;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 // Constructors
 ////////////////
 PyComponentMgr::PyComponentMgr( const std::string& name, 
 				ISvcLocator* pSvcLocator ) : 
-  AthService  ( name,     pSvcLocator ),
+  base_class  ( name,     pSvcLocator ),
   m_dict      ( nullptr ),
   m_components(   )
 {
@@ -171,31 +167,6 @@ PyComponentMgr::finalize()
   return StatusCode::SUCCESS;
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-PyComponentMgr::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( IPyComponentMgr::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IPyComponentMgr*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 PyObject*
 PyComponentMgr::pyObject( IPyComponent* cppComp )
@@ -251,15 +222,3 @@ PyComponentMgr::pyObject( IPyComponent* cppComp )
   Py_INCREF(o);
   return o;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

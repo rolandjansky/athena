@@ -12,7 +12,6 @@ def getCscOverlay(name="CscOverlay", **kwargs):
     digitizationFlags.rndmSeedList.addSeed("CscOverlay", 12261551, 245536301 )
     kwargs.setdefault("MCStore", overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
-    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
 
     from AthenaCommon import CfgMgr
     return CfgMgr.CscOverlay(name,**kwargs)

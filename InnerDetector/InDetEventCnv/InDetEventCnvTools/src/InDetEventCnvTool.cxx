@@ -116,7 +116,7 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
 }
 
 void 
-InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) {
+InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const {
   InDetConcreteType type=Unknown;
   if (0!=dynamic_cast<const SCT_ClusterOnTrack*>(&rioOnTrack) )     type = SCT;
   if (0!=dynamic_cast<const PixelClusterOnTrack*>(&rioOnTrack) )    type = Pixel;
@@ -131,7 +131,7 @@ InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) {
 }
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack    )
+InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
 {
   using namespace Trk;
   const TrkDetElementBase* detEl = 0;
@@ -162,7 +162,7 @@ InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack    )
   return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd);
 }
 
-void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
+void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
   InDet::PixelClusterOnTrack* pixel = dynamic_cast<InDet::PixelClusterOnTrack*>(RoT);
   if (pixel!=0) {
@@ -182,14 +182,14 @@ void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
   return;
 }
 
-void InDet::InDetEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
+void InDet::InDetEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
   std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *> pair = getLinks( *RoT );
   Trk::ITrkEventCnvTool::setRoT_Values( pair, RoT );
   return;
 }
 
 const Trk::TrkDetElementBase* 
-InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& idHash) {
+InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const {
 
   const Trk::TrkDetElementBase* detEl=0;
 
@@ -218,7 +218,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const Identif
 }
 
 const Trk::TrkDetElementBase* 
-InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) {
+InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) const {
  
   const Trk::TrkDetElementBase* detEl=0;
  
@@ -245,7 +245,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) {
 }
 
 const Trk::PrepRawData* 
-InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash ) {
+InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash ) const {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container
@@ -276,7 +276,7 @@ InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const Identif
 }
 
 const Trk::PrepRawData* 
-InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const IdentifierHash& idHash ) {
+InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const IdentifierHash& idHash ) const {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container
@@ -307,7 +307,7 @@ InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const Identifie
 }
 
 const Trk::PrepRawData* 
-InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash ) {
+InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash ) const {
   using namespace Trk;
   // need to retrieve pointers to collections
   // retrieve Pixel cluster container

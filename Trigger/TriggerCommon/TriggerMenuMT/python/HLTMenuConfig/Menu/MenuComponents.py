@@ -286,17 +286,18 @@ class WrappedList:
        
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
-        self.hypoToolConf = HypoToolConf( HypoToolGen )
+        self.hypoToolConf = HypoToolConf( HypoToolGen ) if HypoToolGen else None
         self.hypo         = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
         self.reuse = False # flag to draw dot diagrmas
+        self.ca = CA
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
@@ -413,6 +414,8 @@ class Chain:
                 sys.exit("ERROR, in chain configuration")
             nseq=0
             for seq in step.sequences:
+                if seq.ca != None: # The CA merging took care of everything
+                    continue
                 seq.hypoToolConf.setConf(signatures[nseq])
                 seq.hypoToolConf.setName(self.name)
                 seq.hypo.addHypoTool(seq.hypoToolConf)
@@ -475,7 +478,7 @@ class CFSequence():
         
     
     def __str__(self):
-        return "--- CFSequence %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
+        return "--- CFSequence ---\n + Filter: %s \n +  %s \n "%(\
             self.filter, self.step )
           
 
@@ -565,6 +568,9 @@ class InViewReco( ComponentAccumulator ):
         """Reconstruction alg to be run per view"""
         log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
         self.addEventAlgo( alg, self.viewsSeq.name() )
+
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
 
     def sequence( self ):
         return self.mainSeq

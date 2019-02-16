@@ -226,25 +226,25 @@ Trk::Intersection Trk::CylinderSurface::straightLineIntersection(const Amg::Vect
         point1    = invTrans*pos;
         direction = invTrans.linear()*dir;
     }
-    Amg::Vector3D point2 = point1 + dir;
     // the bounds radius
     double R = bounds().r();
     double t1 = 0.;
     double t2 = 0.;
     if (direction.x()){
       // get line and circle constants
-      double k = (direction.y())/(direction.x());
-      double d = (point2.x()*point1.y() - point1.x()*point2.y())/(point2.x()-point1.x());
+      double idirx = 1. / direction.x();
+      double k = direction.y() * idirx;
+      double d = point1.y() - point1.x()*k;
       // and solve the qaudratic equation
       Trk::RealQuadraticEquation pquad(1 + k*k, 2*k*d, d*d - R*R);
       if (pquad.solutions != Trk::none){
           // the solutions in the 3D frame of the cylinder
-          t1 = (pquad.first  - point1.x())/direction.x();
-          t2 = (pquad.second - point1.x())/direction.x();
+          t1 = (pquad.first  - point1.x()) * idirx;
+          t2 = (pquad.second - point1.x()) * idirx;
       } else  // bail out if no solution exists
          return Trk::Intersection(pos, 0., false);          
-    } else {
-        // x value ise th one of point1
+    } else if (direction.y()) {
+        // x value is the one of point1
         // x^2 + y^2 = R^2
         // y = sqrt(R^2-x^2)
         double x  = point1.x();
@@ -253,8 +253,12 @@ Trk::Intersection Trk::CylinderSurface::straightLineIntersection(const Amg::Vect
         if (r2mx2 < 0. ) return Trk::Intersection(pos, 0., false);
         double y  = sqrt(r2mx2);
         // assign parameters and solutions
-        t1 = y-point1.y();
-        t2 = -y-point1.y(); 
+        double idiry = 1. / direction.y();
+        t1 = (y-point1.y()) * idiry;
+        t2 = (-y-point1.y()) * idiry;
+    }
+    else {
+      return Trk::Intersection(pos, 0., false);          
     }
     Amg::Vector3D sol1raw(point1 + t1 * direction);
     Amg::Vector3D sol2raw(point1 + t2 * direction);

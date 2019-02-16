@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -16,19 +15,15 @@ StatusCode TrigCostDataStore<PAYLOAD>::initialize(size_t nSlots) {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename PAYLOAD>
-StatusCode TrigCostDataStore<PAYLOAD>::insert(const EventContext& context, const std::string& caller, MsgStream& msg, const PAYLOAD& payload) {
+StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload) {
+  MsgStream& msg = *(ai.m_msg);
+  const EventContext& context = *(ai.m_context);
   ATH_CHECK( checkSlot(context.slot(), msg) );
-  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
-  if (proxy == nullptr) return StatusCode::FAILURE;
-  const SG::View* view = dynamic_cast<const SG::View*>(proxy);
-  const int16_t viewID = (view == nullptr ? -1 : view->viewID());
-  const AlgorithmIdentifier ai(caller, proxy->name(), viewID);
-  // tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>&
-  auto& mapReference = m_store.at( context.slot() );
-  typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::accessor a;
-  if (mapReference.insert(a, std::move(ai))) {
-    // Obtains lock on the key value 'name' until 'a' goes out of scope or calls release()
-    a->second = payload;
+  tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
+  typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::accessor acc;
+  if (mapReference.insert(acc, ai)) {
+    // Obtains lock on the key value 'name' until 'acc' goes out of scope or calls release()
+    acc->second = payload;
   } else if (msg.level() <= MSG::WARNING) {
     msg << MSG::WARNING << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' already in the TrigCostDataStore" << endmsg; 
   }
@@ -38,37 +33,19 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const EventContext& context, const
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename PAYLOAD>
-StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const {
-  // Use proxy from given context to get the store (the name of the IProxyDict)
-  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
-  if (proxy == nullptr) return StatusCode::FAILURE;
-  return retrieve(context, proxy->name(), caller, msg, payload);
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-template<typename PAYLOAD>
-StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const {
-  // Bundle supplied store name & caller into an AlgorithmIdentifier, rather than using the store from the context
-  const AlgorithmIdentifier ai(caller, storeName);
-  return retrieve(context, ai, msg, payload);
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-template<typename PAYLOAD>
-StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const EventContext& context, const AlgorithmIdentifier& ai, MsgStream& msg, PAYLOAD& payload) const {
+StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const AlgorithmIdentifier& ai, PAYLOAD& payload) const {
+  MsgStream& msg = *(ai.m_msg);
+  const EventContext& context = *(ai.m_context);
   ATH_CHECK( checkSlot(context.slot(), msg) );
-  // const tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>&
-  const auto& mapReference = m_store.at( context.slot() );
-  typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor ca; // Does not lock other const_accessor
-  if (!mapReference.find(ca, ai)) {
+  const tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
+  typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor cacc; // Does not lock other const_accessor
+  if (!mapReference.find(cacc, ai)) {
     if (msg.level() <= MSG::DEBUG) {
       msg << MSG::DEBUG << "Cannot access key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' from the the TrigCostDataStore" << endmsg;
     }
     return StatusCode::FAILURE;
   }
-  payload = ca->second;
+  payload = cacc->second;
   return StatusCode::SUCCESS; 
 }
 
@@ -78,7 +55,7 @@ StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const EventContext& context, con
 template<typename PAYLOAD>
 StatusCode TrigCostDataStore<PAYLOAD>::clear(const EventContext& context, MsgStream& msg) {
   ATH_CHECK( checkSlot(context.slot(), msg) );
-  tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
+  tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
   mapReference.clear();
   if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Clearing slot " << context.slot() << endmsg;
   return StatusCode::SUCCESS;  
@@ -88,10 +65,10 @@ StatusCode TrigCostDataStore<PAYLOAD>::clear(const EventContext& context, MsgStr
 
 template<typename PAYLOAD>
 StatusCode TrigCostDataStore<PAYLOAD>::getIterators(const EventContext& context, MsgStream& msg, 
-  typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& begin, 
-  typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& end) {
+  typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& begin, 
+  typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& end) {
   ATH_CHECK( checkSlot(context.slot(), msg) );
-  const tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
+  const tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( context.slot() );
   begin = mapReference.begin();
   end = mapReference.end();
   return StatusCode::SUCCESS;
