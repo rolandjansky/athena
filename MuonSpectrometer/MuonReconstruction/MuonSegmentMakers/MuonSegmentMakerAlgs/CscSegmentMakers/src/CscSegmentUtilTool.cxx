@@ -271,25 +271,25 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin(); iseg!=eta_segs.end(); ++iseg ) {
     std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, false, eta_id, nGoodEta==2)); // build_segment does getRios
     if (pseg) {
-      psegs->push_back(std::move(pseg));
       ATH_MSG_DEBUG( " =============================> get2dMuonSegmentCombination::  MuonSegment time (eta) from build_segment is " << pseg->time() );
+      psegs->push_back(std::move(pseg));
       //      pseg->dump(cout);
     }
   }
-  pcol->addSegments(std::move(psegs));
   ATH_MSG_DEBUG("added "<<psegs->size()<<" eta segments");
+  pcol->addSegments(std::move(psegs));
    
   // Insert phi-segments.
   std::unique_ptr<MuonSegmentCombination::SegmentVec> phisegs(new MuonSegmentCombination::SegmentVec);
   for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin(); iseg!=phi_segs.end(); ++iseg ) {
     std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, true, phi_id, nGoodPhi==2));
     if (pseg) {
-      phisegs->push_back(std::move(pseg));
       ATH_MSG_DEBUG( " get2dMuonSegmentCombination::  MuonSegment time (phi) from build_segment is " << pseg->time() );
+      phisegs->push_back(std::move(pseg));
     }
   }
-  pcol->addSegments(std::move(phisegs));
   ATH_MSG_DEBUG("added "<<phisegs->size()<<" phi segments");
+  pcol->addSegments(std::move(phisegs));
 
   // Add  to SG container.
   ATH_MSG_DEBUG ( "Added " << eta_segs.size() << " r-segments and "
