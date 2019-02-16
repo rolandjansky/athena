@@ -28,10 +28,12 @@ def use_verbose_tracking():
 
 ## Do a recursive geometry test
 def do_recursive_geometry_test():
+    # For syntax and state requirements see:
+    # http://www-geant4.kek.jp/lxr/source//geometry/navigation/src/G4GeometryMessenger.cc
     from G4AtlasApps.SimFlags import simFlags
     simFlags.G4Commands += ["/geometry/test/recursion_start 0"]
     simFlags.G4Commands += ["/geometry/test/recursion_depth 2"]
-    simFlags.G4Commands += ["/geometry/test/recursive_test"]
+    simFlags.G4Commands += ["/geometry/test/run"]  # Needs to be run in G4State_Idle!! I.e. After geometry Initialized
 
 # Add a truth catch for LLP decay processes
 def add_LLP_truth_strategies():
@@ -51,3 +53,9 @@ def add_EnergyConservationTest():
     # Enable the energy conservation test action
     simFlags.OptionalUserActionList.addAction(
         'G4UA::EnergyConservationTestTool', ['Event', 'Tracking', 'Step'])
+
+## Range cuts for gamma processes (conv, phot, compt)
+## these are off by default in Geant4
+def turn_on_gamma_range_cuts():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Commands += ['/process/em/applyCuts true']
