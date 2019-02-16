@@ -64,7 +64,7 @@ StatusCode iParSim::TrackParticleSmearer::initialize()
 }
 
 /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle& isp) {
+ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine) {
 
   ATH_MSG_VERBOSE("::: TrackParticleSmearer ::: Processing " << isp << " particle");
 
@@ -100,8 +100,8 @@ ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle&
   const Amg::Vector3D Origin( m_ISPtoPerigeeTool->getPerigee() );
   xaodTP->setParametersOrigin(Origin[0], Origin[1], Origin[2]);
 
-  if ( !ics->smear(xaodTP) ) {
-    ATH_MSG_WARNING("Track Particle was not smeared! Deleting particle.");
+  if ( !ics->smear(xaodTP, randomEngine) ) {
+    ATH_MSG_WARNING("Track Particle was not smeared! Deleting particle. ICS pdg: " << ics->pdg());
     m_trackParticleContainer->pop_back();
   }
 

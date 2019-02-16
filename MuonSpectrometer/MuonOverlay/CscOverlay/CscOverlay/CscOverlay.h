@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Overlaying RDOs from two different events for InDet subdetectors.
@@ -93,7 +93,6 @@ private:
   SG::ReadHandleKey<CscRawDataContainer> m_inputDataRDOKey{this,"InputDataRDOKey","OriginalEvent_SG+CSCRDO",""};
   SG::ReadHandleKey<CscRawDataContainer> m_inputOverlayRDOKey{this,"InputOverlayRDOKey","BkgEvent_0_SG+CSCRDO",""};
   SG::WriteHandleKey<CscRawDataContainer> m_outputContainerKey{this,"OutputContainerKey","StoreGateSvc+CSCRDO",""};
-  std::string m_sdo;
 
 
   const CscIdHelper   * m_cscHelper;
@@ -102,7 +101,6 @@ private:
   ToolHandle<IMuonDigitizationTool> m_rdoTool2;
   ToolHandle<IMuonDigitizationTool> m_rdoTool4;
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-  bool m_copySDO;
 
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

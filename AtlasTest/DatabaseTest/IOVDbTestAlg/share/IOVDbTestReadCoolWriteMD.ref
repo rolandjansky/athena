@@ -1,14 +1,14 @@
-Wed Dec  6 19:41:53 CET 2017
+Sun Feb 10 01:36:05 CET 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/b8b99ab992] -- built on [2017-12-06T1522]
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.22/2840e19] -- built on [2019-02-07T2103]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "IOVDbTestAlg/IOVDbTestAlgReadCoolWriteMD.py"
-Py:ConfigurableDb    INFO Read module info for 5437 configurables from 59 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5454 configurables from 43 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.0
+EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 ['EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*']
 ParameterDbFiller.genDb:  Removed db SimParams.db
@@ -26,11 +26,12 @@ ParameterDbFiller.dumpDb:  Dumping folder /Digitization/Parameters
 ParameterDbFiller.dumpDb:  number of IOV payloads 1
 ParameterDbFiller.dumpDb:  Payload 0 since [r,l]: [ 0 , 0 ] until [r,l]: [ 99999 , 0 ] payload [k_d_b (String4k) : v_d_b], [k_d_c (String4k) : v_d_c1 v_d_c1 v_d_c1], [k_d_a (String4k) : v_d_a] chan 0
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus020.cern.ch on Wed Dec  6 19:42:04 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
+                                          running on lxplus054.cern.ch on Sun Feb 10 01:36:27 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -38,29 +39,30 @@ ApplicationMgr                   INFO Updating Gaudi::PluginService::SetDebug(le
 StatusCodeSvc                    INFO initialize
 AthDictLoaderSvc                 INFO in initialize...
 AthDictLoaderSvc                 INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2398 CLIDRegistry entries for module ALL
-ChronoStatSvc                    INFO  Number of skipped events for MemStat-1
+ClassIDSvc                       INFO  getRegistryEntries: read 3045 CLIDRegistry entries for module ALL
 CoreDumpSvc                      INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                      INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-IOVDbTestAlg                    DEBUG Property update for OutputLevel : new value = 2
-IOVDbTestAlg                    DEBUG in initialize()
+AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc                       INFO  getRegistryEntries: read 770 CLIDRegistry entries for module ALL
+xAODMaker::EventInfoCnvAlg       INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::EventInfoCnvAlg....   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
 MetaDataSvc                      INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc                          INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                          INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                          INFO Frontier compression level set to 5
-DBReplicaSvc                     INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                     INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-05T2302/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc                     INFO Total of 10 servers found for host lxplus020.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                     INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc                     INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-07T2139/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                     INFO Total of 10 servers found for host lxplus054.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                          INFO Successfully setup replica sorting algorithm
 PoolSvc                          INFO Setting up APR FileCatalog and Streams
 PoolSvc                          INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession                        INFO     Open     DbSession    
 Domain[ROOT_All]                 INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc                      INFO Found MetaDataTools = PublicToolHandleArray([])
 IOVDbSvc                         INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc                         INFO Only 5 POOL conditions files will be open at once
-IOVDbSvc                         INFO Read from meta data only for folder /TagInfo
+IOVDbFolder                      INFO Read from meta data only for folder /TagInfo
 IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAMDBCorrection will be written to file metadata
 IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAttrList will be written to file metadata
 IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAttrListColl will be written to file metadata
@@ -72,10 +74,8 @@ IOVDbSvc                         INFO Initialised with 3 connections and 8 folde
 IOVDbSvc                         INFO Service IOVDbSvc initialised successfully
 IOVDbSvc                         INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=mytest.db;dbname=TESTCOOL
-ClassIDSvc           INFO  getRegistryEntries: read 2035 CLIDRegistry entries for module ALL
 IOVSvc                           INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool                       INFO IOVRanges will be checked at every Event
-ClassIDSvc           INFO  getRegistryEntries: read 340 CLIDRegistry entries for module ALL
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=SimParams.db;dbname=SIMPARAM
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=mytest.db;dbname=TESTCOOL
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=DigitParams.db;dbname=DIGPARAM
@@ -86,48 +86,46 @@ IOVDbSvc                         INFO Added taginfo remove for /IOVDbTest/IOVDbT
 IOVDbSvc                         INFO Added taginfo remove for /IOVDbTest/IOVDbTestAttrListColl
 IOVDbSvc                         INFO Added taginfo remove for /IOVDbTest/IOVDbTestMDTEleMap
 IOVDbSvc                         INFO Added taginfo remove for /IOVDbTest/IOVDbTestMDTEleMapColl
+xAODMaker::EventInfoCnvAlg....WARNING Beam conditions service not available
+xAODMaker::EventInfoCnvAlg....WARNING Will not fill beam spot information into xAOD::EventInfo
+xAODMaker::EventInfoCnvAlg....   INFO Luminosity information not available
+xAODMaker::EventInfoCnvAlg....   INFO Will take information from the EventInfo object
+ClassIDSvc                       INFO  getRegistryEntries: read 2374 CLIDRegistry entries for module ALL
+IOVDbTestAlg                    DEBUG Property update for OutputLevel : new value = 2
+IOVDbTestAlg                    DEBUG in initialize()
 IOVDbTestAlg                    DEBUG input handles: 0
 IOVDbTestAlg                    DEBUG output handles: 0
 IOVDbTestAlg                    DEBUG Data Deps for IOVDbTestAlg
 DecisionSvc                      INFO Inserting stream: Stream1 with no Algs
 OutputStreamSequencerSvc         INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 386 CLIDRegistry entries for module ALL
-Stream1.Stream1Tool              INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
-Stream1.Stream1Tool              INFO streamProperty ProcessingTag = Stream1
+Stream1.Stream1Tool              INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1_MakeEventSt...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1                          INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1                          INFO Data output: SimpleEventPoolFile.root
 Stream1                          INFO I/O reinitialization...
 HistogramPersistencySvc       WARNING Histograms saving not required.
 EventSelector                    INFO  Enter McEventSelector Initialization 
-AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+AthenaEventLoopMgr               INFO Setup EventSelector service EventSelector
 ApplicationMgr                   INFO Application Manager Initialized successfully
 ApplicationMgr                   INFO Application Manager Started successfully
 EventPersistencySvc              INFO Added successfully Conversion service:McCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 1    <<<===
 EventPersistencySvc              INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistencySvc              INFO Added successfully Conversion service:TagInfoMgr
+ClassIDSvc                       INFO  getRegistryEntries: read 445 CLIDRegistry entries for module ALL
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=DigitParams.db;dbname=DIGPARAM
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=DigitParams.db;dbname=DIGPARAM
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=mytest.db;dbname=TESTCOOL
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=mytest.db;dbname=TESTCOOL
-DbSession                        INFO     Open     DbSession    
-Domain[ROOT_All]                 INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                 INFO ->  Access   DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
+Domain[ROOT_All]                 INFO ->  Access   DbDatabase   READ      [ROOT_All] A300FBEC-B338-7547-8B03-B1E50FABF18C
 Domain[ROOT_All]                 INFO                           SimplePoolFile.root
-RootDatabase.open                INFO SimplePoolFile.root File version:60806
-Domain[ROOT_All]                 INFO ->  Access   DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
-Domain[ROOT_All]                 INFO                           SimplePoolFile.root
-RootDatabase.open                INFO SimplePoolFile.root File version:60806
+RootDatabase.open                INFO SimplePoolFile.root File version:61404
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=SimParams.db;dbname=SIMPARAM
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=SimParams.db;dbname=SIMPARAM
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,1,1:0]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	1	1
 IOVDbTestAlg                     INFO in printCondObjects()
-ClassIDSvc           INFO  getRegistryEntries: read 38 CLIDRegistry entries for module ALL
 IOVDbTestAlg                     INFO Retrieved IOVDbTestMDTEleMap 
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  45
 IOVDbTestAlg                     INFO Retrieved /IOVDbTest/IOVDbTestAMDBCorrection
@@ -168,18 +166,14 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
 DbSession                        INFO     Open     DbSession    
 Domain[ROOT_All]                 INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]                 INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 3BE646A4-58CA-B84D-8F6F-E7F2B7E6B690
+Domain[ROOT_All]                 INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 994C798E-0E35-074A-A721-065A9D021A40
 Domain[ROOT_All]                 INFO                           SimpleEventPoolFile.root
-RootDatabase.open                INFO SimpleEventPoolFile.root File version:60806
+RootDatabase.open                INFO SimpleEventPoolFile.root File version:61404
+ClassIDSvc                       INFO  getRegistryEntries: read 33 CLIDRegistry entries for module ALL
 StorageSvc                       INFO Building shape according to reflection information using shape ID for:
 StorageSvc                       INFO EventInfo_p4 [C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]
-ClassIDSvc           INFO  getRegistryEntries: read 38 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
-SimplePoolFile.root              INFO Database being retired...
-Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
-Domain[ROOT_All]                 INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,2,2:5]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	1	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -221,9 +215,9 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+ClassIDSvc                       INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,3,3:10]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	1	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -265,9 +259,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,4,4:15]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	1	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -309,9 +302,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,5,5:20]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	1	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -353,13 +345,12 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
-IOVDbSvc                         INFO Increase cache length (step 1) for folder /IOVDbTest/IOVDbTestAttrListColl to 8589934590 at validityKey 8589934593
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 2    <<<===
+IOVDbFolder                      INFO Increase cache length (step 1) for folder /IOVDbTest/IOVDbTestAttrListColl to 8589934590 at validityKey 8589934593
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=mytest.db;dbname=TESTCOOL
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=mytest.db;dbname=TESTCOOL
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #2 5 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #2 5 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,1,1:25]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	2	1
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -401,9 +392,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #2 6 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #2 6 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #2 6 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #2 6 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,2,2:30]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	2	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -445,14 +435,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #2 7 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #2 7 events processed so far  <<<===
-DbSession                        INFO     Open     DbSession    
-Domain[ROOT_All]                 INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                 INFO ->  Access   DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
-Domain[ROOT_All]                 INFO                           SimplePoolFile.root
-RootDatabase.open                INFO SimplePoolFile.root File version:60806
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #2 7 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #2 7 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,3,3:35]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	2	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -494,12 +478,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #2 8 events processed so far  <<<===
-SimplePoolFile.root              INFO Database being retired...
-Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
-Domain[ROOT_All]                 INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #2 8 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #2 8 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #2 8 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,4,4:40]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	2	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -541,9 +521,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #2 9 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #2 9 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #2 9 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #2 9 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,5,5:45]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	2	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -585,10 +564,9 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #2 10 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start of run 3    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #3 10 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #2 10 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 3    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #3 10 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,1,1:50]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	3	1
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -630,9 +608,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #3 11 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #3 11 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #3 11 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #3 11 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,2,2:55]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	3	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -674,9 +651,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #3 12 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #3 12 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #3 12 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #3 12 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,3,3:60]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	3	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -718,9 +694,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #3 13 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #3 13 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #3 13 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #3 13 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,4,4:65]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	3	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -762,9 +737,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #3 14 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #3 14 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #3 14 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #3 14 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,5,5:70]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	3	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -806,13 +780,12 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #3 15 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start of run 4    <<<===
-IOVDbSvc                         INFO Increase cache length (step 2) for folder /IOVDbTest/IOVDbTestAttrListColl to 17179869180 at validityKey 17179869185
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #3 15 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 4    <<<===
+IOVDbFolder                      INFO Increase cache length (step 2) for folder /IOVDbTest/IOVDbTestAttrListColl to 17179869180 at validityKey 17179869185
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=mytest.db;dbname=TESTCOOL
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=mytest.db;dbname=TESTCOOL
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #4 15 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #4 15 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,1,1:75]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	4	1
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -856,9 +829,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #4 16 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #4 16 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #4 16 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #4 16 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,2,2:80]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	4	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -902,9 +874,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #4 17 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #4 17 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #4 17 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #4 17 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,3,3:85]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	4	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -948,9 +919,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #4 18 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #4 18 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #4 18 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #4 18 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,4,4:90]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	4	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -994,9 +964,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #4 19 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #4 19 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #4 19 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #4 19 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,5,5:95]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	4	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1040,10 +1009,9 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #4 20 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start of run 5    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #5 20 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #4 20 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 5    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #5 20 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,1,1:100]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	5	1
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1089,9 +1057,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #5 21 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #5 21 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #5 21 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #5 21 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,2,2:105]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	5	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1137,9 +1104,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #5 22 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #5 22 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #5 22 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #5 22 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,3,3:110]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	5	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1185,9 +1151,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #5 23 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #5 23 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #5 23 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #5 23 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,4,4:115]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	5	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1233,9 +1198,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #5 24 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #5 24 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #5 24 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #5 24 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,5,5:120]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	5	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1281,10 +1245,9 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #5 25 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start of run 6    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #6 25 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #5 25 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 6    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #6 25 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [6,1,1:125]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	6	1
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1330,9 +1293,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #6 26 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #6 26 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #6 26 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #6 26 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [6,2,2:130]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	6	2
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1378,9 +1340,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #6 27 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #6 27 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #6 27 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #6 27 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [6,3,3:135]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	6	3
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1426,9 +1387,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #6 28 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #6 28 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #6 28 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #6 28 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [6,4,4:140]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	6	4
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1474,9 +1434,8 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #6 29 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #6 29 events processed so far  <<<===
-IOVDbTestAlg                    DEBUG  in execute()
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #6 29 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #6 29 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [6,5,5:145]
 IOVDbTestAlg                    DEBUG Calling printCondObjects 'online':False	6	5
 IOVDbTestAlg                     INFO in printCondObjects()
@@ -1522,33 +1481,34 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125 iov {[0,0] - [2147483647,4294967295]}
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128 iov {[0,0] - [2147483647,4294967295]}
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #6 30 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #6 30 events processed so far  <<<===
 StorageSvc                       INFO Building shape according to reflection information using shape ID for:
 StorageSvc                       INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 StorageSvc                       INFO Building shape according to reflection information using shape ID for:
 StorageSvc                       INFO IOVMetaDataContainer_p1 [6C2DE6DF-6D52-43F6-B435-9F29812F40C0]
-ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
+ClassIDSvc                       INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
 Stream1                          INFO Records written: 31
 SimplePoolFile.root              INFO Database being retired...
-Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
+Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A300FBEC-B338-7547-8B03-B1E50FABF18C
 Domain[ROOT_All]                 INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 SimpleEventPoolFile.root         INFO Database being retired...
-Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3BE646A4-58CA-B84D-8F6F-E7F2B7E6B690
+Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 994C798E-0E35-074A-A721-065A9D021A40
 Domain[ROOT_All]                 INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr                   INFO Application Manager Stopped successfully
 IncidentProcAlg1                 INFO Finalize
 IOVDbTestAlg                     INFO in finalize()
+IOVDbTestAlg                    DEBUG Calling destructor
 IncidentProcAlg2                 INFO Finalize
 EventSelector                    INFO finalize
 DecisionSvc                      INFO Finalized successfully.
-IOVDbSvc                         INFO Folder /Digitization/Parameters (AttrList) db-read 1/1 objs/chan/bytes 1/1/30 ((     0.00 ))s
-IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAMDBCorrection (PoolRef) db-read 1/2 objs/chan/bytes 2/1/436 ((     0.00 ))s
-IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAttrList (AttrList) db-read 1/1 objs/chan/bytes 1/1/20 ((     0.00 ))s
-IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestAttrListColl (AttrListColl) db-read 3/4 objs/chan/bytes 11/5/220 ((     0.01 ))s
-IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestMDTEleMap (PoolRef) db-read 1/1 objs/chan/bytes 1/1/208 ((     0.00 ))s
-IOVDbSvc                         INFO Folder /IOVDbTest/IOVDbTestMDTEleMapColl (PoolColl) db-read 1/1 objs/chan/bytes 20/20/3520 ((     0.00 ))s
-IOVDbSvc                         INFO Folder /Simulation/Parameters (AttrList) db-read 1/1 objs/chan/bytes 1/1/20 ((     0.00 ))s
-IOVDbSvc                         INFO Total payload read from COOL: 4454 bytes in ((      0.02 ))s
+IOVDbFolder                      INFO Folder /Digitization/Parameters (AttrList) db-read 1/1 objs/chan/bytes 1/1/60 ((     0.00 ))s
+IOVDbFolder                      INFO Folder /IOVDbTest/IOVDbTestAMDBCorrection (PoolRef) db-read 1/2 objs/chan/bytes 2/1/654 ((     0.00 ))s
+IOVDbFolder                      INFO Folder /IOVDbTest/IOVDbTestAttrList (AttrList) db-read 1/1 objs/chan/bytes 1/1/40 ((     0.00 ))s
+IOVDbFolder                      INFO Folder /IOVDbTest/IOVDbTestAttrListColl (AttrListColl) db-read 3/4 objs/chan/bytes 11/5/240 ((     0.01 ))s
+IOVDbFolder                      INFO Folder /IOVDbTest/IOVDbTestMDTEleMap (PoolRef) db-read 1/1 objs/chan/bytes 1/1/416 ((     0.00 ))s
+IOVDbFolder                      INFO Folder /IOVDbTest/IOVDbTestMDTEleMapColl (PoolRefColl) db-read 1/1 objs/chan/bytes 20/20/3696 ((     0.00 ))s
+IOVDbFolder                      INFO Folder /Simulation/Parameters (AttrList) db-read 1/1 objs/chan/bytes 1/1/40 ((     0.00 ))s
+IOVDbSvc                         INFO  bytes in ((      0.02 ))s
 IOVDbSvc                         INFO Connection sqlite://;schema=mytest.db;dbname=TESTCOOL : nConnect: 4 nFolders: 5 ReadTime: ((     0.02 ))s
 IOVDbSvc                         INFO Connection sqlite://;schema=SimParams.db;dbname=SIMPARAM : nConnect: 2 nFolders: 1 ReadTime: ((     0.00 ))s
 IOVDbSvc                         INFO Connection sqlite://;schema=DigitParams.db;dbname=DIGPARAM : nConnect: 2 nFolders: 1 ReadTime: ((     0.00 ))s
@@ -1557,13 +1517,13 @@ ToolSvc                          INFO Removing all tools created by ToolSvc
 *****Chrono*****                 INFO ****************************************************************************************************
 *****Chrono*****                 INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                 INFO ****************************************************************************************************
-fRep_ALL                         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=100
-commitOutput                     INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.323(+- 1.77)/    0/   10 [ms] #= 31
-cRepR_ALL                        INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.186(+- 1.35)/    0/   10 [ms] #=161
-cRep_ALL                         INFO Time User   : Tot=  100 [ms] Ave/Min/Max=    1(+-  6.4)/    0/   50 [ms] #=100
-cObjR_ALL                        INFO Time User   : Tot=  130 [ms] Ave/Min/Max= 5.65(+- 26.5)/    0/  130 [ms] #= 23
-cObj_ALL                         INFO Time User   : Tot=  150 [ms] Ave/Min/Max= 13.6(+- 43.1)/    0/  150 [ms] #= 11
-ChronoStatSvc                    INFO Time User   : Tot= 0.99  [s]                                             #=  1
+commitOutput                     INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 31
+fRep_ALL                         INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.286(+- 1.67)/    0/   10 [ms] #= 70
+cRepR_ALL                        INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.198(+- 1.39)/    0/   10 [ms] #=101
+cRep_ALL                         INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.714(+- 3.51)/    0/   20 [ms] #= 70
+cObj_ALL                         INFO Time User   : Tot=  230 [ms] Ave/Min/Max= 20.9(+- 66.1)/    0/  230 [ms] #= 11
+cObjR_ALL                        INFO Time User   : Tot=  230 [ms] Ave/Min/Max=   10(+- 46.9)/    0/  230 [ms] #= 23
+ChronoStatSvc                    INFO Time User   : Tot= 1.01  [s]                                             #=  1
 *****Chrono*****                 INFO ****************************************************************************************************
 ChronoStatSvc.finalize()         INFO  Service finalized successfully 
 ApplicationMgr                   INFO Application Manager Finalized successfully

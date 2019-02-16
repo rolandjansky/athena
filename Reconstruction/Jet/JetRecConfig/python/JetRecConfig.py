@@ -10,8 +10,13 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRecConfig')
 
-from ROOT import xAOD
-xAOD.Type.ObjectType
+import cppyy
+try:
+    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+except:
+    pass
+from ROOT import xAODType
+xAODType.ObjectType
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -222,7 +227,7 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags):
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
-    if constit.basetype not in [xAOD.Type.TruthParticle, xAOD.Type.TrackParticle]:
+    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle]:
         # Protection against reproduction of existing containers
         if constit.inputname in filecontents:
             jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))
@@ -316,9 +321,9 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags):
 #
 def getConstitPrereqs(basedef):
     prereqs = []
-    if basedef.basetype==xAOD.Type.TrackParticle:
+    if basedef.basetype==xAODType.TrackParticle:
         prereqs = ["input:JetSelectedTracks","input:JetTrackVtxAssoc"]
-    elif basedef.basetype==xAOD.Type.TruthParticle:
+    elif basedef.basetype==xAODType.TruthParticle:
         prereqs = ["input:JetInputTruthParticles:"+basedef.inputname[22:]]
     return prereqs
 

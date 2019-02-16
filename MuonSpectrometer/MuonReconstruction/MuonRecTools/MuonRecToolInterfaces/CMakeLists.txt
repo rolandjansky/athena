@@ -30,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTruthData
+			  Tracking/TrkEvent/TrkSegment
                           Tracking/TrkTools/TrkCompetingRIOsOnTrackTool
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkUtilityPackages/TrkDriftCircleMath )

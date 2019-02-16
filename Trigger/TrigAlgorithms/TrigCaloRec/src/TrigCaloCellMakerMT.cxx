@@ -332,7 +332,7 @@ StatusCode TrigCaloCellMakerMT::execute()
   for (; itrcont!=endcont; ++itrcont) {
     //    if (timerSvc()) m_timer[2+index]->start();
     ATH_MSG_DEBUG("Executing container tool " <<(*itrcont)->name());
-    if ( (*itrcont)->process(caloCellContainer.ptr()).isFailure() ) {
+    if ( (*itrcont)->process(caloCellContainer.ptr(), ctx).isFailure() ) {
       //msg() << MSG::ERROR << "Error executing tool " << m_containerToolNames[index] << endmsg;
       ATH_MSG_ERROR("Error executing container tool " <<(*itrcont)->name());
     } 

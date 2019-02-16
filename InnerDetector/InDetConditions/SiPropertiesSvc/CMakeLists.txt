@@ -37,5 +37,12 @@ atlas_add_component( SiPropertiesSvc
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
 
+# Run tests:
+atlas_add_test( TestSCTProperties
+                SCRIPT athena.py --threads=5 SiPropertiesSvc/testSCTProperties.py
+                PROPERTIES TIMEOUT 300
+                ENVIRONMENT THREADS=5 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )

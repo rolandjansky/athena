@@ -19,7 +19,6 @@
 #define VP1FILEUTILITIES_H
 
 //NB: There should never be any Qt (or Athena of course) includes in this file!!!
-
 #include <string>
 
 class VP1FileUtilities
@@ -54,10 +53,7 @@ public:
 		      int timeStamp,
               std::string textLabel = "");
 
-  //
-
   // **** Check if file exists ****
-
   static bool fileExistsAndReadable(const std::string&);
 
 private:

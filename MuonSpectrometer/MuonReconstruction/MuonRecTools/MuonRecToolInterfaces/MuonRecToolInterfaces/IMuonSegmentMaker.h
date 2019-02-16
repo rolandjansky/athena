@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONSEGMENTMAKER_H
@@ -8,6 +8,7 @@
 #include <vector>
 #include "GaudiKernel/IAlgTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkSegment/SegmentCollection.h"
 
 static const InterfaceID IID_IMuonSegmentMaker
     ("Muon::IMuonSegmentMaker",1,0);
@@ -73,28 +74,28 @@ namespace Muon {
 
      /** @brief find segments starting from a list of Trk::RIO_OnTrack objects
        @param rios a vector of Trk::RIO_OnTrack objects
-       @return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
-               The ownership of the segments is passed to the client calling the tool.
+       @param segColl a Trk::SegmentCollection to store the segments
+       The ownership of the segments is passed to the SegmentCollection
      */
-     virtual std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios ) const =0;
+    virtual void find( const std::vector<const Trk::RIO_OnTrack*>& rios, Trk::SegmentCollection* segColl=nullptr ) const =0;
  
     /** @brief find segments starting from two lists of Trk::RIO_OnTrack objects in two neighbouring chambers 
       @param rios1 a vector of Trk::RIO_OnTrack objects in the first chamber
       @param rios2 a vector of Trk::RIO_OnTrack objects in the second chamber
-      @return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
-              The ownership of the segments is passed to the client calling the tool.
+      Note: this interface is deprecated!
     */
-    virtual std::vector<const MuonSegment*>* find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
-                                                 const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const =0;
+    virtual void find( const std::vector<const Trk::RIO_OnTrack*>& rios1,
+		       const std::vector<const Trk::RIO_OnTrack*>& rios2 ) const =0;
 
     /** @brief find segments starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects 
 	@param mdts a vector of Muon::MdtDriftCircleOnTrack obejcts
 	@param clusters a vector of Muon::MuonClusterOnTrack obejcts
-	@return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
-	        The ownership of the segments is passed to the client calling the tool.
+	@param segColl a Trk::SegmentCollection to store the segments
+       The ownership of the segments is passed to the SegmentCollection  
     */
-    virtual std::vector<const MuonSegment*>* find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-						   const std::vector<const MuonClusterOnTrack*>&  clusters) const =0;
+    virtual void find( const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+		       const std::vector<const MuonClusterOnTrack*>&  clusters,
+		       Trk::SegmentCollection* segColl=nullptr) const =0;
 
 
     /** @brief seeded segment search starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects 
@@ -106,15 +107,14 @@ namespace Muon {
                                  @f$ \phi @f$-direction of the segment
         @param momentum for low momentum tracks the segment finders may increase the errors on the measurements
                         to allow for multiple scattering			       
-
-        @return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
-	        The ownership of the segments is passed to the client calling the tool.
+        @param segColl a Trk::SegmentCollection to store the segments
+        The ownership of the segments is passed to the SegmentCollection  
 	
     */
-    virtual std::vector<const MuonSegment*>* find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
-						   const std::vector<const MdtDriftCircleOnTrack*>& mdts,
-						   const std::vector<const MuonClusterOnTrack*>&  clusters, 
-						   bool updatePhi=false, double momentum = 1e9 ) const =0;
+    virtual void find( const Amg::Vector3D& gpos, const Amg::Vector3D& gdir,
+		       const std::vector<const MdtDriftCircleOnTrack*>& mdts,
+		       const std::vector<const MuonClusterOnTrack*>&  clusters, 
+		       bool updatePhi=false, Trk::SegmentCollection* segColl=nullptr, double momentum = 1e9, double sinAngleCut=0. ) const =0;
 
     /** @brief seeded segment search starting from a list of MdtDriftCircleOnTrack objects and a list of MuonClusterOnTrack objects
 	@param road an estimate of the position and direction of the muon in the chamber
@@ -122,16 +122,18 @@ namespace Muon {
 	@param clusters a vector of Muon::MuonClusterOnTrack obejcts
 	@param updatePhi a boolean to indicate whether the external prediction should be used to set the 
                                  @f$ \phi @f$-direction of the segment
+	@param segColl: if a Trk::SegmentCollection is passed (should be the case if segments will go into SG), store the segments in here directly
         @param momentum for low momentum tracks the segment finders may increase the errors on the measurements
-                        to allow for multiple scattering			       
+                        to allow for multiple scattering
 
-        @return a pointer to a vector of Muon::MuonSegment objects, zero if no segments found.
-	        The ownership of the segments is passed to the client calling the tool.
+        @param segColl a Trk::SegmentCollection to store the segments
+        The ownership of the segments is passed to the SegmentCollection  
     */
-    virtual std::vector<const MuonSegment*>* find( const Trk::TrackRoad& road,
-						   const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
-						   const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
-						   bool updatePhi=false, double momentum = 1e9 ) const =0;      
+    virtual void find( const Trk::TrackRoad& road,
+		       const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& mdts,
+		       const std::vector< std::vector< const MuonClusterOnTrack* > >&  clusters, 
+		       Trk::SegmentCollection* segColl,
+		       bool updatePhi=false, double momentum = 1e9 ) const =0;
   };
   
   inline const InterfaceID& IMuonSegmentMaker::interfaceID()

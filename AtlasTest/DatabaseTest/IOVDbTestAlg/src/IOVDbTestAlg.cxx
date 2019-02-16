@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IOVDbTestAlg.cxx,v 1.39 2009-03-30 12:10:15 ivukotic Exp $
@@ -17,15 +17,12 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/GaudiException.h" 
 #include "GaudiKernel/IToolSvc.h"
 
 // Event Incident 
 #include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 // AttributeList
 #include "CoralBase/Attribute.h"
@@ -42,7 +39,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 IOVDbTestAlg::IOVDbTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-        AthAlgorithm(name, pSvcLocator),
+        AthReentrantAlgorithm(name, pSvcLocator),
         m_writeCondObjs(false),
         m_regIOV(false),
         m_readWriteCool(false),
@@ -58,11 +55,8 @@ IOVDbTestAlg::IOVDbTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
         m_regTime(0),
         m_streamName("CondStream1"),
         m_tagID(""),
-        m_sgSvc(0),
-        m_detStore(0),
-        m_evt(0),
-        m_regSvc(0),
-        m_streamer(0)
+        m_regSvc("IOVRegistrationSvc", name),
+        m_streamer ("CondStream1")
 
 {
     declareProperty("WriteCondObjs",     m_writeCondObjs);
@@ -91,7 +85,7 @@ IOVDbTestAlg::~IOVDbTestAlg()
 { }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void IOVDbTestAlg::waitForSecond(){
+void IOVDbTestAlg::waitForSecond() const {
     struct mymsgbuf {
         long mtype;
         char mtext[80];
@@ -122,95 +116,43 @@ void IOVDbTestAlg::waitForSecond(){
 
 StatusCode IOVDbTestAlg::testCallBack( IOVSVC_CALLBACK_ARGS_P( i, keys) ) { 
   // print out the keys we were given (for info)
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "IOVDbTestAlg::testCallBack callback invoked for keys: i = " << i << " ";
+  msg() << MSG::INFO << "IOVDbTestAlg::testCallBack callback invoked for keys: i = " << i << " ";
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << *itr << " ";
+    msg() << *itr << " ";
   }
-  log << endmsg;
+  msg() << endmsg;
   return  StatusCode::SUCCESS;
 }
 
 
 StatusCode IOVDbTestAlg::initialize(){
-    //StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in initialize()" <<endmsg;
-
-    // Storegate
-    StatusCode sc = service("StoreGateSvc", m_sgSvc);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Unable to get the StoreGateSvc" << endmsg;
-	return sc;
-    }
-
-    // locate the conditions store ptr to it.
-    sc = service("DetectorStore", m_detStore);
-    if (!sc.isSuccess() || 0 == m_detStore)  {
-	log <<MSG::ERROR <<"Could not find DetStore" <<endmsg;
-	return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "in initialize()" );
 
     // Get Output Stream tool for writing
     if (m_writeCondObjs) {
-	IToolSvc* toolSvc = 0;// Pointer to Tool Service
-	StatusCode sc = service("ToolSvc", toolSvc);
-	if (sc.isFailure()) {
-	    log << MSG::ERROR
-		<< " Tool Service not found "
-		<< endmsg;
-	    return StatusCode::FAILURE;
-	}
-	sc = toolSvc->retrieveTool("AthenaOutputStreamTool", m_streamName, m_streamer);
-	if (sc.isFailure()) {
-	    log << MSG::INFO
-		<< "Unable to find AthenaOutputStreamTool" 
-		<< endmsg;
-	    return StatusCode::FAILURE;
-	}  
+        m_streamer = "AthenaOutputStreamTool/" + m_streamName;
+        ATH_CHECK( m_streamer.retrieve() );
     }
     
     // Get the IOVRegistrationSvc when needed
     if (m_regIOV) {
-	sc = service("IOVRegistrationSvc", m_regSvc);
-	if (sc.isFailure()) {
-	    log << MSG::INFO
-		<< "Unable to find IOVRegistrationSvc "
-		<< endmsg;
-	    return StatusCode::FAILURE;
-	}  
-	else {
-	    log << MSG::DEBUG << "Found IOVRegistrationSvc "  << endmsg;
-	}
-        log  << MSG::INFO 
-             << "Tag to be used: " << m_tagID 
-             << endmsg;
+        ATH_CHECK( m_regSvc.retrieve() );
+        ATH_MSG_DEBUG( "Found IOVRegistrationSvc " );
+        ATH_MSG_INFO( "Tag to be used: " << m_tagID );
     }
 
     if (m_readInInit) {
-	sc = readWithBeginRun();
-	if (sc.isFailure()) {
-	    log << MSG::INFO
-		<< "Unable to find read with BeginRun "
-		<< endmsg;
-	    return StatusCode::FAILURE;
-	}  
-	else {
-	    log << MSG::DEBUG << "Read with BeginRun "  << endmsg;
-	}
+        ATH_CHECK( readWithBeginRun() );
+        ATH_MSG_DEBUG( "Read with BeginRun " );
     }
 
     // register callbacks for test of online change of constants
     if (!m_online) return StatusCode::SUCCESS;
     
     const DataHandle<IOVDbTestMDTEleMap> mdtelemap;
-    if (StatusCode::SUCCESS==m_detStore->regFcn(&IOVDbTestAlg::testCallBack, this, mdtelemap, "/IOVDbTest/IOVDbTestMDTEleMap")) {
-        log << MSG::INFO << "Registered callback for IOVDbTestAlg::testCallBack" << endmsg;
-    } else {
-        log << MSG::ERROR << "Register callback failed" << endmsg;
-        return StatusCode::FAILURE;
-    }
-    
+    ATH_CHECK( detStore()->regFcn(&IOVDbTestAlg::testCallBack, this, mdtelemap, "/IOVDbTest/IOVDbTestMDTEleMap") );
+    ATH_MSG_INFO( "Registered callback for IOVDbTestAlg::testCallBack" );
+   
     
     return StatusCode::SUCCESS;
 }
@@ -218,9 +160,7 @@ StatusCode IOVDbTestAlg::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode IOVDbTestAlg::readWithBeginRun(){
-    StatusCode status;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in readWithBeginRun()" <<endmsg;
+    ATH_MSG_INFO( "in readWithBeginRun()" );
 
     // As a result of the restructuring the EventIncident class (dropping the reference to EventInfo)
     // the old mechanism of overriding run&event&time is no longer working.
@@ -230,7 +170,7 @@ StatusCode IOVDbTestAlg::readWithBeginRun(){
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
 
-    EventIncident evtInc(name(), "BeginRun",getContext());
+    EventIncident evtInc(name(), "BeginRun",Gaudi::Hive::currentContext());
     incSvc->fireIncident( evtInc );
 
     return StatusCode::SUCCESS;
@@ -238,26 +178,21 @@ StatusCode IOVDbTestAlg::readWithBeginRun(){
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode IOVDbTestAlg::createCondObjects(){
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in createCondObjects()" <<endmsg;
+StatusCode IOVDbTestAlg::createCondObjects(const EventContext& ctx) const
+{
+    ATH_MSG_INFO ("in createCondObjects()");
 
     // Create IOVDbTestMDTEleMap
     IOVDbTestMDTEleMap* elemMap = new IOVDbTestMDTEleMap;
-    unsigned long long timestamp = m_evt->event_ID()->time_stamp();
+    unsigned long long timestamp = ctx.eventID().time_stamp();
     if (timestamp) 
-        elemMap->set(m_evt->event_ID()->time_stamp(),"mdt element map");
+        elemMap->set(ctx.eventID().time_stamp(),"mdt element map");
     else 
-        elemMap->set(m_evt->event_ID()->run_number(), m_evt->event_ID()->event_number(), "mdt element map");
+        elemMap->set(ctx.eventID().run_number(), ctx.eventID().event_number(), "mdt element map");
     
   
     // Must provide a key which is used as the name to create the folder
-    sc = m_detStore->record(elemMap, "/IOVDbTest/IOVDbTestMDTEleMap");
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not record IOVDbTestMDTEleMap" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->record(elemMap, "/IOVDbTest/IOVDbTestMDTEleMap") );
 
     // Create IOVDbTestMDTEleMapColl
     IOVDbTestMDTEleMapColl* elemMapColl = new IOVDbTestMDTEleMapColl;
@@ -268,22 +203,18 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     for (unsigned int i = 0; i < 10; ++i) {
         IOVDbTestMDTEleMap* elemMap = new IOVDbTestMDTEleMap;
 
-        unsigned long long timestamp = m_evt->event_ID()->time_stamp();
+        unsigned long long timestamp = ctx.eventID().time_stamp();
         if (timestamp) 
-            elemMap->set(m_evt->event_ID()->time_stamp() + 10*i, "mdt element map");
+            elemMap->set(ctx.eventID().time_stamp() + 10*i, "mdt element map");
         else 
-            elemMap->set(m_evt->event_ID()->run_number() + i, m_evt->event_ID()->event_number(), "mdt element map");
+            elemMap->set(ctx.eventID().run_number() + i, ctx.eventID().event_number(), "mdt element map");
 	
         elemMapColl->push_back(elemMap);
         elemMapColl->add(2*i+1+i + offset);
     }
     
     // Must provide a key which is used as the name to create the folder
-    sc = m_detStore->record(elemMapColl, "/IOVDbTest/IOVDbTestMDTEleMapColl");
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not record IOVDbTestMDTEleMapColl" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->record(elemMapColl, "/IOVDbTest/IOVDbTestMDTEleMapColl") );
     
     // Create IOVDbTestAmdbCorrection
     IOVDbTestAmdbCorrection* amdbCorr =   new IOVDbTestAmdbCorrection;
@@ -296,11 +227,7 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     }
     amdbCorr->set(x, y, "amdb correction");
   
-    sc = m_detStore->record(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection");
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not record IOVDbTestAmdbCorrection" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->record(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection") );
 
     // Create an attribute list
 
@@ -311,7 +238,7 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     attrSpec->extend("name", "string");
 
     if (!attrSpec->size()) {
-        log << MSG::ERROR << " Attribute list specification is empty" <<endmsg;
+        ATH_MSG_ERROR (" Attribute list specification is empty");
         return(StatusCode::FAILURE);
     } 
 
@@ -334,13 +261,9 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     // FIXME
     attrList->toOutputStream( attrStr1 );
     // attrList->print(std::cout);
-    log << MSG::DEBUG << "Attribute list " << attrStr1.str() << endmsg;
+    ATH_MSG_DEBUG( "Attribute list " << attrStr1.str() );
 
-    sc = m_detStore->record(attrList, "/IOVDbTest/IOVDbTestAttrList");
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not record IOVDbTestAttrList" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->record(attrList, "/IOVDbTest/IOVDbTestAttrList") );
 
     // optionally create a second 'fancy' attributelist testing more datatypes
     // including bool, CLOB and BLOB types
@@ -376,12 +299,8 @@ StatusCode IOVDbTestAlg::createCondObjects(){
         // print out attributelist
         std::ostringstream fanstr;
         fanList->toOutputStream(fanstr);
-        log << MSG::DEBUG << "Fancy Attribute list " << fanstr.str() << endmsg;
-        sc = m_detStore->record(fanList, "/IOVDbTest/IOVDbTestFancyList");
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not record IOVDbTestFancyList" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
+        ATH_MSG_DEBUG( "Fancy Attribute list " << fanstr.str() );
+        ATH_CHECK( detStore()->record(fanList, "/IOVDbTest/IOVDbTestFancyList") );
     }
 
     // Create an attribute list collection
@@ -398,7 +317,7 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     
     std::ostringstream attrStr2;
     attrList0.toOutputStream( attrStr2 );
-    log << MSG::DEBUG << "ChanNum " << chanNum << " Attribute list " << attrStr2.str() << endmsg;
+    ATH_MSG_DEBUG( "ChanNum " << chanNum << " Attribute list " << attrStr2.str() );
     attrListColl->add(chanNum, attrList0);
 
     coral::AttributeList attrList1(*attrSpec);
@@ -409,7 +328,7 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     
     std::ostringstream attrStr3;
     attrList1.toOutputStream( attrStr3 );
-    log << MSG::DEBUG << "ChanNum " << chanNum << " Attribute list " << attrStr3.str() << endmsg;
+    ATH_MSG_DEBUG( "ChanNum " << chanNum << " Attribute list " << attrStr3.str() );
     attrListColl->add(chanNum, attrList1);
 
     coral::AttributeList attrList2(*attrSpec);
@@ -420,7 +339,7 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     
     std::ostringstream attrStr4;
     attrList2.toOutputStream( attrStr4 );
-    log << MSG::DEBUG << "ChanNum " << chanNum << " Attribute list " << attrStr4.str() << endmsg;
+    ATH_MSG_DEBUG( "ChanNum " << chanNum << " Attribute list " << attrStr4.str() );
     attrListColl->add(chanNum, attrList2);
 
     if(m_createExtraChans) {
@@ -433,14 +352,14 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     
         std::ostringstream attrStr5;
         attrList3.toOutputStream( attrStr5 );
-        log << MSG::DEBUG << "ChanNum " << chanNum << " Attribute list " << attrStr5.str() << endmsg;
+        ATH_MSG_DEBUG( "ChanNum " << chanNum << " Attribute list " << attrStr5.str() );
         attrListColl->add(chanNum, attrList3);
 
         // Add in new IOV with min run == 4
         IOVRange range(IOVTime(4, IOVTime::MINEVENT), IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT));
         attrListColl->add(chanNum, range);
-        log << MSG::DEBUG <<"Add min : since " << range.start().run() << " " << range.start().event()
-            << " till " << range.stop().run() << " " << range.stop().event() << endmsg;
+        ATH_MSG_DEBUG( "Add min : since " << range.start().run() << " " << range.start().event()
+                       << " till " << range.stop().run() << " " << range.stop().event() );
 
         coral::AttributeList attrList4(*attrSpec);
         attrList4["xPosition"].setValue((float)75.0);
@@ -450,17 +369,17 @@ StatusCode IOVDbTestAlg::createCondObjects(){
     
         std::ostringstream attrStr6;
         attrList4.toOutputStream( attrStr6 );
-        log << MSG::DEBUG << "ChanNum " << chanNum << " Attribute list " << attrStr6.str() << endmsg;
+        ATH_MSG_DEBUG( "ChanNum " << chanNum << " Attribute list " << attrStr6.str() );
         attrListColl->add(chanNum, attrList4);
 
         // Add in new IOV with min run == 5
         IOVRange range1(IOVTime(5, IOVTime::MINEVENT), IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT));
         attrListColl->add(chanNum, range1);
-        log << MSG::DEBUG <<"Add min : since " << range1.start().run() << " " << range1.start().event() << " till " << range1.stop().run() << " " << range1.stop().event() << endmsg;
+        ATH_MSG_DEBUG( "Add min : since " << range1.start().run() << " " << range1.start().event() << " till " << range1.stop().run() << " " << range1.stop().event() );
     }
     // add names to the channels if needed
     if (m_nameChans) {
-      log << MSG::DEBUG << "Name channels in CondAttrListCollection" << endmsg;
+      ATH_MSG_DEBUG( "Name channels in CondAttrListCollection" );
       for (CondAttrListCollection::const_iterator citr=attrListColl->begin();
 	   citr!=attrListColl->end();++citr) {
 	CondAttrListCollection::ChanNum chan=citr->first;
@@ -470,91 +389,53 @@ StatusCode IOVDbTestAlg::createCondObjects(){
       }
     }
 
-    sc = m_detStore->record(attrListColl, "/IOVDbTest/IOVDbTestAttrListColl");
-    if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not record IOVDbTestAttrListColl" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
-    
-
+    ATH_CHECK( detStore()->record(attrListColl, "/IOVDbTest/IOVDbTestAttrListColl") );
 
     return StatusCode::SUCCESS;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 
-StatusCode IOVDbTestAlg::printCondObjects(){
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in printCondObjects()" <<endmsg;
+StatusCode IOVDbTestAlg::printCondObjects() const {
+    ATH_MSG_INFO( "in printCondObjects()" );
 
     // IOVDbTestMDTEleMap
     const IOVDbTestMDTEleMap* elemMap;
-    sc = m_detStore->retrieve(elemMap, "/IOVDbTest/IOVDbTestMDTEleMap");
-    if (sc.isFailure()) {
-    	log <<MSG::ERROR <<"Could not find IOVDbTestMDTEleMap" <<endmsg;
-    	return( StatusCode::FAILURE);
-    }
-    else {
-	log << MSG::INFO << "Retrieved IOVDbTestMDTEleMap " 
-	    << endmsg;
-    }
-    if (0 == elemMap) {
-	log <<MSG::ERROR <<"IOVDbTestMDTEleMap ptr is 0" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->retrieve(elemMap, "/IOVDbTest/IOVDbTestMDTEleMap") );
+    ATH_MSG_INFO( "Retrieved IOVDbTestMDTEleMap " );
     
-    log << MSG::INFO << "Found " <<  elemMap->name() 
-        << " run "   <<  elemMap->runNumber() 
-    	<< " event " <<  elemMap->eventNumber()
-    	<< " time  " <<  elemMap->timeStamp()
-    	<< endmsg;
+    ATH_MSG_INFO( "Found " <<  elemMap->name() 
+                  << " run "   <<  elemMap->runNumber() 
+                  << " event " <<  elemMap->eventNumber()
+                  << " time  " <<  elemMap->timeStamp() );
 
 
 
     // IOVDbTestAmdbCorrection
     const IOVDbTestAmdbCorrection* amdbCorr;
-    sc = m_detStore->retrieve(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection");
-    if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not find IOVDbTestAmdbCorrection" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
-    log << MSG::INFO << "Retrieved /IOVDbTest/IOVDbTestAMDBCorrection" << endmsg;
-    if (0 == amdbCorr) {
-	log <<MSG::ERROR <<"IOVDbTestAmdbCorrection ptr is 0" << endmsg;
-	return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->retrieve(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection") );
+    ATH_MSG_INFO ("Retrieved /IOVDbTest/IOVDbTestAMDBCorrection" );
 
     HepGeom::Point3D<double> trans = amdbCorr->getTranslation();
     HepGeom::Point3D<double> rot   = amdbCorr->getRotation();
   
-    log << MSG::INFO << "Found " <<  amdbCorr->name() 
-	<< " trans " << trans.x() << " " << trans.y() << " " << trans.z()
-	<< " rot " <<  rot.x() << " " << rot.y() << " " << rot.z()
-	<< endmsg;
+    ATH_MSG_INFO( "Found " <<  amdbCorr->name() 
+                  << " trans " << trans.x() << " " << trans.y() << " " << trans.z()
+                  << " rot " <<  rot.x() << " " << rot.y() << " " << rot.z() );
 
     
     if (m_readNewTag) {
         // IOVDbTestAmdbCorrection
         const IOVDbTestAmdbCorrection* amdbCorr;
-        sc = m_detStore->retrieve(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection-NEWTAG");
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not find IOVDbTestAmdbCorrection" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
-        log << MSG::INFO << "Retrieved /IOVDbTest/IOVDbTestAMDBCorrection-NEWTAG" << endmsg;
-        if (0 == amdbCorr) {
-            log <<MSG::ERROR <<"IOVDbTestAmdbCorrection ptr is 0" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
+        ATH_CHECK( detStore()->retrieve(amdbCorr, "/IOVDbTest/IOVDbTestAMDBCorrection-NEWTAG") );
+        ATH_MSG_INFO( "Retrieved /IOVDbTest/IOVDbTestAMDBCorrection-NEWTAG" );
 
         HepGeom::Point3D<double> trans = amdbCorr->getTranslation();
         HepGeom::Point3D<double> rot   = amdbCorr->getRotation();
   
-        log << MSG::INFO << "Found " <<  amdbCorr->name() 
-            << " trans " << trans.x() << " " << trans.y() << " " << trans.z()
-            << " rot " <<  rot.x() << " " << rot.y() << " " << rot.z()
-            << endmsg;
+        ATH_MSG_INFO( "Found " <<  amdbCorr->name() 
+                      << " trans " << trans.x() << " " << trans.y() << " " << trans.z()
+                      << " rot " <<  rot.x() << " " << rot.y() << " " << rot.z() );
     }
     
 
@@ -563,85 +444,43 @@ StatusCode IOVDbTestAlg::printCondObjects(){
 
     if (!m_twoStepWriteReg && m_readWriteCool) {
 	// AttrList
-	sc = m_detStore->retrieve(attrList, "/IOVDbTest/IOVDbTestAttrList");
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not retrieve IOVDbTestAttrList" <<endmsg;
-	    // Using COOL, is failure
-	    return( StatusCode::FAILURE);
-	}
-	if (0 == attrList) {
-	    log <<MSG::ERROR <<"IOVDbTestAttrList ptr is 0" <<endmsg;
-	    return( StatusCode::FAILURE);
-	}
-	else {
-	    log <<MSG::DEBUG <<"Retrieved IOVDbTestAttrList" <<endmsg;
-	}
+        ATH_CHECK( detStore()->retrieve(attrList, "/IOVDbTest/IOVDbTestAttrList") );
+        ATH_MSG_DEBUG( "Retrieved IOVDbTestAttrList" );
   
 	std::ostringstream attrStr1;
 	attrList->print( attrStr1 );
-	log << MSG::DEBUG << "Attribute list " << attrStr1.str() << endmsg;
+	ATH_MSG_DEBUG( "Attribute list " << attrStr1.str() );
 
         if (m_readNewTag) {
             // AttrList
-            sc = m_detStore->retrieve(attrList, "/IOVDbTest/IOVDbTestAttrList-NEWTAG");
-            if (sc.isFailure()) {
-                log <<MSG::ERROR <<"Could not retrieve IOVDbTestAttrList-NEWTAG" <<endmsg;
-                // Using COOL, is failure
-                return( StatusCode::FAILURE);
-            }
-            if (0 == attrList) {
-                log <<MSG::ERROR <<"IOVDbTestAttrList ptr is 0" <<endmsg;
-                return( StatusCode::FAILURE);
-            }
-            else {
-                log <<MSG::DEBUG <<"Retrieved IOVDbTestAttrList-NEWTAG" <<endmsg;
-            }
+            ATH_CHECK( detStore()->retrieve(attrList, "/IOVDbTest/IOVDbTestAttrList-NEWTAG") );
+            ATH_MSG_DEBUG( "Retrieved IOVDbTestAttrList-NEWTAG" );
   
             std::ostringstream attrStr1;
             attrList->print( attrStr1 );
-            log << MSG::DEBUG << "Attribute list NEWTAG: " << attrStr1.str() << endmsg;
+            ATH_MSG_DEBUG( "Attribute list NEWTAG: " << attrStr1.str() );
         }
 
 	// fancy attributelist
 	if (m_fancylist) {
-            sc = m_detStore->retrieve(attrList, "/IOVDbTest/IOVDbTestFancyList");
-            if (sc.isFailure()) {
-                log <<MSG::ERROR <<"Could not retrieve IOVDbTestFancyList" <<endmsg;	    return( StatusCode::FAILURE);
-            }
-            if (0 == attrList) {
-                log <<MSG::ERROR <<"IOVDbTestFancyList ptr is 0" <<endmsg;
-                return( StatusCode::FAILURE);
-            }
-            else {
-                log <<MSG::DEBUG <<"Retrieved IOVDbTestFancyList" <<endmsg;
-            }
+            ATH_MSG_DEBUG( detStore()->retrieve(attrList, "/IOVDbTest/IOVDbTestFancyList") );
+            ATH_MSG_DEBUG( "Retrieved IOVDbTestFancyList" );
             std::ostringstream fanstr;
             attrList->print( fanstr );
-            log << MSG::DEBUG << "Fancy Attribute list " << fanstr.str() << endmsg;
+            ATH_MSG_DEBUG( "Fancy Attribute list " << fanstr.str() );
             // for the blob type, check the actual data is correct
             const coral::Blob& blob=(*attrList)["FanBlob"].data<coral::Blob>();
             const unsigned char* p=static_cast<const unsigned char*>
                 (blob.startingAddress());
             int nerr=0;
             for (int i=0;i<blob.size();++i,++p) if (*p!=(i % 256)) ++nerr;
-            if (nerr>0) log << MSG::ERROR << "Blob has " << nerr << 
-                            " data mismatches!" << endmsg;
+            if (nerr>0) ATH_MSG_ERROR(  "Blob has " << nerr << 
+                                        " data mismatches!" );
 	}
 
 	// AttrListColl
-	sc = m_detStore->retrieve(attrListColl, "/IOVDbTest/IOVDbTestAttrListColl");
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not retrieve IOVDbTestAttrListColl" <<endmsg;
-	    // Using COOL, is failure
-	    return( StatusCode::FAILURE);
-	}
-	if (0 == attrListColl) {
-	    log <<MSG::ERROR <<"IOVDbTestAttrListColl ptr is 0" <<endmsg;
-	    return( StatusCode::FAILURE);
-	}
-	else {
-	    log <<MSG::DEBUG <<"Retrieved IOVDbTestAttrListColl" <<endmsg;
-	}
+	ATH_CHECK( detStore()->retrieve(attrListColl, "/IOVDbTest/IOVDbTestAttrListColl") );
+        ATH_MSG_DEBUG( "Retrieved IOVDbTestAttrListColl" );
   
 
 	std::ostringstream attrStr2;
@@ -651,76 +490,65 @@ StatusCode IOVDbTestAlg::printCondObjects(){
 	CondAttrListCollection::const_iterator last  = attrListColl->end();
 	for (; first != last; ++first) {
 
-	    std::ostringstream attrStr1;
-	    (*first).second.toOutputStream( attrStr1 );
-	    log << MSG::DEBUG << "ChanNum " << (*first).first;
-	    // print out the name if present
-	    if (attrListColl->name_size()>0) {
-	      CondAttrListCollection::name_const_iterator 
-		nitr=attrListColl->chanNamePair((*first).first);
-	      if (nitr!=attrListColl->name_end())
-		log << MSG::DEBUG << " name " << nitr->second;
-	    }
-	    log << MSG::DEBUG << 
-	      " Attribute list " << attrStr1.str() << endmsg;
-	    // Print out range if it exits
-	    CondAttrListCollection::ChanNum chanNum = (*first).first;
-	    CondAttrListCollection::iov_const_iterator iovIt = attrListColl->chanIOVPair(chanNum);
-	    if (iovIt != attrListColl->iov_end()) {
-		const IOVRange& range = (*iovIt).second;
-		if(range.start().isTimestamp()) {
-		    log << MSG::DEBUG <<"Range timestamp : since " << range.start().timestamp()
-			<< " till " << range.stop().timestamp() << endmsg;
-		}
-		else {
-		    log << MSG::DEBUG <<"Range R/E : since " << range.start().run() << " " 
-			<< range.start().event()
-			<< " till " << range.stop().run() << " " 
-			<< range.stop().event() << endmsg;
-		}
+            if (msgLvl (MSG::DEBUG)) {
+              std::ostringstream attrStr1;
+              (*first).second.toOutputStream( attrStr1 );
+              msg() << MSG::DEBUG << "ChanNum " << (*first).first;
+              // print out the name if present
+              if (attrListColl->name_size()>0) {
+                CondAttrListCollection::name_const_iterator 
+                  nitr=attrListColl->chanNamePair((*first).first);
+                if (nitr!=attrListColl->name_end())
+                  msg() << MSG::DEBUG << " name " << nitr->second;
+              }
+              msg() << MSG::DEBUG << 
+                " Attribute list " << attrStr1.str() << endmsg;
+            }
+
+            // Print out range if it exits
+            CondAttrListCollection::ChanNum chanNum = (*first).first;
+            CondAttrListCollection::iov_const_iterator iovIt = attrListColl->chanIOVPair(chanNum);
+            if (iovIt != attrListColl->iov_end()) {
+              const IOVRange& range = (*iovIt).second;
+              if(range.start().isTimestamp()) {
+                ATH_MSG_DEBUG( "Range timestamp : since " << range.start().timestamp()
+                               << " till " << range.stop().timestamp() );
+              }
+              else {
+                ATH_MSG_DEBUG( "Range R/E : since " << range.start().run() << " " 
+                               << range.start().event()
+                               << " till " << range.stop().run() << " " 
+                               << range.stop().event() );
+              }
 	    }
 	    else {
-		log << MSG::DEBUG <<"No range found " << endmsg;
-	    }
+              ATH_MSG_DEBUG( "No range found " );
+            }
 	}
 
         // Simulation and digitization parameters:
 
-	sc = m_detStore->retrieve(attrList, "/Simulation/Parameters");
-	if (sc.isFailure()) {
+	if ( detStore()->retrieve(attrList, "/Simulation/Parameters").isFailure() ) {
 	    // May not have been added - just a warning
-	    log <<MSG::WARNING <<"Could not retrieve Simulation parameters" <<endmsg;
+            ATH_MSG_WARNING( "Could not retrieve Simulation parameters" );
 	}
         else {
-            if (0 == attrList) {
-                log <<MSG::ERROR <<"IOVDbTestAttrList ptr is 0" <<endmsg;
-                return( StatusCode::FAILURE);
-            }
-	    log <<MSG::DEBUG <<"Retrieved Simulation parameters" <<endmsg;
-            std::ostringstream attrStr;
-            attrList->print( attrStr );
-            log << MSG::DEBUG << "Attribute list " << attrStr.str() << endmsg;
+          ATH_MSG_DEBUG( "Retrieved Simulation parameters" );
+          std::ostringstream attrStr;
+          attrList->print( attrStr );
+          ATH_MSG_DEBUG( "Attribute list " << attrStr.str() );
 	}
   
-	sc = m_detStore->retrieve(attrList, "/Digitization/Parameters");
-	if (sc.isFailure()) {
-	    // May not have been added - just a warning
-	    log <<MSG::WARNING <<"Could not retrieve Digitization parameters" <<endmsg;
-	}
+	if (detStore()->retrieve(attrList, "/Digitization/Parameters").isFailure()) {
+            // May not have been added - just a warning
+            ATH_MSG_WARNING( "Could not retrieve Digitization parameters" );
+        }
         else {
-            if (0 == attrList) {
-                log <<MSG::ERROR <<"IOVDbTestAttrList ptr is 0" <<endmsg;
-                return( StatusCode::FAILURE);
-            }
-	    log <<MSG::DEBUG <<"Retrieved Digitization parameters" <<endmsg;
+            ATH_MSG_DEBUG( "Retrieved Digitization parameters" );
             std::ostringstream attrStr;
             attrList->print( attrStr );
-            log << MSG::DEBUG << "Attribute list " << attrStr.str() << endmsg;
+            ATH_MSG_DEBUG( "Attribute list " << attrStr.str() );
 	}
-  
-
-
-
     }
     
 
@@ -729,25 +557,13 @@ StatusCode IOVDbTestAlg::printCondObjects(){
 //    if (m_readWriteCool) {
 	
     const IOVDbTestMDTEleMapColl* elemMapColl;
-    sc = m_detStore->retrieve(elemMapColl, "/IOVDbTest/IOVDbTestMDTEleMapColl");
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not find IOVDbTestMDTEleMapColl" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
-    else {
-        log << MSG::INFO << "Retrieved IOVDbTestMDTEleMapColl " 
-            << endmsg;
-    }
-    if (0 == elemMapColl->size()) {
-        log <<MSG::ERROR <<"IOVDbTestMDTEleMapColl size is 0" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( detStore()->retrieve(elemMapColl, "/IOVDbTest/IOVDbTestMDTEleMapColl") );
+    ATH_MSG_INFO( "Retrieved IOVDbTestMDTEleMapColl " );
   
     // Make sure the channel vector is filled
     if (elemMapColl->size() != elemMapColl->chan_size()) {
-        log << MSG::ERROR << "Must fill in channel numbers! Number of objects: " << elemMapColl->size()
-            << "  Number of channels: " << elemMapColl->chan_size()
-            << endmsg;
+        ATH_MSG_ERROR( "Must fill in channel numbers! Number of objects: " << elemMapColl->size()
+                       << "  Number of channels: " << elemMapColl->chan_size() );
         return(StatusCode::FAILURE);       
     }
     // Print out IOVs if they are there
@@ -756,16 +572,16 @@ StatusCode IOVDbTestAlg::printCondObjects(){
     IOVDbTestMDTEleMapColl::iov_const_iterator  itIOV  = elemMapColl->iov_begin();
     for (unsigned int i = 0; i < elemMapColl->size(); ++i, ++itChan) {
         const IOVDbTestMDTEleMap* elemMap = (*elemMapColl)[i];
-        log << MSG::INFO << "Found " <<  elemMap->name() 
+        msg() << MSG::INFO << "Found " <<  elemMap->name() 
             << " run "   <<  elemMap->runNumber() 
             << " event " <<  elemMap->eventNumber()
             << " time  " <<  elemMap->timeStamp()
             << " channel " << (*itChan);
         if(hasIOVs) {
-            log << MSG::INFO << " iov " <<  (*itIOV);
+            msg() << MSG::INFO << " iov " <<  (*itIOV);
             ++itIOV;
         }
-        log << MSG::INFO << endmsg;
+        msg() << MSG::INFO << endmsg;
     }
 //    }
     return StatusCode::SUCCESS;
@@ -773,7 +589,7 @@ StatusCode IOVDbTestAlg::printCondObjects(){
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode IOVDbTestAlg::execute() {
+StatusCode IOVDbTestAlg::execute (const EventContext& ctx) const {
 
     // There are different scenario for conditions data:
     // 
@@ -799,57 +615,36 @@ StatusCode IOVDbTestAlg::execute() {
     //       simply done by doing a standard StoreGate retrieve from
     //       the DetectorStore.
 
-
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<" in execute()" <<endmsg;
-
-    StatusCode sc = m_sgSvc->retrieve(m_evt);
-    if ( sc.isFailure() ) {
-        log << MSG::ERROR << "could not get event info " << endmsg;
-        return( StatusCode::FAILURE);     
-    }
-    else {
-        log << MSG::DEBUG << "Event (run,ev,lb:time): [" << m_evt->event_ID()->run_number() << "," << m_evt->event_ID()->event_number();
-        if (m_printLB) log << "," << m_evt->event_ID()->lumi_block();
-        log    << ":" << m_evt->event_ID()->time_stamp() << "]" << endmsg;
+    if (msgLvl (MSG::DEBUG)) {
+      msg() << MSG::DEBUG << "Event (run,ev,lb:time): [" << ctx.eventID().run_number() << "," << ctx.eventID().event_number();
+      if (m_printLB) msg() << "," << ctx.eventID().lumi_block();
+      msg()  << ":" << ctx.eventID().time_stamp() << "]" << endmsg;
     }
 
     if (m_writeCondObjs||m_noStream) {
 
         // We create the conditions objects only at run == 2, event == 5
-        if (2 != m_evt->event_ID()->run_number() || 5 != m_evt->event_ID()->event_number()) {
-            log << MSG::DEBUG << "Event NOT selected for creating conditions objects " << endmsg;
+        if (2 != ctx.eventID().run_number() || 5 != ctx.eventID().event_number()) {
+            ATH_MSG_DEBUG( "Event NOT selected for creating conditions objects " );
             return StatusCode::SUCCESS;
         }
 		
-        log << MSG::DEBUG << "Creating condtions objects " << endmsg;
-        sc = createCondObjects();
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not create cond objects" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
+        ATH_MSG_DEBUG( "Creating condtions objects " );
+        ATH_CHECK( createCondObjects(ctx) );
 
         //  Read objects from DetectorStore
         if(!m_noStream){
-          sc = printCondObjects();
-          if (sc.isFailure()) {
-              log <<MSG::ERROR <<"Could not print out cond objects" <<endmsg;
-              return( StatusCode::FAILURE);
-          }
+          ATH_CHECK( printCondObjects() );
 	}
     }
     else {
 	
-        log << MSG::DEBUG << "Calling printCondObjects" <<m_online<< "\t"<<m_evt->event_ID()->run_number()<<"\t"<<m_evt->event_ID()->event_number()<< endmsg;
+        ATH_MSG_DEBUG( "Calling printCondObjects" <<m_online<< "\t"<<ctx.eventID().run_number()<<"\t"<<ctx.eventID().event_number() );
 
         //  Read objects from DetectorStore
-        if (m_online && 2 == m_evt->event_ID()->run_number() && 9 == m_evt->event_ID()->event_number())
+        if (m_online && 2 == ctx.eventID().run_number() && 9 == ctx.eventID().event_number())
             waitForSecond();
-        sc = printCondObjects();
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not print out cond objects" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
+        ATH_CHECK( printCondObjects() );
     }
     
     return StatusCode::SUCCESS;
@@ -858,26 +653,17 @@ StatusCode IOVDbTestAlg::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode IOVDbTestAlg::finalize(){
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in finalize()" <<endmsg;
+    ATH_MSG_INFO( "in finalize()" );
 
     if (m_writeCondObjs) {
         // Stream out and register objects here
-        log << MSG::DEBUG << "Stream out objects directly " << endmsg;
-        StatusCode sc = streamOutCondObjects();
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not stream out objects" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
-        log << MSG::DEBUG << "Streamed out OK " << endmsg;
+        ATH_MSG_DEBUG( "Stream out objects directly " );
+        ATH_CHECK( streamOutCondObjects() );
+        ATH_MSG_DEBUG( "Streamed out OK " );
     }
     if(m_regIOV) {
-        StatusCode sc = registerCondObjects();
-        if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not register objects" <<endmsg;
-            return( StatusCode::FAILURE);
-        }
-        log << MSG::DEBUG << "Register OK " << endmsg;
+        ATH_CHECK( registerCondObjects() );
+        ATH_MSG_DEBUG( "Register OK " );
     }
   
     return StatusCode::SUCCESS;
@@ -889,15 +675,8 @@ StatusCode IOVDbTestAlg::finalize(){
 
 StatusCode 
 IOVDbTestAlg::streamOutCondObjects(){
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::DEBUG << "entering streamOutCondObjects "  << endmsg;
-    StatusCode sc = m_streamer->connectOutput();
-    if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not connect stream to output" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
+    ATH_MSG_DEBUG( "entering streamOutCondObjects " );
+    ATH_CHECK( m_streamer->connectOutput() );
 
     int npairs = 3;
     int index = 0;
@@ -914,23 +693,13 @@ IOVDbTestAlg::streamOutCondObjects(){
 	++index;
     }
 
-    log << MSG::DEBUG <<"Stream out for pairs:" <<endmsg;
+    ATH_MSG_DEBUG( "Stream out for pairs:" );
     for (unsigned int i = 0; i < typeKeys.size(); ++i) {
-        log << MSG::DEBUG << typeKeys[i].first << " " << typeKeys[i].second << " " 
-            << endmsg;
+      ATH_MSG_DEBUG( typeKeys[i].first << " " << typeKeys[i].second << " " );
     }
     
-    sc = m_streamer->streamObjects(typeKeys);
-    if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not stream out IOVDbTestMDTEleMap and IOVDbTestAmdbCorrection" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
-    
-    sc = m_streamer->commitOutput();
-    if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not commit output stream" <<endmsg;
-	return( StatusCode::FAILURE);
-    }
+    ATH_CHECK( m_streamer->streamObjects(typeKeys) );
+    ATH_CHECK( m_streamer->commitOutput() );
 
     return StatusCode::SUCCESS;
 }
@@ -940,25 +709,17 @@ IOVDbTestAlg::streamOutCondObjects(){
 
 StatusCode 
 IOVDbTestAlg::registerCondObjects(){
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::DEBUG << "entering registerCondObject "  << endmsg;
+    ATH_MSG_DEBUG( "entering registerCondObject " );
 
     // Register the IOV DB with the conditions data written out
-    StatusCode sc;
     std::string tag = "no tag";
     if (m_tagID!="") {
         tag = "tag MDTEleMap_" + m_tagID;
-        sc = m_regSvc->registerIOV("IOVDbTestMDTEleMap", "MDTEleMap_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT);
+        ATH_CHECK( m_regSvc->registerIOV("IOVDbTestMDTEleMap", "MDTEleMap_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT) );
     } else {
-        sc = m_regSvc->registerIOV("IOVDbTestMDTEleMap", "");
+        ATH_CHECK( m_regSvc->registerIOV("IOVDbTestMDTEleMap", "") );
     }
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not register in IOV DB for IOVDbTestMDTEleMap" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
-    log << MSG::DEBUG << "registered IOVDbTestMDTEleMap with " << tag << endmsg;
+    ATH_MSG_DEBUG( "registered IOVDbTestMDTEleMap with " << tag );
 
     // For IOVDbTestAmdbCorrection use time (in sec)
     uint64_t start=static_cast<long long>(m_regTime)*1000000000LL;
@@ -966,15 +727,11 @@ IOVDbTestAlg::registerCondObjects(){
     tag = "no tag";
     if (m_tagID!="") {
         tag = "tag AmdbCorrection_" + m_tagID;
-        sc = m_regSvc->registerIOV("IOVDbTestAmdbCorrection", "AmdbCorrection_"+m_tagID, start, stop);
+        ATH_CHECK( m_regSvc->registerIOV("IOVDbTestAmdbCorrection", "AmdbCorrection_"+m_tagID, start, stop) );
     } else {
-        sc = m_regSvc->registerIOV("IOVDbTestAmdbCorrection", "", start, stop);
+        ATH_CHECK( m_regSvc->registerIOV("IOVDbTestAmdbCorrection", "", start, stop) );
     }
-    if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not register in IOV DB for IOVDbTestAmdbCorrection" <<endmsg;
-        return( StatusCode::FAILURE);
-    }
-    log << MSG::DEBUG << "registered IOVDbTestAmdbCorrection with " << tag << endmsg;
+    ATH_MSG_DEBUG( "registered IOVDbTestAmdbCorrection with " << tag );
     if (m_readWriteCool) {
 
 	// Can only write out AttrList's if this is NOT write and reg in two steps
@@ -984,58 +741,42 @@ IOVDbTestAlg::registerCondObjects(){
             tag = "no tag";
             if (m_tagID!="") {
         	tag = "tag AttrList_" + m_tagID;
-                sc = m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestAttrList","AttrList_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT);
+                ATH_CHECK( m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestAttrList","AttrList_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT) );
 	    } else {
-        	sc = m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestAttrList","");
+                ATH_CHECK( m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestAttrList","") );
 	    }
-	    if (sc.isFailure()) {
-                log <<MSG::ERROR <<"Could not register in IOV DB for AthenaAttributeList" <<endmsg;
-                return( StatusCode::FAILURE);
-	    }
-            log << MSG::DEBUG << "registered AthenaAttributeList with " << tag << endmsg;
+            ATH_MSG_DEBUG( "registered AthenaAttributeList with " << tag );
 	    if (m_fancylist) {
                 // register Fancy AttributeList
                 tag = "no tag";
                 if (m_tagID!="") {
                     tag = "tag FancyList_" + m_tagID;
-                    sc = m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestFancyList","FancyList_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT);
+                    ATH_CHECK( m_regSvc->registerIOV("AthenaAttributeList","/IOVDbTest/IOVDbTestFancyList","FancyList_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT) );
                 } else {
-                    sc = m_regSvc->registerIOV("AthenaAttributeList", "/IOVDbTest/IOVDbTestFancyList","");
+                    ATH_CHECK( m_regSvc->registerIOV("AthenaAttributeList", "/IOVDbTest/IOVDbTestFancyList","") );
                 }
-                if (sc.isFailure()) {
-                    log <<MSG::ERROR <<"Could not register in IOV DB for AthenaAttributeList" <<endmsg;
-                    return( StatusCode::FAILURE);
-                }
-                log << MSG::DEBUG << "registered Fancy AthenaAttributeList with " << tag << endmsg;
+                ATH_MSG_DEBUG ( "registered Fancy AthenaAttributeList with " << tag );
 	    }
 	    // attrlist collection 
             tag = "no tag";
             if (m_tagID!="") {
                 tag = "tag AttrListColl_" + m_tagID;
-                sc = m_regSvc->registerIOV("CondAttrListCollection","AttrListColl_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT);
+                ATH_CHECK( m_regSvc->registerIOV("CondAttrListCollection","AttrListColl_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT) );
 	    } else {
-                sc = m_regSvc->registerIOV("CondAttrListCollection", "");
+                ATH_CHECK( m_regSvc->registerIOV("CondAttrListCollection", "") );
 	    }
-	    if (sc.isFailure()) {
-		log <<MSG::ERROR <<"Could not register in IOV DB for CondAttrListCollection" <<endmsg;
-		return( StatusCode::FAILURE);
-	    }
-            log << MSG::DEBUG << "registered CondAttrListCollection with " << tag << endmsg;
+            ATH_MSG_DEBUG( "registered CondAttrListCollection with " << tag );
 	}
         
 	// mdtMapColl
         tag = "no tag";
         if (m_tagID!="") {
             tag = "tag MDTEleMapColl_" + m_tagID;
-            sc = m_regSvc->registerIOV("IOVDbTestMDTEleMapColl","MDTEleMapColl_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT);
+            ATH_CHECK( m_regSvc->registerIOV("IOVDbTestMDTEleMapColl","MDTEleMapColl_"+m_tagID,m_run,IOVTime::MAXRUN,IOVTime::MINEVENT,IOVTime::MAXEVENT) );
 	} else {
-            sc = m_regSvc->registerIOV("IOVDbTestMDTEleMapColl","");
+            ATH_CHECK( m_regSvc->registerIOV("IOVDbTestMDTEleMapColl","") );
 	}
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not register in IOV DB for IOVDbTestMDTEleMapColl" <<endmsg;
-	    return( StatusCode::FAILURE);
-	}
-        log << MSG::DEBUG << "registered IOVDbTestMDTEleMapColl with " << tag << endmsg;
+        ATH_MSG_DEBUG( "registered IOVDbTestMDTEleMapColl with " << tag );
     }
 
     return StatusCode::SUCCESS;

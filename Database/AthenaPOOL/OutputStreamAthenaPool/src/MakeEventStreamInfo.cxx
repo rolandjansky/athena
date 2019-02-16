@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
@@ -17,13 +17,16 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 
 //___________________________________________________________________________
 MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : ::AthAlgTool(type, name, parent),
 		m_metaDataStore("StoreGateSvc/MetaDataStore", name),
-		m_eventStore("StoreGateSvc", name) {
+                m_eventStore("StoreGateSvc", name)
+{
    // Declare IAthenaOutputStreamTool interface
    declareInterface<IAthenaOutputTool>(this);
 
@@ -45,6 +48,7 @@ StatusCode MakeEventStreamInfo::initialize() {
       ATH_MSG_FATAL("Could not find EventStore");
       return(StatusCode::FAILURE);
    }
+
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________
@@ -85,11 +89,25 @@ StatusCode MakeEventStreamInfo::postExecute() {
       ATH_MSG_ERROR("Unable to retrieve DataHeader for key = " << headerKey);
       return(StatusCode::FAILURE);
    }
-   const EventInfo* pEvent = nullptr;
+   EventType evtype;
+   unsigned long long runN = 0;
+   unsigned lumiN = 0;
    // Retrieve the EventInfo object
-   if (!m_eventStore->retrieve(pEvent).isSuccess()) {
-      ATH_MSG_ERROR("Unable to retrieve EventInfo object");
-      return(StatusCode::FAILURE);
+   const EventInfo* pEvent = m_eventStore->tryConstRetrieve<EventInfo>();
+   if( pEvent ) {
+      runN = pEvent->event_ID()->run_number();
+      lumiN = pEvent->event_ID()->lumi_block();
+      evtype = *pEvent->event_type();
+   } else {
+      const xAOD::EventInfo* xEvent = m_eventStore->tryConstRetrieve<xAOD::EventInfo>();
+      if( xEvent ) {
+         runN = xEvent->runNumber();
+         lumiN = xEvent->lumiBlock();
+         evtype = eventTypeFromxAOD(xEvent);
+      } else {
+         ATH_MSG_ERROR("Unable to retrieve EventInfo object");
+         return(StatusCode::FAILURE);
+      }
    }
    if (!m_metaDataStore->contains<EventStreamInfo>(m_key.value())) {
       EventStreamInfo* pEventStream = new EventStreamInfo();
@@ -106,13 +124,13 @@ StatusCode MakeEventStreamInfo::postExecute() {
    }
    pEventStream->addEvent();
    pEventStream->insertProcessingTag(pHeader->getProcessTag());
-   pEventStream->insertLumiBlockNumber(pEvent->event_ID()->lumi_block());
-   pEventStream->insertRunNumber(pEvent->event_ID()->run_number());
+   pEventStream->insertLumiBlockNumber( lumiN );
+   pEventStream->insertRunNumber( runN );
    for (std::vector<DataHeaderElement>::const_iterator iter = pHeader->begin(), iterEnd = pHeader->end();
 		   iter != iterEnd; iter++) {
       pEventStream->insertItemList(iter->getPrimaryClassID(), iter->getKey());
    }
-   pEventStream->insertEventType(*pEvent->event_type());
+   pEventStream->insertEventType( evtype );
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________

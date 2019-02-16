@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_BKGSTREAMSCACHE_H
@@ -20,14 +20,11 @@
 #include "GaudiKernel/Property.h"
 #include "PileUpTools/PileUpStream.h"
 #include "PileUpTools/IBkgStreamsCache.h"
-#include "EventInfo/PileUpTimeEventIndex.h" /* needed for PileUpType */
 
 class ActiveStoreSvc;
-class EventInfo;
 class IEvtSelector;
 class IAtRndmGenSvc;
 class IBeamIntensity;
-class PileUpEventInfo;
 namespace CLHEP {
   class RandFlat;
   class RandPoisson;
@@ -65,7 +62,7 @@ public:
      @param t0BinCenter   time wrto t0 of current bin center in ns
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overlaidEvent,
+                                xAOD::EventInfo* overlaidEvent,
                                 int t0BinCenter) override final;
   /**
      @brief Read input events in bkg stores and link them to overlay store
@@ -76,7 +73,7 @@ public:
      @param BCID          bunch-crossing ID of signal bunch crossing
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overEvent,
+                                xAOD::EventInfo* overEvent,
                                 int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/) override final;
   /// how many stores in this cache
   virtual unsigned int nStores() const override final { return m_nStores; }
@@ -90,7 +87,7 @@ public:
   unsigned int numberOfCavernBkgForBunchCrossing(unsigned int iXing) const;
 private:
   /// get next bkg event from cache
-  const EventInfo* nextEvent(bool isCentralBunchCrossing);
+  const xAOD::EventInfo* nextEvent(bool isCentralBunchCrossing);
   /// as nextEvent except don't actually load anything
   StatusCode nextEvent_passive(bool isCentralBunchCrossing);
   /// get current (last asked) stream
@@ -128,7 +125,7 @@ private:
   Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
-  PileUpTimeEventIndex::PileUpType m_pileUpEventType;
+  xAOD::EventInfo::PileUpType m_pileUpEventType;
   /// subtract from number of events at bunch xing = 0
   Gaudi::Property<unsigned short> m_subtractBC0;
   /// ignore the PileUpEventLoopMgr beam intensity tool

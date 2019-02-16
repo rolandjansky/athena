@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyJobOptionsSvc.h 
@@ -29,6 +29,8 @@
 // AthenaPython includes
 #include "PyJobOptionsCatalogue.h"
 
+#include "CxxUtils/checker_macros.h"
+
 // Forward declaration
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
@@ -37,10 +39,8 @@ class IProperty;
 struct _object; 
 typedef _object PyObject;
 
-class PyJobOptionsSvc
-  : virtual public ::IJobOptionsSvc,
-    virtual public ::IProperty,
-            public ::AthService
+class ATLAS_NOT_THREAD_SAFE PyJobOptionsSvc
+  : public extends<::AthService, ::IJobOptionsSvc, ::IProperty>
 { 
   friend class SvcFactory<PyJobOptionsSvc>;
 
@@ -60,7 +60,7 @@ class PyJobOptionsSvc
   PyJobOptionsSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~PyJobOptionsSvc(); 
+  virtual ~PyJobOptionsSvc() = default;
 
   // Assignment operator: 
   //PyJobOptionsSvc &operator=(const PyJobOptionsSvc &alg); 
@@ -69,8 +69,6 @@ class PyJobOptionsSvc
   //@{
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface ) override;
   //@}
 
   /// @c IJobOptionsSvc interface
@@ -122,23 +120,9 @@ class PyJobOptionsSvc
   // StatusCode setProperty(const Property& p);
   // StatusCode getProperty(Property *p) const;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  static const InterfaceID& interfaceID();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
-
   /// Default constructor: 
-  PyJobOptionsSvc();
+  PyJobOptionsSvc() = delete;
 
   // PropertyMgr m_pmgr;
 
@@ -161,18 +145,6 @@ class PyJobOptionsSvc
   /// catalogue holding the properties
   PyJobOptionsCatalogue m_catalogue;
 }; 
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline 
-const InterfaceID& 
-PyJobOptionsSvc::interfaceID() 
-{ 
-  return IJobOptionsSvc::interfaceID(); 
-}
-
 
 
 #endif //> !ATHENAPYTHON_PYJOBOPTIONSSVC_H

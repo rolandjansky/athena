@@ -69,6 +69,8 @@ public slots:
   void moveChannelToTab(QString channeluniquename,QString tabname);
   void cloneChannelToTab(QString channeluniquename,QString tabname);
   void cloneTab(QString oldtabname,QString newtabname);
+  void removeAllTabs();
+
 
   void saveConfigurationToFile(QString filename,const bool& askonoverride=true);
   void loadConfigurationFromFile(QString filename,const QMap<QString,QString>& availableplugins);

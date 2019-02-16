@@ -52,9 +52,8 @@ public:
 
   /**
    * @return The time duration between when the time stamp was created and the epoch
-   * @return A pair of unsigned integer types. The first is the number of seconds since the epoch and the second is the number of microseconds since the last second
    **/
-  std::pair<uint32_t,uint32_t> secondsAndMicrosecondsSinceEpoch() const;
+  uint64_t microsecondsSinceEpoch() const;
 
   /**
    * Obtain the stamp value.

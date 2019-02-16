@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Csc2dSegmentMaker.h
@@ -60,8 +60,8 @@ public:  // methods
   // Finalization.
   StatusCode finalize();
 
-  MuonSegmentCombinationCollection* find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
-  MuonSegmentCombinationCollection* find( const MuonSegmentCombinationCollection& ) const;
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonSegmentCombinationCollection& ) const;
 
 private:  // methods
 

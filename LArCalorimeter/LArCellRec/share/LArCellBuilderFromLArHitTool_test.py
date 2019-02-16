@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: LArCellRec/share/LArCellBuilderFromLArHitTool_test.py
 # Author: sss
@@ -113,12 +113,12 @@ class Tools:
         return StatusCode.Success
 
 
-    def process (self, ccc):
-        if not self.em.process (ccc):
+    def process (self, ccc, ctx):
+        if not self.em.process (ccc, ctx):
             return StatusCode.Failure
-        if not self.hec.process (ccc):
+        if not self.hec.process (ccc, ctx):
             return StatusCode.Failure
-        if not self.fcal.process (ccc):
+        if not self.fcal.process (ccc, ctx):
             return StatusCode.Failure
         return StatusCode.Success
 
@@ -153,7 +153,8 @@ class TestAlg (Alg):
 
 
     def execute (self):
-        iev = self.getContext().evt()
+        ctx = self.getContext()
+        iev = ctx.evt()
 
         self.record_hits()
 
@@ -198,7 +199,7 @@ class TestAlg (Alg):
                 if exp_e == None: continue
                 exp_cells[fulladdr] = [exp_e, t]
         ccc = ROOT.CaloCellContainer()
-        if not tools.process (ccc):
+        if not tools.process (ccc, ctx):
             return StatusCode.Failure
 
         self.check_ccc (ccc, exp_cells, exp_n_noise)

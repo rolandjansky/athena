@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
+from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm, findOwningSequence
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
@@ -14,7 +14,7 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
-
+flags.needFlagsCategory('Trigger')
 setupMenu(flags)
 
 
@@ -58,6 +58,14 @@ acc.merge( TrigInDetCondConfig( flags ) )
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
+topSequence = acc.getSequence("HLTTop")
+muonCacheCreatorName = "MuonCacheCreator"
+mcc = findAlgorithm( topSequence, muonCacheCreatorName )
+if mcc:
+    owner = findOwningSequence( topSequence, muonCacheCreatorName )
+    owner.remove( mcc )
+    top = acc.getSequence("AthAlgSeq")
+    top += mcc
 
 
 # from TrigUpgradeTest.TestUtils import applyMenu

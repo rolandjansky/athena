@@ -39,8 +39,9 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep, inDetSetup
 
+    inDetSetup()
 
     MenuChains  = []
 
@@ -68,22 +69,14 @@ if  TriggerFlags.doMuon==True:
  
     
     #################################
-    # configure L1Decoder
-    #################################
-      
-
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
+    # Some moer configurations
+    #################################      
 
     ### If inputFile is BS(ByteStream), the bool is true. ###
     isData = False 
     if globalflags.InputFormat.is_bytestream():
         isData = True
- 
-           
-    # this is a temporary hack to include new test chains
-    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in MenuChains])
-    topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+            
   
 
     ##########################################

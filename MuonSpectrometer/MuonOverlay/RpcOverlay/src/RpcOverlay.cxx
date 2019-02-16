@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
@@ -15,9 +15,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 
@@ -29,9 +26,6 @@
 RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_MultiHitOverlayBase(name, pSvcLocator)
 {
-  /** modifiable properties in job options */
-  declareProperty("CopySDO", m_copySDO);
-  declareProperty("RPC_SDO", m_sdo);
 }
 
 //================================================================
@@ -96,20 +90,6 @@ StatusCode RpcOverlay::overlayExecute() {
     this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
   }
   ATH_MSG_INFO("RPC Result   = "<<shortPrint(outputContainer.cptr()));
-
-  //----------------------------------------------------------------
-  ATH_MSG_DEBUG("Processing MC truth data");
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just RPC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy RPC-specific MC truth objects to the output.
-  if ( m_copySDO )
-    this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("RpcOverlay::execute() end");

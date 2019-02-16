@@ -130,25 +130,20 @@ namespace iFatras {
       /** describe deflection parametric/do real deflection */
       bool                                  m_parametricScattering;
 
-      /*
-       * Geant4 engine
-       * - Used only for `G4RunManager::SetVerboseLevel()` -> mutable
-       * - Does not take ownership -> no smart pointer
-      */
-      mutable G4RunManager* m_g4runManager;
+      //!< Geant4 engine
+      mutable G4RunManager*                m_g4runManager;
+      G4VUserPhysicsList*                  m_g4physicsList;
+      G4LayerDetectorConstruction*         m_g4detector;
 
-      /*
-       * Geant4 processes <PDGcode, process>  TODO : fission, capture
-       * - Used only for "easy access" to processes
-       * - Does not take ownership -> no smart pointers
-      */
+      //!< Geant4 processes <PDGcode, process>  TODO : fission, capture
       mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;
       mutable std::map<int, G4VProcess*>   m_g4HadrElasticProcesses;
 
       //!< locally stored Geant4 instances (speeds up processing)
-      mutable std::unique_ptr<G4ThreeVector> m_g4zeroPos;
-      mutable std::unique_ptr<G4Step>        m_g4step;
-      mutable std::unique_ptr<G4StepPoint>   m_g4stepPoint;
+      mutable G4DynamicParticle*           m_g4dynPar;
+      mutable const G4ThreeVector*         m_g4zeroPos;
+      mutable G4Step*                      m_g4step;
+      mutable G4StepPoint*                 m_g4stepPoint;
       mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;
 
       /** ISF services & Tools */
@@ -158,11 +153,7 @@ namespace iFatras {
       /** MCTruth process code for TruthIncidents created by this tool */
       Barcode::PhysicsProcessCode          m_processCode;
 
-      /*
-       * Random engine
-       * - Initialised by `ServiceHandle<IAtRndmGenSvc>::GetEngine()`
-       * - Does not take ownership -> no smart pointer
-      */
+      /** Random engine  */
       CLHEP::HepRandomEngine*              m_randomEngine;
       std::string                          m_randomEngineName;       //!< Name of the random number stream
 

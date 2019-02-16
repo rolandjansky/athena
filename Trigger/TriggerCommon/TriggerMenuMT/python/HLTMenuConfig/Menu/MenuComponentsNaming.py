@@ -39,7 +39,8 @@ class CFNaming ():
 
     @staticmethod
     def hypoAlgOutName(HypoName, HypoInput):
-        return  (HypoName + "_" + CFNaming.reduceName(HypoInput))
+        return  (HypoName + "_from_" + HypoInput)
+    #return  (HypoName + "_" + CFNaming.reduceName(HypoInput))
 
     @staticmethod
     def comboHypoName(HypoName):

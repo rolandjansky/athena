@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Csc4dSegmentMaker.h"
@@ -64,7 +64,6 @@ Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInte
 {
 
   declareInterface<ICscSegmentFinder>(this);
-  declareInterface<Muon::IMuonSegmentMaker>(this);
   declareProperty("dump_count", m_dumpcount =-1);
   declareProperty("max_chisquare", m_max_chisquare = 25);
   declareProperty("max_slope_r", m_max_slope_r = 0.2);
@@ -119,7 +118,7 @@ StatusCode Csc4dSegmentMaker::initialize(){
 
 //******************************************************************************
 
-MuonSegmentCombinationCollection*
+std::unique_ptr<MuonSegmentCombinationCollection>
 Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 {
 
@@ -127,10 +126,11 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
   m_dump = m_dumped < m_dumpcount || m_dumpcount < 0;
   if ( m_dump ) ++m_dumped;
     
-  MuonSegmentCombinationCollection* pcols = 0;
-  if ( segcols.empty() ) return pcols;
-  
-  pcols = new MuonSegmentCombinationCollection;
+  std::unique_ptr<MuonSegmentCombinationCollection> pcols(new MuonSegmentCombinationCollection);
+  if ( segcols.empty() ){
+    pcols.reset();
+    return pcols;
+  }
 
   for ( MuonSegmentCombinationCollection::const_iterator icom=segcols.begin();
         icom!=segcols.end(); ++icom ) {
@@ -156,102 +156,6 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
   return pcols;
 
 }
-//******************************************************************************
-// For MuGirls... Seeded SegmentMaker part.... 
-//Note: this code was used by the old MuGirl but is not part of the current reconstruction
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /*gpos*/, const Amg::Vector3D& /*gdir*/,
-                                                          const std::vector< const MdtDriftCircleOnTrack* > & ,
-                                                          const std::vector< const MuonClusterOnTrack* > & pcots,
-                                                          bool, double) const {
-
-  if( pcots.empty() ) return 0;
-  const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(pcots.front());
-  if( !csc ){
-    ATH_MSG_WARNING("Cluster input should only contain CSC hits");
-    return 0;
-  }
-  const MuonGM::CscReadoutElement* detEl = csc->detectorElement();
-  if( !detEl ){
-    ATH_MSG_WARNING("Failed to obtain CscReadoutElement for cluster");
-    return 0;
-  }
-  Amg::Transform3D gToLocal = detEl->GlobalToAmdbLRSTransform();
-  Amg::Vector3D lpos000 = gToLocal*Amg::Vector3D(0.0, 0.0, 0.0);
-
-  ChamberTrkClusters etaclus, phiclus;
-  Identifier eta_id, phi_id, chid;
-  for ( unsigned int icot=0; icot<pcots.size(); ++icot ) {
-
-    const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(pcots[icot]);
-    if( !csc ){
-      ATH_MSG_WARNING("Failed to obtain CscReadoutElement for cluster");
-      return 0;
-    }
-    ATH_MSG_VERBOSE ( " +++++++++ Errors from prio " << Amg::error(csc->localCovariance(),Trk::locX) << " ");
-    
-    Amg::Vector3D lpos = gToLocal*csc->globalPosition();
-    const Identifier& id = csc->identify();
-    bool measphi = m_phelper->measuresPhi(id);
-    int iwlay = m_phelper->wireLayer(id);
-    if ( measphi ) {
-      phi_id = id;
-      phiclus[iwlay-1].push_back(Cluster(lpos,csc,measphi));
-    } else {
-      eta_id = id;
-      etaclus[iwlay-1].push_back(Cluster(lpos,csc,measphi));
-    }
-  }
-
-  std::vector<const MuonSegment*>* segments = 0;
-  //  std::vector<const MuonSegment*>* segments = 0
-
-
-  int nHitLayer_eta =0;
-  int nHitLayer_phi =0;
-  for (int i=0; i<4; ++i) {
-    //    ATH_MSG_DEBUG ( "No of clusters in layer " << i << " " << eta_clus[i].size() << " " << phi_clus[i].size() );
-    if (etaclus[i].size() >0) ++nHitLayer_eta;
-    if (phiclus[i].size() >0) ++nHitLayer_phi;
-  }
-
-  if (nHitLayer_eta >=2 || nHitLayer_phi >=2) {
-    ATH_MSG_DEBUG( "Csc4dSegment calls getMuonSegments!!! " << nHitLayer_eta << " " << nHitLayer_phi );
-    segments = m_segmentTool->getMuonSegments(eta_id, phi_id, etaclus, phiclus,lpos000);
-  }
-  
-  return segments;
-
-} //find
-
-//Note: this code was used by the old MuGirl but is not part of the current reconstruction
-//******************************************************************************
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Trk::TrackRoad& road,
-                                                          const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& ,
-                                                          const std::vector< std::vector< const MuonClusterOnTrack* > >& clusters,
-                                                          bool, double) const {
-  
-  // Here, according to give TrackRoad, I do re-estimate errors of each COT and repeat segment fit
-  
-  // Reference
-  // MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/DCMathSegmentMaker/src/DCMathSegmentMaker.cxx#553
-
-  const Amg::Vector3D& gpos = road.globalPosition();
-  const Amg::Vector3D& gdir = road.globalDirection();
-  
-  // copy all clusters into one vector
-  std::vector< const MdtDriftCircleOnTrack* > pmots;
-  std::vector< const MuonClusterOnTrack* > pcots;
-  std::vector< std::vector< const MuonClusterOnTrack* > >::const_iterator cit = clusters.begin();
-  std::vector< std::vector< const MuonClusterOnTrack* > >::const_iterator cit_end = clusters.end();
-  for(; cit!=cit_end;++cit ){
-    std::copy( cit->begin(), cit->end(), std::back_inserter(pcots) );
-  }
-
-  return find(gpos, gdir, pmots, pcots, false, 0.0);
-  
-}
-
-
 
 //******************************************************************************
 
@@ -259,23 +163,10 @@ StatusCode Csc4dSegmentMaker::finalize() {
   ATH_MSG_DEBUG ( "Goodbye" );
   return StatusCode::SUCCESS;
 }
- 
 
-//************dummy function for interface******************************************************************
+//******************************************************************************
 
-MuonSegmentCombinationCollection* Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>& /*pcols*/) const {
-  return 0;
-}
-
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ ) const {
-  return 0;
-}
-
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& /*rios1*/,
-                                                          const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) const {
-  return 0;
-}
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const MdtDriftCircleOnTrack*>& /*mdts*/,
-                                                          const std::vector<const MuonClusterOnTrack*>&  /*clusters*/) const {
+//dummy ICscSegmentFinder interface
+std::unique_ptr<MuonSegmentCombinationCollection> Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>& ) const {
   return 0;
 }

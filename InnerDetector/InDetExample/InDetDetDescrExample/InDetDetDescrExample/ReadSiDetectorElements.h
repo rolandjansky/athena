@@ -12,7 +12,6 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
@@ -55,7 +54,6 @@ public:
   bool m_doExec;
   bool m_useConditionsTools;
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
-  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
   ToolHandle<ISiLorentzAngleTool> m_siLorentzAngleTool{this, "SiLorentzAngleTool", "SiLorentzAngleTool", "Silicon Lorentz anglet tool"};
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection"};

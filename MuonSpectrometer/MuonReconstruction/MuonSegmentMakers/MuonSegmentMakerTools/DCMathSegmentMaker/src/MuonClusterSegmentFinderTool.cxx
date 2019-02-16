@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterSegmentFinderTool.h"
@@ -59,20 +59,17 @@ namespace Muon {
     
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) const {
-    ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit" );
-    if(belowThreshold(muonClusters,4)) return 0;
-    std::vector<const Muon::MuonSegment*>* segs = findPrecisionSegments(muonClusters);
-    if(segs == 0) return 0;
-    if(segs->size() == 0)
+  void MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, std::vector<Muon::MuonSegment*>& segments, Trk::SegmentCollection* segColl) const {
+   ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit" );
+    if(belowThreshold(muonClusters,4)) return;
+    std::vector<Muon::MuonSegment*> etaSegs;
+    findPrecisionSegments(muonClusters,etaSegs);
+    if(etaSegs.size() == 0)
     { 
-      delete segs;
-      return 0;
+      return;
     }
-    std::vector<const Muon::MuonSegment*>* segments = find3DSegments(muonClusters,segs);
+    find3DSegments(muonClusters,etaSegs,segments,segColl);
 
-    
-    return segments;
   }
 
   StatusCode MuonClusterSegmentFinderTool::finalize() {
@@ -80,17 +77,17 @@ namespace Muon {
   }
 
   //find the precision (eta) segments
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) const {
+  void MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, std::vector<Muon::MuonSegment*>& etaSegs) const {
 
     //clean the muon clusters -- select only the eta hits
     bool selectPhiHits(false);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " 2D clusters to be fit" );
     if(belowThreshold(clusters,4)){
-      return 0;
+      return;
     }
     
-    TrackCollection* segTrkColl = new TrackCollection;
+    std::unique_ptr<TrackCollection> segTrkColl(new TrackCollection);
     //std::vector< const Muon::MuonClusterOnTrack* > clusters = muonClusters;
     //order the muon clusters by layer
     std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters);
@@ -234,15 +231,13 @@ namespace Muon {
     }
 
     if( segTrkColl->empty() ){
-      delete segTrkColl;
-      return 0;
+      return;
     }
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl);
+    TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl.get());
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size " << resolvedTracks->size() );
       //store the resolved segments
 
-    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
     for(TrackCollection::const_iterator it=resolvedTracks->begin(); it!=resolvedTracks->end(); ++it) {
       MuonSegment* seg = m_trackToSegmentTool->convert( **it );
       if( !seg ) {
@@ -250,28 +245,38 @@ namespace Muon {
       }
       else {
         ATH_MSG_DEBUG(" adding " << m_printer->print(*seg) << std::endl << m_printer->print( seg->containedMeasurements() ) );
-        segments->push_back(seg);
+        etaSegs.push_back(seg);
       }
     }
     
     //memory cleanup
     delete resolvedTracks;
-    delete segTrkColl;
 
-    return segments;
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find3DSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, 
-										      std::vector<const Muon::MuonSegment*>* etaSegs) const {
+  void MuonClusterSegmentFinderTool::find3DSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, 
+						    std::vector<Muon::MuonSegment*>& etaSegs,
+						    std::vector<Muon::MuonSegment*>& segments,
+						    Trk::SegmentCollection* segColl) const {
     bool selectPhiHits(true);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     std::vector< const Muon::MuonClusterOnTrack* > etaClusters = cleanClusters(muonClusters,false);
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " 3D clusters to be fit" );
     if(belowThreshold(clusters,4)) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
-      return etaSegs;
+      if(segColl){
+	for(std::vector<Muon::MuonSegment*>::iterator vsit=etaSegs.begin();vsit!=etaSegs.end();++vsit){
+	  segColl->push_back(*vsit);
+	  etaSegs.erase(vsit);
+	}
+      }
+      else{
+	for(std::vector<Muon::MuonSegment*>::iterator vsit=etaSegs.begin();vsit!=etaSegs.end();++vsit){
+	  segments.push_back(*vsit);
+	  etaSegs.erase(vsit);
+	}
+      }
     }
-    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
     TrackCollection* segTrkColl = new TrackCollection;
     //order the clusters by layer
     bool useWires(true);
@@ -291,7 +296,7 @@ namespace Muon {
       ATH_MSG_DEBUG("Found " << seeds.size() << " 3D seeds from Wires for phi direction" );
     }
     //loop on the seeds and combine with the eta segments
-    for(std::vector<const Muon::MuonSegment*>::const_iterator sit=etaSegs->begin(); sit!=etaSegs->end(); ++sit) {
+    for(std::vector<Muon::MuonSegment*>::const_iterator sit=etaSegs.begin(); sit!=etaSegs.end(); ++sit) {
       bool is3Dseg(false);
       if(!useWires) seeds = segmentSeedFromPads(orderedClusters,*sit);
       if(!useWires) ATH_MSG_DEBUG("Found " << seeds.size() << " 3D seeds from Pads for phi direction" );
@@ -347,7 +352,7 @@ namespace Muon {
 	     continue;
 	   }
 	}
-	phiHitsPrevious.clear();
+      	phiHitsPrevious.clear();
 	for(unsigned int k=0; k<phiHits.size(); ++k) {
 	 phiHitsPrevious.push_back(phiHits[k]);
 	}
@@ -438,7 +443,10 @@ namespace Muon {
 	}		
 	if(m_ipConstraint) delete pseudoVtx;
       }//end loop on phi seeds
-      if( !is3Dseg ) segments->push_back( (*sit)->clone() );
+      if( !is3Dseg ){
+	if(!segColl) segments.push_back( (*sit)->clone() );
+	else segColl->push_back( (*sit)->clone() );
+      }
     }//end loop on precision plane segments
 
     TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl);
@@ -450,7 +458,8 @@ namespace Muon {
         ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
       }
       else {
-        segments->push_back(seg);
+	if(!segColl) segments.push_back(seg);
+        else segColl->push_back(seg);
       }
     }
 
@@ -458,12 +467,10 @@ namespace Muon {
     delete segTrkColl;
     delete resolvedTracks;
 
-    for(std::vector<const Muon::MuonSegment*>::const_iterator sit=etaSegs->begin(); sit!=etaSegs->end(); ++sit) {
+    for(std::vector<Muon::MuonSegment*>::iterator sit=etaSegs.begin(); sit!=etaSegs.end(); ++sit) {
       delete *sit;
     }
-    delete etaSegs;
-
-    return segments;
+    
   }
 
 

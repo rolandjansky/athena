@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           Control/StoreGate
                           Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           GaudiKernel )
 
 # External dependencies:
@@ -31,14 +32,14 @@ atlas_add_library( SGTutorialLib
                    PUBLIC_HEADERS AthExStoreGateExample
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel SGTools PileUpToolsLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers AthLinks AthenaBaseComps CxxUtils EventInfo GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers AthLinks AthenaBaseComps CxxUtils EventInfo xAODEventInfo GaudiKernel )
 
 atlas_add_library( SGTutorial
                    Tutorial/SGTutorial_entries.cxx
                    PUBLIC_HEADERS AthExStoreGateExample
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel SGTools PileUpToolsLib StoreGateLib SGtests SGTutorialLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers AthLinks AthenaBaseComps CxxUtils EventInfo GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers AthLinks AthenaBaseComps CxxUtils EventInfo xAODEventInfo GaudiKernel )
 
 atlas_add_component( AthExStoreGateExample
                      src/*.cxx
@@ -56,7 +57,7 @@ atlas_add_dictionary( AthExStoreGateExampleDict
                       AthExStoreGateExample/AthExStoreGateExampleDict.h
                       AthExStoreGateExample/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools TestTools AthContainers AthLinks AthenaBaseComps CxxUtils PileUpToolsLib StoreGateLib SGtests EventInfo GaudiKernel SGTutorialLib SGTutorial )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools TestTools AthContainers AthLinks AthenaBaseComps CxxUtils PileUpToolsLib StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel SGTutorialLib SGTutorial )
 
 # Install files from the package:
 atlas_install_joboptions( share/StoreGateExample_Gen_jobOptions.txt share/StoreGateExample_Gen_jobOptions.py share/StoreGateExample_Del_jobOptions.py share/StoreGateExample_Reentrant_jobOptions.py share/dflow_jobo.py share/StoreGateHiveExample.py )

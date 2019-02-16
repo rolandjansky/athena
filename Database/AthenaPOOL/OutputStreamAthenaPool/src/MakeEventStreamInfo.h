@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MAKEEVENTSTREAMINFO_H
@@ -18,6 +18,7 @@
 #include <string>
 
 class StoreGateSvc;
+namespace xAODMaker {  class IEventInfoCnvTool;  }
 
 /** @class MakeEventStreamInfo 
  *  @brief This class provides an algorithm to make the EventStreamInfo object and update it.

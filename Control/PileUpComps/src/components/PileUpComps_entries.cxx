@@ -1,7 +1,4 @@
 #include "../BkgStreamsCache.h"
-#include "../BkgStreamsConcentricCache.h"
-#include "../BkgStreamsStepCache.h"
-#include "../SplitBkgStreamsCache.h"
 #include "../PileUpEventLoopMgr.h"
 #include "../PileUpXingFolder.h"
 #include "../PileUpToolsAlg.h"
@@ -22,9 +19,6 @@ DECLARE_COMPONENT( StepArrayBM )
 DECLARE_COMPONENT( LumiProfileSvc )
 DECLARE_COMPONENT( NoProfileSvc )
 DECLARE_COMPONENT( BkgStreamsCache )
-DECLARE_COMPONENT( BkgStreamsConcentricCache )
-DECLARE_COMPONENT( BkgStreamsStepCache )
-DECLARE_COMPONENT( SplitBkgStreamsCache )
 DECLARE_COMPONENT( PileUpXingFolder )
 DECLARE_COMPONENT( TestPileUpTool )
 DECLARE_COMPONENT( PileUpToolsAlg )

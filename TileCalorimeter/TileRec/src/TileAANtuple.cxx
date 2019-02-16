@@ -2366,7 +2366,6 @@ StatusCode TileAANtuple::storeDCS() {
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ROS,drawer);
       for (int channel=0; channel<48; ++channel){
         TileBchStatus chStat = m_tileBadChanTool->getChannelStatus(drawerIdx,channel);
-        int pmt=abs(m_cabling->channel2hole(ROS,channel));
         m_arrays->m_HV[rosI][drawer][channel]       = m_tileDCS->getChannelHV(ROS, drawer, channel);
         m_arrays->m_HVSET[rosI][drawer][channel]    = m_tileDCS->getChannelHVSet(ROS, drawer, channel);
         m_arrays->m_HVSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSHVStatus(ROS, drawer, channel);
@@ -2385,6 +2384,7 @@ StatusCode TileAANtuple::storeDCS() {
         }
           
         if (msgLvl(MSG::VERBOSE) || (chbad && !drbad)) {
+          int pmt=abs(m_cabling->channel2hole(ROS,channel));
           ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
                            << " channel=" << channel << " pmt=" << pmt
                            << " HV=" << m_arrays->m_HV[rosI][drawer][channel]
@@ -2396,7 +2396,7 @@ StatusCode TileAANtuple::storeDCS() {
       }
         
       for (int ind=0; ind<7; ++ind){
-        m_arrays->m_TEMP[rosI][drawer][ind] = m_tileDCS->getChannelHV(ROS, drawer, ind+49);
+        m_arrays->m_TEMP[rosI][drawer][ind] = m_tileDCS->getChannelHV(ROS, drawer, ind+48);
         ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
                          << " TEMP" << ind+1 << "=" << m_arrays->m_TEMP[rosI][drawer][ind] );
           

@@ -70,7 +70,7 @@ namespace iFatras
     virtual StatusCode finalize();
      
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    ISF::ISFParticle* process(const ISF::ISFParticle& isp );
+    ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*);
     
   private:
      /** templated Tool retrieval - gives unique handling & look and feel */

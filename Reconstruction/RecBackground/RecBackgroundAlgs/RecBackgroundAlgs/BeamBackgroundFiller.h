@@ -62,23 +62,25 @@ private:
   // Function to identify fake jets
   void FindFakeJets();
   // Function to store the results in BeamBackgroundData
-  void FillBeamBackgroundData();
+  void FillBeamBackgroundData(SG::WriteHandle<BeamBackgroundData>& beamBackgroundDataWriteHandle);
 
   void PrintMatchMatrix() {};
 
-  // containers
-  std::string m_cscSegmentContainerKey;
-  std::string m_mdtSegmentContainerKey;
-  std::string m_caloClusterContainerKey;
-  std::string m_jetContainerKey;
-  std::string m_beamBackgroundDataKey;
+  /** ReadHandleKey for Trk::SegmentCollection from CSC */
+  SG::ReadHandleKey<Trk::SegmentCollection> m_cscSegmentContainerReadHandleKey{this,"cscSegmentContainerKey","NCB_MuonSegments","ReadHandleKey for Trk::SegmentCollection from CSC"};
 
-  const xAOD::CaloClusterContainer* p_clusContainer;
-  const Trk::SegmentCollection* p_cscSegmentContainer;
-  const Trk::SegmentCollection* p_mdtSegmentContainer;
-  const xAOD::JetContainer* p_jetContainer;
+  /** ReadHandleKey for Trk::SegmentCollection from MDT */
+  SG::ReadHandleKey<Trk::SegmentCollection> m_mdtSegmentContainerReadHandleKey{this,"mdtSegmentContainerKey","MuonSegments","ReadHandleKey for Trk::SegmentCollection from MDT"};
 
+  /** ReadHandleKey for CaloClusterContainer */
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterContainerReadHandleKey{this,"caloClusterContainerKey","CaloCalTopoClusters","ReadHandleKey for CaloClusterContainer"};
 
+  /** ReadHandleKey for JetContainer */
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerReadHandleKey{this,"jetContainerKey","AntiKt4EMTopoJets","ReadHandleKey for JetContainer"};
+
+  /* WriteHandleKey for BeamBackgroundData */
+  SG::WriteHandleKey<BeamBackgroundData> m_beamBackgroundDataWriteHandleKey{this,"BeamBackgroundKey","BeamBackgroundData","WriteHandleKey for BeamBackgroundData"};
+  
   // switch to turn on/off the time reconstruction for mboy CSC segments (needed until release 17.1.0)
   bool m_doMuonBoyCSCTiming;
 
@@ -98,9 +100,6 @@ private:
   double m_cutClusTime;
   double m_cutTimeDiffAC;
   double m_cutDrdz;
-
-
-  BeamBackgroundData* p_beamBackgroundData;  // stores the results
 
 
   int m_numSegment;         // number of segments with the direction parallel to the beam pipe

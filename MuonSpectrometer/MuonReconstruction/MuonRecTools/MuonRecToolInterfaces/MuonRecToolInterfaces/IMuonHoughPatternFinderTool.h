@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHOUGHPATTERNFINDERTOOL_H
@@ -33,11 +33,11 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
-    virtual const MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-							  const std::vector<const CscPrepDataCollection*>& cscCols,  
-							  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-							  const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-							  const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
+    virtual MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+						    const std::vector<const CscPrepDataCollection*>& cscCols,  
+						    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+						    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+						    const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
 
   };
   

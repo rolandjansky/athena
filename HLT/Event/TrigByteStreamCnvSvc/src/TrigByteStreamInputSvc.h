@@ -9,6 +9,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include <memory.h>
 
 // Forward declarations
 class StoreGateSvc;
@@ -45,14 +46,12 @@ private:
   // ------------------------- Private data members ----------------------------
   struct EventCache {
     ~EventCache();
-    RawEvent* rawEvent {nullptr}; //!< Current event
+    void releaseEvent();
+    std::unique_ptr<RawEvent> fullEventFragment {nullptr}; //!< Current event fragment
+    std::unique_ptr<uint32_t[]> rawData {nullptr}; //!< Underlying data structure
   };
 
   SG::SlotSpecificObj<EventCache> m_eventsCache; //!< Cache of RawEvent pointer per event slot
-
-  // ------------------------- Private helper methods --------------------------
-  /// Clean up parts of previous event and re-init them
-  void releaseEvent(EventCache* cache);
 };
 
 #endif // TRIGBYTESTREAMINPUTSVC_H

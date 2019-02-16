@@ -104,13 +104,23 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
     double rave = 2*innerRadiusOfSCTCables*outerRadiusOfSCTCables/(innerRadiusOfSCTCables+outerRadiusOfSCTCables);
     double thickness = 988*tapeCrossSection/(2*Gaudi::Units::pi*rave);
     // We need to scale the density to fit in with space given.
-    //std::cout << "LMT thickness (Gaudi::Units::mm) = " << thickness/Gaudi::Units::mm << std::endl;
     double densityfactor = thickness/lengthOfSCTCables;
-    const GeoElement  *copper  = m_materialManager->getElement("Copper");
-    const GeoMaterial *kapton  = m_materialManager->getMaterial("std::Kapton");
+    // Based on Elements-00
+    GeoElement *copper = new GeoElement("Copper", "Cu", 29., 63.54);
+    GeoElement *hydrogen = new GeoElement("Hydrogen", "H", 1., 1.00797);
+    GeoElement *carbon = new GeoElement("Carbon", "C", 6., 12.0112);
+    GeoElement *nitrogen = new GeoElement("Nitrogen", "N", 7., 14.0067);
+    GeoElement *oxygen = new GeoElement("Oxygen", "O", 8., 15.9994);
+    GeoMaterial *kapton = new GeoMaterial("Kapton", 1.46*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
+    // Based on StdMaterials-02 and StdMatComponents-02
+    kapton->add(carbon, 22.);
+    kapton->add(hydrogen, 10.);
+    kapton->add(oxygen, 5.);
+    kapton->add(nitrogen, 2.);
+    kapton->lock();
     GeoMaterial * matCuKapton   = new GeoMaterial("CuKaptoninTRT",densityfactor * 2.94*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
-    matCuKapton->add(const_cast<GeoElement*>(copper),  0.6142);
-    matCuKapton->add(const_cast<GeoMaterial*>(kapton), 0.3858);
+    matCuKapton->add(copper, 0.6142);
+    matCuKapton->add(kapton, 0.3858);
     matCuKapton->lock();
     sctCablesMaterial = matCuKapton;
   } else {
@@ -268,16 +278,14 @@ const GeoMaterial* SCT_ServMatFactoryDC2::createMaterial(const std::string & nam
   
   // Make new material as carbon with density modified to give the right radiation length.
 
-  const GeoMaterial* carbonMat= m_materialManager->getMaterial("std::Carbon");
+  const GeoMaterial* carbonMat = m_materialManager->getMaterial("std::Carbon");
   double radiationLength = thickness / fractionRL;
   double density = carbonMat->getDensity() * carbonMat->getRadLength() / radiationLength;
 
-  GeoMaterial * newMaterial = new GeoMaterial(name, density);
-  const GeoElement * carbon = m_materialManager->getElement("Carbon");
-  newMaterial->add(const_cast<GeoElement *>(carbon),1.);
+  GeoMaterial* newMaterial = new GeoMaterial(name, density);
+  GeoElement* carbon = new GeoElement("Carbon", "C", 6., 12.0112); // Based on Elements-00
+  newMaterial->add(carbon, 1.);
   newMaterial->lock();
 
   return newMaterial;
 }
-
-  

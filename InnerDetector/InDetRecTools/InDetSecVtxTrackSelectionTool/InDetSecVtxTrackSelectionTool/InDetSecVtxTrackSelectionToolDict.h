@@ -1,0 +1,15 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef INDETSECVTXTRACKSELECTIONTOOL_INDETSECVTXTRACKSELECTIONTOOLDICT_H
+#define INDETSECVTXTRACKSELECTIONTOOL_INDETSECVTXTRACKSELECTIONTOOLDICT_H
+
+#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
+#define EIGEN_DONT_VECTORIZE
+#endif // __GCCXML__
+
+#include "InDetSecVtxTrackSelectionTool/InDetSecVtxTrackSelectionTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
+#endif // not INDETSECVTXTRACKSELECTIONTOOL_INDETSECVTXTRACKSELECTIONTOOLDICT_H

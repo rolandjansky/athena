@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_ELECTRONSUPERCLUSTERBUILDER_H
@@ -42,8 +42,7 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   bool PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
 			      const xAOD::CaloCluster *sec,
 			      float perigeeExtrapEta,
-			      float perigeeExtrapPhi,
-			      float seedEOverP) const;
+			      float perigeeExtrapPhi) const;
   
   
   /////////////////////////////////////////////////////////////////////
