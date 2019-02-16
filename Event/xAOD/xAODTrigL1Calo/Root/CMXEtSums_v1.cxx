@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CMXEtSums_v1.cxx 687949 2015-08-06 15:48:49Z amazurov $
@@ -9,6 +9,44 @@
 
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CMXEtSums_v1.h"
+
+
+namespace {
+
+
+std::string sourceComponent(uint8_t source)
+{
+    switch (source)
+    {
+    case xAOD::CMXEtSums_v1::Sources::REMOTE_STANDARD:
+        return "REMOTE_STANDARD";
+    case xAOD::CMXEtSums_v1::Sources::REMOTE_RESTRICTED:
+        return "REMOTE_RESTRICTED";
+    case xAOD::CMXEtSums_v1::Sources::LOCAL_STANDARD:
+        return "LOCAL_STANDARD";
+    case xAOD::CMXEtSums_v1::Sources::LOCAL_RESTRICTED:
+        return "LOCAL_RESTRICTED";
+    case xAOD::CMXEtSums_v1::Sources::TOTAL_STANDARD:
+        return "TOTAL_STANDARD";
+    case xAOD::CMXEtSums_v1::Sources::TOTAL_RESTRICTED:
+        return "TOTAL_RESTRICTED";
+    case xAOD::CMXEtSums_v1::Sources::SUM_ET_STANDARD:
+        return "SUM_ET_STANDARD";
+    case xAOD::CMXEtSums_v1::Sources::SUM_ET_RESTRICTED:
+        return "SUM_ET_RESTRICTED";
+    case xAOD::CMXEtSums_v1::Sources::MISSING_ET_STANDARD:
+        return "MISSING_ET_STANDARD";
+    case xAOD::CMXEtSums_v1::Sources::MISSING_ET_RESTRICTED:
+        return "MISSING_ET_RESTRICTED";
+    case xAOD::CMXEtSums_v1::Sources::MISSING_ET_SIG_STANDARD:
+        return "MISSING_ET_SIG_STANDARD";
+    default:
+        return std::to_string(source);
+    }
+}
+
+
+} // anonymous namespace
 
 namespace xAOD{
 
@@ -117,6 +155,21 @@ namespace xAOD{
   {
     return eyErrorVec()[ peak() ];
   }
+
+
+  std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums_v1 &el)
+  {
+    os << "xAOD::CMXEtSums crate=" << int(el.crate())
+       << " sourceComponent=" << sourceComponent(el.sourceComponent())
+       << " peak=" << int(el.peak()) << " et=" << el.et()
+       << " ex=" << int(el.ex()) << " ey=" << int(el.ey())
+       << " etError=" << int(el.etError()) << " exError="
+       << int(el.exError()) << ", eyError=" << int(el.eyError()) << " etVec=[";
+    std::for_each(el.etVec().begin(), el.etVec().end(), [&](uint16_t n) { os << " " << int(n); });
+    os << "]";
+    return os;
+  }
+
 
 } // namespace xAOD
 
