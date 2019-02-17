@@ -15,7 +15,7 @@ namespace xAOD {
   template<class T>
   bool Jet_v1::getAttribute(const std::string &name, T& value) const{
     // build an accessor. AccessorWrapper is nothing more than a standard SG::AuxElement::Accessor for simpe types
-    JetAttributeAccessor::AccessorWrapper<T> a(name);
+    const JetAttributeAccessor::AccessorWrapper<T> a(name);
     if(! a.isAvailable( *this) ) { return  false;}
     a.getAttribute(*this,value);
     return true;
@@ -24,14 +24,14 @@ namespace xAOD {
   template<class T>
   T Jet_v1::getAttribute(const std::string &name) const {
     // build an accessor. AccessorWrapper is nothing more than a standard SG::AuxElement::Accessor for simpe types
-    JetAttributeAccessor::AccessorWrapper<T> a(name);
+    const JetAttributeAccessor::AccessorWrapper<T> a(name);
     return a.getAttribute(*this);
   }
   
   template<class T>
   bool Jet_v1::getAttribute( AttributeID type, T & value ) const {
     // Get the moment accessor by asking the map :
-    JetAttributeAccessor::AccessorWrapper< T >* acc = xAOD::JetAttributeAccessor::AccessorMap_v1<T>::accessor( type );
+    const JetAttributeAccessor::AccessorWrapper< T >* acc = xAOD::JetAttributeAccessor::AccessorMap_v1<T>::accessor( type );
     if( ! acc ) {  return false ;}
     
     // Check if the moment is available:
@@ -45,7 +45,7 @@ namespace xAOD {
 
   template<class T>
   T Jet_v1::getAttribute(AttributeID  type) const {
-    JetAttributeAccessor::AccessorWrapper< T >* acc = xAOD::JetAttributeAccessor::AccessorMap_v1<T>::accessor( type );
+    const JetAttributeAccessor::AccessorWrapper< T >* acc = xAOD::JetAttributeAccessor::AccessorMap_v1<T>::accessor( type );
     if( ! acc ) {throw std::string("Jet_v1::getAttribute(type) with unknown type");} // need a better exception
     return acc->getAttribute(*this);    
   }
@@ -80,13 +80,13 @@ namespace xAOD {
   
     template<typename T>
     std::vector<const T*> Jet_v1::getAssociatedObjects( const std::string &name) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > a(name);
+      const JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > a(name);
       return a.getAttribute(*this);      
     }
 
     template<typename T>
     std::vector<const T*> Jet_v1::getAssociatedObjects( AssoParticlesID type) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
+      const JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
       
       if(acc) {
         return acc->getAttribute(*this);
@@ -97,7 +97,7 @@ namespace xAOD {
 
     template<typename T>
     bool Jet_v1::getAssociatedObjects( const std::string &name, std::vector<const T*>& vec) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > a(name);
+      const JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > a(name);
       if(! a.isAvailable(*this) ) return false;
       a.getAttribute(*this, vec );
       return true;
@@ -105,7 +105,7 @@ namespace xAOD {
 
     template<typename T>
     bool Jet_v1::getAssociatedObjects( AssoParticlesID type, std::vector<const T*>& vec) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
+      const JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
       if(!acc) return false;
       if(! acc->isAvailable(*this) ) return false;      
       acc->getAttribute(*this, vec );
@@ -122,26 +122,20 @@ namespace xAOD {
     template<typename T>
     void Jet_v1::setAssociatedObjects( AssoParticlesID type, const std::vector<const T*>& vec)  {
       JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
-      
       if(acc) acc->setAttribute(*this, vec);
 
     }
 
 
-
-
-
-
-
     template<typename T>
     const T* Jet_v1::getAssociatedObject( const std::string &name) const {
-      JetAttributeAccessor::ObjectAccessorWrapper< T > a(name);
+      const JetAttributeAccessor::ObjectAccessorWrapper< T > a(name);
       return a.getAttribute(*this);            
     }
 
     template<typename T>
     const T* Jet_v1::getAssociatedObject( AssoParticlesID type) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<T > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< T >::accessor(type) ;
+      const JetAttributeAccessor::ObjectAccessorWrapper<T > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< T >::accessor(type) ;
       
       if(acc) {
         return acc->getAttribute(*this);
@@ -149,10 +143,9 @@ namespace xAOD {
       return  NULL;
     }
 
-
     template<typename T>
     bool Jet_v1::getAssociatedObject( const std::string &name, const T*& vec) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<T > a(name);
+      const JetAttributeAccessor::ObjectAccessorWrapper<T > a(name);
       if(! a.isAvailable(*this) ) return false;
       a.getAttribute(*this, vec );
       return true;
@@ -160,13 +153,12 @@ namespace xAOD {
 
     template<typename T>
     bool Jet_v1::getAssociatedObject( AssoParticlesID type, const T*& vec) const {
-      JetAttributeAccessor::ObjectAccessorWrapper<T > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< T >::accessor(type) ;
+      const JetAttributeAccessor::ObjectAccessorWrapper<T > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< T >::accessor(type) ;
       if(!acc) return false;
       if(! acc->isAvailable(*this) ) return false;
       acc->getAttribute(*this, vec );
       return true;
     }
-
 
     template<typename T>
     void Jet_v1::setAssociatedObject( const std::string &name, const  T* vec) {
@@ -177,10 +169,8 @@ namespace xAOD {
     template<typename T>
     void Jet_v1::setAssociatedObject( AssoParticlesID type, const  T* vec)  {
       JetAttributeAccessor::ObjectAccessorWrapper<T > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< T >::accessor(type) ;
-      
       if(acc) acc->setAttribute(*this, vec);
     }
-
 
 }
 

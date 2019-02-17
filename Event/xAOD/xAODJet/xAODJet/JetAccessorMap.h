@@ -23,11 +23,11 @@ namespace xAOD {
     /// returns null if invalid AttributeID.
     ////////////////////////////////////////////////
     template<class T> 
-    AccessorWrapper<T>* accessor(xAOD::JetAttribute::AttributeID id ){
+    const AccessorWrapper<T>* accessor(xAOD::JetAttribute::AttributeID id ) {
       return AccessorMap_v1<T>::accessor(id);
     }
     
-    inline std::string name(xAOD::JetAttribute::AttributeID id ){
+    inline std::string name(xAOD::JetAttribute::AttributeID id ) {
       return name_v1(id);
     }
 

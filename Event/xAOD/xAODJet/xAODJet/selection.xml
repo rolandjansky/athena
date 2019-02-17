@@ -1,9 +1,7 @@
-<!-- $Id: selection.xml 796773 2017-02-12 19:01:20Z sschramm $ -->
 <lcgdict>
 
   <!-- Jet_v1 dictionaries: -->
   <class name="xAOD::Jet_v1" >
-    <field name="m_assoParticleCache" transient="true" />
     <field name="m_fastJetLink" transient="true" />
   </class>
 
