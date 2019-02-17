@@ -347,38 +347,19 @@ IOVSvcTool::handle(const Incident &inc) {
 
   if ( inc.type() == m_checkTrigger || inc.type() == IncidentType::BeginRun ) {
 
-    EventContext context;
-    const EventInfo* evt = p_sgSvc->tryConstRetrieve<EventInfo>();
-
-    if( !evt ) {
-      // If EventInfo is not in the event store, check whether 
-      // whether we can get event context via BeginRun incident
-      const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-      if(!eventInc) {
-	m_log << MSG::ERROR 
-	      << " Unable to get event information from either EventStore (via EventInfo) or " 
-	      << inc.type() << " incident (via EventContext)" 
-	      << endmsg;
-	return;
-      } else {
-	context = inc.context();
-	if (m_log.level() <= MSG::DEBUG) {
-           m_log << MSG::DEBUG << "Got event context from " << inc.type() << " incident" << endmsg;
-	}
-      }
-    }
+    const EventContext& context = inc.context();
 
     m_curTime.reset();
     
-    const EventIDBase* eventID = (evt ? evt->event_ID() : &context.eventID());
-    event = eventID->lumi_block();
-    run   = eventID->run_number();
+    const EventIDBase& eventID = context.eventID();
+    event = eventID.lumi_block();
+    run   = eventID.run_number();
     
     m_log << MSG::DEBUG << "Got event info: " << "run="<< run << ", event=" << event << endmsg;
     m_curTime.setRunEvent(run,event);
 
     // get ns timestamp from event
-    m_curTime.setTimestamp(1000000000L*(uint64_t)eventID->time_stamp() + eventID->time_stamp_ns_offset());
+    m_curTime.setTimestamp(1000000000L*(uint64_t)eventID.time_stamp() + eventID.time_stamp_ns_offset());
 
     if (m_log.level() <= MSG::DEBUG) {
       m_log << MSG::DEBUG;
