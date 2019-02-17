@@ -49,5 +49,5 @@ atlas_add_test( edm_test
 atlas_add_test( ut_edmTest
    SOURCES test/ut_edmTest.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} xAODMissingET )
+   LINK_LIBRARIES ${Boost_LIBRARIES} xAODMissingET CxxUtils)
 

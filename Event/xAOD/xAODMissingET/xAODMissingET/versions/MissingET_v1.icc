@@ -11,25 +11,25 @@
 
 inline double xAOD::MissingET_v1::met()   const { return sqrt(this->mpx()*this->mpx()+this->mpy()*this->mpy()); }
 inline double xAOD::MissingET_v1::phi()   const { return atan2(this->mpy(),this->mpx()); }
-inline double xAOD::MissingET_v1::mpx()   const { static SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
-inline double xAOD::MissingET_v1::mpy()   const { static SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
-inline double xAOD::MissingET_v1::sumet() const { static SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
+inline double xAOD::MissingET_v1::mpx()   const { static const SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
+inline double xAOD::MissingET_v1::mpy()   const { static const SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
+inline double xAOD::MissingET_v1::sumet() const { static const SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
 
-inline const std::string&              xAOD::MissingET_v1::name()     const { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
+inline const std::string&              xAOD::MissingET_v1::name()     const { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
 inline std::size_t xAOD::MissingET_v1::nameHash() const { return m_nameHash; }
-inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
+inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
 ////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Setters //
 ////////////////////////////////////////////
 
-inline double& xAOD::MissingET_v1::f_mpx()   { static SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
-inline double& xAOD::MissingET_v1::f_mpy()   { static SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
-inline double& xAOD::MissingET_v1::f_sumet() { static SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
+inline double& xAOD::MissingET_v1::f_mpx()   { static const SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
+inline double& xAOD::MissingET_v1::f_mpy()   { static const SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
+inline double& xAOD::MissingET_v1::f_sumet() { static const SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
 
-inline std::string& xAOD::MissingET_v1::f_name()                       { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
-inline const std::string& xAOD::MissingET_v1::f_nameConst()            { static SG::AuxElement::ConstAccessor<std::string> acc("name"); return acc(*this); }
-inline MissingETBase::Types::bitmask_t& xAOD::MissingET_v1::f_source() { static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
+inline std::string& xAOD::MissingET_v1::f_name()                       { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
+inline const std::string& xAOD::MissingET_v1::f_nameConst()            { static const SG::AuxElement::ConstAccessor<std::string> acc("name"); return acc(*this); }
+inline MissingETBase::Types::bitmask_t& xAOD::MissingET_v1::f_source() { static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
 inline void xAOD::MissingET_v1::setMpx(double mpx)     { this->f_mpx() = mpx; }
 inline void xAOD::MissingET_v1::setMpy(double mpy)     { this->f_mpy() = mpy; }
