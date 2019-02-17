@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
@@ -139,7 +139,7 @@ namespace LArBadChannelDBTools {
   }
 
   std::vector<BadChanEntry>
-  readBadChan( const AthenaAttributeList& attrList, MsgStream& log) 
+  readBadChan( const coral::AttributeList& attrList, MsgStream& log) 
   {
     const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
     unsigned int chanSize = attrList["ChannelSize"].data<unsigned int>();
@@ -153,7 +153,7 @@ namespace LArBadChannelDBTools {
   }
 
   std::vector<BadFebEntry>
-  readBadFeb( const AthenaAttributeList& attrList, MsgStream& log) 
+  readBadFeb( const coral::AttributeList& attrList, MsgStream& log) 
   {
     const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
     unsigned int chanSize = attrList["ChannelSize"].data<unsigned int>();
