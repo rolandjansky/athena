@@ -14,7 +14,7 @@
 #define DECLARE_STRING_ACCESSOR( TYPE )                              \
    case FileMetaData_v1::TYPE:                                       \
    do {                                                              \
-      static SG::AuxElement::Accessor< std::string > acc( #TYPE );   \
+      static const SG::AuxElement::Accessor< std::string > acc( #TYPE );   \
       return &acc;                                                   \
    } while( 0 )
 
@@ -22,13 +22,13 @@
 #define DECLARE_FLOAT_ACCESSOR( TYPE )                               \
    case FileMetaData_v1::TYPE:                                       \
    do {                                                              \
-      static SG::AuxElement::Accessor< float > acc( #TYPE );         \
+      static const SG::AuxElement::Accessor< float > acc( #TYPE );         \
       return &acc;                                                   \
    } while( 0 )
 
 namespace xAOD {
 
-   SG::AuxElement::Accessor< std::string >*
+   const SG::AuxElement::Accessor< std::string >*
    metaDataTypeStringAccessorV1( FileMetaData_v1::MetaDataType type ) {
 
       switch( type ) {
@@ -53,7 +53,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    metaDataTypeFloatAccessorV1( FileMetaData_v1::MetaDataType type ) {
 
       switch( type ) {

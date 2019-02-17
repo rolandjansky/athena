@@ -20,11 +20,11 @@
 namespace xAOD {
 
    /// Helper function for getting an accessor for a pre-defined property
-   SG::AuxElement::Accessor< std::string >*
+   const SG::AuxElement::Accessor< std::string >*
    metaDataTypeStringAccessorV1( FileMetaData_v1::MetaDataType type );
 
    /// Helper function for getting an accessor for a pre-defined property
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    metaDataTypeFloatAccessorV1( FileMetaData_v1::MetaDataType type );
 
 } // namespace xAOD
