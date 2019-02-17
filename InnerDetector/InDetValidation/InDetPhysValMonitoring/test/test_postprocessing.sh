@@ -55,7 +55,7 @@ dcube() {
 )
 echo "art-result: $? physval"
 
-mv ./physval.root ./physval_1.root
+mv ./MyPhysVal.root ./physval_1.root
 
 # Running IDPVM on second ESD file
 ( set -x
@@ -63,7 +63,7 @@ mv ./physval.root ./physval_1.root
 )
 echo "art-result: $? physval"
 
-mv ./physval.root ./physval_2.root
+mv ./MyPhysVal.root ./physval_2.root
 
 # Combining two IDPVM outputs using postprocessing
 hadd ./physval_hadd.root ./physval_1.root ./physval_2.root
@@ -77,7 +77,7 @@ mv ./physval_hadd.root ./$dcubemon_postprocessing
 )
 echo "art-result: $? physval"
   
-mv ./physval.root ./$dcuberef_postprocessing
+mv ./MyPhysVal.root ./$dcuberef_postprocessing
   
 # DCube InDetPhysValMonitoring performance plots
 # dcube InDetPhysValMonitoring "" "$dcubemon_postprocessing" "$dcubecfg_postprocessing" "$dcuberef_postprocessing" "$dcubeoutput_postprocessing"
