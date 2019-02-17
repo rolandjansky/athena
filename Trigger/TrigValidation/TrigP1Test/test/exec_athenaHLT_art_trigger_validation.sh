@@ -17,7 +17,7 @@ if [ -z ${JOBOPTION} ]; then
 fi
 
 if [ -z ${JOB_LOG} ]; then
-  export JOB_LOG="athena.log"
+  export JOB_LOG="atn_test.log"
 fi
 
 if [ -z ${FILE} ]; then
