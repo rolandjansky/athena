@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ const Trk::CompetingRIOsOnTrack* Trk::CompetingRIOsOnTrackTool::createCompetingR
 // Trk::CompetingRIOsOnTrack update
 ///////////////////////////////////////////////////////////////////
 void Trk::CompetingRIOsOnTrackTool::updateCompetingROT(
-    const Trk::CompetingRIOsOnTrack& compROT,
+    Trk::CompetingRIOsOnTrack& compROT,
     const Trk::TrackParameters& trkPar,
     const Trk::IWeightCalculator::AnnealingFactor beta
     //const bool recreateROTs=false
@@ -199,7 +199,7 @@ void Trk::CompetingRIOsOnTrackTool::updateCompetingROT(
 }
 
 StatusCode Trk::CompetingRIOsOnTrackTool::updateCompetingROTprobs(
-        const Trk::CompetingRIOsOnTrack& compROT,
+        Trk::CompetingRIOsOnTrack& compROT,
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >& assignmentProbs
     ) const {
     // identify by first ROT of the competing ROTs
