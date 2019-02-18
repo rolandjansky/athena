@@ -49,6 +49,7 @@ namespace CP
       
     m_systematicsList.addHandle (m_particlesHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -65,8 +66,11 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
-          m_selectionAccessor->setBits
-            (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
+          if (m_preselection.getBool (*particle))
+          {
+            m_selectionAccessor->setBits
+              (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
+          }
         }
         return StatusCode::SUCCESS;
       });

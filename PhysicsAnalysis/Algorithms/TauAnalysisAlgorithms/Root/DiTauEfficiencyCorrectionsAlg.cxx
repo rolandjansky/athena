@@ -44,6 +44,7 @@ namespace CP
     m_systematicsList.addHandle (m_tauHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionsTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -59,9 +60,12 @@ namespace CP
         ANA_CHECK (m_tauHandle.getCopy (taus, sys));
         for (xAOD::DiTauJet *tau : *taus)
         {
-          double eff = 0;
-          ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, eff));
-          (*m_efficiencyAccessor) (*tau) = eff;
+          if (m_preselection.getBool (*tau))
+          {
+            double eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, eff));
+            (*m_efficiencyAccessor) (*tau) = eff;
+          }
         }
         return StatusCode::SUCCESS;
       });
