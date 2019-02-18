@@ -149,7 +149,7 @@ private:
   ServiceHandle<IPixelCalibSvc>         m_pixelCalibSvc;
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
-  bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
+  bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
 
   PixelFastDigitizationTool();
   PixelFastDigitizationTool(const PixelFastDigitizationTool&);
