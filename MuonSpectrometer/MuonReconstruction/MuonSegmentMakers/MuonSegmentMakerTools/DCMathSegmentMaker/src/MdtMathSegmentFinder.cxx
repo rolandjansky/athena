@@ -20,10 +20,7 @@ namespace Muon {
   MdtMathSegmentFinder::MdtMathSegmentFinder (const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool (t, n, p),
     m_dcslFitProvider(""),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_segmentFinder(0),
-    m_dcslFitter(0),
-    m_fitter(0)
+    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     declareInterface <IMdtSegmentFinder> (this);
 
@@ -65,63 +62,9 @@ namespace Muon {
     
     if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
 
-    // setup finder
-    m_segmentFinder = new TrkDriftCircleMath::SegmentFinder(m_roadWidth,m_mdtAssociationPullCut,false);
-
-    // set debug level
-    m_segmentFinder->debugLevel(m_finderDebugLevel);
-
-    // configure uasge of chamber position for angular seeding
-    m_segmentFinder->setUseChamberPhi( m_useChamberTheta );
-    
-    // enable dropping of hits
-    m_segmentFinder->setDropHits( m_doDrop );
-
-    // enable seed cleaing
-    m_segmentFinder->setSeedCleaning( m_enableSeedCleaning );
-
-    // enable seed cleaing
-    m_segmentFinder->setSingleMultiLayerScan( m_doSingleMultiLayerScan );
-
-    // set chi2/ndof threshold for cleaning of segments
-    m_segmentFinder->setChi2DropCut( m_chi2PerDofDrop ); 
-
-    // set ratio for dropping segments with many empty tubes
-    m_segmentFinder->setRatioEmptyTubesCut( m_ratioEmptyTubesCut );
-
-    // set sort mode segment finder
-    m_segmentFinder->setSortSegmentsUsingAllHits( m_doAllHitSort );
-
-    // set RPC pull cut
-    m_segmentFinder->setRPCPullCut( m_rpcAssociationPullCut );
-
-    // set TGC pull cut
-    m_segmentFinder->setTGCPullCut( m_tgcAssociationPullCut );
-
-    // set MDT outlier recovery
-    m_segmentFinder->setRecoverMDT( m_recoverMdtOutliers );
-
-    // set removal of single outliers
-    m_segmentFinder->setRemoveSingleOutliers( m_removeSingleOutliers );    
-
-    // set the curved segment finder
-    m_segmentFinder->setCurvedSegmentFinder( m_doCurvedSegmentFinder );
-
-    // set removal of single outliers
-    m_segmentFinder->setDeltaCutT0( m_deltaCutT0Segments );
-
-    // set removal of single outliers
-    m_segmentFinder->setResidualCutT0( m_residualCutT0Segments );
-
-    // set removal of single outliers
-    m_segmentFinder->setUseSegmentQuality( m_useSegmentQuality );
-
     if( !m_dcslFitProvider.empty() ){
       ATH_CHECK( m_dcslFitProvider.retrieve() );
       ATH_MSG_INFO(" Using fitter from " << m_dcslFitProvider);
-      m_fitter = m_dcslFitProvider->getFitter();
-      m_segmentFinder->setFitter( m_fitter );
-      m_dcslFitter = new TrkDriftCircleMath::DCSLFitter();
     }
 
     if( !m_idHelperTool.empty() ){
@@ -133,8 +76,6 @@ namespace Muon {
   StatusCode MdtMathSegmentFinder::finalize()
   {
     
-    delete m_segmentFinder;
-    delete m_dcslFitter;
     return AthAlgTool::finalize();
   }
 
@@ -144,18 +85,73 @@ namespace Muon {
 								       const TrkDriftCircleMath::DCStatistics& dcstats,
 								       const TrkDriftCircleMath::ChamberGeometry* multiGeo = 0 ) const
   {
-    // reset defaults
-    if( m_fitter ) {
-      m_segmentFinder->setFitter( m_fitter );
+
+
+    // setup finder
+    std::unique_ptr<TrkDriftCircleMath::SegmentFinder> segmentFinder (new TrkDriftCircleMath::SegmentFinder(m_roadWidth,m_mdtAssociationPullCut,false));
+
+    // set debug level
+    segmentFinder->debugLevel(m_finderDebugLevel);
+
+    // configure uasge of chamber position for angular seeding
+    segmentFinder->setUseChamberPhi( m_useChamberTheta );
+
+    // enable dropping of hits
+    segmentFinder->setDropHits( m_doDrop );
+
+    // enable seed cleaing
+    segmentFinder->setSeedCleaning( m_enableSeedCleaning );
+
+    // do single multilayer scan?
+    segmentFinder->setSingleMultiLayerScan( m_doSingleMultiLayerScan );
+
+    // set chi2/ndof threshold for cleaning of segments
+    segmentFinder->setChi2DropCut( m_chi2PerDofDrop );
+
+    // set ratio for dropping segments with many empty tubes
+    segmentFinder->setRatioEmptyTubesCut( m_ratioEmptyTubesCut );
+
+    // set sort mode segment finder
+    segmentFinder->setSortSegmentsUsingAllHits( m_doAllHitSort );
+
+    // set RPC pull cut
+    segmentFinder->setRPCPullCut( m_rpcAssociationPullCut );
+
+    // set TGC pull cut
+    segmentFinder->setTGCPullCut( m_tgcAssociationPullCut );
+
+    // set MDT outlier recovery
+    segmentFinder->setRecoverMDT( m_recoverMdtOutliers );
+
+    // set removal of single outliers
+    segmentFinder->setRemoveSingleOutliers( m_removeSingleOutliers );
+
+    // set the curved segment finder
+    segmentFinder->setCurvedSegmentFinder( m_doCurvedSegmentFinder );
+
+    // set removal of single outliers
+    segmentFinder->setDeltaCutT0( m_deltaCutT0Segments );    // reset defaults
+
+    // set removal of single outliers
+    segmentFinder->setResidualCutT0( m_residualCutT0Segments );
+
+    // set use of segment quality
+    segmentFinder->setUseSegmentQuality( m_useSegmentQuality );
+
+    std::unique_ptr<TrkDriftCircleMath::DCSLFitter> dcslFitter;    
+    if( !m_dcslFitProvider.empty() ){
+      segmentFinder->setFitter( m_dcslFitProvider->getFitter() );
     }
-    m_segmentFinder->setSeedCleaning( m_enableSeedCleaning );
+    else{
+      dcslFitter=std::make_unique<TrkDriftCircleMath::DCSLFitter>();
+      segmentFinder->setFitter( dcslFitter.get() );
+    }
 
     // set angle prediction from road
-    m_segmentFinder->setPhiRoad( road.angle(), road.chamberAngle(), road.width(), m_doRoadAngleSeeding, m_doIPAngleSeeding );
+    segmentFinder->setPhiRoad( road.angle(), road.chamberAngle(), road.width(), m_doRoadAngleSeeding, m_doIPAngleSeeding );
 
     // set pointer to geometry
-    m_segmentFinder->setMdtGeometry( multiGeo );
-    m_segmentFinder->setSingleMultiLayerScan( m_doSingleMultiLayerScan );
+    segmentFinder->setMdtGeometry( multiGeo );
 
     // set seed cleaning
     bool highOccupancy = false;
@@ -194,7 +190,7 @@ namespace Muon {
 		    << " nhits " << nmdtHits << " cut " << m_maxHitsPerFullSearch);
       return TrkDriftCircleMath::SegVec();
     }
-    
+
     // enable seed cleaning
     if( highOccupancy || nmdtHits > m_maxHitsPerFullSearch ) {
 
@@ -202,22 +198,18 @@ namespace Muon {
       ATH_MSG_DEBUG(" switch to fast search: occupancy " << occupancyMax << " cut " << m_occupancyThreshold
 		    << " nhits " << nmdtHits << " cut " << m_maxHitsPerFullSearch);
 
-      // to speed up reconstruction use default fitter if special is selected
-      if( !m_dcslFitProvider.empty() ) {
-	m_segmentFinder->setFitter( m_dcslFitter );
+      // to speed up reconstruction use default fitter
+      if( !m_dcslFitProvider.empty() ){
+	dcslFitter=std::make_unique<TrkDriftCircleMath::DCSLFitter>();
+	segmentFinder->setFitter( dcslFitter.get() );
       }
       
       // use tight road cuts and only look for pointing segments
-      m_segmentFinder->setPhiRoad( road.chamberAngle(), road.chamberAngle(), m_tightRoadCut );
-
-      // only perform two layer scan
-      m_segmentFinder->setSingleMultiLayerScan( false );
+      segmentFinder->setPhiRoad( road.chamberAngle(), road.chamberAngle(), m_tightRoadCut );
 
     }
 
-    m_segmentFinder->setSingleMultiLayerScan( m_doSingleMultiLayerScan );
-
-    return m_segmentFinder->findSegments(dcvec,clvec);
+    return segmentFinder->findSegments(dcvec,clvec);
   }
 
 
