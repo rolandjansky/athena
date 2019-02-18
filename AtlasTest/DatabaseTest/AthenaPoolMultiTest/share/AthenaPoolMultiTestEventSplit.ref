@@ -11,9 +11,6 @@ Splitter3            INFO in initialize()
 Splitter3           DEBUG input handles: 0
 Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
-Splitter456          INFO in initialize()
-Splitter7            INFO in initialize()
-Splitter48           INFO in initialize()
 Triggered            INFO in initialize()
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
@@ -46,12 +43,6 @@ Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package ver
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
 Bad                  INFO I/O reinitialization...
-DecisionSvc          INFO Inserting stream: StreamAll with no Algs
-StreamAll.Strea...   INFO Initializing StreamAll.StreamAllTool - package version AthenaServices-00-00-00
-StreamAll.Strea...   INFO Initializing StreamAll.StreamAll_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-StreamAll            INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll_MakeEventStreamInfo'])
-StreamAll            INFO Data output: AthenaPoolMultiTest_StreamAll.root
-StreamAll            INFO I/O reinitialization...
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -62,16 +53,8 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 0 run: 0
 Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 0 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 0 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 0 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
-Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll.root
-RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:61404
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2
@@ -82,12 +65,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 1 run: 0
 Splitter3           DEBUG Trigmask = 2
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 1 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 1 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 1 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 1 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -100,12 +77,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 2 run: 0
 Splitter3           DEBUG Trigmask = 4
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 2 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 2 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 2 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 2 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -118,12 +89,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 3 run: 0
 Splitter3           DEBUG Trigmask = 256
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 3 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 3 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 3 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 3 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -136,12 +101,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 4 run: 0
 Splitter3           DEBUG Trigmask = 18
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 4 run: 0
-Splitter456          INFO L1 passed
-Splitter7            INFO EventInfo event: 4 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 4 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 4 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -154,12 +113,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 5 run: 0
 Splitter3           DEBUG Trigmask = 36
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 5 run: 0
-Splitter456          INFO L1 passed
-Splitter7            INFO EventInfo event: 5 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 5 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 5 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -172,12 +125,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 6 run: 0
 Splitter3           DEBUG Trigmask = 65
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 6 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 6 run: 0
-Splitter7            INFO L1 passed
-Splitter48           INFO EventInfo event: 6 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 6 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -190,12 +137,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 7 run: 0
 Splitter3           DEBUG Trigmask = 130
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 7 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 7 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 7 run: 0
-Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 7 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -208,12 +149,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 8 run: 0
 Splitter3           DEBUG Trigmask = 260
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 8 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 8 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 8 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 8 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -226,12 +161,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 9 run: 0
 Splitter3           DEBUG Trigmask = 513
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 9 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 9 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 9 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 9 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -244,12 +173,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 10 run: 0
 Splitter3           DEBUG Trigmask = 1026
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 10 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 10 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 10 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 10 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -262,12 +185,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 11 run: 0
 Splitter3           DEBUG Trigmask = 2052
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 11 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 11 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 11 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 11 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -280,12 +197,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 12 run: 0
 Splitter3           DEBUG Trigmask = 4097
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 12 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 12 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 12 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 12 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -298,12 +209,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 13 run: 0
 Splitter3           DEBUG Trigmask = 8194
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 13 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 13 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 13 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 13 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -316,12 +221,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 14 run: 0
 Splitter3           DEBUG Trigmask = 16388
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 14 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 14 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 14 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 14 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -334,12 +233,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 15 run: 0
 Splitter3           DEBUG Trigmask = 32769
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 15 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 15 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 15 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 15 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -352,12 +245,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 16 run: 0
 Splitter3           DEBUG Trigmask = 3
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 16 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 16 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 16 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 16 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -370,12 +257,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 17 run: 0
 Splitter3           DEBUG Trigmask = 6
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 17 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 17 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 17 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 17 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -388,12 +269,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 18 run: 0
 Splitter3           DEBUG Trigmask = 5
 Splitter3            INFO L1 passed
-Splitter456          INFO EventInfo event: 18 run: 0
-Splitter456          INFO L1 failed
-Splitter7            INFO EventInfo event: 18 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 18 run: 0
-Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 18 run: 0
 Triggered            INFO L1 passed
 Splitter1           DEBUG in execute()
@@ -406,12 +281,6 @@ Splitter3           DEBUG in execute()
 Splitter3            INFO EventInfo event: 19 run: 0
 Splitter3           DEBUG Trigmask = 10
 Splitter3            INFO L1 failed
-Splitter456          INFO EventInfo event: 19 run: 0
-Splitter456          INFO L1 passed
-Splitter7            INFO EventInfo event: 19 run: 0
-Splitter7            INFO L1 failed
-Splitter48           INFO EventInfo event: 19 run: 0
-Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
@@ -420,13 +289,9 @@ Stream2              INFO Records written: 8
 Stream3              INFO Records written: 6
 Others               INFO Records written: 2
 Bad                  INFO Records written: 1
-StreamAll            INFO Records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
-Splitter456          INFO in finalize()
-Splitter7            INFO in finalize()
-Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
@@ -435,28 +300,18 @@ ItemListSvc         DEBUG    - EventStreamInfo_Others
 ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
-ItemListSvc         DEBUG  --> Overlap with StreamAll (6) items
 ItemListSvc         DEBUG STREAM Stream1 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream1
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
 ItemListSvc         DEBUG STREAM Stream2 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream2
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
 ItemListSvc         DEBUG STREAM Stream3 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream3
 ItemListSvc         DEBUG  --> Overlap with Others (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
-ItemListSvc         DEBUG  --> Overlap with StreamAll (7) items
-ItemListSvc         DEBUG STREAM StreamAll has (8) items
-ItemListSvc         DEBUG    - EventStreamInfo_StreamAll
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items

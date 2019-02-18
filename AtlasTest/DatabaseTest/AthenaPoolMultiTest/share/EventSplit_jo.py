@@ -19,7 +19,6 @@
 from AthenaCommon.AlgSequence import AthSequencer
 topSequence = AthSequencer("AthAlgSeq")
 athOutSeq = AthSequencer("AthOutSeq")
-athRegSeq = AthSequencer("AthRegSeq")
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
@@ -46,8 +45,6 @@ svcMgr.PoolSvc.ReadCatalog = [ "XMLFileCatalog_file:SplittableData.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "XMLFileCatalog_file:EventSplit.xml"
 #PoolSvc.FileOpen = "update"
  
-#svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]; # The input file name
-#svcMgr.EventSelector.InputCollections =  ["PFN:SplittableCollection.root"]; # The input file name
 svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]
 #svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
@@ -73,17 +70,6 @@ Splitter2.OutputLevel = INFO
 Splitter3 = EventSplit("Splitter3")  # Accept bit 3
 Splitter3.L1bitmask = 4 
 Splitter3.OutputLevel = DEBUG
-Splitter456 = EventSplit("Splitter456")  # Accept bits 4,5,6
-Splitter456.L1bitmask = 8
-Splitter456.L1bitmask += 16
-Splitter456.L1bitmask += 32
-Splitter456.OutputLevel = INFO
-Splitter7 = EventSplit("Splitter7")  # Accept bit 7
-Splitter7.L1bitmask = 64
-Splitter7.OutputLevel = INFO
-Splitter48 = EventSplit("Splitter48") # Accept bits 4,8
-Splitter48.L1bitmask = 136
-Splitter48.OutputLevel = INFO
 Triggered = EventSplit("Triggered")   # Accept all bits
 Triggered.L1bitmask = 65535   # assume -1 will set all bits on
 Triggered.OutputLevel = INFO
@@ -91,16 +77,7 @@ Triggered.OutputLevel = INFO
 topSequence+=Splitter1
 topSequence+=Splitter2
 topSequence+=Splitter3
-topSequence+=Splitter456
-topSequence+=Splitter7
-topSequence+=Splitter48
 topSequence+=Triggered
-
-# Add a non-outputstream decision
-from AthenaServices.AthenaServicesConf import DecisionAlg
-dummy = DecisionAlg("Dummy")
-dummy.AcceptAlgs  = ["Splitter2"]
-topSequence += dummy
 
 #--------------------------------------------------------------
 #---  Set up the streams for the filters
@@ -125,10 +102,6 @@ Stream1.CheckNumberOfWrites = False
 # Filtered stream 3
 Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", False, noTag=False )
 Stream3.CheckNumberOfWrites = False
-# Unfiltered stream
-StreamAll = AthenaPoolOutputStream( "StreamAll", "AthenaPoolMultiTest_StreamAll.root", False, noTag=False )
-StreamAll.CheckNumberOfWrites = False
-StreamAll.WritingTool.AttributeListKey="SimpleTagDecisions"
 # Events that didn't satisfy any filters
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
@@ -155,9 +128,6 @@ Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
 Stream3.VetoAlgs  += ["Splitter2"]
-# Unfiltered
-StreamAll.TakeItemsFromInput = True
-StreamAll.ForceRead=TRUE
 # missed
 Others.TakeItemsFromInput = True
 Others.ForceRead=TRUE
