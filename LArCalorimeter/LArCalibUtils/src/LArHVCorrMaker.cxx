@@ -14,8 +14,9 @@
 LArHVCorrMaker::LArHVCorrMaker(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_lar_on_id(0),
-    m_hvCorrTool("LArHVCorrTool")
+    m_hvCorrTool("LArHVCorrTool",this)
 {
+  declareProperty("HVCorrTool", m_hvCorrTool);
 }
 
 //---------------------------------------------------------------------------
