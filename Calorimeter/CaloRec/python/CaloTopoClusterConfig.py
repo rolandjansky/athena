@@ -7,7 +7,7 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
     from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
     # Local cell weights
-    LCClassify   = CaloLCClassificationTool("LCClassify")
+    LCClassify   = CaloLCClassificationTool("LCClassify",OutputLevel=1)
     LCClassify.ClassificationKey   = "EMFracClassify"
     LCClassify.UseSpread = False
     LCClassify.MaxProbability = 0.5
@@ -15,7 +15,7 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     LCClassify.StoreClassificationProbabilityInAOD = True
     LCClassify.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
 
-    LCWeight = CaloLCWeightTool("LCWeight")
+    LCWeight = CaloLCWeightTool("LCWeight",OutputLevel=1)
     LCWeight.CorrectionKey       = "H1ClusterCellWeights"
     LCWeight.SignalOverNoiseCut  = 2.0
     # *****
@@ -227,13 +227,13 @@ def CaloTopoClusterCfg(configFlags):
     from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
 
     result.merge(LArGMCfg(configFlags))
-    result.merge(TileGMCfg(configFlags))
 
-    print "***** Now adding LArBadChannelConfig *****"
     from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg
     result.merge(LArBadChannelCfg(configFlags))
+    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+    result.merge(LArHVScaleCfg(configFlags))
 
-    print "***** Now adding TileConditionsConfig *****"
+    result.merge(TileGMCfg(configFlags))
     from TileConditions.TileConditionsConfig import tileCondCfg
     result.merge(tileCondCfg(configFlags))
 
@@ -344,8 +344,7 @@ if __name__=="__main__":
 
     log.setLevel(DEBUG)
 
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = ["myESD.pool.root"]
+    ConfigFlags.Input.Files = ["myESD-data.pool.root"]
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     ConfigFlags.addFlag("CaloTopoClusterFlags.doTopoClusterLocalCalib",True)
