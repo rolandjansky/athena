@@ -63,8 +63,7 @@ def __diff():
     
     allkeys = set( confs[0].keys() + confs[1].keys())
 
-    #for comp in allkeys:
-    for comp in ["JobOptionsSvc"]:
+    for comp in allkeys:
         if comp not in confs[0]:
             print "... component %-54s" % comp, "absent in", args.file[0]
         elif comp not in confs[1]:
