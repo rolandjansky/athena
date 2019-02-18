@@ -152,7 +152,7 @@ class TopConfig final {
       m_is_sherpa_22_vjets = true;
   }
 
-  // map index for MC/MC b-tagging scale factors 
+  // map index for MC/MC b-tagging scale factors
   inline unsigned int getMapIndex() const {return m_MapIndex;}
   inline void setMapIndex(unsigned int value) {m_MapIndex = value;}
 
@@ -199,10 +199,10 @@ class TopConfig final {
   inline std::string overlapRemovalProcedure() const
   {return m_overlap_removal_procedure;}
 
-  inline float overlapRemovalSlidingInnerDRel() const 
-  {return m_overlapRemovalSlidingInnerDRel;} 
+  inline float overlapRemovalSlidingInnerDRel() const
+  {return m_overlapRemovalSlidingInnerDRel;}
 
-  inline float overlapRemovalSlidingInnerDRmu() const 
+  inline float overlapRemovalSlidingInnerDRmu() const
   {return m_overlapRemovalSlidingInnerDRmu;}
 
   // do overlap removal also with large-R jets
@@ -210,7 +210,7 @@ class TopConfig final {
   inline void setLargeJetOverlapRemoval()
   {if(!m_configFixed){m_doLargeJetOverlapRemoval = true;}}
   inline bool doLargeJetOverlapRemoval() const {return m_doLargeJetOverlapRemoval;}
-  
+
   // In the *_Loose trees, lepton SFs are calculated considering
   // tight ID and isolation instead of loose
   // Only tight leptons are considered in the event SF calculation
@@ -423,7 +423,7 @@ class TopConfig final {
 
   // Retrieve names of all (registered) systematics that affect ghost tracks.
   const std::vector<std::string> & systematicsJetGhostTrack() const {return m_jetGhostTrackSystematics;}
-  
+
   // Retrieve run periods for ghost tracks.
   const std::vector<std::uint32_t> & runPeriodsJetGhostTrack() const {return m_jetGhostTrackRunPeriods;}
 
@@ -431,7 +431,7 @@ class TopConfig final {
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapJetGhostTrack()   const {return m_systMapJetGhostTrack;  }
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  
+
   // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
   inline virtual void dumpBtagSystsInSystTrees( const bool& b ){if(!m_configFixed){m_dumpBtagSystsInSystTrees = b;}}
   inline virtual const bool& dumpBtagSystsInSystTrees(){return m_dumpBtagSystsInSystTrees;}
@@ -524,14 +524,14 @@ class TopConfig final {
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
   inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
   inline virtual bool  useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
- 
+
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
   inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
   inline virtual void useRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useRCJetAdditionalSubstructure = use;}}
-  
+
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
   inline virtual float VarRCJetTrimcut() const {return m_VarRCJetTrimcut;}
@@ -567,7 +567,7 @@ class TopConfig final {
 
   inline virtual void jetCalibSequence( const std::string& s ){if(!m_configFixed){m_jetCalibSequence = s;}}
   inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
-  
+
   inline virtual void doJVTinMET( const bool& doJVT ){if(!m_configFixed){m_doJVTInMETCalculation = doJVT;}}
   inline virtual bool doJVTinMET() const {return m_doJVTInMETCalculation;}
 
@@ -582,7 +582,7 @@ class TopConfig final {
     }
   }
   inline virtual void tauJetIDWP(const std::string& s) {
-    if(!m_configFixed) 
+    if(!m_configFixed)
       m_tau_configuration.jetIDWP = s;
   }
   inline virtual void tauJetIDWPLoose(const std::string& s) {
@@ -590,7 +590,7 @@ class TopConfig final {
       m_tau_configuration_loose.jetIDWP = s;
   }
   inline virtual void tauEleBDTWP(const std::string& s) {
-    if(!m_configFixed) 
+    if(!m_configFixed)
       m_tau_configuration.eleBDTWP = s;
   }
   inline virtual void tauEleBDTWPLoose(const std::string& s) {
@@ -743,7 +743,7 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
-  const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}  
+  const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   const std::string bTagSystsExcludedFromEV() const { return m_bTagSystsExcludedFromEV;}
 
@@ -797,7 +797,8 @@ class TopConfig final {
   const std::vector<std::string>& PileupActualMu_FS(){ return m_pileup_reweighting.actual_mu_FS; };
   const std::vector<std::string>& PileupActualMu_AF(){ return m_pileup_reweighting.actual_mu_AF; };
   inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
-  
+  const std::vector<int>& PileupPeriodAssignments() const {return m_pileup_reweighting.periodAssignments; };
+
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
   inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
@@ -899,14 +900,14 @@ class TopConfig final {
 
   // Create bootstrapping weights
   inline bool saveBootstrapWeights() const { return m_saveBootstrapWeights; }
-  inline void setSaveBootstrapWeights(const bool value) { m_saveBootstrapWeights = value; }  
+  inline void setSaveBootstrapWeights(const bool value) { m_saveBootstrapWeights = value; }
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
 
   // Switch to use event-level jet cleaning tool for studies
   inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
   inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
-  
+
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
@@ -984,7 +985,7 @@ class TopConfig final {
 
   // Store in config a boolean which lets us know if we called the nominal object setup
   bool m_isNominalAvailable;
-    
+
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;
@@ -1055,7 +1056,7 @@ class TopConfig final {
   // Write Truth PDF info
   bool m_doTruthPDFInfo;
   bool m_doTruthPDFInfoInNominalTrees;
-  
+
   // Write MC generator weights
   bool m_doMCGeneratorWeights;
   bool m_doMCGeneratorWeightsInNominalTrees;
@@ -1120,7 +1121,7 @@ class TopConfig final {
 
   // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
   bool m_dumpBtagSystsInSystTrees;
-  
+
   // Electron configuration
   std::string m_egammaSystematicModel;
   std::string m_electronID;
@@ -1186,7 +1187,7 @@ class TopConfig final {
   float m_RCJetRadius;
   bool  m_useRCJetSubstructure;
   bool  m_useRCJetAdditionalSubstructure;
-  
+
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
   float m_VarRCJetEtacut;
@@ -1290,7 +1291,7 @@ class TopConfig final {
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   std::string m_bTagSystsExcludedFromEV = "";
-  
+
   // list of B-tagging WP actualy available
   std::vector<std::string> m_available_btaggingWP;
   std::vector<std::string> m_available_btaggingWP_trkJet;
@@ -1365,9 +1366,11 @@ class TopConfig final {
 
     std::vector<double> custom_SF = {};
 
+    std::vector<int> periodAssignments = {};
+
   } m_pileup_reweighting;
 
-  // Struct for holding TrigGlobalEfficiencyCorrectionTool settings in order to 
+  // Struct for holding TrigGlobalEfficiencyCorrectionTool settings in order to
   // manage systematic variations through this tool
 
   struct{
@@ -1390,7 +1393,7 @@ class TopConfig final {
     std::vector<std::string> muon_trigger_systematics;
     // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
     std::vector<std::string> electron_trigger_tool_names;
-    // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet  
+    // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet
     std::vector<std::string> muon_trigger_tool_names;
   } m_trigGlobalConfiguration;
 
@@ -1546,7 +1549,7 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
-  
+
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;
 

@@ -181,6 +181,11 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     // Set the unrepresented data tolerence (default is 5% same as the PRW tool)
     top::check(asg::setProperty(pileupReweightingTool, "UnrepresentedDataThreshold", m_config->PileupDataTolerance()),
 	       "Failed to set pileup reweighting data tolerance");
+    if (m_config->PileupPeriodAssignments().size() > 0){
+      // Set the period assignments associated with different running periods
+      top::check(asg::setProperty(pileupReweightingTool, "PeriodAssignments", m_config->PileupPeriodAssignments()),
+	         "Failed to set pileup reweighting period assignments");
+    }
     top::check(pileupReweightingTool->initialize(),
               "Failed to initialize pileup reweighting tool");
 
