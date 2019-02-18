@@ -43,7 +43,9 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
 
   return StatusCode::SUCCESS;
 }
-
+//
+// Build the clusters given a vector of single-hit PRD
+//
 StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
 							   std::vector<Muon::sTgcPrepData*>& clustersVect)
 
@@ -53,8 +55,12 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 
 
   // clear the clusters vector
-  m_clusters.clear();
-  m_clustersStripNum.clear();
+  for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
+    for ( unsigned int gasGap=0 ; gasGap<5 ; ++gasGap ) {
+      m_clusters[multilayer][gasGap].clear();   
+      m_clustersStripNum[multilayer][gasGap].clear();
+    }
+  }
 
   for ( auto& it : stripsVect ) {
     
@@ -62,11 +68,10 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
       ATH_MSG_ERROR("Could not add a strip to the sTGC clusters");
       return StatusCode::FAILURE;
     }
-
   } 
 
   /// now add the clusters to the PRD container
-
+  
 
   return StatusCode::SUCCESS;
 }
@@ -75,10 +80,13 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
 bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
 {
 
-  unsigned int stripNum = m_stgcIdHelper->channel(strip.identify());
+  Identifier prd_id = strip.identify();
+  int multilayer = m_stgcIdHelper->multilayer(prd_id);
+  int gasGap = m_stgcIdHelper->gasGap(prd_id);
+  unsigned int stripNum = m_stgcIdHelper->channel(prd_id);
 
   // if no cluster is present start creating a new one
-  if ( m_clusters.size()==0 ) {
+  if ( m_clustersStripNum[multilayer][gasGap].size()==0 ) {
 
     set<unsigned int> clusterStripNum;
     vector<Muon::sTgcPrepData> cluster;
@@ -86,20 +94,20 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);
 
-    m_clustersStripNum.push_back(clusterStripNum);
-    m_clusters.push_back(cluster);
+    m_clustersStripNum[multilayer][gasGap].push_back(clusterStripNum);
+    m_clusters[multilayer][gasGap].push_back(cluster);
 
     return true;
   }
   else {
-    for ( unsigned int i=0 ; i<m_clustersStripNum.size() ; ++i  ) {
-      unsigned int firstStrip = *(m_clustersStripNum.at(i).begin());
-      unsigned int lastStrip  = *(m_clustersStripNum.at(i).end());
+    for ( unsigned int i=0 ; i<m_clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
+      unsigned int firstStrip = *(m_clustersStripNum[multilayer][gasGap].at(i).begin());
+      unsigned int lastStrip  = *(m_clustersStripNum[multilayer][gasGap].at(i).end());
 
       if ( stripNum==lastStrip+1 || stripNum==firstStrip-1 ) {
 
-	m_clustersStripNum.at(i).insert(stripNum);
-	m_clusters.at(i).push_back(strip);
+	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+	m_clusters[multilayer][gasGap].at(i).push_back(strip);
 
 	return true;
       }
@@ -108,4 +116,4 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
   }
 
   return false;
-} 
+}

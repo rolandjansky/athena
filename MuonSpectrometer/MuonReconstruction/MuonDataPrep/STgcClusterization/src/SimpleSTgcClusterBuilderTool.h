@@ -29,6 +29,7 @@ namespace Muon
   class SimpleSTgcClusterBuilderTool : virtual public ISTgcClusterBuilderTool, public AthAlgTool {
 
   public:
+
     /** Default constructor */
     SimpleSTgcClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
     
@@ -50,8 +51,8 @@ namespace Muon
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const sTgcIdHelper* m_stgcIdHelper;
 
-    std::vector<std::set<unsigned int>> m_clustersStripNum;
-    std::vector<std::vector<Muon::sTgcPrepData>> m_clusters;
+    std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
+    std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];
 
     bool addStrip(Muon::sTgcPrepData& strip);
 
@@ -61,3 +62,4 @@ namespace Muon
 
 }
 #endif
+
