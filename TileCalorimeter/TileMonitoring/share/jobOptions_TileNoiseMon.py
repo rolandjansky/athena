@@ -16,7 +16,6 @@ if not 'TileNoiseUpdateFrequency' in dir():
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon import CfgMgr
-toolSvc = CfgMgr.ToolSvc()
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -33,57 +32,57 @@ topSequence += CfgMgr.AthenaMonManager( "TileNoiseMon"
                                        , LumiBlock           = 1 )
 
 if doTileMonDQ:
-    toolSvc += CfgMgr.TileDQFragMonTool(name               = 'TileDQFragMon'
-                                        , OutputLevel        = WARNING
-                                        , TileRawChannelContainerDSP    = "TileRawChannelCnt"
-                                        , TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer()
-                                        , TileDigitsContainer           = "TileDigitsCnt"
-                                        , NegAmpHG           = -200.
-                                        , NegAmpLG           = -15.
-                                        , SkipMasked         = True
-                                        , SkipGapCells       = True
-                                        , doOnline           = athenaCommonFlags.isOnline()
-                                        , doPlots            = False
-                                        , CheckDCS           = TileUseDCS
-                                        , histoPathBase      = "/Tile/DMUErrors");
+    TileDQFragMon = CfgMgr.TileDQFragMonTool(name               = 'TileDQFragMon'
+                                             , OutputLevel        = WARNING
+                                             , TileRawChannelContainerDSP    = "TileRawChannelCnt"
+                                             , TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer()
+                                             , TileDigitsContainer           = "TileDigitsCnt"
+                                             , NegAmpHG           = -200.
+                                             , NegAmpLG           = -15.
+                                             , SkipMasked         = True
+                                             , SkipGapCells       = True
+                                             , doOnline           = athenaCommonFlags.isOnline()
+                                             , doPlots            = False
+                                             , CheckDCS           = TileUseDCS
+                                             , histoPathBase      = "/Tile/DMUErrors");
 
 
 
 
-    topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDQFragMon ];
-    print toolSvc.TileDQFragMon
+    topSequence.TileNoiseMon.AthenaMonTools += [ TileDQFragMon ];
+    print TileDQFragMon
 
 
 if doTileDigiNoiseMon:
-    toolSvc += CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
-                                           , OutputLevel        = WARNING
-                                           , TileDigitsContainer = "TileDigitsCnt"
-                                           , histoPathBase = "/Tile/DigiNoise"
-                                           , FillEmptyFromDB = False
-                                           , SummaryUpdateFrequency = TileNoiseUpdateFrequency
-                                           , CheckDCS           = TileUseDCS
-                                           , TriggerTypes        = [ 0x82 ] )
+    TileDigiNoiseMon = CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
+                                                   , OutputLevel        = WARNING
+                                                   , TileDigitsContainer = "TileDigitsCnt"
+                                                   , histoPathBase = "/Tile/DigiNoise"
+                                                   , FillEmptyFromDB = False
+                                                   , SummaryUpdateFrequency = TileNoiseUpdateFrequency
+                                                   , CheckDCS           = TileUseDCS
+                                                   , TriggerTypes        = [ 0x82 ] )
 
-    topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];
-    print toolSvc.TileDigiNoiseMon;
+    topSequence.TileNoiseMon.AthenaMonTools += [ TileDigiNoiseMon ];
+    print TileDigiNoiseMon;
     
 if doTileRawChannelNoiseMon:
-    toolSvc += CfgMgr.TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon'
-                                                 , OutputLevel        = WARNING
-                                                 , TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
-                                                 , doFit = True
-                                                 , do2GFit = False
-                                                 , Gain = "HG"
-                                                 , Xmin = -20.25
-                                                 , Xmax = 20.25
-                                                 , NBins = 81
-                                                 , histoPathBase = "/Tile/RawChannelNoise"
-                                                 , SummaryUpdateFrequency = TileNoiseUpdateFrequency 
-                                                 , CheckDCS           = TileUseDCS
-                                                 , TriggerTypes        = [ 0x82 ]);
+    TileRawChannelNoiseMon = CfgMgr.TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon'
+                                                               , OutputLevel        = WARNING
+                                                               , TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                                                               , doFit = True
+                                                               , do2GFit = False
+                                                               , Gain = "HG"
+                                                               , Xmin = -20.25
+                                                               , Xmax = 20.25
+                                                               , NBins = 81
+                                                               , histoPathBase = "/Tile/RawChannelNoise"
+                                                               , SummaryUpdateFrequency = TileNoiseUpdateFrequency 
+                                                               , CheckDCS           = TileUseDCS
+                                                               , TriggerTypes        = [ 0x82 ]);
 
-    topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileRawChannelNoiseMon ];
-    print toolSvc.TileRawChannelNoiseMon;
+    topSequence.TileNoiseMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
+    print TileRawChannelNoiseMon;
 
 print topSequence.TileNoiseMon
 

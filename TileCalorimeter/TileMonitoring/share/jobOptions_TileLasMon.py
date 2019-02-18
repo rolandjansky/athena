@@ -237,38 +237,38 @@ topSequence += CfgMgr.AthenaMonManager( "TileLasMon"
 #-------------------------------
 #   Tile raw channel time monitoring
 #-------------------------------
-toolSvc += CfgMgr.TileRawChannelTimeMonTool ( name              = "TileLasRawChannelTimeMon"
-                                              , histoPathBase   = "/Tile/RawChannelTime"
-                                              , runType         = TileRunType
-                                              , doOnline        = athenaCommonFlags.isOnline()
-                                              , TimeCorrectionLBA  = -15.18
-                                              , TimeCorrectionLBC  = -15.37
-                                              , TimeCorrectionEBA  = 47.65
-                                              , TimeCorrectionEBC  = 47.42
-                                              , TileRawChannelContainer = "TileRawChannelFit")
+TileLasRawChannelTimeMon = CfgMgr.TileRawChannelTimeMonTool ( name              = "TileLasRawChannelTimeMon"
+                                                              , histoPathBase   = "/Tile/RawChannelTime"
+                                                              , runType         = TileRunType
+                                                              , doOnline        = athenaCommonFlags.isOnline()
+                                                              , TimeCorrectionLBA  = -15.18
+                                                              , TimeCorrectionLBC  = -15.37
+                                                              , TimeCorrectionEBA  = 47.65
+                                                              , TimeCorrectionEBC  = 47.42
+                                                              , TileRawChannelContainer = "TileRawChannelFit")
 
-topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasRawChannelTimeMon ]
-print toolSvc.TileLasRawChannelTimeMon
+topSequence.TileLasMon.AthenaMonTools += [ TileLasRawChannelTimeMon ]
+print TileLasRawChannelTimeMon
 
 #-------------------------------
 #   Tile DQFrag monitoring
 #-------------------------------
-toolSvc += CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFragMon'
-                                     , OutputLevel        = 3
-                                     , TileRawChannelContainerDSP    = "TileRawChannelCnt"
-                                     , TileRawChannelContainerOffl   = "TileRawChannelFit"
-                                     , TileDigitsContainer           = "TileDigitsCnt"
-                                     , NegAmpHG           = -200.
-                                     , NegAmpLG           = -15.
-                                     , SkipMasked         = True
-                                     , SkipGapCells       = True
-                                     , doOnline           = athenaCommonFlags.isOnline()
-                                     , doPlots            = False
-                                     , CheckDCS           = TileUseDCS
-                                     , histoPathBase      = "/Tile/DMUErrors");
+TileLasDQFragMon = CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFragMon'
+                                             , OutputLevel        = 3
+                                             , TileRawChannelContainerDSP    = "TileRawChannelCnt"
+                                             , TileRawChannelContainerOffl   = "TileRawChannelFit"
+                                             , TileDigitsContainer           = "TileDigitsCnt"
+                                             , NegAmpHG           = -200.
+                                             , NegAmpLG           = -15.
+                                             , SkipMasked         = True
+                                             , SkipGapCells       = True
+                                             , doOnline           = athenaCommonFlags.isOnline()
+                                             , doPlots            = False
+                                             , CheckDCS           = TileUseDCS
+                                             , histoPathBase      = "/Tile/DMUErrors");
 
-topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasDQFragMon ];
-print toolSvc.TileLasDQFragMon
+topSequence.TileLasMon.AthenaMonTools += [ TileLasDQFragMon ];
+print TileLasDQFragMon
 print topSequence.TileLasMon
 
 
