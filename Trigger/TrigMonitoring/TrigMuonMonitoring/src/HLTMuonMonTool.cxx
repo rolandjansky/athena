@@ -110,6 +110,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("ZTPPtCone30RelCut",m_ztp_ptcone30rel_cut=0.06);
   declareProperty("ZTP_EFPtCone30RelCut",m_ztp_EF_ptcone30rel_cut=0.12);
   declareProperty("BCTool", m_bunchTool);
+  declareProperty("doProfile", m_do_profile = true);
   m_activeStore = 0;
   m_lumiblock = 0;
   m_event = 0;
@@ -1072,4 +1073,21 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
   }
 
   return hypote;
+}
+
+
+bool HLTMuonMonTool :: fillProfile(TProfile *effi, TH1* numer, TH1* denom){
+
+  if(m_do_profile){
+    int nbins = denom->GetNbinsX();
+    for(int ibin = 0; ibin <= nbins+1; ++ibin){
+      double den = denom->GetBinContent(ibin);
+      double num = numer->GetBinContent(ibin);
+      double x = denom->GetBinCenter(ibin);
+      effi->Fill(x, 0.0, den-num);
+      effi->Fill(x, 1.0, num);
+    }
+  }
+
+  return true;
 }
