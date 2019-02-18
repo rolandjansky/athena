@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 
 #include "PathResolver/PathResolver.h"
+
+#include "xAODJet/JetContainer.h"
 
 #include "TEnv.h"
 #include "TF1.h"
@@ -14,7 +16,8 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   JSSTaggerBase( name ),
   m_dec_mcutL("mcutL"),
   m_dec_mcutH("mcutH"),
-  m_dec_d2cut("d2cut")
+  m_dec_d2cut("d2cut"),
+  m_dec_ntrkcut("ntrkcut")
 {
 
   declareProperty( "ConfigFile",   m_configFile="");
@@ -31,6 +34,9 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   declareProperty( "MassCutLowFunc",      m_strMassCutLow="" , "");
   declareProperty( "MassCutHighFunc",     m_strMassCutHigh="" , "");
   declareProperty( "D2CutFunc",           m_strD2Cut="" , "");
+  declareProperty( "NtrkCutFunc",         m_strNtrkCut="", "");
+
+  declareProperty( "CalibArea",      m_calibarea ="");
 }
 
 SmoothedWZTagger::~SmoothedWZTagger() {}
@@ -44,7 +50,8 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -68,10 +75,12 @@ StatusCode SmoothedWZTagger::initialize(){
       m_strMassCutLow=configReader.GetValue("MassCutLow" ,"");
       m_strMassCutHigh=configReader.GetValue("MassCutHigh" ,"");
       m_strD2Cut=configReader.GetValue("D2Cut" ,"");
+      m_strNtrkCut=configReader.GetValue("NtrkCut" ,"");
     } else {
       m_strMassCutLow=configReader.GetValue((m_wkpt+".MassCutLow").c_str() ,"");
       m_strMassCutHigh=configReader.GetValue((m_wkpt+".MassCutHigh").c_str() ,"");
       m_strD2Cut=configReader.GetValue((m_wkpt+".D2Cut").c_str() ,"");
+      m_strNtrkCut=configReader.GetValue((m_wkpt+".NtrkCut").c_str() ,"");
     }
 
     // get the decoration name
@@ -100,16 +109,25 @@ StatusCode SmoothedWZTagger::initialize(){
   dec_name = m_decorationName+"_Cut_D2";
   ATH_MSG_INFO( "  "<<dec_name<<" : D2 cut for tagger choice" );
   m_dec_d2cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  if(!m_strNtrkCut.empty()){
+    dec_name = m_decorationName+"_Cut_Ntrk";
+    ATH_MSG_INFO( "  "<<dec_name<<" : Ntrk cut for tagger choice" );
+    m_dec_ntrkcut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  }
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
   m_funcMassCutHigh  = new TF1("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
   m_funcD2Cut        = new TF1("strD2Cut",       m_strD2Cut.c_str(),       0, 14000);
+  if(!m_strNtrkCut.empty())
+    m_funcNtrkCut      = new TF1("strNtrkCut",     m_strNtrkCut.c_str(),     0, 14000);
 
   ATH_MSG_INFO( "Smoothed WZ Tagger tool initialized" );
   ATH_MSG_INFO( "  Mass cut low    : "<< m_strMassCutLow );
   ATH_MSG_INFO( "  Mass cut High   : "<< m_strMassCutHigh );
   ATH_MSG_INFO( "  D2 cut low      : "<< m_strD2Cut );
+  if(!m_strNtrkCut.empty())
+    ATH_MSG_INFO( "  Ntrk cut low    : "<< m_strNtrkCut );
   ATH_MSG_INFO( "  Decorate        : "<< m_decorate );
   ATH_MSG_INFO( "  DecorationName  : "<< m_decorationName );
 
@@ -121,6 +139,10 @@ StatusCode SmoothedWZTagger::initialize(){
   m_accept.addCut( "PassMassLow"         , "mJet > mCutLow"       );
   m_accept.addCut( "PassMassHigh"        , "mJet < mCutHigh"      );
   m_accept.addCut( "PassD2"              , "D2Jet < D2Cut"            );
+  if(!m_strNtrkCut.empty()){
+    m_accept.addCut( "ValidEventContent" , "True if primary vertex was found" );
+    m_accept.addCut( "PassNtrk"          , "NtrkJet < NtrkCut"    );
+  }
 
   //loop over and print out the cuts that have been configured
   ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
@@ -210,6 +232,65 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   if(jet_d2<cut_d2)
     m_accept.setCutResult("PassD2",true);
+
+  // Check if it's a smooth three-variable tagger (ntrk) 
+  if(!m_strNtrkCut.empty()){
+
+    m_accept.setCutResult( "ValidEventContent" , true);
+
+    float cut_ntrk        = m_funcNtrkCut->Eval(jet_pt);
+
+    if(m_decorate)
+      m_dec_ntrkcut(jet) = cut_ntrk;
+
+    //Get the primary vertex
+    bool isValid = false;
+    const xAOD::Vertex* primaryVertex = 0;
+
+    const xAOD::VertexContainer* vxCont = 0;
+    if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+      isValid = false;
+    }
+    else{
+      for(const auto& vx : *vxCont){
+        if(vx->vertexType()==xAOD::VxType::PriVtx){
+          primaryVertex = vx;
+	  break;
+        }
+      }
+
+      if(primaryVertex)
+        isValid = true;
+    }
+
+    if(isValid){
+      static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
+      const xAOD::Jet * ungroomedJet = 0;
+      if(ungroomedLink.isAvailable(jet)){
+        ElementLink<xAOD::JetContainer> linkToUngroomed = ungroomedLink(jet);
+        if (  linkToUngroomed.isValid() ){
+          ungroomedJet = *linkToUngroomed;
+	  std::vector<int> NTrkPt500;
+          ungroomedJet->getAttribute(xAOD::JetAttribute::NumTrkPt500, NTrkPt500);
+          int jet_ntrk = NTrkPt500.at(primaryVertex->index());
+
+          if(jet_ntrk < cut_ntrk)
+            m_accept.setCutResult("PassNtrk",true);
+        }
+        else{
+	  m_accept.setCutResult("ValidJetContent", false);
+        }
+      }
+      else{
+        ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
+        m_accept.setCutResult("ValidJetContent", false);
+      }
+    }
+    else{
+      m_accept.setCutResult("ValidEventContent", false);
+    }
+  }
 
   // return the TAccept to be queried later
   return m_accept;

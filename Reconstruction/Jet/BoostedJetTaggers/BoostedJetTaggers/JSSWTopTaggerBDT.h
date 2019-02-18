@@ -75,6 +75,7 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     std::string m_tagType;
     std::string m_tmvaConfigFileName;
     std::string m_tmvaConfigFilePath;
+    std::string m_calibarea_tmva;
 
     // for internal usage
     mutable TAGCLASS m_TagClass;
