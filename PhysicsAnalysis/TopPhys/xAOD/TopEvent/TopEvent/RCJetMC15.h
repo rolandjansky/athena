@@ -110,6 +110,7 @@ private:
     std::string m_egamma;
     std::string m_jetsyst;
     std::string m_muonsyst;
+    std::string m_tracksyst;
 
     std::string m_InJetContainerBase;
     std::string m_OutJetContainerBase;
