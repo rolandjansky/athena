@@ -243,6 +243,8 @@ def super_process(fname, options):
             os.unlink(hanoutput)
         except Exception, e:
             print e
+            import traceback
+            traceback.print_exc()
             if 'canonical format' not in str(e):
                 failed = True
         finally:
