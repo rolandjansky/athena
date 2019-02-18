@@ -44,6 +44,7 @@ namespace InDet {
     declareProperty("calibFileData16_postTS1", m_calibFileData16_postTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data16_13TeV_preTS1_CorrectionResult.root");
     declareProperty("calibFileData17_preFire", m_calibFileData17_preFire = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data17_13TeV_preFire_CorrectionResult.root");
     declareProperty("calibFileData17_postFire", m_calibFileData17_postFire = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data17_13TeV_postFire_CorrectionResult.root");
+    declareProperty("calibFileData18", m_calibFileData18 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v21/z_2018_weak_mode_recommendations.root");
     
     m_firstTime=true;
   }
@@ -76,6 +77,7 @@ namespace InDet {
     ATH_MSG_INFO( "Using for Data16 postTS1 the calibration file " << PathResolverFindCalibFile(m_calibFileData16_postTS1) );
     ATH_MSG_INFO( "Using for Data17 preFire the calibration file " << PathResolverFindCalibFile(m_calibFileData17_preFire) );
     ATH_MSG_INFO( "Using for Data17 postFire the calibration file " << PathResolverFindCalibFile(m_calibFileData17_postFire) );
+    ATH_MSG_INFO( "Using for Data18 the calibration file " << PathResolverFindCalibFile(m_calibFileData18) );
 
     ATH_CHECK( InDetTrackSystematicsTool::initialize() );
 
@@ -162,7 +164,7 @@ namespace InDet {
       m_biasZ0HistError = nullptr;
       m_biasQoverPsagittaHistError = nullptr;
       return StatusCode::FAILURE;
-    } else if (runNumber <= 341649) {
+    } else if (runNumber <= 364485) {
       if (runNumber < 297730) {
         ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." ); // 2015
         rootfileName = m_calibFileData15;
@@ -175,9 +177,12 @@ namespace InDet {
       } else if (runNumber <= 334737) {
         ATH_MSG_INFO( "Calibrating for 2017 runs pre-fire (323427 to 334737)." ); // pre-fire 2017
         rootfileName = m_calibFileData17_preFire;
-      } else {
+      } else if (runNumber <= 341649) {
         ATH_MSG_INFO( "Calibrating for 2017 runs post-fire (334842 to 341649)." ); // post-fire 2017
         rootfileName = m_calibFileData17_postFire;
+      } else {
+        ATH_MSG_INFO( "Calibrating for 2018 data taking.");
+        rootfileName = m_calibFileData18;
       }
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );
@@ -186,7 +191,7 @@ namespace InDet {
       ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );
     } else {
-      ATH_MSG_ERROR( "Run number = " << runNumber << " not in recognized range (286282 to 341649)." );
+      ATH_MSG_ERROR( "Run number = " << runNumber << " not in recognized range (286282 to 364485)." );
       return StatusCode::FAILURE;
     }
 

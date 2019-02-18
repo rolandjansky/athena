@@ -17,8 +17,8 @@ TaggerType: TopQuarkContained
 
 DecorationName: BDTTaggerTopQuark80
 
-CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
-#CalibArea: Local
+CalibAreaTMVA: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
+#CalibAreaTMVA: Local
 
 TMVAConfigFile: TMVAClassification_BDTG.TOP3q_NvarM_pT350to2000GeV.01062017.weights.xml
 

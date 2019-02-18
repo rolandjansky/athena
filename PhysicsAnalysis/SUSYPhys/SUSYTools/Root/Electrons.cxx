@@ -216,10 +216,8 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  if (m_doElIsoSignal){
-    dec_isol(input) = m_isoTool->accept(input);
-    dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
-  }
+  if (!m_eleIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
+  if (!m_eleIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
 
   //ChargeIDSelector
   if( m_runECIS ){
@@ -305,7 +303,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
   if (m_doElIsoSignal) { 
-    if ( !( (acc_isol(input) && input.pt()<200e3) || (acc_isolHighPt(input) && input.pt()>200e3)) ) return false;
+    if ( !( (acc_isol(input) && input.pt()<m_eleIsoHighPtThresh) || (acc_isolHighPt(input) && input.pt()>m_eleIsoHighPtThresh)) ) return false;
     ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation" );
   }
   
@@ -413,7 +411,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
   if (isoSF) {
     double iso_sf(1.);
     CP::CorrectionCode result;
-    if (acc_isolHighPt(el) && el.pt()>200e3)
+    if (acc_isolHighPt(el) && el.pt()>m_eleIsoHighPtThresh)
       result = m_elecEfficiencySFTool_isoHighPt->getEfficiencyScaleFactor(el, iso_sf);
     else 
       result = m_elecEfficiencySFTool_iso->getEfficiencyScaleFactor(el, iso_sf);
@@ -433,25 +431,29 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }
   }
 
-  // new : charge flip SF 
+  // Charge flip SF 
   if (chfSF){
-    ATH_MSG_WARNING ("Be aware that charge mis-ID SF is not provided in R21 yet. Use at your own risk!");
     double chf_sf(1.);
 
+    CP::CorrectionCode result;
+
     //ECIS SF 
-    CP::CorrectionCode result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
-    switch (result) {
-    case CP::CorrectionCode::Ok:
-      sf *= chf_sf;
-      break;
-    case CP::CorrectionCode::Error:
-      ATH_MSG_ERROR( "Failed to retrieve signal electron charge-flip SF");
-      break;
-    case CP::CorrectionCode::OutOfValidityRange:
-      ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge-flip SF");
-      break;
-    default:
-      ATH_MSG_WARNING( "Don't know what to do for signal electron charge-flip SF");
+    if( m_runECIS ){
+      ATH_MSG_WARNING ("Be aware that ECIS SF is not provided in R21 yet. Use at your own risk!");
+      result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
+      switch (result) {
+      case CP::CorrectionCode::Ok:
+        sf *= chf_sf;
+        break;
+      case CP::CorrectionCode::Error:
+        ATH_MSG_ERROR( "Failed to retrieve signal electron charge-flip SF");
+        break;
+      case CP::CorrectionCode::OutOfValidityRange:
+        ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge-flip SF");
+        break;
+      default:
+        ATH_MSG_WARNING( "Don't know what to do for signal electron charge-flip SF");
+      }
     }
 
     //CHIDEFF SF

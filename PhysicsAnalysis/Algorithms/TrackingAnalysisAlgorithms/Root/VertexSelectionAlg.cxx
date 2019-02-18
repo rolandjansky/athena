@@ -42,7 +42,7 @@ namespace CP {
       ATH_CHECK( evtStore()->retrieve( vertices, m_vertexKey ) );
 
       // The number of "good" vertices found:
-      int goodVertices = 0;
+      unsigned goodVertices = 0;
 
       // Check how many "good" vertices we have in the current event:
       for( const xAOD::Vertex* vx : *vertices ) {

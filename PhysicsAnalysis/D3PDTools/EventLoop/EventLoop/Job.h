@@ -320,6 +320,10 @@ namespace EL
     static const std::string optPerfTree;
 
 
+    /// \brief the option to select whether our input is xAODs
+  public:
+    static const std::string optXAODInput;
+
     /// description: the option to select the access mode for xAODs.
     ///   this can be "branch" for branch access, or "class" for
     ///   access.  if this option isn't specified EventLoop will pick

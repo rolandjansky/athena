@@ -40,6 +40,7 @@ int main ()
   ANA_CHECK (xAOD::Init ());
 
   const char *name = "TruthParticles";
+  (void) name;
 
   const char *fileName = getenv ("ROOTCORE_TEST_FILE");
   if (fileName == nullptr)

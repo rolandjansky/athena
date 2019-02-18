@@ -14,5 +14,8 @@ namespace xAOD {
   }
 
   ParticleCaloExtension::~ParticleCaloExtension() {
+    // disable unsused field warning with clang.  ideally we'd remove
+    // the member, but I'm not sure if that breaks xAOD streaming
+    (void) m_charge;
   }
 }

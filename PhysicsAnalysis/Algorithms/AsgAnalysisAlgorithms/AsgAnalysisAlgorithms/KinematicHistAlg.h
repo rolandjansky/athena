@@ -9,6 +9,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__KINEMATIC_HIST_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
@@ -44,6 +45,11 @@ namespace CP
   private:
     SysReadHandle<xAOD::IParticleContainer> m_inputHandle {
       this, "input", "", "the input collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the pattern for histogram names
   private:
