@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -59,6 +59,7 @@ SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string&
    AthAlgTool(type, name, parent),
    m_detStore(0),
    m_eventInfoKey(std::string("ByteStreamEventInfo")),
+   m_mutex(),
    m_attrListColl(0),
    m_attrListColl_deadStrip(0),
    m_attrListColl_deadChip(0),
@@ -93,8 +94,7 @@ SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string&
    m_RawOccuRecorded(false),
    m_BSErrRecorded(false),
    m_LARecorded(false),
-   m_pHelper(0),
-   m_currentDefectList("")
+   m_pHelper(0)
 {
    declareProperty("WriteCondObjs",        m_writeCondObjs);
    declareProperty("RegisterIOV",          m_regIOV);
@@ -514,6 +514,7 @@ SCTCalibWriteTool::createListLA(const Identifier& wafer_id,const SCT_ID* sctId,c
 
 const CondAttrListCollection*
 SCTCalibWriteTool::getAttrListCollectionByFolder(const string& foldername) const {
+   std::lock_guard<std::mutex> lock(m_mutex);
    // trying to find the pointer in the hashmap
    // if it exists, return it, otherwise put it in.
    const CondAttrListCollection* nullPtr(0);
