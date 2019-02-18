@@ -51,7 +51,7 @@ dcube() {
 
 # Running IDPVM on first ESD file
 ( set -x
-  inputESDFile="$individual_ESD_1" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
+  exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$individual_ESD_1"
 )
 echo "art-result: $? physval"
 
@@ -59,7 +59,7 @@ mv ./MyPhysVal.root ./physval_1.root
 
 # Running IDPVM on second ESD file
 ( set -x
-  inputESDFile="$individual_ESD_2" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
+  exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$individual_ESD_2"
 )
 echo "art-result: $? physval"
 
@@ -73,7 +73,7 @@ mv ./physval_hadd.root ./$dcubemon_postprocessing
 
 # Running IDPVM on the combined ESD file
 ( set -x
-  inputESDFile="$combined_ESD" exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py
+  exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$combined_ESD"
 )
 echo "art-result: $? physval"
   
