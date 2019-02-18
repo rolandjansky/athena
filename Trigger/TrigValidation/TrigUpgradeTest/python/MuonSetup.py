@@ -12,7 +12,7 @@ muL2ISInfo = "MuonL2ISInfo"
 TrackParticlesName = "xAODTracks"
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
-def makeMuonPrepDataAlgs(name):
+def makeMuonPrepDataAlgs():
 
   eventAlgs_MuonPRD = [] # These algs should be prepared for configuring RoIs same as muon RoIs used in viewAlg.
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
@@ -39,7 +39,7 @@ def makeMuonPrepDataAlgs(name):
   ToolSvc += CscRdoToCscPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
-  CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData_"+name,
+  CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
                                             CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                             PrintPrepData           = False, 
                                             DoSeededDecoding        = True,
@@ -56,7 +56,7 @@ def makeMuonPrepDataAlgs(name):
 
   #CSC cluster building
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-  CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder_"+name,
+  CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                  cluster_builder = CscClusterBuilderTool)    
   
   eventAlgs_MuonPRD.append( CscRdoToCscPrepData )  
@@ -75,7 +75,7 @@ def makeMuonPrepDataAlgs(name):
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool_"+name)
+  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool")
                                                        #OutputLevel         = INFO )
   ToolSvc += MdtRdoToMdtPrepDataTool
 
@@ -88,7 +88,7 @@ def makeMuonPrepDataAlgs(name):
   
   
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-  MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider_"+name,
+  MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                 ProviderTool = MuonMdtRawDataProviderTool )
 
   eventAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
@@ -113,14 +113,14 @@ def makeMuonPrepDataAlgs(name):
   ToolSvc += RpcRdoToRpcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
-  RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name             = "RpcRdoToRpcPrepData_"+name,
+  RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name             = "RpcRdoToRpcPrepData",
                                             DecodingTool     = RpcRdoToRpcPrepDataTool,
                                             PrintPrepData    = False,
                                             DoSeededDecoding = True,
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
-  RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider_"+name,
+  RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
                                                 ProviderTool = MuonRpcRawDataProviderTool,
                                                 DoSeededDecoding = True,
                                                 RoIs = "MURoIs")
@@ -146,14 +146,14 @@ def makeMuonPrepDataAlgs(name):
   ToolSvc += TgcRdoToTgcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
-  TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name             = "TgcRdoToTgcPrepData_"+name,
+  TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name             = "TgcRdoToTgcPrepData",
                                             DecodingTool     = TgcRdoToTgcPrepDataTool,
                                             PrintPrepData    = False,
                                             DoSeededDecoding = True,
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider_"+name,
+  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                 ProviderTool = MuonTgcRawDataProviderTool )
 
   eventAlgs_MuonPRD.append( TgcRawDataProvider )
@@ -457,7 +457,7 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
   
   ### Provide Muon_PrepDataAlgorithms ###
   from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
-  ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs(name)
+  ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs()
 
   # setup RDO preparator algorithms 
   for viewAlg_MuonPRD in viewAlgs_MuonPRD:
