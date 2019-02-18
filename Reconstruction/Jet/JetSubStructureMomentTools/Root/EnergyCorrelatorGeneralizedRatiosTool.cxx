@@ -83,9 +83,6 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     
     ecfg_3_3_1 / ecfg_2_1_2
     E = (3*1) / (1*2) = 3./2.
-
-    The variables are just re-scaled to make them usually have values 
-    between 1 and 10 for convenience. But this is important to keep in mind.
   */
 
   if(fabs(ecfg_2_1_2) > 1e-8)
@@ -101,8 +98,8 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
   if(fabs(ecfg_3_3_1) > 1e-8)
     {  
-      jet.setAttribute(m_prefix+"L3", ecfg_3_1_1 / (pow(ecfg_3_3_1, (1./3.) )) ); ///100.
-      jet.setAttribute(m_prefix+"L4", ecfg_3_2_2 / (pow(ecfg_3_3_1, (4./3.) )) ); ///100.
+      jet.setAttribute(m_prefix+"L3", ecfg_3_1_1 / (pow(ecfg_3_3_1, (1./3.) )) );
+      jet.setAttribute(m_prefix+"L4", ecfg_3_2_2 / (pow(ecfg_3_3_1, (4./3.) )) );
     }
   else
     {
@@ -111,7 +108,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     }
 
   if(fabs(ecfg_4_4_1) > 1e-8)
-    jet.setAttribute(m_prefix+"L5", ecfg_4_2_2 / (pow(ecfg_4_4_1, (1.) )) ); ///1000000.
+    jet.setAttribute(m_prefix+"L5", ecfg_4_2_2 / (pow(ecfg_4_4_1, (1.) )) );
   else
     jet.setAttribute(m_prefix+"L5",-999.0);
   
