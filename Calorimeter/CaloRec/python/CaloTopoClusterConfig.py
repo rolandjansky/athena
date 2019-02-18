@@ -3,6 +3,29 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import MeV
 
+def caloTopoCoolFolderCfg(configFlags):
+    result=ComponentAccumulator()
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
+    result.mergeAll(IOVDbSvcCfg(ConfigFlags))
+    # rely on global tag for both MC and data; do not specify folder tags
+    # use CALO_OFL only for GEO>=18
+    hadCalibFolders = [
+        "HadCalibration2/CaloEMFrac",
+        "HadCalibration2/H1ClusterCellWeights",
+        "HadCalibration2/CaloOutOfCluster",
+        "HadCalibration2/CaloOutOfClusterPi0",
+        "HadCalibration2/CaloDMCorr2"
+        ]
+    hadCalibPrefix = "/CALO/"
+    hadCalibDB = "CALO_ONL"
+    if configFlags.Input.isMC:
+        hadCalibPrefix = "/CALO/Ofl/"
+        hadCalibDB = "CALO_OFL"
+    hadCalibFolders = [ hadCalibPrefix + foldername for foldername in hadCalibFolders ]
+    result.merge(addFolders(configFlags, hadCalibFolders, hadCalibDB, className="CaloLocalHadCoeff"))
+
+    return result
+
 def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
     from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -327,8 +350,7 @@ def CaloTopoClusterCfg(configFlags):
         CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags,theCaloNoiseTool)
 
-        # Needed?
-        from CaloRec import CaloClusterTopoCoolFolder
+        result.merge(caloTopoCoolFolderCfg(configFlags))
 
     return result,CaloTopoCluster
 
@@ -358,8 +380,6 @@ if __name__=="__main__":
     #cfg=ComponentAccumulator()
     cfg=MainServicesSerialCfg() 
     cfg.merge(PoolReadCfg(ConfigFlags))
-    # from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-    # cfg.mergeAll(IOVDbSvcCfg(ConfigFlags))
     
     theKey="CaloCalTopoClustersNew"
 
