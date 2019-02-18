@@ -15,7 +15,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonOverlayBase/MuonOverlayBase.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
@@ -41,9 +40,8 @@ public:
   CscOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Framework implemenrtation for the event loop */
-  virtual StatusCode overlayInitialize();
-  virtual StatusCode overlayExecute();
-  virtual StatusCode overlayFinalize();
+  virtual StatusCode overlayInitialize() override final;
+  virtual StatusCode execute() override final;
 
   /** given 2 container of data - zero bias real data and the simulation,
       do the merging */
@@ -92,15 +90,13 @@ private:
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  SG::ReadHandleKey<CscRawDataContainer> m_inputDataRDOKey{this,"InputDataRDOKey","OriginalEvent_SG+CSCRDO",""};
-  SG::ReadHandleKey<CscRawDataContainer> m_inputOverlayRDOKey{this,"InputOverlayRDOKey","BkgEvent_0_SG+CSCRDO",""};
-  SG::WriteHandleKey<CscRawDataContainer> m_outputContainerKey{this,"OutputContainerKey","StoreGateSvc+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_bkgInputKey{this,"BkgInputKey","OriginalEvent_SG+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_signalInputKey{this,"SignalInputKey","BkgEvent_0_SG+CSCRDO",""};
+  SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","StoreGateSvc+CSCRDO",""};
 
 
   const CscIdHelper   * m_cscHelper{nullptr};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
-  ToolHandle<IMuonDigitizationTool> m_rdoTool2{this, "MakeRDOTool2", "CscDigitToCscRDOTool2", ""};
-  ToolHandle<IMuonDigitizationTool> m_rdoTool4{this, "MakeRDOTool4", "CscDigitToCscRDOTool4", ""};
   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service

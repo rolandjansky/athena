@@ -34,6 +34,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
 
     if DetFlags.overlay.CSC_on():
         job += CfgGetter.getAlgorithm("CscOverlayDigitBuilder")
+        job += CfgGetter.getAlgorithm("CscOverlayDigitToRDO")
         job += CfgGetter.getAlgorithm("CscOverlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("CscTruthOverlay")
