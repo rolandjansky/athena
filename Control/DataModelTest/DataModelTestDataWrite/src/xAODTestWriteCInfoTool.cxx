@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,6 @@
 
 
 #include "xAODTestWriteCInfoTool.h"
-#include "EventInfo/EventID.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
 #include "AthLinks/ElementLink.h"
@@ -32,11 +31,9 @@ xAODTestWriteCInfoTool::xAODTestWriteCInfoTool (const std::string& type,
                                                 const IInterface* parent)
 
   : base_class (type, name, parent),
-    m_eventInfoKey ("McEventInfo"),
     m_cvecKey ("cvec"),
     m_cinfoKey ("cinfo")
 {
-  declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("CVecKey", m_cvecKey);
   declareProperty ("CInfoKey", m_cinfoKey);
 }
@@ -47,7 +44,6 @@ xAODTestWriteCInfoTool::xAODTestWriteCInfoTool (const std::string& type,
  */
 StatusCode xAODTestWriteCInfoTool::initialize()
 {
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_cvecKey.initialize() );
   ATH_CHECK( m_cinfoKey.initialize() );
   return StatusCode::SUCCESS;
@@ -59,10 +55,7 @@ StatusCode xAODTestWriteCInfoTool::initialize()
  */
 StatusCode xAODTestWriteCInfoTool::doit (const EventContext& ctx) const
 {
-  //SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-  //unsigned int count = eventInfo->eventNumber()  + 1;
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
-  unsigned int count = eventInfo->event_ID()->event_number() + 1;
+  unsigned int count = ctx.eventID().event_number() + 1;
 
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
 

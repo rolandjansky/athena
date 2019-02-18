@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,7 +41,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
@@ -615,14 +614,7 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 
 // handle events (beginEvent only) to prepare containers
 void TrigDataAccessATLFAST::handle(const Incident & inc ) {
-  const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-  if(!eventInc) {
-    ATH_MSG_ERROR(" Unable to get EventInfo from either EventStore or BeginRun incident");
-    return;
-  }
-  else {
-    m_larcell->eventNumber(inc.context().eventID().event_number());
-  }
+  m_larcell->eventNumber(inc.context().eventID().event_number());
 }
 
 template<class T>

@@ -14,9 +14,6 @@
   <class name="std::vector<ElementLink<xAOD::IParticleContainer> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >" />
 
-  <class name="ElementLinkVector<xAOD::IParticleContainer>" />
-  <class name="std::vector<ElementLinkVector<xAOD::IParticleContainer> >" />
-
   <!-- The helper functions: -->
   <function pattern="xAOD::*" />
 

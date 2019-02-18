@@ -46,7 +46,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
-topSequence += alg
+if alg not in topSequence:
+    topSequence += alg
 
 from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
 

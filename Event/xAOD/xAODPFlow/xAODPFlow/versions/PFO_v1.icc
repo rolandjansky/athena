@@ -10,12 +10,12 @@
 namespace xAOD{
 
   template<class T> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const T& anAttribute) {
-    (*(PFOAttributesAccessor_v1<T>::accessor(AttributeType)))(*this) = anAttribute;
+    (*(PFOAttributesAccessor_v1<T>::constAccessor(AttributeType)))(*this) = anAttribute;
   }
   
   template<class T> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, T& anAttribute) const {
     
-    const ConstAccessor<T>* acc = PFOAttributesAccessor_v1<T>::accessor(AttributeType);
+    const ConstAccessor<T>* acc = PFOAttributesAccessor_v1<T>::constAccessor(AttributeType);
     //check if accessor pointer is NULL
     if( ! acc ) {  return false ;}
     //check if variable is avaialable

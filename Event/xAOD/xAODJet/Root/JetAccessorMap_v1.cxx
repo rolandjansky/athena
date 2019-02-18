@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJet/versions/JetAccessorMap_v1.h"
@@ -24,15 +24,12 @@ namespace xAOD {
     };
 
 
-    std::string name_v1(xAOD::JetAttribute::AttributeID id ){
+    std::string name_v1(xAOD::JetAttribute::AttributeID id ) {
       // no specialization for now. Use dummy to avoid any conflict
-      AccessorWrapper<Dummy>* acc = AccessorMap_v1<Dummy>::accessor(id);
+      const AccessorWrapper<Dummy>* acc = AccessorMap_v1<Dummy>::accessor(id);
       if(acc) return acc->name();
       return "UknownAttribute";
     }
-
-
-
 
 
     template<>
@@ -41,9 +38,9 @@ namespace xAOD {
       ObjectAccessorWrapper(const std::string&n) : Named(n){}
     };
 
-    std::string assoName_v1(xAOD::JetAttribute::AssoParticlesID id ){
+    std::string assoName_v1(xAOD::JetAttribute::AssoParticlesID id )  {
       // no specialization for now. Use dummy to avoid any conflict
-      ObjectAccessorWrapper<Dummy>* acc = ObjectAccessorMap_v1<Dummy>::accessor(id);
+      const ObjectAccessorWrapper<Dummy>* acc = ObjectAccessorMap_v1<Dummy>::accessor(id);
       if(acc) return acc->name();
       return "UknownAssoObject";
     }

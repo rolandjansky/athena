@@ -53,7 +53,8 @@ namespace jet {
 
 
 
-  static xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >  &eperSamplAcc = * xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
+  static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >  &eperSamplAcc = 
+    *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
 
   double JetCaloQualityUtils::emFraction(const std::vector<float>& e_sampling){   
     double e_EM = 0;

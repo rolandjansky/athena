@@ -12,7 +12,6 @@
 
 // Core include(s):
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"

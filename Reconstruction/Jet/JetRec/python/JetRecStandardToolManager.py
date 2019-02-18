@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -222,6 +222,8 @@ groomed_modifiers = [
     jtm.ktdr,
     jtm.ktsplitter,
     jtm.encorr,
+    jtm.energycorrelatorgeneralized,
+    jtm.energycorrelatorgeneralizedratios,
     jtm.charge,
     jtm.angularity,
     jtm.comshapes,

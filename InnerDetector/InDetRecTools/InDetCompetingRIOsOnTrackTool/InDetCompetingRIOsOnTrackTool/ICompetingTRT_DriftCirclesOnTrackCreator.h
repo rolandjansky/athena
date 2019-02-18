@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ public:
         (common interface Trk::ICompetingRIOsOnTrackTool)*/
     virtual void updateCompetingROT(
         //const InDet::CompetingTRT_DriftCirclesOnTrack&,
-        const Trk::CompetingRIOsOnTrack&,
+        Trk::CompetingRIOsOnTrack&,
         const Trk::TrackParameters&,
         const Trk::IWeightCalculator::AnnealingFactor
         //                const bool recreateROTs=false

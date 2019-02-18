@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
 ///////////////////////////////////////////////////////////////////
 void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     //const InDet::CompetingSCT_ClustersOnTrack& compROT,
-    const Trk::CompetingRIOsOnTrack& baseCompROT,
+    Trk::CompetingRIOsOnTrack& baseCompROT,
     const Trk::TrackParameters& trkPar,
     const Trk::IWeightCalculator::AnnealingFactor beta
     //const bool recreateROTs=false
@@ -279,7 +279,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     ATH_MSG_DEBUG("********* in updateCompetingROT() **********");
 
     // cast baseCompROT to CompSCT_ClusterOnTrack:
-    const InDet::CompetingSCT_ClustersOnTrack* compROT = dynamic_cast< const InDet::CompetingSCT_ClustersOnTrack* >(&baseCompROT);
+    InDet::CompetingSCT_ClustersOnTrack* compROT = dynamic_cast< InDet::CompetingSCT_ClustersOnTrack* >(&baseCompROT);
     if (!compROT) {
         ATH_MSG_WARNING("Given CompetingRIOsOnTrack is not a CompetingSCT_ClustersOnTrack!");
         ATH_MSG_WARNING("Update of assignment probabilities aborted!!!");
@@ -389,7 +389,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     delete compROT->m_globalPosition;
     compROT->m_globalPosition = 0; // very important, otherwise segfault...
     // delete localParameters
-    const_cast< InDet::CompetingSCT_ClustersOnTrack* >(compROT)->setLocalParametersAndErrorMatrix();
+    compROT->setLocalParametersAndErrorMatrix();
     if (msgLvl(MSG::VERBOSE)) testCompetingROT(*compROT);
 }
 
@@ -504,10 +504,10 @@ void InDet::CompetingSCT_ClustersOnTrackTool::testCompetingROT(const InDet::Comp
 }
 
 StatusCode InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROTprobs( 
-        const Trk::CompetingRIOsOnTrack& baseCompROT, 
+        Trk::CompetingRIOsOnTrack& baseCompROT, 
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >& assignmentProbs 
     ) const { 
-    const InDet::CompetingSCT_ClustersOnTrack* compROT = dynamic_cast< const InDet::CompetingSCT_ClustersOnTrack* >(&baseCompROT); 
+    InDet::CompetingSCT_ClustersOnTrack* compROT = dynamic_cast< InDet::CompetingSCT_ClustersOnTrack* >(&baseCompROT); 
     if (!compROT) { 
         ATH_MSG_ERROR("Given CompetingRIOsOnTrack is not a CompetingPixelClustersOnTrack!"); 
         ATH_MSG_ERROR("Update of assignment probabilities aborted!!!"); 
@@ -542,7 +542,7 @@ StatusCode InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROTprobs(
     delete compROT->m_globalPosition; 
     compROT->m_globalPosition = 0; // very important, otherwise segfault... 
     // recalc localParameters 
-    const_cast< InDet::CompetingSCT_ClustersOnTrack* >(compROT)->setLocalParametersAndErrorMatrix();
+    compROT->setLocalParametersAndErrorMatrix();
     if (msgLvl(MSG::DEBUG)) testCompetingROT(*compROT); 
     return StatusCode::SUCCESS; 
 } 

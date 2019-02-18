@@ -158,7 +158,7 @@ namespace xAOD {
    bool FileMetaData_v1::value( MetaDataType type, std::string& val ) const {
 
       // Get the accessor for this type:
-      Accessor< std::string >* acc = metaDataTypeStringAccessorV1( type );
+      const Accessor< std::string >* acc = metaDataTypeStringAccessorV1( type );
       if( ! acc ) {
          return false;
       }
@@ -179,7 +179,7 @@ namespace xAOD {
                                 std::string& val ) const {
 
       // Create an accessor object:
-      Accessor< std::string > acc( type );
+      const Accessor< std::string > acc( type );
 
       // Check if this variable is available:
       if( ! acc.isAvailable( *this ) ) {
@@ -196,7 +196,7 @@ namespace xAOD {
    bool FileMetaData_v1::setValue( MetaDataType type, const std::string& val ) {
 
       // Get the accessor for this type:
-      Accessor< std::string >* acc = metaDataTypeStringAccessorV1( type );
+      const Accessor< std::string >* acc = metaDataTypeStringAccessorV1( type );
       if( ! acc ) {
          return false;
       }
@@ -212,7 +212,7 @@ namespace xAOD {
                                    const std::string& val ) {
 
       // Create the accessor object:
-      Accessor< std::string > acc( type );
+      const Accessor< std::string > acc( type );
 
       // Set the value:
       acc( *this ) = val;
@@ -224,7 +224,7 @@ namespace xAOD {
    bool FileMetaData_v1::value( MetaDataType type, float& val ) const {
 
       // Get the accessor for this type:
-      Accessor< float >* acc = metaDataTypeFloatAccessorV1( type );
+      const Accessor< float >* acc = metaDataTypeFloatAccessorV1( type );
       if( ! acc ) {
          return false;
       }
@@ -245,7 +245,7 @@ namespace xAOD {
                                 float& val ) const {
 
       // Create an accessor object:
-      Accessor< float > acc( type );
+      const Accessor< float > acc( type );
 
       // Check if this variable is available:
       if( ! acc.isAvailable( *this ) ) {
@@ -262,7 +262,7 @@ namespace xAOD {
    bool FileMetaData_v1::setValue( MetaDataType type, float val ) {
 
       // Get the accessor for this type:
-      Accessor< float >* acc = metaDataTypeFloatAccessorV1( type );
+      const Accessor< float >* acc = metaDataTypeFloatAccessorV1( type );
       if( ! acc ) {
          return false;
       }
@@ -277,7 +277,7 @@ namespace xAOD {
    bool FileMetaData_v1::setValue( const std::string& type, float val ) {
 
       // Create the accessor object:
-      Accessor< float > acc( type );
+      const Accessor< float > acc( type );
 
       // Set the value:
       acc( *this ) = val;

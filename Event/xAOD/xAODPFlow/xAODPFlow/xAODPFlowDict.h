@@ -46,12 +46,10 @@ namespace {
     
     xAOD::TrackCaloClusterContainer_v1                                              c3;
     DataLink< xAOD::TrackCaloClusterContainer_v1 >                                  l13;
-    ElementLink< xAOD::TrackCaloClusterContainer_v1 >                               l14;
-    ElementLinkVector< xAOD::TrackCaloClusterContainer_v1 >                         l15;
-    std::vector< DataLink< xAOD::TrackCaloClusterContainer_v1 > >                   l16;
-    std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > >                l17;
-    std::vector< ElementLinkVector< xAOD::TrackCaloClusterContainer_v1 > >          l18;
-    std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > > > l19;
+    std::vector< DataLink< xAOD::TrackCaloClusterContainer_v1 > >                   l14;
+    ElementLink< xAOD::TrackCaloClusterContainer_v1 >                               l15;
+    std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > >                l16;
+    std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > > > l17;
     
    };
 }

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -79,39 +79,39 @@ inline bool xAOD::MissingETComponent_v1::addObject(const IParticle* pPart,const 
 
 // ------------------------------------------------------------------- MET link
 inline const MissingETBase::Types::metlink_t& xAOD::MissingETComponent_v1::metLink() const 
-{ static SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
 inline MissingETBase::Types::metlink_t& xAOD::MissingETComponent_v1::f_metLink()           
-{ static SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
 
 // ---------------------------------------------------------------- object link
 inline const MissingETBase::Types::objlink_vector_t& xAOD::MissingETComponent_v1::objectLinks() const 
-{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
 inline MissingETBase::Types::objlink_vector_t& xAOD::MissingETComponent_v1::f_objectLinks()
-{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
 
 // ---------------------------------------------------------- kinematic weights
 inline const std::vector<double>& xAOD::MissingETComponent_v1::wpx() const
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
 inline double xAOD::MissingETComponent_v1::wpx(const IParticle* pPart) const
 { return this->wpx(this->findIndex(pPart)); }
 
 inline const std::vector<double>& xAOD::MissingETComponent_v1::wpy() const
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
 inline double xAOD::MissingETComponent_v1::wpy(const IParticle* pPart) const
 { return this->wpy(this->findIndex(pPart)); }
 
 inline const std::vector<double>& xAOD::MissingETComponent_v1::wet() const
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
 inline double xAOD::MissingETComponent_v1::wet(const IParticle* pPart) const
 { return this->wet(this->findIndex(pPart)); }
 
 inline std::vector<double>& xAOD::MissingETComponent_v1::f_wpx() 
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
 
 inline std::vector<double>& xAOD::MissingETComponent_v1::f_wpy() 
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
 inline std::vector<double>& xAOD::MissingETComponent_v1::f_wet() 
-{ static SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
 
 // -- non-coventional Weight generator
 inline xAOD::MissingETComponent_v1::Weight xAOD::MissingETComponent_v1::weight(const IParticle* pPart) const
@@ -119,10 +119,10 @@ inline xAOD::MissingETComponent_v1::Weight xAOD::MissingETComponent_v1::weight(c
 
 // ---------------------------------------------------------------- status word
 inline MissingETBase::Types::bitmask_t xAOD::MissingETComponent_v1::statusWord() const
-{ static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
 
 inline MissingETBase::Types::bitmask_t& xAOD::MissingETComponent_v1::f_statusWord()
-{ static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
+{ static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
 // --------------------------------------------------- MET object and container
 inline const xAOD::MissingET* xAOD::MissingETComponent_v1::metObject() const
 { return *(this->metLink()); }

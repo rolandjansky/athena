@@ -226,6 +226,9 @@ PP="$PP"'|INFO AthenaOutputStream'
 PP="$PP"'|^DbSession.*INFO'
 PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
 
+# xAODMaker::EventInfoCnvAlg
+PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

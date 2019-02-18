@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CMXEtSums_v1.h 687949 2015-08-06 15:48:49Z amazurov $
@@ -14,6 +14,7 @@
 
 // System include(s):
 #include <stdint.h>
+#include <ostream>
 
 namespace xAOD {
 
@@ -128,6 +129,10 @@ public:
   uint32_t eyError() const;
 
 }; // class CMXEtSums_v1
+
+
+std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums_v1 &el);
+
 } // namespace xAOD
 #endif
 

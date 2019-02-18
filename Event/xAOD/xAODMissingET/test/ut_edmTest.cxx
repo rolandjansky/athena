@@ -1,7 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/* 
+ * This test is no thread safe
+ * but we are fine with it
+ */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN

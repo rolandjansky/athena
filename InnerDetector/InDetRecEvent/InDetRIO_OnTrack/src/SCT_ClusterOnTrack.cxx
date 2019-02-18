@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,7 +89,6 @@ void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, c
   
 const  Amg::Vector3D& InDet::SCT_ClusterOnTrack::globalPosition() const
   {
-  
    //checking whether the globalposition is available
    if(!m_globalPosition)
    {

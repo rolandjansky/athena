@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 
 #include "xAODTestWriteHVec.h"
 #include "xAODTestWriteHelper.h"
-#include "EventInfo/EventID.h"
 #include "DataModelTestDataWrite/HVec.h"
 #include "DataModelTestDataWrite/HView.h"
 #include "DataModelTestDataWrite/H.h"
@@ -31,11 +30,9 @@ namespace DMTest {
 xAODTestWriteHVec::xAODTestWriteHVec (const std::string &name,
                                       ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
-    m_eventInfoKey ("McEventInfo"),
     m_hvecKey ("hvec"),
     m_hviewKey ("hview")
 {
-  declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("HVecKey", m_hvecKey);
   declareProperty ("HViewKey", m_hviewKey);
 }
@@ -46,7 +43,6 @@ xAODTestWriteHVec::xAODTestWriteHVec (const std::string &name,
  */
 StatusCode xAODTestWriteHVec::initialize()
 {
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_hvecKey.initialize() );
   ATH_CHECK( m_hviewKey.initialize() );
   return StatusCode::SUCCESS;
@@ -58,8 +54,7 @@ StatusCode xAODTestWriteHVec::initialize()
  */
 StatusCode xAODTestWriteHVec::execute (const EventContext& ctx) const
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
-  unsigned int count = eventInfo->event_ID()->event_number() + 1;
+  unsigned int count = ctx.eventID().event_number() + 1;
 
   auto hvec = std::make_unique<DMTest::HVec>();
   auto store = std::make_unique<DMTest::HAuxContainer>();

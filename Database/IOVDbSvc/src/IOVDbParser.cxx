@@ -158,10 +158,7 @@ unsigned IOVDbParser::applyOverrides(const IOVDbParser& other, MsgStream & log) 
 }
     
 bool IOVDbParser::operator==(const IOVDbParser& other) const {
-  const KeyValMap &a=this->m_keys;
-  const KeyValMap &b=other.m_keys;
-  if (a.size()!=b.size()) return false;
-  return std::equal(a.begin(),a.end(),b.begin());
+  return ((this->m_keys) == other.m_keys);
 }
 
 std::string IOVDbParser::toString() const {

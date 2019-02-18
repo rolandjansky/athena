@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const Trk::LocalParameters& locpars,
 // Destructor:
 InDet::SiClusterOnTrack::~SiClusterOnTrack()
 { 
-  delete m_globalPosition; 
+  delete m_globalPosition;
 }
 
 // Default constructor:
@@ -84,15 +84,15 @@ InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTr
 
 const Amg::Vector3D& InDet::SiClusterOnTrack::globalPosition() const
 { 
-    if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return (*m_globalPosition); 
+   if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
+   return (*m_globalPosition);
 }
 
 MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
 {
 
     sl << "SiClusterOnTrack {" << endmsg;
-    Trk::RIO_OnTrack::dump(sl); 
+    Trk::RIO_OnTrack::dump(sl);
 
     sl << "Global position (x,y,z) = (";
     this->globalPosition();
@@ -112,7 +112,7 @@ std::ostream& InDet::SiClusterOnTrack::dump( std::ostream& sl ) const
 {
     sl << "SiClusterOnTrack {"<<std::endl;
 
-    Trk::RIO_OnTrack::dump(sl); 
+    Trk::RIO_OnTrack::dump(sl);
 
     sl << "Global position (x,y,z) = (";
     this->globalPosition();

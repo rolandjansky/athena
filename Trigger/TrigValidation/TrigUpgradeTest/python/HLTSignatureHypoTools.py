@@ -11,18 +11,26 @@ def TestHypoTool(name, prop, threshold_value):
     return h
 
 def MuTestHypoTool(name, conf):
-    threshold = conf.replace("HLT_mu","")
+    #threshold = conf.replace("HLT_mu","")
+    threshold = getThreshold(conf, 'mu') 
     return TestHypoTool(name,prop="pt", threshold_value=threshold)
 
 def ElTestHypoTool(name,conf):
-    threshold = conf.replace("HLT_e","")
+    #threshold = conf.replace("HLT_e","")
+    threshold = getThreshold(conf, 'e') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 def GammTestHypoTool(name,conf):
-    threshold = conf.replace("HLT_g","")
+    threshold = getThreshold(conf, 'g') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
 def MuTest2HypoTool(name, conf):
-    threshold = conf.replace("HLT_mu","")
+    threshold = getThreshold(conf, 'mu')  
     return TestHypoTool(name,prop="pt2", threshold_value=threshold)
+
+
+def getThreshold(name, signature):
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+    dictDecoding = DictFromChainName.DictFromChainName()
+    return dictDecoding.getChainThresholdFromName(name, signature)

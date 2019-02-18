@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'ElectronRingerSelectorDefs.py' )
@@ -9,9 +9,9 @@ from AthenaCommon.Configurable import Configurable
 import cppyy
 
 try :
-  cppyy.loadDictionary('RingerSelectorToolsDict')
+  cppyy.loadDictionary('RingerSelectorToolsEnumsDict')
 except RuntimeError, e:
-  mlog.error("Could not load RingerSelectorTools dictionary from cppyy.")
+  mlog.error("Could not load RingerSelectorEnumsTools dictionary from cppyy.")
   raise RuntimeError(e)
 
 from ROOT import Ringer

@@ -41,6 +41,7 @@ def generateMenu( flags ):
     counter = 0
     signatureToGenerator = {}
     menuChains = []
+    allChainDicts =[]
 
     menuAcc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
@@ -66,6 +67,7 @@ def generateMenu( flags ):
 
             counter += 1
             chainDict['chainCounter'] = counter
+            allChainDicts.append(chainDict)
             # TODO topo threshold
 
             # call generating function and pass to CF builder
@@ -78,8 +80,8 @@ def generateMenu( flags ):
 
     # pass all menuChain to CF builder    
 
-    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)
 
+    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
     chainsAcc.printConfig()
 
     menuAcc.merge( chainsAcc )

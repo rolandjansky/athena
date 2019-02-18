@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,6 @@
 
 
 #include "xAODTestWriteCVec.h"
-#include "EventInfo/EventID.h"
 #include "DataModelTestDataCommon/CVec.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
@@ -43,10 +42,8 @@ namespace DMTest {
 xAODTestWriteCVec::xAODTestWriteCVec (const std::string &name,
                                       ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
-    m_eventInfoKey ("McEventInfo"),
     m_cvecKey ("cvec")
 {
-  declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("CVecKey", m_cvecKey);
   declareProperty ("CVecDecorKey", m_cvecDecorKey);
 }
@@ -57,7 +54,6 @@ xAODTestWriteCVec::xAODTestWriteCVec (const std::string &name,
  */
 StatusCode xAODTestWriteCVec::initialize()
 {
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_cvecKey.initialize() );
 
   if (m_cvecDecorKey.key().empty())
@@ -73,10 +69,7 @@ StatusCode xAODTestWriteCVec::initialize()
  */
 StatusCode xAODTestWriteCVec::execute (const EventContext& ctx) const
 {
-  //SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-  //unsigned int count = eventInfo->eventNumber()  + 1;
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
-  unsigned int count = eventInfo->event_ID()->event_number() + 1;
+  unsigned int count = ctx.eventID().event_number() + 1;
 
   auto coll = CxxUtils::make_unique<DMTest::CVec>();
   auto store = CxxUtils::make_unique<DMTest::CAuxContainer>();

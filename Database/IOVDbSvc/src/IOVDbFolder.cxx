@@ -279,7 +279,7 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   if (cacheDiv>0) {
     // quantise queries on boundaries that are sub-multiples of cache length
     unsigned long long cacheq=m_cachelength/cacheDiv;
-    m_cachestart=vkey-vkey % cacheq;
+    if (cacheq>0) m_cachestart=vkey-vkey % cacheq;
     m_cachestop=m_cachestart+m_cachelength;
   } else {
     // for run/LB indexed folders and cache of at least one run
@@ -1065,19 +1065,6 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,const unsigned int cacheRun,
   return tad;
 }
 
-// private implementation methods
-/**
-IOVTime 
-IOVDbFolder::makeTime(const cool::ValidityKey key) {
-  IOVTime time;
-  if (m_timestamp) 
-    time.setTimestamp(key);
-  else 
-    time.setRETime(key);
-  return time;
-}
-
-**/
 IOVRange 
 IOVDbFolder::makeRange(const cool::ValidityKey since,const cool::ValidityKey until) {
   // make an IOVRange object corresponding to given interval
