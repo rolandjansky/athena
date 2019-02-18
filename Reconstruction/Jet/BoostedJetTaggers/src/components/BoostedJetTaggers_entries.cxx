@@ -4,6 +4,7 @@
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "BoostedJetTaggers/JetQGTagger.h"
+#include "BoostedJetTaggers/JetQGTaggerBDT.h"
 #include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 #include "BoostedJetTaggers/TopoclusterTopTagger.h"
@@ -18,6 +19,7 @@ DECLARE_TOOL_FACTORY(TopoclusterTopTagger)
 DECLARE_TOOL_FACTORY(HbbTaggerDNN)
 DECLARE_NAMESPACE_TOOL_FACTORY(HTTxAOD, HEPTopTagger)
 DECLARE_NAMESPACE_TOOL_FACTORY(CP, JetQGTagger)
+DECLARE_NAMESPACE_TOOL_FACTORY(CP, JetQGTaggerBDT)
 
 DECLARE_FACTORY_ENTRIES(BoostedJetTaggers) {
   DECLARE_TOOL(SmoothedWZTagger)
@@ -29,5 +31,6 @@ DECLARE_FACTORY_ENTRIES(BoostedJetTaggers) {
   DECLARE_TOOL(HbbTaggerDNN)
   DECLARE_NAMESPACE_TOOL(HTTxAOD, HEPTopTagger)
   DECLARE_NAMESPACE_TOOL(CP, JetQGTagger)
+  DECLARE_NAMESPACE_TOOL(CP, JetQGTaggerBDT)
 
 }
