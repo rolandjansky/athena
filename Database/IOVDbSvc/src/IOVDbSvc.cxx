@@ -224,8 +224,7 @@ StatusCode IOVDbSvc::initialize() {
   // check for global tag in jobopt, which will override anything in input file
   if (m_par_globalTag!="") {
     m_globalTag=m_par_globalTag;
-    ATH_MSG_INFO( "Global tag: " << m_par_globalTag << 
-      " set from joboptions" );
+    ATH_MSG_INFO( "Global tag: " << m_par_globalTag << " set from joboptions" );
   }
 
   // setup folders and process tag overrides
@@ -301,7 +300,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
   if (storeID!=StoreID::DETECTOR_STORE) return StatusCode::SUCCESS;
   // Preloading of addresses should be done ONLY for detector store
   ATH_MSG_DEBUG( "preLoadAddress: storeID -> " << storeID );
-  // check FLMD of input, see if any requested folders are available there
+  // check File Level Meta Data of input, see if any requested folders are available there
   const DataHandle<IOVMetaDataContainer> cont;
   const DataHandle<IOVMetaDataContainer> contEnd;
   if (StatusCode::SUCCESS==m_h_metaDataStore->retrieve(cont,contEnd)) {
@@ -661,7 +660,6 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
   m_iovTime=beginRunTime;
-
   // For a MC event, the run number we need to use to look up the conditions
   // may be different from that of the event itself.  Override the run
   // number with the conditions run number from the event context,

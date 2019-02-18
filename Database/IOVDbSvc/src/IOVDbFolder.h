@@ -14,6 +14,7 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
+#include "AthenaKernel/IIOVSvc.h"
 
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/ValidityKey.h"
@@ -37,7 +38,7 @@ class CondAttrListCollection;
 
 class IOVDbFolder {
 public:
-  IOVDbFolder(IOVDbConn* conn,const IOVDbParser& folderprop, MsgStream & /*msg*/,
+  IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream & /*msg*/,
               IClassIDSvc* clidsvc,const bool checkglock);
   ~IOVDbFolder();
   

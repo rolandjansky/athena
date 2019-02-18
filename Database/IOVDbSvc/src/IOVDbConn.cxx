@@ -22,8 +22,9 @@ IOVDbConn::IOVDbConn(const std::string& dbname, const bool readOnly,
   m_abort(false),
   m_nconn(0),
   m_nfolder(0),
-  m_connstr(dbname)
-{}
+  m_connstr(dbname){
+   //nop
+}
 
 IOVDbConn::~IOVDbConn() {}
 
