@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1AlgsEventProd/VP1EventProd.h"
@@ -7,7 +7,6 @@
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
 #include "StorageSvc/DbType.h"
-#include "EventInfo/EventIncident.h"
 #include "PathResolver/PathResolver.h"
 
 #include "GaudiKernel/FileIncident.h"
@@ -108,14 +107,6 @@ StatusCode VP1EventProd::finalize()
 void VP1EventProd::handle(const Incident& inc) 
 {
   msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endmsg;
-
-  const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-  if(eventInc == 0) {
-    msg(MSG::WARNING) << " Unable to cast incident type" << endmsg;
-    return;
-  } else {
-    msg(MSG::DEBUG) << " Event incident casting successful" << endmsg;
-  }
 
   // Let VP1FileUtilities handle the output of the previous event.
   // Skip this if m_nEvent == 0,

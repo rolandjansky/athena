@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -24,7 +24,6 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 namespace {
 
@@ -110,14 +109,8 @@ StatusCode HLT::RandomScaler::initialize()
 void HLT::RandomScaler::handle(const Incident& inc)
 {
   if (inc.type()==IncidentType::BeginEvent) {
-    const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-    if (!eventInc) {
-      msg() << MSG::ERROR << "Cannot cast BeginEvent incident to EventIncident." << endmsg;
-      return;
-    }
-    EventContext context = inc.context();
-    m_seedInput[SEED_SEC]  = context.eventID().time_stamp();
-    m_seedInput[SEED_NSEC] = context.eventID().time_stamp_ns_offset();
+    m_seedInput[SEED_SEC]  = inc.context().eventID().time_stamp();
+    m_seedInput[SEED_NSEC] = inc.context().eventID().time_stamp_ns_offset();
 
     /* Generate hash-based seed from event quantities.
      * Ranlux64 only supports signed 32bit seeds ('long' on i686)

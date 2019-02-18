@@ -44,7 +44,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventIncident.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"

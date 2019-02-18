@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -47,7 +47,6 @@
 
 // Event Incident to get Event Info
 #include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventIncident.h"
 
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
@@ -1347,24 +1346,18 @@ StatusCode TrigDataAccess::LoadFullCollections (
  
 
 void TrigDataAccess::handle(const Incident & inc ) {
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-         if(!eventInc) {
-             ATH_MSG_WARNING(" Unable to get EventInfo from either EventStore or BeginRun incident");
-             return;
-         }
-         else {
 	   EventContext context = inc.context();
 	   m_larcell->eventNumber(context.eventID().event_number());
-	     if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(context.eventID().lumi_block(), context.eventID().bunch_crossing_id());
-             m_tilecell->eventNumber(context.eventID().event_number());
-             m_d0cells.clear();
-             //m_full_vrodid32.clear();
-             m_present_roi = 0;
-             TileCellCollection* mbts = m_tilecell->MBTS_collection();
-             for (size_t i = 0; i < (*mbts).size(); ++i)
-                (*mbts)[i]->setEnergy(0.0);
-             m_mbts_done=false;
-         }
+       if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(context.eventID().lumi_block(), context.eventID().bunch_crossing_id());
+       m_tilecell->eventNumber(context.eventID().event_number());
+       m_d0cells.clear();
+       //m_full_vrodid32.clear();
+       m_present_roi = 0;
+       TileCellCollection* mbts = m_tilecell->MBTS_collection();
+       for (size_t i = 0; i < (*mbts).size(); ++i) {
+         (*mbts)[i]->setEnergy(0.0);
+       }
+       m_mbts_done=false;
 }
 
 void TrigDataAccess::ROBList( const IRoiDescriptor& roi, std::vector<uint32_t>& vec){
