@@ -150,7 +150,7 @@ namespace IOVDbNamespace{
     std::sregex_token_iterator e;
     for (;pos!=e;++pos)  {
       // the resulting text _should not_ contain spaces, but strip it to be sure.
-      v.push_back(spaceStrip(pos->str()));                           
+      if (not pos->str().empty()) v.push_back(spaceStrip(pos->str()));                           
     }
     return v;                    
   }
