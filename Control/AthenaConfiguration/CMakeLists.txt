@@ -30,7 +30,7 @@ atlas_add_test( AthConfigFlagsTest
 atlas_add_test( GenerateBootstrapTest
    SCRIPT test/test_gen_bootstrap.sh
    #ignore location of bootstrap file and whether it was already downloaded
-   EXTRA_PATTERNS ".*\/share\/bootstrap*pkl|File.*exists in the current directory"
+   EXTRA_PATTERNS ".*copy bootstrap.*pkl|.*\/share\/bootstrap.*pkl|File.*exists in the current directory|^Willing to acquire"
    )
 
 if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
