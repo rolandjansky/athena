@@ -157,11 +157,11 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
       print "postInclude for ",layoutDescr, " layout"
       include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
-      if layoutOption=="InclinedAlternative" :
-         # in step3 we are using hit identifier translation to cope with the L0/L1 rings.
-         # If you want to run wo translation set this to False
-         print "Setting Layout translation helper to true"
-         ToolSvc.LayoutTranslationHelper.translateIdentifiersForInclinedAlternative=True
+#      if layoutOption=="InclinedAlternative" :
+#         # in step3 we are using hit identifier translation to cope with the L0/L1 rings.
+#         # If you want to run wo translation set this to False
+#         print "Setting Layout translation helper to true"
+#         ToolSvc.LayoutTranslationHelper.translateIdentifiersForInclinedAlternative=True
       break
 
 #-----------------------------------------------------------------------
