@@ -16,7 +16,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonOverlayBase/MuonOverlayBase.h"
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-#include "PileUpTools/IPileUpTool.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
@@ -100,7 +99,6 @@ private:
 
   const CscIdHelper   * m_cscHelper{nullptr};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
-  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "CscDigitizationTool", ""};
   ToolHandle<IMuonDigitizationTool> m_rdoTool2{this, "MakeRDOTool2", "CscDigitToCscRDOTool2", ""};
   ToolHandle<IMuonDigitizationTool> m_rdoTool4{this, "MakeRDOTool4", "CscDigitToCscRDOTool4", ""};
   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};

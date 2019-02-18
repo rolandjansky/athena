@@ -40,9 +40,6 @@ StatusCode CscOverlay::overlayInitialize()
   // get cscRdoDecoderTool
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
-  ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digitization Tool.");
-
   ATH_CHECK(m_rdoTool2.retrieve());
   ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 2.");
 
@@ -82,13 +79,6 @@ StatusCode CscOverlay::overlayExecute() {
   }
   else{
     numsamples=inputDataRDO->begin()->numSamples();
-  }
-
-  /** in the simulation stream, run digitization of the fly
-      and make RDO - this will be used as input to the overlay job */
-  if ( m_digTool->processAllSubEvents().isFailure() ) {
-     ATH_MSG_WARNING("On the fly CSC digitization failed ");
-     return StatusCode::SUCCESS;
   }
 
   if (numsamples==2) {
