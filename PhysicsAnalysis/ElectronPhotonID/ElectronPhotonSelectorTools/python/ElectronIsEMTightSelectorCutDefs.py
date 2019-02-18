@@ -3,22 +3,9 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for tight++ menu
 
-import cppyy
-try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except :
-    pass
-  
-from ROOT import egammaPID, std
-
-# Next 3 lines are needed due to a difference how pyROOT and pyCintex handle stl vectors
-std.vector('float')
-std.vector('double')
-std.vector('int')
-
-
 # Import a needed helper
 from PATCore.HelperUtils import *
+
 
 # Define GeV
 GeV = 1000.0

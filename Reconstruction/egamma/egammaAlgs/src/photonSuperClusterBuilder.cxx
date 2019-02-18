@@ -227,8 +227,7 @@ photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
   }
 
   // Now loop over the potential secondary clusters
-  // Note: start with index after seed cluster: depends on sorted nature of egammaRecs
-  for (std::size_t i = photonInd + 1; i < egammaRecs->size(); ++i) {
+  for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
     
     //First some basic seed cuts
     if(isUsed.at(i)){

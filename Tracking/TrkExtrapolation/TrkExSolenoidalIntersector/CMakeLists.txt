@@ -32,3 +32,17 @@ atlas_add_component( TrkExSolenoidalIntersector
 # Install files from the package:
 atlas_install_headers( TrkExSolenoidalIntersector )
 
+
+atlas_add_test( SolenoidParametrization_test
+                SOURCES test/SolenoidParametrization_test.cxx
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools
+                EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+
+atlas_add_test( SolenoidalIntersector_test
+                SOURCES test/SolenoidalIntersector_test.cxx
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools
+                EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+

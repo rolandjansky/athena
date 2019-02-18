@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaSvc.cxx 
@@ -39,7 +39,7 @@ namespace PyAthena {
 // Constructors
 ////////////////
 Svc::Svc( const std::string& name, ISvcLocator* svcLocator ) :
-  SvcBase_t( name, svcLocator ),
+  base_class( name, svcLocator ),
   m_self   ( nullptr )
 {}
 
@@ -86,32 +86,6 @@ Svc::endRun()
   return PyAthena::callPyMethod( m_self, "sysEndRun" );
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-Svc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( interfaceID().versionMatch(riid) )    {
-    *ppvInterface = static_cast<PyAthena::Svc*>(this);
-//   } else if ( 0 != m_self && m_self != Py_None ) {
-//     return PyAthena::queryInterface( m_self, riid, ppvInterface );
-  } else  {
-    // Interface is not directly available: try out a base class
-    return SvcBase_t::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-const InterfaceID& 
-Svc::interfaceID() { 
-  static const InterfaceID IID("PyAthena::Svc", 1, 0);
-  return IID; 
-}
-
 StatusCode
 Svc::sysInitialize()
 {
@@ -135,9 +109,6 @@ Svc::sysInitialize()
   return SvcBase_t::sysInitialize();
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 const char*
 Svc::typeName() const
@@ -146,9 +117,6 @@ Svc::typeName() const
   return tname.c_str();
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 void
 Svc::handle (const Incident& inc)
@@ -181,9 +149,6 @@ Svc::handle (const Incident& inc)
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
 bool
 Svc::setPyAttr( PyObject* o )
@@ -225,13 +190,5 @@ Svc::setPyAttr( PyObject* o )
   }
   return false;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthenaPython

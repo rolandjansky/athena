@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJet/JetContainerInfo.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <map>
 
@@ -14,7 +15,7 @@ namespace xAOD {
 
     const std::string c_unknonwAlg = "UnknwonAlg";
     
-    void initMap(){
+    void initMap  ATLAS_NOT_THREAD_SAFE  (){
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
@@ -48,14 +49,14 @@ namespace xAOD {
   
 
   
-  const std::string & algName(ID id){
+  const std::string & algName  ATLAS_NOT_THREAD_SAFE  (ID id){
     initMap();
     if( idToNamemap.find( id ) != idToNamemap.end() ) return idToNamemap[id];
     return c_unknonwAlg;
       
  
   }
-  ID algId(const std::string & n){
+  ID algId  ATLAS_NOT_THREAD_SAFE  (const std::string & n){
     initMap();
     if( nameToIDmap.find( n ) != nameToIDmap.end() ) return nameToIDmap[n];
     return undefined_jet_algorithm;
@@ -70,7 +71,7 @@ namespace xAOD {
 
     const std::string c_unCategorized = "Uncategorized";
     
-    void initMap(){
+    void initMap  ATLAS_NOT_THREAD_SAFE  (){
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
@@ -133,13 +134,13 @@ namespace xAOD {
     return validJetContitTypes.count(t)==1;
   } 
 
-  const std::string & typeName(Type id){
+  const std::string & typeName  ATLAS_NOT_THREAD_SAFE  (Type id){
     initMap();
     if( typeToNamemap.find( id ) != typeToNamemap.end() ) return typeToNamemap[id];
     return c_unCategorized ;     
   }
 
-  Type inputType(const std::string & n){
+  Type inputType  ATLAS_NOT_THREAD_SAFE  (const std::string & n){
     initMap();
     if( nameToTypemap.find( n ) != nameToTypemap.end() ) return nameToTypemap[n];
     return Uncategorized;

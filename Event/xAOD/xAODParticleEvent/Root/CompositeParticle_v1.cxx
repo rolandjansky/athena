@@ -31,12 +31,12 @@ namespace xAOD {
   //     Functions implementing four-momentum
   //
 
-  static SG::AuxElement::Accessor< float > accPx( "px" );
-  static SG::AuxElement::Accessor< float > accPy( "py" );
-  static SG::AuxElement::Accessor< float > accPz( "pz" );
-  static SG::AuxElement::Accessor< float > accE(  "e"  );
-  static SG::AuxElement::Accessor< float > chargeAcc( "charge" );
-  static SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
+  static const SG::AuxElement::Accessor< float > accPx( "px" );
+  static const SG::AuxElement::Accessor< float > accPy( "py" );
+  static const SG::AuxElement::Accessor< float > accPz( "pz" );
+  static const SG::AuxElement::Accessor< float > accE(  "e"  );
+  static const SG::AuxElement::Accessor< float > chargeAcc( "charge" );
+  static const SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
 
 
   double CompositeParticle_v1::pt() const {
@@ -139,13 +139,13 @@ namespace xAOD {
                                          double py,
                                          double pz,
                                          double e ) {
-    static Accessor< float > acc1( "px" );
+    static const Accessor< float > acc1( "px" );
     acc1( *this ) = (float)px;
-    static Accessor< float > acc2( "py" );
+    static const Accessor< float > acc2( "py" );
     acc2( *this ) = (float)py;
-    static Accessor< float > acc3( "pz" );
+    static const Accessor< float > acc3( "pz" );
     acc3( *this ) = (float)pz;
-    static Accessor< float > acc4( "e" );
+    static const Accessor< float > acc4( "e" );
     acc4( *this ) = (float)e;
   }
 
@@ -455,17 +455,13 @@ namespace xAOD {
   //       information from constituents (not only using their 4-momenta).
   /////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
   /////////////////////////////////////////////////////////////////////////////
   //
   //     Functions implementing handling of constituents
   //
 
   // Get the accessor for the vector of element links to the constituents
-  static SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
+  static const SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
               partLinksAcc( "partLinks" );
 
 
@@ -586,10 +582,8 @@ namespace xAOD {
     return;
   }
 
-
-
   // Get the accessor for the element link to the MissingET object
-  static SG::AuxElement::Accessor< ElementLink<xAOD::MissingETContainer> >
+  static const SG::AuxElement::Accessor< ElementLink<xAOD::MissingETContainer> >
           metLinkAcc( "missingETLink" );
 
 
@@ -851,16 +845,13 @@ namespace xAOD {
   // End: Functions implementing handling of constituents
   /////////////////////////////////////////////////////////////////////////////
 
-
-
-
   /////////////////////////////////////////////////////////////////////////////
   //
   //     Functions implementing handling of other constituents
   //
 
   // Get the accessor for the vector of element links to the other constituents
-  static SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
+  static const SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
               otherPartLinksAcc( "otherPartLinks" );
 
 

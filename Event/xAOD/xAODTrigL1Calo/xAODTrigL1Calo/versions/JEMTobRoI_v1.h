@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JEMTobRoI_v1.h 685662 2015-07-27 10:30:15Z amazurov $
@@ -11,6 +11,7 @@
 // EDM include(s):
 #include "AthLinks/ElementLink.h"
 #include "AthContainers/AuxElement.h"
+#include <ostream>
 
 namespace xAOD{
 
@@ -71,6 +72,11 @@ namespace xAOD{
       static const int s_energyLargeMask = 0x3ff;      
    
   }; // class JEMTobRoI_v1
+
+
+  std::ostream &operator<<(std::ostream &os, const xAOD::JEMTobRoI_v1 &el);
+
+
 } // namespace xAOD
 #endif
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -790,7 +790,10 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
                             continue; // next ProtoTrackStateOnSurface
                         }
                         //if (m_debuglevel) ATH_MSG_VERBOSE( "current MeasurementBase is a CompetingRIOsOnTrack: set annealing factor" );
-                        m_compROTcreator->updateCompetingROT(*compROT, *smoothedTrkPar, m_option_annealingScheme[annealingIteration]);
+                        CompetingRIOsOnTrack* newCompROT = compROT->clone();
+                        m_compROTcreator->updateCompetingROT(*newCompROT, *smoothedTrkPar, m_option_annealingScheme[annealingIteration]);
+                        it->replaceMeasurement(newCompROT);
+                        compROT = newCompROT;
                     } else {
                         // set annealing factor in CompetingRIOsOnTrack which
                         // are marked as outliers (the Kalman forward Fitter marks
@@ -837,9 +840,12 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
                             if (!extrapolatedTrkPar) {
                                 ATH_MSG_WARNING( "Extrapolation to outlier surface did not succeed: Assignment probabilities of outlier cannot be updated" );
                             } else {
-                                m_compROTcreator->updateCompetingROT(*compROT, *extrapolatedTrkPar, m_option_annealingScheme[annealingIteration]);
+                                CompetingRIOsOnTrack* newCompROT = compROT->clone();
+                                m_compROTcreator->updateCompetingROT(*newCompROT, *extrapolatedTrkPar, m_option_annealingScheme[annealingIteration]);
                                 delete extrapolatedTrkPar;
                                 extrapolatedTrkPar = 0;
+                                it->replaceMeasurement(newCompROT);
+                                compROT = newCompROT;
                             }
                         }
                     }// end if outlier
@@ -1146,7 +1152,7 @@ void Trk::DeterministicAnnealingFilter::addToTrajectory(const MeasurementBase* m
     if (compROT) {
         ATH_MSG_VERBOSE( "current MeasurementBase is a CompetingRIOsOnTrack: clone and set annealing factor" );
         // TODO: decide about setting of annealingFactor, if no track parameters are given: extraploate?
-        const CompetingRIOsOnTrack* newCompROT = compROT->clone();
+        CompetingRIOsOnTrack* newCompROT = compROT->clone();
         if (trkPar) {
             // set annealing factor in CompetingRIOsOnTrack
             m_compROTcreator->updateCompetingROT(*newCompROT, *trkPar, m_option_annealingScheme[0]);

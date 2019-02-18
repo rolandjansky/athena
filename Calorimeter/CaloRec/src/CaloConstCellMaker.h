@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,7 @@
 #define CALOREC_CALOCONSTCELLMAKER_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloEvent/CaloConstCellContainer.h"
@@ -33,7 +33,7 @@ class ICaloConstCellMakerTool;
  * cell pointers between containers.
  */
 class CaloConstCellMaker
-  : public AthAlgorithm
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -48,7 +48,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// Standard Gaudi execute method.
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 
 private:
@@ -63,9 +63,6 @@ private:
 
   /// For timekeeping.
   ServiceHandle<IChronoStatSvc> m_chrono;
-
-  /// Count events processed, for statistics.
-  unsigned m_evCounter;
 };
 
 

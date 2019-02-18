@@ -43,6 +43,7 @@ StatusCode  EventInfoAttListTool::initialize() {
   m_attribListSpec->extend("IsSimulation",    "bool");
   m_attribListSpec->extend("IsCalibration",   "bool");
   m_attribListSpec->extend("IsTestBeam",      "bool");
+  m_attribListSpec->extend("McChannel",       "unsigned int");
   m_attribListSpec->extend("RunNumber",       "unsigned int");
   m_attribListSpec->extend("EventNumber",     "unsigned long long");
   m_attribListSpec->extend("LumiBlockN",      "unsigned int");
@@ -107,7 +108,9 @@ StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag,
   unsigned int       condRunNumber = runNumber;
   unsigned long long eventNumber   = eventInfo.eventNumber();
   unsigned int       lumiBlock     = eventInfo.lumiBlock();
-  if (isSimulation)  runNumber     = eventInfo.mcChannelNumber();
+  unsigned int       mcChannel = 0;
+  if (isSimulation)  mcChannel = eventInfo.mcChannelNumber();
+  eventTag["McChannel"]    .data<unsigned int>()       = mcChannel;
   eventTag["RunNumber"]    .data<unsigned int>()       = runNumber;
   eventTag["EventNumber"]  .data<unsigned long long>() = eventNumber;
   eventTag["LumiBlockN"]   .data<unsigned int>()       = lumiBlock;
@@ -148,7 +151,9 @@ StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag,
   unsigned int       condRunNumber = runNumber;
   unsigned long long eventNumber   = eventInfo.event_ID()->event_number();
   unsigned int       lumiBlock     = eventInfo.event_ID()->lumi_block();
-  if (isSimulation)  runNumber     = eventInfo.event_type()->mc_channel_number();
+  unsigned int       mcChannel = 0;
+  if (isSimulation)  mcChannel = eventInfo.event_type()->mc_channel_number();;
+  eventTag["McChannel"]    .data<unsigned int>()       = mcChannel;
   eventTag["RunNumber"]    .data<unsigned int>()       = runNumber;
   eventTag["EventNumber"]  .data<unsigned long long>() = eventNumber;
   eventTag["LumiBlockN"]   .data<unsigned int>()       = lumiBlock;

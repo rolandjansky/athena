@@ -33,9 +33,15 @@ atlas_add_component( SiLorentzAngleSvc
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel InDetCondTools SiPropertiesSvcLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesSvcLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry )
+
+# Run tests:
+atlas_add_test( TestSCTLorentzAngle
+                SCRIPT athena.py --threads=5 SiLorentzAngleSvc/testSCTLorentzAngle.py 
+                PROPERTIES TIMEOUT 300
+                ENVIRONMENT THREADS=5 )
 
 # Install files from the package:
 atlas_install_headers( SiLorentzAngleSvc )
 atlas_install_python_modules( python/*.py )
-
+atlas_install_joboptions( share/*.py )

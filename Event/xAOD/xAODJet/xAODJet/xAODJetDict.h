@@ -19,7 +19,6 @@
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
 #include "xAODJet/JetContainer.h"
@@ -41,8 +40,6 @@ namespace {
       ElementLink< xAOD::JetContainer_v1 > e3;
       std::vector< ElementLink< xAOD::JetContainer_v1 > > e4;
       std::vector< std::vector< ElementLink< xAOD::JetContainer_v1 > > > e5;
-      ElementLinkVector< xAOD::JetContainer_v1 > e6;
-      std::vector< ElementLinkVector< xAOD::JetContainer_v1 > > e7;
 
       // Instantiations to create the EL member dictionaries correctly:
       xAOD::IParticleContainer pc1;

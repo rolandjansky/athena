@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,42 +26,6 @@ Description: Object to encode the result of several cuts
 
 // ROOT includes
 #include <TString.h>
-
-
-
-
-//=============================================================================
-// Constructor
-//=============================================================================
-asg::AcceptInfo::AcceptInfo(const char* name) :
-  m_name(name),
-  m_cutMap()
-{
-}
-
-
-
-
-//=============================================================================
-// Adding a cut
-//=============================================================================
-int asg::AcceptInfo::addCut( const std::string& cutName, const std::string& cutDescription )
-{
-  // Make sure that this new cuts doesn't exceed the number of bits available
-  if ( m_cutMap.size() >= NBITS )
-    {
-      return -1;
-    }
-
-  // Add the cut to the map
-  std::pair< std::string, unsigned int > cutPair = std::make_pair( cutDescription, m_cutMap.size() );
-  m_cutMap.insert( std::make_pair( cutName, cutPair ) );
-
-  // Return the position of the newly added cut in the bitmask
-  int result = (m_cutMap.size() - 1);
-  m_cutMask.set (result);
-  return result;
-}
 
 
 

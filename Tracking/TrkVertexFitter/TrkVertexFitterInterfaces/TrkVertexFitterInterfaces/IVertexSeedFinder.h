@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,7 +55,10 @@ namespace Trk
        /** 
         * AlgTool interface methods 
 	*/
+
        static const InterfaceID& interfaceID() { return IID_IVertexSeedFinder; };
+
+       virtual void setPriVtxPosition( double vx, double vy ) = 0 ;
 
        /**
         *  Finds a linearization point out of a vector of tracks
@@ -86,7 +89,16 @@ namespace Trk
         */
        virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0) = 0;
 
+      /** 
+        * Return the perigees of tracks that are directly used in the crossing points
+       */
 
+       virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*> * ,
+                              const std::vector<const Trk::TrackParameters*> & ) const = 0 ;
+
+       virtual int getModes1d(std::vector<float>&, std::vector<float>&, 
+                              std::vector<float>&, std::vector<float>&  ) const = 0 ;
+       virtual void getCorrelationDistance( double &cXY, double &cZ ) = 0 ;
 
   };
 }

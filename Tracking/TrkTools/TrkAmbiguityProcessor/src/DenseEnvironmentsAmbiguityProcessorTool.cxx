@@ -1038,7 +1038,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updateSCT_SplitInformation(st
   for( auto clusterTrkPara : setOfClustersOnTrack){
     //  Update information
    
-    InDet::SCT_Cluster* sctCluster = const_cast<InDet::SCT_Cluster*> ( clusterTrkPara.first );    
+    const InDet::SCT_Cluster* sctCluster = clusterTrkPara.first;
    
     ATH_MSG_VERBOSE (  "---- "<< sctCluster->globalPosition().perp()
                               <<" SCT width  " << sctCluster->width().colRow()(0) );

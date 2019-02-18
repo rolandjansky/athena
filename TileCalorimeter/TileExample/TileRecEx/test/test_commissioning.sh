@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # art-description: CaloCosEx/Commissioning ATN test
-# art-type: grid
+# art-type: build
 # art-include: */Athena
 
 athena.py TileRecEx/jobOptions_TileCommissioningAtn.py

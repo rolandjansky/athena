@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg1.cxx 
@@ -17,11 +17,8 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-#include "CxxUtils/make_unique.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthEx {
 
@@ -33,22 +30,8 @@ namespace AthEx {
 ////////////////
 DFlowAlg1::DFlowAlg1( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_r_evtInfo("EventInfo"),
-  m_w_int("dflow_int")
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
-  declareProperty("IntFlow", 
-                  m_w_int,
-                  "Data flow of int");
-
-  declareProperty("EvtInfo",
-                  m_r_evtInfo,
-                  "event info handle");
 }
 
 // Destructor
@@ -61,6 +44,8 @@ DFlowAlg1::~DFlowAlg1()
 StatusCode DFlowAlg1::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_CHECK( m_w_int.initialize() );
+  ATH_CHECK( m_r_evtInfo.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -72,65 +57,45 @@ StatusCode DFlowAlg1::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg1::execute()
+StatusCode DFlowAlg1::execute (const EventContext& ctx) const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  if (!m_r_evtInfo.isValid()) {
+  SG::ReadHandle<xAOD::EventInfo> r_evtInfo (m_r_evtInfo, ctx);
+  if (!r_evtInfo.isValid()) {
     ATH_MSG_ERROR("Could not get the EventInfo object. Going to next event");
     return StatusCode::RECOVERABLE;
   }
   ATH_MSG_INFO("evtinfo handle...");
-  ATH_MSG_INFO("name: [" << m_r_evtInfo.name() << "]");
-  ATH_MSG_INFO("store [" << m_r_evtInfo.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_r_evtInfo.clid() << "]");
-  const EventInfo* ei = &*m_r_evtInfo;
-  ATH_MSG_INFO("ei: " << ei);
-  const EventID* eid = ei->event_ID();    
+  ATH_MSG_INFO("name: [" << r_evtInfo.name() << "]");
+  ATH_MSG_INFO("store [" << r_evtInfo.store() << "]");
+  ATH_MSG_INFO("clid: [" << r_evtInfo.clid() << "]");
+  ATH_MSG_INFO("ei: " << *r_evtInfo);
   ATH_MSG_INFO("retrieving event-info...");
-  unsigned int runnbr = eid->run_number();
+  unsigned int runnbr = r_evtInfo->runNumber();
   ATH_MSG_INFO("evt-info.runnbr: " << runnbr);
-  ATH_MSG_INFO("evt-info.evtnbr: " << eid->event_number());
+  ATH_MSG_INFO("evt-info.evtnbr: " << r_evtInfo->eventNumber());
   
   ATH_MSG_INFO("myint handle...");
-  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
-  
-  m_w_int = CxxUtils::make_unique<int>(m_r_evtInfo->event_ID()->event_number());
+  SG::WriteHandle<int> w_int (m_w_int, ctx);
+  ATH_MSG_INFO("name: [" << w_int.name() << "]");
+  ATH_MSG_INFO("store [" << w_int.store() << "]");
+  ATH_MSG_INFO("clid: [" << w_int.clid() << "]");
 
-  //redundant check as op = would throw if m_w_int was not valid (e.g. because if clid/key combo was duplicated)
-  if (m_w_int.isValid()) {
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+  ATH_CHECK( w_int.record (std::make_unique<int>(r_evtInfo->eventNumber())) );
+
+  //redundant check as op = would throw if w_int was not valid (e.g. because if clid/key combo was duplicated)
+  if (w_int.isValid()) {
+    ATH_MSG_INFO("ptr: " << w_int.cptr());
+    ATH_MSG_INFO("val: " << *w_int);
     
     ATH_MSG_INFO("modify myint by value...");
-    *m_w_int = m_r_evtInfo->event_ID()->event_number() + 20;
+    *w_int = r_evtInfo->eventNumber() + 20;
 
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+    ATH_MSG_INFO("ptr: " << w_int.cptr());
+    ATH_MSG_INFO("val: " << *w_int);
   }
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthEx

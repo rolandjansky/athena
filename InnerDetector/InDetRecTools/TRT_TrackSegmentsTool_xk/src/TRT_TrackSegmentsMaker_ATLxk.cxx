@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -304,8 +304,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   //
   m_extensionTool->newEvent();
 
-  InDet::TRT_DriftCircleContainer::const_iterator  
-    w,we = trtcontainer->end();
+  InDet::TRT_DriftCircleContainer::const_iterator we = trtcontainer->end();
 
   eraseHistogramm(); 
 
@@ -313,9 +312,9 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   int n = 0;
   for(; d!=de; ++d) {
 
-    w = trtcontainer->indexFind((*d));
+    InDet::TRT_DriftCircleContainer::const_iterator w = trtcontainer->indexFind((*d));
 
-    for(; w!=we; ++w) {
+    if(w!=we) {
 
       Identifier ID = (*w)->identify();
       int be = m_trtid->barrel_ec     (ID);

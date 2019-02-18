@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixGeneratorJob.py
 ## @brief py-module to configure the Athena AppMgr for generator (UNIX) jobs
@@ -29,7 +29,7 @@ def _setupAtlasUnixGeneratorJob():
     from AthenaCommon.AlgSequence import AthSequencer
     topSequence = AthSequencer("AthAlgSeq")
     from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg()
+    topSequence += xAODMaker__EventInfoCnvAlg(DoBeginRun = False, AODKey = 'McEventInfo')
 
     return
 

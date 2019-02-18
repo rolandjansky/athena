@@ -19,6 +19,8 @@
 #include "AthenaKernel/IDecisionSvc.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 
+#include "StoreGate/StoreGateSvc.h"
+
 
 /**
  * @class DecisionSvc
@@ -95,14 +97,12 @@ private:
   std::vector<std::string> m_streamNames;
 
   Gaudi::Property<bool> m_calcStats{this, "CalcStats", false};
+  bool m_extend{false};
   bool m_frozen{false};
+  std::string m_attListKey;
+  ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<ICutFlowSvc> m_cutflowSvc;
   ServiceHandle<IAlgExecStateSvc> m_algstateSvc;
-
-  //std::map<std::string, std::vector<unsigned int> > m_stream2Counts;
-  //unsigned int m_eventCount{0};
-  //unsigned int m_badEvents;
-  //std::map<unsigned int, unsigned int> m_overlapLevelCounts;
 
   void DeclareToCutFlowSvc();
   StatusCode fillMap(std::map<std::string, std::vector<std::string> >& streamsModeMap, 

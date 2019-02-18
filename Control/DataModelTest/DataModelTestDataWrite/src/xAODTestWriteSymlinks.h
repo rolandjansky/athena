@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -18,7 +18,6 @@
 #include "DataModelTestDataCommon/S1.h"
 #include "DataModelTestDataCommon/S2.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -54,9 +53,6 @@ public:
 
 
 private:
-  /// EventInfo.
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
-
   /// Main output.
   SG::WriteHandleKey<DMTest::S2> m_s2Key;
 

@@ -7,6 +7,7 @@
 #include "TrkVertexSeedFinderUtils/SimpleVertexClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
+#include "TrkVertexSeedFinderUtils/Mode3dFromFsmw1dFinder.h"
 #include "../ImagingSeedTuningAlg.h"
 #include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
 #include "../GaussianDensityTestAlg.h"
@@ -22,6 +23,7 @@ DECLARE_COMPONENT( Trk2DDistanceFinder )
 DECLARE_COMPONENT( SimpleVertexClusterFinder )
 DECLARE_COMPONENT( LocalMax1DClusterFinder )
 DECLARE_COMPONENT( VertexImageMaker )
+DECLARE_COMPONENT( Mode3dFromFsmw1dFinder )
 DECLARE_COMPONENT( ImagingSeedTuningAlg )
 DECLARE_COMPONENT( GaussianTrackDensity )
 DECLARE_COMPONENT( GaussianDensityTestAlg )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -31,10 +31,9 @@ using CLHEP::second;
  */
 CaloConstCellMaker::CaloConstCellMaker (const std::string& name,
                                         ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_caloCellsOutputKey(""),
-    m_chrono("ChronoStatSvc", name),
-    m_evCounter(0)
+    m_chrono("ChronoStatSvc", name)
 {
   declareProperty("OwnPolicy", m_ownPolicy = static_cast<int>(SG::VIEW_ELEMENTS),
                   "Will the new container own its cells?  Default is no.");
@@ -74,21 +73,19 @@ StatusCode CaloConstCellMaker::initialize()
 /**
  * @brief Standard Gaudi execute method.
  */
-StatusCode CaloConstCellMaker::execute()
+StatusCode CaloConstCellMaker::execute (const EventContext& ctx) const
 {
   // Create empty container.
 
-  SG::WriteHandle<CaloConstCellContainer> theContainer( m_caloCellsOutputKey);
+  SG::WriteHandle<CaloConstCellContainer> theContainer( m_caloCellsOutputKey, ctx);
   ATH_CHECK( theContainer.record (std::make_unique<CaloConstCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
-
-  ++m_evCounter;
 
   // Loop on tools.
   // Note that finalization and checks are also done with tools.
   for (auto& tool : m_caloCellMakerTools) {
     // For performance reasons want to remove the cell-checker tool
     // from the list of tools after the fifth event.
-    if (m_evCounter > 5) {
+    if (ctx.evt() > 5) {
       if (tool.typeAndName() == "CaloCellContainerCheckerTool/CaloCellContainerCheckerTool")
         continue;
     }
@@ -101,7 +98,7 @@ StatusCode CaloConstCellMaker::execute()
     sc.ignore();
     {
       Athena::Chrono (chronoName, &*m_chrono);
-      sc = tool->process(theContainer.ptr());
+      sc = tool->process(theContainer.ptr(), ctx);
     }
 
     ATH_MSG_DEBUG( "Chrono stop : delta "

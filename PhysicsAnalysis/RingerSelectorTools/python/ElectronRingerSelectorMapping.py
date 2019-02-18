@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ElectronRingerSelectorMapping.py
@@ -12,11 +12,11 @@
 import cppyy
 
 try :
-  cppyy.loadDictionary('RingerSelectorToolsDict')
+  cppyy.loadDictionary('RingerSelectorToolsEnumsDict')
 except RuntimeError, e:
   from AthenaCommon.Logging import logging
   mlog = logging.getLogger( 'ElectronRingerSelectorMapping.py' )
-  mlog.error("Could not load RingerSelectorTools dictionary from cppyy.")
+  mlog.error("Could not load RingerSelectorToolsEnums dictionary from cppyy.")
   raise RuntimeError(e)
 
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu

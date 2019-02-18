@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg2.cxx 
@@ -17,41 +17,17 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
 
 namespace AthEx {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-// Constructors
-////////////////
 DFlowAlg2::DFlowAlg2( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_r_int("dflow_int"),
-  m_w_int("dflow_int2"),
-  m_ints("dlow_ints")
-  
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
-  declareProperty("RIntFlow", 
-                  m_r_int = SG::ReadHandle<int>("dflow_int"),
-                  "Data flow of int");
-
-  declareProperty("WIntFlow", 
-                  m_w_int = SG::WriteHandle<int>("dflow_int2"),
-                  "Data flow of int");
-
-  declareProperty("IntsFlow", 
-                  m_ints = SG::WriteHandle<std::vector<int> >("dflow_ints"),
-                  "Data flow of integers");
-
 }
 
 // Destructor
@@ -64,6 +40,9 @@ DFlowAlg2::~DFlowAlg2()
 StatusCode DFlowAlg2::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_CHECK( m_r_int.initialize() );
+  ATH_CHECK( m_w_int.initialize() );
+  ATH_CHECK( m_ints.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -75,61 +54,43 @@ StatusCode DFlowAlg2::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg2::execute()
+StatusCode DFlowAlg2::execute (const EventContext& ctx) const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
-  ATH_MSG_INFO("name: [" << m_r_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_r_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_r_int.clid() << "]");
+  SG::ReadHandle<int> r_int (m_r_int, ctx);
+  ATH_MSG_INFO("name: [" << r_int.name() << "]");
+  ATH_MSG_INFO("store [" << r_int.store() << "]");
+  ATH_MSG_INFO("clid: [" << r_int.clid() << "]");
 
-  ATH_MSG_INFO("ptr: " << m_r_int.cptr());
-  if (m_r_int.isValid()) {
-    ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
+  ATH_MSG_INFO("ptr: " << r_int.cptr());
+  if (r_int.isValid()) {
+    ATH_MSG_INFO("val: " << *(r_int.cptr()));
   }
+  SG::WriteHandle<int> w_int (m_w_int, ctx);
   ATH_MSG_INFO("myint w-handle...");
-  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
+  ATH_MSG_INFO("name: [" << w_int.name() << "]");
+  ATH_MSG_INFO("store [" << w_int.store() << "]");
+  ATH_MSG_INFO("clid: [" << w_int.clid() << "]");
 
-  ATH_CHECK( m_w_int.record (std::make_unique<int> (*m_r_int + 1000)) );
+  ATH_CHECK( w_int.record (std::make_unique<int> (*r_int + 1000)) );
 
-  ATH_MSG_INFO("val: " << *m_w_int);
-  ATH_MSG_INFO("cptr: " << m_w_int.cptr());
+  ATH_MSG_INFO("val: " << *w_int);
+  ATH_MSG_INFO("cptr: " << w_int.cptr());
 
   ATH_MSG_INFO("ints w-handle...");
-  m_ints = CxxUtils::make_unique<std::vector<int> >();
-  m_ints->push_back(10);
-  //would be nice if it worked...  if (0 != m_r_int) m_ints->push_back(*m_r_int);
-  if (m_r_int.isValid()) m_ints->push_back(*m_r_int);
-  ATH_MSG_INFO("size:" << m_ints->size());
-  for (int i = 0, imax = m_ints->size();
+  SG::WriteHandle<std::vector<int> > ints (m_ints, ctx);
+  ATH_CHECK( ints.record (std::make_unique<std::vector<int> >()) );
+  ints->push_back(10);
+  if (r_int.isValid()) ints->push_back(*r_int);
+  ATH_MSG_INFO("size:" << ints->size());
+  for (int i = 0, imax = ints->size();
        i!=imax;
        ++i) {
-    ATH_MSG_INFO("val[" << i << "]= " << m_ints->at(i));
+    ATH_MSG_INFO("val[" << i << "]= " << ints->at(i));
   }
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthEx

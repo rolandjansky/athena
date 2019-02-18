@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectType.cxx 618658 2014-09-26 09:31:10Z krasznaa $
 
 // System include(s):
 #include <iostream>

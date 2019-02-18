@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -283,6 +283,26 @@ namespace Trk
     if( std::abs( charge ) < 1E-5 ) return false;
 
     return true;
+  }
+
+  void MCTrueSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
+     //implemented to satisfy inheritance
+  }
+
+  int MCTrueSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */ ,
+					const std::vector<const Trk::TrackParameters*> & /* b */) const{
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  int MCTrueSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
+				   std::vector<float> & /* c */, std::vector<float> &/* d */) const{
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  void MCTrueSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
+     //implemented to satisfy inheritance
   }
 
 }

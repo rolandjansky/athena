@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ namespace Trk {
       DistanceSolution(int num, double current=0., bool signedDist=false, double first=0., double second=0.);
             
       /**Destructor*/
-      virtual ~DistanceSolution();
+      virtual ~DistanceSolution() = default;
       
       // methods to access solutions
       /** Number of intersection solutions*/

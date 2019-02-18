@@ -49,6 +49,7 @@ rec.doCBNT.set_Value_and_Lock( False )
 rec.doWriteTAG.set_Value_and_Lock( False )
 rec.doWritexAOD.set_Value_and_Lock( False )
 rec.doTau.set_Value_and_Lock( False )
+rec.doCaloRinger.set_Value_and_Lock( False )
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.doMSVertex.set_Value_and_Lock( False )
 

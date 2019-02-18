@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace Trk
 {
 
 class SolenoidalIntersector: public AthAlgTool,
-			     virtual public IIntersector, IIncidentListener
+			     virtual public IIntersector, virtual public IIncidentListener
 {
     
 public:

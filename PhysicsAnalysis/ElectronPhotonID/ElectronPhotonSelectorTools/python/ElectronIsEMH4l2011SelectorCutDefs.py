@@ -3,14 +3,6 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for loose++ menu
 
-import cppyy
-try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except :
-    pass
-
-from ROOT import egammaPID
-
 # Import a needed helper
 from PATCore.HelperUtils import *
 

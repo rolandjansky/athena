@@ -137,7 +137,6 @@ class HypoAlgNode(AlgNode):
     def __init__(self, Alg):
         assert isHypoBase(Alg), "Error in creating HypoAlgNode from Alg "  + Alg.name()
         AlgNode.__init__(self, Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
-       # self.addDefaultOutput()
         self.tools = []
         self.previous=[]
 
@@ -287,23 +286,24 @@ class WrappedList:
        
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
-        self.hypoToolConf = HypoToolConf( HypoToolGen )
+        self.hypoToolConf = HypoToolConf( HypoToolGen ) if HypoToolGen else None
         self.hypo         = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
         self.reuse = False # flag to draw dot diagrmas
+        self.ca = CA
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
         self.hypo= HypoAlgNode( Alg=HypoAlg )
     
-    def connectToFilter(self, sfilter, outfilter):
+    def connectToFilter(self, outfilter):
         """ Sets the input and output of the hypo, and links to the input maker """
 
         #### Connect filter to the InputMaker
@@ -314,6 +314,9 @@ class MenuSequence():
         #### Add input/output Decision to Hypo
         self.hypo.setPreviousDecision( input_maker_output)
         hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
+        if len(self.hypo.getOutputList()):
+            log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
+            sys.exit("ERROR, in chain configuration") 
         self.hypo.addOutput(hypo_output)
 
         # needed for drawing
@@ -330,7 +333,30 @@ class MenuSequence():
     def __str__(self):
         return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence)
 
-    
+
+#################################################
+#### CONFIGURATION FOR L1DECODER
+#################################################
+## It might be moved somewhere in the cofiguration later one
+# This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
+def DoMapSeedToL1Decoder(seed):
+    mapSeedToL1Decoder = {  "EM" : "L1EM",
+                            "MU" : "L1MU",
+                            "J"  : "L1J",
+                            "TAU": "L1TAU",
+                            "XE" : "L1MET",
+                            "XS" : "L1MET",
+                            "TE" : "L1MET"}
+
+    # remove actual threshold value from L1 seed string
+    stripSeed  = filter(lambda x: x.isalpha(), seed)
+    if stripSeed not in mapSeedToL1Decoder:
+        log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
+        sys.exit("ERROR, in chain configuration") 
+    return (mapSeedToL1Decoder[stripSeed])   
+
+#################################################
+
 class Chain:
     """Basic class to define the trigger menu """
     def __init__(self, name, Seed, ChainSteps=[]):
@@ -350,7 +376,8 @@ class Chain:
             for m in range(0,mult): self.vseeds.append(single) 
             
         # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
-        self.group_seed  = ["L1"+filter(lambda x: x.isalpha(), stri) for stri in self.vseeds]
+        # in practice it is the L1Decoder Decision output
+        self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
         log.debug("Chain " + name + " with seeds: %s "%str( self.vseeds))
 
@@ -387,6 +414,8 @@ class Chain:
                 sys.exit("ERROR, in chain configuration")
             nseq=0
             for seq in step.sequences:
+                if seq.ca != None: # The CA merging took care of everything
+                    continue
                 seq.hypoToolConf.setConf(signatures[nseq])
                 seq.hypoToolConf.setName(self.name)
                 seq.hypo.addHypoTool(seq.hypoToolConf)
@@ -411,10 +440,12 @@ class CFSequence():
         log.debug("CFSequence: Connect Filter %s with menuSequences of step %s"%(self.filter.Alg.name(), self.step.name))
         filter_output = self.filter.getOutputList()
         if len(filter_output) == 0:
+            log.error("ERROR, no filter outputs are set!")
             sys.exit("ERROR, no filter outputs are set!")
 
         # check whether the number of filter outputs are the same as the number of sequences in the step
         if len(filter_output) != len(self.step.sequences):
+            log.error("Found %d filter outputs and %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
             sys.exit("ERROR: Found %d filter outputs differnt from %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
                         
         
@@ -422,7 +453,8 @@ class CFSequence():
         for seq in self.step.sequences:
             filter_out = filter_output[nseq]
             log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", filter_out, seq.name, self.filter.Alg.name(), seq.seed)
-            seq.connectToFilter(self.filter, filter_out )
+            seq.connectToFilter( filter_out )
+            #seq.connectToFilter(self.filter, filter_out )
             nseq+=1
             
 
@@ -446,7 +478,7 @@ class CFSequence():
         
     
     def __str__(self):
-        return "--- CFSequence %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
+        return "--- CFSequence ---\n + Filter: %s \n +  %s \n "%(\
             self.filter, self.step )
           
 
@@ -536,6 +568,9 @@ class InViewReco( ComponentAccumulator ):
         """Reconstruction alg to be run per view"""
         log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
         self.addEventAlgo( alg, self.viewsSeq.name() )
+
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
 
     def sequence( self ):
         return self.mainSeq

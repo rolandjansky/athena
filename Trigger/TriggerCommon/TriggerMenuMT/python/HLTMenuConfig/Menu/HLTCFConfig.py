@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
 import copy
@@ -19,7 +20,7 @@ def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
-    summary.InputDecision = "L1DecoderSummary"  
+    summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary
 
@@ -107,43 +108,50 @@ def createCFTree(CFseq):
 
 def makeHLTTree(HLTChains):
     """ creates the full HLT tree"""
-    #    TopHLTRootSeq = seqAND("TopHLTRoot") # Root
-    # main HLT top sequence
-    hltTop = seqOR("hltTop")
+
+    # lock flags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.lock()
+
+    # get topSequnece
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
 
     #add the L1Upcacking
-#    TopHLTRootSeq += L1UnpackingSeq
+    #    TopHLTRootSeq += L1UnpackingSeq
 
+    # connect to L1Decoder
+    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
+    if len(l1decoder)  != 1 :
+        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
+
+
+    # set CTP chains before creating the full tree (and the monitor)
+    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
+    l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
+
+    # main HLT top sequence
+    hltTop = seqOR("hltTop")
+ 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
     hltTop +=  steps
     
     # make CF tree
     finalDecisions = decisionTree_From_Chains(steps, HLTChains)
-    EnabledChainNames = [c.name for c in HLTChains]
     
-
+    # make Final Summary
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()
-    
+    #edmCreator = HLTEDMCreator()    
     #edmCreator.TrigCompositeContainer = flatDecisions
     #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-
+    # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-    
-    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
-    if len(l1decoder)  != 1 :
-        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
-
     hypos = collectHypos(steps)
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
@@ -241,9 +249,24 @@ def decisionTree_From_Chains(HLTNode, chains):
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
                 prev = chain.steps[nstep-1].sequences
+                ## for seq in prev:                   
+                ##     filter_input.extend(seq.outputs)
+                ## log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+
+
+                # previous filter name
+                pre_filter_name = CFNaming.filterName(chain.steps[nstep-1].name)
+                # searching the correct sequence outut to connect to the filter
                 for seq in prev:
-                    filter_input.extend(seq.outputs)
-                log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                    for out in seq.outputs:
+                        if pre_filter_name in out:
+                            filter_input.append(out)
+                            log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+
+            if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
+                log.error("ERROR: Filter for step %s has %d inputs! One is expected"%(chain_step.name, len(filter_input)))
+                sys.exit("ERROR, in configuration of sequence "+seq.name)
+                    
 
             # get the filter:
             filter_name = CFNaming.filterName(chain_step.name)
@@ -266,14 +289,14 @@ def decisionTree_From_Chains(HLTNode, chains):
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
-            else:
-                log.debug("len(chain.steps) != nstep+1")
+#            else:
+#                log.debug("len(chain.steps) != nstep+1")
             #end of loop over menu sequences
                 
         #end of loop over chains for this step, now implement CF:
     
         log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)
-        
+
         #first make the filter step
         stepFilter = createStepFilterNode(stepCF_name, CFseq_list, dump=False)
         HLTNode += stepFilter
@@ -311,7 +334,8 @@ def decisionTree_From_Chains(HLTNode, chains):
 
 def generateDecisionTree(HLTNode, chains):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
-
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
     from collections import defaultdict
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
 
@@ -330,6 +354,8 @@ def generateDecisionTree(HLTNode, chains):
     for nstep in chainStepsMatrix:
         CFsequences = []
         stepDecisions = []
+        stepAccs = []
+        stepHypos = []
 
         for chainName in chainStepsMatrix[nstep]:
             chainsInCell = chainStepsMatrix[nstep][chainName]
@@ -337,6 +363,25 @@ def generateDecisionTree(HLTNode, chains):
             if not chainsInCell:
                 continue
 
+
+            stepCategoryAcc = ComponentAccumulator()            
+
+            stepHypo = None
+
+            for chain in chainsInCell:
+                for seq in chain.steps[nstep].sequences:
+                    if seq.ca:
+                        stepCategoryAcc.merge( seq.ca )
+
+                    alg = seq.hypo.Alg
+                    if stepHypo is None:
+                        stepHypo = alg
+                        stepHypos.append( alg )
+                    stepCategoryAcc.addEventAlgo( alg )
+
+            stepAccs.append( stepCategoryAcc )
+                
+            stepCategoryAcc.printConfig( True, True )
             firstChain = chainsInCell[0]
 
             if nstep == 0:
@@ -353,12 +398,14 @@ def generateDecisionTree(HLTNode, chains):
             sfilter = buildFilter(filterName,  filter_input)
 
             chainStep = firstChain.steps[nstep]
+
             CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sfilter )
             CFsequences.append( CFseq )
 
+
             for sequence in chainStep.sequences:
                 stepDecisions += sequence.outputs
-
+        
             for chain in chainsInCell:
                 sfilter.setChains(chain.name)
 
@@ -367,6 +414,12 @@ def generateDecisionTree(HLTNode, chains):
         stepName = 'Step{}'.format(nstep)
         stepFilter = createStepFilterNode(stepName, CFsequences, dump=False)
         stepCF = createStepRecoNode('{}_{}'.format(HLTNode.name(), stepName), CFsequences, dump=False)
+
+        from AthenaCommon.CFElements import findOwningSequence
+        for oneAcc, cfseq, hypo in zip( stepAccs, CFsequences, stepHypos):
+            owning = findOwningSequence( stepCF, hypo.getName() )
+            acc.addSequence( owning )
+            acc.merge( oneAcc, sequenceName = owning.getName() )
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
 
         HLTNode += stepFilter
@@ -377,8 +430,8 @@ def generateDecisionTree(HLTNode, chains):
         stepCF_ControlFlow_to_dot(stepCF)
 
     all_DataFlow_to_dot(HLTNode.name(), allSequences)
-
     matrixDisplay( allSequences )
+    return acc
 
 
 def findFilter(filter_name, cfseqList):
@@ -410,7 +463,7 @@ def buildFilter(filter_name,  filter_input):
     sfilter = RoRSequenceFilterNode(name=filter_name)
     for i in filter_input: sfilter.addInput(i)
     for i in filter_input: sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
-        
+
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())
     log.debug("Filter Done: %s", sfilter.Alg.name())

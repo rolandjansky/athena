@@ -272,7 +272,7 @@ class ComponentAccumulator(object):
                     newprop=getattr(newComp,prop)
                 except AttributeError:
                     newprop=None
-
+                # both are defined but with distinct type
                 if type(oldprop) != type(newprop):
                     raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
                                                   (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
@@ -1085,5 +1085,3 @@ class MergeMovingAlgorithms( unittest.TestCase ):
 
 if __name__ == "__main__":
     unittest.main()
-
-        

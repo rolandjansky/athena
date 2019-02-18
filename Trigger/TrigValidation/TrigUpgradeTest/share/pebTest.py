@@ -59,9 +59,12 @@ def pebInfoWriterSequence(name):
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
-    fastCaloStep=fastCaloSequence()
-    electronStep=electronSequence()
+    from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+    from TrigUpgradeTest.electronMenuDefs import electronMenuSequence,  inDetSetup
+
+    inDetSetup()
+    fastCaloStep= fastCaloMenuSequence("Ele")
+    electronStep= electronMenuSequence()
 
     step1=ChainStep("Step1_etcut", [fastCaloStep])
     step2=ChainStep("Step2_etcut", [electronStep])
@@ -70,7 +73,7 @@ if (doElectron):
     egammaChains = [
         Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
         Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e7_etcut',         Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
     ]
     testChains += egammaChains
 

@@ -48,7 +48,7 @@
    @copydetails Monitored::Scalar(std::string name, const T& defaultVaule)
    
    4)
-   @copydoc Monitored::impl::Group
+   @copydoc Monitored::Group
 
    5) Configure the list of histograms in python
    \code
@@ -67,7 +67,7 @@
 
    ## Advanced usage ##
    ### Filling in tight loops ###
-   @copydetails Monitored::impl::Group::fill()
+   @copydetails Monitored::Group::fill()
 
    ### Monitoring of collections (of objects) ###
    Existing iterable collections can be monitored directly without the need to create temporaries.

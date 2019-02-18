@@ -41,17 +41,17 @@ class ITrkEventCnvTool : virtual public IAlgTool
         static const InterfaceID& interfaceID();
 
         /** check the passed RIO_OnTrack to make sure it is correctly filled*/
-        virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) =0;
+        virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const =0;
         
         /**This method must use the passed RIO_OnTrack to recover pointers
         The PrepRawData pointer will only be filled if the concrete tools are so set
         @return this is a pair, where the (possibly null) pointers contained represent the missing links from rioOnTrack*
         @param[in] rioOnTrack the RIO_OnTrack which needs recreating. MUST point to a valid object.*/
         virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
-                getLinks( const Trk::RIO_OnTrack& rioOnTrack  ) = 0;
+                getLinks( const Trk::RIO_OnTrack& rioOnTrack  ) const = 0;
         
         /**This templated method will set the EL for the passed RIO_OnTrack.*/
-        template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot);
+        template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot) const;
         /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
         template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
                                                               const std::string contName,
@@ -64,18 +64,18 @@ class ITrkEventCnvTool : virtual public IAlgTool
           - If so, check that the pointer of the PRD matches that in the container
           - Then set strings and index.
           - If any of the above failed, try the next container.*/
-        virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)=0;
+        virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const =0;
         
         /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
-        virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )=0;
+        virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const =0;
         
         /** Returns the detectorElement associated with this Identifier & Hash*/
-        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash)=0;
+        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const =0;
 
         /** Returns the detectorElement associated with this Identifier*/
-        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id)=0;
+        virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const =0;
         
-        virtual void setRoT_Values(std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *>& pair, Trk::RIO_OnTrack *RoT );
+        virtual void setRoT_Values(std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *>& pair, Trk::RIO_OnTrack *RoT ) const;
             
     private:
         ServiceHandle<StoreGateSvc>     m_storeGate;

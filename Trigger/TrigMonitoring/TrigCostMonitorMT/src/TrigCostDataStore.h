@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H
@@ -19,9 +19,10 @@
  * @class TrigCostDataStore
  * @brief Thread safe and multi-slot hash-map to cache PAYLOAD objects/primitives during event execution
  *
- * The TrigTimeStamp objects are later used to construct a trigger cost summary for the event.
+ * The PAYLOAD objects are later used to construct a trigger cost summary for the event.
  * Data are partitioned based on the slot of the event context and both the name and store of the 
  * audited algorithm, these three pieces of data uniquely identify an algorithm execution.
+ * @see AlgorithmIdentifier The struct which makes the key used within the map 
  */
 template<typename PAYLOAD>
 class TrigCostDataStore {
@@ -45,44 +46,19 @@ class TrigCostDataStore {
 
   /**
    * @brief Inserts the payload into the map
-   * @param[in] context The event context of the algorithm
-   * @param[in] caller The name of the algorithm to monitor
-   * @param[in] msg Message service reference
+   * @param[in] ai The AlgorithmIdentifier to insert for (the key)
    * @param[in] payload The payload to record
    * @returns Success unless and out-of-range slot, then Failure
    */
-  StatusCode insert(const EventContext& context, const std::string& caller,  MsgStream& msg, const PAYLOAD& payload);
-
-  /**
-   * @brief Retrieve a payload from the map given an algorithm name and event context
-   * @param[in] context The event context of the algorithm
-   * @param[in] caller The name of the algorithm to retrieve
-   * @param[in] msg Message service reference
-   * @param[out] payload Reference to payload to return
-   * @returns Success if the payload was located, else Failure
-   */
-  StatusCode retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const;
-
-  /**
-   * @brief Retrieve a payload from the map given an algorithm name and store name. Note, this overrides the store in the context
-   * @param[in] context The event context of the algorithm
-   * @param[in] storeName The name of the algorithm's store. Overrides what is in the supplied context
-   * @param[in] caller The name of the algorithm to retrieve
-   * @param[in] msg Message service reference
-   * @param[out] payload Reference to payload to return
-   * @returns Success if the payload was located, else Failure
-   */
-  StatusCode retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const;
+  StatusCode insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload);
 
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier
-   * @param[in] context The event context of the algorithm
-   * @param[in] ai The AlgorithmIdentifier to fetch
-   * @param[in] msg Message service reference
+   * @param[in] ai The AlgorithmIdentifier to fetch (the key)
    * @param[out] payload Reference to payload to return
    * @returns Success if the payload was located, else Failure
    */
-  StatusCode retrieve(const EventContext& context, const AlgorithmIdentifier& ai, MsgStream& msg, PAYLOAD& payload) const;
+  StatusCode retrieve(const AlgorithmIdentifier& ai, PAYLOAD& payload) const;
 
   /**
    * @brief Clears all data stored in an event slot

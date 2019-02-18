@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -103,5 +103,25 @@ namespace Trk
      //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);
+  }
+
+  void TrackDensitySeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
+    //implemented to satisfy inheritance
+  }
+
+  int TrackDensitySeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
+					      const std::vector<const Trk::TrackParameters*> & /* b */) const{
+    //implemented to satisfy inheritance
+    return 0;
+  }
+
+  int TrackDensitySeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> &/* b */, 
+					 std::vector<float> &/* c */, std::vector<float> &/* d */) const{
+   //implemented to satisfy inheritance
+    return 0;
+  }
+
+  void TrackDensitySeedFinder::getCorrelationDistance( double &/* cXY */, double & /* cZ */){
+    //implemented to satisfy inheritance
   }
 }

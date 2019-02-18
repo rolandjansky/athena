@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -32,13 +32,11 @@ public:
   TestCnvTool (const std::string& t, const std::string& n, const IInterface* p);
   ~TestCnvTool();
 
-  virtual Trk::ITrkEventCnvTool* getCnvTool(const Identifier& /*id*/) override
-  { std::abort(); }
   virtual const Trk::ITrkEventCnvTool* getCnvTool(const Identifier& /*id*/) const override
   { std::abort(); }
-  virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack */*RoT*/ ) override
+  virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack */*RoT*/ ) const override
   { std::abort(); }
-  virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* /*Rot*/) override
+  virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* /*Rot*/) const override
   { std::abort(); }
   virtual bool canHandleInDet() const override
   { std::abort(); }
@@ -49,7 +47,7 @@ public:
   virtual int maxNumberOfErrors() const override
   { std::abort(); }
   
-  virtual const Trk::Surface* getSurface(const Identifier& id) override;
+  virtual const Trk::Surface* getSurface(const Identifier& id) const override;
   void addSurface (std::unique_ptr<Trk::Surface> surf);
 
   typedef std::map<Identifier, std::unique_ptr<Trk::Surface> > map_t;
@@ -73,9 +71,9 @@ TestCnvTool::~TestCnvTool()
 }
 
 
-const Trk::Surface* TestCnvTool::getSurface (const Identifier& id)
+const Trk::Surface* TestCnvTool::getSurface (const Identifier& id) const
 {
-  map_t::iterator it = m_map.find (id);
+  map_t::const_iterator it = m_map.find (id);
   if (it != m_map.end())
     return it->second.get();
   return nullptr;

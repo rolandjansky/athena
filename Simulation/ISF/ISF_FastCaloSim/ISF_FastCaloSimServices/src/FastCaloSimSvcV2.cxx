@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -165,6 +165,7 @@ StatusCode ISF::FastCaloSimSvcV2::releaseEvent()
 {
  
  ATH_MSG_VERBOSE(m_screenOutputPrefix << "release Event");
+ const EventContext& ctx = Gaudi::Hive::currentContext();
  
  CHECK( m_caloCellMakerToolsRelease.retrieve() );
  
@@ -175,7 +176,7 @@ StatusCode ISF::FastCaloSimSvcV2::releaseEvent()
  {
   ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
   
-  StatusCode sc = (*itrTool)->process(m_theContainer);
+  StatusCode sc = (*itrTool)->process(m_theContainer, ctx);
   
   if (sc.isFailure())
   {

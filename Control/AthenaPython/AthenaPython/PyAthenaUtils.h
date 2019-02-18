@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaUtils.h 
@@ -15,6 +15,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/StatusCode.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 class InterfaceID;
@@ -36,25 +37,25 @@ namespace PyAthena {
   std::string str (PyObject* o);
 
   /// call the python method
-  StatusCode callPyMethod( PyObject* self,
-                           const char* method,
-                           PyObject* arg = nullptr );
+  StatusCode callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
+                                                  const char* method,
+                                                  PyObject* arg = nullptr );
 
   /// query interface binding
-  StatusCode queryInterface( PyObject* self,
-			     const InterfaceID& riid,
-			     void** ppvInterface );
+  StatusCode queryInterface ATLAS_NOT_THREAD_SAFE ( PyObject* self,
+                                                    const InterfaceID& riid,
+                                                    void** ppvInterface );
 
   /// helper function for PyAthena::Aud
-  void pyAudit( PyObject* self, 
-		const char* method,
-		const char* evt, const char* component );
+  void pyAudit ATLAS_NOT_THREAD_SAFE ( PyObject* self, 
+                                       const char* method,
+                                       const char* evt, const char* component );
 
   /// helper function for PyAthena::Aud
-  void pyAudit( PyObject* self, 
-		const char* method,
-		const char* evt, const char* component,
-		const StatusCode& sc );
+  void pyAudit ATLAS_NOT_THREAD_SAFE ( PyObject* self, 
+                                       const char* method,
+                                       const char* evt, const char* component,
+                                       const StatusCode& sc );
 
   /// helper function to capture the boilerplate code for user friendly
   /// stack trace display

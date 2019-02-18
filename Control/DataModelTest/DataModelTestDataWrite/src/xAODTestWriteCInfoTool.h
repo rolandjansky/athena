@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #define DATAMODELTESTDATAWRITE_XAODTESTWRITECINFOTOOL_H
 
 
-#include "EventInfo/EventInfo.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CVec.h"
 #include "DataModelTestDataCommon/ITestTool.h"
@@ -60,8 +59,6 @@ public:
 
 
 private:
-  //SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
   SG::WriteHandleKey<DMTest::C> m_cinfoKey;
 };

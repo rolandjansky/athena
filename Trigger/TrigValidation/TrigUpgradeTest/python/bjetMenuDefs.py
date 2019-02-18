@@ -3,22 +3,23 @@
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 import AthenaCommon.CfgMgr as CfgMgr
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Include import include
 
 # Set InDet Flags
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-from AthenaCommon.Include import include
-include("InDetRecExample/InDetRecConditionsAccess.py")
+def inDetSetup():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doCaloSeededBrem = False
+    InDetFlags.InDet25nsec = True 
+    InDetFlags.doPrimaryVertex3DFinding = False 
+    InDetFlags.doPrintConfigurables = False
+    InDetFlags.doResolveBackTracks = True 
+    InDetFlags.doSiSPSeededTrackFinder = True
+    InDetFlags.doTRTPhaseCalculation = True
+    InDetFlags.doTRTSeededTrackFinder = True
+    InDetFlags.doTruth = False
+    InDetFlags.init()
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -44,18 +45,22 @@ def getBJetSequence( step ):
 def bJetStep1Sequence():
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-    # input maker
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
-    InputMakerAlg.RoIs='FSJETRoI'
-    InputMakerAlg.OutputLevel = DEBUG
+    from TrigUpgradeTest.jetDefs import jetAthSequence
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+
+     
+    ## # input maker
+    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    ## InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+    ## InputMakerAlg.RoIs='FSJETRoI'
+    ## InputMakerAlg.OutputLevel = DEBUG
 
 
     # Construct jets
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
+    #from TrigUpgradeTest.jetDefs import jetRecoSequence    
+    #(recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -119,16 +124,20 @@ def bJetStep1Sequence():
 def bJetStep1SequenceALLTE():
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-    # input maker
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
-    InputMakerAlg.RoIs='FSJETRoI'
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
     # Construct jets
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
+    from TrigUpgradeTest.jetDefs import jetAthSequence
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+
+    ## # input maker
+    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    ## InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
+    ## InputMakerAlg.RoIs='FSJETRoI'
+
+    ## # Construct jets
+    ## from TrigUpgradeTest.jetDefs import jetRecoSequence
+    ## (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
