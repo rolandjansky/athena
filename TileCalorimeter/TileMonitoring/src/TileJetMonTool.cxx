@@ -66,7 +66,7 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("jetPtMin", m_jetPtMin = 20000.); //Threshold in MeV
+  declareProperty("jetPtMin", m_jetPtMin = 20000.); // Min jet pt supported by JetEtMiss; in MeV
   declareProperty("jetEtaMax", m_jetEtaMax = 1.6);
   declareProperty("jetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets");
   declareProperty("energyChanMin", m_energyChanMin = 2000);
@@ -754,7 +754,7 @@ bool TileJetMonTool::isGoodEvent() {
 }
 
 bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
-  if (jet.pt() > 20000 
+  if (jet.pt() > m_jetPtMin
       && jet.pt() < m_jet_jvt_ptmax
       && fabs(jet.getAttribute<float>("DetectorEta")) < m_jet_tracking_eta_limit
       && m_jvt->updateJvt(jet) < m_jet_jvt_threshold)
@@ -764,7 +764,7 @@ bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
 
 bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   if (! m_do_jet_cleaning) return true;
-  if (jet.pt() < 20000) return false;
+  if (jet.pt() < m_jetPtMin) return false;
   if (! passesJvt(jet)) return false;
   if (! m_cleaningTool->keep(jet)) return false;
   return true;
