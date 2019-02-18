@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -89,6 +89,8 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import Dipolarity
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -785,6 +787,12 @@ jtm += KtMassDropTool("ktmassdrop")
 
 # Energy correlations.
 jtm += EnergyCorrelatorTool("encorr", Beta = 1.0)
+
+# Generalized energy correlations
+jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+
+# ... & their ratios
+jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
 # COM shapes.
 jtm += CenterOfMassShapesTool("comshapes")
