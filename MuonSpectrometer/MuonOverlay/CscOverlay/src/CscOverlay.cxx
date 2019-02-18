@@ -21,12 +21,12 @@ constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonOverlayBase(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
 //================================================================
-StatusCode CscOverlay::overlayInitialize()
+StatusCode CscOverlay::initialize()
 {
   ATH_MSG_DEBUG("CscOverlay initialized");
 

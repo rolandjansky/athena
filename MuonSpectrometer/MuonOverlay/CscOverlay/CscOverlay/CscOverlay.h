@@ -11,10 +11,9 @@
 #ifndef CSCOVERLAY_CSCOVERLAY_H
 #define CSCOVERLAY_CSCOVERLAY_H
 
-#include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonOverlayBase/MuonOverlayBase.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
@@ -24,6 +23,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include <vector>
+#include <string>
 #include <map>
 
 class CscIdHelper;
@@ -34,13 +34,13 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CscOverlay : public MuonOverlayBase  {
+class CscOverlay : public AthAlgorithm {
 public:
 
   CscOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Framework implemenrtation for the event loop */
-  virtual StatusCode overlayInitialize() override final;
+  virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
 
   /** given 2 container of data - zero bias real data and the simulation,

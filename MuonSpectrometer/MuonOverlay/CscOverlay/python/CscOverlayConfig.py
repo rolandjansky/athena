@@ -4,8 +4,6 @@ def getCscOverlay(name="CscOverlay", **kwargs):
     kwargs.setdefault("BkgInputKey", overlayFlags.dataStore()+"+CSCRDO")
     kwargs.setdefault("SignalInputKey", overlayFlags.evtStore()+"+CSCRDO")
     kwargs.setdefault("OutputKey", "StoreGateSvc+CSCRDO")
-    kwargs.setdefault("MCStore", overlayFlags.evtStore())
-    kwargs.setdefault("DataStore", overlayFlags.dataStore())
 
     from AthenaCommon import CfgMgr
     return CfgMgr.CscOverlay(name,**kwargs)
