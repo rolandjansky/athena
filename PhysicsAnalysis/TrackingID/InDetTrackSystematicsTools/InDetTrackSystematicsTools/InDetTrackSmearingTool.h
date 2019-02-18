@@ -114,8 +114,6 @@ namespace InDet {
 
     // for now, just set a flag to use dijet-based smearing for tracks in jets
     bool m_useDijetMaps = false;
-
-    bool firstTime = true;
      
   }; /// class InDetTrackSmearingTool
 
