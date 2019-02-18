@@ -6,10 +6,13 @@
 #
 #########################################################################################
 
+import sys
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerConfigHLT' )
 
 class TriggerConfigHLT:
+
     sCurrentTriggerConfig = None
     def currentTriggerConfig():
         return TriggerConfigHLT.sCurrentTriggerConfig
@@ -20,6 +23,7 @@ class TriggerConfigHLT:
         self.__HLTFile = hltfile
         
         self.allChainConfigs   = []
+        self.allChainDicts     = []
  
         self.allThresholds     = {}
         self.allItems          = {}
@@ -40,7 +44,6 @@ class TriggerConfigHLT:
         else:
             self.allChains[chainName] = [ chainConfig ]
 
-
     def getHLTConfigFile(self):
         return self.__HLTFile
 
@@ -53,4 +56,43 @@ class TriggerConfigHLT:
         log.info("Writing of config files needs to be implemented")
 
 
+
+##############################
+# this function was supposed to be part of the class but doesn't work for now
+# hope to be able to integrate it at a later stage
+##############################
+def getConfFromChainName(chainName, allChainDicts = None):  
+    # expects something like this: 'HLT_mu8_e8'       : ['HLT_mu8','HLT_e8'],        
+    chainPartNames = []
+    
+    # This should be not needed once all TrigUpgrade code is transferred to TriggerMenuMT
+    dictToUse = []        
+    if allChainDicts:
+        dictToUse =  allChainDicts
+    else:
+        log.error("This option is not working right now, need the allChainDicts to be passed for now")
+        #dictToUse = self.allChainDicts
+        sys.exit("ERROR when calling getConfFromChainName, didn't pass dictionary") 
+        
+        
+    for cDict in dictToUse:
+        if chainName == cDict["chainName"]:
+            for cPart in cDict["chainParts"]:
+                cPName = cPart['chainPartName']
+                if "1step" in cPName:
+                    import re
+                    cPName=re.sub('1step', '', cPName)
+                    log.warning("Removing string 1step from hypoTool conf - this needs to be removed eventually")
+                if "HLT_" in cPName:
+                    chainPartNames.append(cPName)
+                else:
+                    chainPartNames.append('HLT_'+cPName)
+                    
+    if len(chainPartNames) == 0:
+        log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s",name)
+        sys.exit("ERROR, in getConfFromChainName: Wrong chain configuration") 
+        return [chainName]
+    else:
+        print "TriggerConfigHLT.getConfFromChainName: Called chain " + chainName + " and hypoTool conf "+ str(chainPartNames)
+        return chainPartNames
 
