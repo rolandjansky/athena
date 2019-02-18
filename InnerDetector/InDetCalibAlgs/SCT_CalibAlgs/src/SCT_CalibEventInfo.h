@@ -10,12 +10,12 @@
 
 #ifndef SCT_CalibEventInfo_h
 #define SCT_CalibEventInfo_h
-//#include "AthenaBaseComps/AthService.h"    //baseclass
-//#include "GaudiKernel/ServiceHandle.h"     //member
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"     //member
 
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
+#include <atomic>
 #include <string>
 
 class StatusCode;
@@ -74,10 +74,10 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
       std::string m_source;
 
       //
-      mutable int m_runNumber;
-      mutable int m_lumiBlock;
-      mutable int m_timeStamp;
-      mutable int m_bunchCrossing;
+      mutable std::atomic_int m_runNumber;
+      mutable std::atomic_int m_lumiBlock;
+      mutable std::atomic_int m_timeStamp;
+      mutable std::atomic_int m_bunchCrossing;
       int  m_counter;
       std::string toUtc(const int timestamp) const;
 };

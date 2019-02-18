@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_FillCablingFromText_H
@@ -18,6 +18,7 @@
 #include "SCT_Cabling/ISCT_FillCabling.h"
 
 //STL includes
+#include <atomic>
 #include <string>
 
 //fwd declarations
@@ -72,7 +73,7 @@ class SCT_FillCablingFromText: public extends<AthAlgTool, ISCT_FillCabling> {
 
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
 
-  mutable bool m_filled;
+  mutable std::atomic_bool m_filled;
   std::string m_source;
 };//end of class
 
