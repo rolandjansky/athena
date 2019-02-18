@@ -477,6 +477,9 @@ namespace ST {
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
 
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
+
     bool m_tool_init;
     bool m_subtool_init;
 
@@ -555,6 +558,7 @@ namespace ST {
     std::string m_tauIdBaseline;
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
+    double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
@@ -697,8 +701,6 @@ namespace ST {
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
-    std::string m_WtagConfig;
-    std::string m_ZtagConfig;
     asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 

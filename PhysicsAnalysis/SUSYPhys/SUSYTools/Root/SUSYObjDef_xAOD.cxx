@@ -100,6 +100,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_badJetCut(""),
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
+    m_WtagConfig(""),
+    m_ZtagConfig(""),
     m_tool_init(false),
     m_subtool_init(false),
     // set dummies for configuration
@@ -147,6 +149,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauIdBaseline(""),
     m_eleIso_WP(""),
     m_eleIsoHighPt_WP(""),
+    m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
@@ -252,6 +255,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_IsoCloseByORpassLabel(""),
 
     m_metJetSelection(""),
+    m_fatJets(""),
     //
     m_currentSyst(),
     m_EG_corrModel(""),
@@ -437,6 +441,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
+  declareProperty( "JetLargeRcollection",  m_fatJets );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
@@ -459,6 +464,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleConfig", m_eleConfig);
   declareProperty( "EleIso", m_eleIso_WP);
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
+  declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
@@ -534,6 +540,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
+  declareProperty( "JetWtaggerConfig",  m_WtagConfig );
+  declareProperty( "JetZtaggerConfig",  m_ZtagConfig );
   //Btagging MCtoMC SFs
   declareProperty( "ShowerType",    m_showerType = 0 );
   //Egamma NP correlation model
@@ -659,20 +667,23 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_mu_iso_support.push_back("FixedCutPflowTight");
   m_mu_iso_support.push_back("FixedCutPflowLoose");
   m_mu_iso_support.push_back("FixedCutHighPtTrackOnly");
+  m_mu_iso_support.push_back("FCTightTrackOnly");
+  m_mu_iso_support.push_back("FCTight");
+  m_mu_iso_support.push_back("FCLoose");
 
-  // Construct electron fallback WPs (for trigger SFs)
+  // Construct electron fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_el_iso_fallback = {
-    { "FCHighPtCaloOnly" , "FixedCutHighPtCaloOnly" },
-    { "Gradient"         , "Gradient"               },
-    { "FCLoose"          , "FixedCutLoose"          },
-    { "FCTight"          , "FixedCutTight"          }
+    { "FCHighPtCaloOnly" , "FCHighPtCaloOnly" },
+    { "Gradient"         , "Gradient"         },
+    { "FCLoose"          , "FCLoose"          },
+    { "FCTight"          , "FCTight"          }
   };
 
-  // Construct muon fallback WPs (for SFs)
+  // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_mu_iso_fallback = {
-    { "FCTightTrackOnly"        , "FixedCutHighMuTrackOnly" },
-    { "FCLoose"                 , "FixedCutHighMuLoose"     },
-    { "FCTight"                 , "FixedCutHighMuTight"     }
+    { "FCTightTrackOnly"        , "FCTightTrackOnly" },
+    { "FCLoose"                 , "FCLoose"     },
+    { "FCTight"                 , "FCTight"     }
   };
 
   // load tau trigger support
@@ -805,10 +816,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
   if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWCombinedmode, m_autoconfigPRWRPVmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
   else
     // need to set a full path if you don't use the one in CVMFS
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWCombinedmode, m_autoconfigPRWRPVmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
 
   ATH_CHECK( this->SUSYToolsInit() );
 
@@ -826,7 +837,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
 
   if ( !isData() && m_autoconfigPRW ) {
 
-    prwConfigFile = usePathResolver ? PathResolverFindCalibDirectory(PRWfilesDir) : PRWfilesDir;
+    prwConfigFile = PRWfilesDir;
 
     float dsid = -999;
     std::string amiTag("");
@@ -915,21 +926,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
         m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2018File) );
       }
     }
+    prwConfigFile = usePathResolver ? PathResolverFindCalibFile(prwConfigFile) : prwConfigFile;
 
     TFile testF(prwConfigFile.data(),"read");
-    if(testF.IsZombie()) {
-      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() );
-      ATH_MSG_WARNING( "Now trying with one of the background forum merged mc16 prw input files (it won't however work for signal samples!)." );
-      prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/");
-      if ( mcCampaignMD == "mc16a" ) prwConfigFile += "merged_prw_mc16a_latest.root";
-      else if ( mcCampaignMD == "mc16c" ) prwConfigFile += "mc16c_defaults.NotRecommended.prw.root";
-      // SOON TO BE // else if ( mcCampaignMD == "mc16c" ) prwConfigFile += '';
-      // SOON TO BE // else if ( mcCampaignMD == "mc16d" ) prwConfigFile += '';
-      TFile testF2(prwConfigFile.data(),"read");
-      if(testF2.IsZombie()) {
-	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
-	return StatusCode::FAILURE;
-      }
+    if (testF.IsZombie()) {
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
@@ -1160,6 +1162,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
+  configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
@@ -1241,7 +1244,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Fall2018/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
-  configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
+  configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
