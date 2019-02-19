@@ -33,8 +33,8 @@ data['msmu']  = [';',
 
 data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
                 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
-                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
-                'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
+                'HLT_mu8 HLT_mu8_1step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
+                'HLT_mu20 HLT_mu8 HLT_mu8_1step HLT_2mu8 HLT_e8' ]
 
 
 data['l1emroi'] = [ ';',
@@ -100,7 +100,7 @@ if doMuon:
 
     MuChains  = [
         Chain(name='HLT_mu20', Seed="L1_MU10",      ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu", [muStep2] )]) ,
-        Chain(name='HLT_mu81step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
+        Chain(name='HLT_mu8_1step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
         Chain(name='HLT_mu8',  Seed="L1_MU6",       ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu",  [muStep2] ) ] )
         ]
 

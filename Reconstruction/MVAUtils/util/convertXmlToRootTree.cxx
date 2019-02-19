@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MVAUtils/BDT.h"
-
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
 
@@ -15,6 +14,8 @@
 
 #include <vector>
 #include <iostream>
+
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
 
@@ -74,8 +75,12 @@ parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
   return result;
 }
 
+/* 
+ * gSystem is a static expression of type TSystem
+ * so this is no re-entrant. 
+ */
 std::vector<XmlVariableInfo>
-parseXml(const TString & xml_filename)
+parseXml  ATLAS_NOT_REENTRANT (const TString & xml_filename)
 {
   std::vector<XmlVariableInfo> result;
 
@@ -119,7 +124,8 @@ parseXml(const TString & xml_filename)
   return result;
 }
 
-int main(int argc, char** argv){
+
+int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   TRandom3 rand;
   //float dummyFloat;
   TMVA::Reader *reader = new TMVA::Reader("Silent");

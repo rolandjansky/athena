@@ -5,7 +5,7 @@
 #ifndef SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H
 #define SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -19,24 +19,14 @@ namespace InDetDD {
   class SCT_DetectorManager;
 }
 
-// This class cannot inherit AthReentrantAlgorithm.
-// GeoVFullPhysVol::getAbsoluteTransform is not multi-thread compatible
-// because m_absPosInfo is updated without mutex guard.
-// This method is used by the following chain.
-//  SiDetectorManager::setAlignableTransformLocalDelta
-//   SCT_DetectorManager::setAlignableTransformDelta
-//    InDetDetectorManager::processKey
-//     InDetDetectorManager::processAlignmentContainer
-//      InDetDetectorManager::align
-//       SCT_AlignCondAlg::execute
-class SCT_AlignCondAlg : public AthAlgorithm
+class SCT_AlignCondAlg : public AthReentrantAlgorithm
 {
  public:
   SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_AlignCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:

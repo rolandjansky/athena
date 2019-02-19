@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/AngularityTool.h"
@@ -9,6 +9,7 @@
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
@@ -16,6 +17,7 @@
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
@@ -40,6 +42,8 @@
 #pragma link C++ class DipolarityTool+;
 #pragma link C++ class EnergyCorrelatorRatiosTool+;
 #pragma link C++ class EnergyCorrelatorTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedRatiosTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedTool+;
 #pragma link C++ class ISubjetRecorderTool+;
 #pragma link C++ class JetChargeTool+;
 #pragma link C++ class JetPullTool+;

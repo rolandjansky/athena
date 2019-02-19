@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -10,6 +10,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import Dipolarity
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -68,6 +69,12 @@ def declareDefaultTools():
 
   # Jet charge
   jtm += JetChargeTool("charge", K=1.0)
+
+  # generalized ECFs
+  jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+
+  # ... & their ratios
+  jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
   # Shower deconstruction.
   if jtm.haveShowerDeconstructionTool:

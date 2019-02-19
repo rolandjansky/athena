@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JEMTobRoI_v1.cxx 685662 2015-07-27 10:30:15Z amazurov $
@@ -68,6 +68,19 @@ namespace xAOD{
   {
     return (roiWord() >> s_energySmallBit) & s_energySmallMask;  
   }
+
+
+  std::ostream &operator<<(std::ostream &os, const xAOD::JEMTobRoI_v1 &el)
+  {
+    os << "xAOD::JEMTobRoI crate=" << int(el.crate())
+       << " jem=" << el.jem()
+       << " frame=" << el.frame()
+       << " location=" << el.location()
+       << " energyLarge=" << el.energyLarge()
+       << " energySmall=" << el.energySmall();
+    return os;
+  }
+
 
 } // namespace xAOD
 

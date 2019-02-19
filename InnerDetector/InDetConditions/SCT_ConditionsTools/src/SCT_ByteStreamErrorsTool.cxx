@@ -270,6 +270,7 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
 
 void 
 SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
+  // Used in fillData and m_mutex is already locked.
 
   for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
     m_bsErrors[errType][ctx.slot()].clear();
@@ -293,6 +294,7 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
       ATH_MSG_ERROR("fillData in getErrorSet fails");
     }
 
+    std::lock_guard<std::mutex> lock{m_mutex};
     return &m_bsErrors[errorType][ctx.slot()];
   }
   return nullptr;
@@ -316,12 +318,12 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
   
+  std::lock_guard<std::mutex> lock{m_mutex};
+
   if (slot<m_cache.size() and m_cache[slot]==evt) {
     // Cache isvalid
     return StatusCode::SUCCESS;
   }
-
-  std::lock_guard<std::mutex> lock{m_mutex};
 
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};  
   if (slot>=m_cache.size()) {
@@ -397,6 +399,8 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
 void 
 SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
+  // Used in fillData and m_mutex is already locked.
+
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     m_bsErrors[errorType][ctx.slot()].insert(id);
   }
@@ -479,6 +483,7 @@ const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaske
     ATH_MSG_ERROR("fillData in getTempMaskedChips fails");
   }
 
+  std::lock_guard<std::mutex> lock{m_mutex};
   return m_tempMaskedChips[ctx.slot()];
 }
 
@@ -488,5 +493,6 @@ const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getAbcdError
     ATH_MSG_ERROR("fillData in getAbcdErrorChips fails");
   }
 
+  std::lock_guard<std::mutex> lock{m_mutex};
   return m_abcdErrorChips[ctx.slot()];
 }

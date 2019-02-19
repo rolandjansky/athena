@@ -20,7 +20,6 @@
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
 #include "xAODParticleEvent/IParticleLinkContainer.h"
@@ -35,29 +34,23 @@ namespace {
     xAOD::IParticleLinkContainer_v1                                              ipl_c1;
     DataLink< xAOD::IParticleLinkContainer_v1 >                                  ipl_l1;
     ElementLink< xAOD::IParticleLinkContainer_v1 >                               ipl_l2;
-    ElementLinkVector< xAOD::IParticleLinkContainer_v1 >                         ipl_l3;
-    std::vector< DataLink< xAOD::IParticleLinkContainer_v1 > >                   ipl_l4;
-    std::vector< ElementLink< xAOD::IParticleLinkContainer_v1 > >                ipl_l5;
-    std::vector< ElementLinkVector< xAOD::IParticleLinkContainer_v1 > >          ipl_l6;
-    std::vector< std::vector< ElementLink< xAOD::IParticleLinkContainer_v1 > > > ipl_l7;
+    std::vector< DataLink< xAOD::IParticleLinkContainer_v1 > >                   ipl_l3;
+    std::vector< ElementLink< xAOD::IParticleLinkContainer_v1 > >                ipl_l4;
+    std::vector< std::vector< ElementLink< xAOD::IParticleLinkContainer_v1 > > > ipl_l5;
 
     xAOD::ParticleContainer_v1                                              p_c1;
     DataLink< xAOD::ParticleContainer_v1 >                                  p_l1;
     ElementLink< xAOD::ParticleContainer_v1 >                               p_l2;
-    ElementLinkVector< xAOD::ParticleContainer_v1 >                         p_l3;
-    std::vector< DataLink< xAOD::ParticleContainer_v1 > >                   p_l4;
-    std::vector< ElementLink< xAOD::ParticleContainer_v1 > >                p_l5;
-    std::vector< ElementLinkVector< xAOD::ParticleContainer_v1 > >          p_l6;
-    std::vector< std::vector< ElementLink< xAOD::ParticleContainer_v1 > > > p_l7;
+    std::vector< DataLink< xAOD::ParticleContainer_v1 > >                   p_l3;
+    std::vector< ElementLink< xAOD::ParticleContainer_v1 > >                p_l4;
+    std::vector< std::vector< ElementLink< xAOD::ParticleContainer_v1 > > > p_l5;
 
     xAOD::CompositeParticleContainer_v1                                              cp_c1;
     DataLink< xAOD::CompositeParticleContainer_v1 >                                  cp_l1;
     ElementLink< xAOD::CompositeParticleContainer_v1 >                               cp_l2;
-    ElementLinkVector< xAOD::CompositeParticleContainer_v1 >                         cp_l3;
-    std::vector< DataLink< xAOD::CompositeParticleContainer_v1 > >                   cp_l4;
-    std::vector< ElementLink< xAOD::CompositeParticleContainer_v1 > >                cp_l5;
-    std::vector< ElementLinkVector< xAOD::CompositeParticleContainer_v1 > >          cp_l6;
-    std::vector< std::vector< ElementLink< xAOD::CompositeParticleContainer_v1 > > > cp_l7;
+    std::vector< DataLink< xAOD::CompositeParticleContainer_v1 > >                   cp_l3;
+    std::vector< ElementLink< xAOD::CompositeParticleContainer_v1 > >                cp_l4;
+    std::vector< std::vector< ElementLink< xAOD::CompositeParticleContainer_v1 > > > cp_l5;
 
     // // Smart pointers needed for the correct generation of the auxiliary
     // // class dictionaries:

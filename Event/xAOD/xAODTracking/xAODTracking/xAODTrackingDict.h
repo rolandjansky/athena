@@ -18,7 +18,6 @@
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
  
 // Local include(s):
 #include "xAODTracking/TrackParticleContainer.h"
@@ -55,21 +54,17 @@ namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
      xAOD::TrackParticleContainer_v1                                              c1;
      DataLink< xAOD::TrackParticleContainer_v1 >                                  l1;
-     ElementLink< xAOD::TrackParticleContainer >                               l2;
-     ElementLinkVector< xAOD::TrackParticleContainer >                         l3;
-     std::vector< DataLink< xAOD::TrackParticleContainer_v1 > >                   l4;
-     std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > >                l5;
-     std::vector< ElementLinkVector< xAOD::TrackParticleContainer_v1 > >          l6;
-     std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > > > l7;
+     std::vector< DataLink< xAOD::TrackParticleContainer_v1 > >                   l2;
+     ElementLink< xAOD::TrackParticleContainer >                                  l3;
+     std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > >                l4;
+     std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > > > l5;
 
      xAOD::NeutralParticleContainer_v1                                              nc1;
      DataLink< xAOD::NeutralParticleContainer_v1 >                                  nl1;
-     ElementLink< xAOD::NeutralParticleContainer >                               nl2;
-     ElementLinkVector< xAOD::NeutralParticleContainer >                         nl3;
-     std::vector< DataLink< xAOD::NeutralParticleContainer_v1 > >                   nl4;
-     std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl5;
-     std::vector< ElementLinkVector< xAOD::NeutralParticleContainer_v1 > >          nl6;
-     std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl7;
+     std::vector< DataLink< xAOD::NeutralParticleContainer_v1 > >                   nl2;
+     ElementLink< xAOD::NeutralParticleContainer >                                  nl3;
+     std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl4;
+     std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl5;
      
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
      std::bitset< 11 >                                                            dummy1;
@@ -83,7 +78,7 @@ namespace {
       DataLink< xAOD::VertexContainer_v1 >                                        dl1;
       std::vector< DataLink< xAOD::VertexContainer_v1 > >                         dl2;
       // Element link(s):
-      ElementLink< xAOD::VertexContainer >                                     el1;
+      ElementLink< xAOD::VertexContainer >                                        el1;
       std::vector< ElementLink< xAOD::VertexContainer_v1 > >                      el2;
       std::vector< std::vector< ElementLink< xAOD::VertexContainer_v1 > > >       el3;
 
@@ -94,8 +89,8 @@ namespace {
       std::vector< DataLink< xAOD::TrackMeasurementValidationContainer_v1 > >                         pdl2;
       // Element link(s):
       ElementLink< xAOD::TrackMeasurementValidationContainer >                                     pel1;
-      std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > >                      pel2;
-      std::vector< std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > > >       pel3;
+      std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > >                   pel2;
+      std::vector< std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > > >    pel3;
 
       // Container(s):
       xAOD::TrackStateValidationContainer_v1                                                    c5;

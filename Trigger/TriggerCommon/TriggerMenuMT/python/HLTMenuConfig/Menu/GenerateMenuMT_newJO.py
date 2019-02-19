@@ -41,10 +41,13 @@ def generateMenu( flags ):
     counter = 0
     signatureToGenerator = {}
     menuChains = []
+    allChainDicts =[]
 
     menuAcc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     menuAcc.addSequence( seqAND(mainSequenceName) )
+
+    chainAccumulators = []
 
     for name, cfgFlag in list(flags._flagdict.iteritems()):
         if not 'Trigger.menu.' in name:
@@ -64,21 +67,24 @@ def generateMenu( flags ):
 
             counter += 1
             chainDict['chainCounter'] = counter
+            allChainDicts.append(chainDict)
             # TODO topo threshold
 
             # call generating function and pass to CF builder
 
-            chainAcc, chain = signatureToGenerator[signature](flags, chainDict)
+            chain = signatureToGenerator[signature](flags, chainDict)
             menuChains.append( chain )
-            menuAcc.merge(chainAcc)
 
 
     _log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder    
 
-    generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)
 
+    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
+    chainsAcc.printConfig()
+
+    menuAcc.merge( chainsAcc )
     menuAcc.printConfig()
 
     _log.info('CF is built')

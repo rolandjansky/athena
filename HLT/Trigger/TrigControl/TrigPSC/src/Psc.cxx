@@ -601,7 +601,7 @@ bool psc::Psc::hltUserCommand(const ptree& args)
   return true;
 }
 
-void psc::Psc::doEventLoop()
+bool psc::Psc::doEventLoop()
 {
   ERS_LOG("psc::Psc::doEventLoop: start of doEventLoop()");
   StatusCode sc;
@@ -629,8 +629,10 @@ void psc::Psc::doEventLoop()
   }
   if (sc.isFailure()) {
     ERS_PSC_ERROR("psc::Psc::doEventLoop failed");
+    return false;
   }
   ERS_LOG("psc::Psc::doEventLoop: end of doEventLoop()");
+  return true;
 }
 
 bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
