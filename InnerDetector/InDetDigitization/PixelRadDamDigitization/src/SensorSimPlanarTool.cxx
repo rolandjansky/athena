@@ -339,26 +339,20 @@ StatusCode SensorSimPlanarTool::initialize() {
         CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e_hold, distanceMap_h_hold, timeMap_e_hold, timeMap_h_hold, lorentzMap_e_hold, lorentzMap_h_hold, eFieldMap_hold, NULL ));
         // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
         if(m_radDamageUtil->m_saveDebugMaps){
-            TH2F*   clonelorentzMap_e_hold    =(TH2F*) lorentzMap_e_hold ->Clone()   ;
-            TH2F*   clonelorentzMap_h_hold    =(TH2F*) lorentzMap_h_hold ->Clone()   ;
-            TH2F*   clonedistanceMap_h_hold   =(TH2F*) distanceMap_h_hold->Clone()   ;
-            TH2F*   clonedistanceMap_e_hold   =(TH2F*) distanceMap_e_hold->Clone()   ;
-            TH1F*   clonetimeMap_e_hold       =(TH1F*) timeMap_e_hold    ->Clone()   ;
-            TH1F*   clonetimeMap_h_hold       =(TH1F*) timeMap_h_hold    ->Clone()   ;
             TString prename = "map_layer_";
             prename += i;
             prename += "distance_e.root";
-            clonedistanceMap_e_hold->SaveAs(prename);
+            distanceMap_e_hold->SaveAs(prename);
             prename.ReplaceAll("_e", "_h");
-            clonedistanceMap_h_hold->SaveAs(prename);
+            distanceMap_h_hold->SaveAs(prename);
             prename.ReplaceAll("distance","time");
-            clonetimeMap_h_hold->SaveAs(prename);
+            timeMap_h_hold->SaveAs(prename);
             prename.ReplaceAll( "_h","_e");
-            clonetimeMap_e_hold->SaveAs(prename);
+            timeMap_e_hold->SaveAs(prename);
             prename.ReplaceAll("time", "lorentz");
-            clonelorentzMap_e_hold->SaveAs(prename);
+            lorentzMap_e_hold->SaveAs(prename);
             prename.ReplaceAll( "_e","_h");
-            clonelorentzMap_h_hold->SaveAs(prename);
+            lorentzMap_h_hold->SaveAs(prename);
         }
     }else{
         //retrieve precomputed maps
