@@ -17,9 +17,9 @@
 int main() {
 
    // Print some random values:
-   std::cout << xAOD::Type::Electron << ", " << xAOD::Type::CaloCluster
+   std::cout << xAODType::Electron << ", " << xAODType::CaloCluster
              << std::endl;
-   std::cout << static_cast< xAOD::Type::ObjectType >( 1500 ) << std::endl;
+   std::cout << static_cast< xAODType::ObjectType >( 1500 ) << std::endl;
 
    // Return gracefully:
    return 0;

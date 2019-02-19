@@ -108,6 +108,10 @@ class AthConfigFlags(object):
             del self._dynaflags[flagBaseName]
             self.dump()
 
+    def loadAllDynamicFlags(self):
+        for prefix in self._dynaflags.keys():
+            self._loadDynaFlags( prefix )
+
     def hasFlag(self, name):        
         if name in self._flagdict: 
             return True
@@ -142,7 +146,7 @@ class AthConfigFlags(object):
         raise KeyError(errString)
 
     def __call__(self,name):
-        return self.get(name)
+        return self._get(name)
 
     def lock(self):
         self._locked=True

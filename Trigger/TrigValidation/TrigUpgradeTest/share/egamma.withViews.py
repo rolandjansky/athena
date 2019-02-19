@@ -1,7 +1,5 @@
-
-
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
@@ -442,6 +440,7 @@ from AthenaCommon.ConcurrencyFlags import jobproperties as jps
 trigCostService = TrigCostMTSvc()
 trigCostService.MonitorAll = True # During testing only
 trigCostService.PrintTimes = True # During testing only
+trigCostService.SaveHashes = True # During testing only
 trigCostService.EventSlots = jps.ConcurrencyFlags.NumConcurrentEvents()
 ServiceMgr += trigCostService
 print("NumConcurrentEvents = " + str(jps.ConcurrencyFlags.NumConcurrentEvents()))

@@ -6,15 +6,13 @@
 // Algorithm to demonstrate simple reading of COOL DCS data into Athena
 // Richard Hawkings started 9/9/05
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "IOVDbTestAlg/IOVDbTestCoolDCS.h"
 
 IOVDbTestCoolDCS::IOVDbTestCoolDCS(const std::string& name,
 				   ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
   declareProperty("AttrListFolders",m_par_atrlist);
   declareProperty("AttrListCollFolders",m_par_atrcollist);
@@ -35,19 +33,14 @@ StatusCode IOVDbTestCoolDCS::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode IOVDbTestCoolDCS::execute() {
+StatusCode IOVDbTestCoolDCS::execute (const EventContext& ctx) const {
   // first print event number and time details
-  const EventInfo* event;
-  if (StatusCode::SUCCESS==evtStore()->retrieve(event)) {
-    int time=event->event_ID()->time_stamp();
-    ATH_MSG_INFO("In run/event [" << event->event_ID()->run_number() <<
-      "," << event->event_ID()->event_number() << "] timestamp " << time);
-    // print the timestamp in UTC
-    time_t ttime=static_cast<time_t>(time);
-    ATH_MSG_INFO("Timestamp UTC: " << asctime(gmtime(&ttime)));
-  } else {
-    ATH_MSG_ERROR("Could not get pointer to event");
-  }
+  int time=ctx.eventID().time_stamp();
+  ATH_MSG_INFO("In run/event [" << ctx.eventID().run_number() <<
+               "," << ctx.eventID().event_number() << "] timestamp " << time);
+  // print the timestamp in UTC
+  time_t ttime=static_cast<time_t>(time);
+  ATH_MSG_INFO("Timestamp UTC: " << asctime(gmtime(&ttime)));
 
   // print all the AthenaAttributeList
   const AthenaAttributeList* atrlist = nullptr;;

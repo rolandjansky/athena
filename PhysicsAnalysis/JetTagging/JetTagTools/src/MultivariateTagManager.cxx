@@ -617,7 +617,7 @@ namespace Analysis {
   float tmpL3D = fittedPosition[jfv + 5];
 
 
-  if (tmpL3D > 0 && (closestVtx_L3D > tmpL3D || std::isnan(closestVtx_L3D)) ){
+  if (tmpL3D > 0 && (std::isnan(closestVtx_L3D) || closestVtx_L3D > tmpL3D) ){
 
     closestVtx_L3D = tmpL3D;
     secondary_vertex_index = jfv;

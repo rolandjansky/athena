@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -24,7 +24,6 @@ Purpose : create a GlobalTriggerTag - The Tag information associated to the even
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 
 #include "TrigDecisionTool/ChainGroup.h"
@@ -114,8 +113,6 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
            ATH_MSG_INFO("stream bit map copied to MetaDataStore");
         }
      }
-     const EventIncident* evtinc = dynamic_cast<const EventIncident*>(&incident);
-     if(evtinc==0) ATH_MSG_ERROR("Couldn't get EventIncident object => Event Info not available");
      unsigned long run = incident.context().eventID().run_number();
 
      unsigned int index = 0;

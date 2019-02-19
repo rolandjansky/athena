@@ -30,14 +30,18 @@ class ConstituentToolManager(object):
 
     # map of named standard list of modifiers
     standardModifierLists = dict()
+    import cppyy
+    try:
+        cppyy.loadDictionary('xAODBaseObjectTypeDict')
+    except:
+        pass
+    from ROOT import xAODType
+    xAODType.ObjectType
 
-    import ROOT
-    from ROOT import xAOD
-    xAOD.Type.ObjectType # Trigger dict load
     # map of known input collections to their type
-    inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
-                              EMOriginTopoClusters = xAOD.Type.CaloCluster, LCOriginTopoClusters = xAOD.Type.CaloCluster, 
-                              InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
+    inputContainerMap = dict( CaloCalTopoClusters = xAODType.CaloCluster, CaloTopoClusters = xAODType.CaloCluster,
+                              EMOriginTopoClusters = xAODType.CaloCluster, LCOriginTopoClusters = xAODType.CaloCluster, 
+                              InDetTrackParticles = xAODType.TrackParticle, JetETMiss = xAODType.ParticleFlow )
 
     log = Logging.logging.getLogger("ConstituentToolManager")
 

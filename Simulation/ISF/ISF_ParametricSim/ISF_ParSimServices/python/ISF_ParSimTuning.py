@@ -30,7 +30,7 @@ class MuonSmearerMode(JobProperty):
        """
     statusOn     = True
     allowedTypes = ['int']
-    StoredValue  = 1
+    StoredValue  = 3
 
 class MC12MuonSmearerPtBinsFileName(JobProperty):
     """name of the MC12 Muon Smearer pt bins file

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
@@ -14,10 +14,6 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
@@ -86,8 +82,6 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 
   /** modifiable properties in job options */
   declareProperty("IntegrationWindow", m_adcIntegrationWindow); // in ns
-  declareProperty("CopySDO", m_copySDO);
-  declareProperty("MDTSDO", m_sdo);
   declareProperty("CleanOverlayData", m_clean_overlay_data);//clean out the overlay data before doing overlay, so you only get MC hits in the output overlay
   declareProperty("CleanOverlaySignal", m_clean_overlay_signal);//clean out the signal MC before doing overlay
 }
@@ -164,22 +158,6 @@ StatusCode MdtOverlay::overlayExecute() {
     }
   }
   ATH_MSG_INFO("MDT Result   = "<<shortPrint(outputContainer.cptr()));
-
-  //----------------------------------------------------------------
-  ATH_MSG_DEBUG("Processing MC truth data");
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just MDT-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy MDT-specific MC truth objects to the output.
-  // Copy only if it is not already copied by one of other muon algorithms
-  if ( m_copySDO )
-    //this->copyAllObjectsOfType<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC);
-    this->copyMuonObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("MdtOverlay::execute() end");

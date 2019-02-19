@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -89,6 +89,8 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import Dipolarity
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -336,10 +338,14 @@ if True == jetFlags.useTrackVertexTool:
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
 
-# Trigger xAOD.Type.ObjectType dict entry loading
-import ROOT
-from ROOT import xAOD
-xAOD.Type.ObjectType
+# Trigger xAODType.ObjectType dict entry loading
+import cppyy
+try:
+    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+except:
+    pass
+from ROOT import xAODType
+xAODType.ObjectType
 
 # Would go in JetRecToolsConfig but this hits a circular dependency on jtm?
 # this applies four-momentum corrections to PFlow objects:
@@ -350,12 +356,12 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        InputType = xAOD.Type.ParticleFlow
+                        InputType = xAODType.ParticleFlow
                         ),
          alias = 'correctPFO' )
 
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow),
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFlow),
          alias = 'chsPFO' )
 
 # Options to disable dependence on primary vertex container
@@ -781,6 +787,12 @@ jtm += KtMassDropTool("ktmassdrop")
 
 # Energy correlations.
 jtm += EnergyCorrelatorTool("encorr", Beta = 1.0)
+
+# Generalized energy correlations
+jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+
+# ... & their ratios
+jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
 # COM shapes.
 jtm += CenterOfMassShapesTool("comshapes")

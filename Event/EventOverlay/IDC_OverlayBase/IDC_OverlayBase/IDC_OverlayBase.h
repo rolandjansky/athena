@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*- 
@@ -66,24 +66,12 @@ public:
     Overlay::overlayContainer(data, mc, out, this);
   }
 
-  template<class IDC_Container> void overlayContainer(const std::auto_ptr<IDC_Container>& data, const std::auto_ptr<IDC_Container>& mc, std::auto_ptr<IDC_Container>& out) {
-    this->overlayContainer(data.get(), mc.get(), out.get());
-  }
-
   template<class IDC_Container> void overlayContainerNew(const IDC_Container* data, const IDC_Container* mc, IDC_Container* out ) {
     Overlay::overlayContainerNew(data, mc, out, this);
   }
 
-  template<class IDC_Container> void overlayContainerNew(const std::auto_ptr<IDC_Container>& data, const std::auto_ptr<IDC_Container>& mc, std::auto_ptr<IDC_Container>& out) {
-    this->overlayContainerNew(data.get(), mc.get(), out.get());
-  }
-
   template<class IDC_Container> std::string shortPrint(const IDC_Container *container, unsigned numprint = 25) {
     return Overlay::shortPrint(container, numprint);
-  }
-  
-  template<class IDC_Container> std::string shortPrint(const std::auto_ptr<IDC_Container>& ac, unsigned numprint = 25) {
-    return Overlay::shortPrint(ac, numprint);
   }
 
   /**

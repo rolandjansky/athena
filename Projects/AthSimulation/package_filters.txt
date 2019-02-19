@@ -37,7 +37,6 @@
 + Control/AthenaPython
 + Control/AthenaServices
 + Control/CLIDComps
-+ Control/CLIDSvc
 + Control/CxxUtils
 + Control/DataModelAthenaPool
 + Control/DataModelRoot
@@ -114,7 +113,6 @@
 + DetectorDescription/DetDescrDictionary
 + DetectorDescription/GeoModel/AtlasGeoModel
 + DetectorDescription/GeoModel/GeoModelInterfaces
-+ DetectorDescription/GeoModel/GeoModelKernel
 + DetectorDescription/GeoModel/GeoModelSvc
 + DetectorDescription/GeoModel/GeoModelUtilities
 + DetectorDescription/GeoModel/GeoSpecialShapes
@@ -172,7 +170,6 @@
 + InnerDetector/InDetConditions/PixelConditionsTools
 + InnerDetector/InDetConditions/PixelCoralClientUtils
 + InnerDetector/InDetConditions/SCT_ConditionsData
-+ InnerDetector/InDetConditions/SiPropertiesSvc
 + InnerDetector/InDetConditions/TRT_ConditionsAlgs
 + InnerDetector/InDetConditions/TRT_ConditionsData
 + InnerDetector/InDetConditions/TRT_ConditionsServices

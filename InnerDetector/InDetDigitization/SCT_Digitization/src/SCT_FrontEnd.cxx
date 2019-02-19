@@ -30,6 +30,7 @@ using namespace InDetDD;
 // constructor
 SCT_FrontEnd::SCT_FrontEnd(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent),
+    m_mutex(),
     m_SCTdetMgr(nullptr),
     m_sct_id(nullptr) {
   declareInterface<ISCT_FrontEnd>(this);
@@ -593,6 +594,8 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 // (this could be moved elsewhere later) apply threshold do clustering
 // ----------------------------------------------------------------------
 void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const {
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   // get SCT module side design and check it
   const SCT_ModuleSideDesign *p_design = dynamic_cast<const SCT_ModuleSideDesign*>(&(collection.design()));
 

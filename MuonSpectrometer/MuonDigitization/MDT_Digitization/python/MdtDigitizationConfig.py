@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MDT_Digitization job properties
@@ -50,10 +50,6 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    if jobproperties.Digitization.doXingByXingPileUp():
       kwargs.setdefault("FirstXing", MDT_FirstXing() ) # this should match the range for the MDT in Digitization/share/MuonDigitization.py
       kwargs.setdefault("LastXing",  MDT_LastXing() )  # this should match the range for the MDT in Digitization/share/MuonDigitization.py
-
-   # Pile-up premixing - do not include pile-up truth
-   if jobproperties.Digitization.PileUpPremixing():
-      kwargs.setdefault("IncludePileUpTruth", False)
 
    return CfgMgr.MdtDigitizationTool(name,**kwargs)
       #return CfgMgr.MDT_PileUpTool(name,**kwargs)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READCONDHANDLE_H
@@ -89,10 +89,20 @@ namespace SG {
     m_cc( key.getCC() ),
     m_hkey(key)
   {
-    EventIDBase::number_type conditionsRun =
-      ctx.template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
-    if (conditionsRun != EventIDBase::UNDEFNUM) {
-      m_eid.set_run_number (conditionsRun);
+    try {
+      EventIDBase::number_type conditionsRun =
+        ctx.template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+      if (conditionsRun != EventIDBase::UNDEFNUM) {
+        m_eid.set_run_number (conditionsRun);
+      }
+    }
+    catch (const std::bad_any_cast& e) {
+      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
+      msg << MSG::ERROR
+          << "EventContext extension is not "
+          << (ctx.hasExtension() ? "of type Atlas::ExtendedEventContext" : "set")
+          << endmsg;
+      throw;
     }
 
     if (ATH_UNLIKELY(!key.isInit())) {

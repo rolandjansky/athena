@@ -36,6 +36,9 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
+// STL
+#include <mutex>
+
 class ISCT_Amp;
 class SCT_ID;
 
@@ -112,7 +115,8 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   short m_data_readout_mode;                //!< To set the data read out mode
   bool m_useCalibData;                      //!< Flag to set the use of calibration data for noise, Gain,offset etc.
   mutable int m_strip_max;                  //!< For SLHC studies
- 
+
+  mutable std::mutex m_mutex;
   mutable std::vector<float> m_Offset;      //!< generate offset per channel
   mutable std::vector<float> m_GainFactor;  //!< generate gain per channel  (added to the gain per chip from calib data)
   mutable std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)

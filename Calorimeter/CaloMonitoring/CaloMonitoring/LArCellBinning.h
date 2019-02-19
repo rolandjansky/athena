@@ -22,7 +22,7 @@ namespace CaloMonitoring {
   
   public:
     LArCellBinning() {};
-    ~LArCellBinning();
+    ~LArCellBinning() = default;
 
     //Getters
     int         getNTotEtaBins() const { return  m_etaBinArray.size()-1; };

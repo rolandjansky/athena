@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg1.h 
@@ -15,71 +15,40 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SGTools/BuiltinsClids.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // eventinfo
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace AthEx {
 
 class DFlowAlg1
-  : public ::AthAlgorithm
+  : public ::AthReentrantAlgorithm
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
+public: 
   /// Constructor with parameters: 
   DFlowAlg1( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
   virtual ~DFlowAlg1(); 
 
-  // Assignment operator: 
-  //DFlowAlg1 &operator=(const DFlowAlg1 &alg); 
-
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute(const EventContext& ctx) const override;
+  virtual StatusCode  finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
+  DFlowAlg1() = delete;
 
-  /// Default constructor: 
-  DFlowAlg1();
-
-  /// Containers
-  
-  // vars
-  SG::ReadHandle<EventInfo> m_r_evtInfo;
-  SG::WriteHandle<int> m_w_int;
+  SG::ReadHandleKey<xAOD::EventInfo> m_r_evtInfo
+  { this, "EvtInfo", "EventInfo", "" };
+  SG::WriteHandleKey<int> m_w_int
+  { this, "IntFlow", "dflow_int", "" };
 
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthEx
 #endif //> !ATHEXSTOREGATEEXAMPLE_ATHEX_DFLOWALG1_H

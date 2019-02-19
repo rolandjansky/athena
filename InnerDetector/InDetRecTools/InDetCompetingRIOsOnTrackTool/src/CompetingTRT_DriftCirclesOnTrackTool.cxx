@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -462,7 +462,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
 ///////////////////////////////////////////////////////////////////
 void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     //const InDet::CompetingTRT_DriftCirclesOnTrack& compROT,
-    const Trk::CompetingRIOsOnTrack& baseCompROT,
+    Trk::CompetingRIOsOnTrack& baseCompROT,
     const Trk::TrackParameters& trkPar,
     const Trk::IWeightCalculator::AnnealingFactor beta
     //const bool recreateROTs=false

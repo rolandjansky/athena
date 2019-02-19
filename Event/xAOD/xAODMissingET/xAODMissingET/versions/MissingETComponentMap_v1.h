@@ -289,8 +289,8 @@ namespace xAOD
 
   private:
 
-    static size_t m_clusterLinkReserve;
-    static size_t m_trackLinkReserve; 
+    static const size_t m_clusterLinkReserve =10000;
+    static const size_t m_trackLinkReserve =10000; 
 
   }; // class xAOD::MissingETComponentMap_v1
 } // namespace xAOD

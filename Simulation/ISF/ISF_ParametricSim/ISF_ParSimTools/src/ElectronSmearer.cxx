@@ -32,7 +32,7 @@ StatusCode iParSim::ElectronSmearer::initialize()
 
 
 /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-bool iParSim::ElectronSmearer::smear(xAOD::TrackParticle* xaodTP) const
+bool iParSim::ElectronSmearer::smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine*) const
 {
   
   // DEFINING PARAMETERS COVARIANCE MATRIX //

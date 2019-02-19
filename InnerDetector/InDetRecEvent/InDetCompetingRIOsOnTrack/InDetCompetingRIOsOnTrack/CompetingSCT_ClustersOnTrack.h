@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h" // cannot fwd-declare because of covariant method
 
 #include <iosfwd>
-#include <mutex>
+#include <atomic>
 
 class MsgStream;
 
@@ -106,9 +106,7 @@ private:
 
 
     /** The global position */
-    mutable const Amg::Vector3D*        m_globalPosition;
-    /** Mutex to protect the global position */
-    mutable std::mutex m_mutex;
+    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
 
     /** The vector of contained InDet::SCT_ClusterOnTrack objects */
     std::vector<const InDet::SCT_ClusterOnTrack*>*   m_containedChildRots;
@@ -141,7 +139,6 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
     if (m_globalPosition==nullptr) {
-        std::lock_guard<std::mutex> lock{m_mutex};
         m_globalPosition = associatedSurface().localToGlobal(localParameters());
     }
     return (*m_globalPosition);

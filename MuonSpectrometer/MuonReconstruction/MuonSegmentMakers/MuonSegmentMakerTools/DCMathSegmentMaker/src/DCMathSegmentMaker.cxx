@@ -1532,7 +1532,7 @@ namespace Muon {
 
   
   TrkDriftCircleMath::DCVec DCMathSegmentMaker::createDCVec( const std::vector<const MdtDriftCircleOnTrack*>& mdts, double errorScale, std::set<Identifier>& chamberSet,
-							     double phimin, double phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, 
+							     double& phimin, double& phimax, TrkDriftCircleMath::DCStatistics& dcStatistics, 
 							     Amg::Transform3D gToStation, Amg::Transform3D amdbToGlobal) const {
     
     TrkDriftCircleMath::DCVec dcs;
