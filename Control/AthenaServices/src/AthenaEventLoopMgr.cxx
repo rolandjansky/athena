@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  GAUDISVC_EVENTLOOPMGR_CPP
@@ -34,7 +34,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
@@ -503,7 +502,7 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
 StatusCode AthenaEventLoopMgr::beginRunAlgorithms() {
 
   // Fire BeginRun "Incident"
-  m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,m_eventContext));
+  m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,m_eventContext));
 
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
@@ -737,7 +736,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   resetTimeout(Athena::Timeout::instance(m_eventContext));
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
-  //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
+  //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"BeginEvent"));
 
   // An incident may schedule a stop, in which case is better to exit before the actual execution.
   if ( m_scheduledStop ) {
@@ -800,7 +799,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Fire EndEvent "Incident"
-  //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"EndEvent"));
+  //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"EndEvent"));
   ++m_proc;
   }  // end of toolsPassed test
   ++m_nev;

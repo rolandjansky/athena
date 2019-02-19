@@ -4,7 +4,6 @@
 #include "AthIncFirerAlg.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "EventInfo/EventIncident.h"
 #include "AthenaKernel/errorcheck.h"
 
 AthIncFirerAlg::AthIncFirerAlg( const std::string& name, ISvcLocator* pSvcLocator ):AthReentrantAlgorithm(name,pSvcLocator),m_Serial(false){
@@ -26,13 +25,8 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
   auto ctxcp=ctx;
   for(auto & i:m_incLists.value()){
     ATH_MSG_VERBOSE("Firing incident "<<i);
-    if((i=="BeginEvent")||(i=="EndEvent")){
-      m_incSvc->fireIncident(std::make_unique<EventIncident>(name(),i,ctxcp));
-      if(m_Serial.value())m_incSvc->fireIncident(EventIncident(name(),i,ctxcp));
-    }else{
-      m_incSvc->fireIncident(std::make_unique<Incident>(name(),i,ctxcp));
-      if(m_Serial.value())m_incSvc->fireIncident(Incident( name(),i,ctxcp));
-    }
+    m_incSvc->fireIncident(std::make_unique<Incident>(name(),i,ctxcp));
+    if (m_Serial.value()) m_incSvc->fireIncident(Incident(name(),i,ctxcp));
   }
   return StatusCode::SUCCESS;
 }
