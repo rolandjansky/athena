@@ -89,6 +89,7 @@ def _createCfgFlags():
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
+    acf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
 
 
     def __trigger():
