@@ -659,6 +659,8 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
 {
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
+  // Is this a different run compared to the previous call?
+  bool newRun = m_iovTime.isValid() && (m_iovTime.run() != beginRunTime.run());
   m_iovTime=beginRunTime;
   // For a MC event, the run number we need to use to look up the conditions
   // may be different from that of the event itself.  Override the run
@@ -671,14 +673,17 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   }
 
   ATH_MSG_DEBUG( "signalBeginRun> begin run time " << m_iovTime);
-  if(!m_par_onlineMode) return StatusCode::SUCCESS;
-  static int first=0;
-  if (!first) {
-    first=1; 
-    ATH_MSG_DEBUG( "first call SKIPPING ... " );
+  if (!m_par_onlineMode) {
     return StatusCode::SUCCESS;
   }
-  // all other stuff is event based so happens after this. 
+
+  // ONLINE mode: allow adding of new calibration constants between runs
+  if (!newRun) {
+    ATH_MSG_DEBUG( "Same run as previous signalBeginRun call. Skipping re-loading of folders..." );
+    return StatusCode::SUCCESS;
+  }
+
+  // all other stuff is event based so happens after this.
   // this is before first event of each run
   ATH_MSG_DEBUG( "In online mode will recheck ... " );
   ATH_MSG_DEBUG( "First reload PoolCataloge ... " );
