@@ -24,23 +24,10 @@ namespace CP {
     virtual ~IJetTagger() {}
 
     virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
-
     virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet,
-				    const xAOD::TruthParticleContainer* truthPartsW_TRUTH3=nullptr,
-				    const xAOD::TruthParticleContainer* truthPartsZ_TRUTH3=nullptr,
-				    const xAOD::TruthParticleContainer* truthPartsTop_TRUTH3=nullptr,
-				    const xAOD::JetContainer* truthJets=nullptr,
 				    std::string decorName="WTopContainmentTruthLabel", 
 				    double dR_truthJet=0.75, double dR_truthPart=0.75,
 				    double mLowTop=140, double mHighTop=200, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const = 0;
-
-    virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet,
-				    const xAOD::TruthParticleContainer* truthParts=nullptr,
-				    const xAOD::JetContainer* truthJets=nullptr,
-				    std::string decorName="WTopContainmentTruthLabel", 
-				    double dR_truthJet=0.75, double dR_truthPart=0.75,
-				    double mLowTop=140, double mHighTop=200, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const = 0;
-
   };
   
 } // namespace CP

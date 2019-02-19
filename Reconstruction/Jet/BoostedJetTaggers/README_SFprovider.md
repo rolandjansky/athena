@@ -17,7 +17,7 @@ const WTopLabel WTopLabel_types [] = {WTopLabel::t, WTopLabel::W, WTopLabel::Z, 
 
 
 It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJetTaggers/IJetTagger.h interface class.
-* First of all, DecorateMatchedTruthJet( ) function, defined in BoostedJetTaggers/JSSTaggerBase.h, is called to decorate trimmed truth jet associated with the given jet by dR<0.75. 
+* First of all, DecorateMatchedTruthJet( ) function, defined in BoostedJetTaggers/JSSTaggerBase.h, is called to decorate trimmed truth jet associated with the given jet by dR<0.75. The function automatically identifies the format of the truth particle container (TRUTH1 or TRUTH3).
 * If the matching to truth jet is failed, WTopLabel::notruth is docorated as the truth label.
 * Then getWTopContainment( ) function is called to decorate truth labeling according to the definitions below.
 
@@ -58,10 +58,6 @@ m_tool->setProperty("DSID", 364100);
 If you don't set DSID, isSherpa flag is automatically turned off.
 
 
-
-Format of truth particle container
------------------------------------
-Two types of decorateTruthLabel( ) function for TRUTH1 and TRUTH3 formats.
 
 
 

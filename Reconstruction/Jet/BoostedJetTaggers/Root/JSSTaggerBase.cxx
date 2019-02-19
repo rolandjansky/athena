@@ -40,7 +40,7 @@ WTopLabel JSSTaggerBase::getWTopContainment(const xAOD::Jet& jet, const xAOD::Tr
     } else {
       for( auto part : *truthPartsW ){
 	if ( fabs(part->pdgId()) != 24  ) continue; // W
-	//if ( part->nChildren() < 2 ) continue; // skip self-decay
+	if ( part->nChildren() < 2 ) continue; // skip self-decay
 	
 	if( part->p4().DeltaR(jet.p4()) < dRmax ) {	
 	  isMatchW=true;
@@ -50,7 +50,7 @@ WTopLabel JSSTaggerBase::getWTopContainment(const xAOD::Jet& jet, const xAOD::Tr
 
       for( auto part : *truthPartsZ ){
 	if ( fabs(part->pdgId()) != 23  ) continue; // Z
-	//if ( part->nChildren() < 2 ) continue; // skip self-decay
+	if ( part->nChildren() < 2 ) continue; // skip self-decay
 	
 	if( part->p4().DeltaR(jet.p4()) < dRmax ) {	
 	isMatchZ=true;
@@ -62,7 +62,7 @@ WTopLabel JSSTaggerBase::getWTopContainment(const xAOD::Jet& jet, const xAOD::Tr
     // find top quark matched to the jet with dR<dRmax
     for( auto part : *truthPartsTop ){
       if ( fabs(part->pdgId()) != 6 ) continue; // top
-      //if ( part->nChildren() < 2 ) continue; // skip self-decay
+      if ( part->nChildren() < 2 ) continue; // skip self-decay
 
       if( part->p4().DeltaR(jet.p4()) < dRmax ) {
 	isMatchTop=true;

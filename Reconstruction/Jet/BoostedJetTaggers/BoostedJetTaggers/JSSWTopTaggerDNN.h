@@ -45,10 +45,8 @@ namespace CP{
 
     // IJetTagger interface
     virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+    virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
     virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
-    virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthParts, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
-      return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJets, decorName, dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ );
-    };
 
     // Retrieve score for a given DNN type (top/W)
     double getScore(const xAOD::Jet& jet) const;
@@ -111,6 +109,7 @@ namespace CP{
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+    std::string m_truthJetContainerName;
 
     // string for scale factors
     std::string m_weightdecorationName;
@@ -118,6 +117,12 @@ namespace CP{
     std::string m_weightHistogramName;
     std::string m_weightFlavors;
     std::string m_truthLabelDecorationName;
+
+    // TRUTH1 or TRUTH3
+    std::string m_truthParticleContainerName;
+    std::string m_truthWBosonContainerName;
+    std::string m_truthZBosonContainerName;
+    std::string m_truthTopQuarkContainerName;
 
     // decorators
     SG::AuxElement::Decorator<float> m_dec_mcutL;

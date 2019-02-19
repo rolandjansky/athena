@@ -158,6 +158,8 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<CP::IJetTagger> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, CP::JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
+  //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
+  m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
@@ -189,19 +191,13 @@ int main( int argc, char* argv[] ) {
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
       continue;
-    const xAOD::JetContainer* myTruthJets = 0;
-    if( event.retrieve( myTruthJets, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
-      continue ;
-    const xAOD::TruthParticleContainer* myTruthParts = 0;
-    if( event.retrieve( myTruthParts, "TruthParticles" ) != StatusCode::SUCCESS ) continue;
 
     // Loop over jet container
     for(const xAOD::Jet* jet : * myJets ){      
 
       if(verbose) std::cout<<"Testing DNN W/top Tagger "<<std::endl;
 
-      //m_Tagger->decorateTruthLabel( *jet,  myTruthJets, myTruthPartsForW, myTruthPartsForZ, myTruthPartsForTop ); // for DAODs with TruthParticles TRUTH3 format
-      m_Tagger->decorateTruthLabel( *jet,  myTruthParts, myTruthJets ); // for DAODs with TRUTH1 format
+      m_Tagger->decorateTruthLabel( *jet );
       truthLabel = (int)jet->auxdata<WTopLabel>("WTopContainmentTruthLabel");
 
       const Root::TAccept& res = m_Tagger->tag( *jet ); 
