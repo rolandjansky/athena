@@ -188,7 +188,7 @@ namespace ST {
       return StatusCode::FAILURE;
     }
 
-    if (!m_fatJets.empty()) {
+    if (m_fatJets.empty()) {
       ATH_MSG_ERROR("JetFatCalibTool was not initialized for largeR jet!!");
       return StatusCode::FAILURE;
     }
