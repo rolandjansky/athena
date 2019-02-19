@@ -41,8 +41,8 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   m_stgcIdHelper(0),
   m_muonIdHelper(0),
   m_fullEventDone(false),
-  m_stgcPrepDataContainer(0)
-
+  m_stgcPrepDataContainer(0),
+  m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
   
@@ -248,7 +248,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     vector<Muon::sTgcPrepData*> sTgcWireClusters;
     ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcStripPrds,sTgcStripClusters));
     ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
-
   }
 
 
