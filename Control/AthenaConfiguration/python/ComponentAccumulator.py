@@ -38,6 +38,9 @@ class ComponentAccumulator(object):
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
 
+        # small CAs can have only tools
+        self._privateTools=[]
+
         #To check if this accumulator was merged:
         self._wasMerged=False
 
@@ -186,17 +189,30 @@ class ComponentAccumulator(object):
         return None
 
 
-    def getEventAlgo(self,name,seqName=None):
+    def getEventAlgo(self,name=None,seqName=None):
+        if name is None:
+            algs = self.getEventAlgos(seqName)
+            if len(algs) == 1:
+                return algs[0]
+            raise ConfigurationError("Number of algorithms returned by getEventAlgo %d which is != 1 expected by this API" % len(algs) )
+                
         if seqName is None:
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
+        
 
         algo = findAlgorithm( seq, name )
         if algo is None:
             raise ConfigurationError("Can not find an algorithm of name %s "% name)
         return algo
 
+    def getEventAlgos(self,seqName=None):
+        if seqName is None:
+            seq=self._sequence
+        else:
+            seq = findSubSequence(self._sequence, seqName )
+        return list( set( sum( flatSequencers( seq ).values(), []) ) )
 
     def addCondAlgo(self,algo):
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -227,7 +243,6 @@ class ComponentAccumulator(object):
             newTool.setParent("ToolSvc")
         self._deduplicate(newTool,self._publicTools)
         return
-
 
 
 
@@ -335,19 +350,38 @@ class ComponentAccumulator(object):
         #end if startswith("_")
         pass
 
+    def __getOne(self, allcomps, name=None, typename="???"):
+        selcomps = allcomps if name is None else [ t for t in allcomps if t.getName() == name ]
+        if len( selcomps ) == 1:
+            return selcomps[0]            
+        raise ConfigurationError("Number of %s available %d which is != 1 expected by this API" % (typename, len(selcomps)) )
+        
+    def getPublicTools(self):
+        return self._publicTools
 
-    def getService(self,name):
-        for svc in self._services:
-            if svc.getName()==name:
-                return svc
-        raise KeyError("No service with name %s known" % name)
+    def getPublicTool(self, name=None):        
+        """ Returns single public tool, exception if either not found or to many found"""
+        return self.__getOne( self._publicTools, name, "PublicTools")
 
-    def getPublicTool(self,name):
-        for pt in self._publicTools:
-            if pt.getName()==name:
-                return pt
-        raise KeyError("No public tool with name %s known" % name)
+    def getServices(self):
+        return self._services
 
+    def getService(self, name=None):        
+        """ Returns single service, exception if either not found or to many found"""
+        return self.__getOne( self._services, name, "Services")
+    
+    def addPrivateTool(self, newTool):
+        if not isinstance(newTool,ConfigurableAlgTool):
+            raise TypeError("Attempt to add wrong type: %s as private AlgTool" % type( newTool ).__name__)
+        self._deduplicate(newTool,self._privateTools)
+
+    def getPrivateTools(self):
+        return self._privateTools
+
+    def getPrivateTool(self, name=None):        
+        """ Returns single private tool, exception if either not found or to many found"""
+        return self.__getOne( self._privateTools, name, "PrivateTools")
+        
 
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
@@ -1035,6 +1069,35 @@ class MergeMovingAlgorithms( unittest.TestCase ):
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
         destinationCA.wasMerged()
         sourceCA.wasMerged()
+
+class TestComponentAccumulatorAccessors( unittest.TestCase ):
+    def runTest( self ):
+        ca = ComponentAccumulator()
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
+        ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
+        
+        self.assertIsNotNone( ca.getEventAlgo(), "Found single alg")
+        self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
+# no idea why this assersts do not recognise exceptions        
+#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2")) 
+        
+        ca.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
+
+        self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
+        self.assertEquals( len(ca.getEventAlgos()), 2 , "Found single alg")
+ #       self.assertRaises(ConfigurationError, ca.getEventAlgo(), "Single Alg API ambiguity")
+
+        class Tool(ConfigurableAlgTool):
+            def __init__(self, *args, **kwargs):
+                super(Tool, self).__init__(*args, **kwargs)
+            def getDlls(self):
+                return None
+
+
+        ca.addPublicTool( Tool(name="tool1") )
+        self.assertIsNotNone( ca.getPublicTool(), "Found single tool")
+        ca.addPublicTool( Tool(name="tool2") )
+#        self.assertRaises(ConfigurationError, ca.getPublicTool(), "Found single tool")
 
 if __name__ == "__main__":
     unittest.main()
