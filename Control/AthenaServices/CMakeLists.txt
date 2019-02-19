@@ -26,6 +26,8 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    Database/PersistentDataModel
    Event/EventInfo
+   Event/xAOD/xAODEventInfo
+   Event/EventInfoUtils
    GaudiKernel )
 
 # External dependencies:
@@ -40,7 +42,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
    ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
    AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
-   StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
+   StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo EventInfoUtils GaudiKernel )
 
 # Test library checking the ability to build T/P converters:
 atlas_add_tpcnv_library( AthenaServicesTest src/test/*.cxx
