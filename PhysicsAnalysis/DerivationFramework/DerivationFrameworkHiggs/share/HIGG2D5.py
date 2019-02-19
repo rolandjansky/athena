@@ -573,6 +573,10 @@ HIGG2D5SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D5SlimmingHelper.ExtraVariables = HIGG2D5ExtraContent
 HIGG2D5SlimmingHelper.AllVariables = HIGG2D5ExtraContainers
+
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import PhotonsCPDetailedContent
+HIGG2D5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D5SlimmingHelper.ExtraVariables += HIGG2D5ExtraContentTruth
     HIGG2D5SlimmingHelper.AllVariables += HIGG2D5ExtraContainersTruth
