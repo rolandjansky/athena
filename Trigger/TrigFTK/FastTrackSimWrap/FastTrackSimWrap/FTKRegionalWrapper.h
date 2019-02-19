@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKRegionalWrapper_h
@@ -58,7 +58,7 @@ private:
   ToolHandle<ITrigFTKClusterConverterTool>  m_clusterConverterTool; /** Tool to convert FTKHits to IDClusters */
 
   ServiceHandle<IPixelCablingSvc> m_pix_cabling_svc; 
-  ToolHandle<ISCT_CablingTool> m_sct_cablingToolCB; // This class accesses SCT cabling during initialization.
+  ToolHandle<ISCT_CablingTool> m_sct_cablingToolInc; // This class accesses SCT cabling during initialization.
 
   // Needed to retrieve m_pixelId in order to get the barrel_ec, phi/eta_modules etc.
 

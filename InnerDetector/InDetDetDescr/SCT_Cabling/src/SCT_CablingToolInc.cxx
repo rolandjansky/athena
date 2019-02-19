@@ -3,14 +3,14 @@
 */
 
 /**
- * @file SCT_CablingToolCB.cxx
- * Implementation file for SCT cabling tool using call back
+ * @file SCT_CablingToolInc.cxx
+ * Implementation file for SCT cabling tool using incident
  * @author Shaun Roe
  * @date 20 October, 2008
  **/
  
 //this package
-#include "SCT_CablingToolCB.h"
+#include "SCT_CablingToolInc.h"
 #include "SCT_Cabling/ISCT_FillCabling.h"
 #include "SCT_CablingUtilities.h"
 
@@ -41,14 +41,14 @@ namespace {
 }
 
 // Constructor
-SCT_CablingToolCB::SCT_CablingToolCB(const std::string& type, const std::string& name, const IInterface* parent) :
+SCT_CablingToolInc::SCT_CablingToolInc(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent), m_idHelper(nullptr), m_usingDatabase(true) {
   declareProperty("DataSource", m_cablingDataSource=defaultSource);
 }
 
 //
 void
-SCT_CablingToolCB::handle(const Incident& runIncident) {
+SCT_CablingToolInc::handle(const Incident& runIncident) {
   ATH_MSG_INFO("Cabling event handler called.");
   if (runIncident.type()==IncidentType::BeginRun) {
     if (not empty()) {
@@ -68,7 +68,7 @@ SCT_CablingToolCB::handle(const Incident& runIncident) {
 
 //
 StatusCode
-SCT_CablingToolCB::initialize() {
+SCT_CablingToolInc::initialize() {
   ATH_MSG_INFO("Initialize SCT cabling " << PACKAGE_VERSION);
   const std::string cablingDataSource = m_cablingDataSource.value();
   m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload) or (cablingDataSource == file);
@@ -106,37 +106,37 @@ SCT_CablingToolCB::initialize() {
 
 // 
 StatusCode
-SCT_CablingToolCB::finalize() {
-  ATH_MSG_INFO("Thank-you for using the SCT_CablingToolCB, version "<<PACKAGE_VERSION);
+SCT_CablingToolInc::finalize() {
+  ATH_MSG_INFO("Thank-you for using the SCT_CablingToolInc, version "<<PACKAGE_VERSION);
   ATH_MSG_INFO("The cabling data source was "<< ((not m_usingDatabase) ? m_cablingFillerText->getDataSource() : m_cablingFillerCoraCool->getDataSource()));
   return StatusCode::SUCCESS;
 }
 
 //
 unsigned int
-SCT_CablingToolCB::size() const {
+SCT_CablingToolInc::size() const {
   return m_data.getHashEntries();
 }
 
 unsigned int
-SCT_CablingToolCB::size(const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::size(const EventContext& /*ctx*/) const {
   return size();
 }
 
 //
 bool
-SCT_CablingToolCB::empty() const {
+SCT_CablingToolInc::empty() const {
   return (size()==0);
 }
 
 bool
-SCT_CablingToolCB::empty(const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::empty(const EventContext& /*ctx*/) const {
   return empty();
 }
 
 //
 IdentifierHash 
-SCT_CablingToolCB::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings) const {
+SCT_CablingToolInc::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings) const {
   //is it valid at all?
   if (not onlineId.is_valid()) {
     if (withWarnings) ATH_MSG_WARNING("Invalid online id ("<<std::hex<<onlineId<<") "<<std::dec);
@@ -153,70 +153,70 @@ SCT_CablingToolCB::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool 
 }
 
 IdentifierHash 
-SCT_CablingToolCB::getHashFromOnlineId(const SCT_OnlineId& onlineId, const EventContext& /*ctx*/, const bool withWarnings) const {
+SCT_CablingToolInc::getHashFromOnlineId(const SCT_OnlineId& onlineId, const EventContext& /*ctx*/, const bool withWarnings) const {
   return getHashFromOnlineId(onlineId, withWarnings);
 }
 
 //
 SCT_OnlineId 
-SCT_CablingToolCB::getOnlineIdFromHash(const IdentifierHash& hash) const {
+SCT_CablingToolInc::getOnlineIdFromHash(const IdentifierHash& hash) const {
   return m_data.getOnlineIdFromHash(hash);
 }
 
 SCT_OnlineId 
-SCT_CablingToolCB::getOnlineIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getOnlineIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
   return getOnlineIdFromHash(hash);
 }
 
 //
 SCT_OnlineId
-SCT_CablingToolCB::getOnlineIdFromOfflineId(const Identifier& offlineId) const {
+SCT_CablingToolInc::getOnlineIdFromOfflineId(const Identifier& offlineId) const {
   if (not offlineId.is_valid()) return invalidId;
   IdentifierHash hash(m_idHelper->wafer_hash(offlineId));
   return getOnlineIdFromHash(hash);
 }
 
 SCT_OnlineId
-SCT_CablingToolCB::getOnlineIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getOnlineIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
   return getOnlineIdFromOfflineId(offlineId);
 }
 
 //
 std::uint32_t
-SCT_CablingToolCB::getRobIdFromHash(const IdentifierHash& hash) const {
+SCT_CablingToolInc::getRobIdFromHash(const IdentifierHash& hash) const {
   return getOnlineIdFromHash(hash).rod();
 }
 
 std::uint32_t
-SCT_CablingToolCB::getRobIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getRobIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
   return getRobIdFromHash(hash);
 }
 
 //
 std::uint32_t
-SCT_CablingToolCB::getRobIdFromOfflineId(const Identifier& offlineId) const {
+SCT_CablingToolInc::getRobIdFromOfflineId(const Identifier& offlineId) const {
   return getOnlineIdFromOfflineId(offlineId).rod();
 }
 
 std::uint32_t
-SCT_CablingToolCB::getRobIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getRobIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
   return getRobIdFromOfflineId(offlineId);
 }
 
 //
 IdentifierHash
-SCT_CablingToolCB::getHashFromSerialNumber(const SCT_SerialNumber& sn) const {
+SCT_CablingToolInc::getHashFromSerialNumber(const SCT_SerialNumber& sn) const {
   if (not sn.isWellFormed()) return invalidHash;
   return m_data.getHashFromSerialNumber(sn);
 }
 
 IdentifierHash
-SCT_CablingToolCB::getHashFromSerialNumber(const SCT_SerialNumber& sn, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getHashFromSerialNumber(const SCT_SerialNumber& sn, const EventContext& /*ctx*/) const {
   return getHashFromSerialNumber(sn);
 }
 
 SCT_SerialNumber
-SCT_CablingToolCB::getSerialNumberFromHash(const IdentifierHash& hash) const {
+SCT_CablingToolInc::getSerialNumberFromHash(const IdentifierHash& hash) const {
   if (not hash.is_valid()) return invalidSn;
   //hash must be even
   IdentifierHash evenHash{even(hash)};
@@ -224,22 +224,22 @@ SCT_CablingToolCB::getSerialNumberFromHash(const IdentifierHash& hash) const {
 }
 
 SCT_SerialNumber
-SCT_CablingToolCB::getSerialNumberFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getSerialNumberFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
   return getSerialNumberFromHash(hash);
 }
 
 void
-SCT_CablingToolCB::getAllRods(std::vector<std::uint32_t>& usersVector) const {
+SCT_CablingToolInc::getAllRods(std::vector<std::uint32_t>& usersVector) const {
   m_data.getRods(usersVector);
 }
 
 void
-SCT_CablingToolCB::getAllRods(std::vector<std::uint32_t>& usersVector, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getAllRods(std::vector<std::uint32_t>& usersVector, const EventContext& /*ctx*/) const {
   getAllRods(usersVector);
 }
 
 void
-SCT_CablingToolCB::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) const {
+SCT_CablingToolInc::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) const {
   SCT_OnlineId firstPossibleId(rodId,SCT_OnlineId::FIRST_FIBRE);
   const bool withWarnings(false);
   for (SCT_OnlineId i(firstPossibleId);i!=SCT_OnlineId::INVALID_ONLINE_ID;++i) {
@@ -251,6 +251,6 @@ SCT_CablingToolCB::getHashesForRod(std::vector<IdentifierHash>& usersVector, con
 }
 
 void
-SCT_CablingToolCB::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId, const EventContext& /*ctx*/) const {
+SCT_CablingToolInc::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId, const EventContext& /*ctx*/) const {
   getHashesForRod(usersVector, rodId);
 }
