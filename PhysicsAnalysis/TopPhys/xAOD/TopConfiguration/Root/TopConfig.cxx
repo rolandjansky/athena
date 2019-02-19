@@ -189,7 +189,7 @@ namespace top{
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
-    m_jetPtGhostTracks(17000.),
+    m_jetPtGhostTracks(19000.),
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
@@ -1593,7 +1593,7 @@ namespace top{
       if( !m_configFixed ){
           // Add the nominal (for reporting purposes).
           (* m_systMapJetGhostTrack)[m_nominalHashValue] = {};
-          (* m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack;
+          (* m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack+"_";
           m_jetGhostTrackSystematics.push_back("");
 
           for(auto s : syst){
@@ -2298,7 +2298,9 @@ namespace top{
       if (it != m_systDecoKeyMapJetGhostTrack->end()){
           return it->second;
       } else {
-          return m_decoKeyJetGhostTrack;
+	  it = m_systDecoKeyMapJetGhostTrack->find(m_nominalHashValue);
+	  if( it==m_systDecoKeyMapJetGhostTrack->end() )throw std::runtime_error("TopConfig: Failed to retrieve decoKeyJetGhostTrack.");
+	  return it->second;
       }
   }
 

@@ -95,10 +95,17 @@ namespace top {
         for(const auto & jet : * nominal ){
 	    if( jet->pt()<m_jetPtCut )continue;
             // Copy nominal ghost track container into the systematic variation.
-            const auto & nominalGhostTracks =
+	    
+	    const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
+            std::vector<const xAOD::IParticle *> newGhosts;
+
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		continue;
+	    }
+	    
             jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()),
-                                      nominalGhostTracks);
+                                      ghostTracks);
         }
 
         return StatusCode::SUCCESS;
@@ -308,6 +315,10 @@ namespace top {
         top::check(evtStore()->retrieve(nominalJets,
                                         m_config->sgKeyJetsStandAlone(m_nominalSystematicSet.hash())),
                    "Failed to retrieve Jets");
+
+	// applyNoOpSystematic is used just to remove ghost track vector from thinned jets
+	top::check(applyNoOpSystematic(nominalJets, m_nominalSystematicSet),
+                               "Failure to apply GhostTrackSystematic");
 
 
         ///-- SMEARING --///
