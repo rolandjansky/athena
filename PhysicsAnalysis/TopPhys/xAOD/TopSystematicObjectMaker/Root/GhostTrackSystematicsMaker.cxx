@@ -99,13 +99,19 @@ namespace top {
 	    const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
-
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		continue;
-	    }
+	    
+	    for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
+		if(ghostTracks[iGhost]==nullptr)continue;
+		
+                // We can re-use the existing xAOD::IParticle.
+                newGhosts.push_back(ghostTracks[iGhost]);
+            }
+	    
+	    
 	    
             jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()),
-                                      ghostTracks);
+                                      newGhosts);
         }
 
         return StatusCode::SUCCESS;
@@ -125,14 +131,9 @@ namespace top {
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING( "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
-
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
 		
+		if(ghostTracks[iGhost]==nullptr)continue;
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -164,14 +165,10 @@ namespace top {
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
-
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
+		if(ghostTracks[iGhost]==nullptr)continue;
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -216,14 +213,11 @@ namespace top {
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
-	    
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+	      
+		if(ghostTracks[iGhost]==nullptr)continue;
+		
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks.at(iGhost))};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -271,14 +265,11 @@ namespace top {
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
-	    	    
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+	      
+		if(ghostTracks[iGhost]==nullptr)continue;
+	      
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks.at(iGhost))};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -551,7 +542,7 @@ namespace top {
         
         return StatusCode::SUCCESS;
     }
-
+    
 }
 
 
