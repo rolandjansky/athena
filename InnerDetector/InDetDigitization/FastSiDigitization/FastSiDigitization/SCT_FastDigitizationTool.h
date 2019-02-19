@@ -134,7 +134,7 @@ private:
   bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
   IntegerProperty  m_vetoThisBarcode;
 
-  typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
+  typedef std::multimap<IdentifierHash, InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   SCT_detElement_RIO_map* m_sctClusterMap;
 
   SG::WriteHandle<InDet::SCT_ClusterContainer>  m_sctClusterContainer; //!< the SCT_ClusterContainer
