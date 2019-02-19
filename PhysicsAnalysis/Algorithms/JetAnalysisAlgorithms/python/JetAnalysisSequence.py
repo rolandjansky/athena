@@ -44,7 +44,7 @@ fjvtSysts = "|".join([
     "(^JET_fJvtEfficiency$)"])
 
 def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutput = False,
-                             runGhostMuonAssociation = True, **kwargs):
+                             shallowViewOutput = True, runGhostMuonAssociation = True, **kwargs):
     """Create a jet analysis algorithm sequence
       The jet collection is interpreted and selects the correct function to call, 
       makeSmallRJetAnalysisSequence, makeRScanJetAnalysisSequence or 
@@ -55,6 +55,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         jetCollection -- The jet container to run on.
         postfix -- String to be added to the end of all public names.
         deepCopyOutput -- Whether or not to deep copy the output
+        shallowViewOutput -- Whether or not to output a shallow view as the output
         Other keyword arguments are forwarded to the other functions.
     """
     if not dataType in ["data", "mc", "afii"]:
@@ -63,6 +64,10 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     # Setup the postfix
     if postfix != '':
         postfix = "_" + postfix
+
+    # Make sure selection options make sense
+    if deepCopyOutput and shallowViewOutput:
+        raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
 
     # interpret the jet collection
     collection_pattern = re.compile(
@@ -107,18 +112,20 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     alg.histPattern = 'jet_cflow_%SYS%'+postfix
     alg.selection = cutlist
     alg.selectionNCuts = cutlength
-    seq.append( alg, inputPropName = 'input' )
-
-    # Set up an algorithm that makes a view container using the selections
-    # performed previously:
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
-    alg.selection = cutlist
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up an algorithm dumping the properties of the jets, for debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
     alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+
+    if shallowViewOutput:
+      # Set up an algorithm that makes a view container using the selections
+      # performed previously:
+      alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
+      alg.selection = cutlist
+      seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                  stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
@@ -174,7 +181,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     else:
         alg.calibrationTool.CalibSequence = 'JetArea_Residual_EtaJES_GSC_Smear'
     alg.calibrationTool.IsData = (dataType == 'data')
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', 'calibration')
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration')
 
     # Jet uncertainties
     # Prepare the config file
