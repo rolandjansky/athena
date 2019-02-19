@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelDBTools_H
@@ -72,10 +72,10 @@ namespace LArBadChannelDBTools {
   }
 
   std::vector<BadChanEntry>
-  readBadChan( const AthenaAttributeList& attrList, MsgStream& log);
+  readBadChan( const coral::AttributeList& attrList, MsgStream& log);
 
   std::vector<BadFebEntry>
-  readBadFeb( const AthenaAttributeList& attrList, MsgStream& log);
+  readBadFeb( const coral::AttributeList& attrList, MsgStream& log);
 }
 
 #endif
