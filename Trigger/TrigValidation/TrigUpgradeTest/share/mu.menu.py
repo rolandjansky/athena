@@ -39,7 +39,7 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep, inDetSetup
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep, muEFSAFSStep, inDetSetup
 
     inDetSetup()
 
@@ -55,6 +55,8 @@ if  TriggerFlags.doMuon==True:
     step3muIso =ChainStep("Step3_muIso",  [ muIsoStep() ])
     # step4
     step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBStep() ])
+    # Full scan MS tracking step
+    stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSStep()])
 
     ## single muon trigger  
     MenuChains += [Chain(name='HLT_mu6fast',   Seed="L1_MU6",  ChainSteps=[ step1mufast ])]
@@ -66,7 +68,10 @@ if  TriggerFlags.doMuon==True:
     # multi muon trigger 
     MenuChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
     MenuChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]        
- 
+
+    #FS Muon trigger
+    MenuChains += [Chain(name='HLT_mu6nol1', Seed="L1_MU6", ChainSteps=[stepFSmuEFSA])] 
+    
     
     #################################
     # Some moer configurations
