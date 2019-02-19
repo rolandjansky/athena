@@ -24,7 +24,8 @@ namespace {
 
 namespace FlavorTagDiscriminants {
 
-  DL2HighLevel::DL2HighLevel(const std::string& nn_file_name):
+  DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
+                             EDMSchema schema):
     m_dl2(nullptr)
   {
     // get the graph
@@ -93,7 +94,7 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
-    m_dl2.reset(new DL2(config, input_config, trk_config));
+    m_dl2.reset(new DL2(config, input_config, trk_config, schema));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;

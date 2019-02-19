@@ -5,6 +5,8 @@
 #ifndef BTAG_JET_AUGMENTER_HH
 #define BTAG_JET_AUGMENTER_HH
 
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+
 // ATLAS things
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -12,7 +14,8 @@
 class BTagJetAugmenter
 {
 public:
-  BTagJetAugmenter();
+  typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
+  BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 private:

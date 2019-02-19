@@ -7,6 +7,7 @@
 
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -132,7 +133,7 @@ namespace FlavorTagDiscriminants {
     class TrackGetter
     {
     public:
-      TrackGetter(SortOrder, TrackSelection);
+      TrackGetter(SortOrder, TrackSelection, EDMSchema);
       Tracks operator()(const xAOD::Jet& jet) const;
     private:
       typedef SG::AuxElement AE;
@@ -170,11 +171,12 @@ namespace FlavorTagDiscriminants {
   public:
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
-        const std::vector<DL2TrackSequenceConfig>& = {});
+        const std::vector<DL2TrackSequenceConfig>& = {},
+        EDMSchema = EDMSchema::WINTER_2018);
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceGetter {
-      TrackSequenceGetter(SortOrder, TrackSelection);
+      TrackSequenceGetter(SortOrder, TrackSelection, EDMSchema);
       std::string name;
       internal::TrackGetter getter;
       std::vector<internal::SeqGetter> sequence_getters;
@@ -193,8 +195,8 @@ namespace FlavorTagDiscriminants {
   // Filler functions
   namespace internal {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
-    TrackSortVar get_track_sort(SortOrder);
-    TrackSelect get_track_select(TrackSelection);
+    TrackSortVar get_track_sort(SortOrder, EDMSchema);
+    TrackSelect get_track_select(TrackSelection, EDMSchema);
     SeqGetter get_seq_getter(const DL2TrackInputConfig&);
   }
 }
