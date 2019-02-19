@@ -128,9 +128,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
   ATH_MSG_INFO( "Initializing " << name()  );
 
 
-  // callback for conditions data
-  ATH_CHECK(  detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData, dynamic_cast<IClusterCellWeightTool*>(this), m_data, m_key) );
-  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
+  ATH_CHECK(m_key.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -205,6 +203,14 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
     return StatusCode::FAILURE;
   }
 
+  const CaloLocalHadCoeff* data(0);
+  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
+  data = *rch;
+  if(data==0) {
+    ATH_MSG_ERROR("Unable to access conditions object");
+    return StatusCode::FAILURE;
+  }
+
   ATH_MSG_DEBUG("Cluster is selected for local DM calibration."
 		<< " Old cluster energy:" << theCluster->e() 
 		<< " m_weightModeDM:" << m_weightModeDM);
@@ -215,7 +221,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
   float smp_energy[CaloSampling::Unknown];
   float cls_unweighted_energy = 0;
   StatusCode sc = prepare_for_cluster(theCluster, areas, cells,
-                                      smp_energy, cls_unweighted_energy);
+                                      smp_energy, cls_unweighted_energy, data);
   if ( !sc.isSuccess() ) {
 #ifdef MAKE_MOMENTS
     set_zero_moments(theCluster);
@@ -256,7 +262,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
   vars[CaloLocalHadDefs::DIMD_ENER] = log10ener;
   vars[CaloLocalHadDefs::DIMD_LAMBDA] = log10lambda;
 
-  size_t n_dm = m_data->getSizeAreaSet();
+  size_t n_dm = data->getSizeAreaSet();
 
   // loop over HAD/EM possibilities for mixing different correction types
   for(int i_mix=0; i_mix<2; i_mix++){ // 0 - pure HAD case, 1-pure EM case
@@ -269,12 +275,12 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
     for(size_t i_dm=0; i_dm < n_dm; i_dm++){
       if(areas[i_dm].eprep <= 0.0) continue; // no appropriate signal to reconstruct dm energy in this area
 
-      const CaloLocalHadCoeff::LocalHadArea *area = m_data->getArea(i_dm);
+      const CaloLocalHadCoeff::LocalHadArea *area = data->getArea(i_dm);
       float emax = area->getDimension(CaloLocalHadDefs::DIMD_ENER)->getXmax();
       if(log10ener > emax) log10ener = emax - 0.0001;
       vars[CaloLocalHadDefs::DIMD_ENER] = log10ener;
 
-      const CaloLocalHadCoeff::LocalHadCoeff *pars = m_data->getCoeff(i_dm, vars);
+      const CaloLocalHadCoeff::LocalHadCoeff *pars = data->getCoeff(i_dm, vars);
       if( !pars ) continue;
 
       float edm = 0.0;
@@ -282,7 +288,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
       if(area->getType() == CaloLocalHadDefs::AREA_DMFIT) {
         edm = (*pars)[CaloLocalHadDefs::BIN_P0] + (*pars)[CaloLocalHadDefs::BIN_P1]*areas[i_dm].eprep;
         if(m_interpolate) {
-          bool isa = hp.Interpolate(m_data, i_dm, vars, parint, m_interpolateDimensionsFit, areas[i_dm].eprep);
+          bool isa = hp.Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsFit, areas[i_dm].eprep);
           // calculation of fitted values is done already in the interpolator
           if(isa) edm = parint[CaloLocalHadDefs::BIN_P0];
         }
@@ -291,7 +297,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
       }else if(area->getType() == CaloLocalHadDefs::AREA_DMLOOKUP){
         if( (*pars)[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*((*pars)[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         if(m_interpolate) {
-          bool isa = hp.Interpolate(m_data, i_dm, vars, parint, m_interpolateDimensionsLookup);
+          bool isa = hp.Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsLookup);
           if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*(parint[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         }
 
@@ -309,7 +315,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
         edm = ecalonew - ecaloold;
 
 //         if(m_interpolate) {
-//           bool isa = hp.Interpolate(m_data, i_dm, vars, parint, m_interpolateDimensionsSampling);
+//           bool isa = hp.Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsSampling);
 //           if(isa) {
 //             ecalonew = 0.0;
 //             ecaloold = 0.0;
@@ -530,9 +536,9 @@ CaloLCDeadMaterialTool::prepare_for_cluster
    std::vector<Area>& areas,
    std::vector<Cell>& cells,
    float* smp_energy,
-   float& cls_unweighted_energy) const
+   float& cls_unweighted_energy, const CaloLocalHadCoeff* data) const
 {
-  areas.resize(m_data->getSizeAreaSet());
+  areas.resize(data->getSizeAreaSet());
   cells.reserve (theCluster->size());
 
   bzero(smp_energy, CaloSampling::Unknown*sizeof(float));
@@ -638,22 +644,5 @@ CaloLCDeadMaterialTool::prepare_for_cluster
   areas[sDM_UNCLASS].eprep = cls_unweighted_energy;
 
  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode CaloLCDeadMaterialTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
-{
-  ATH_MSG_DEBUG( "Callback invoked for " << keys.size() << " keys");
-
-  for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
-    std::string key = *itr;
-    ATH_MSG_DEBUG( "key = " << key);
-    if(key==m_key) {
-      ATH_MSG_DEBUG( "retrieve CaloHadWeight ");
-      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
-    }
-  }
-  return StatusCode::SUCCESS;
 }
 
