@@ -957,9 +957,6 @@ class TopConfig final {
   bool m_useRCJets;
   bool m_useVarRCJets;
 
-  // recompute CP vars?
-  bool m_recomputeCPvars;
-
   // Ghost Tracks on jets can not really be disabled because they are always
   // available. However, we want the systematics to be executed automatically
   // whenever the user has "configured" ghost tracks.
@@ -982,6 +979,9 @@ class TopConfig final {
   bool m_applyTTVACut;
 
   std::string m_jetSubstructureName;
+
+  // recompute CP vars?
+  bool m_recomputeCPvars;
 
   // Store in config a boolean which lets us know if we called the nominal object setup
   bool m_isNominalAvailable;
