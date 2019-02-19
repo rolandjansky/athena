@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  TopoASCIIReader.h
 //  L1TopoCoreSimulation
 
-#ifndef __L1TopoCoreSimulation__TopoASCIIReader__
-#define __L1TopoCoreSimulation__TopoASCIIReader__
+#ifndef L1TOPOCORESIM_TOPOASCIIREADER_H
+#define L1TOPOCORESIM_TOPOASCIIREADER_H
 
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "L1TopoEvent/ClusterTOB.h"
@@ -26,7 +26,7 @@
 #include <sstream>
 
 #include <vector>
-using namespace std;
+
 
 namespace TCS {
   
