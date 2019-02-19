@@ -27,7 +27,7 @@ flags.Trigger.L1Decoder.forceEnableAllChains = True
 
 flags.lock()
 
-from AthenaCommon.Constants import INFO,DEBUG
+from AthenaCommon.Constants import INFO,DEBUG,WARNING
 acc = ComponentAccumulator()
 
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
@@ -68,12 +68,24 @@ if mcc:
     top += mcc
 
 
-# from TrigUpgradeTest.TestUtils import applyMenu
-# applyMenu( acc.getEventAlgo( "L1Decoder" ) )
-#acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
-#acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
-#acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
-#acc.getEventAlgo( "Filter_for_L2PhotonCaloHypo" ).OutputLevel=DEBUG
+from AthenaConfiguration.ComponentAccumulator import forcomps
+from AthenaCommon.Logging import logging
+logging.getLogger('forcomps').setLevel(DEBUG)
+forcomps(acc, "*/L1Decoder").OutputLevel = DEBUG
+forcomps(acc, "*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
+forcomps(acc, "*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
+forcomps(acc, "*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
+forcomps(acc, "*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
+forcomps(acc, "*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+forcomps(acc, "*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
+
+
+# # from TrigUpgradeTest.TestUtils import applyMenu
+# # applyMenu( acc.getEventAlgo( "L1Decoder" ) )
+# #acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
+# #acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
+# #acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
+# #acc.getEventAlgo( "Filter_for_L2PhotonCaloHypo" ).OutputLevel=DEBUG
 
 acc.printConfig()
 
@@ -83,6 +95,7 @@ print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p )
     p.close()
+
 
 
 

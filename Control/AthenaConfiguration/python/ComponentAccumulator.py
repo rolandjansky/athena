@@ -5,7 +5,6 @@ from AthenaCommon.Configurable import Configurable,ConfigurableService,Configura
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,checkSequenceConsistency
 from AthenaCommon.AlgSequence import AthSequencer
 
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle, PrivateToolHandleArray
 import ast
@@ -639,7 +638,6 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
-        log = logging.getLogger("ComponentAccumulator")
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
@@ -675,14 +673,14 @@ class ComponentAccumulator(object):
             name=comp.getJobOptName()
             for k, v in comp.getValuedProperties().items():
                 if isinstance(v,Configurable):
-                    log.debug("Adding "+name+"."+k+" = "+v.getFullName())
+                    self._msg.debug("Adding "+name+"."+k+" = "+v.getFullName())
                     bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
                     addCompToJos(v)
                 elif isinstance(v,GaudiHandles.GaudiHandleArray):
                     bsh.addPropertyToCatalogue(jos,name,k,str([ v1.getFullName() for v1 in v ]))
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
-                        log.debug("Adding "+name+"."+k+" = "+str(v))
+                        self._msg.debug("Adding "+name+"."+k+" = "+str(v))
                         bsh.addPropertyToCatalogue(jos,name,k,str(v))
                     pass
                 pass
@@ -697,7 +695,7 @@ class ComponentAccumulator(object):
 
         #Add tree of algorithm sequences:
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
-            log.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
             bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
             for alg in algoList:
                 addCompToJos(alg)
@@ -722,7 +720,6 @@ class ComponentAccumulator(object):
 
 
     def run(self,maxEvents=None,OutputLevel=3):
-        log = logging.getLogger("ComponentAccumulator")
         app = self.createApp (OutputLevel)
 
         #Determine maxEvents
@@ -735,19 +732,19 @@ class ComponentAccumulator(object):
         print "INITIALIZE STEP"
         sc = app.initialize()
         if not sc.isSuccess():
-            log.error("Failed to initialize AppMgr")
+            selg._msg.error("Failed to initialize AppMgr")
             return sc
 
         app.printAlgsSequences() #could be removed later ....
 
         sc = app.start()
         if not sc.isSuccess():
-            log.error("Failed to start AppMgr")
+            self._msg.error("Failed to start AppMgr")
             return sc
 
         sc = app.run(maxEvents)
         if not sc.isSuccess():
-            log.error("Failure running application")
+            self._msg.error("Failure running application")
             return sc
 
         app.stop().ignore()
@@ -768,273 +765,91 @@ def CAtoGlobalWrapper(cfgmethod,flags):
      return
 
 
+class PropSetterProxy(object):
+   __compPaths = {}
+   __scannedCA = None
 
-# self test
-import unittest
+   def __init__(self, ca, path):      
+      self.__path = path
+      self.__findComponents( ca )
 
-class TestComponentAccumulator( unittest.TestCase ):
-    def setUp(self):
-
-        Configurable.configurableRun3Behavior+=1
-        # trivial case without any nested sequences
-        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-        from AthenaCommon.CFElements import seqAND, parOR
-        from AthenaCommon.Logging import log
-        from AthenaCommon.Constants import DEBUG
-
-        log.setLevel(DEBUG)
-
-        dummyCfgFlags=AthConfigFlags()
-        dummyCfgFlags.lock()
-
-        class Algo(ConfigurablePyAlgorithm):
-            def __init__(self, name):
-                super( ConfigurablePyAlgorithm, self ).__init__( name )
-
-        def AlgsConf1(flags):
-            acc = ComponentAccumulator()
-            a1=Algo("Algo1")
-            a2=Algo("Algo2")
-            return acc,[a1,a2]
-
-
-        def AlgsConf2(flags):
-            acc = ComponentAccumulator()
-            result,algs=AlgsConf1( flags )
-            acc.merge(result)
-            algs.append(Algo("Algo3"))
-            return acc,algs
-
-        acc = ComponentAccumulator()
-
-        # top level algs
-        acc1,algs=AlgsConf2(dummyCfgFlags)
-        acc.merge(acc1)
-        acc.addEventAlgo(algs)
-
-        def AlgsConf3(flags):
-            acc = ComponentAccumulator()
-            na1=Algo("NestedAlgo1")
-            return acc,na1
-
-        def AlgsConf4(flags):
-            acc,na1= AlgsConf3( flags )
-            NestedAlgo2 = Algo("NestedAlgo2")
-            NestedAlgo2.OutputLevel=7
-            return acc,na1,NestedAlgo2
-
-        acc.addSequence( seqAND("Nest") )
-        acc.addSequence( seqAND("subSequence1"), parentName="Nest" )
-        acc.addSequence( parOR("subSequence2"), parentName="Nest" )
-
-        acc.addSequence( seqAND("sub2Sequence1"), parentName="subSequence1")
-        acc.addSequence( seqAND("sub3Sequence1"), parentName="subSequence1")
-        acc.addSequence( seqAND("sub4Sequence1"), parentName="subSequence1")
-
-        accNA1=AlgsConf4(dummyCfgFlags)
-        acc.merge(accNA1[0])
-        acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
-        acc.store(open("testFile.pkl", "w"))
-        self.acc = acc
+      
+   def __setattr__(self, name, value):
+       if name.startswith("_PropSetterProxy"):
+           return super(PropSetterProxy, self).__setattr__(name, value)
+       
+       msg = logging.getLogger('forcomps')
+       import fnmatch
+       for component_path, component in PropSetterProxy.__compPaths.iteritems():
+           if fnmatch.fnmatch( component_path, self.__path ):
+               #print "cp", component
+               if name in component.getProperties():
+                   try:
+                       setattr( component, name, value )
+                       msg.debug( "Set property: %s to value %s of component %s because it matched %s " % ( name, str(value), component_path, self.__path )   )
+                   except Exception, ex:
+                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s" % ( name, str(value), component_path, self.__path, str(ex) )   )
+                       pass
+               else:
+                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s" % ( name, component_path, self.__path )   )
 
 
-    def test_algorihmsAreAdded( self ):
-        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo1", 1).name(), "Algo1", "Algorithm not added to a top sequence" )
-        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo2", 1).name(),  "Algo2", "Algorithm not added to a top sequence" )
-        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo3", 1).name(), "Algo3", "Algorithm not added to a top sequence" )
+   def __findComponents(self, ca):
+       if ca is not PropSetterProxy.__scannedCA:
+           PropSetterProxy.__scannedCA = ca
+           PropSetterProxy.__compPaths = {}
+           def __add(path, comp):
+               if comp.getName() == "":
+                   return
+               PropSetterProxy.__compPaths[ path ] = comp
 
-    def test_sequencesAreAdded( self ):
-        self.assertIsNotNone( self.acc.getSequence("subSequence1" ), "Adding sub-sequence failed" )
-        self.assertIsNotNone( self.acc.getSequence("subSequence2" ), "Adding sub-sequence failed" )
-        self.assertIsNotNone( self.acc.getSequence("sub2Sequence1"), "Adding sub-sequence failed" )
-        self.assertIsNotNone( findSubSequence( self.acc.getSequence("subSequence1"), "sub2Sequence1"), "Adding sub-sequence done in a wrong place" )
+           for svc in ca._services:
+               PropSetterProxy.__compPaths['SvcMgr/'+svc.getFullName()] = svc
+           for t in ca._publicTools:
+               PropSetterProxy.__compPaths['ToolSvc/'+t.getFullName()] = t
+           
+           def __nestAlg(startpath, comp): # it actually dives inside the algorithms and (sub) tools               
+               if comp.getName() == "":
+                   return
+               for name, value in comp.getProperties().iteritems():
+                   if isinstance( value, ConfigurableAlgTool ) or isinstance( value, PrivateToolHandle ):
+                       __add( startpath+"/"+name+"/"+value.getFullName(), value )
+                       __nestAlg( startpath+"/"+name+"/"+value.getName(), value )
+                   if isinstance( value, PrivateToolHandleArray):
+                       for toolIndex,t in enumerate(value):
+                           __add( startpath+"/"+name+"/"+t.getFullName(), t )
+                           __nestAlg( startpath+"/"+name+"/"+t.getName(), value[toolIndex] )
+                           
+               
+           def __nestSeq(startpath, comp):
+               for c in comp.getChildren():
+                   if isSequence(c):
+                       __nestSeq( startpath+"/"+c.getName(), c)                       
+                   else: # the algorithm or tool                      
+                       PropSetterProxy.__compPaths[ startpath+"/"+c.getFullName() ] = comp
+                       __nestAlg( startpath+"/"+c.getFullName(), c )
 
-    def test_algorithmsInNestedSequences( self ):
-        self.assertIsNotNone( findAlgorithm( self.acc.getSequence(), "NestedAlgo1" ), "Algorithm added to nested sequence" )
-        self.assertIsNotNone( findAlgorithm( self.acc.getSequence(), "NestedAlgo1", 1 ) is None, "Algorithm mistakenly in top sequence" )
-        self.assertIsNotNone( findAlgorithm( findSubSequence( self.acc.getSequence(), "sub2Sequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence" )
-
-
-    def test_readBackConfiguration( self ):
-        import pickle
-        with open( "testFile.pkl" ) as f:
-            s = pickle.load( f )
-            self.assertIsNotNone( s, "The pickle has no content")
-
-class TestHLTCF( unittest.TestCase ):
-    def runTest( self ):
-        # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the
-        # some of them (in this case hltSteps) did not have properties recorded
-        from AthenaCommon.CFElements import seqAND, seqOR, parOR
-        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-        Configurable.configurableRun3Behavior=1
-        acc = ComponentAccumulator()
-        acc.addSequence( seqOR("hltTop") )
-        algos2 = ConfigurablePyAlgorithm( "RecoAlgInTop" )
-        acc.addEventAlgo( algos2, sequenceName="hltTop" ) # some algo
-        acc.addSequence( seqAND("hltSteps"), parentName="hltTop" )
-        acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
-        acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
-        acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
-        acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
-
-        acc.store(open("testFile2.pkl", "w"))
-        import pickle
-        f = open("testFile2.pkl")
-        s = pickle.load(f)
-        f.close()
-        self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
-
-
-class MultipleParentsInSequences( unittest.TestCase ):
-    def runTest( self ):
-       # test if an algorithm (or sequence) can be controlled by more than one sequence
-        Configurable.configurableRun3Behavior=1
-        from AthenaCommon.CFElements import seqAND
-        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-        accTop = ComponentAccumulator()
-
-        recoSeq = seqAND("seqReco")
-        recoAlg = ConfigurablePyAlgorithm( "recoAlg" )
-        recoSeq += recoAlg
-
-        acc1 = ComponentAccumulator()
-        acc1.addSequence( seqAND("seq1") )
-        acc1.addSequence( recoSeq, parentName="seq1" )
-
-        acc2 = ComponentAccumulator()
-        acc2.addSequence( seqAND("seq2") )
-        acc2.addSequence( recoSeq, parentName="seq2" )
-
-        accTop.merge( acc1 )
-        accTop.merge( acc2 )
-
-        accTop.printConfig()
-
-        self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), "Algorithm missing in the first sequence" )
-        self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithm missing in the second sequence" )
-        s = accTop.getSequence( "seqReco" )
-        self.assertEqual( len( s.getChildren() ), 1, "Wrong number of algorithms in reco seq: %d " % len( s.getChildren() ) )
-        self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithms are cloned" )
-        self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), recoAlg, "Clone of the original inserted in sequence" )
-
-        accTop.store( open("dummy.pkl", "w") )
-        import pickle
-        # check if the recording did not harm the sequences
-        with open("dummy.pkl") as f:
-            s = pickle.load( f )
-            self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
-            self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
-            self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
-
-class ForbidRecursiveSequences( unittest.TestCase ):
-    def runTest( self ):
-        #Can't add a sequence with the same name below itself, e.g.
-        # \__ AthAlgSeq (seq: PAR AND)
-        #    \__ seq1 (seq: SEQ AND)
-        #       \__ seq1 (seq: SEQ AND)
-        def selfSequence():
-            Configurable.configurableRun3Behavior=1
-            from AthenaCommon.CFElements import seqAND
-            accTop = ComponentAccumulator()
-            accTop.wasMerged()
-            seq1 = seqAND("seq1")
-            seq1_again = seqAND("seq1")
-            accTop.addSequence(seq1)
-            accTop.addSequence(seq1_again, parentName = "seq1")
-
-        #Allowed to add a sequence with the same name at same depth, e.g.
-        # \__ AthAlgSeq (seq: PAR AND)
-        #    \__ seq1 (seq: SEQ AND)
-        #       \__ seq2 (seq: SEQ AND)
-        #       \__ seq2 (seq: SEQ AND)
-        # should not raise any exceptions
-        def selfTwinSequence():
-            Configurable.configurableRun3Behavior=1
-            from AthenaCommon.CFElements import seqAND
-            accTop = ComponentAccumulator()
-            accTop.wasMerged()
-            seq1 = seqAND("seq1")
-            seq2 = seqAND("seq2")
-            seq2_again = seqAND("seq1")
-            accTop.addSequence(seq1)
-            accTop.addSequence(seq2, parentName = "seq1")
-            accTop.addSequence(seq2_again, parentName = "seq1")
-            accTop.wasMerged()
+           __nestSeq("", ca._sequence)
             
-
-        #Can't add a sequence with the same name two steps below itself, e.g.
-        # \__ AthAlgSeq (seq: PAR AND)
-        #    \__ seq1 (seq: SEQ AND)
-        #       \__ seq2 (seq: SEQ AND)
-        #          \__ seq1 (seq: SEQ AND)
-        def selfGrandParentSequence():
-            Configurable.configurableRun3Behavior=1
-            from AthenaCommon.CFElements import seqAND
-            accTop = ComponentAccumulator()
-            accTop.store( open("test.pkl", "w") )#silence RuntimeError
-            seq1 = seqAND("seq1")
-            seq2 = seqAND("seq2")
-            seq1_again = seqAND("seq1")
-            accTop.addSequence(seq1)
-            accTop.addSequence(seq2, parentName = "seq1")
-            accTop.addSequence(seq1_again, parentName = "seq2")
-            accTop.wasMerged()
-
-        #Can't merge sequences with the same name two steps below itself, e.g.
-        # \__ AthAlgSeq (seq: PAR AND)
-        #    \__ seq1 (seq: SEQ AND)
-        #       \__ seq2 (seq: SEQ AND)
-        #          \__ seq1 (seq: SEQ AND)
-        def selfMergedGrandParentSequence():
-            Configurable.configurableRun3Behavior=1
-            from AthenaCommon.CFElements import seqAND
-            acc1=ComponentAccumulator()
-            acc1.wasMerged()
-            acc1.addSequence(seqAND("seq1"))
-            acc2=ComponentAccumulator()
-            acc2.wasMerged()
-            acc2.addSequence(seqAND("seq2"))
-            acc2.addSequence(seqAND("seq1"), "seq2")
-            acc1.merge(acc2)
-
-        self.assertRaises(RuntimeError, selfSequence )
-        self.assertRaises(RuntimeError, selfGrandParentSequence )
-        self.assertRaises(RuntimeError, selfMergedGrandParentSequence )
-
-class FailedMerging( unittest.TestCase ):
-    def runTest( self ):
-        topCA = ComponentAccumulator()
-
-        def badMerge():
-            someCA = ComponentAccumulator()
-            topCA.merge(  (someCA, 1, "hello")  )
-        self.assertRaises(RuntimeError, badMerge )
-        topCA.wasMerged()
+            
+def forcomps(componentAccumulator, path):
+   """ Utility to set properties of components using wildcards
+   
+   Example:
+   forcomps(ca, "*/HLTTop/*/*Hypo*").OutputLevel=VERBOSE
+      
+   The compoments name & locations in the CF tree are translated into the unix like path. 
+   Components of matching path are taken under consideration in setting the property.
+   If the property is set succesfully an INFO message is printed. Else, a warning is printed.      
+   
+   The convention for path of nested components is as follows:
+   Sequencer - only the name is used in the path
+   Algorithm - full name - type/instance_name (aka full name) is used
+   PrivateTools - the name of the property + the type/instance_name are added
+   PublicTools - are located under ToolSvc/ and type/instance_name is used
+   Services - located under SvcMgr/ and type/instance_name is used
+   """
+   return PropSetterProxy(componentAccumulator, path)
 
 
-class MergeMovingAlgorithms( unittest.TestCase ):
-    def runTest( self ):
-        Configurable.configurableRun3Behavior=1
-        from AthenaCommon.CFElements import seqAND
-        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-        destinationCA = ComponentAccumulator()
-        destinationCA.addSequence( seqAND("dest") )
 
-        sourceCA = ComponentAccumulator()
-        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
-        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
-        sourceCA.addSequence( seqAND("innerSeq") )
-        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg3"), sequenceName="innerSeq" )
-
-        destinationCA.merge( sourceCA, sequenceName="dest"  )
-
-        #destinationCA.merge( sourceCA )
-        self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg1" ), "Algorithm not placed in sub-sequence" )
-        self.assertIsNotNone( findSubSequence( destinationCA.getSequence(), "innerSeq" ), "The sequence is not added" )
-        self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
-        destinationCA.wasMerged()
-        sourceCA.wasMerged()
-
-if __name__ == "__main__":
-    unittest.main()

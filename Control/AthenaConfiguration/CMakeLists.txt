@@ -14,7 +14,7 @@ atlas_install_runtime(python/*.pkl )
 atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
 
 atlas_add_test( ComponentAccumulatorTest
-   SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulator 
+   SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTest
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( UnifyPropertiesTest
