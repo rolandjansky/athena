@@ -243,32 +243,36 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(150);
   }
  
-    if(mapsPath_list.size()==0 && doInterpolateEfield){
-        ATH_MSG_INFO("No benchmark value set for fluence. Use interpolation.");
-        mapsPath_list.clear();
-        m_fluence_layers.clear();  
-        m_voltage_layers.clear();
-        //Set up default maps for ramoMap,
-        //but retrieve Efield from interpolation as well as Lorentz, time and distance map from E field
-        mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
-        mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel 
-        mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel 
-        mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel 
-        m_fluence_layers.push_back(m_fluence*1e14);
-        m_fluence_layers.push_back(m_fluenceB*1e14);
-        m_fluence_layers.push_back(m_fluence1*1e14);
-        m_fluence_layers.push_back(m_fluence2*1e14);
-        
-        m_voltage_layers.push_back(m_voltage);
-        m_voltage_layers.push_back(m_voltageB);
-        m_voltage_layers.push_back(m_voltage1);
-        m_voltage_layers.push_back(m_voltage2);
+    if(mapsPath_list.size()==0 ){
+        if(doInterpolateEfield){
+            ATH_MSG_INFO("No benchmark value set for fluence. Use interpolation.");
+            mapsPath_list.clear();
+            m_fluence_layers.clear();  
+            m_voltage_layers.clear();
+            //Set up default maps for ramoMap,
+            //but retrieve Efield from interpolation as well as Lorentz, time and distance map from E field
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel 
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel 
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel 
+            m_fluence_layers.push_back(m_fluence*1e14);
+            m_fluence_layers.push_back(m_fluenceB*1e14);
+            m_fluence_layers.push_back(m_fluence1*1e14);
+            m_fluence_layers.push_back(m_fluence2*1e14);
+            
+            m_voltage_layers.push_back(m_voltage);
+            m_voltage_layers.push_back(m_voltageB);
+            m_voltage_layers.push_back(m_voltage1);
+            m_voltage_layers.push_back(m_voltage2);
+        }else{
+            ATH_MSG_WARNING("m_fluence could not match becnhmark value but interpolation not indicated.");
+            return StatusCode::FAILURE; 
+        }
     }else{
         if(!doInterpolateEfield){
             ATH_MSG_INFO("m_fluence set to becnhmark value. Use becnhmark values for all layers.");
         }else{
-            ATH_MSG_INFO("No BM values found and no appropriate values for fluence/bias voltage set");
-            return StatusCode::FAILURE; 
+            ATH_MSG_WARNING("m_fluence set to benchmark value. Fluence and bias voltage for all layers overwritten accordingly.");
         }
     }
     
