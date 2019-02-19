@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,14 +27,5 @@ from GeoModel and IOVDb. These are stored in EventType.  As well,
 during event processing the tags are stored in a TagInfo object in the
 DetectorStore. The TagInfoMgr service manages the creation of the
 TagInfo object from information in the incoming event and IOVDb.
-
-Finally, there is an EventIncident class which is sent along with
-begin/end event incidences by the IIncidentSvc. This class provides
-access to the EventInfo object to the object receiving the Incident. 
-
-
-
-
-
 
 */
