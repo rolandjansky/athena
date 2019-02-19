@@ -301,14 +301,6 @@ namespace top {
     StatusCode GhostTrackSystematicsMaker::execute(bool executeNominal){
         ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker execute:" );
 
-        // We don't want to do anything on Data -> bail early so that we can
-        // rely on the inputs to be MC.
-        if (not m_config->isMC()){
-            return StatusCode::SUCCESS;
-        }
-
-        ///-- Only run this on the systematic execution --///
-        if(executeNominal) return StatusCode::SUCCESS;
         
         ///-- Get nominal jets --///
         xAOD::JetContainer * nominalJets(nullptr);
@@ -319,6 +311,15 @@ namespace top {
 	// applyNoOpSystematic is used just to remove ghost track vector from thinned jets
 	top::check(applyNoOpSystematic(nominalJets, m_nominalSystematicSet),
                                "Failure to apply GhostTrackSystematic");
+
+	// We don't want to do anything on Data -> bail early so that we can
+        // rely on the inputs to be MC.
+        if (not m_config->isMC()){
+            return StatusCode::SUCCESS;
+        }
+
+        ///-- Only run this on the systematic execution --///
+        if(executeNominal) return StatusCode::SUCCESS;
 
 
         ///-- SMEARING --///
