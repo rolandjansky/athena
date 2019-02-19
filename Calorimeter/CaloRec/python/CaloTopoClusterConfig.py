@@ -6,7 +6,7 @@ from AthenaCommon.SystemOfUnits import MeV
 def caloTopoCoolFolderCfg(configFlags):
     result=ComponentAccumulator()
     from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    result.mergeAll(IOVDbSvcCfg(ConfigFlags))
+    result.mergeAll(IOVDbSvcCfg(configFlags))
     # rely on global tag for both MC and data; do not specify folder tags
     # use CALO_OFL only for GEO>=18
     hadCalibFolders = [
@@ -30,15 +30,15 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
     from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
     # Local cell weights
-    LCClassify   = CaloLCClassificationTool("LCClassify",OutputLevel=1)
+    LCClassify   = CaloLCClassificationTool("LCClassify")
     LCClassify.ClassificationKey   = "EMFracClassify"
     LCClassify.UseSpread = False
     LCClassify.MaxProbability = 0.5
     # add the moments EM_PROBABILITY, HAD_WEIGHT, OOC_WEIGHT, DM_WEIGHT to the AOD:
     LCClassify.StoreClassificationProbabilityInAOD = True
-    LCClassify.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    LCClassify.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
-    LCWeight = CaloLCWeightTool("LCWeight",OutputLevel=1)
+    LCWeight = CaloLCWeightTool("LCWeight")
     LCWeight.CorrectionKey       = "H1ClusterCellWeights"
     LCWeight.SignalOverNoiseCut  = 2.0
     # *****
@@ -51,7 +51,7 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     LocalCalib.ClusterClassificationTool     = [LCClassify]
     LocalCalib.ClusterRecoStatus             = [1,2]
     LocalCalib.LocalCalibTools               = [LCWeight]
-    LocalCalib.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    LocalCalib.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
     # Out-of-cluster corrections
     LCOut     = CaloLCOutOfClusterTool("LCOut")
@@ -62,7 +62,7 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     OOCCalib   = CaloClusterLocalCalib ("OOCCalib")
     OOCCalib.ClusterRecoStatus   = [1,2]
     OOCCalib.LocalCalibTools     = [LCOut]
-    OOCCalib.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    OOCCalib.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
     LCOutPi0  = CaloLCOutOfClusterTool("LCOutPi0")
     LCOutPi0.CorrectionKey    = "OOCPi0Correction"
@@ -73,7 +73,7 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     OOCPi0Calib.ClusterRecoStatus   = [1,2]
     OOCPi0Calib.LocalCalibTools     = [LCOutPi0]
 
-    OOCPi0Calib.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    OOCPi0Calib.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
     # Dead material corrections
     LCDeadMaterial   = CaloLCDeadMaterialTool("LCDeadMaterial")
@@ -81,13 +81,13 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
     LCDeadMaterial.ClusterRecoStatus   = 0
     LCDeadMaterial.WeightModeDM        = 2 
     LCDeadMaterial.UseHadProbability   = True
-    LCDeadMaterial.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    LCDeadMaterial.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
     DMCalib    = CaloClusterLocalCalib ("DMCalib")
     DMCalib.ClusterRecoStatus   = [1,2]
     DMCalib.LocalCalibTools      = [LCDeadMaterial]
 
-    DMCalib.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    DMCalib.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
     lccalibtools = [
         LocalCalib,
@@ -99,12 +99,12 @@ def getTopoClusterLocalCalibTools(configFlags, theCaloNoiseTool):
 def getTopoMoments(configFlags,theCaloNoiseTool):
     from CaloRec.CaloRecConf import CaloClusterMomentsMaker
     TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
-    TopoMoments.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    TopoMoments.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments.MaxAxisAngle = 20*deg
     TopoMoments.CaloNoiseTool = theCaloNoiseTool
     TopoMoments.UsePileUpNoise = True
-    TopoMoments.TwoGaussianNoise = configFlags.CaloTopoClusterFlags.doTwoGaussianNoise
+    TopoMoments.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
     TopoMoments.MinBadLArQuality = 4000
     TopoMoments.MomentsNames = ["FIRST_PHI" 
                                 ,"FIRST_ETA"
@@ -164,12 +164,12 @@ def getTopoTruthMoments(configFlags,theCaloNoiseTool):
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
     from LArCellRec.LArCellRecConf import LArHVFraction
     TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
-    TopoMoments_Truth.WeightingOfNegClusters = configFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute
+    TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments_Truth.MaxAxisAngle = 20*deg
     TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
     TopoMoments_Truth.UsePileUpNoise = True
-    TopoMoments_Truth.TwoGaussianNoise = configFlags.CaloTopoClusterFlags.doTwoGaussianNoise
+    TopoMoments_Truth.TwoGaussianNoise = configFlags.Calo,TopoCluster.doTwoGaussianNoise
     TopoMoments_Truth.MinBadLArQuality = 4000
     TopoMoments_Truth.MomentsNames = ["FIRST_PHI_DigiHSTruth"
                                       ,"FIRST_ETA_DigiHSTruth"
@@ -346,7 +346,7 @@ def CaloTopoClusterCfg(configFlags):
 
     CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
 
-    if configFlags.CaloTopoClusterFlags.doTopoClusterLocalCalib:
+    if configFlags.Calo.TopoCluster.doTopoClusterLocalCalib:
         CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags,theCaloNoiseTool)
 
@@ -368,10 +368,6 @@ if __name__=="__main__":
 
     ConfigFlags.Input.Files = ["myESD-data.pool.root"]
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
-
-    ConfigFlags.addFlag("CaloTopoClusterFlags.doTopoClusterLocalCalib",True)
-    ConfigFlags.addFlag("CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute",False)
-    ConfigFlags.addFlag("CaloTopoClusterFlags.doTwoGaussianNoise",True)
 
     ConfigFlags.lock()
 
