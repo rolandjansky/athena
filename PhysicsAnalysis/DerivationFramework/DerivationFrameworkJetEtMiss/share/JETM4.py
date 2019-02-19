@@ -172,12 +172,6 @@ replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
 addTCCTrimmedJets(jetm4Seq,"JETM4")
 
-# Take out for now as these are not part of the Jet/Etmiss recommendations
-#if DerivationFrameworkIsMonteCarlo:
-#  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=True)
-
-#addCSSKSoftDropJets(jetm4Seq, "JETM4")
-
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
 #====================================================================
@@ -249,23 +243,14 @@ for truthc in [
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
 
 JETM4SlimmingHelper.AppendToDictionary = {
-#    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
-#    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJets"            :   "xAOD::JetContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
 
 }
-#JETM4SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets", "AntiKtVR30Rmax4Rmin02TrackJets"]
-JETM4SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
-#if DerivationFrameworkIsMonteCarlo:
-#  JETM4SlimmingHelper.AppendToDictionary = {
-#    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-#    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-#  }
-#  JETM4SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
+JETM4SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
 # Trigger content
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True
