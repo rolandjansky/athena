@@ -264,7 +264,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.outOfValidityDeco = 'no_fjvt'
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = fjvtSysts, stagename = 'selection')
+                    affectingSystematics = fjvtSysts, stageName = 'selection')
         pass
 
     # Return the sequence:
@@ -357,7 +357,7 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.uncertaintiesTool.MCType = "MC16a"
     alg.uncertaintiesTool.IsData = (dataType == "data")
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = largeRSysts, 'calibration' )
+                affectingSystematics = largeRSysts, stageName = 'calibration' )
 
     cutlist.append('outOfValidity')
     cutlength.append(1)
