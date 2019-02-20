@@ -79,38 +79,43 @@ namespace EL
 
     ANA_CHECK_THROW (initialize ());
 
-    const Long64_t maxEvents
+    Long64_t maxEvents
       = metaData()->castDouble (Job::optMaxEvents, -1);
     Long64_t skipEvents
       = metaData()->castDouble (Job::optSkipEvents, 0);
 
     std::vector<std::string> files = m_sample->makeFileList();
-    for (std::vector<std::string>::const_iterator fileName = files.begin(),
-	   end = files.end();
-	 fileName != end && Long64_t (eventsProcessed()) != maxEvents; ++ fileName)
+    for (const std::string& fileName : files)
     {
       EventRange eventRange;
-      eventRange.m_url = *fileName;
+      eventRange.m_url = fileName;
       if (skipEvents == 0 && maxEvents == -1)
       {
         ANA_CHECK_THROW (processEvents (eventRange));
       } else
       {
         // just open the input file to inspect it
-        ANA_CHECK_THROW (openInputFile (*fileName));
-        const Long64_t inTreeEntries = inputFileNumEntries();
+        ANA_CHECK_THROW (openInputFile (fileName));
+        eventRange.m_endEvent = inputFileNumEntries();
 
-        if (skipEvents >= inTreeEntries)
+        if (skipEvents >= eventRange.m_endEvent)
         {
-          skipEvents -= inTreeEntries;
+          skipEvents -= eventRange.m_endEvent;
           continue;
         }
         eventRange.m_beginEvent = skipEvents;
+        skipEvents = 0;
 
-        if (maxEvents != -1 &&
-            inTreeEntries > maxEvents + eventRange.m_beginEvent)
-          eventRange.m_endEvent = maxEvents + eventRange.m_beginEvent;
+        if (maxEvents != -1)
+        {
+          if (eventRange.m_endEvent > eventRange.m_beginEvent + maxEvents)
+            eventRange.m_endEvent = eventRange.m_beginEvent + maxEvents;
+          maxEvents -= eventRange.m_endEvent - eventRange.m_beginEvent;
+          assert (maxEvents >= 0);
+        }
         ANA_CHECK_THROW (processEvents (eventRange));
+        if (maxEvents == 0)
+          break;
       }
     }
     ANA_CHECK_THROW (finalize ());
