@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # art-description: Trigger MC pp v7 RDO to AOD test
-# art-type: grid
+# art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.0-TrigMC/Athena

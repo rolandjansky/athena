@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to ESD and AOD test, plus extra tests using these files
+# art-description: Trigger MC pp v7 RDO to ESD and AOD test, plus extra tests using these files. With FTK
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
@@ -25,7 +25,7 @@
 # art-output: *.regtest.new
 
 
-export NAME="mc_pp_v7_rdotoesdaod_grid"
+export NAME="mc_pp_v7_ftk_rdotoesdaod_grid"
 export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"

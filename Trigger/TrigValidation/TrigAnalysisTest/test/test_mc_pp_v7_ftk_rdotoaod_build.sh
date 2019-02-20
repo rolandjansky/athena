@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to AOD test
-# art-type: grid
+# art-description: Trigger MC pp v7 RDO to AOD test FTK
+# art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.0-TrigMC/Athena
@@ -24,7 +24,7 @@
 # art-output: AOD.pool.root.checkFiletrigSize.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_rdotoaod_grid"
+export NAME="mc_pp_v7_ftk_rdotoaod_grid"
 export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"

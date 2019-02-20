@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to AOD test
+# art-description: Trigger MC pp v7 RDO to AOD test with FTK
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
