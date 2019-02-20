@@ -31,7 +31,9 @@ BTagTrackAugmenter::BTagTrackAugmenter(FlavorTagDiscriminants::EDMSchema s):
   typedef SG::AuxElement::ConstAccessor<std::vector<float>> AEVF;
   if (s == EDMSchema::FEB_2019) {
     m_ip_d0 = AEF("btagIp_d0");
+    m_ip_d0_sigma = AEF("btagIp_d0Uncertainty");
     m_ip_z0 = AEF("btagIp_z0SinTheta");
+    m_ip_z0_sigma = AEF("btagIp_z0SinThetaUncertainty");
     m_track_displacement = AEVF("btagIp_trackDisplacement");
     m_track_momentum = AEVF("btagIp_trackMomentum");
   }
