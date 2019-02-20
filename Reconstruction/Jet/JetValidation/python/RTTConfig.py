@@ -63,11 +63,11 @@ def scheduleRTTJetTests():
 def saveJetContainers():
     global containerToRebuild
 
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence= AlgSequence()
+    from AthenaCommon.AppMgr import theApp
+    StreamAOD = theApp.getOutputStream( "StreamAOD" )
 
     for jname in containerToRebuild:
-        topSequence.StreamAOD.ItemList += ["xAOD::JetContainer_v1#"+jname, "xAOD::JetAuxContainer_v1#"+jname+"Aux."]
+        StreamAOD.ItemList += ["xAOD::JetContainer_v1#"+jname, "xAOD::JetAuxContainer_v1#"+jname+"Aux."]
     
     
 

@@ -1,19 +1,20 @@
-Sun Feb 10 05:18:34 CET 2019
+Warning in <TInterpreter::ReadRootmapFile>: class  InDet::IInDetTrackSelectionTool found in libInDetTrackSelectionToolDict.so  is already in libInDetSecVtxTrackSelectionToolDict.so 
+Mon Feb 18 12:59:38 CST 2019
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5454 configurables from 43 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5458 configurables from 155 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus054.cern.ch on Sun Feb 10 05:18:51 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on hepd-0004 on Mon Feb 18 12:59:51 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -36,9 +37,9 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-07T2139/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus054.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /home/gemmeren/workarea/build/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host hepd-0004.lcrc.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -86,7 +87,7 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEve
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' ) 
-ClassIDSvc           INFO  getRegistryEntries: read 337 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 396 CLIDRegistry entries for module ALL
 Stream2             DEBUG Property update for OutputLevel : new value = 2
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
 Stream2             DEBUG In initialize 
@@ -1023,12 +1024,12 @@ IncidentProcAlg1     INFO Finalize
 WriteData            INFO in finalize()
 WriteTag             INFO in finalize()
 MagicWriteTag        INFO in finalize()
+WriteData           DEBUG Calling destructor
+IncidentProcAlg2     INFO Finalize
 Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
 Stream2             DEBUG finalize: Optimize output
 Stream2             DEBUG finalize: end optimize output
-WriteData           DEBUG Calling destructor
-IncidentProcAlg2     INFO Finalize
 EventSelector        INFO finalize
 DecisionSvc          INFO Finalized successfully.
 AthenaPoolCnvSvc    DEBUG releasing all workers
@@ -1039,10 +1040,10 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 43
-cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.0971(+-0.981)/    0/   10 [ms] #=309
-cRep_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.472(+- 2.88)/    0/   20 [ms] #=106
-fRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.283(+- 1.66)/    0/   10 [ms] #=106
-ChronoStatSvc        INFO Time User   : Tot= 0.81  [s]                                             #=  1
+cRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.189(+- 1.36)/    0/   10 [ms] #=106
+cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.0647(+-0.802)/    0/   10 [ms] #=309
+fRep_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.377(+- 1.91)/    0/   10 [ms] #=106
+ChronoStatSvc        INFO Time User   : Tot=  450 [ms]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -327,7 +327,7 @@ class AthAppMgr( AppMgr ):
          athAlgEvtSeq += athEndSeq
 
          athFilterSeq += athAlgEvtSeq
-         athFilterSeq += athOutSeq
+         athMasterSeq += athOutSeq
          athMasterSeq += athRegSeq
          
          Logging.log.debug ("building master sequence... [done]")
@@ -372,6 +372,16 @@ class AthAppMgr( AppMgr ):
    def addOutputStream( self, stream ):
       if stream not in self._streams.getChildren():
          self._streams += stream
+
+   def getOutputStream( self, stream ):
+      athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
+      for o in athOutSeq.getChildren():
+         if o.name() == stream:
+            return o
+      for o in self._streams.getChildren():
+         if o.name() == stream:
+            return o
+      return None
 
    def removeOutputStream( self, stream ):
       self._streams.remove( stream )
@@ -975,10 +985,10 @@ def AuditorSvc():             # backwards compatibility
 #                                +--- athAlgSeq == TopAlg
 #                        |
 #                        +--- athEndSeq
-#                |
-#                +--- athOutSeq
 #         |
-#         +--- athRegStreams
+#         +--- athOutSeq
+#         |
+#         +--- athRegSeq
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athFilterSeq = AlgSequence.AthSequencer( "AthFilterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
@@ -987,6 +997,7 @@ athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
 athRegSeq    = AlgSequence.AthSequencer( "AthRegSeq" )
 
 topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibility
+
 
 # we set the override to True so algorithms
 # setting the filterPassed to False won't stop the
