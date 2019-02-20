@@ -26,6 +26,7 @@ namespace top{
     m_recommendedSystematics(),
 
     m_calibrationPeriodTool("CP::MuonCalibrationPeriodTool"),
+    m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
     m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
     m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
     m_isolationTool_FCTightTrackOnly("CP::IsolationTool_FCTightTrackOnly"),
@@ -39,6 +40,7 @@ namespace top{
     declareProperty( "config" , m_config );
 
     declareProperty( "MuonCalibrationPeriodTool" ,       m_calibrationPeriodTool );
+    declareProperty( "IsolationTool_Gradient" ,                m_isolationTool_Gradient );
     declareProperty( "IsolationTool_FCTight" ,                m_isolationTool_FCTight );
     declareProperty( "IsolationTool_FCLoose" ,                m_isolationTool_FCLoose );
     declareProperty( "IsolationTool_FCTightTrackOnly" ,       m_isolationTool_FCTightTrackOnly );
@@ -55,6 +57,7 @@ namespace top{
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker initialize" );
 
     top::check( m_calibrationPeriodTool.retrieve()     , "Failed to retrieve muon calibration tool" );
+    top::check( m_isolationTool_Gradient.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FCTight.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FCLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FCTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
@@ -151,10 +154,11 @@ namespace top{
         }
 
 //        ///-- Isolation selection --///
-        char passIsol_FCTight(0),passIsol_FCLoose(0),passIsol_FCTightTrackOnly(0);
+        char passIsol_FCTight(0),passIsol_Gradient(0),passIsol_FCLoose(0),passIsol_FCTightTrackOnly(0);
         char passIsol_FCTightTrackOnly_FixedRad(0),passIsol_FCLoose_FixedRad(0),passIsol_FCTight_FixedRad(0);
         char passIsol_FixedCutPflowTight(0),passIsol_FixedCutPflowLoose(0);
 
+        if (m_isolationTool_Gradient->accept( *muon )) {passIsol_Gradient = 1;}
         if (m_isolationTool_FCTight->accept( *muon )) {passIsol_FCTight = 1;}
         if (m_isolationTool_FCLoose->accept( *muon )) {passIsol_FCLoose = 1;}
         if (m_isolationTool_FCTightTrackOnly->accept( *muon )) {passIsol_FCTightTrackOnly = 1;}
@@ -164,6 +168,7 @@ namespace top{
         if (m_isolationTool_FixedCutPflowTight->accept( *muon )) {passIsol_FixedCutPflowTight = 1;}
         if (m_isolationTool_FixedCutPflowLoose->accept( *muon )) {passIsol_FixedCutPflowLoose = 1;}
 
+        muon->auxdecor<char>("AnalysisTop_Isol_Gradient") = passIsol_Gradient;
         muon->auxdecor<char>("AnalysisTop_Isol_FCTight") = passIsol_FCTight;
         muon->auxdecor<char>("AnalysisTop_Isol_FCLoose") = passIsol_FCLoose;
         muon->auxdecor<char>("AnalysisTop_Isol_FCTightTrackOnly") = passIsol_FCTightTrackOnly;

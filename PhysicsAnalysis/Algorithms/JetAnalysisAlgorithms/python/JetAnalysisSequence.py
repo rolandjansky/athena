@@ -44,7 +44,7 @@ fjvtSysts = "|".join([
     "(^JET_fJvtEfficiency$)"])
 
 def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutput = False,
-                             runGhostMuonAssociation = True, **kwargs):
+                             shallowViewOutput = True, runGhostMuonAssociation = True, **kwargs):
     """Create a jet analysis algorithm sequence
       The jet collection is interpreted and selects the correct function to call, 
       makeSmallRJetAnalysisSequence, makeRScanJetAnalysisSequence or 
@@ -55,6 +55,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         jetCollection -- The jet container to run on.
         postfix -- String to be added to the end of all public names.
         deepCopyOutput -- Whether or not to deep copy the output
+        shallowViewOutput -- Whether or not to output a shallow view as the output
         Other keyword arguments are forwarded to the other functions.
     """
     if not dataType in ["data", "mc", "afii"]:
@@ -63,6 +64,10 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     # Setup the postfix
     if postfix != '':
         postfix = "_" + postfix
+
+    # Make sure selection options make sense
+    if deepCopyOutput and shallowViewOutput:
+        raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
 
     # interpret the jet collection
     collection_pattern = re.compile(
@@ -82,7 +87,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     if runGhostMuonAssociation:
         alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 
             'JetGhostMuonAssociationAlg'+postfix )
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
     # record all the selections each subfunction makes
     cutlist = []
@@ -107,18 +112,20 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     alg.histPattern = 'jet_cflow_%SYS%'+postfix
     alg.selection = cutlist
     alg.selectionNCuts = cutlength
-    seq.append( alg, inputPropName = 'input' )
-
-    # Set up an algorithm that makes a view container using the selections
-    # performed previously:
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
-    alg.selection = cutlist
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up an algorithm dumping the properties of the jets, for debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
     alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+
+    if shallowViewOutput:
+      # Set up an algorithm that makes a view container using the selections
+      # performed previously:
+      alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
+      alg.selection = cutlist
+      seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                  stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
@@ -174,7 +181,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     else:
         alg.calibrationTool.CalibSequence = 'JetArea_Residual_EtaJES_GSC_Smear'
     alg.calibrationTool.IsData = (dataType == 'data')
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration')
 
     # Jet uncertainties
     # Prepare the config file
@@ -201,13 +208,13 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.uncertaintiesTool.MCType = "AFII" if dataType == "afii" else "MC16"
     alg.uncertaintiesTool.IsData = (dataType == 'data')
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = smallRSysts )
+                affectingSystematics = smallRSysts, stageName = 'calibration' )
 
     # Set up the JVT update algorithm:
     if runJvtUpdate :
         alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg'+postfix )
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'selection' )
 
         alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg'+postfix )
         addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
@@ -217,7 +224,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.modifierTool.UseTightOP = 1 # 1 = Tight, 0 = Loose
         alg.modifierTool.EtaThresh = 2.5 # Eta dividing central from forward jets
         alg.modifierTool.ForwardMaxPt = 120.0e3 #Max Pt to define fwdJets for JVT
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'selection' )
         pass
 
     # Set up the jet efficiency scale factor calculation algorithm
@@ -238,7 +245,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = jvtSysts )
+                    affectingSystematics = jvtSysts, stageName = 'selection' )
             
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
@@ -257,7 +264,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.outOfValidityDeco = 'no_fjvt'
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = fjvtSysts )
+                    affectingSystematics = fjvtSysts, stageName = 'selection')
         pass
 
     # Return the sequence:
@@ -288,7 +295,7 @@ def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollecti
         "JES_MC16Recommendation_Rscan{0}LC_22Feb2018_rel21.config".format(radius)
     alg.calibrationTool.CalibSequence = "JetArea_Residual_EtaJES_GSC"
     alg.calibrationTool.IsData = (dataType == 'data')
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
     # Logging would be good
     print "WARNING: uncertainties for R-Scan jets are not yet released!"
 
@@ -333,14 +340,7 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.calibrationTool.ConfigFile = configFile
     alg.calibrationTool.CalibSequence = "EtaJES_JMS"
     alg.calibrationTool.IsData = 0
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
-
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'JetPreselectionAlg'+postfix )
-    addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-    alg.selectionTool.minPt = 150e3
-    alg.selectionTool.maxEta = 2
-    alg.selectionDecoration = 'preselection,as_char'
-    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'LRJetPreselFromSelectionAlg'+postfix)
     alg.selection = ['preselection,as_char']
@@ -357,7 +357,7 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.uncertaintiesTool.MCType = "MC16a"
     alg.uncertaintiesTool.IsData = (dataType == "data")
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = largeRSysts )
+                affectingSystematics = largeRSysts, stageName = 'calibration' )
 
     cutlist.append('outOfValidity')
     cutlength.append(1)

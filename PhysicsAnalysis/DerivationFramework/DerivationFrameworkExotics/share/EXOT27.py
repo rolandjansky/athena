@@ -33,7 +33,7 @@ import DerivationFrameworkJetEtMiss.ExtendedJetCommon as ExtendedJetCommon
 import DerivationFrameworkJetEtMiss.METCommon as METCommon
 import DerivationFrameworkEGamma.EGammaCommon as EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon as MuonsCommon
-import DerivationFrameworkTaus.TausCommon as TausCommon
+import DerivationFrameworkTau.TauCommon as TauCommon
 import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
 from JetRec.JetRecStandardToolManager import jtm
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
