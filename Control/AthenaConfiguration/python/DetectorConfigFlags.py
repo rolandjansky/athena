@@ -128,5 +128,4 @@ def createDetectorConfigFlags():
                                                              prevFlags.Detector.OverlaysTGC or prevFlags.Detector.OverlayMM))
     dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or
                                                              prevFlags.Detector.OverlayMuon))
-
     return dcf
