@@ -459,7 +459,6 @@ def TrigIDtrkMonitoringTool():
                 ################################################
                 # FTK monitoring              
                 ################################################
-		print " JTB: setting up FTK monitoring"
 
                 tidaftk = TrigTestBase(name = "IDFTKTool",
                                        histoPathBase = "/Trigger/HLT")
