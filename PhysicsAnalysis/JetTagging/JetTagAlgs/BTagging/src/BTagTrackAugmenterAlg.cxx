@@ -30,7 +30,7 @@ namespace Analysis {
     m_dec_z0_sigma("DUMMY"),
     m_dec_track_pos("DUMMYv"),
     m_dec_track_mom("DUMMYv"),
-    m_prefix("btag_"),
+    m_prefix("btagIp_"),
     m_primaryVertexContainer("PrimaryVertices")
   {
     declareProperty( "TrackToVertexIPEstimator", m_track_to_vx );
@@ -50,12 +50,12 @@ namespace Analysis {
 
     // name the decorations
     typedef SG::AuxElement::Decorator< float > AEF;
-    m_dec_d0 = AEF(m_prefix + "ip_d0");
-    m_dec_z0 = AEF(m_prefix + "ip_z0");
-    m_dec_d0_sigma = AEF(m_prefix + "ip_d0_sigma");
-    m_dec_z0_sigma = AEF(m_prefix + "ip_z0_sigma");
-    m_dec_track_pos = Vector3DDecorator(m_prefix + "track_displacement");
-    m_dec_track_mom = Vector3DDecorator(m_prefix + "track_momentum");
+    m_dec_d0 = AEF(m_prefix + "d0");
+    m_dec_z0 = AEF(m_prefix + "z0SinTheta");
+    m_dec_d0_sigma = AEF(m_prefix + "d0Uncertainty");
+    m_dec_z0_sigma = AEF(m_prefix + "z0SinThetaUncertainty");
+    m_dec_track_pos = Vector3DDecorator(m_prefix + "trackDisplacement");
+    m_dec_track_mom = Vector3DDecorator(m_prefix + "trackMomentum");
 
     return StatusCode::SUCCESS;
   }
