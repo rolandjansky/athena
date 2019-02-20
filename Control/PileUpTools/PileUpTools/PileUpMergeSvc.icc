@@ -29,6 +29,33 @@ namespace {
   template <class DATALINK> 
   void fillLink(DATALINK&, const NoKey&, IProxyDict*)
   { /*leave it in default state*/ }
+
+  PileUpTimeEventIndex::PileUpType getOldPileUpType(const xAOD::EventInfo_v1::PileUpType &newType) {
+    PileUpTimeEventIndex::PileUpType oldType = PileUpTimeEventIndex::Unknown;
+    switch(newType) {
+    case xAOD::EventInfo_v1::Signal :
+      oldType = PileUpTimeEventIndex::Signal;
+      break;
+    case xAOD::EventInfo_v1::MinimumBias:
+      oldType = PileUpTimeEventIndex::MinimumBias;
+      break;
+    case xAOD::EventInfo_v1::Cavern:
+      oldType = PileUpTimeEventIndex::Cavern;
+      break;
+    case xAOD::EventInfo_v1::HaloGas:
+      oldType = PileUpTimeEventIndex::HaloGas;
+      break;
+    case xAOD::EventInfo_v1::HighPtMinimumBias:
+      oldType = PileUpTimeEventIndex::HighPtMinimumBias;
+      break;
+    case xAOD::EventInfo_v1::ZeroBias:
+      oldType = PileUpTimeEventIndex::ZeroBias;
+      break;
+    default:
+      break;
+    }
+    return oldType;
+  }
 }
 
 ///retrieve keyed DATA obj for the original event
@@ -87,7 +114,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
 	    evtIndex = subEv.index();
 	  }
-	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,iEvt->type()), dLink);
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,getOldPileUpType(subEv.type())), dLink);
 	  numberOfSimHits+=tData.second->size();
 	  timedData.push_back(tData);
 	  ATH_MSG_DEBUG ( "added entry from store " <<  pSubEvtSG->name()
@@ -237,7 +264,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
 	    evtIndex = subEv.index();
 	  }
-	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,iEvt->type()), dLink);
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,getOldPileUpType(subEv.type())), dLink);
 	  timedData.push_back(tData);
 	  ATH_MSG_DEBUG ( "added entry from store " << pSubEvtSG->name()
 			  << " for object of type " << System::typeinfoName(typeid(data_t)) 
