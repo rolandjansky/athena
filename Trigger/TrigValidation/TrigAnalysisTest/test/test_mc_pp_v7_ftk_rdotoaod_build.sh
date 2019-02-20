@@ -24,7 +24,7 @@
 # art-output: AOD.pool.root.checkFiletrigSize.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_ftk_rdotoaod_grid"
+export NAME="mc_pp_v7_ftk_rdotoaod_build"
 export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
