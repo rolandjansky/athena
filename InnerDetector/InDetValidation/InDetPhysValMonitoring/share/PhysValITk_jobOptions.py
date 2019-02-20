@@ -45,28 +45,9 @@ FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_
 #as long as the names are following standard convention 
 runDAOD = False # these are DAOD-s
 
-# This codeblock is for handling inputFileName passed as environment variable
-# try:
-#   FNAME = os.environ["inputESDFile"]
-# except KeyError:
-#   try:
-#       FNAME = os.environ["inputDAOD_IDTRKVALIDFile"]
-#       runDAOD = True # these are DAOD-s
-#   except KeyError:
-#       try:
-#          FNAME = os.environ["inputAODFile"]
-#       except KeyError:
-#          print "No input file specified in environment - Using the default input file mentioned in the script"
-
-# if isinstance(FNAME,str):
-# 	FNAME = FNAME.split(",")
-#-----------------------------------------------------------------------
-
 # make AthenaCommonFlags aware of which file we are using
 # AthenaCommonFlags are used run-time configuration (InputFilePeeker)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-# svcMgr.EventSelector.InputCollections = FNAME
-# athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
 if len(athenaCommonFlags.FilesInput.get_Value()) == 0:
    athenaCommonFlags.FilesInput = FNAME
