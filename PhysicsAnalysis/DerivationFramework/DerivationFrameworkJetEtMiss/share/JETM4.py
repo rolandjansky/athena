@@ -208,6 +208,13 @@ addVRJetsTCC(jetm4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJ
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+#=======================================
+# Re-tag PFlow jets so they have b-tagging info
+#=======================================
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -221,7 +228,8 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMTopo","BTagging_AntiKtVR30Rmax4Rmin02Track"]
+                                        "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow","BTagging_AntiKtVR30Rmax4Rmin02Track"]
+
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
@@ -247,7 +255,8 @@ JETM4SlimmingHelper.AppendToDictionary = {
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
-
+    "BTagging_AntiKt4EMPFlow"                   :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt4EMPFlowAux"                :   "xAOD::BTaggingAuxContainer"
 }
 
 JETM4SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
