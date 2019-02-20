@@ -32,9 +32,9 @@ namespace Analysis {
     BTagTrackAugmenterAlg(const std::string& name,
                           ISvcLocator* pSvcLocator );
 
-    virtual StatusCode  initialize();
-    virtual StatusCode  execute();
-    virtual StatusCode  finalize();
+    StatusCode initialize() override final;
+    StatusCode execute() override final;
+    StatusCode finalize() override final;
   private:
     const xAOD::Vertex* getPrimaryVertex() const;
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_track_to_vx;
