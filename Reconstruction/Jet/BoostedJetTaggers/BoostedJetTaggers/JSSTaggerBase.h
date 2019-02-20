@@ -64,9 +64,9 @@ class JSSTaggerBase :   public asg::AsgTool ,
 			       double dRmax,
 			       std::string decorName) const;
   bool getIsSherpa(const int DSID) const {
-    if( (364100 <= DSID && DSID <=364193) || // Sherpa 2.2.1 W/Z+jets
-	(308092 <= DSID && DSID <=309098) || // Sherpa 2.2.1 W/Z+jets
-	(344773 <= DSID && DSID <=309095)  // Sherpa 2.2.1 Z+jets
+    if( (304307 <= DSID && DSID <=304309) || // Sherpa 2.2.1 W+jets
+	(304707 <= DSID && DSID <=304709) || // Sherpa 2.2.1 Z+jets
+	(364375 <= DSID && DSID <=364380)  // Sherpa 2.2.5 W/Z+jets
 	){ // to be updated
       return true;
     }
