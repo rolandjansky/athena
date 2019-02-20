@@ -871,7 +871,7 @@ namespace CP {
       }
       
       // veto bad CSC giving troubles with scale factors
-      if( mu.eta()<-1.895 && fabs(mu.phi())<0.215 ) return false;
+      if( mu.eta()<-1.899 && fabs(mu.phi())<0.211 ) return false;
 
       //::: Barrel/Endcap overlap region
       if( 1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1 ) return false;
