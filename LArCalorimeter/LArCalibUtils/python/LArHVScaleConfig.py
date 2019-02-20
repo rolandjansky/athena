@@ -14,13 +14,6 @@ def LArHVScaleCfg(configFlags):
     result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Pathologies"], "LAR_OFL", className="AthenaAttributeList"))
 
     result.merge(addFolders(configFlags,["/LAR/ElecCalibFlat/HVScaleCorr"],"LAR_ONL", className="CondAttrListCollection"))
-#    result.merge(addFolders(configFlags,["/LAR/ElecCalibOnl/HVScaleCorr"],"LAR_ONL", className="LArHVScaleCorrComplete"))
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    result.merge(LArGMCfg(configFlags))
-
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    result.merge(TileGMCfg(configFlags))
 
     from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
     result.merge(LArBadChannelCfg(configFlags))
