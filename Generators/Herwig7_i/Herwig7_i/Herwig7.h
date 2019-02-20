@@ -76,9 +76,7 @@ public:
 
   /// Bail out and print usage information
   virtual void quitWithHelp() const {
-    std::cerr << "=================================\n";
-    std::cerr << "HERE I CAN PUT SOME ERROR MESSAGE\n";
-    std::cerr << "=================================\n";
+    ATH_MSG_ERROR("HERE I CAN PUT SOME ERROR MESSAGE")
     ThePEG::Repository::cleanup();
     exit( EXIT_FAILURE );
   }
