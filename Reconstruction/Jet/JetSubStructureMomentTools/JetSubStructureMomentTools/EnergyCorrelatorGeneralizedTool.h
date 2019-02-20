@@ -15,11 +15,10 @@ class EnergyCorrelatorGeneralizedTool :
       // Constructor and destructor
       EnergyCorrelatorGeneralizedTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      int modifyJet(xAOD::Jet &injet) const;
 
     private:
       float m_Beta;
 };
-
 
 #endif

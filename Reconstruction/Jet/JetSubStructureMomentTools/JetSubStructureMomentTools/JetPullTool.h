@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPullTool.h
@@ -10,18 +10,18 @@
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 
 class JetPullTool :
-public JetSubStructureMomentToolsBase {
-  ASG_TOOL_CLASS(JetPullTool, IJetModifier)
-    
-public:
-  // Constructor and destructor
-  JetPullTool(std::string name);
+  public JetSubStructureMomentToolsBase {
+    ASG_TOOL_CLASS(JetPullTool, IJetModifier)
 
-  int modifyJet(xAOD::Jet &jet) const;
+    public:
+      // Constructor and destructor
+      JetPullTool(std::string name);
 
-private:
-    bool m_useEtaInsteadOfY;
-    bool m_includeTensorMoments;
+      int modifyJet(xAOD::Jet &injet) const;
+
+    private:
+      bool m_useEtaInsteadOfY;
+      bool m_includeTensorMoments;
 
 };
 
