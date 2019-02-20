@@ -576,35 +576,82 @@ class ComponentAccumulator(object):
                 self._jocat[name][k]=v.getFullName()
             elif isinstance(v,GaudiHandles.GaudiHandleArray):
                 self._jocat[name][k]=str([ v1.getFullName() for v1 in v ])
-                #print name,k,self._jocat[name][k]
             else:
+                print name,k,v
+                if name not in self._jocat:
+                    self._jocat[name] = {}
                 self._jocat[name][k]=str(v)
+
         #print "All Children:",confElem.getAllChildren()
         for ch in confElem.getAllChildren():
             self.appendConfigurable(ch)
         return
 
 
-    def store(self,outfile,nEvents=10):
+    def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
-        import glob
-        # first load basics from the bootstrap-pickle
-        # a better solution to be discussed
-        # prefer local file
-        localbs = glob.glob("bootstrap.pkl")
-        if len( localbs ) == 0:
-            # if local bootstrap is missing, use one from the release
-            bsfilename=find_datafile("bootstrap.pkl")
+        if useBootStrapFile:
+          import glob
+          # first load basics from the bootstrap-pickle
+          # a better solution to be discussed
+          # prefer local file
+          localbs = glob.glob("bootstrap.pkl")
+          if len( localbs ) == 0:
+              # if local bootstrap is missing, use one from the release
+              bsfilename=find_datafile("bootstrap.pkl")
+          else:
+              bsfilename = "./"+localbs[0]
+
+          bsfile=open(bsfilename)
+          self._jocat=pickle.load(bsfile)
+          self._jocfg=pickle.load(bsfile)
+          self._pycomps=pickle.load(bsfile)
+          bsfile.close()
+  
         else:
-            bsfilename = "./"+localbs[0]
+          from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg, MainServicesSerialCfg
+          if threaded:
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            flags = ConfigFlags.clone()
+            flags.Concurrency.NumThreads = 1
+            flags.Concurrency.NumConcurrentEvents = 1
+            basecfg = MainServicesThreadedCfg(flags)
+            basecfg.merge(self)
+            self = basecfg
+          else: #Serial
+            basecfg = MainServicesSerialCfg()
+            basecfg.merge(self)
+            self = basecfg
+          self.printConfig()
+          self._jocat={}
+          self._jocfg={}
+          self._pycomps={}
+          self._jocfg["ApplicationMgr"]={}
+          self._jocfg["ApplicationMgr"]["ExtSvc"] = "['ToolSvc/ToolSvc', \
+                                                      'AuditorSvc/AuditorSvc', \
+                                                      'MessageSvc/MessageSvc', \
+                                                      'IncidentSvc/IncidentSvc',\
+                                                      'EvtPersistencySvc/EventPersistencySvc',\
+                                                      'HistogramSvc/HistogramDataSvc',\
+                                                      'NTupleSvc/NTupleSvc',\
+                                                      'RndmGenSvc/RndmGenSvc',\
+                                                      'ChronoStatSvc/ChronoStatSvc',\
+                                                      'StatusCodeSvc/StatusCodeSvc',\
+                                                      'StoreGateSvc/StoreGateSvc',\
+                                                      'StoreGateSvc/DetectorStore',\
+                                                      'StoreGateSvc/HistoryStore',\
+                                                      'ClassIDSvc/ClassIDSvc',\
+                                                      'AthDictLoaderSvc/AthDictLoaderSvc',\
+                                                      'AthenaSealSvc/AthenaSealSvc',\
+                                                      'CoreDumpSvc/CoreDumpSvc',\
+                                                      'JobOptionsSvc/JobOptionsSvc']"
 
-        bsfile=open(bsfilename)
-        self._jocat=pickle.load(bsfile)
-        self._jocfg=pickle.load(bsfile)
-        self._pycomps=pickle.load(bsfile)
-        bsfile.close()
-
+          for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+            self._jocat[seqName] = {}
+            self._jocat[seqName]["Members"] = "[]"
+            for alg in algoList:
+              self._jocat[alg.name()] = {}
 
         #EventAlgorithms
         for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
