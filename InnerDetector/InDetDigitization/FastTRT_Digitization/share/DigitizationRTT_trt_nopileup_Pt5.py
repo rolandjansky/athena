@@ -48,8 +48,10 @@ StoreGateSvc.Dump = True
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"
+# Setup the algorithm and output sequences
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence.TRTFastDigitization.TRTFastDigitizationTool.OutputLevel=VERBOSE
-outStream = topSequence.StreamRDO
+from AthenaCommon.AppMgr import theApp
+outStream = theApp.getOutputStream( "StreamRDO" )
 outStream.ItemList += [ "InDet::TRT_DriftCircleContainer#*" ]
