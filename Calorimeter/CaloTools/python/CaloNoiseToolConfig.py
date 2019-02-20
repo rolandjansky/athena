@@ -18,7 +18,7 @@ def CaloNoiseToolCfg(configFlags):
     if configFlags.Common.isOnline:
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
-        result.merge(addFolders(configFlags,inputFlags,folder,'CALO_ONL'))
+        result.merge(addFolders(configFlags,folder,'CALO_ONL'))
         caloNoiseToolDB.FolderNames=[folder,]
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
@@ -35,7 +35,7 @@ def CaloNoiseToolCfg(configFlags):
                 log.info("online mode: ignore pileup noise")
                 pass
         result.addPublicTool(caloNoiseToolDB)
-        return result
+        return result, caloNoiseToolDB
 
     #The not-online case:
     if isMC:
