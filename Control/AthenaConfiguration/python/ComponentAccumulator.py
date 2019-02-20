@@ -37,6 +37,9 @@ class ComponentAccumulator(object):
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
 
+        # small CAs can have only tools
+        self._privateTools=[]
+
         #To check if this accumulator was merged:
         self._wasMerged=False
 
@@ -185,17 +188,30 @@ class ComponentAccumulator(object):
         return None
 
 
-    def getEventAlgo(self,name,seqName=None):
+    def getEventAlgo(self,name=None,seqName=None):
+        if name is None:
+            algs = self.getEventAlgos(seqName)
+            if len(algs) == 1:
+                return algs[0]
+            raise ConfigurationError("Number of algorithms returned by getEventAlgo %d which is != 1 expected by this API" % len(algs) )
+                
         if seqName is None:
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
+        
 
         algo = findAlgorithm( seq, name )
         if algo is None:
             raise ConfigurationError("Can not find an algorithm of name %s "% name)
         return algo
 
+    def getEventAlgos(self,seqName=None):
+        if seqName is None:
+            seq=self._sequence
+        else:
+            seq = findSubSequence(self._sequence, seqName )
+        return list( set( sum( flatSequencers( seq ).values(), []) ) )
 
     def addCondAlgo(self,algo):
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -226,7 +242,6 @@ class ComponentAccumulator(object):
             newTool.setParent("ToolSvc")
         self._deduplicate(newTool,self._publicTools)
         return
-
 
 
 
@@ -334,19 +349,38 @@ class ComponentAccumulator(object):
         #end if startswith("_")
         pass
 
+    def __getOne(self, allcomps, name=None, typename="???"):
+        selcomps = allcomps if name is None else [ t for t in allcomps if t.getName() == name ]
+        if len( selcomps ) == 1:
+            return selcomps[0]            
+        raise ConfigurationError("Number of %s available %d which is != 1 expected by this API" % (typename, len(selcomps)) )
+        
+    def getPublicTools(self):
+        return self._publicTools
 
-    def getService(self,name):
-        for svc in self._services:
-            if svc.getName()==name:
-                return svc
-        raise KeyError("No service with name %s known" % name)
+    def getPublicTool(self, name=None):        
+        """ Returns single public tool, exception if either not found or to many found"""
+        return self.__getOne( self._publicTools, name, "PublicTools")
 
-    def getPublicTool(self,name):
-        for pt in self._publicTools:
-            if pt.getName()==name:
-                return pt
-        raise KeyError("No public tool with name %s known" % name)
+    def getServices(self):
+        return self._services
 
+    def getService(self, name=None):        
+        """ Returns single service, exception if either not found or to many found"""
+        return self.__getOne( self._services, name, "Services")
+    
+    def addPrivateTool(self, newTool):
+        if not isinstance(newTool,ConfigurableAlgTool):
+            raise TypeError("Attempt to add wrong type: %s as private AlgTool" % type( newTool ).__name__)
+        self._deduplicate(newTool,self._privateTools)
+
+    def getPrivateTools(self):
+        return self._privateTools
+
+    def getPrivateTool(self, name=None):        
+        """ Returns single private tool, exception if either not found or to many found"""
+        return self.__getOne( self._privateTools, name, "PrivateTools")
+        
 
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
@@ -729,10 +763,10 @@ class ComponentAccumulator(object):
             else:
                 maxEvents=-1
 
-        print "INITIALIZE STEP"
+        self._msg.info("INITIALIZE STEP")
         sc = app.initialize()
         if not sc.isSuccess():
-            selg._msg.error("Failed to initialize AppMgr")
+            self._msg.error("Failed to initialize AppMgr")
             return sc
 
         app.printAlgsSequences() #could be removed later ....
@@ -778,11 +812,10 @@ class PropSetterProxy(object):
        if name.startswith("_PropSetterProxy"):
            return super(PropSetterProxy, self).__setattr__(name, value)
        
-       msg = logging.getLogger('forcomps')
+       msg = logging.getLogger('foreach_component')
        import fnmatch
        for component_path, component in PropSetterProxy.__compPaths.iteritems():
            if fnmatch.fnmatch( component_path, self.__path ):
-               #print "cp", component
                if name in component.getProperties():
                    try:
                        setattr( component, name, value )
@@ -803,6 +836,7 @@ class PropSetterProxy(object):
                    return
                PropSetterProxy.__compPaths[ path ] = comp
 
+
            for svc in ca._services:
                PropSetterProxy.__compPaths['SvcMgr/'+svc.getFullName()] = svc
            for t in ca._publicTools:
@@ -821,18 +855,18 @@ class PropSetterProxy(object):
                            __nestAlg( startpath+"/"+name+"/"+t.getName(), value[toolIndex] )
                            
                
-           def __nestSeq(startpath, comp):
-               for c in comp.getChildren():
+           def __nestSeq( startpath, seq ):
+               for c in seq.getChildren():
                    if isSequence(c):
-                       __nestSeq( startpath+"/"+c.getName(), c)                       
-                   else: # the algorithm or tool                      
-                       PropSetterProxy.__compPaths[ startpath+"/"+c.getFullName() ] = comp
+                       __nestSeq( startpath+"/"+c.getName(), c )                       
+                   else: # the algorithm or tool
+                       __add( startpath+"/"+c.getFullName(),  c )
                        __nestAlg( startpath+"/"+c.getFullName(), c )
 
            __nestSeq("", ca._sequence)
             
             
-def forcomps(componentAccumulator, path):
+def foreach_component(componentAccumulator, path):
    """ Utility to set properties of components using wildcards
    
    Example:

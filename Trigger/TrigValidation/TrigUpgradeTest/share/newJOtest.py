@@ -71,13 +71,13 @@ if mcc:
 from AthenaConfiguration.ComponentAccumulator import forcomps
 from AthenaCommon.Logging import logging
 logging.getLogger('forcomps').setLevel(DEBUG)
-forcomps(acc, "*/L1Decoder").OutputLevel = DEBUG
-forcomps(acc, "*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
-forcomps(acc, "*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
-forcomps(acc, "*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
-forcomps(acc, "*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
-forcomps(acc, "*HLTTop/*Input*").OutputLevel = DEBUG # input makers
-forcomps(acc, "*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
+foreach_component(acc, "*/L1Decoder").OutputLevel = DEBUG
+foreach_component(acc, "*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
+foreach_component(acc, "*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
+foreach_component(acc, "*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
+foreach_component(acc, "*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
+foreach_component(acc, "*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+foreach_component(acc, "*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
 
 # # from TrigUpgradeTest.TestUtils import applyMenu

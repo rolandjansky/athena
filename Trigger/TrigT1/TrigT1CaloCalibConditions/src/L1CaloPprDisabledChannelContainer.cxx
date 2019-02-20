@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
@@ -154,7 +154,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
 	it_attrE = deadChannelsAttrListCollection->end();
 	for(;it_attr!=it_attrE;++it_attr) {
 
-		const AthenaAttributeList& attrList(it_attr->second);
+                const coral::AttributeList& attrList(it_attr->second);
 
 		// Get value of each row for the current channel
 		CondAttrListCollection::ChanNum chanNum(it_attr->first);
@@ -181,7 +181,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
 	it_attrE = calibChannelsAttrListCollection->end();
 	for(;it_attr!=it_attrE;++it_attr) {
 
-		const AthenaAttributeList& attrList(it_attr->second);
+                const coral::AttributeList& attrList(it_attr->second);
 
 		// Get value of each row for the current channel
 		CondAttrListCollection::ChanNum chanNum(it_attr->first);
@@ -203,7 +203,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
 	it_attrE = disabledTowersAttrListCollection->end();
 	for(;it_attr!=it_attrE;++it_attr) {
 
-		const AthenaAttributeList& attrList(it_attr->second);
+                const coral::AttributeList& attrList(it_attr->second);
 
 		// Get value of each row for the current channel
 		CondAttrListCollection::ChanNum chanNum(it_attr->first);

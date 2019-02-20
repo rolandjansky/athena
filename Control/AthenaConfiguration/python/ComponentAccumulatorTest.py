@@ -2,7 +2,7 @@
 
 # self test of ComponentAccumulator
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, forcomps
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, foreach_component
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.CFElements import findSubSequence,findAlgorithm
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
@@ -40,7 +40,9 @@ class TestComponentAccumulator( unittest.TestCase ):
             acc = ComponentAccumulator()
             result,algs=AlgsConf1( flags )
             acc.merge(result)
-            algs.append(Algo("Algo3"))
+            a = Algo("Algo3")
+            print "algo3 when created", id(a)
+            algs.append(a)
             return acc,algs
 
         acc = ComponentAccumulator()
@@ -99,12 +101,16 @@ class TestComponentAccumulator( unittest.TestCase ):
             s = pickle.load( f )
             self.assertIsNotNone( s, "The pickle has no content")
 
-    def test_forcomps( self ):
-        forcomps(self.acc, "/*sub2*/*Algo*").OutputLevel = DEBUG
-        forcomps(self.acc, "/*sub2*/*Algo*").OutputLevel = DEBUG
-        forcomps(self.acc, "/Algo/Algo*").OutputLevel = INFO
-        self.assertEqual(self.acc.getEventAlgo("Algo3").OutputLevel, INFO, "wrong OutputLevel value for Algo3")
-        self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, DEBUG, "wrong OutputLevel value for NestedAlgo1")
+    def test_foreach_component( self ):
+        from AthenaCommon.Logging import logging
+        logging.getLogger('foreach_component').setLevel(DEBUG)
+        algo3 = self.acc.getEventAlgo("Algo3")        
+        algo3.OutputLevel = INFO
+        foreach_component(self.acc, "*/Algo3").OutputLevel = DEBUG # restet to debug level
+        self.assertEqual( algo3.OutputLevel, DEBUG, "wrong OutputLevel value for Algo3")
+        foreach_component(self.acc, "*sub2*/*").OutputLevel = INFO 
+        self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
+        self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
         
 
@@ -218,7 +224,6 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             Configurable.configurableRun3Behavior=1
             from AthenaCommon.CFElements import seqAND
             accTop = ComponentAccumulator()
-            accTop.store( open("test.pkl", "w") )#silence RuntimeError
             seq1 = seqAND("seq1")
             seq2 = seqAND("seq2")
             seq1_again = seqAND("seq1")
@@ -279,6 +284,37 @@ class MergeMovingAlgorithms( unittest.TestCase ):
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
         destinationCA.wasMerged()
         sourceCA.wasMerged()
+
+
+class TestComponentAccumulatorAccessors( unittest.TestCase ):
+    def runTest( self ):
+        ca = ComponentAccumulator()
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm,ConfigurableAlgTool
+        ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
+        
+        self.assertIsNotNone( ca.getEventAlgo(), "Found single alg")
+        self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
+# no idea why this assersts do not recognise exceptions        
+#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2")) 
+        
+        ca.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
+
+        self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
+        self.assertEquals( len(ca.getEventAlgos()), 2 , "Found single alg")
+ #       self.assertRaises(ConfigurationError, ca.getEventAlgo(), "Single Alg API ambiguity")
+
+        class Tool(ConfigurableAlgTool):
+            def __init__(self, *args, **kwargs):
+                super(Tool, self).__init__(*args, **kwargs)
+            def getDlls(self):
+                return None
+
+
+        ca.addPublicTool( Tool(name="tool1") )
+        self.assertIsNotNone( ca.getPublicTool(), "Found single tool")
+        ca.addPublicTool( Tool(name="tool2") )
+#        self.assertRaises(ConfigurationError, ca.getPublicTool(), "Found single tool")
+
 
 if __name__ == "__main__":
     unittest.main()

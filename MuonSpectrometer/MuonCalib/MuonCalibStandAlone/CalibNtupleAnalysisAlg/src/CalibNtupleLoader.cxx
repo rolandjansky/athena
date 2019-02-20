@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -17,10 +17,10 @@
 // StoreGateSvc, IncidentSvc
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena EventInfo
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -178,7 +178,7 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<N
   // Fire the EndEvent incident; this is normally done by the 
   // AthenaEventLoopMgr after calling the "execute" method of all
   // Algorithms
-  m_incSvc->fireIncident(EventIncident(name(),"EndEvent",Gaudi::Hive::currentContext()));
+  m_incSvc->fireIncident(Incident(name(),IncidentType::EndEvent,Gaudi::Hive::currentContext()));
 
   // Change the EventInfo in StoreGate to the correct info from 
   // the event in the ntuple
@@ -198,11 +198,11 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<N
   if ( event->eventInfo().runNumber() != m_prev_run_nr ) {
     m_prev_run_nr = event->eventInfo().runNumber() ;
     m_incSvc->fireIncident(Incident(name(),"EndRun"));
-    m_incSvc->fireIncident(EventIncident(name(),"BeginRun",Gaudi::Hive::currentContext()));
+    m_incSvc->fireIncident(Incident(name(),IncidentType::BeginRun,Gaudi::Hive::currentContext()));
   }
 
   // Fire BeginEvent Incident
-  m_incSvc->fireIncident(EventIncident(name(),"BeginEvent",Gaudi::Hive::currentContext()));
+  m_incSvc->fireIncident(Incident(name(),IncidentType::BeginEvent,Gaudi::Hive::currentContext()));
 
 } //end CalibNtupleLoader::prepareSegments
 

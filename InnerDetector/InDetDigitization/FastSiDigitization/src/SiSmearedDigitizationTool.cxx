@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1386,7 +1386,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                                  siWidth,
                                                  hitSiDetElement,
                                                  clusterErr);
-          m_pixelClusterMap->insert(std::pair<IdentifierHash, const InDet::PixelCluster* >(waferID, pixelCluster));
+          m_pixelClusterMap->insert(std::pair<IdentifierHash, InDet::PixelCluster* >(waferID, pixelCluster));
 
           if (FillTruthMap(m_pixelPrdTruth, pixelCluster, hit).isFailure()) {
             ATH_MSG_FATAL ( "FillTruthMap() for pixel failed!" );
@@ -1401,7 +1401,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                                      hitPlanarDetElement,
                                                      clusterErr);
 
-          m_planarClusterMap->insert(std::pair<IdentifierHash, const iFatras::PlanarCluster* >(waferID, planarCluster));
+          m_planarClusterMap->insert(std::pair<IdentifierHash, iFatras::PlanarCluster* >(waferID, planarCluster));
 
           if (FillTruthMap(m_planarPrdTruth, planarCluster, hit).isFailure()) {
             ATH_MSG_FATAL ( "FillTruthMap() for planar element failed!" );
@@ -1520,7 +1520,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                               hitSiDetElement,
                                               clusterErr);
 
-          m_sctClusterMap->insert(std::pair<IdentifierHash, const InDet::SCT_Cluster* >(waferID, sctCluster));
+          m_sctClusterMap->insert(std::pair<IdentifierHash, InDet::SCT_Cluster* >(waferID, sctCluster));
 
           if (FillTruthMap(m_SCTPrdTruth, sctCluster, hit).isFailure()) {
             ATH_MSG_FATAL ( "FillTruthMap() for SCT failed!" );
@@ -1581,7 +1581,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                                      hitPlanarDetElement,
                                                      clusterErr);
 
-          m_planarClusterMap->insert(std::pair<IdentifierHash, const iFatras::PlanarCluster* >(waferID, planarCluster));
+          m_planarClusterMap->insert(std::pair<IdentifierHash, iFatras::PlanarCluster* >(waferID, planarCluster));
 
           if (FillTruthMap(m_planarPrdTruth, planarCluster, hit).isFailure()) {
             ATH_MSG_FATAL ( "FillTruthMap() for planar element failed!" );
@@ -1687,7 +1687,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 
       for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
 
-        iFatras::PlanarCluster* planarCluster = const_cast<iFatras::PlanarCluster*>((*iter).second);
+        iFatras::PlanarCluster* planarCluster = (*iter).second;
         planarCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
         clusterCollection->push_back(planarCluster);
       }
@@ -1725,7 +1725,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 
       for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
 
-        InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
+        InDet::PixelCluster* pixelCluster = (*iter).second;
         pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
         clusterCollection->push_back(pixelCluster);
       }
@@ -1761,7 +1761,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 
 
       for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
-        InDet::SCT_Cluster* sctCluster = const_cast<InDet::SCT_Cluster*>((*iter).second);
+        InDet::SCT_Cluster* sctCluster = (*iter).second;
         sctCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
         clusterCollection->push_back(sctCluster);
       }

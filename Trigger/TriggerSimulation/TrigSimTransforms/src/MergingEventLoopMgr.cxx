@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //------------------------------------------------------------------------------
@@ -21,7 +21,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventIncident.h"
 
 #include "SGTools/DataProxy.h"
 
@@ -33,6 +32,7 @@
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 
@@ -526,7 +526,7 @@ namespace TrigSim {
                 m_currentRun = pPrimEvt->event_ID()->run_number();
                 m_firstRun = false;
 
-                m_incidentSvc->fireIncident(EventIncident(name(),"BeginRun",Gaudi::Hive::currentContext()));
+                m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,Gaudi::Hive::currentContext()));
 
                 sc = beginRunAlgorithms();
                 if(sc.isFailure()) {
@@ -545,7 +545,7 @@ namespace TrigSim {
              *  Fire suitable incident
              */
 
-            m_incidentSvc->fireIncident(EventIncident(name(),"BeginEvent",Gaudi::Hive::currentContext()));
+            m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginEvent,Gaudi::Hive::currentContext()));
 
 
 
@@ -849,7 +849,7 @@ namespace TrigSim {
             /*
              *  Fire suitable incident
              */
-            m_incidentSvc->fireIncident(EventIncident(name(),"EndEvent",Gaudi::Hive::currentContext()));
+            m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndEvent,Gaudi::Hive::currentContext()));
 
 
 

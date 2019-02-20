@@ -2,8 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOVDbTestAlg.cxx,v 1.39 2009-03-30 12:10:15 ivukotic Exp $
-
 #include "IOVDbTestAlg/IOVDbTestAlg.h"
 
 // IOVDbTest includes
@@ -18,11 +16,9 @@
 
 // Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/GaudiException.h" 
 #include "GaudiKernel/IToolSvc.h"
-
-// Event Incident 
-#include "EventInfo/EventIncident.h"
 
 // AttributeList
 #include "CoralBase/Attribute.h"
@@ -170,8 +166,7 @@ StatusCode IOVDbTestAlg::readWithBeginRun(){
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
 
-    EventIncident evtInc(name(), "BeginRun",Gaudi::Hive::currentContext());
-    incSvc->fireIncident( evtInc );
+    incSvc->fireIncident( Incident(name(), IncidentType::BeginRun, Gaudi::Hive::currentContext()) );
 
     return StatusCode::SUCCESS;
 }
