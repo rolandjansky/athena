@@ -29,6 +29,7 @@ export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v7"
 export EVENTS="3"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
+export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
