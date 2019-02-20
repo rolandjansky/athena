@@ -68,7 +68,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
    SCRIPT test/test_egamma_run_data.sh
    PROPERTIES TIMEOUT 1000   
-   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Payload size after inserting"
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Fragment size"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
    )
 

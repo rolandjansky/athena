@@ -56,22 +56,24 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 
     xAOD::AuxSelection sel;
     if ( typeKeyAux.find('.') != std::string::npos ) {
-      ATH_MSG_DEBUG( "with aux content: "  );
       std::string allVars = typeKeyAux.substr( typeKeyAux.find('.')+1 );
-      std::set<std::string> variableNames;
-      boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
-      for ( auto el: variableNames ) 
-	ATH_MSG_DEBUG( " " << el  );
-      sel.selectAux( variableNames );
+      if (allVars != "") {
+        ATH_MSG_DEBUG( "with aux content: "  );
+        std::set<std::string> variableNames;
+        boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
+        for ( auto el: variableNames ) {
+          ATH_MSG_DEBUG( " \"" << el << "\""  );
+        }
+        sel.selectAux( variableNames );
+      }
     }
 
-    const bool isAux = key.find("Aux") != std::string::npos;
+    const bool isAux = (key.find("Aux") != std::string::npos);
 
     m_toSerialize.push_back( Address{ type+"#"+key, type, clid, key, isAux, sel } );      
   }
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
   buffer.push_back(0); // fragment size placeholder
@@ -101,7 +103,7 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, s
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObject* dObj, std::vector<uint32_t>& buffer ) const {
+StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObject* dObj, std::vector<uint32_t>& buffer, size_t& nDynWritten) const {
   // TODO, check if we can cache this informion after it is filled once
   ATH_MSG_DEBUG("About to start streaming aux data of " << address.key );
   DataBucketBase* dObjAux = dynamic_cast<DataBucketBase*>(dObj);
@@ -112,6 +114,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     ATH_MSG_DEBUG( "Can't obtain AuxContainerBase of " << address.key <<  " no dynamic variables presumably" );
     return StatusCode::SUCCESS;
   }
+
   //  ATH_MSG_DEBUG( "dump aux store" );
   //  SGdebug::dump_aux_vars( *auxStore );
   
@@ -128,7 +131,6 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
     const std::string name = SG::AuxTypeRegistry::instance().getName(auxVarID);
     ATH_MSG_DEBUG("Streaming " << name << " of type " << typeName );
-
 
     CLID clid;
     if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  {
@@ -157,17 +159,15 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     fragment[0] = fragment.size();
 
     if ( mem ) delete [] static_cast<const char*>( mem );
-    
-    ATH_MSG_DEBUG("Fragment size " << fragment.size() );
-    
-    buffer.insert( buffer.end(), fragment.begin(), fragment.end() );        
-    
+
+    buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
+    ++nDynWritten;
+
   }
   
   
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
   
@@ -181,7 +181,6 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
       continue;
     }
 
-
     const void* rawptr = SG::fromStorable( dObj, address.clid, nullptr, msgLvl(MSG::DEBUG) );
     if ( rawptr == nullptr ) {
       ATH_MSG_DEBUG( "Data Object with key " << address.key <<
@@ -189,7 +188,6 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
       continue;      
     }
     ATH_MSG_DEBUG("Obtained raw pointer " << rawptr );
-
 
     RootType classDesc = RootType::ByName( address.type );    
     size_t sz=0;    
@@ -207,14 +205,19 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     ATH_CHECK( makeHeader( address, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
 
-    
     if ( mem ) delete [] static_cast<const char*>( mem );
     
-    ATH_MSG_DEBUG("Fragment size " << fragment.size() );
+    const size_t baseSize = fragment.size()*sizeof(uint32_t);
+    ATH_MSG_DEBUG(address.typeKey << " Fragment size :" << baseSize << " bytes" );
 
     if ( address.isAux ) {
-      ATH_CHECK( fillDynAux( address, dObj, fragment ) );
-      ATH_MSG_DEBUG("Fragment size with Aux data " << fragment.size() );
+      size_t nDynWritten = 0;
+      ATH_CHECK( fillDynAux( address, dObj, fragment, nDynWritten ) );
+      if (nDynWritten > 0) {
+        const size_t decoratedSize = fragment.size()*sizeof(uint32_t);
+        ATH_MSG_DEBUG("    Fragment size including " << decoratedSize - baseSize <<
+                      " bytes from " << nDynWritten << "x DynAux: " << decoratedSize << " bytes" );
+      }
     }
     fragment[0] = fragment.size();
     
