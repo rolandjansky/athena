@@ -1,7 +1,7 @@
 // This file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETSUBSTRUCTURE_QWTOOL_H
@@ -17,20 +17,16 @@
 //////////////////////////////////////////////////////////
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 
-class QwTool : public JetSubStructureMomentToolsBase {
-  ASG_TOOL_CLASS(QwTool, IJetModifier)
+class QwTool :
+  public JetSubStructureMomentToolsBase {
+    ASG_TOOL_CLASS(QwTool, IJetModifier)
 
-public:
+  public:
+    // Ctor.
+    QwTool(const std::string& t);
 
-  // Ctor.
-  QwTool(const std::string& t);
-
-  // // Initialization.
-  // StatusCode initialize();
-
-  // Add moment to a jet.
-  int modifyJet(xAOD::Jet&) const;
-
+    // Add moment to a jet.
+    int modifyJet(xAOD::Jet& injet) const;
 
 };
 

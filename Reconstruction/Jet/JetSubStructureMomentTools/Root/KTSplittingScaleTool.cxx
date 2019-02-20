@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureUtils/KtSplittingScale.h"
 #include "JetSubStructureUtils/ZCut.h"
 
-using namespace std;
 using fastjet::PseudoJet;
 
 KTSplittingScaleTool::KTSplittingScaleTool(std::string name) : 
@@ -14,23 +13,42 @@ KTSplittingScaleTool::KTSplittingScaleTool(std::string name) :
 {
 }
 
-int KTSplittingScaleTool::modifyJet(xAOD::Jet &jet) const
+int KTSplittingScaleTool::modifyJet(xAOD::Jet &injet) const
 {
-  if(checkForConstituents(jet) == false) return 1;
+  
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
 
-  JetSubStructureUtils::KtSplittingScale split12(1);
-  JetSubStructureUtils::KtSplittingScale split23(2);
-  JetSubStructureUtils::KtSplittingScale split34(3);
-  jet.setAttribute("Split12", split12.result(jet));
-  jet.setAttribute("Split23", split23.result(jet));
-  jet.setAttribute("Split34", split34.result(jet));
+  float Split12_value = -999, Split23_value = -999, Split34_value = -999,
+    ZCut12_value = -999, ZCut23_value = -999, ZCut34_value = -999;
 
-  JetSubStructureUtils::ZCut zcut12(1);
-  JetSubStructureUtils::ZCut zcut23(2);
-  JetSubStructureUtils::ZCut zcut34(3);
-  jet.setAttribute("ZCut12", zcut12.result(jet));
-  jet.setAttribute("ZCut23", zcut23.result(jet));
-  jet.setAttribute("ZCut34", zcut34.result(jet));
+  if (decorate) {
+    JetSubStructureUtils::KtSplittingScale split12(1);
+    JetSubStructureUtils::KtSplittingScale split23(2);
+    JetSubStructureUtils::KtSplittingScale split34(3);
+    Split12_value = split12.result(jet);
+    Split23_value = split23.result(jet);
+    Split34_value = split34.result(jet);
+    
+    JetSubStructureUtils::ZCut zcut12(1);
+    JetSubStructureUtils::ZCut zcut23(2);
+    JetSubStructureUtils::ZCut zcut34(3);
+
+    ZCut12_value = zcut12.result(jet);
+    ZCut23_value = zcut23.result(jet);
+    ZCut34_value = zcut34.result(jet);
+    
+  }
+
+  
+  injet.setAttribute(m_prefix+"Split12", Split12_value);
+  injet.setAttribute(m_prefix+"Split23", Split23_value);
+  injet.setAttribute(m_prefix+"Split34", Split34_value);
+
+  
+  injet.setAttribute(m_prefix+"ZCut12", ZCut12_value);
+  injet.setAttribute(m_prefix+"ZCut23", ZCut23_value);
+  injet.setAttribute(m_prefix+"ZCut34", ZCut34_value);
 
   return 0;
 }
