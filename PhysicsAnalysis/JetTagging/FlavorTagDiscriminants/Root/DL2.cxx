@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2.h"
@@ -29,7 +29,8 @@ namespace FlavorTagDiscriminants {
   // TODO: make this work with more input nodes
   DL2::DL2(const lwt::GraphConfig& graph_config,
            const std::vector<DL2InputConfig>& inputs,
-           const std::vector<DL2TrackSequenceConfig>& track_sequences):
+           const std::vector<DL2TrackSequenceConfig>& track_sequences,
+           EDMSchema schema):
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config)),
     m_variable_cleaner(nullptr)
@@ -51,7 +52,9 @@ namespace FlavorTagDiscriminants {
 
     // set up sequence inputs
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
-      TrackSequenceGetter track_getter(track_cfg.order, track_cfg.selection);
+      TrackSequenceGetter track_getter(track_cfg.order,
+                                       track_cfg.selection,
+                                       schema);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
         track_getter.sequence_getters.push_back(get_seq_getter(input_cfg));
@@ -107,8 +110,9 @@ namespace FlavorTagDiscriminants {
   }
 
   DL2::TrackSequenceGetter::TrackSequenceGetter(SortOrder order,
-                                                TrackSelection selection):
-    getter(order, selection)
+                                                TrackSelection selection,
+                                                EDMSchema schema):
+    getter(order, selection, schema)
   {
   }
 
@@ -159,10 +163,11 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TrackGetter::TrackGetter(SortOrder order, TrackSelection selection):
+    TrackGetter::TrackGetter(SortOrder order, TrackSelection selection,
+                             EDMSchema schema):
       m_track_associator("BTagTrackToJetAssociator"),
-      m_sort_var_getter(get_track_sort(order)),
-      m_select_function(get_track_select(selection))
+      m_sort_var_getter(get_track_sort(order, schema)),
+      m_select_function(get_track_select(selection, schema))
     {
     }
     Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
@@ -200,17 +205,15 @@ namespace FlavorTagDiscriminants {
       }
       }
     }
-    TrackSortVar get_track_sort(SortOrder order) {
+    TrackSortVar get_track_sort(SortOrder order, EDMSchema schema) {
       typedef xAOD::TrackParticle Tp;
       typedef xAOD::Jet Jet;
       typedef SG::AuxElement AE;
-      AE::ConstAccessor<float> d0("btag_ip_d0");
-      AE::ConstAccessor<float> d0_sigma("btag_ip_d0_sigma");
-      BTagTrackAugmenter aug;
+      BTagTrackAugmenter aug(schema);
       switch(order) {
       case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
-        return [d0, d0_sigma](const Tp* tp, const Jet&) {
-                 return std::abs(d0(*tp) / d0_sigma(*tp));
+        return [aug](const Tp* tp, const Jet&) {
+                 return std::abs(aug.d0(*tp) / aug.d0Uncertainty(*tp));
                };
       case SortOrder::D0_SIGNIFICANCE_DESCENDING:
         return [aug](const Tp* tp, const Jet& j) {
@@ -223,11 +226,11 @@ namespace FlavorTagDiscriminants {
         }
       }
     } // end of track sort getter
-    TrackSelect get_track_select(TrackSelection selection) {
+    TrackSelect get_track_select(TrackSelection selection,
+                                 EDMSchema schema) {
       typedef xAOD::TrackParticle Tp;
       typedef SG::AuxElement AE;
-      AE::ConstAccessor<float> d0("btag_ip_d0");
-      AE::ConstAccessor<float> z0("btag_ip_z0");
+      BTagTrackAugmenter aug(schema);
       AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
       AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
       AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
@@ -244,8 +247,8 @@ namespace FlavorTagDiscriminants {
       case TrackSelection::IP3D_2018:
         return [=](const Tp* tp) {
                  if (tp->pt() <= 1e3) return false;
-                 if (d0(*tp) >= 0.1) return false;
-                 if (z0(*tp) * std::sin(tp->theta()) >= 0.15) return false;
+                 if (aug.d0(*tp) >= 0.1) return false;
+                 if (aug.z0SinTheta(*tp) >= 0.15) return false;
                  if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
                  if (pix_holes(*tp) + sct_holes(*tp) > 2) return false;
                  if (pix_holes(*tp) > 1) return false;
