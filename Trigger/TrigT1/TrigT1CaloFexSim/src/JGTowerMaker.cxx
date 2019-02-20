@@ -67,12 +67,16 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType.data()) );
-  const CaloCellContainer* cells = 0;
-  CHECK( evtStore()->retrieve( cells, "AllCalo") );
-  const xAOD::TriggerTowerContainer* TTs;
-  if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
-    ATH_MSG_INFO("ERROR loading trigger tower");
-    return StatusCode::FAILURE;
+  const CaloCellContainer* cells = nullptr;
+  const xAOD::TriggerTowerContainer* TTs = nullptr;
+  if ( m_useAllCalo ) {
+     CHECK( evtStore()->retrieve( cells, "AllCalo") );
+     ATH_MSG_DEBUG ( "Retrieved CaloCellContainer::AllCalo with " << cells->size() << " elements");
+  } else {
+     if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
+        ATH_MSG_FATAL("ERROR loading trigger tower");
+        return StatusCode::FAILURE;
+     }
   }
 
 
@@ -92,7 +96,8 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
          const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
          const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
          CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
-         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  &  m_scQuality ))) continue;
+         if(scell==nullptr)continue; 
+	 if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
          float scell_et = scell->et();
          jgEt += scell_et; 
          lar_et+=scell_et;
@@ -120,54 +125,49 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
         }
       }
-      if(jgEt == 0) continue;
       xAOD::JGTower* m_trigTower = new xAOD::JGTower();
       jgTContainer->push_back(m_trigTower);
       m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());
       m_trigTower->setdEta(jgt->dEta());
       m_trigTower->setdPhi(jgt->dPhi());
       m_trigTower->setEt(jgEt);
-      m_trigTower->setTileFrac(tile_et/jgEt);
       m_trigTower->setSCIndex(jgTowerSCIndex);
       m_trigTower->setTileIndex(jgTowerTileIndex);
-      m_trigTower->setTileEt(tile_et);
-      m_trigTower->setLArEt(lar_et);
       m_trigTower->setSampling(jgt->sampling());
   }
   return StatusCode::SUCCESS; 
 }
 
-StatusCode JGTowerMaker::execute() {  
+StatusCode JGTowerMaker::execute() {
 
-  ATH_MSG_DEBUG ("Executing" << name() << "...");
-
-
+   ATH_MSG_DEBUG ("Executing " << name() << "...");
   
-  if(!m_TileMapped){
-    CHECK(TileMapping());
-  }
-
-  m_TileMapped = true;
+   if(!m_TileMapped){
+      CHECK( TileMapping() );
+   }
+   m_TileMapped = true;
 
  
-  xAOD::JGTowerAuxContainer* jTAuxContainer = new xAOD::JGTowerAuxContainer() ;
-  xAOD::JGTowerContainer*    jTContainer =new xAOD::JGTowerContainer() ;
-  jTContainer->setStore(jTAuxContainer);
-  xAOD::JGTowerAuxContainer* gTAuxContainer = new xAOD::JGTowerAuxContainer() ;
-  xAOD::JGTowerContainer*    gTContainer =new xAOD::JGTowerContainer() ;
-  gTContainer->setStore(gTAuxContainer);
+   xAOD::JGTowerAuxContainer* jTAuxContainer = new xAOD::JGTowerAuxContainer() ;
+   xAOD::JGTowerContainer*    jTContainer    = new xAOD::JGTowerContainer() ;
+   jTContainer->setStore(jTAuxContainer);
+   xAOD::JGTowerAuxContainer* gTAuxContainer = new xAOD::JGTowerAuxContainer() ;
+   xAOD::JGTowerContainer*    gTContainer    = new xAOD::JGTowerContainer() ;
+   gTContainer->setStore(gTAuxContainer);
 
-  CHECK( FexAlg(jT,jTContainer));
-  CHECK( FexAlg(gT,gTContainer));
+   CHECK( FexAlg(jT,jTContainer));
+   CHECK( FexAlg(gT,gTContainer));
+
+   CHECK( evtStore()->record( gTContainer, "GTower" ) );
+   CHECK( evtStore()->record( gTAuxContainer, "GTowerAux." )) ;
+   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::GTower with " << gTContainer->size() << " elements");
+
+   CHECK( evtStore()->record( jTContainer, "JTower" ) );
+   CHECK( evtStore()->record( jTAuxContainer, "JTowerAux." )) ;
+   ATH_MSG_DEBUG ( "Recorded JGTowerAuxContainer::JTower with " << jTContainer->size() << " elements");
 
 
-  CHECK(evtStore()->record( gTContainer, "GTower" ) );
-  CHECK(evtStore()->record( gTAuxContainer, "GTowerAux." )) ;
-
-  CHECK(evtStore()->record( jTContainer, "JTower" ) );
-  CHECK(evtStore()->record( jTAuxContainer, "JTowerAux." )) ;
-
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 StatusCode JGTowerMaker::ForwardMapping(){
@@ -175,7 +175,7 @@ StatusCode JGTowerMaker::ForwardMapping(){
   unsigned sc_hashMax = m_scid-> calo_cell_hash_max();
   for(unsigned sc_hs=0;sc_hs<sc_hashMax;++sc_hs) {
      const Identifier scid=m_scid->cell_id(sc_hs);
-     const Identifier tid=m_tid->cell_id(scid);
+     //const Identifier tid=m_tid->cell_id(scid);
 
      if((m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2)) continue; //skip all tile SCs
 
