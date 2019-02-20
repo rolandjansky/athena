@@ -118,9 +118,11 @@ simFlags.MagneticField.set_On()
 # Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
-# Setup the algorithm sequence
+# Setup the algorithm and output sequences
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
+from AthenaCommon.AppMgr import theApp
+StreamHITS = theApp.getOutputStream( "StreamHITS" )
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
@@ -145,20 +147,18 @@ topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 # TODO: make this declaration more automatic
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
-topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
+StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
 
 # Increase verbosity of the output stream
-#topSeq.StreamHITS.OutputLevel = DEBUG
+#StreamHITS.OutputLevel = DEBUG
 
 # Disable alg filtering - doesn't work yet in multi-threading
-topSeq.StreamHITS.AcceptAlgs = []
+StreamHITS.AcceptAlgs = []
 
 # Override algorithm cloning settings
 algCardinality = jp.ConcurrencyFlags.NumThreads()
 if (algCardinality != 1):
     for alg in topSeq:
         name = alg.name()
-        if name == 'StreamHITS':
-            alg.Cardinality = 1
-        else:
-            alg.Cardinality = algCardinality
+        alg.Cardinality = algCardinality
+outSeq.StreamHITS.Cardinality = 1

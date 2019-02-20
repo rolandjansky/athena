@@ -76,7 +76,7 @@ WriteTag.Magic = 1
 topSequence += WriteTag
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream ( "Stream1" , "SimplePoolFile2.root" , True, noTag=True )
+Stream1 = AthenaPoolOutputStream ( "Stream1" , "SimplePoolFile2.root" )
 Stream1.WritingTool.AttributeListKey = "RunEventTag"
 
 #--------------------------------------------------------------
