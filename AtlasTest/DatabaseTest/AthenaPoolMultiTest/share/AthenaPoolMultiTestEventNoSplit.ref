@@ -17,32 +17,26 @@ OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package versio
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
-Stream1              INFO Data output: AthenaPoolMultiTest_Split1.root
+Stream1              INFO Data output: AthenaPoolMultiTest_NoSplit1.root
 Stream1              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
 Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
-Stream2              INFO Data output: AthenaPoolMultiTest_Split2.root
+Stream2              INFO Data output: AthenaPoolMultiTest_NoSplit2.root
 Stream2              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
-Stream3              INFO Data output: AthenaPoolMultiTest_Split3.root
+Stream3              INFO Data output: AthenaPoolMultiTest_NoSplit3.root
 Stream3              INFO I/O reinitialization...
-DecisionSvc          INFO Inserting stream: Others with no Algs
-Others.OthersTool    INFO Initializing Others.OthersTool - package version AthenaServices-00-00-00
-Others.Others_M...   INFO Initializing Others.Others_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Others               INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Others_MakeEventStreamInfo'])
-Others               INFO Data output: AthenaPoolMultiTest_Missed.root
-Others               INFO I/O reinitialization...
-DecisionSvc          INFO Inserting stream: Bad with no Algs
-Bad.BadTool          INFO Initializing Bad.BadTool - package version AthenaServices-00-00-00
-Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
-Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
-Bad                  INFO I/O reinitialization...
+DecisionSvc          INFO Inserting stream: StreamAll with no Algs
+StreamAll.Strea...   INFO Initializing StreamAll.StreamAllTool - package version AthenaServices-00-00-00
+StreamAll.Strea...   INFO Initializing StreamAll.StreamAll_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+StreamAll            INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll_MakeEventStreamInfo'])
+StreamAll            INFO Data output: AthenaPoolMultiTest_StreamAll.root
+StreamAll            INFO I/O reinitialization...
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -55,6 +49,8 @@ Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
+Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll.root
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:61408
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2
@@ -284,34 +280,10 @@ Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-Stream1              INFO Records written: 8
-Stream2              INFO Records written: 8
-Stream3              INFO Records written: 6
-Others               INFO Records written: 2
-Bad                  INFO Records written: 1
+StreamAll            INFO Records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
 Triggered            INFO in finalize()
-ItemListSvc         DEBUG STREAM Bad has (1) items
-ItemListSvc         DEBUG    - EventStreamInfo_Bad
-ItemListSvc         DEBUG STREAM Others has (7) items
-ItemListSvc         DEBUG    - EventStreamInfo_Others
-ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
-ItemListSvc         DEBUG STREAM Stream1 has (8) items
-ItemListSvc         DEBUG    - EventStreamInfo_Stream1
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG STREAM Stream2 has (8) items
-ItemListSvc         DEBUG    - EventStreamInfo_Stream2
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG STREAM Stream3 has (8) items
-ItemListSvc         DEBUG    - EventStreamInfo_Stream3
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
+ItemListSvc         DEBUG STREAM StreamAll has (8) items
+ItemListSvc         DEBUG    - EventStreamInfo_StreamAll
