@@ -68,7 +68,7 @@ if mcc:
     top += mcc
 
 
-from AthenaConfiguration.ComponentAccumulator import forcomps
+from AthenaConfiguration.ComponentAccumulator import foreach_component
 from AthenaCommon.Logging import logging
 logging.getLogger('forcomps').setLevel(DEBUG)
 foreach_component(acc, "*/L1Decoder").OutputLevel = DEBUG
