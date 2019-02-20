@@ -50,7 +50,7 @@ atlas_add_library( SiClusterizationToolLib
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
-   Identifier EventPrimitives GaudiKernel InDetCondTools InDetSimData InDetIdentifier
+   Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
    InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
    TrkParameters TrkNeuralNetworkUtilsLib PixelConditionsData
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities FileCatalog AtlasDetDescr
