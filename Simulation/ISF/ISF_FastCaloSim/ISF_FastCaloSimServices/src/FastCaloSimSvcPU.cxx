@@ -269,7 +269,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     {    
      ATH_MSG_INFO(m_screenOutputPrefix<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i);
      //std::cout<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i<<" adress "<<m_puCellContainer[i]<<std::endl;
-     StatusCode sc = (*itrTool)->process(m_puCellContainer[i]);
+     StatusCode sc = (*itrTool)->process(m_puCellContainer[i], ctx);
      //std::cout<<" done process FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i<<std::endl;
      if(sc.isFailure())
      {
@@ -453,7 +453,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
   std::string chronoName=this->name()+"_"+ itrTool->name();
   if(m_chrono) m_chrono -> chronoStart( chronoName);
   
-  if((*itrTool)->process(m_theContainer).isFailure())
+  if((*itrTool)->process(m_theContainer, ctx).isFailure())
   {
    ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
    return StatusCode::FAILURE;

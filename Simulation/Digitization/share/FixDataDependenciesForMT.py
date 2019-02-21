@@ -56,5 +56,8 @@ if DetFlags.digitize.TGC_on():
 
 topSequence.StandardPileUpToolsAlg.ExtraInputs = digiExtraInputs
 topSequence.StandardPileUpToolsAlg.ExtraOutputs = digiExtraOutputs
-topSeq.StreamRDO.ExtraInputs += StreamRDOExtraInputs
+
+from AthenaCommon.AppMgr import theApp
+StreamRDO = theApp.getOutputStream( "StreamRDO" )
+StreamRDO.ExtraInputs += StreamRDOExtraInputs
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -216,15 +216,8 @@ StatusCode TrigT1CaloDataAccess::loadCollection(
 }
 
 void TrigT1CaloDataAccess::handle(const Incident & inc ) {
-  const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-  if(!eventInc) {
-    msg(MSG::ERROR) << " Unable to cast " << inc.type() << " to EventIncident" << endmsg;
-    return;
-  }
-  else {
-    m_present_event = inc.context().eventID().event_number();
-    m_ppmBSConverter->eventNumber(m_present_event);
-  }
+  m_present_event = inc.context().eventID().event_number();
+  m_ppmBSConverter->eventNumber(m_present_event);
 }
 
 

@@ -236,24 +236,35 @@ cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
 cleaning.CutLevel = "LooseBad"
 cleaning.DoUgly = False
 ToolSvc += cleaning
+ecTool                 = CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
+ecTool.JetCleaningTool = cleaning
+ecTool.PtCut           = 20000.0
+ecTool.EtaCut          = 2.4
+ecTool.JvtDecorator    = "passJvt"
+ecTool.OrDecorator     = "passOR"
+ecTool.CleaningLevel   = cleaning.CutLevel
+ToolSvc += ecTool
 
 from TileMonitoring.TileMonitoringConf import TileJetMonTool
-TileJetMonTool = TileJetMonTool(name              = 'TileJetMonTool',
-                                jetPtMin          = 20000.0,
-                                jetEtaMax         = 1.6,
-                                jetCollectionName = 'AntiKt4EMTopoJets',
-                                do_1dim_histos    = True,
-                                do_2dim_histos    = False,
-                                do_enediff_histos = False,
-                                energyChanMin     = 15000, # 2000,
-                                energyChanMax     = 50000, # 4000,
-                                enediff_threshold = 2000,
-                                do_event_cleaning = True,
-                                do_jet_cleaning   = True,
-                                useJVTTool        = jvt,
-                                useJetCleaning    = cleaning,
-                                jet_JVT_threshold = 0.64,
-                                OutputLevel       = INFO);
+TileJetMonTool = TileJetMonTool(name                   = 'TileJetMonTool',
+                                jetPtMin               = 20000.0,
+                                jetEtaMax              = 1.6,
+                                jetCollectionName      = 'AntiKt4EMTopoJets',
+                                do_1dim_histos         = True,
+                                do_2dim_histos         = False,
+                                do_enediff_histos      = False,
+                                energyChanMin          = 15000, # 2000,
+                                energyChanMax          = 50000, # 4000,
+                                enediff_threshold      = 2000,
+                                do_event_cleaning      = True,
+                                do_jet_cleaning        = True,
+                                useJVTTool             = jvt,
+                                useJetCleaning         = cleaning,
+                                useEventCleaning       = ecTool,
+                                jet_tracking_eta_limit = 2.4,
+                                jet_JVT_threshold      = 0.59,
+                                jet_JVT_pTmax          = 120000, # MeV
+                                OutputLevel            = INFO);
 #ToolSvc += TileJetMonTool;    
 ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ];
 

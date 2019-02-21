@@ -10,6 +10,7 @@ logLevel=DEBUG
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
+
 class Node():
     """ base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
     def __init__(self, Alg):
@@ -165,7 +166,6 @@ class HypoAlgNode(AlgNode):
 
 
 
-
 class SequenceFilterNode(AlgNode):
     """Node for any kind of sequence filter"""
     def __init__(self, Alg, inputProp, outputProp):
@@ -206,33 +206,29 @@ class ComboMaker(AlgNode):
         self.prop="MultiplicitiesMap"
 
 
-    def addChain(self, chain):
+    def addChain(self, chain): 
         log.debug("ComboMaker %s adding chain %s"%(self.Alg.name(),chain))
-        from TriggerMenuMT.HLTMenuConfig.Menu.MenuChains import getConfFromChainName
-        confs=getConfFromChainName(chain)
-        for conf in confs:
-            seed=conf.replace("HLT_", "")
-            integers = map(int, re.findall(r'^\d+', seed))
-            multi=0
-            if len(integers)== 0:
-                multi=1
-            elif len(integers)==1:
-                multi=integers[0]
-                re.sub('^\d+',"",seed) #remove the multiplicity form the string
-            else:
-                sys.exit("ERROR in decoding combined chain %s"%(chain))
-
-            newdict={chain:[multi]}
-            cval = self.Alg.getProperties()[self.prop]            
+        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+        dictDecoding = DictFromChainName.DictFromChainName()
+        allMultis = dictDecoding.getChainMultFromName(chain)
+        print "chain ", chain
+        print "WOOF allMultis", allMultis
+        newdict = {chain : allMultis}        
+        
+        for i in range(1, len(allMultis)): 
+            print "MEOW multiplicity ", allMultis[i]
+            cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
+            print "MEOW cval ", cval
             if type(cval) == type(dict()):
+                ##cval[chain] = allMultis
                 if chain in cval.keys():
-                    cval[chain].append(multi)
+                    cval[chain].append(allMultis[i])
                 else:
-                    cval[chain]=[multi]
+                    cval[chain]=[allMultis[i]]
             else:
                 cval=newdict
             setattr(self.Alg, self.prop, cval)
-            
+                
 
 
 #########################################################
@@ -286,17 +282,18 @@ class WrappedList:
        
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
-        self.hypoToolConf = HypoToolConf( HypoToolGen )
+        self.hypoToolConf = HypoToolConf( HypoToolGen ) if HypoToolGen else None
         self.hypo         = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
         self.reuse = False # flag to draw dot diagrmas
+        self.ca = CA
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
@@ -380,11 +377,10 @@ class Chain:
         self.setSeedsToSequences() # save seed of each menuseq
         log.debug("Chain " + name + " with seeds: %s "%str( self.vseeds))
 
-        for step in self.steps:
+        for step in self.steps:  
             if step.isCombo:
                 step.combo.addChain(self.name)
-
-        
+            
     def setSeedsToSequences(self):
         # set the seed to the menusequences
         sequences1=self.steps[0].sequences
@@ -403,16 +399,18 @@ class Chain:
             log.error("found %d sequences in this chain and %d seeds. What to do??", tot_seq, tot_seed)
             sys.exit("ERROR, in chain configuration") 
         
-    def decodeHypoToolConfs(self):
+    def decodeHypoToolConfs(self, allChainDicts):
         """ This is extrapolating the hypotool configuration from the (combined) chain name"""
-        from TriggerMenuMT.HLTMenuConfig.Menu.MenuChains import getConfFromChainName
-        signatures = getConfFromChainName(self.name) #currently a lis of chainPart names
+        from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getConfFromChainName
+        signatures = getConfFromChainName(self.name, allChainDicts)
         for step in self.steps:
             if len(signatures) != len(step.sequences):
                 log.error("Error in step %s: found %d signatures and %d sequences"%(step.name, len(signatures), len(step.sequences)))
                 sys.exit("ERROR, in chain configuration")
             nseq=0
             for seq in step.sequences:
+                if seq.ca != None: # The CA merging took care of everything
+                    continue
                 seq.hypoToolConf.setConf(signatures[nseq])
                 seq.hypoToolConf.setName(self.name)
                 seq.hypo.addHypoTool(seq.hypoToolConf)
@@ -475,7 +473,7 @@ class CFSequence():
         
     
     def __str__(self):
-        return "--- CFSequence %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
+        return "--- CFSequence ---\n + Filter: %s \n +  %s \n "%(\
             self.filter, self.step )
           
 
@@ -565,6 +563,9 @@ class InViewReco( ComponentAccumulator ):
         """Reconstruction alg to be run per view"""
         log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
         self.addEventAlgo( alg, self.viewsSeq.name() )
+
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
 
     def sequence( self ):
         return self.mainSeq

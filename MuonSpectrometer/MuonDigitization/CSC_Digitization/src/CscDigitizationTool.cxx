@@ -15,11 +15,10 @@
 #include "StoreGate/DataHandle.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "CSC_Digitization/CscDigitizationTool.h"
 
-#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "xAODEventInfo/EventInfo.h"
@@ -34,8 +33,7 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool")
   , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0)
   , m_vetoThisBarcode(crazyParticleBarcode), m_run(0), m_evt(0), m_mergeSvc(0)
-  , m_inputObjectName("CSC_Hits"), m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
+  , m_inputObjectName("CSC_Hits") {
 
   declareInterface<IMuonDigitizationTool>(this);
 
@@ -45,9 +43,6 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("WindowUpperOffset",m_timeWindowUpperOffset = +25.);
   declareProperty("isPileUp",m_isPileUp = false);
 
-  declareProperty("RndmSvc", 		m_rndmSvc, "Random Number Service used in Muon digitization" );
-  declareProperty("RndmEngine",       m_rndmEngineName,       "Random engine name");
-  //    declareProperty("MCStore",  m_sgSvc, "Simulated Data Event Store");
   declareProperty("cscCalibTool",     m_pcalib);
   declareProperty("maskBadChannels",  m_maskBadChannel=true);
   declareProperty("amplification",    m_amplification=0.58e5);
@@ -115,16 +110,7 @@ StatusCode CscDigitizationTool::initialize() {
   }
 
   //random number initialization
-  if (!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR ( " Could not initialize Random Number Service" );
-  }      
-  // getting our random numbers stream
-
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   /** CSC calibratin tool for the Condtiions Data base access */
   if ( m_pcalib.retrieve().isFailure() ) {
@@ -210,11 +196,13 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
     }
   }
 
-  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr());
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper);
 
 }
 
-StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData) {
+StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine) {
   
   // get the iterator pairs for this DetEl
   //iterate over hits
@@ -261,8 +249,8 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
       std::vector<IdentifierHash> hashVec;
       StatusCode status = (m_newDigitEDM)
-        ? m_cscDigitizer->digitize_hit(&hit, hashVec, data_SampleMap, data_SampleMapOddPhase, m_rndmEngine)
-        : m_cscDigitizer->digitize_hit(&hit, hashVec, data_map, m_rndmEngine);
+        ? m_cscDigitizer->digitize_hit(&hit, hashVec, data_SampleMap, data_SampleMapOddPhase, rndmEngine)
+        : m_cscDigitizer->digitize_hit(&hit, hashVec, data_map, rndmEngine);
 
       if (status.isFailure()) {
 	ATH_MSG_ERROR ( "CSC Digitizer Failed to digitize a hit!" );
@@ -317,7 +305,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   // build the digit collections and record them
 
   if (m_newDigitEDM) {
-    double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+    double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
     bool phaseToSet = (flat<0.5) ? true : false;
     if (phaseToSet)
       return FillCollectionWithNewDigitEDM(data_SampleMapOddPhase, myDeposits, phaseToSet, cscDigits, cscSimData);
@@ -496,7 +484,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     
     // get the charge 
     double stripCharge = 0.0;
-    //double gaus = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.0,1.0);
+    //double gaus = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0,1.0);
     
     //if (stripCharge < m_noiseLevel) continue;
     stripCharge   = ((*cscMap).second).second + m_pedestal; // + m_noiseLevel*gaus;
@@ -693,10 +681,9 @@ StatusCode CscDigitizationTool::mergeEvent() {
   SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey);
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
-  if ( CoreDigitization(cscDigits.ptr(),cscSimData.ptr()).isFailure() ) { // 
-    ATH_MSG_ERROR ("mergeEvent() got failure from CoreDigitization()");
-    return StatusCode::FAILURE;
-  }
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATH_CHECK(CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper));
 
   // remove cloned one in processBunchXing......
   std::list<CSCSimHitCollection*>::iterator cscHitColl = m_cscHitCollList.begin();

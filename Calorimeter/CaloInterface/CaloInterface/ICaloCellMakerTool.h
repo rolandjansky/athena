@@ -21,9 +21,8 @@ class ICaloCellMakerTool
 public:
   DeclareInterfaceID (ICaloCellMakerTool, 1, 0);
 
-  // FIXME: Remove default value from second arg.
   virtual StatusCode process ( CaloCellContainer* theCellContainer,
-                               const EventContext& ctx = Gaudi::Hive::currentContext() ) const = 0;
+                               const EventContext& ctx ) const = 0;
 };
 
 #endif 

@@ -59,29 +59,16 @@ class BasicAthAppMgrTestCase( unittest.TestCase ):
         """Test communication b/w Py-proxy and C++ app mgr"""
         app = AthAppMgr( "MyApp" )
         createSvc = app.CreateSvc[:]
-        dlls = app.Dlls[:]
         app.CreateSvc += [ "StoreGateSvc/abcde" ]
         self.assertTrue( app.CreateSvc == createSvc + [ "StoreGateSvc/abcde" ] )
 
-        app.Dlls += [ "NothingThereLikeSuch" ]
-        self.assertTrue( app.Dlls    == []   )
-        self.assertTrue( app._cppApp is None )
-        
         Cout.instance.mute()
         ## instantiates the C++ application mgr (un-configured)
         cppApp = app.getHandle()
         Cout.instance.unMute()
 
-        self.assertTrue( app.Dlls    == ["AthenaServices"]   )
         self.assertTrue( app._cppApp is not None )
 
-        ## now Dlls calls should be re-directed to C++ app
-        Cout.instance.mute()
-        app.Dlls += [ "AthenaKernel" ]
-        Cout.instance.unMute()
-        self.assertTrue( set(app.Dlls[:]) ==
-                         set(["AthenaServices","AthenaKernel"]) )
-        
         self.assertTrue( cppApp.CreateSvc == [] )
 
         app.CreateSvc += [ "StoreGateSvc/svcA" ]

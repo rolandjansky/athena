@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -149,12 +149,8 @@ private:
 
   //StoreGate variables:
   //m_digitsContainerName : the container that will be used to extract the ZDC information
-  //m_complainContain     : controls if a warning message will be issued in case of failure
-  //m_complainRetrieve    : controls if a warning message will be issued in case of failure
   SG::ReadHandleKey<ZdcDigitsCollection> m_digitsContainerName
     { "ZdcDigitsCollection" };
-  bool m_complainContain;
-  bool m_complainRetrieve;
 
   unsigned int m_nsamples;
 

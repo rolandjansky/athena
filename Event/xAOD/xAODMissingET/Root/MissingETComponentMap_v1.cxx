@@ -18,13 +18,6 @@
 
 using namespace xAOD;
 
-///////////////////////////////
-// Internally used constants //
-///////////////////////////////
-
-size_t MissingETComponentMap_v1::m_clusterLinkReserve = 10000; 
-size_t MissingETComponentMap_v1::m_trackLinkReserve   = 10000;
-
 /////////////////////////////////
 // Constructors and destructor //
 /////////////////////////////////

@@ -6,42 +6,50 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, RecoFragmentsPool, getChainStepName
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
-from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
+from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 
 
 def generateChains(flags, chainDict):
-    acc = ComponentAccumulator()
+    accCalo = ComponentAccumulator()
 
-    l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
-                                            flags,
-                                            name='L2PhotonCaloHypo',
-                                            CaloClusters='L2CaloEMClusters')
+
+    l2CaloHypo = l2CaloHypoCfg( flags,
+                                name = 'L2PhotonCaloHypo',
+                                CaloClusters = 'L2CaloEMClusters' )
+
+    l2CaloHypo.HypoTools = [ TrigL2CaloHypoToolFromDict(chainDict) ]
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
-    acc.merge(l2CaloReco)
+    accCalo.merge(l2CaloReco)
 
-    fastCaloSequence = MenuSequence(Sequence=l2CaloReco.sequence(),
-                                    Maker=l2CaloReco.inputMaker(),
-                                    Hypo=l2CaloHypo,
-                                    HypoToolGen=TrigL2CaloHypoToolFromName)
+    fastCaloSequence = MenuSequence( Sequence = l2CaloReco.sequence(),
+                                     Maker = l2CaloReco.inputMaker(),
+                                     Hypo = l2CaloHypo,
+                                     HypoToolGen = None,
+                                     CA = accCalo )
 
     fastCaloStep = ChainStep(getChainStepName('Photon', 1), [fastCaloSequence])
 
+    accPhoton = ComponentAccumulator()
+
+    l2PhotonHypo = l2PhotonHypoCfg( flags,
+                                    Photons = 'L2Photons',
+                                    RunInView = True )
+
+    l2PhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromDict(chainDict) ]
+
     l2PhotonReco = RecoFragmentsPool.retrieve(l2PhotonRecoCfg, flags)
-    acc.merge(l2PhotonReco)
+    accPhoton.merge(l2PhotonReco)
 
-    l2PhotonHypo = RecoFragmentsPool.retrieve(l2PhotonHypoCfg,
-                                              flags,
-                                              Photons='L2Photons',
-                                              RunInView=True)
 
-    l2PhotonSequence = MenuSequence(Sequence=l2PhotonReco.sequence(),
-                                    Maker=l2PhotonReco.inputMaker(),
-                                    Hypo=l2PhotonHypo,
-                                    HypoToolGen=TrigL2PhotonHypoToolFromName)
+    l2PhotonSequence = MenuSequence( Sequence = l2PhotonReco.sequence(),
+                                     Maker = l2PhotonReco.inputMaker(),
+                                     Hypo = l2PhotonHypo,
+                                     HypoToolGen = None,
+                                     CA = accPhoton )
 
     l2PhotonStep = ChainStep(getChainStepName('Photon', 2), [l2PhotonSequence])
 
@@ -49,4 +57,4 @@ def generateChains(flags, chainDict):
     pprint.pprint(chainDict)
 
     chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep, l2PhotonStep])
-    return acc, chain
+    return chain

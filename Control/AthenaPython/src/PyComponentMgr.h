@@ -32,8 +32,8 @@ class IPyComponent;
 
 namespace PyAthena {
 
-class ATLAS_NOT_THREAD_SAFE PyComponentMgr : virtual public IPyComponentMgr,
-                                             public AthService
+class ATLAS_NOT_THREAD_SAFE PyComponentMgr
+  : public extends<AthService, IPyComponentMgr>
 { 
   friend class SvcFactory<PyAthena::PyComponentMgr>;
 
@@ -52,39 +52,22 @@ class ATLAS_NOT_THREAD_SAFE PyComponentMgr : virtual public IPyComponentMgr,
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  static const InterfaceID& interfaceID();
 
   /**
    * Retrieve a python object from the python world.
    * this returns a NEW reference to that python object.
    */
-  PyObject* pyObject( IPyComponent* component );
+  virtual PyObject* pyObject( IPyComponent* component ) override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private methods: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
 
-  /// Default constructor: 
-  PyComponentMgr();
+private: 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
+  PyComponentMgr() = delete;
+
+
  private: 
 
   /** @brief The dictionary of python components' description
@@ -106,18 +89,6 @@ class ATLAS_NOT_THREAD_SAFE PyComponentMgr : virtual public IPyComponentMgr,
    */
   PyComponents_t m_components;
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& PyComponentMgr::interfaceID() 
-{ 
-   return IPyComponentMgr::interfaceID(); 
-}
 
 } //> namespace PyAthena
 

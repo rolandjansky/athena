@@ -616,8 +616,11 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       const Trk::CompetingRIOsOnTrack* compROT = 
 	dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
       if (compROT && it->smoothedTrackParameters() && !it->isOutlier()) {
-	const Trk::TrackParameters* annealingPars = it->smoothedTrackParameters();
-	m_compRotTool->updateCompetingROT(*compROT, *annealingPars, beta);
+        const Trk::TrackParameters* annealingPars = it->smoothedTrackParameters();
+        Trk::CompetingRIOsOnTrack* newCompROT = compROT->clone();
+        m_compRotTool->updateCompetingROT(*newCompROT, *annealingPars, beta);
+        it->replaceMeasurement(newCompROT);
+        compROT = newCompROT;
       }
     }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -74,10 +74,10 @@ namespace Trk {
       };
         
       /**Default Constructor*/
-      SurfaceBounds(){}
-      
+      SurfaceBounds() = default;
+
       /**Destructor*/
-      virtual ~SurfaceBounds(){}
+      virtual ~SurfaceBounds() = default;
       
       /** clone() method to make deep copy in Surface copy constructor and for assigment operator
         of the Surface class.*/

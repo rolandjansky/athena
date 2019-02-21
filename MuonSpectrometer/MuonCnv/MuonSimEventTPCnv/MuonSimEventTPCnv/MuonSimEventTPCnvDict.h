@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMEVENTTPCNV_MUONSIMEVENTTPCNVDICT_H
@@ -28,5 +28,7 @@
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollection_p2.h"
 #include "MuonSimEventTPCnv/sTGCSimHitCollection_p1.h"
 #include "MuonSimEventTPCnv/sTGCSimHitCollection_p2.h"
+#include "MuonSimEventTPCnv/MMSimHitCollection_p1.h"
+#include "MuonSimEventTPCnv/MMSimHitCollection_p2.h"
 
 #endif // MUONSIMEVENTTPCNV_MUONSIMEVENTTPCNVDICT_H

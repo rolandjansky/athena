@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,6 @@
 
 //MDT digitization includes
 #include "MDT_Digitization/MdtDigitizationTool.h"
-#include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/chargeCalculator.h" 
 #include "MDT_Digitization/particleGamma.h" 
@@ -56,7 +55,7 @@
 #include "HepMC/GenParticle.h" 
 
 //Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 //Calibration Service
 #include "MdtCalibData/MdtFullCalibData.h"
@@ -80,20 +79,11 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_BMGid(-1)
   , m_mergeSvc(0)
   , m_inputObjectName("")
-  , m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0)
-  , m_rndmEngineName("MuonDigitization")
-  , m_twinRndmSvc("AtRndmGenSvc", name )                         // TWIN TUBE
-  , m_twinRndmEngine(0)                                          // TWIN TUBE
-  , m_twinRndmEngineName("MuonDigitizationTwin")                 // TWIN TUBE
   , m_calibDbSvc("MdtCalibrationDbSvc", name) 
   , m_pSummarySvc("MDTCondSummarySvc", name)
 {
   declareInterface<IMuonDigitizationTool>(this);
 
-  //Random numbers service	          
-  declareProperty("RndmSvc", 	         m_rndmSvc,                           "Random Number Service used in Muon digitization");
-  declareProperty("RndmEngine",          m_rndmEngineName,                    "Random engine name");
   declareProperty("DigitizationTool",    m_digiTool,                          "Tool which handle the digitization process");
   //Conditions Database
   declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
@@ -129,8 +119,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   //Twin Tube  
   declareProperty("UseTwin",             m_useTwin             =  false);
   declareProperty("UseAllBOLTwin",       m_useAllBOLTwin       =  false);
-  declareProperty("TwinRndmSvc", 	 m_twinRndmSvc,                       "Random Number Service used in Muon digitization for Twin Tubes");
-  declareProperty("TwinRndmEngine",      m_twinRndmEngineName,                "Random engine name for Twin Tubes");
   declareProperty("ResolutionTwinTube",  m_resTwin             =  1.05,    "Twin Tube resolution");
   //Multi-charge particle digitization
   declareProperty("DoQballCharge",       m_DoQballCharge       =  false,      "dEdx for Qballs with account of electric charge"); 
@@ -151,7 +139,6 @@ StatusCode MdtDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "Configuration  MdtDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
-  ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
   ATH_MSG_INFO ( "DigitizationTool       " << m_digiTool            );
   ATH_MSG_INFO ( "MdtCalibrationDbSvc    " << m_calibDbSvc          );
   ATH_MSG_INFO ( "MDTCondSummarySvc      " << m_pSummarySvc         );
@@ -181,8 +168,6 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "CheckSimHits           " << m_checkMDTSimHits     );
   ATH_MSG_INFO ( "UseTwin                " << m_useTwin             );
   ATH_MSG_INFO ( "UseAllBOLTwin          " << m_useAllBOLTwin       );
-  ATH_MSG_INFO ( "TwinRndmSvc            " << m_twinRndmSvc         );
-  ATH_MSG_INFO ( "TwinRndmEngine         " << m_twinRndmEngineName  );
   ATH_MSG_INFO ( "ResolutionTwinTube     " << m_resTwin             );
   ATH_MSG_INFO ( "DoQballCharge          " << m_DoQballCharge       );
   if(!m_useTof) {
@@ -248,35 +233,7 @@ StatusCode MdtDigitizationTool::initialize() {
   // initialize inverse lightSpeed (c_light in m/s)
   m_inv_c_light = 1./(CLHEP::c_light);
   
-  if (!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize Random Number Service");
-  }      
-  
-  // getting our random numbers stream
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  if (!m_rndmSvc.retrieve().isSuccess()){
-    ATH_MSG_ERROR("Could not initialize Random Number Service");
-  }
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
-  
-  // TWIN TUBE
-  if (m_useTwin){
-    if (!m_twinRndmSvc.retrieve().isSuccess()) {
-      ATH_MSG_ERROR("Could not initialize Random Number Service for Twin Tubes");
-    }      
-    // getting our random numbers stream
-    ATH_MSG_DEBUG("Getting random number engine : <" << m_twinRndmEngineName << ">" );
-    m_twinRndmEngine = m_twinRndmSvc->GetEngine(m_twinRndmEngineName);
-    if (m_twinRndmEngine==0) {
-      ATH_MSG_ERROR("Could not find RndmEngine : " << m_twinRndmEngineName );
-      return StatusCode::FAILURE;
-    }
-  }
-  
+  ATH_CHECK(m_rndmSvc.retrieve());
   
   // Get pointer to MdtCalibrationDbSvc and cache it :
   if ( m_t0_from_DB ){
@@ -422,6 +379,13 @@ StatusCode MdtDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
+CLHEP::HepRandomEngine* MdtDigitizationTool::getRandomEngine(const std::string& streamName) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  std::string rngName = name()+streamName;
+  rngWrapper->setSeed( rngName, Gaudi::Hive::currentContext() );
+  return *rngWrapper;
+}
 
 StatusCode MdtDigitizationTool::mergeEvent() {
 
@@ -490,7 +454,11 @@ StatusCode MdtDigitizationTool::processAllSubEvents() {
 
 
 StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
-  
+  // Set the RNGs to use for this event.
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
+  CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin");
+  CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name());
+
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
     m_IdentifiersToMask.clear();
@@ -517,13 +485,13 @@ StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer
   while( m_thpcMDT->nextDetectorElement(i, e) ) {
     // Loop over the hits:
     while (i != e) {
-      handleMDTSimhit(*i);
+      handleMDTSimhit(*i, twinRndmEngine, toolRndmEngine);
       ++i;
     }
   }
 
   //loop over drift time map entries, convert to tdc value and construct/store the digit
-  createDigits(digitContainer, sdoContainer);
+  createDigits(digitContainer, sdoContainer,rndmEngine);
   
   // reset hits
   m_hits.clear();
@@ -538,7 +506,7 @@ StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer
 }
 
 
-bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
+bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CLHEP::HepRandomEngine *twinRndmEngine, CLHEP::HepRandomEngine *toolRndmEngine){
 
   const MDTSimHit& hit(*phit);
   MDTSimHit newSimhit(*phit); //hit can be modified later
@@ -644,7 +612,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   }
 
   // digitize input
-  MdtDigiToolOutput digiOutput( m_digiTool->digitize(digiInput) );
+  MdtDigiToolOutput digiOutput( m_digiTool->digitize(digiInput,toolRndmEngine) );
   //-Implementation for RT_Relation_DB_Tool
   
   // simulate tube response, check if tube fired
@@ -777,7 +745,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
 	twin_sign_driftTime = driftTime + twin_tubeLength/m_signalSpeed  - 2*twin_propagation_delay + HV_delay;
 
 	//smear the twin time by a gaussian with a stDev given by m_resTwin
-	double rand = CLHEP::RandGaussZiggurat::shoot(m_twinRndmEngine, twin_sign_driftTime, m_resTwin);
+	double rand = CLHEP::RandGaussZiggurat::shoot(twinRndmEngine, twin_sign_driftTime, m_resTwin);
 	twin_sign_driftTime = rand;
 	
 	ATH_MSG_DEBUG( " TWIN TUBE stname " << stationName << " steta " << stationEta
@@ -897,7 +865,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 }
 
 
-bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
+bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer, CLHEP::HepRandomEngine *rndmEngine) {
 
   Identifier currentDigitId;
   Identifier currentElementId;
@@ -914,7 +882,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
   
   //this offset emulates the timing spead of cosmics: +/- 1 BC 
   if (m_useTof == false && m_useOffSet2 == true) {
-    int inum = CLHEP::RandFlat::shootInt(m_rndmEngine,0,10);
+    int inum = CLHEP::RandFlat::shootInt(rndmEngine,0,10);
     if (inum == 8  ) {timeOffsetEvent =  -25.0;}
     else if (inum == 9  ) {timeOffsetEvent =  25.0;}
     ATH_MSG_DEBUG ( "Emulating timing spead of cosmics: +/- 1 BC. Adding  " << timeOffsetEvent << " ns to time" );
@@ -935,7 +903,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       //+ForCosmics
       //this offset emulates the time jitter of cosmic ray muons w.r.t LVL1 accept 
       if (m_useTof == false && m_useOffSet1 == true) {
-	timeOffsetTotal = timeOffsetEvent + CLHEP::RandFlat::shoot(m_rndmEngine,-12.5 ,12.5 );
+	timeOffsetTotal = timeOffsetEvent + CLHEP::RandFlat::shoot(rndmEngine,-12.5 ,12.5 );
 	ATH_MSG_DEBUG ( "Emulating time jitter of cosmic ray muons w.r.t LVL1 accept. Adding  " << timeOffsetTotal << " ns to time" );
       }
       //-ForCosmics
@@ -1004,8 +972,8 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 	}
       }
       bool isHPTDC = ( m_idHelper->stationName(idDigit) == m_BMGid && m_BMGpresent) ? true : false;
-      int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC);
-      int adc = digitizeTime(it->adc, isHPTDC);
+      int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC, rndmEngine);
+      int adc = digitizeTime(it->adc, isHPTDC, rndmEngine);
       ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime
 		     << " driftRadius " << driftRadius << " TDC " << tdc << " ADC " << adc << " mask bit " << insideMask );
 
@@ -1073,10 +1041,10 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   return digitCollection;
 }
 
-int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC) const {
+int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine *rndmEngine) const {
   int    tdcCount;
   double tmpCount = isHPTDC ? time/m_ns2TDCHPTDC : time/m_ns2TDCAMT;
-  double rand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, tmpCount, m_resTDC);
+  double rand = CLHEP::RandGaussZiggurat::shoot(rndmEngine, tmpCount, m_resTDC);
   tdcCount = static_cast<long>(rand);
   
   if (tdcCount < 0 || tdcCount > 4096){

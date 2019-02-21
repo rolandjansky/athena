@@ -27,6 +27,7 @@ atlas_add_component( EventSelectorAthenaPool
                      src/CondProxyProvider.cxx
                      src/DoubleEventSelectorAthenaPool.cxx
                      src/EventSelectorAthenaPool.cxx
+                     src/StreamSelectorTool.cxx
                      src/PoolCollectionConverter.cxx
                      src/registerKeys.cxx
                      src/components/*.cxx

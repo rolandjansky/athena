@@ -18,11 +18,6 @@ static const double Pi = TMath::Pi();
 
 using namespace CaloMonitoring;
 
-// need to delete dynamically allocated arrays
-LArCellBinning::~LArCellBinning() {
-
-}
-
 void LArCellBinning::doEtaBinning(const int nEtaRegions, const double* etaBreakPts, const int * nEtaBins) {
   
   unsigned nBins=0;

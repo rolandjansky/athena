@@ -10,6 +10,7 @@ if(ETT) :
     try:
         from CaloRec.CaloClusterTopoEMGetters import CaloClusterTopoEM633Getter
         CaloClusterTopoEM633Getter()
+        topSequence.CaloClusterTopoEM633Getter.ExtraInputs=[('LArBadChannelCont','ConditionStore+LArBadChannel')]
         #from CaloRec.CaloCell2ClusterMapperGetters import EMCell2TopoClusterMapperGetter
         #EMCell2TopoClusterMapperGetter()
     except Exception:
@@ -20,6 +21,7 @@ if(ETT) :
     try:
         from CaloRec.CaloClusterTopoEMGetters import CaloClusterTopoEM430Getter
         CaloClusterTopoEM430Getter()
+        topSequence.CaloClusterTopoEM430Getter.ExtraInputs=[('LArBadChannelCont','ConditionStore+LArBadChannel')]
         #from CaloRec.CaloCell2ClusterMapperGetters import EMCell2TopoCluster430MapperGetter
         #EMCell2TopoCluster430MapperGetter()
     except Exception:

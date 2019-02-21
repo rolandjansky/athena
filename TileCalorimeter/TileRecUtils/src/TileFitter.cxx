@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************************************
@@ -120,12 +120,6 @@ TileFitter::TileFitter(bool debug, int nrow, int ncol, int index, CLHEP::HepMatr
     }
     std::cout << std::endl;
   }
-}
-// ============================================================================== 
-// Destructor.
-TileFitter::~TileFitter() {
-  //  std::cout << " TileFitter destructor called: NP=" << NP << ", iconfig=" << iconfig << std::endl;
-  return;
 }
 // ============================================================================== 
 int TileFitter::fitAmp(TileFilterResult &tResult, bool lDebug) {

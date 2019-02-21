@@ -34,5 +34,7 @@ if muonCombinedRecFlags.doStaco():
     theStacoUP.SelectUpDown =  2
 
 # the following is recommended as a postExec to Reco_trf:
-# topSequence.StreamESD.ItemList+=["TrackCollection#Combined_Tracks_split"]
+# from AthenaCommon.AppMgr import theApp
+# StreamESD = theApp.getOutputStream( "StreamESD" )
+# StreamESD.ItemList+=["TrackCollection#Combined_Tracks_split"]
 

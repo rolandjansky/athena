@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloEnergyScanResultsContainer.h"
@@ -109,7 +109,7 @@ void L1CaloEnergyScanResultsContainer::makeTransient(const std::map<std::string,
         CondAttrListCollection::const_iterator end = attrListCollection->begin();
         for(; pos!= end; ++pos) {
 
-            AthenaAttributeList attrList = pos->second;
+            const coral::AttributeList& attrList = pos->second;
 
             // Get value of each row for the current channel
             CondAttrListCollection::ChanNum chanNum(pos->first);

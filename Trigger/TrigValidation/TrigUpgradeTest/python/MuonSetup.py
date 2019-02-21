@@ -438,7 +438,7 @@ def l2muisoRecoSequence( RoIs, OutputLevel=INFO ):
   return l2muisoRecoSequence, sequenceOut
 
 
-def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
+def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.DetFlags import DetFlags
@@ -451,7 +451,7 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
-  muEFSARecoSequence = parOR("efmsViewNode")
+  muEFSARecoSequence = parOR("efmsViewNode_"+name)
  
   efAlgs = [] 
   
@@ -469,7 +469,7 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder", OutputLevel=OutputLevel )
   theSegmentFinder.DoSummary=True
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
-  theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
+  theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
                                                   SegmentFinder=theSegmentFinder,
                                                   MuonSegmentOutputLocation = "MooreSegments",
                                                   UseCSC = muonRecFlags.doCSCs(),
@@ -484,7 +484,7 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   
   
   
-  theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
+  theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB_"+name,
                                                      OutputLevel = OutputLevel,
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
                                                                                         DoSummary=False,
@@ -498,7 +498,6 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
                                                                                         DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                     MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
                                                      UseCSC = muonRecFlags.doCSCs(),
                                                      UseMDT = False,
                                                      UseRPC = False,
@@ -524,7 +523,7 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   
   muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
   
-  xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
+  xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg_"+name, 
                                                             TrackParticleCreator = muonParticleCreatorTool,
                                                             TrackCollectionCnvTool=muonTrackCollectionCnvTool,
                                                             RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
@@ -536,13 +535,13 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   
   theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder="",ExtrapolationStrategy=1)
 
-  theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
+  theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg_"+name,MuonCandidateTool=theCandidateTool)
   
   
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator, OutputLevel=DEBUG)
   
-  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=muEFSAInfo)
+  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=muEFSAInfo+"_"+name )
   
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -552,12 +551,17 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
   efAlgs.append( theMuonCandidateAlg )
   efAlgs.append( themuoncreatoralg )
 
+
   # setup muEFMsonly algs
   for efAlg in efAlgs:
       if efAlg.properties().has_key("RoIs"):
+        if "FS" in RoIs:
+          efAlg.RoIs = "FSRoI"
+        else:
           efAlg.RoIs = RoIs
       muEFSARecoSequence += efAlg
   sequenceOut = themuoncreatoralg.MuonContainerLocation
+
 
   
   return muEFSARecoSequence, sequenceOut

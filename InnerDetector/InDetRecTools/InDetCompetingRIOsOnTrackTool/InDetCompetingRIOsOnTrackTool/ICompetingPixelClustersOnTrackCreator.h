@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ public:
         -  Trk::CompetingRIOsOnTrack is used because of interface reasons
         (common interface Trk::ICompetingRIOsOnTrackTool)*/
     virtual void updateCompetingROT(
-        const Trk::CompetingRIOsOnTrack&,
+        Trk::CompetingRIOsOnTrack&,
         const Trk::TrackParameters&,
         const Trk::IWeightCalculator::AnnealingFactor
         //                const bool recreateROTs=false
@@ -82,7 +82,7 @@ public:
     and effective measurements of a Trk::CompetingRIOsOnTrack using
     a given set of assignment probabilities */
     virtual StatusCode updateCompetingROTprobs(
-        const Trk::CompetingRIOsOnTrack&,
+        Trk::CompetingRIOsOnTrack&,
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >&
     ) const = 0;
 

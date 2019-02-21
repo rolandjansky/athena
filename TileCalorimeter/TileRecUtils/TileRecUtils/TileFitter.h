@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************************************
@@ -37,7 +37,7 @@ class TileFitter
    TileFitter(bool debug, int nRow, int nColumn, int index, CLHEP::HepMatrix& S, int Icon);
 
    // Destructor
-   ~TileFitter();
+   ~TileFitter() = default;
 
    int fitAmp(TileFilterResult &tResult, bool lDebug=false);
    int getIndex();

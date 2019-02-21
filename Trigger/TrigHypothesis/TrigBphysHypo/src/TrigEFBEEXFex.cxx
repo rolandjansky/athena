@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: tabstop=2:shiftwidth=2:expandtab
@@ -289,7 +289,6 @@ HLT::ErrorCode TrigEFBEEXFex::hltInitialize()
     m_countPassedEventsBs=0;
     m_countPassedEventsBd=0;
     m_countPassedEventsLb=0;
-    m_countPassedEventsBc=0;
     
     m_countPassedEEID=0;
     m_countPassedEEOS=0;

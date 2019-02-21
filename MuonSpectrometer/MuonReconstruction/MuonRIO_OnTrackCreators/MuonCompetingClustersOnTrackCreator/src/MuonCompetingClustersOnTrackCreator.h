@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace Muon {
     /** method for the update of the assignment 
 	probabilities and effective measurements
         of an Muon::CompetingMuonClustersOnTrack using a new track prediction. Not implemented for now!! */
-    void updateCompetingROT( const Trk::CompetingRIOsOnTrack&,
+    void updateCompetingROT( Trk::CompetingRIOsOnTrack&,
 			     const Trk::TrackParameters&,
 			     const Trk::IWeightCalculator::AnnealingFactor ) const
     {

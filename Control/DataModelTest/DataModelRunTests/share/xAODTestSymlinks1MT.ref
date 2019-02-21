@@ -1,7 +1,7 @@
-Sun Jan 20 16:47:26 CET 2019
+Sat Feb  9 06:12:42 CET 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc8-opt] [atlas-work3/7fb5304f19] -- built on [2019-01-19T2316]
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.22/2840e19] -- built on [2019-02-07T2103]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,23 +9,23 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks1MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5455 configurables from 55 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5454 configurables from 43 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus076.cern.ch on Sun Jan 20 16:47:52 2019
+                                          running on lxplus054.cern.ch on Sat Feb  9 06:12:59 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 3685 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 3683 CLIDRegistry entries for module ALL
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
@@ -35,29 +35,40 @@ PoolSvc                                            INFO io_register[PoolSvc](xml
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
 DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-18T2347/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus076.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-07T2139/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus054.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                            INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc                                        INFO Found MetaDataTools = PublicToolHandleArray([])
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 8611 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 2307 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 6710 CLIDRegistry entries for module ALL
 ClassIDSvc                                  0      INFO  getRegistryEntries: read 67 CLIDRegistry entries for module ALL
+xAODMaker::EventInfoCnvAlg                  0      INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::EventInfoCnvAlg.EventInfoC...    0      INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::EventInfoCnvAlg.EventInfoC...    0   WARNING Beam conditions service not available
+xAODMaker::EventInfoCnvAlg.EventInfoC...    0   WARNING Will not fill beam spot information into xAOD::EventInfo
+xAODMaker::EventInfoCnvAlg.EventInfoC...    0      INFO Luminosity information not available
+xAODMaker::EventInfoCnvAlg.EventInfoC...    0      INFO Will take information from the EventInfo object
 xAODTestAlg                                 0   WARNING Implicit circular data dependency detected for id  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo2' ) 
 ThreadPoolSvc                               0      INFO no thread init tools attached
 AvalancheSchedulerSvc                       0      INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                       0      INFO Found 10 algorithms
+AvalancheSchedulerSvc                       0      INFO Found 11 algorithms
 AvalancheSchedulerSvc                       0      INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
       none
   IncidentProcAlg1
       none
+  xAODMaker::EventInfoCnvAlg
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo' ) 
+    o OUTPUT  ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ) 
+    o OUTPUT  ( 'xAOD::EventInfoContainer' , 'StoreGateSvc+PileupEventInfo' ) 
   SGInputLoader
       none
   xAODTestWriteCVec
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
     o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
     o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dtest' ) 
   xAODTestWriteCInfo
@@ -66,7 +77,6 @@ AvalancheSchedulerSvc                       0      INFO Data Dependencies for Al
     o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
     o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' ) 
   xAODTestWriteSymlinks
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
     o OUTPUT  ( 'DMTest::S1' , 'StoreGateSvc+S2' ) 
     o OUTPUT  ( 'DMTest::S1' , 'StoreGateSvc+S2alias' ) 
     o OUTPUT  ( 'DMTest::S2' , 'StoreGateSvc+S2' ) 
@@ -81,7 +91,6 @@ AvalancheSchedulerSvc                       0      INFO Data Dependencies for Al
     o INPUT   ( 'DMTest::S1' , 'StoreGateSvc+S2' ) 
     o INPUT   ( 'DMTest::S2' , 'StoreGateSvc+S2' ) 
     o INPUT   ( 'DMTest::S2' , 'StoreGateSvc+S2alias' ) 
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
     o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo2' ) 
     o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo2' ) 
   EndIncFiringAlg
@@ -90,10 +99,8 @@ AvalancheSchedulerSvc                       0      INFO Data Dependencies for Al
       none
 AvalancheSchedulerSvc                       0      INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
-       * xAODTestAlg
+       * xAODMaker::EventInfoCnvAlg
        * xAODTestWriteCInfo
-       * xAODTestWriteCVec
-       * xAODTestWriteSymlinks
 PrecedenceSvc                               0      INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                               0      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                       0      INFO Concurrency level information:
@@ -189,7 +196,7 @@ AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processi
 xAODTestReadSymlink                     19  0      INFO C (as AuxElement): 20000; S 1900
 xAODTestAlg.xAODTestReadSymlinkTool     19  0      INFO From tool: C (as AuxElement): 20000; S 1900
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.05518
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0575204
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize

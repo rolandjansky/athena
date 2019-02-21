@@ -50,22 +50,22 @@ class ATLAS_NOT_THREAD_SAFE PyProperty
   /// @c Property implementation
   ///@{
   /// export the property value to the destination
-  bool load (Property& dest) const override;
+  virtual bool load (Property& dest) const override;
 
   /// import the property value from source
-  bool assign (const Property& src) override;
+  virtual bool assign (const Property& src) override;
 
   /// export the property value as a @c std::string
-  std::string toString() const override;
+  virtual std::string toString() const override;
 
   /// export the property value into a std::stream
-  void toStream(std::ostream& out) const override;
+  virtual void toStream(std::ostream& out) const override;
 
   /// import the property value from a @c std::string
-  StatusCode fromString (const std::string& value) override;
+  virtual StatusCode fromString (const std::string& value) override;
 
   /// clone: the usual "virtual constructor" pattern
-  PyProperty* clone() const override;
+  virtual PyProperty* clone() const override;
 
   /// access underlying wrapped object
   virtual void* object() const;

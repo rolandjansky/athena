@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -9,7 +9,7 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTrackTools/EMBremCollectionBuilder
 AUTHORS:  Anastopoulos
 CREATED:  
 
-PURPOSE:  Performs Brem refit of all tracks 
+PURPOSE:  Performs Brem refit for silicon tracks, copies over TRT-standalone
 UPDATE :
  **********************************************************************/
 #include "EMBremCollectionBuilder.h"
@@ -216,9 +216,11 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     nSiliconHits_trk += dummy;
   }
   ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);    
+
+  bool isSilicon=(nSiliconHits_trk >= m_MinNoSiHits);
   //Setup the Trk::Track Refit 
   std::unique_ptr<Trk::Track> trk_refit; 
-  if( nSiliconHits_trk >= m_MinNoSiHits ) {
+  if( isSilicon ) {
     IegammaTrkRefitterTool::Cache cache{};
     StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart,cache);
     if (status == StatusCode::SUCCESS){
@@ -248,35 +250,45 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     ATH_MSG_ERROR("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
   }
-  //Additional info for  internal e/gamma usage via the full Trk::Track
-  //Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
+ 
+  /*
+   * Additional info for  
+   * internal e/gamma usage via the full Trk::Track
+   * Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
+   * Only for silicon tracks as in only needed in this case
+   */
   static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
   static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");  
   float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
+  if(isSilicon){
+    auto tsos = trk_refit->trackStateOnSurfaces()->begin();
+    for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
+      if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
+        float extrapEta(-999.), extrapPhi(-999.);
+        const Trk::TrackParameters *perigeeTrackParams(0);
+        perigeeTrackParams = (*tsos)->trackParameters();
 
-  auto tsos = trk_refit->trackStateOnSurfaces()->begin();
-  for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
-    if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
-      float extrapEta(-999.), extrapPhi(-999.);
-      const Trk::TrackParameters *perigeeTrackParams(0);
-      perigeeTrackParams = (*tsos)->trackParameters();
-
-      const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
-      std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
-      //Do the straight-line extrapolation.	  
-      bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
-      if (hitEM2) {
-        perigeeExtrapEta = extrapEta;
-        perigeeExtrapPhi = extrapPhi;
-      } else {
-        ATH_MSG_WARNING("Extrapolation to EM2 failed!");
+        const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
+        std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), 
+                                                                                            perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+        //Do the straight-line extrapolation.	  
+        bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
+        if (hitEM2) {
+          perigeeExtrapEta = extrapEta;
+          perigeeExtrapPhi = extrapPhi;
+        } else {
+          ATH_MSG_WARNING("Extrapolation to EM2 failed!");
+        }
+        break;
       }
-      break;
     }
   }
   pgExtrapEta(*aParticle) = perigeeExtrapEta;    
   pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
-  //Add qoverP for the last measurement
+ 
+  /*
+   * Add qoverP from the last measurement
+   */
   static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
   float QoverPLast(0);
   auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();

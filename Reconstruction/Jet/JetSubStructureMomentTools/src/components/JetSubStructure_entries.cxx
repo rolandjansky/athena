@@ -11,6 +11,8 @@
 #include "JetSubStructureMomentTools/CenterOfMassShapesTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
@@ -35,6 +37,8 @@ DECLARE_COMPONENT( PlanarFlowTool )
 DECLARE_COMPONENT( CenterOfMassShapesTool )
 DECLARE_COMPONENT( EnergyCorrelatorTool )
 DECLARE_COMPONENT( EnergyCorrelatorRatiosTool )
+DECLARE_COMPONENT( EnergyCorrelatorGeneralizedTool )
+DECLARE_COMPONENT( EnergyCorrelatorGeneralizedRatiosTool )
 DECLARE_COMPONENT( JetPullTool )
 DECLARE_COMPONENT( JetChargeTool )
 DECLARE_COMPONENT( VolatilityTool )

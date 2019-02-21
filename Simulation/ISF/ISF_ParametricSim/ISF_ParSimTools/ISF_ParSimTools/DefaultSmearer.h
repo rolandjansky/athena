@@ -55,7 +55,7 @@ namespace iParSim {
       /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
       //const xAOD::TrackParticle* smear(const ISF::ISFParticle& isp) const override; 
 
-      bool smear(xAOD::TrackParticle* xaodTP) const override; 
+      bool smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine*) const override; 
 
       unsigned int pdg() const override;
 

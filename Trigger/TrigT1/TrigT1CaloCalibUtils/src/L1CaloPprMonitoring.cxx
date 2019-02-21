@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprMonitoring.h"
@@ -145,7 +145,7 @@ StatusCode L1CaloPprMonitoring::execute()
 
 	    CondAttrListCollection::const_iterator Itr = m_dbFineTimeRefsTowers->chanAttrListPair(CoolId);
 	    if (Itr != m_dbFineTimeRefsTowers->end()) {
-	       const AthenaAttributeList& AttrList(Itr->second); 
+               const coral::AttributeList& AttrList =Itr->second;
 	       Reference = AttrList["referenceValue"].data<double>();
 	       CalFactor = AttrList["calibrationFactor"].data<double>();
 	    }

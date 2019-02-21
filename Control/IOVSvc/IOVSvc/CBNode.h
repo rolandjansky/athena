@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBNODE_H
@@ -56,6 +56,8 @@ public:
     }
   };
 
+  typedef std::set<CBNode*, CBNode::nodeOrder> nodeSet;
+
   CBNode(std::string name, CBNode* parent);
   CBNode(const SG::DataProxy* proxy, const std::string& name, CBNode* parent);
   CBNode(BFCN* fcn, const CallBackID& cb, CBNode* parent);
@@ -67,8 +69,8 @@ public:
   bool delParent(CBNode* parent);
   bool delChild(CBNode* child);
 
-  const std::set<CBNode*>& children() const { return m_children; }
-  const std::set<CBNode*>& parents() const { return m_parents; }
+  const nodeSet& children() const { return m_children; }
+  const nodeSet& parents() const { return m_parents; }
 
   std::string name() const { return m_name; }
   int level() const { return m_level; }
@@ -88,8 +90,8 @@ public:
   unsigned int serial() const { return m_serial; }
 
 private:
-  std::set<CBNode*> m_parents;
-  std::set<CBNode*> m_children;
+  nodeSet m_parents;
+  nodeSet m_children;
 
   std::string m_name;
   int m_level;

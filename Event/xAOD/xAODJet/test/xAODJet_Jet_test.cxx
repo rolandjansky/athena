@@ -11,6 +11,7 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 #include "xAODCore/ShallowCopy.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <iostream>
@@ -44,7 +45,7 @@ bool is_equal (double x1, double x2)
 
 #define TESTMACRO( failcond , errmsg )  do { if(! ( failcond)  ) {TEST_MSG( "TEST FAILED : " << errmsg ) ; return 1 ;} else {TEST_MSG( "TEST SUCCEEDED : "<< errmsg );} } while(0)
 
-std::vector<xAOD::JetFourMom_t> jet4moms ={
+static const std::vector<xAOD::JetFourMom_t> jet4moms ={
   xAOD::JetFourMom_t(40000, 0, 1, 10000 ),
   xAOD::JetFourMom_t(40000, 0.01, 2, 10000 ),
   xAOD::JetFourMom_t(40000, 0.01, 2, 0.),
@@ -66,19 +67,18 @@ std::vector<xAOD::JetFourMom_t> jet4moms ={
 
   xAOD::JetFourMom_t(100000, 1.0, 2, 100000.),
   xAOD::JetFourMom_t(100000, 1.0, 2, 1000000.)
-
 };
 
 xAOD::JetContainer* jetTestContainer = 0;
 xAOD::CaloClusterContainer * clusterTestContainer = 0;
 
-void fillJetContainer(){
+void fillJetContainer ATLAS_NOT_THREAD_SAFE (){
 
   xAOD::JetAuxContainer* aux = new xAOD::JetAuxContainer();
   jetTestContainer->setStore(aux);
 
   int i=0;
-  for( xAOD::JetFourMom_t &v : jet4moms){
+  for( const xAOD::JetFourMom_t &v : jet4moms){
     jetTestContainer->push_back(new xAOD::Jet());
     xAOD::Jet *jet = jetTestContainer->back();
     jet->setJetP4( v ); // set the P4 of the last inserted jet
@@ -90,7 +90,7 @@ void fillJetContainer(){
 
 }
 
-void fillClusterContainer(){
+void fillClusterContainer ATLAS_NOT_THREAD_SAFE (){
 
   xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
   clusterTestContainer->setStore(aux);
@@ -145,7 +145,7 @@ int testJetCreation(){
 
 
 
-int testJetCopy(){
+int testJetCopy ATLAS_NOT_THREAD_SAFE (){
 
   TEST_MSG("\n ---------------- testJetCopy  ");
   xAOD::Jet* jet0 = (*jetTestContainer)[0];
@@ -184,7 +184,7 @@ int testJetCopy(){
 }
 
 
-int testAttributes(){
+int testAttributes ATLAS_NOT_THREAD_SAFE (){
 
   TEST_MSG("\n ---------------- testJetCopy ");
   const xAOD::Jet* jet = (*jetTestContainer)[0];
@@ -228,7 +228,7 @@ int testAttributes(){
   return 0;
 }
 
-int testLink(){
+int testLink ATLAS_NOT_THREAD_SAFE (){
   TEST_MSG("\n ---------------- testLink  ");
 
   xAOD::Jet* jet = (*jetTestContainer)[0];
@@ -280,7 +280,7 @@ int testKinematicChange(){
 }
 
 
-int testConstituents( ){
+int testConstituents ATLAS_NOT_THREAD_SAFE (){
   TEST_MSG("\n ---------------- testConstituents  ");
   xAOD::Jet & jet = * (*jetTestContainer)[0];
 
@@ -321,7 +321,7 @@ int testConstituents( ){
 
 
 
-int testClusterConstituents( ){
+int testClusterConstituents ATLAS_NOT_THREAD_SAFE (){
   TEST_MSG("\n ---------------- testClusterConstituents  ");
   xAOD::Jet & jet1 = * (*jetTestContainer)[1];
   xAOD::Jet & jet2 = * (*jetTestContainer)[2];
@@ -348,7 +348,7 @@ int testClusterConstituents( ){
   return 0;
 }
 
-int testShallowCopy( ){
+int testShallowCopy ATLAS_NOT_THREAD_SAFE (){
   TEST_MSG("\n ---------------- testShallowCopy  ");
 
   xAOD::JetContainer & shallowcopy = *(xAOD:: shallowCopyContainer( *jetTestContainer ).first);
@@ -375,7 +375,7 @@ void standaloneInit(){
 // Main
 ////////////////////////////////////////////////////////////////
 
-int main () {
+int main ATLAS_NOT_THREAD_SAFE () {
   TEST_MSG("start");
 
   clusterTestContainer = new xAOD::CaloClusterContainer();

@@ -19,7 +19,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // ROOT
 #include "TFile.h"
@@ -30,6 +29,9 @@
 
 // CLHEP
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/RandomObjects/RandMultiGauss.h"
+#include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Matrix/Matrix.h"
 
 class TTree;
 
@@ -65,13 +67,12 @@ namespace iParSim {
       StatusCode finalize();
 
       /** Smear the existing xAOD::TrackParticle */
-      bool smear(xAOD::TrackParticle* xaodTP) const override;
+      bool smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEngine *randomEngine) const override;
       
       /** Return the pdg code of the smearer */
       unsigned int pdg() const override;
 
     private:
-
       /**MC12 Muon Smearer files */
       std::map<unsigned int, std::string>  m_filenamesMC12MuonSmearer; //!< reordered in a map for look-up
       std::string m_filenameMC12MuonPtBins;
@@ -94,9 +95,8 @@ namespace iParSim {
       /** Root file with the muon smearing parameters */
       TFile* m_file_para;
 
-      ServiceHandle<IAtRndmGenSvc>         m_randomSvc;                //!< Random Svc
-      CLHEP::HepRandomEngine*              m_randomEngine;             //!< Random Engine
-      std::string                          m_randomEngineName;         //!< Name of the random number stream
+      /** Random Engines */
+      std::unique_ptr<CLHEP::RandMultiGauss>  m_randMultiGauss;                 //!< MultiGauss Random
   };
 
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ListItem.h"
@@ -133,7 +133,8 @@ StatusCode TauProcessorAlg::finalize() {
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauProcessorAlg::execute() {
-  
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   StatusCode sc;
 
   
@@ -144,8 +145,8 @@ StatusCode TauProcessorAlg::execute() {
     xAOD::TauTrackAuxContainer* pTauTrackAuxCont = 0;
 
     // Declare write handles
-    SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer );
-    SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer );
+    SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer, ctx );
+    SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer, ctx );
 
     if (m_doCreateTauContainers) {
       //-------------------------------------------------------------------------                         
@@ -186,7 +187,7 @@ StatusCode TauProcessorAlg::execute() {
     // Retrieve seed Container from TDS, return `failure if no                                        
     // existing                                                                                                                        
     //---------------------------------------------------------------------                                                       
-    SG::ReadHandle<xAOD::JetContainer> jetHandle( m_jetInputContainer );
+    SG::ReadHandle<xAOD::JetContainer> jetHandle( m_jetInputContainer, ctx );
     if (!jetHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << jetHandle.key());
       return StatusCode::FAILURE;
@@ -196,21 +197,21 @@ StatusCode TauProcessorAlg::execute() {
 
     // The calo cluster containter must be registered to storegate here, in order to set links in shot finder tool
     // Will still allow changes to the container within this algorithm
-    SG::WriteHandle<xAOD::CaloClusterContainer> tauShotClusHandle( m_tauShotClusOutputContainer );
+    SG::WriteHandle<xAOD::CaloClusterContainer> tauShotClusHandle( m_tauShotClusOutputContainer, ctx );
     xAOD::CaloClusterContainer* tauShotClusContainer = new xAOD::CaloClusterContainer();
     xAOD::CaloClusterAuxContainer* tauShotClusAuxStore = new xAOD::CaloClusterAuxContainer();
     tauShotClusContainer->setStore(tauShotClusAuxStore);
     ATH_MSG_DEBUG("  write: " << tauShotClusHandle.key() << " = " << "..." );
     ATH_CHECK(tauShotClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{tauShotClusContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{tauShotClusAuxStore}));
 
-    SG::WriteHandle<xAOD::PFOContainer> tauShotPFOHandle( m_tauShotPFOOutputContainer );
+    SG::WriteHandle<xAOD::PFOContainer> tauShotPFOHandle( m_tauShotPFOOutputContainer, ctx );
     xAOD::PFOContainer* tauShotPFOContainer = new xAOD::PFOContainer();
     xAOD::PFOAuxContainer* tauShotPFOAuxStore = new xAOD::PFOAuxContainer();
     tauShotPFOContainer->setStore(tauShotPFOAuxStore);
     ATH_MSG_DEBUG("  write: " << tauShotPFOHandle.key() << " = " << "..." );
     ATH_CHECK(tauShotPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{tauShotPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{tauShotPFOAuxStore}));
 
-    SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer );
+    SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer, ctx );
     CaloCellContainer* Pi0CellContainer = new CaloCellContainer();
     ATH_MSG_DEBUG("  write: " << tauPi0CellHandle.key() << " = " << "..." );
     ATH_CHECK(tauPi0CellHandle.record(std::unique_ptr<CaloCellContainer>(Pi0CellContainer)));
@@ -309,7 +310,7 @@ StatusCode TauProcessorAlg::execute() {
     //---------------------------------------------------------------------
     // use the m_cellMakerTool to finalize the custom CaloCellContainer
     //---------------------------------------------------------------------
-    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer)) );
+    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
 
 
   if (sc.isSuccess()) {

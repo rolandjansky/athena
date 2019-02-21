@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -52,104 +52,6 @@
 
 #include "JEPSimMon.h"
 #include "AthContainers/ConstDataVector.h"
-
-namespace{
-std::string sourceComponent(uint8_t source)
-{
-    switch (source)
-    {
-    case xAOD::CMXEtSums::Sources::REMOTE_STANDARD:
-        return "REMOTE_STANDARD";
-    case xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED:
-        return "REMOTE_RESTRICTED";
-    case xAOD::CMXEtSums::Sources::LOCAL_STANDARD:
-        return "LOCAL_STANDARD";
-    case xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED:
-        return "LOCAL_RESTRICTED";
-    case xAOD::CMXEtSums::Sources::TOTAL_STANDARD:
-        return "TOTAL_STANDARD";
-    case xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED:
-        return "TOTAL_RESTRICTED";
-    case xAOD::CMXEtSums::Sources::SUM_ET_STANDARD:
-        return "SUM_ET_STANDARD";
-    case xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED:
-        return "SUM_ET_RESTRICTED";
-    case xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD:
-        return "MISSING_ET_STANDARD";
-    case xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED:
-        return "MISSING_ET_RESTRICTED";
-    case xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD:
-        return "MISSING_ET_SIG_STANDARD";
-    default:
-        return std::to_string(source);
-    }
-}
-
-
-std::string hitsSourceComponent(uint8_t source)
-{
-    switch (source)
-    {
-     case xAOD::CMXJetHits::Sources::REMOTE_MAIN:
-        return "REMOTE_MAIN";
-    case xAOD::CMXJetHits::Sources::LOCAL_MAIN:
-        return "LOCAL_MAIN";
-    case xAOD::CMXJetHits::Sources::TOTAL_MAIN:
-        return "TOTAL_MAIN";
-    case xAOD::CMXJetHits::Sources::REMOTE_FORWARD:
-        return "REMOTE_FORWARD";
-    case xAOD::CMXJetHits::Sources::LOCAL_FORWARD:
-        return "LOCAL_FORWARD";
-    case xAOD::CMXJetHits::Sources::TOTAL_FORWARD:
-        return "TOTAL_FORWARD";
-    case xAOD::CMXJetHits::Sources::TOPO_CHECKSUM:
-        return "TOPO_CHECKSUM";
-    case xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP:
-        return "TOPO_OCCUPANCY_MAP";
-    case xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS:
-        return "TOPO_OCCUPANCY_COUNTS";
-    default:
-        return std::to_string(source);
-    }
-}
-}
-
-std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums &el)
-{
-    os << "xAOD::CMXEtSums crate=" << int(el.crate())
-       << " sourceComponent=" << sourceComponent(el.sourceComponent())
-       << " peak=" << int(el.peak()) << " et=" << el.et()
-       << " ex=" << int(el.ex()) << " ey=" << int(el.ey())
-       << " etError=" << int(el.etError()) << " exError="
-       << int(el.exError()) << ", eyError=" << int(el.eyError()) << " etVec=[";
-    std::for_each(el.etVec().begin(), el.etVec().end(), [&](uint16_t n) { os << " " << int(n); });
-    os << "]";
-    return os;
-}
-
-
-std::ostream &operator<<(std::ostream &os, const xAOD::CMXJetHits &el)
-{
-    os << "xAOD::CMXJetHits crate=" << int(el.crate())
-       << " sourceComponent=" << hitsSourceComponent(el.sourceComponent())
-       << " peak=" << int(el.peak()) << " hits0=0x" << std::hex << el.hits0() << std::dec
-       << " hits1=0x" << std::hex << el.hits1() << std::dec << " hits0Vec=[";
-
-    std::for_each(el.hitsVec0().begin(), el.hitsVec0().end(), [&](uint32_t n) { os << " 0x" << std::hex << int(n) << std::dec; });
-    os << "]";
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const xAOD::JEMTobRoI &el)
-{
-    os << "xAOD::JEMTobRoI crate=" << int(el.crate())
-    << " jem=" << el.jem()
-    << " frame=" << el.frame()
-    << " location=" << el.location()
-    << " energyLarge=" << el.energyLarge()
-    << " energySmall=" << el.energySmall();
-    return os;
-}
 
 
 // ============================================================================

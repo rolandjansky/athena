@@ -37,6 +37,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <mutex>
 
 //forward declarations
 class IdentifierHash;
@@ -177,6 +178,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       static std::string s_LAFolderName;
 
       // cache for the Collections, access by foldername
+      mutable std::mutex m_mutex;
       mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap;
       CondAttrListCollection*      m_attrListColl;
       CondAttrListCollection*      m_attrListColl_deadStrip;
@@ -223,9 +225,6 @@ class SCTCalibWriteTool : public AthAlgTool {
       bool                         m_BSErrRecorded;
       bool                         m_LARecorded;
       const SCT_ID*                m_pHelper;
-      // FIXME: this caches only the last call of getList.
-      // creating a hash of _all_ calls may be faster, but wastes a lot of memory
-      mutable std::string          m_currentDefectList;
 };
 
 inline const InterfaceID & SCTCalibWriteTool::interfaceID() {

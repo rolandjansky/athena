@@ -24,7 +24,6 @@ atlas_add_library( EventInfo
                    src/EventStreamInfo.cxx
                    src/PileUpEventInfo.cxx
                    src/PileUpTimeEventIndex.cxx
-                   src/EventIncident.cxx
                    src/TriggerInfo.cxx
                    src/MergedEventInfo.cxx
                    src/TagInfo.cxx

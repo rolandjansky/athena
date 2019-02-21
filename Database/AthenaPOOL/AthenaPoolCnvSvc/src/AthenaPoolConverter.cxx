@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolConverter.cxx
@@ -165,7 +165,7 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
    } else if (containerName.find("ROOTTREE:") == 0) {
       containerName.erase(0, 9);
    } else if (containerName.find("ROOTTREEINDEX:") == 0) {
-      containerName.erase(0, 13);
+      containerName.erase(0, 14);
    }
    m_placement->setContainerName(containerName);
 }

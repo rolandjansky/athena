@@ -1,19 +1,20 @@
-Tue Feb  5 19:30:19 CET 2019
+Warning in <TInterpreter::ReadRootmapFile>: class  InDet::IInDetTrackSelectionTool found in libInDetTrackSelectionToolDict.so  is already in libInDetSecVtxTrackSelectionToolDict.so 
+Mon Feb 18 13:00:57 CST 2019
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5456 configurables from 56 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5458 configurables from 155 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus115.cern.ch on Tue Feb  5 19:30:43 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on hepd-0004 on Mon Feb 18 13:01:03 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,13 +22,13 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 7037 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3045 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 836 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 337 CLIDRegistry entries for module ALL
-WriteData           DEBUG Property update for OutputLevel : new value = 2
-WriteData            INFO in initialize()
+ClassIDSvc           INFO  getRegistryEntries: read 770 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 571 CLIDRegistry entries for module ALL
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc    DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
@@ -36,9 +37,9 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-04T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus115.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /home/gemmeren/workarea/build/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host hepd-0004.lcrc.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -46,14 +47,28 @@ PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
+xAODMaker::Even...WARNING Beam conditions service not available
+xAODMaker::Even...WARNING Will not fill beam spot information into xAOD::EventInfo
+xAODMaker::Even...   INFO Luminosity information not available
+xAODMaker::Even...   INFO Will take information from the EventInfo object
+ClassIDSvc           INFO  getRegistryEntries: read 1537 CLIDRegistry entries for module ALL
+WriteData           DEBUG Property update for OutputLevel : new value = 2
+WriteData            INFO in initialize()
 WriteData           DEBUG input handles: 0
 WriteData           DEBUG output handles: 2
 WriteData           DEBUG Data Deps for WriteData
   + OUTPUT  ( 'ExampleHitContainer' , 'StoreGateSvc+MyHits' ) 
   + OUTPUT  ( 'ExampleHitContainer' , 'StoreGateSvc+PetersHits' ) 
+ReWriteData         DEBUG Property update for OutputLevel : new value = 2
+ReWriteData          INFO in initialize()
+ReWriteData         DEBUG input handles: 1
+ReWriteData         DEBUG output handles: 1
+ReWriteData         DEBUG Data Deps for ReWriteData
+  + INPUT   ( 'ExampleHitContainer' , 'StoreGateSvc+MyHits' ) 
+  + OUTPUT  ( 'ExampleTrackContainer' , 'StoreGateSvc+MyTracks' ) 
+ClassIDSvc           INFO  getRegistryEntries: read 396 CLIDRegistry entries for module ALL
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 1313 CLIDRegistry entries for module ALL
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
@@ -80,13 +95,6 @@ Stream1             DEBUG Data Deps for Stream1
   + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
 MakeInputDataHe...   INFO Initializing MakeInputDataHeader - package version OutputStreamAthenaPool-00-00-00
 MakeInputDataHe...   INFO Name of Stream to be made Input: Stream1
-ReWriteData         DEBUG Property update for OutputLevel : new value = 2
-ReWriteData          INFO in initialize()
-ReWriteData         DEBUG input handles: 1
-ReWriteData         DEBUG output handles: 1
-ReWriteData         DEBUG Data Deps for ReWriteData
-  + INPUT   ( 'ExampleHitContainer' , 'StoreGateSvc+MyHits' ) 
-  + OUTPUT  ( 'ExampleTrackContainer' , 'StoreGateSvc+MyTracks' ) 
 Stream2             DEBUG Property update for OutputLevel : new value = 2
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
 Stream2             DEBUG In initialize 
@@ -123,6 +131,32 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 0  run: 1
 WriteData            INFO registered all data
+ReWriteData         DEBUG in execute()
+ReWriteData          INFO Hit x = 1.2345 y = 97.655 z = 226.672 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 4.4445 y = 91.9761 z = 94.7318 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 7.6545 y = 86.2972 z = 70.2348 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 10.8645 y = 80.6183 z = 59.9142 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 14.0745 y = 74.9394 z = 54.2259 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 17.2845 y = 69.2605 z = 50.6227 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
+ReWriteData          INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
+ReWriteData          INFO ElementLink1 = 1.2345
+ReWriteData          INFO ElementLink2 = 30.1245
+ReWriteData          INFO Link ElementLinkVector = 3
+ReWriteData          INFO Element = 0x???? : 1.2345
+ReWriteData          INFO Element = 0x???? : 4.4445
+ReWriteData          INFO Element = 0x???? : 10.8645
+ReWriteData          INFO Link Navigable = 2
+ReWriteData          INFO Element = 0x???? : 1.2345
+ReWriteData          INFO Element = 0x???? : 17.2845
+ReWriteData          INFO Link Weighted Navigable = 3
+ReWriteData          INFO Element = 0x???? : 1.2345
+ReWriteData          INFO Element = 0x???? : 17.2845
+ReWriteData          INFO Element = 0x???? : 10.8645
+ReWriteData          INFO Track pt = 74.8928 eta = 3.1676 phi = 2.6161 detector = Track made in: DummyHitDetector
+ReWriteData          INFO registered all data
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
 AthenaPoolCnvSvc    DEBUG setAttribute TREE_MAX_SIZE to 1099511627776L
@@ -210,32 +244,6 @@ SimplePoolFile1...  DEBUG ---->Class:DataHeader_p5
 SimplePoolFile1...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile1.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile1.root and cont: POOLContainerForm(DataHeaderForm)
-ReWriteData         DEBUG in execute()
-ReWriteData          INFO Hit x = 1.2345 y = 97.655 z = 226.672 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 4.4445 y = 91.9761 z = 94.7318 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 7.6545 y = 86.2972 z = 70.2348 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 10.8645 y = 80.6183 z = 59.9142 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 14.0745 y = 74.9394 z = 54.2259 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 17.2845 y = 69.2605 z = 50.6227 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
-ReWriteData          INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
-ReWriteData          INFO ElementLink1 = 1.2345
-ReWriteData          INFO ElementLink2 = 30.1245
-ReWriteData          INFO Link ElementLinkVector = 3
-ReWriteData          INFO Element = 0x???? : 1.2345
-ReWriteData          INFO Element = 0x???? : 4.4445
-ReWriteData          INFO Element = 0x???? : 10.8645
-ReWriteData          INFO Link Navigable = 2
-ReWriteData          INFO Element = 0x???? : 1.2345
-ReWriteData          INFO Element = 0x???? : 17.2845
-ReWriteData          INFO Link Weighted Navigable = 3
-ReWriteData          INFO Element = 0x???? : 1.2345
-ReWriteData          INFO Element = 0x???? : 17.2845
-ReWriteData          INFO Element = 0x???? : 10.8645
-ReWriteData          INFO Track pt = 74.8928 eta = 3.1676 phi = 2.6161 detector = Track made in: DummyHitDetector
-ReWriteData          INFO registered all data
 PersistencySvc:...  DEBUG lookupPFN: SimplePoolFile3.root returned FID: '????' tech=ROOT_All
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile3.root
@@ -316,15 +324,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 1  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 101.234 y = 97.655 z = 126.672 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 104.444 y = 91.9761 z = -5.26816 detector = DummyHitDetector
@@ -351,6 +350,15 @@ ReWriteData          INFO Element = 0x???? : 117.284
 ReWriteData          INFO Element = 0x???? : 110.864
 ReWriteData          INFO Track pt = 137.584 eta = -39.525 phi = 17.2679 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -365,15 +373,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 2  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 201.234 y = 97.655 z = 26.6723 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 204.445 y = 91.9761 z = -105.268 detector = DummyHitDetector
@@ -400,6 +399,15 @@ ReWriteData          INFO Element = 0x???? : 217.285
 ReWriteData          INFO Element = 0x???? : 210.864
 ReWriteData          INFO Track pt = 228.154 eta = -6.2704 phi = 31.9197 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -414,15 +422,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 3  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 301.235 y = 97.655 z = -73.3277 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 304.445 y = 91.9761 z = -205.268 detector = DummyHitDetector
@@ -449,6 +448,15 @@ ReWriteData          INFO Element = 0x???? : 317.285
 ReWriteData          INFO Element = 0x???? : 310.865
 ReWriteData          INFO Track pt = 324.306 eta = -15.8941 phi = 46.5715 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -463,15 +471,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 4  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 401.235 y = 97.655 z = -173.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 404.445 y = 91.9761 z = -305.268 detector = DummyHitDetector
@@ -498,6 +497,15 @@ ReWriteData          INFO Element = 0x???? : 417.285
 ReWriteData          INFO Element = 0x???? : 410.865
 ReWriteData          INFO Track pt = 422.255 eta = -13.279 phi = 61.2233 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -512,15 +520,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 5  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 501.235 y = 97.655 z = -273.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 504.445 y = 91.9761 z = -405.268 detector = DummyHitDetector
@@ -547,6 +546,15 @@ ReWriteData          INFO Element = 0x???? : 517.284
 ReWriteData          INFO Element = 0x???? : 510.865
 ReWriteData          INFO Track pt = 520.987 eta = -12.3511 phi = 75.8751 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -561,15 +569,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 6  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 601.235 y = 97.655 z = -373.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 604.445 y = 91.9761 z = -505.268 detector = DummyHitDetector
@@ -596,6 +595,15 @@ ReWriteData          INFO Element = 0x???? : 617.284
 ReWriteData          INFO Element = 0x???? : 610.865
 ReWriteData          INFO Track pt = 620.127 eta = -11.8468 phi = 90.5269 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -610,15 +618,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 7  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 701.235 y = 97.655 z = -473.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 704.445 y = 91.9761 z = -605.268 detector = DummyHitDetector
@@ -645,6 +644,15 @@ ReWriteData          INFO Element = 0x???? : 717.284
 ReWriteData          INFO Element = 0x???? : 710.865
 ReWriteData          INFO Track pt = 719.507 eta = -11.5247 phi = 105.179 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -659,15 +667,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 8  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 801.235 y = 97.655 z = -573.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 804.445 y = 91.9761 z = -705.268 detector = DummyHitDetector
@@ -694,6 +693,15 @@ ReWriteData          INFO Element = 0x???? : 817.284
 ReWriteData          INFO Element = 0x???? : 810.865
 ReWriteData          INFO Track pt = 819.038 eta = -11.2998 phi = 119.831 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -708,15 +716,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events p
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 9  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 901.235 y = 97.655 z = -673.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 904.445 y = 91.9761 z = -805.268 detector = DummyHitDetector
@@ -743,6 +742,15 @@ ReWriteData          INFO Element = 0x???? : 917.284
 ReWriteData          INFO Element = 0x???? : 910.865
 ReWriteData          INFO Track pt = 918.671 eta = -11.1334 phi = 134.482 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -757,15 +765,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 10  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1001.23 y = 97.655 z = -773.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1004.44 y = 91.9761 z = -905.268 detector = DummyHitDetector
@@ -792,6 +791,15 @@ ReWriteData          INFO Element = 0x???? : 1017.28
 ReWriteData          INFO Element = 0x???? : 1010.86
 ReWriteData          INFO Track pt = 1018.38 eta = -11.0052 phi = 149.134 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -806,15 +814,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 11  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1101.23 y = 97.655 z = -873.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1104.44 y = 91.9761 z = -1005.27 detector = DummyHitDetector
@@ -841,6 +840,15 @@ ReWriteData          INFO Element = 0x???? : 1117.28
 ReWriteData          INFO Element = 0x???? : 1110.86
 ReWriteData          INFO Track pt = 1118.13 eta = -10.9031 phi = 163.786 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -855,15 +863,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 12  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1201.23 y = 97.655 z = -973.328 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1204.44 y = 91.9761 z = -1105.27 detector = DummyHitDetector
@@ -890,6 +889,15 @@ ReWriteData          INFO Element = 0x???? : 1217.28
 ReWriteData          INFO Element = 0x???? : 1210.86
 ReWriteData          INFO Track pt = 1217.93 eta = -10.82 phi = 178.438 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -904,15 +912,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 13  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1301.23 y = 97.655 z = -1073.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1304.44 y = 91.9761 z = -1205.27 detector = DummyHitDetector
@@ -939,6 +938,15 @@ ReWriteData          INFO Element = 0x???? : 1317.28
 ReWriteData          INFO Element = 0x???? : 1310.86
 ReWriteData          INFO Track pt = 1317.76 eta = -10.751 phi = 193.09 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -954,15 +962,6 @@ WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 14  run: 1
 WriteData            INFO Now creating ExampleHit alias for event: 14
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1401.23 y = 97.655 z = -1173.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1404.44 y = 91.9761 z = -1305.27 detector = DummyHitDetector
@@ -989,6 +988,15 @@ ReWriteData          INFO Element = 0x???? : 1417.28
 ReWriteData          INFO Element = 0x???? : 1410.86
 ReWriteData          INFO Track pt = 1417.61 eta = -10.6927 phi = 207.741 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1003,15 +1011,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 15  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1501.23 y = 97.655 z = -1273.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1504.44 y = 91.9761 z = -1405.27 detector = DummyHitDetector
@@ -1038,6 +1037,15 @@ ReWriteData          INFO Element = 0x???? : 1517.28
 ReWriteData          INFO Element = 0x???? : 1510.86
 ReWriteData          INFO Track pt = 1517.49 eta = -10.6429 phi = 222.393 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1052,15 +1060,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 16  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1601.23 y = 97.655 z = -1373.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1604.44 y = 91.9761 z = -1505.27 detector = DummyHitDetector
@@ -1087,6 +1086,15 @@ ReWriteData          INFO Element = 0x???? : 1617.28
 ReWriteData          INFO Element = 0x???? : 1610.86
 ReWriteData          INFO Track pt = 1617.37 eta = -10.5997 phi = 237.045 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1101,15 +1109,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 17  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1701.23 y = 97.655 z = -1473.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1704.44 y = 91.9761 z = -1605.27 detector = DummyHitDetector
@@ -1136,6 +1135,15 @@ ReWriteData          INFO Element = 0x???? : 1717.28
 ReWriteData          INFO Element = 0x???? : 1710.86
 ReWriteData          INFO Track pt = 1717.27 eta = -10.562 phi = 251.697 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1150,15 +1158,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 18  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1801.23 y = 97.655 z = -1573.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1804.44 y = 91.9761 z = -1705.27 detector = DummyHitDetector
@@ -1185,6 +1184,15 @@ ReWriteData          INFO Element = 0x???? : 1817.28
 ReWriteData          INFO Element = 0x???? : 1810.86
 ReWriteData          INFO Track pt = 1817.19 eta = -10.5288 phi = 266.349 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1199,15 +1207,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 19  run: 1
 WriteData            INFO registered all data
-Stream1             DEBUG addItemObjects(2101,"*") called
-Stream1             DEBUG            Key:*
-Stream1             DEBUG  Added object 2101,"McEventInfo"
-Stream1             DEBUG addItemObjects(9102,"My*") called
-Stream1             DEBUG            Key:My*
-Stream1             DEBUG  Added object 9102,"MyHits"
-Stream1             DEBUG  Collected objects:
-Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
-Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1901.23 y = 97.655 z = -1673.33 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 1904.44 y = 91.9761 z = -1805.27 detector = DummyHitDetector
@@ -1234,6 +1233,15 @@ ReWriteData          INFO Element = 0x???? : 1917.28
 ReWriteData          INFO Element = 0x???? : 1910.86
 ReWriteData          INFO Track pt = 1917.11 eta = -10.4993 phi = 281 detector = Track made in: DummyHitDetector
 ReWriteData          INFO registered all data
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG            Key:*
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(9102,"My*") called
+Stream1             DEBUG            Key:My*
+Stream1             DEBUG  Added object 9102,"MyHits"
+Stream1             DEBUG  Collected objects:
+Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
+Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Added object 2101,"McEventInfo"
@@ -1320,14 +1328,14 @@ Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All]
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 WriteData            INFO in finalize()
-Stream1             DEBUG finalize: Optimize output
-Stream1             DEBUG finalize: end optimize output
 ReWriteData          INFO in finalize()
-Stream2             DEBUG finalize: Optimize output
-Stream2             DEBUG finalize: end optimize output
 WriteData           DEBUG Calling destructor
 ReWriteData         DEBUG Calling destructor
 IncidentProcAlg2     INFO Finalize
+Stream1             DEBUG finalize: Optimize output
+Stream1             DEBUG finalize: end optimize output
+Stream2             DEBUG finalize: Optimize output
+Stream2             DEBUG finalize: end optimize output
 EventSelector        INFO finalize
 DecisionSvc          INFO Finalized successfully.
 AthenaPoolCnvSvc    DEBUG releasing all workers
@@ -1336,11 +1344,11 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=166
-fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.161(+- 1.26)/    0/   10 [ms] #=124
-cRep_ALL             INFO Time User   : Tot=   70 [ms] Ave/Min/Max=0.565(+- 3.87)/    0/   30 [ms] #=124
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 42
-ChronoStatSvc        INFO Time User   : Tot=  0.9  [s]                                             #=  1
+cRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.161(+- 1.26)/    0/   10 [ms] #=124
+fRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.242(+- 1.54)/    0/   10 [ms] #=124
+cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.181(+- 1.33)/    0/   10 [ms] #=166
+ChronoStatSvc        INFO Time User   : Tot=  390 [ms]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

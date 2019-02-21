@@ -80,7 +80,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutAbsEta
@@ -92,7 +92,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutAbsCharge
@@ -104,7 +104,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutNTracks
@@ -116,7 +116,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutBDTJetScore
@@ -128,7 +128,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutJetIDWP
@@ -140,7 +140,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutBDTEleScore
@@ -153,7 +153,7 @@ public:
                       asg::AcceptData& accept) override;
 private:
   std::string m_sEleBDTDecorationName;
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutEleBDTWP
@@ -166,7 +166,7 @@ public:
                       asg::AcceptData& accept) override;
 private:
   std::string m_sEleBDTDecorationName;
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 class SelectionCutEleOLR
@@ -188,7 +188,7 @@ private:
 
   std::string m_sEleOlrPassDecorationName;
 
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
   std::string m_sEleOlrLhScoreDecorationName;
 };
 
@@ -201,7 +201,7 @@ public:
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 //added by Li-Gang Xia < ligang.xia@cern.ch >
@@ -217,7 +217,7 @@ public:
 private:
   bool m_bTauMuonOLR; //False: overlapped, the tau is not kept. True: not overlapped, the tau is kept.)
   const xAOD::MuonContainer* m_xMuonContainer;
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
 
