@@ -230,8 +230,58 @@ def is_available(ldn):
    amiclient = pyAMI.client.Client('atlas')
    try: results = pyAMI.atlas.api.list_datasets(amiclient, patterns = [ldn], fields = ['ldn'])
    except pyAMI.exception.Error: exit_with_pyami_exception()
-   for d in results: if d['ldn'] == ldn: return True
+   for d in results:
+      if d['ldn'] == ldn: return True
    return False
+
+
+# From a given list of LDNs, pick the latest one (i.e. extract
+# the p-tag and pick the LDN with the highest one).
+def pick_newest_derivation(ldn_list):
+   if len(ldn_list) == 0: return ""
+   get_ptag_as_int = lambda a: int(get_ptag(a)[1:])
+   return sorted(ldn_list, key = get_ptag_as_int)[-1]
+
+
+# Print the status of a list of samples on AMI. This takes a list
+# of objects of type TopExamples.grid.Sample, wich then contain
+# lists of datasets.
+def check_sample_status(samples, stop_on_error):
+   for s in samples:
+      print '\n' + logger.WARNING + s.name + logger.ENDC + " (%s %s)" % (len(s.datasets), "dataset" if len(s.datasets) == 1 else "datasets")
+      derivations = get_derivations(s.datasets)
+
+      for ldn in s.datasets:
+         dataset_number = get_dataset_number(ldn)
+         dataset_type = get_type(ldn)
+         latest_ldn = pick_newest_derivation(derivations[dataset_number])
+
+         status = ""
+
+         # First output whether the requested LDN exists and
+         # has a valid entry in the AMI database.
+         if is_available(ldn):
+            status = logger.OKGREEN + "found" + logger.ENDC + ", "
+         else:
+            status = logger.FAIL + "not found" + logger.ENDC + ", "
+
+         # If the dataset is _not_ a TOPQ1 derivation, output
+         # its type and mark it in red.
+         if dataset_type != "DAOD_TOPQ1":
+            status += logger.WARNING + "Type: " + dataset_type + logger.ENDC + ", "
+
+         # Then output the derivation status: (1) no
+         # derivation available at all, (2) derivations
+         # available, but the requested p-tag is not the
+         # latest, (3) requested p-tag is the latest.
+         if not latest_ldn:
+            status += logger.FAIL + "no derivation available" + logger.ENDC
+         elif not ldn == latest_ldn:
+            status += logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
+         else:
+            status += logger.OKGREEN + "latest" + logger.ENDC
+
+         print " - %s (%s)" % (ldn, status)
 
 
 if __name__ == '__main__':
