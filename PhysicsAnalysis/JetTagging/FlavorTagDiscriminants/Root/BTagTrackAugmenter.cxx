@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cstddef>
 
-BTagTrackAugmenter::BTagTrackAugmenter():
+BTagTrackAugmenter::BTagTrackAugmenter(FlavorTagDiscriminants::EDMSchema s):
   m_ip_d0("btag_ip_d0"),
   m_ip_z0("btag_ip_z0"),
   m_ip_d0_sigma("btag_ip_d0_sigma"),
@@ -25,7 +25,19 @@ BTagTrackAugmenter::BTagTrackAugmenter():
   m_ip3d_signed_z0_significance("IP3D_signed_z0_significance"),
   m_ip2d_grade("IP2D_grade"),
   m_ip3d_grade("IP3D_grade")
-{}
+{
+  using namespace FlavorTagDiscriminants;
+  typedef SG::AuxElement::ConstAccessor<float> AEF;
+  typedef SG::AuxElement::ConstAccessor<std::vector<float>> AEVF;
+  if (s == EDMSchema::FEB_2019) {
+    m_ip_d0 = AEF("btagIp_d0");
+    m_ip_d0_sigma = AEF("btagIp_d0Uncertainty");
+    m_ip_z0 = AEF("btagIp_z0SinTheta");
+    m_ip_z0_sigma = AEF("btagIp_z0SinThetaUncertainty");
+    m_track_displacement = AEVF("btagIp_trackDisplacement");
+    m_track_momentum = AEVF("btagIp_trackMomentum");
+  }
+}
 
 namespace {
   Amg::Vector3D get_vector3d(const std::vector<float> &input_vector) {
@@ -61,6 +73,17 @@ BTagSignedIP BTagTrackAugmenter::get_signed_ip(const xAOD::TrackParticle &track,
   ip.ip3d_signed_z0 = signed_z0;
   ip.ip3d_signed_z0_significance = signed_z0 / m_ip_z0_sigma(track);
   return ip;
+}
+
+double BTagTrackAugmenter::d0(const xAOD::TrackParticle &track) const {
+  return m_ip_d0(track);
+}
+double BTagTrackAugmenter::d0Uncertainty(const xAOD::TrackParticle &track)
+  const {
+  return m_ip_d0_sigma(track);
+}
+double BTagTrackAugmenter::z0SinTheta(const xAOD::TrackParticle &track) const {
+  return m_ip_z0(track);
 }
 
 void BTagTrackAugmenter::augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) {

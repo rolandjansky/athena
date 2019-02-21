@@ -2116,6 +2116,15 @@ namespace top {
 
       // ghost tracks
       if( m_config->useJetGhostTrack() ){
+	m_jet_ghostTrack_pt    .clear();
+	m_jet_ghostTrack_eta   .clear();
+	m_jet_ghostTrack_phi   .clear();
+	m_jet_ghostTrack_e     .clear();
+	m_jet_ghostTrack_d0    .clear();
+	m_jet_ghostTrack_z0    .clear();
+	m_jet_ghostTrack_qOverP.clear();
+	
+	
         m_jet_ghostTrack_pt.resize(event.m_jets.size());
         m_jet_ghostTrack_eta.resize(event.m_jets.size());
         m_jet_ghostTrack_phi.resize(event.m_jets.size());
@@ -2194,10 +2203,6 @@ namespace top {
 
           const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
 
-          const auto & ghostTracksNominal = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(m_config->nominalHashValue()) );
-
-
-
           const unsigned int nghostTracks=ghostTracks.size();
 
           m_jet_ghostTrack_pt[i].resize(nghostTracks);
@@ -2209,7 +2214,10 @@ namespace top {
           m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
-            m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+	    
+	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+            
+	    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
             m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();

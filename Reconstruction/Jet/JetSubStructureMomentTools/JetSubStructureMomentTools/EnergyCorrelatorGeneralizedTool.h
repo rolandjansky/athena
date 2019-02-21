@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_energycorrelatorgeneralizedtool_header
@@ -19,6 +19,8 @@ class EnergyCorrelatorGeneralizedTool :
 
     private:
       float m_Beta;
+      bool m_doN3;
+      bool m_doLSeries;
 };
 
 

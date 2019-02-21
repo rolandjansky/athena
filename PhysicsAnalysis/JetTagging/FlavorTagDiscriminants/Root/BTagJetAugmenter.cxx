@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
@@ -11,7 +11,7 @@
 
 #include "TVector3.h"
 
-BTagJetAugmenter::BTagJetAugmenter():
+BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
   pt_uncalib("pt_uncalib"),
   eta_uncalib("eta_uncalib"),
   abs_eta_uncalib("abs_eta_uncalib"),
@@ -61,7 +61,35 @@ BTagJetAugmenter::BTagJetAugmenter():
   smt_mu_pt("SMT_mu_pt"),
   smt_isDefaults("SMT_isDefaults"),
   rnnip_pbIsValid("rnnip_pbIsValid"),
-  rnnip_isDefaults("rnnip_isDefaults") {}
+  rnnip_isDefaults("rnnip_isDefaults")
+{
+  using namespace FlavorTagDiscriminants;
+  typedef SG::AuxElement::ConstAccessor<float> AEF;
+  typedef SG::AuxElement::ConstAccessor<double> AED;
+  typedef SG::AuxElement::Decorator<float> ADF;
+  typedef SG::AuxElement::Decorator<double> ADD;
+  typedef SG::AuxElement::Decorator<char> ADC;
+  typedef SG::AuxElement::Decorator<int> ADI;
+  if (s == EDMSchema::FEB_2019) {
+    pt_uncalib = ADD("pt_btagJes");
+    eta_uncalib = ADD("eta_btagJes");
+    abs_eta_uncalib = ADD("absEta_btagJes");
+    secondaryVtx_isDefaults = ADC("JetFitterSecondaryVertex_isDefaults");
+    secondaryVtx_nTrks = ADI("JetFitterSecondaryVertex_nTracks");
+    secondaryVtx_m = ADD("JetFitterSecondaryVertex_mass");
+    secondaryVtx_E = ADD("JetFitterSecondaryVertex_energy");
+    secondaryVtx_EFrac = ADD("JetFitterSecondaryVertex_energyFraction");
+    secondaryVtx_L3d = ADF("JetFitterSecondaryVertex_displacement3d");
+    secondaryVtx_Lxy = ADF("JetFitterSecondaryVertex_displacement2d");
+    secondaryVtx_min_trk_flightDirRelEta = ADD(
+      "JetFitterSecondaryVertex_minimumTrackRelativeEta");
+    secondaryVtx_max_trk_flightDirRelEta = ADD(
+      "JetFitterSecondaryVertex_maximumTrackRelativeEta");
+    secondaryVtx_avg_trk_flightDirRelEta = ADD(
+      "JetFitterSecondaryVertex_averageTrackRelativeEta");
+  }
+
+}
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
