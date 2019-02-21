@@ -200,8 +200,8 @@ def get_type(ldn):
    if match: return "AOD"
    match = re.search("\.simul.HITS\.", ldn)
    if match: return "HITS"
-   match = re.search("\.deriv\.DAOD_[A-Z]+[0-9]+\.", ldn)
-   if match: return match.group(0)[7:-1]
+   match = re.search("\.DAOD_[A-Z]+[0-9]+\.", ldn)
+   if match: return match.group(0)[1:-1]
    # If none of the above, exit with an error.
    print "Could not identify type of LDN %s" % ldn
    sys.exit(1)
@@ -216,7 +216,7 @@ def get_derivations(ldns):
    amiclient = pyAMI.client.Client('atlas')
    regex = re.compile("_p[0-9]+")
    wildcards = [regex.sub('_p%', d) for d in ldns]
-   try: results = pyAMI.atlas.api.list_datasets(amiclient, patterns = wildcards, fields = ['ldn', 'dataset_number'], type = 'DAOD_TOPQ1')
+   try: results = pyAMI.atlas.api.list_datasets(amiclient, patterns = wildcards)
    except pyAMI.exception.Error: exit_with_pyami_exception()
 
    dictionary = dict()
@@ -268,9 +268,9 @@ def check_sample_status(samples, stop_on_error = False):
             status = logger.FAIL + "not found" + logger.ENDC + ", "
             status_ok = False
 
-         # If the dataset is _not_ a TOPQ1 derivation, output
-         # its type and mark it in red.
-         if dataset_type != "DAOD_TOPQ1":
+         # If the dataset is _not_ a derivation, output its type
+         # and mark it in red.
+         if dataset_type[0:5] != "DAOD_":
             status += logger.WARNING + "Type: " + dataset_type + logger.ENDC + ", "
             status_ok = False
 
