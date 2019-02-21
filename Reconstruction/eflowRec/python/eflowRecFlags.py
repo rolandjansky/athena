@@ -106,6 +106,13 @@ class useAODReductionClusterMomentList(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = True
+
+class fixMuonLogic(JobProperty):
+    """ Flag to toggle fix of the muon logic, for testing in physics validation only currently
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
     
 # Defines the container for the eflowRec flags
 
@@ -117,7 +124,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,fixMuonLogic]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

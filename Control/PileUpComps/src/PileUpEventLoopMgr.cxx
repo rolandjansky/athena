@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Class header
 #include "PileUpEventLoopMgr.h"
+// Helper header
+#include "PileUpHashHelper.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -585,6 +587,39 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       CHECK( m_evtStore->record( std::move( puei ), "PileUpEventInfo" ) );
       //ATH_MSG_INFO("Dumping xAOD::EventInfo after adding SubEvents");
       //xAOD::dump( *pLocalXAODEventInfo );
+      
+      // Calculate/copy pile-up hash
+      xAOD::EventInfo::PileUpMixtureID pileUpMixtureID;
+      if (m_isEventOverlayJob && m_isEventOverlayJobMC) {
+        // Just copy over the background PileUpMixtureID
+        const xAOD::EventInfo *bkgEventInfo = nullptr;
+        if (!m_origStream.store().retrieve(bkgEventInfo).isSuccess()) {
+          ATH_MSG_WARNING ("Can not retrieve background xAOD::EventInfo from StoreGate " << m_origStream.store().name() );
+        } else {
+          pileUpMixtureID = bkgEventInfo->pileUpMixtureID();
+          if ( pileUpMixtureID.lowBits != 0 || pileUpMixtureID.highBits != 0 ) {
+            pLocalXAODEventInfo->setPileUpMixtureID( bkgEventInfo->pileUpMixtureID() );
+          }
+        }
+      } else {
+        PileUpHashHelper pileUpHashHelper;
+
+        if (m_isEventOverlayJob) {
+          pileUpHashHelper.addToHashSource(std::to_string(pEvent->event_ID()->event_number()));
+        } else {
+          pileUpHashHelper.addToHashSource(pLocalXAODEventInfo);
+        }
+
+        ATH_MSG_VERBOSE("Pile-up hash source:" << pileUpHashHelper.hashSource());
+
+        // Calculate and set hash
+        uuid_t pileUpHash;
+        pileUpHashHelper.calculateHash(pileUpHash);
+
+        pLocalXAODEventInfo->setPileUpMixtureID( PileUpHashHelper::uuidToPileUpMixtureId(pileUpHash) );
+      }
+
+      ATH_MSG_DEBUG("PileUpMixtureID = " << pLocalXAODEventInfo->pileUpMixtureID());
 
       //////////// END OF TEMPORARY HACK /////////////////////
 
