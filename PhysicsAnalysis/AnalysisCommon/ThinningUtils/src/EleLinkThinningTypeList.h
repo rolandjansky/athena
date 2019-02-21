@@ -13,6 +13,8 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 namespace EleLinkThinningHelpers {
   /// This struct provides the list of candidate types for the element link
@@ -29,6 +31,8 @@ namespace EleLinkThinningHelpers {
       xAOD::MuonContainer,
       xAOD::JetContainer,
       xAOD::BTaggingContainer,
-      xAOD::BTagVertexContainer>* types = nullptr;
+      xAOD::BTagVertexContainer,
+      xAOD::TauJetContainer,
+      xAOD::TauTrackContainer>* types = nullptr;
   };
 }

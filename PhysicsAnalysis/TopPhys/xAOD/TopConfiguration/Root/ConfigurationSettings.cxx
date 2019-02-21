@@ -68,7 +68,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
     registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -78,7 +78,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
                                                "Default (does nothing on forward jets), fJVT (apply fJVT cut if pT<50GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
-    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 17 GeV.", "17000.");
+    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.", "19000.");
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
@@ -307,6 +307,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
     registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
+    registerParameter("PRWPeriodAssignments", "Specify period number assignments to run numbers ranges in this form: \"XXX:XXX:XXX\", where XXX are runnumbers, first number is the associated run number, second number is the period block start, the third number is the period block end. You can pass any number of these sets (total number of provided RunNumbers needs to be divisible by 3). Default is used if not specified", " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 

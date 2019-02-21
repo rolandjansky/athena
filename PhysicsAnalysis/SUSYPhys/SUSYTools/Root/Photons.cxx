@@ -140,7 +140,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  if(m_doPhIsoSignal) dec_isol(input) = m_isoTool->accept(input);
+  if (!m_photonIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
 
   ATH_MSG_VERBOSE("FillPhoton: passed baseline selection.");
   return StatusCode::SUCCESS;

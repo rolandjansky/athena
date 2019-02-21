@@ -9,6 +9,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeElectronAnalysisSequence( dataType, workingPoint,
                                   deepCopyOutput = False,
+                                  shallowViewOutput = True,
                                   postfix = '',
                                   recomputeLikelihood = False,
                                   chargeIDSelection = False,
@@ -54,6 +55,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
 
     # Set up the an eta-cut on all electrons prior to everything else
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronEtaCutAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'selectEta'
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.maxEta = 2.47
@@ -67,6 +69,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     # Set up the likelihood ID selection algorithm
     # It is safe to do this before calibration, as the cluster E is used
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'selectLikelihood' + postfix
     selectionDecorNames.append( alg.selectionDecoration )
     if recomputeLikelihood:
@@ -87,6 +90,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
 
     # Select electrons only with good object quality.
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronObjectQualityAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'goodOQ'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSELECTRON
@@ -96,18 +100,10 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 1 )
 
-    # Only run subsequent processing on the objects passing all of these cuts.
-    # Since these are independent of the electron calibration, and this speeds
-    # up the job.
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'ElectronPreSelViewFromSelectionAlg' + postfix )
-    alg.selection = selectionDecorNames[ : ]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                stageName = 'selection' )
-
     # Set up the calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
                            'ElectronCalibrationAndSmearingAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::EgammaCalibrationAndSmearingTool' )
     alg.calibrationAndSmearingTool.ESModel = 'es2017_R21_v1'
@@ -125,6 +121,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     if isolationCorrection:
         alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
                                'ElectronIsolationCorrectionAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
         addPrivateTool( alg, 'isolationCorrectionTool',
                         'CP::IsolationCorrectionTool' )
         if dataType == 'data':
@@ -139,6 +136,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     if isolationWP != 'NonIso' :
         alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
                                'ElectronIsolationSelectionAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
         alg.selectionDecoration = 'isolated' + postfix
         addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
         alg.selectionTool.ElectronWP = isolationWP
@@ -150,6 +148,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
                            'ElectronTrackSelectionAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'trackSelection' + postfix
     alg.maxD0Significance = 5
     alg.maxDeltaZ0SinTheta = 0.5
@@ -163,6 +162,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     if chargeIDSelection:
         alg = createAlgorithm( 'CP::AsgSelectionAlg',
                                'ElectronChargeIDSelectionAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
         alg.selectionDecoration = 'chargeID' + postfix
         addPrivateTool( alg, 'selectionTool',
                         'AsgElectronChargeIDSelectorTool' )
@@ -180,6 +180,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
                            'ElectronEfficiencyCorrectionAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
@@ -212,26 +213,30 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
 
-    # Set up an algorithm that makes a view container using the selections
-    # performed previously:
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'ElectronViewFromSelectionAlg' + postfix )
-    alg.selection = selectionDecorNames[ : ]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                stageName = 'selection' )
-
     # Set up an algorithm dumping the properties of the electrons, for
     # debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg',
                            'ElectronKinematicDumperAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     alg.histPattern = 'electron_%VAR%_%SYS%' + postfix
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
+
+    # Set up an algorithm that makes a view container using the selections
+    # performed previously:
+    if shallowViewOutput :
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                               'ElectronViewFromSelectionAlg' + postfix )
+        alg.selection = selectionDecorNames[ : ]
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
+        pass
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'ElectronDeepCopyMaker' + postfix )
+        alg.selection = selectionDecorNames[:]
         alg.deepCopy = True
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )

@@ -50,6 +50,7 @@ namespace CP
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
 
     if (m_dofJVT && !m_fJVTStatus.empty())
@@ -82,22 +83,25 @@ namespace CP
 
         for (xAOD::Jet *jet : *jets)
         {
-          bool goodJet = true;
-          if (m_selectionAccessor || m_skipBadEfficiency)
+          if (m_preselection.getBool (*jet))
           {
-            goodJet = m_dofJVT ? m_fJVTStatusAccessor->getBool (*jet) : m_efficiencyTool->passesJvtCut (*jet);
-            if (m_selectionAccessor)
-              m_selectionAccessor->setBool (*jet, goodJet);
-          }
-          if (m_efficiencyAccessor)
-          {
-            float efficiency = 1;
-            if (goodJet) {
-              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getEfficiencyScaleFactor (*jet, efficiency));
-            } else if (!m_skipBadEfficiency) {
-              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, efficiency));
+            bool goodJet = true;
+            if (m_selectionAccessor || m_skipBadEfficiency)
+            {
+              goodJet = m_dofJVT ? m_fJVTStatusAccessor->getBool (*jet) : m_efficiencyTool->passesJvtCut (*jet);
+              if (m_selectionAccessor)
+                m_selectionAccessor->setBool (*jet, goodJet);
             }
-            (*m_efficiencyAccessor) (*jet) = efficiency;
+            if (m_efficiencyAccessor)
+            {
+              float efficiency = 1;
+              if (goodJet) {
+                ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getEfficiencyScaleFactor (*jet, efficiency));
+              } else if (!m_skipBadEfficiency) {
+                ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, efficiency));
+              }
+              (*m_efficiencyAccessor) (*jet) = efficiency;
+            }
           }
         }
         return StatusCode::SUCCESS;

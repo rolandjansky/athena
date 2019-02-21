@@ -49,6 +49,14 @@ namespace CP
       
     m_systematicsList.addHandle (m_particlesHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
+
+    Root::TAccept blankAccept = m_selectionTool->getTAccept();
+    // Just in case this isn't initially set up as a failure clear it this one
+    // time. This only calls reset on the bitset
+    blankAccept.clear();
+    m_setOnFail = selectionFromAccept(blankAccept);
+
     return StatusCode::SUCCESS;
   }
 
@@ -65,8 +73,15 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
-          m_selectionAccessor->setBits
-            (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
+          if (m_preselection.getBool (*particle))
+          {
+            m_selectionAccessor->setBits
+              (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
+          }
+          else
+          {
+            m_selectionAccessor->setBits(*particle, m_setOnFail);
+          }
         }
         return StatusCode::SUCCESS;
       });
