@@ -47,7 +47,6 @@ namespace IOVDbNamespace{
     const IOVMetaDataContainer* m_metaContainer{};
     IOVTime m_referenceTime{};
     const IOVPayloadContainer* m_payload{};
-    bool m_isEpochTime{};
     CondAttrListCollection * m_pptr{};
     AthenaAttributeList * m_attrList{};
     CondAttrListCollection * m_attrListColl{};

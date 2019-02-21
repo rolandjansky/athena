@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadFromFileMetaData.h"
@@ -16,8 +16,7 @@ namespace IOVDbNamespace{
   ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container, 
         const IOVTime & refTime, const bool useEpochTimestamp):
         m_metaContainer(container), 
-        m_referenceTime(refTime),
-        m_isEpochTime(useEpochTimestamp){
+        m_referenceTime(refTime){
     m_payload = (container) ? (container->payloadContainer()) : (nullptr);
     if (m_payload){
       IOVPayloadContainer::const_iterator pitr=m_payload->find(m_referenceTime);
