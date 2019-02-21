@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
 #define TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
@@ -13,6 +13,7 @@
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
+#include "Gaudi/Parsers/Factory.h" // Needed to declare less common Property types
 
 /**
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
@@ -35,9 +36,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   virtual StatusCode  initialize() override;
 
  private: 
-  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG.aux1.aux2..etc key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
-
-  Gaudi::Property<int> m_moduleID { this, "ModuleID", 0, "The HLT result fragment to which the output should be added"};
+  Gaudi::Property<std::map<std::string,std::vector<uint16_t>>> m_collectionsToSerialize {
+    this, "CollectionsToSerialize", {},
+    "EDM streaming map {collectionKey, moduleIdVec} where collectionKey is a string formatted like for "
+    "AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. The type has to be an exact type, i.e. with _vN not the alias "
+    "type. moduleIdVec is the vector of HLTResult ROB module IDs to which the collection should be written. ID=0 is "
+    "the main result, other IDs are used for data scouting."
+  };
   
   // internal structure to keep configuration organised conveniently
   struct Address {
@@ -45,6 +50,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     std::string type;
     CLID clid;
     std::string key;
+    std::vector<uint16_t> moduleIdVec;
     bool isAux = false;
     xAOD::AuxSelection sel = {}; // xAOD dynamic varaibles selection
   };
