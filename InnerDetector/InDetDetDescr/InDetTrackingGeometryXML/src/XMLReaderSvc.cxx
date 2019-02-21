@@ -1,7 +1,6 @@
-/*
- XMLReaderSvc.cxx                                                        
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
-*/
+///////////////////////////////////////////////////////////////////
+// XMLReaderSvc.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometryXML/XMLReaderSvc.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
@@ -21,6 +20,7 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_sctStaves("SCTStaves.xml"),
   m_xml_sctBarrelLayers("SCTBarrelLayers.xml"),
   m_xml_sctEndcapLayers("SCTEndcapLayers.xml"),
+  m_xml_SLHCVersion("SLHC"),
   m_doPix(true),
   m_doSCT(true),
   m_isGMX(false),
@@ -37,6 +37,7 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("XML_SCTStaves",         m_xml_sctStaves);
   declareProperty("XML_SCTBarrelLayers",   m_xml_sctBarrelLayers);
   declareProperty("XML_SCTEndcapLayers",   m_xml_sctEndcapLayers);
+  declareProperty("XML_SLHCVersion",       m_xml_SLHCVersion);
   declareProperty("doPix",                 m_doPix);
   declareProperty("doSCT",                 m_doSCT);
   declareProperty("isGMX",                 m_isGMX);
@@ -69,6 +70,11 @@ StatusCode InDet::XMLReaderSvc::initialize()
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_INFO("XML helper initialized");
+
+  // WARNING: read components BEFORE materials
+  ATH_MSG_INFO("Reading Material templates");
+  parseFile(m_xml_materials.c_str(),"Materials","Component"); 
+  parseFile(m_xml_materials.c_str(),"Materials","Material");
   
   if(m_doPix) {
     // WARNING: read front-end chips BEFORE modules
@@ -110,7 +116,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
   if(m_createDict) {
     writeDictionary(m_dictionaryFileName);    
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -200,8 +206,7 @@ void InDet::XMLReaderSvc::parseMaterialXML(DOMNode* node)
 	X0inv += fraction/comp->X0;
 	L0inv += fraction/comp->L0;
 	A += fraction*comp->A;
-	Z += fraction*comp->Z;
-	rho += fraction*comp->density;
+	Z += fraction*comp->Z;	rho += fraction*comp->density;
 
 	// note: approximation for X0 computation when data is missing
 	// X0 = 716.4/[Z(Z+1).ln(287/sqrt(Z))] g.cm-3
@@ -342,6 +347,7 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
   XMLCh* TAG_sensthickness = transcode("sensorThickness");
   XMLCh* TAG_chipthickness = transcode("chipThickness");
   XMLCh* TAG_hybdthickness = transcode("hybridThickness");
+  XMLCh* TAG_sp3Dthickness = transcode("support3DThickness");
 
   ModuleTmp *module = new ModuleTmp;
 
@@ -364,6 +370,7 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
     }
     else if( XMLString::equals(currentElement->getTagName(), TAG_chipthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_hybdthickness))  module->thickness  += atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_sp3Dthickness))  module->thickness  += atof(getString(currentNode));
   } // End of loop on module node elements
 
   if(module->chip_type.size()==0) return;
@@ -402,6 +409,7 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
   XMLCh* TAG_b_stereoO   = transcode("BarrelModuleStereoAngleOuter");
   XMLCh* TAG_b_stereoSep = transcode("BarrelModuleStereoSeparation");
   XMLCh* TAG_b_rshift    = transcode("BarrelModuleRShift");
+  XMLCh* TAG_b_zoffset   = transcode("BarrelModuleZOffset");
   XMLCh* TAG_trans_tilt  = transcode("TransitionModuleTilt");
   XMLCh* TAG_trans_angle = transcode("TransitionModuleAngle");
   XMLCh* TAG_trans_type  = transcode("TransitionModuleType");
@@ -412,6 +420,8 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
   XMLCh* TAG_alp_angle   = transcode("MountainModuleAngle");
   XMLCh* TAG_alp_type    = transcode("MountainModuleType");
   XMLCh* TAG_alp_rshift  = transcode("MountainModuleRShift");
+  XMLCh* TAG_alp_zoffset = transcode("MountainModuleZOffset");
+  XMLCh* TAG_alp_roffset = transcode("MountainModuleROffset");
   XMLCh* TAG_alp_radialTilt    = transcode("MountainModuleRadialTilt");
   XMLCh* TAG_material    = transcode("StaveMaterial");
   XMLCh* TAG_length      = transcode("StaveSupportLength");
@@ -440,6 +450,7 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
     else if( XMLString::equals(currentElement->getTagName(), TAG_b_stereoO))   stave->b_stereoO          = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_b_stereoSep)) stave->b_stereoSep        = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_b_rshift))    stave->b_rshift           = atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_b_zoffset))   stave->b_zoffset          = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_trans_tilt))  stave->trans_tilt         = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_trans_angle)) stave->trans_angle        = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_trans_type))  stave->trans_type         = getString(currentNode);
@@ -450,6 +461,8 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_type))    stave->alp_type           = getString(currentNode);
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_pos))     stave->alp_pos            = getVectorDouble(currentNode);
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_rshift))  stave->alp_rshift         = atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_alp_zoffset)) stave->alp_zoffset        = atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_alp_roffset)) stave->alp_roffset        = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_radialTilt))  stave->alp_radialTilt = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_length))      stave->support_halflength = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_material))    stave->support_material   = getString(currentNode);
@@ -928,6 +941,7 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
   }	
   openDictFile(file,filename);
   writePixBarrelDict(file);
+  if(m_xml_SLHCVersion == "SLHC_InclinedAlternative") writePixInnerEndcapDict(file); 
   writePixEndcapDict(file);
 
   if (m_doSCT and !m_isGMX) {
@@ -941,6 +955,9 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
 void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename) const
 {
   file.open(filename);
+  
+  std::string xmlvers_for_dictionary = m_xml_SLHCVersion;
+ 
   file << "<!--\n\n   The InnerDetector identifier is arranged as follows\n\n\
    InnerDetector\n\
      part=Pixel\n\
@@ -959,7 +976,7 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
        side=endcap\n\
          wheel phi_module straw_layer straw\n\n  -->\n\
 \n\
-<IdDictionary name=\"InnerDetector\" version=\"SLHC\" >\n\
+<IdDictionary name=\"InnerDetector\" version=\""<<xmlvers_for_dictionary<<"\" >\n\
   <field name=\"part\" >\n\
     <label name=\"Pixel\" value=\"1\" />\n\
     <label name=\"SCT\"   value=\"2\" />\n\
@@ -1029,7 +1046,7 @@ void InDet::XMLReaderSvc::writePixEndcapDict(std::ofstream& file)
       ATH_MSG_WARNING("Indet PIX : no module template found for layer " << i << "");
       continue;
     }
-
+   
     // Make one region per ring of the disc
     for(unsigned int iring=0;iring<layer->nsectors.size();iring++) {
       file << "  <region group=\"pixel\" >" << std::endl;
@@ -1044,7 +1061,95 @@ void InDet::XMLReaderSvc::writePixEndcapDict(std::ofstream& file)
       file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ieta << "\" />" << std::endl;
       file << "  </region>" << std::endl;
     }
+
   }
+  file << std::endl;
+}
+
+void InDet::XMLReaderSvc::writePixInnerEndcapDict(std::ofstream& file)
+{
+  // CREMI Should be one entry per ring instead of per disc
+  // ilayer, iphi=isector [0-nsectors[iring]-1], ieta=iring [0-ringpos.size()-1]b
+
+   ATH_MSG_FATAL("LAYOUT NOT YET SUPPORTED!!!");
+
+  /*
+
+    This was relying on layout translation - what should it be doing without it?
+
+  EndcapLayerTmp *layer = m_tmp_pixEndcapLayer.at(0); //template for SQ Disks
+  ModuleTmp* moduleS = getModuleTemplate(layer->modtype[0]); //S module
+  ModuleTmp* moduleQ = getModuleTemplate(layer->modtype[1]); //Q module
+  
+  int iphiS = moduleS->widthmin/moduleS->pitchPhi;
+  int ietaS = moduleS->length/moduleS->pitchEta;
+  int iphiQ = moduleQ->widthmin/moduleQ->pitchPhi;
+  int ietaQ = moduleQ->length/moduleQ->pitchEta;
+
+  //L0 ALL Disks
+  file << " <region group=\"pixel\" >" << std::endl;
+  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
+  file << "    <range field=\"layer\" value=\"0\" />" << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing0PhiSectors()-1 << "\" wraparound=\"TRUE\" />" << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"13\" maxvalue=\"29\" prev_value=\"12\" />" << std::endl;
+  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiS << "\" />" << std::endl;
+  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaS << "\" />" << std::endl;
+  file << "  </region>" << std::endl;
+
+  //L0 ALL Disks
+  file << " <region group=\"pixel\" >" << std::endl;
+  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
+  file << "    <range field=\"layer\" value=\"0\" />" << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing0PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"-29\" maxvalue=\"-13\" next_value=\"-12\" />" << std::endl;
+  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiS << "\" />" << std::endl;
+  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaS << "\" />" << std::endl;
+  file << "  </region>" << std::endl;
+
+
+  //13 first Disks
+  file << " <region group=\"pixel\" >" << std::endl;
+  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
+  file << "    <range field=\"layer\" value=\"1\" />" << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing1PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"7\" maxvalue=\"23\" prev_value=\"6\" />" << std::endl;
+  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiQ << "\" />" << std::endl;
+  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaQ << "\" />" << std::endl;
+  file << "  </region>" << std::endl;
+
+  //13 first Disks
+  file << " <region group=\"pixel\" >" << std::endl;
+  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
+  file << "    <range field=\"layer\" value=\"1\" />" << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing1PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"-23\" maxvalue=\"-7\" next_value=\"-6\" />" << std::endl;
+  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiQ << "\" />" << std::endl;
+  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaQ << "\" />" << std::endl;
+  file << "  </region>" << std::endl;
+
+  int nPhiSectors[2] = { 28, 20 };
+  for(int ilayer = 0; ilayer < 2; ilayer++){
+    for(int iring = 0; iring < 7; iring++){
+      if(ilayer == 0 && iring > 5) continue;
+      file << "  <region group=\"pixel\" >" << std::endl;
+      file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+      file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
+      file << "    <range field=\"layer\" value=\"" << ilayer << "\" />" << std::endl;
+      file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << nPhiSectors[ilayer] - 1 << "\" wraparound=\"TRUE\" />" << std::endl;
+      file << "    <range field=\"eta_module\" value=\"" << iring << "\" />" << std::endl;
+      int iphi = ilayer == 0 ? moduleS->widthmin/moduleS->pitchPhi : moduleQ->widthmin/moduleQ->pitchPhi;
+      file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphi << "\" />" << std::endl;
+      int ieta = ilayer == 0 ? moduleS->length/moduleS->pitchEta : moduleQ->length/moduleQ->pitchEta;;
+      file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ieta << "\" />" << std::endl;
+      file << "  </region>" << std::endl;
+    }
+  }
+
+  */
   file << std::endl;
 }
 
@@ -1071,12 +1176,14 @@ void InDet::XMLReaderSvc::writePixBarrelDict(std::ofstream& file)
     ModuleTmp* module = b_module;
     if(module==0 && a_module !=0 ) module = a_module;
     if(module==0 && t_module !=0 ) module = t_module;  
-    
+   
+    int nStaves = layer->stave_n-1;
+
     file << "  <region group=\"pixel\" >" << std::endl;
     file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
     file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
     file << "    <range field=\"layer\" value=\"" << layer->index << "\" />" << std::endl;
-    file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << layer->stave_n-1 << "\" wraparound=\"TRUE\" />" << std::endl;
+    file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << nStaves << "\" wraparound=\"TRUE\" />" << std::endl;
     int neta = 0;
     neta += stave->b_modn; // For Pixels 1 id = 1 module
     neta += 4*stave->trans_pos.size(); // 1 transition = 2 modules * 2 sides = 4 modules
@@ -1521,4 +1628,3 @@ const Trk::LayerMaterialProperties* InDet::XMLReaderSvc::getHomogeneousMaterial(
   return material;     
 
 }
-

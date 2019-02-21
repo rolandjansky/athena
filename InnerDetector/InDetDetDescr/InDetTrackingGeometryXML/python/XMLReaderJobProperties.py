@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 
 # -------------------------------------------------------------------------------------
 #  XMLReader jobproperties 
@@ -44,7 +42,7 @@ class isGMX(JobProperty):
 class addBCL(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False   
+    StoredValue  = False 
 class splitBarrelLayers(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -54,6 +52,10 @@ class isRingLayout(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 class InnerLayerIndices(JobProperty):
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+class InnerDiskIndices(JobProperty):
     statusOn     = True
     allowedTypes = ['list']
     StoredValue  = []
@@ -92,29 +94,32 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         self.splitBarrelLayers = False
         self.isRingLayout = False
         self.InnerLayerIndices = []
+        self.InnerDiskIndices = []
 
-        if "ECRing" in self.PixelEndcapLayout():
-            self.isRingLayout  = True
+        if "ECRing" in self.PixelEndcapLayout(): #
+            self.isRingLayout  = True            #
             
-        if "Alpine4" in self.PixelBarrelLayout():
-            self.isRingLayout  = True
-            self.splitBarrelLayers = True          
-            if "Alpine4" in self.PixelEndcapLayout():
-                self.InnerLayerIndices = [0]
+        if "Alpine4" in self.PixelBarrelLayout():#
+            self.isRingLayout  = True            #
+            self.splitBarrelLayers = True        #  
+            if "Alpine4" in self.PixelEndcapLayout():#
+                self.InnerLayerIndices = [0]#
 
-        if "ExtBrl" in self.PixelBarrelLayout():
-            self.splitBarrelLayers = True          
-            self.InnerLayerIndices = [0,1]
+        if "ExtBrl" in self.PixelBarrelLayout():#
+            self.splitBarrelLayers = True       #  
+            self.InnerLayerIndices = [0,1]      #
 
-        if "InclBrl" in self.PixelBarrelLayout():
-            self.splitBarrelLayers = True
-            self.InnerLayerIndices = [0,1]
-            from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
-            if (SLHC_Flags.LayoutOption == "InclinedQuads"):
-              self.splitBarrelLayers = False
+        if "InclBrl" in self.PixelBarrelLayout():#
+            self.splitBarrelLayers = True        #
+            self.InnerLayerIndices = [0,1]       #
+            from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags#
+            if (SLHC_Flags.LayoutOption == "InclinedQuads"):           #
+              self.splitBarrelLayers = False                           #
+            if (SLHC_Flags.LayoutOption == "InclinedAlternative"):     #
+              self.InnerDiskIndices = [0,29]                           #
 
-        self.Initialized = True
-        self.readXMLfromDB = False
+        self.Initialized = True                                        #
+        self.readXMLfromDB = False                                     #
         if kwargs.has_key("readXMLfromDB"): self.readXMLfromDB = kwargs["readXMLfromDB"]
 
     def dump(self):
@@ -124,6 +129,7 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         print "splitBarrel  : ", self.splitBarrelLayers()
         print "isRingLayout : ", self.isRingLayout()
         print "InnerLayer   : ", self.InnerLayerIndices()
+        print "InnerDisk    : ", self.InnerDiskIndices()
         print "DB-CLOB      : ", self.readXMLfromDB()
         
 jobproperties.add_Container(XMLReaderFlags_JobProperties)
@@ -139,6 +145,7 @@ jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(addBCL)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(splitBarrelLayers)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isRingLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(InnerLayerIndices)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(InnerDiskIndices)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(Initialized)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(readXMLfromDB)
 

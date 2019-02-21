@@ -78,6 +78,7 @@ class SLHC_Setup_XMLReader :
 
         ###### Setup XMLreader flags
         print "**** FLAGS **************************************************"
+        print "Datapath: "+'DATAPATH'
         XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH'),
                                            PixelEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH'),
                                            SCTBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH'),
@@ -88,7 +89,7 @@ class SLHC_Setup_XMLReader :
 					   addBCL = AddBCL,
                                            readXMLfromDB = readXMLfromDB_PIXXDD
                                            )
-        XMLReaderFlags.dump()
+        XMLReaderFlags.dump() #
         print "******************************************************"
 
         ###### Setup XML builders properties ######

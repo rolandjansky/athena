@@ -93,6 +93,9 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
 
   // Check Layer type - if it's disc, build everything
   if(layerTmp->isDisc) {
+    int layer_pos = layerTmp->layer_pos;
+    if(layer_pos<startLayer) return; 
+    if(endLayer>=0 && layer_pos>endLayer) return;
     createActiveDiscLayers(itmpl, side, v_layers);
   }  else { 
     // if it's rings, check if ring layer has to be built: 
@@ -164,9 +167,14 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
     float phiLowBound = 99999;
     float phiHighBound = -99999;
     for (unsigned int cEl = 0 ; cEl<centersOnModule.size(); cEl++) {
+      float radius = sqrt(pow(centersOnModule.at(cEl).x(),2)+pow(centersOnModule.at(cEl).y(),2));
+      if (radius > outerR or radius < innerR)
+	continue;
+      
       float centerphi =  centersOnModule.at(cEl).phi();
       if( centerphi < phiLowBound ) phiLowBound = centerphi;
       if( centerphi > phiHighBound ) phiHighBound = centerphi;
+//       std::cout << "--> testing: (phi,r) = (" << centersOnModule.at(cEl).phi() << ", " << radius << ")   -  min: " << phiLowBound << ", max = " << phiHighBound << std::endl; 
     }
     double halfPhiStep = TMath::Pi()/nsectors;
     phiLowBound  -= halfPhiStep;
@@ -431,7 +439,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   Identifier idwafer(0);
   IdentifierHash idhash(0);
-  
+
   ATH_MSG_DEBUG("brl_ec= " << brl_ec << " disc = " << ilayer << " iphi= " << iphi << " ieta = " << ieta );
 
   m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,brl_ec,ilayer,iphi,ieta,0);
@@ -458,7 +466,9 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
 												   transform, m_pixelCase, isBarrel, isOuterMost, debug,
 												   useDisc, ring_rmin, ring_rmax, stereoO);
-  
+ 
+  if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
+ 
 //   std::cout << "1 - Module  Id = " << brl_ec << " - " << ilayer << " - " << iphi << " - " << ieta << std::endl;
 //   std::cout << "2 - Module Pos = " << planElement->surface().center().perp() << " - " << planElement->surface().center().z() << " - " << planElement->surface().center().phi() <<  std::endl;
 
@@ -466,13 +476,13 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 				 planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
 				 planElement->surface().center().z());
   
-//   std::cout << "        -->  Endcap Element: " << std::endl;
-//   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
-//   std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
-//   std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
+//    std::cout << "        -->  Endcap Element: " << std::endl;
+//    std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//    std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
+//    std::cout << "        -->  Surface Center = " << std::sqrt(std::pow(planElement->surface().center().x(),2)*std::pow(planElement->surface().center().y(),2))<< std::endl;
+//    std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
 
-  if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
-
+  
   // Add outer stereo layer  // each element points to the other face
   if(layerTmp->double_sided) {
  
@@ -591,6 +601,10 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray1D1D(Trk:
     surfaces.push_back(surfaceOrder);
       
     ATH_MSG_DEBUG("Surface " << (*moduleSurface));
+    ATH_MSG_DEBUG("phi = " << moduleSurface->center().phi() << "  Eta = " << moduleSurface->center().eta() 
+		 << " z = " << moduleSurface->center().z() 
+		 << " r = " << sqrt(pow(moduleSurface->center().x(),2)+pow(moduleSurface->center().y(),2)));
+    
     //ATH_MSG_DEBUG("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
     ATH_MSG_DEBUG("phi = " << centersOnModule.at(cEl).phi() << "  Eta = " << centersOnModule.at(cEl).eta() 
 		 << " z = " << centersOnModule.at(cEl).z() 

@@ -24,6 +24,12 @@
 #include <iostream>
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
+//
+#include "TrkGeometry/HomogeneousLayerMaterial.h"
+#include "TrkGeometry/MaterialProperties.h"
+#include "TrkGeometry/MaterialLayer.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 namespace Trk {
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
@@ -37,7 +43,8 @@ InDet::BarrelBuilderXML::BarrelBuilderXML(const std::string& t, const std::strin
   m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider"),
   m_barrelLayerBinsZ(100),
   m_barrelLayerBinsPhi(1),
-  m_customMaterial(false)
+  m_customMaterial(false),
+  m_impMatDescription(false)
 {
   declareInterface<BarrelBuilderXML>(this);
 
@@ -48,6 +55,7 @@ InDet::BarrelBuilderXML::BarrelBuilderXML(const std::string& t, const std::strin
   declareProperty("BarrelLayerBinsZ",   m_barrelLayerBinsZ);
   declareProperty("BarrelLayerBinsPhi", m_barrelLayerBinsPhi);
   declareProperty("CustomMaterial",     m_customMaterial);
+  declareProperty("ImpMatDescription",  m_impMatDescription);
 }
 
 InDet::BarrelBuilderXML::~BarrelBuilderXML()
@@ -65,6 +73,15 @@ StatusCode InDet::BarrelBuilderXML::initialize()
     return StatusCode::FAILURE;
   }
 
+  const IGeoModelSvc* geoModel=0;
+  StatusCode sc = service("GeoModelSvc", geoModel);
+  if(sc.isFailure()) return sc;
+  //Adding check to tell whether to run with the improved material description
+  //Only works on specific geoTags 19-00-03 (not yet added) and 20-00-03
+  if( geoModel->atlasVersion() == "ATLAS-P2-ITK-20-00-03" ) {
+    ATH_MSG_INFO(geoModel->atlasVersion() << ": running with improved material description for the inclined region");
+    m_impMatDescription = true;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -395,6 +412,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
 	firstElementsInPhi = currentElements;
 	prevElementsInPhi = currentElements;
       } else {
+//       std::cout << prevElementsInPhi
 	setPhiNeighbors(prevElementsInPhi,currentElements);
 	prevElementsInPhi = currentElements;
       }
@@ -499,10 +517,8 @@ void InDet::BarrelBuilderXML::createCylinderBarrelModules(unsigned int ilayer, u
 
   Trk::TrkDetElementBase* elem           = 0;
   Trk::TrkDetElementBase* prevElemInEta  = 0;
-
   // start loop over eta modules
   for (int iz = 0; iz < nmodules; iz++) {      
-
     ATH_MSG_DEBUG("Building module " <<  iz  << " for stave " << istave);
     elem = (Trk::TrkDetElementBase*) CylinderDetElement(ilayer, staveTmp, istave+1, iz+1);
     if(elem==0) {
@@ -511,7 +527,9 @@ void InDet::BarrelBuilderXML::createCylinderBarrelModules(unsigned int ilayer, u
     }
 
     // Set neighbors in eta
-    if(prevElemInEta) m_moduleProvider->setEtaNeighbours(elem,prevElemInEta);
+    if(prevElemInEta) {
+      m_moduleProvider->setEtaNeighbours(elem,prevElemInEta);
+    }
 
     cElements.push_back(elem);    
     prevElemInEta = elem;
@@ -654,6 +672,23 @@ Trk::BinnedArray<Trk::Surface>* InDet::BarrelBuilderXML::getBinnedArray1D1D(Trk:
   for ( ; Elem_Iter != cElements.end(); Elem_Iter++) 
     {
       const Trk::Surface* moduleSurface = &((*Elem_Iter)->surface());
+ 			//Check if modules are inclined TODO: ADD BOOL to only do this check
+			//incase of hacked version...
+      if(m_impMatDescription && moduleSurface->normal().z() != 0.){ 
+				const InDetDD::SiDetectorElement *detEle = dynamic_cast<const InDetDD::SiDetectorElement*>( *Elem_Iter ) ;
+				if(detEle) {
+	  			Amg::Vector3D versor(0.,0.,1.);
+	  			double length = detEle->length()*0.5*sin(fabs(acos(moduleSurface->normal().dot(versor))));
+	  			double center = detEle->center().z();
+	  			ATH_MSG_DEBUG("Binning --> " << center-length << "/" <<center+length);
+	  			Trk::BinUtility layerBinUtilityZ(1, center-length, center+length, Trk::open, Trk::binZ);
+	  			const Trk::LayerMaterialProperties* layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityZ);
+	  			const Trk::MaterialLayer* materialLayer = new Trk::MaterialLayer(*moduleSurface, *layerMaterial);
+	  			moduleSurface->setMaterialLayer(*materialLayer);
+	  			ATH_MSG_DEBUG("Surface with material layer... " << materialLayer->layerIndex().value());
+				}
+      }
+
       Amg::Vector3D orderPosition((*Elem_Iter)->center());
       // register the module surface
       Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface, true);
@@ -666,7 +701,6 @@ Trk::BinnedArray<Trk::Surface>* InDet::BarrelBuilderXML::getBinnedArray1D1D(Trk:
 		    << " z = " << moduleSurface->center().z() 
 		    << " r = " << sqrt(pow(moduleSurface->center().x(),2)+pow(moduleSurface->center().y(),2)));
     }
-
   // create 2D-dimensional BinnedArray
   Trk::BinnedArray<Trk::Surface>* currentBinnedArray = new Trk::BinnedArray1D1D<Trk::Surface>(surfaces,&steerBinUtility,&subBinUtility);
   ATH_MSG_DEBUG("Creating the binned array for the sensitive detector elements with SteerBinUtility :");
