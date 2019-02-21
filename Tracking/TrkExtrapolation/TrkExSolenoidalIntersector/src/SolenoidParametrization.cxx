@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -46,8 +46,6 @@ const double   	SolenoidParametrization::s_binInvSizeTheta	= 1./0.1;
 const double   	SolenoidParametrization::s_binInvSizeZ		= 1./20.*Gaudi::Units::mm;
 const double   	SolenoidParametrization::s_binZeroTheta		= 0.;
 const double   	SolenoidParametrization::s_binZeroZ		= -160.*Gaudi::Units::mm;
-double		SolenoidParametrization::s_centralField		= 0.;
-SolenoidParametrization*	SolenoidParametrization::s_instance		= 0;
 const double   	SolenoidParametrization::s_lightSpeed		= -1.*299792458*Gaudi::Units::m/Gaudi::Units::s;
 const int      	SolenoidParametrization::s_maxBinTheta 		= 72;
 const int      	SolenoidParametrization::s_maxBinZ		= 17;
@@ -58,38 +56,74 @@ const double   	SolenoidParametrization::s_rInner		= 570.*Gaudi::Units::mm;
 const double   	SolenoidParametrization::s_rOuter		= 1050.*Gaudi::Units::mm;
 const double   	SolenoidParametrization::s_zInner		= 2150.0*Gaudi::Units::mm;  // just after wheel #7
 const double   	SolenoidParametrization::s_zOuter		= 2800.0*Gaudi::Units::mm;  // just after wheel #9
-double		SolenoidParametrization::s_parameters[]      	= {14688*0.};
+
+
+SolenoidParametrization::BinParameters::BinParameters (const double r,
+                                                       const double z,
+                                                       const double cotTheta)
+{
+  if (cotTheta > 0) {
+    m_signTheta = 1;
+    m_cotTheta  = cotTheta;
+    m_zAtAxis  	= z - r*cotTheta;
+  }
+  else {
+    m_signTheta = -1;
+    m_cotTheta = -cotTheta;
+    m_zAtAxis  =  r*cotTheta - z;
+  }
+}
+
+
+SolenoidParametrization::Parameters::Parameters (const SolenoidParametrization& spar,
+                                                 const double r,
+                                                 const double z,
+                                                 const double cotTheta)
+  : BinParameters (r, z, cotTheta)
+{
+  int	key  		= fieldKey(*this);
+  if (r > s_rInner || m_signTheta*z > s_zInner)
+  {
+    key	+= s_numberParameters/2;
+  }
+  spar.setTerms (key, *this);
+}
+
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 // note: both constructors are private
 // SolenoidParametrization::SolenoidParametrization(void)
-//     :	m_hasParametrization	(false)
 // {
 //    // field component not defined without a m_magFieldSvc
 //    // get central field value in units required for fast tracking
-//    s_centralField    	= fieldComponent(0.,0.,0.);
+//    m_centralField    	= fieldComponent(0.,0.,0.);
 //
 //    // note field = B*c 
 //    RestoreIOSFlags restore(std::cout);
 //    std::cout << " SolenoidParametrization: centralField "
-//              << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
+//              << std::setw(6) << std::setprecision(3) << m_centralField/s_lightSpeed /Gaudi::Units::tesla
 //              << "T" << std::endl;
 //}
 
 SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFieldSvc)
-    :	m_hasParametrization	(false),
-	m_magFieldSvc		(magFieldSvc)
+  : m_magFieldSvc	    (magFieldSvc),
+    m_parameters            ()
 {
-    // get central field value in units required for fast tracking (i.e. field = B*c)
+    // allow 0.1% fluctuation in current.
+    double current = magFieldSvc->solenoidCurrent();
+    m_currentMax	 = 1.001*current;
+    m_currentMin	 = 0.999*current;
+
+  // get central field value in units required for fast tracking (i.e. field = B*c)
     if (!m_magFieldSvc)
        throw std::logic_error("fieldComponent not defined without magnetic field service.");
-    s_centralField    	= fieldComponent(0.,0.,0.);
+    m_centralField    	= fieldComponent(0.,0.,0.);
     RestoreIOSFlags restore(std::cout);
     std::cout << " SolenoidParametrization: centralField "
-              << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
+              << std::setw(6) << std::setprecision(3) << m_centralField/s_lightSpeed /Gaudi::Units::tesla
 	      << "T";
-    
+
     // now parametrise field - if requested
     //if (magFieldSvc)
     {
@@ -104,31 +138,28 @@ SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFiel
 void
 SolenoidParametrization::parametrizeSolenoid(void)
 {
-    m_hasParametrization = true;
-    
     // set parametrisation granularity (up to cotTheta = 7.)
     // get value of cubic term for approx: Bz = Bcentral*(1 - term * z^3)
     // 'fit' to average over cotTheta lines
-    m_signTheta	= 1.;
     double	smallOffset	= 0.0000000000001; // avoid FPE
-    m_zAtAxis 	= s_binZeroZ;	// + smallOffset ? 
+    double zAtAxis 	= s_binZeroZ;	// + smallOffset ? 
     
     for (int binZ = 0; binZ < s_maxBinZ; ++binZ)
     { 
-	m_cotTheta 	= smallOffset; 
+        double cotTheta	= smallOffset; 
 	for (int binTheta = 0; binTheta < s_maxBinTheta - 1; ++binTheta)
 	{
 	    double 	r      	= 0.;
-	    double 	z      	= m_zAtAxis;
+	    double 	z      	= zAtAxis;
 	    int 	n      	= 200;
 	    double	dr;
-	    if (m_cotTheta < s_zOuter/s_rOuter)
+	    if (cotTheta < s_zOuter/s_rOuter)
 	    {
 		dr = s_rOuter/double(n);
 	    }
 	    else
 	    {
-		dr = s_zOuter/(m_cotTheta*double(n));
+		dr = s_zOuter/(cotTheta*double(n));
 	    }
 
 	    Amg::VectorX difference(n);
@@ -136,9 +167,9 @@ SolenoidParametrization::parametrizeSolenoid(void)
 	    for (int k = 0; k < n; ++k)
 	    {
 		r 			+= dr;
-		z 			+= dr*m_cotTheta;
+		z 			+= dr*cotTheta;
 		double	w		= (n - k)*(n - k);
-		double	zLocal		= z - m_zAtAxis;
+		double	zLocal		= z - zAtAxis;
 		if (r > s_rInner || z > s_zInner)
 		{
 		    // derivative(k,0)	= 0.;
@@ -157,31 +188,32 @@ SolenoidParametrization::parametrizeSolenoid(void)
 		    // derivative(k,4)	= 0.;
 		    // derivative(k,5)	= 0.;
 		}
-		difference(k)		= w*(fieldComponent(r,z,m_cotTheta) - s_centralField);
+		difference(k)		= w*(fieldComponent(r,z,cotTheta) - m_centralField);
 	    }
 
 	    // solve for parametrization coefficients
 	    Amg::VectorX solution	= derivative.colPivHouseholderQr().solve(difference);
+            BinParameters parms (zAtAxis, cotTheta);
 	    
-	    int			key    		= fieldKey();
-	    assert (s_parameters[key] == 0.);
-	    s_parameters[key++]		= s_centralField + solution(0);
-	    s_parameters[key++]		= solution(1);
-	    s_parameters[key++]		= solution(2);
-	    s_parameters[key++]		= s_centralField + solution(3);
-	    s_parameters[key++]		= solution(4);
-	    s_parameters[key++]		= solution(5);
+	    int			key    		= fieldKey(parms);
+	    assert (m_parameters[key] == 0.);
+	    m_parameters[key++]		= m_centralField + solution(0);
+	    m_parameters[key++]		= solution(1);
+	    m_parameters[key++]		= solution(2);
+	    m_parameters[key++]		= m_centralField + solution(3);
+	    m_parameters[key++]		= solution(4);
+	    m_parameters[key++]		= solution(5);
 
 	    // duplicate last z-bin for contiguous neighbour lookup
 	    if (binZ == s_maxBinZ - 1)
 	    {
-		assert (s_parameters[key] == 0.);
-		s_parameters[key++]    	= s_centralField + solution(0);
-		s_parameters[key++]    	= solution(1);
-		s_parameters[key++]    	= solution(2);
-		s_parameters[key++]    	= s_centralField + solution(3);
-		s_parameters[key++]    	= solution(4);
-		s_parameters[key++]    	= solution(5);
+		assert (m_parameters[key] == 0.);
+		m_parameters[key++]    	= m_centralField + solution(0);
+		m_parameters[key++]    	= solution(1);
+		m_parameters[key++]    	= solution(2);
+		m_parameters[key++]    	= m_centralField + solution(3);
+		m_parameters[key++]    	= solution(4);
+		m_parameters[key++]    	= solution(5);
 		key	-= s_numberParameters;
 	    }
 
@@ -189,13 +221,13 @@ SolenoidParametrization::parametrizeSolenoid(void)
 	    if (binZ > 0)
 	    {
 		key	-= 2*s_numberParameters*s_maxBinTheta;
-		assert (s_parameters[key] == 0.);
-		s_parameters[key++]    	= s_centralField + solution(0);
-		s_parameters[key++]    	= solution(1);
-		s_parameters[key++]    	= solution(2);
-		s_parameters[key++]    	= s_centralField + solution(3);
-		s_parameters[key++]    	= solution(4);
-		s_parameters[key++]    	= solution(5);
+		assert (m_parameters[key] == 0.);
+		m_parameters[key++]    	= m_centralField + solution(0);
+		m_parameters[key++]    	= solution(1);
+		m_parameters[key++]    	= solution(2);
+		m_parameters[key++]    	= m_centralField + solution(3);
+		m_parameters[key++]    	= solution(4);
+		m_parameters[key++]    	= solution(5);
 	    }
 
 	    // some debug print
@@ -204,65 +236,53 @@ SolenoidParametrization::parametrizeSolenoid(void)
 //  		|| key >= s_numberParameters*s_maxBinTheta*(s_maxBinZ - 2))
 //  	    {
 //  		double	z_max;
-//  		if (m_cotTheta < s_zInner/s_rInner)
+//  		if (cotTheta < s_zInner/s_rInner)
 //  		{
-//  		    z_max = s_rInner*m_cotTheta + m_zAtAxis;
+//  		    z_max = s_rInner*cotTheta + zAtAxis;
 //  		}
 //  		else
 //  		{
 //  		    z_max = s_zInner;
 //  		}
 //  		cout << std::setiosflags(std::ios::fixed) << key
-//  		     << "   cotTheta " 	<< std::setw(7)  << std::setprecision(2)  << m_cotTheta
+//  		     << "   cotTheta " 	<< std::setw(7)  << std::setprecision(2)  << cotTheta
 //  		     << "   inner terms:  z0 "<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key]/s_centralField
+//  		     << m_parameters[key]/m_centralField
 //  		     << "   z^2 "<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key+1]*z_max*z_max/s_centralField
+//  		     << m_parameters[key+1]*z_max*z_max/m_centralField
 //  		     << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key+2]*z_max*z_max*z_max/s_centralField
+//  		     << m_parameters[key+2]*z_max*z_max*z_max/m_centralField
 //  		     << "   outer terms:  z0 "<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key+3]/s_centralField
+//  		     << m_parameters[key+3]/m_centralField
 //  		     << "   z^2 "<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key+4]*z_max*z_max/s_centralField
+//  		     << m_parameters[key+4]*z_max*z_max/m_centralField
 //  		     << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-//  		     << s_parameters[key+5]*z_max*z_max*z_max/s_centralField
+//  		     << m_parameters[key+5]*z_max*z_max*z_max/m_centralField
 //  		     << std::resetiosflags(std::ios::fixed) << endl;
 //  	    }
-	    m_cotTheta	+= 1./s_binInvSizeTheta;
+	    cotTheta	+= 1./s_binInvSizeTheta;
 	}
-	m_zAtAxis 	+= 1./s_binInvSizeZ;
+	zAtAxis 	+= 1./s_binInvSizeZ;
     }
 
     // duplicate end theta-bins for contiguous neighbour lookup
-    m_zAtAxis 	= s_binZeroZ;	// + smallOffset ?? 
+    zAtAxis 	= s_binZeroZ;	// + smallOffset ?? 
     for (int binZ = 0; binZ < s_maxBinZ; ++binZ)
     { 
-	m_cotTheta 	= double(s_maxBinTheta)/s_binInvSizeTheta;
-	int	key    	= fieldKey();
+	double cotTheta	= double(s_maxBinTheta)/s_binInvSizeTheta;
+        BinParameters parms (zAtAxis, cotTheta);
+	int	key    	= fieldKey(parms);
 	for (int k = 0; k < 2*s_numberParameters; ++k)
 	{
-	    assert (s_parameters[key+2*s_numberParameters] == 0.);
-	    s_parameters[key+2*s_numberParameters] = s_parameters[key];
+	    assert (m_parameters[key+2*s_numberParameters] == 0.);
+	    m_parameters[key+2*s_numberParameters] = m_parameters[key];
 	    ++key;
 	}
-	m_zAtAxis 	+= 1./s_binInvSizeZ;
+	zAtAxis 	+= 1./s_binInvSizeZ;
     }
 }
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
-SolenoidParametrization::~SolenoidParametrization()
-{}
-
-void
-SolenoidParametrization::clearInstance(void)
-{
-    delete s_instance;
-    s_instance = 0;
-    std::fill (s_parameters,
-	       s_parameters + sizeof(s_parameters)/sizeof(s_parameters[0]),
-	       0);
-}
 
 void
 SolenoidParametrization::printFieldIntegrals (void) const
@@ -392,16 +412,15 @@ SolenoidParametrization::printFieldIntegrals (void) const
 }
 
 void
-SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin) 
+SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin) const
 {
-    m_signTheta		= 1.;
-    m_zAtAxis		= z_origin;
-    m_cotTheta 		= 1./std::tan(2.*std::atan(1./std::exp(eta)));
-    int		key    	= fieldKey();
+    double cotTheta	= 1./std::tan(2.*std::atan(1./std::exp(eta)));
+    BinParameters parms (z_origin, cotTheta);
+    int		key    	= fieldKey(parms);
     double	z_max;
-    if (m_cotTheta < s_zInner/s_rInner)
+    if (cotTheta < s_zInner/s_rInner)
     {
-	z_max = s_rInner*m_cotTheta;
+	z_max = s_rInner*cotTheta;
     }
     else
     {
@@ -411,25 +430,23 @@ SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin)
 	      << "SolenoidParametrization:  line with eta "  << std::setw(6) << std::setprecision(2) << eta
 	      << "   from (r,z)  0.0,"         << std::setw(6) << std::setprecision(1) << z_origin
 	      << "   inner terms:  z0 "<< std::setw(6) << std::setprecision(2)
-	      << s_parameters[key]/s_centralField
+	      << m_parameters[key]/m_centralField
 	      << "   z^2 "<< std::setw(6) << std::setprecision(3)
-	      << s_parameters[key+1]*z_max*z_max/s_centralField
+	      << m_parameters[key+1]*z_max*z_max/m_centralField
 	      << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-	      << s_parameters[key+2]*z_max*z_max*z_max/s_centralField
+	      << m_parameters[key+2]*z_max*z_max*z_max/m_centralField
 	      << "    outer terms:  z0 "<< std::setw(6) << std::setprecision(3)
-	      << s_parameters[key+3]/s_centralField
+	      << m_parameters[key+3]/m_centralField
 	      << "   z^2 "<< std::setw(6) << std::setprecision(3)
-	      << s_parameters[key+4]*z_max*z_max/s_centralField
+	      << m_parameters[key+4]*z_max*z_max/m_centralField
 	      << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-	      << s_parameters[key+5]*z_max*z_max*z_max/s_centralField
+	      << m_parameters[key+5]*z_max*z_max*z_max/m_centralField
 	      << std::resetiosflags(std::ios::fixed) << std::endl;
 }
         
 void
-SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin) 
+SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin) const
 {
-    m_signTheta			= 1.;
-    m_zAtAxis			= zOrigin;
     double 	cotTheta 	= 1./std::tan(2.*std::atan(1./std::exp(std::abs(eta))));
     double 	z		= zOrigin;
     double 	r 		= 0.;
@@ -455,8 +472,8 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin)
     for (int k = 0; k < n; ++k)
     {
 	double	b 	= fieldComponent(r,z,cotTheta);
-	setParameters(r,z,cotTheta);
-	double	diff 	= (fieldComponent(z) - b)/s_lightSpeed;
+        Parameters parms (*this, r, z, cotTheta);
+	double	diff 	= (fieldComponent(z, parms) - b)/s_lightSpeed;
 	
 	if (r > s_rInner || z > s_zInner)
 	{
@@ -472,7 +489,7 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin)
 	if (std::abs(diff) > worstDiff)
 	{
 	    worstDiff  	= std::abs(diff);
-	    worstBCalc	= fieldComponent(z);
+	    worstBCalc	= fieldComponent(z, parms);
 	    worstBTrue	= b;
 	    worstR	= r;
 	    worstZ	= z;
@@ -495,6 +512,14 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin)
 	      << "  " << std::setw(6) << std::setprecision(3) << worstBCalc/s_lightSpeed /Gaudi::Units::tesla
 	      << std::resetiosflags(std::ios::fixed) << std::endl;
 }
+
+
+bool SolenoidParametrization::currentMatches (double current) const
+{
+  // allow 0.1% fluctuation
+  return current >= m_currentMin && current < m_currentMax;
+}
+
 
 } // end of namespace
 
