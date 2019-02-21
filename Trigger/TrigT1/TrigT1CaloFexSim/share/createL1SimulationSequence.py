@@ -54,7 +54,7 @@ if rec.doAOD():
                                doLArFex = False)
         # j/gFEX
         include ( "TrigT1CaloFexSim/EnableFexAlgorithms.py" )
-        enableJGTowerReader(debug = False) # too much debug output
+        enableJGTowerReader(debug = False, SuperCellType=SCIn) # too much debug output
 
     # Schedule CTP Simulation
     if simflags.CTP.RunCTPEmulation():
