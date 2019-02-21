@@ -44,18 +44,20 @@ FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_
 # It is set automatically from the name
 #as long as the names are following standard convention 
 runDAOD = False # these are DAOD-s
-if "DAOD_IDTRKVALID" in FNAME[0]:
-      print "Set up for DAOD processing"
-      runDAOD=True
-#-----------------------------------------------------------------------
 
 # make AthenaCommonFlags aware of which file we are using
 # AthenaCommonFlags are used run-time configuration (InputFilePeeker)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-svcMgr.EventSelector.InputCollections = FNAME
-athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
+if len(athenaCommonFlags.FilesInput.get_Value()) == 0:
+   athenaCommonFlags.FilesInput = FNAME
 #-----------------------------------------------------------------------
+
+if "DAOD_IDTRKVALID" in svcMgr.EventSelector.InputCollections[0]:
+      print "Set up for DAOD processing"
+      runDAOD=True
+#-----------------------------------------------------------------------
+
 # pre- and post- includes files needed to read input files
 from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetGeo = 'atlas'
@@ -136,11 +138,6 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
       print "postInclude for ",layoutDescr, " layout"
       include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
-      if layoutOption=="InclinedAlternative" :
-         # in step3 we are using hit identifier translation to cope with the L0/L1 rings.
-         # If you want to run wo translation set this to False
-         print "Setting Layout translation helper to true"
-         ToolSvc.LayoutTranslationHelper.translateIdentifiersForInclinedAlternative=True
       break
 
 #-----------------------------------------------------------------------
@@ -227,6 +224,7 @@ from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonito
 InDetPhysValMonitoringTool = InDetPhysValMonitoringTool("InDetPhysValMonitoringTool")
 InDetPhysValMonitoringTool.useTrackSelection = True
 InDetPhysValMonitoringTool.FillITkResolutionPlots = True
+InDetPhysValMonitoringTool.FillAdditionalITkPlots = True
 InDetPhysValMonitoringTool.TrackSelectionTool = InDetTrackSelectorTool
 #InDetPhysValMonitoringTool.TruthSelectionTool = TrackTruthSelectionTool
 InDetPhysValMonitoringTool.TruthParticleContainerName = "TruthParticles"
