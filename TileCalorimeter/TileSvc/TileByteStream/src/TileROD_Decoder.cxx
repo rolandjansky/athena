@@ -2420,7 +2420,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   
   int countr = p[3];
   int idiode = (p[4]>>16);
-  int intensity = (p[4]&0x000F);
+  int intensity = (p[4]&0xFFFF);
   int filter = (p[5]>>16) & 0x000F;
   bool qdctimeout = !((p[5]>>31) & 0x1);
   bool tdctimeout = !((p[5]>>30) & 0x1);
