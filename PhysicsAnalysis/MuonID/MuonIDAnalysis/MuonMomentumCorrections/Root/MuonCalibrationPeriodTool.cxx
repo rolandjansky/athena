@@ -167,7 +167,7 @@ namespace CP {
         if (!m_calibTool_18.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2018 & mc16e");
             m_calibTool_18.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+name()+"_18");
-            ATH_CHECK(m_calibTool_18.setProperty("Year", "Data17"));
+            ATH_CHECK(m_calibTool_18.setProperty("Year", "Data18"));
             ATH_CHECK(m_calibTool_18.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_18.setProperty("SagittaRelease", m_sagittaRelease18));
             ATH_CHECK(m_calibTool_18.setProperty("StatComb", statComb18));
@@ -189,9 +189,9 @@ namespace CP {
         m_calibTool_18(),
         m_activeTool(nullptr),
         m_evInfo(nullptr),
-        m_sagittaRelease1516("sagittaBiasDataAll_03_02_19"),
-        m_sagittaRelease17("sagittaBiasDataAll_03_02_19"),
-        m_sagittaRelease18("sagittaBiasDataAll_03_02_19"),
+        m_sagittaRelease1516("sagittaBiasDataAll_03_02_19_Data16"),
+        m_sagittaRelease17("sagittaBiasDataAll_03_02_19_Data17"),
+        m_sagittaRelease18("sagittaBiasDataAll_03_02_19_Data18"),
         m_release("Recs2018_05_20"),
         m_calib_mode(CalibMode::additionalMCsys),
         m_StatComb1516(false),
