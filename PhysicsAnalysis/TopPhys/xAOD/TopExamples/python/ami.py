@@ -251,6 +251,7 @@ def check_sample_status(samples, stop_on_error = False):
    for s in samples:
       print '\n' + logger.WARNING + s.name + logger.ENDC + " (%s %s)" % (len(s.datasets), "dataset" if len(s.datasets) == 1 else "datasets")
       derivations = get_derivations(s.datasets)
+      status_ok = True
 
       for ldn in s.datasets:
          dataset_number = get_dataset_number(ldn)
@@ -258,7 +259,6 @@ def check_sample_status(samples, stop_on_error = False):
          latest_ldn = pick_newest_derivation(derivations[dataset_number])
 
          status = ""
-         status_ok = True
 
          # First output whether the requested LDN exists and
          # has a valid entry in the AMI database.
@@ -288,9 +288,12 @@ def check_sample_status(samples, stop_on_error = False):
             status += logger.OKGREEN + "latest" + logger.ENDC
 
          print " - %s (%s)" % (ldn, status)
-         if (stop_on_error and not status_ok):
-            print "Requested to stop on error."
-            sys.exit(1)
+
+      # Make the function stop if requested and any of the
+      # datasets of the previous sample list had problems.
+      if (stop_on_error and not status_ok):
+         print "\nRequested to stop on error. Please check the above samples ... "
+         sys.exit(1)
 
 
 if __name__ == '__main__':
