@@ -245,8 +245,9 @@ def pick_newest_derivation(ldn_list):
 
 # Print the status of a list of samples on AMI. This takes a list
 # of objects of type TopExamples.grid.Sample, wich then contain
-# lists of datasets.
-def check_sample_status(samples, stop_on_error):
+# lists of datasets. Set the second argument to "True" will make
+# the function stop on any errors.
+def check_sample_status(samples, stop_on_error = False):
    for s in samples:
       print '\n' + logger.WARNING + s.name + logger.ENDC + " (%s %s)" % (len(s.datasets), "dataset" if len(s.datasets) == 1 else "datasets")
       derivations = get_derivations(s.datasets)
@@ -257,6 +258,7 @@ def check_sample_status(samples, stop_on_error):
          latest_ldn = pick_newest_derivation(derivations[dataset_number])
 
          status = ""
+         status_ok = True
 
          # First output whether the requested LDN exists and
          # has a valid entry in the AMI database.
@@ -264,11 +266,13 @@ def check_sample_status(samples, stop_on_error):
             status = logger.OKGREEN + "found" + logger.ENDC + ", "
          else:
             status = logger.FAIL + "not found" + logger.ENDC + ", "
+            status_ok = False
 
          # If the dataset is _not_ a TOPQ1 derivation, output
          # its type and mark it in red.
          if dataset_type != "DAOD_TOPQ1":
             status += logger.WARNING + "Type: " + dataset_type + logger.ENDC + ", "
+            status_ok = False
 
          # Then output the derivation status: (1) no
          # derivation available at all, (2) derivations
@@ -276,12 +280,17 @@ def check_sample_status(samples, stop_on_error):
          # latest, (3) requested p-tag is the latest.
          if not latest_ldn:
             status += logger.FAIL + "no derivation available" + logger.ENDC
+            status_ok = False
          elif not ldn == latest_ldn:
             status += logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
+            status_ok = False
          else:
             status += logger.OKGREEN + "latest" + logger.ENDC
 
          print " - %s (%s)" % (ldn, status)
+         if (stop_on_error and not status_ok):
+            print "Requested to stop on error."
+            sys.exit(1)
 
 
 if __name__ == '__main__':
