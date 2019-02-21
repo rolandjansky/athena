@@ -51,5 +51,4 @@ else
   echo "art-result: xAODContainers 1"
 fi
 
-source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
