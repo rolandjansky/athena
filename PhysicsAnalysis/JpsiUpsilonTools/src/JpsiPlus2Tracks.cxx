@@ -339,7 +339,8 @@ namespace Analysis {
                     continue; // remove tracks which were used to build J/psi
                   }
                 }
-                
+        std::cout<<"trkDeltaZ trkItr1_before "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+        std::cout<<"trkDeltaZ trkItr2_before "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;        
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
                    std::abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
@@ -454,9 +455,15 @@ namespace Analysis {
                     }
                     bHelper.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
                     bContainer->push_back(bVertex.release());//ptr is released preventing deletion
+ std::cout<<"trkDeltaZ trkItr1_after_innerloop "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+        std::cout<<"trkDeltaZ trkItr2_after_innerloop "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
 
                 } // End of inner loop over tracks
+ std::cout<<"trkDeltaZ trkItr1_after_outer "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+        std::cout<<"trkDeltaZ trkItr2_after_outer "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+
             } // End of outer loop over tracks
+
         } // End of loop over J/spi
         ATH_MSG_DEBUG("bContainer size " << bContainer->size());
         return StatusCode::SUCCESS;
