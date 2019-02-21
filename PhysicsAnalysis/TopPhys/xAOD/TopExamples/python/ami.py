@@ -18,6 +18,16 @@ except:
     sys.exit()
 
 
+# Call this function when the AMI client throws any exceptions.
+# Quite likely, this is due to a missing VOMS proxy, so point
+# that out to the user and exit with error code.
+def exit_with_pyami_exception():
+   print ''
+   print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
+   print 'Try voms-proxy-init -voms atlas'
+   sys.exit(1)
+
+
 def getContainerContents(containerName):
   amiclient = pyAMI.client.Client('atlas')
 
@@ -35,11 +45,7 @@ def getContainerContents(containerName):
       except:
           failures += 1
 
-  if failures == maxTries:
-      print ''
-      print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
-      print 'Try voms-proxy-init -voms atlas'
-      sys.exit(1)
+  if failures == maxTries: exit_with_pyami_exception()
 
   dom = parseString(results)
   rows = dom.getElementsByTagName('row')
@@ -118,11 +124,7 @@ def askAmi(query, property = 'totalEvents'):
          except:
             failures += 1
 
-         if failures == maxTries:
-            print ''
-            print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
-            print 'Try voms-proxy-init -voms atlas'
-            sys.exit(1)
+         if failures == maxTries: exit_with_pyami_exception()
 
          dom = parseString(results)
 
@@ -154,11 +156,7 @@ def askAmi(query, property = 'totalEvents'):
         except:
            failures += 1
 
-        if failures == maxTries:
-           print ''
-           print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
-           print 'Try voms-proxy-init -voms atlas'
-           sys.exit(1)
+        if failures == maxTries: exit_with_pyami_exception()
 
         for row in results:
            retName = row["ldn"]
