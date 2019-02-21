@@ -24,7 +24,7 @@ FCSReturnCode TFCSCenterPositionCalculation::simulate_hit(Hit& hit,TFCSSimulatio
    hit.setCenter_eta( (1.-m_extrapWeight)*extrapol->eta(cs, SUBPOS_ENT) + m_extrapWeight*extrapol->eta(cs, SUBPOS_EXT) );
    hit.setCenter_phi( (1.-m_extrapWeight)*extrapol->phi(cs, SUBPOS_ENT) + m_extrapWeight*extrapol->phi(cs, SUBPOS_EXT) );
    
-   ATH_MSG_DEBUG("TFCSCenterPositionCalculation: center_r: " << hit.center_r() << " center_z: " << hit.center_z() << " center_phi: " << hit.center_phi() << " center_eta: " << hit.center_eta() );
+   ATH_MSG_DEBUG("TFCSCenterPositionCalculation: center_r: " << hit.center_r() << " center_z: " << hit.center_z() << " center_phi: " << hit.center_phi() << " center_eta: " << hit.center_eta() << " weight: " << m_extrapWeight << " cs: " << cs);
    
    return FCSSuccess;
 }
