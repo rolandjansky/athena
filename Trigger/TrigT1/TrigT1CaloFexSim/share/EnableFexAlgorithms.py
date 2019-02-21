@@ -1,13 +1,12 @@
-def enableJGTowerReader(debug = False, SuperCellType="SCell"):
+def enableJGTowerReader(debug = False):
     algseq = CfgMgr.AthSequencer("AthAlgSeq")
 
     algseq += CfgMgr.JGTowerReader (
         outputNoise = False,
         debugJetAlg = debug,
-        SuperCellType = SuperCellType,
         noise_file = "Run3L1CaloSimulation/Noise/noise_r10684.root",
-        plotSeeds = False,
-        dumpTowerInfo = False,
+        plotSeeds = True,
+        dumpTowerInfo = True,
         
         makeSquareJets = False,
         jJet_seed_size = 0.2,
@@ -40,8 +39,7 @@ def enableJGTowerReader(debug = False, SuperCellType="SCell"):
         
         makeJetsFromMap = True,
         towerMap = '/afs/cern.ch/work/c/ckaldero/public/L1CaloSim/jetTowerMaps/jFexJet_towerMap_2019-02-15.txt',
-        #towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-15.txt', # once it's on cvmfs
-        #towerMap = 'jFexJet_towerMap_2019-02-15.txt',
+        # towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-15.txt', # once it's on cvmfs
         map_seed_tower_noise_multiplier = 2.0,
         map_seed_total_noise_multiplier = 0.0,
         map_seed_min_ET_MeV = 500,
