@@ -173,6 +173,9 @@ def askAmi(query, property = 'totalEvents'):
 
 # Take a single LDN, extract its dataset number and return it.
 def get_dataset_number(ldn):
+   if is_data(ldn):
+      print "Function get_dataset_number(ldn) was called with a data-type LDN. This shouldn't happen."
+      sys.exit(1)
    regex = re.compile("\.[0-9]{6}\.")
    match = regex.search(ldn)
    if not match:
@@ -207,6 +210,18 @@ def get_type(ldn):
    sys.exit(1)
 
 
+# Get the data scope of a data-type LDN (e.g. data15_13TeV) and
+# return it. This function should only be called on data LDNs.
+def get_data_scope(ldn):
+   regex = re.compile("data[0-9]+.*?\.")
+   match = regex.search(ldn)
+   if not match:
+      print "Could not identify data scope in LDN %s" % ldn
+      sys.exit(1)
+   else:
+      return match.group(0)[:-1]
+
+
 # Get a list of all derivations registered on AMI for a list of
 # LDNs. This removes the p-tags from the LDNs and replaces them
 # with wildcards to search on AMI. The function returns a
@@ -220,8 +235,23 @@ def get_derivations(ldns):
    except pyAMI.exception.Error: exit_with_pyami_exception()
 
    dictionary = dict()
-   for ldn in ldns: dictionary[get_dataset_number(ldn)] = []
-   for d in results: dictionary[d['dataset_number']].append(d['ldn'])
+
+   # Make sure the dictionary has empty lists prepared for all
+   # LDNs that were searched for. If MC, use the dataset number
+   # as dictionary key, if data, use the data scope.
+   for ldn in ldns:
+      if is_data(ldn):
+         dictionary[get_data_scope(ldn)] = []
+      else:
+         dictionary[get_dataset_number(ldn)] = []
+
+   # Go through the results and add them to appropriate
+   # dictionary entries (appending to lists).
+   for d in results:
+      if is_data(ldn):
+         dictionary[get_data_scope(d['ldn'])].append(d['ldn'])
+      else:
+         dictionary[d['dataset_number']].append(d['ldn'])
    return dictionary
 
 
@@ -232,6 +262,13 @@ def is_available(ldn):
    except pyAMI.exception.Error: exit_with_pyami_exception()
    for d in results:
       if d['ldn'] == ldn: return True
+   return False
+
+
+# Check whether an LDN refers to data (and not MC).
+def is_data(ldn):
+   return True
+   if (ldn[0:4] == "data"): return True
    return False
 
 
@@ -254,9 +291,12 @@ def check_sample_status(samples, stop_on_error = False):
       status_ok = True
 
       for ldn in s.datasets:
-         dataset_number = get_dataset_number(ldn)
+         if is_data(ldn):
+            dict_key = get_data_scope(ldn)
+         else:
+            dict_key = get_dataset_number(ldn)
          dataset_type = get_type(ldn)
-         latest_ldn = pick_newest_derivation(derivations[dataset_number])
+         latest_ldn = pick_newest_derivation(derivations[dict_key])
 
          status = ""
 
