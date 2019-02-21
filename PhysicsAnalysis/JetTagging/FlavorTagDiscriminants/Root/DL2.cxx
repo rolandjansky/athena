@@ -248,13 +248,15 @@ namespace FlavorTagDiscriminants {
                  // from the track selector tool
                  if (std::abs(tp->eta()) > 2.5) return false;
                  double n_module_shared = (
-                   pix_shared(*tp) + double(sct_shared(*tp)) / 2);
+                   pix_shared(*tp) + sct_shared(*tp) / 2);
+                   //pix_shared(*tp) + double(sct_shared(*tp)) / 2);
                  if (n_module_shared > 1) return false;
                  if (tp->pt() <= 1e3) return false;
-                 if (d0(*tp) >= 0.1) return false;
+                 if (std::abs(d0(*tp)) >= 1.0) return false;
                  if (std::abs(z0(*tp)) >= 1.5) return false;
+                 // if ((pix_hits(*tp) + sct_hits(*tp) + pix_dead(*tp) + sct_dead(*tp)) < 7) return false;
                  if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
-                 if (pix_holes(*tp) + sct_holes(*tp) > 2) return false;
+                 if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
                  if (pix_holes(*tp) > 1) return false;
                  return true;
                };
