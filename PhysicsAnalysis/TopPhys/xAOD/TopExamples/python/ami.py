@@ -7,6 +7,7 @@ from xml.dom.minidom import parse, parseString
 
 import logger
 
+
 try:
    import pyAMI.client
    import pyAMI.atlas.api
@@ -14,6 +15,7 @@ try:
 except:
     print "Maybe you didn't do localSetupPyAMI?"
     sys.exit()
+
 
 def getContainerContents(containerName):
   amiclient = pyAMI.client.Client('atlas')
@@ -37,7 +39,6 @@ def getContainerContents(containerName):
       print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
       print 'Try voms-proxy-init -voms atlas'
       sys.exit(1)
-
 
   dom = parseString(results)
   rows = dom.getElementsByTagName('row')
@@ -63,8 +64,8 @@ def getContainerContents(containerName):
                for field in fields:
                  if field.attributes['name'].value == 'contained_datasetName':
                    datasets.append(field.firstChild.nodeValue.encode('ascii','ignore') + '/')
-  
   return sorted(datasets)
+
 
 def askAmi(query, property = 'totalEvents'):
   amiclient = pyAMI.client.Client('atlas')
@@ -106,7 +107,6 @@ def askAmi(query, property = 'totalEvents'):
 
   maxTries = 3
 
-
   failures = 0
   for i in range(maxTries):
      final = {}
@@ -135,7 +135,6 @@ def askAmi(query, property = 'totalEvents'):
          rows = dom.getElementsByTagName('row')
 
          for row in rows:
-
             fields = row.getElementsByTagName('field')
             retName = ''
             retNev = 0
@@ -147,11 +146,10 @@ def askAmi(query, property = 'totalEvents'):
                if field.attributes['name'].value == property:
                   if field.firstChild != None:
                      retNev = field.firstChild.nodeValue
-
             final[retName] = retNev
      else:
         try:
-           results = pyAMI.atlas.api.list_datasets(amiclient, query, fields="ldn,events,modified") 
+           results = pyAMI.atlas.api.list_datasets(amiclient, query, fields="ldn,events,modified")
         except:
            failures += 1
 
@@ -160,21 +158,19 @@ def askAmi(query, property = 'totalEvents'):
            print logger.FAIL + 'is your voms proxy okay?' + logger.ENDC
            print 'Try voms-proxy-init -voms atlas'
            sys.exit(1)
-           
-        for row in results:           
+
+        for row in results:
            retName = row["ldn"]
            retNev  = row["events"]
-           
+
            final[retName] = retNev
-  
 
   results = {}
   for k in final.keys():
     results[str(k)] = int(final[k])
 
-    
-
   return results
+
 
 if __name__ == '__main__':
     #data
