@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+import re
 import os
 import sys
 from xml.dom.minidom import parse, parseString
@@ -170,6 +171,42 @@ def askAmi(query, property = 'totalEvents'):
     results[str(k)] = int(final[k])
 
   return results
+
+
+# Take a single LDN, extract its dataset number and return it.
+def get_dataset_number(ldn):
+   regex = re.compile("\.[0-9]{6}\.")
+   match = regex.search(ldn)
+   if not match:
+      print "Could not find dataset number in LDN %s" % ldn
+      sys.exit(1)
+   else:
+      return match.group(0)[1:-1]
+
+
+# Take a single LDN, extract its p-tag and return it.
+def get_ptag(ldn):
+   regex = re.compile("_p[0-9]+")
+   match = regex.search(ldn)
+   if not match:
+      print "Could not find p-tag in LDN %s" % ldn
+      sys.exit(1)
+   else:
+      return match.group(0)[1:]
+
+
+# Return the type of LDN we're looking at (EVNT, HITS, AOD, TOPQ1
+# or other derivation etc.).
+def get_type(ldn):
+   match = re.search("\.recon\.AOD\.", ldn)
+   if match: return "AOD"
+   match = re.search("\.simul.HITS\.", ldn)
+   if match: return "HITS"
+   match = re.search("\.deriv\.DAOD_[A-Z]+[0-9]+\.", ldn)
+   if match: return match.group(0)[7:-1]
+   # If none of the above, exit with an error.
+   print "Could not identify type of LDN %s" % ldn
+   sys.exit(1)
 
 
 if __name__ == '__main__':
