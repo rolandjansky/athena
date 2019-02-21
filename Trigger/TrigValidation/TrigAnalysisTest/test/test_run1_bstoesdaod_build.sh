@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # art-description: Trigger test on Run 1 Bytestream data
-# art-type: grid
+# art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.0-TrigMC/Athena
