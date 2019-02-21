@@ -251,7 +251,7 @@ def get_derivations(ldns):
       if is_data(ldn):
          dictionary[get_data_scope(d['ldn'])].append(d['ldn'])
       else:
-         dictionary[d['dataset_number']].append(d['ldn'])
+         dictionary[get_dataset_number(d['ldn'])].append(d['ldn'])
    return dictionary
 
 
@@ -267,7 +267,6 @@ def is_available(ldn):
 
 # Check whether an LDN refers to data (and not MC).
 def is_data(ldn):
-   return True
    if (ldn[0:4] == "data"): return True
    return False
 
