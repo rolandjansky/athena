@@ -638,11 +638,9 @@ void  RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, 
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());		  
 		  
     jetTracks.clear();
-    //jetTracks=subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
-    //bool haveJetTracks=jetTracks.size() != 0;
+    jetTracks=subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+    bool haveJetTracks=jetTracks.size() != 0;
     
-    bool haveJetTracks = subjet_raw->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, jetTracks);
-  
     if (haveJetTracks){
        for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt=jetTracks.begin(); jetTrIt!=jetTracks.end(); ++jetTrIt) {
         	TLorentzVector temp_p4;
