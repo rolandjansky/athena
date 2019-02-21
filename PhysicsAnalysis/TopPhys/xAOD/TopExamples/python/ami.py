@@ -210,10 +210,11 @@ def get_type(ldn):
    sys.exit(1)
 
 
-# Get the data scope of a data-type LDN (e.g. data15_13TeV) and
-# return it. This function should only be called on data LDNs.
+# Get the data scope of a data-type LDN (e.g.
+# data15_13TeV.periodA or data16_13TeV.AllYear) and return it.
+# This function should only be called on data LDNs.
 def get_data_scope(ldn):
-   regex = re.compile("data[0-9]+.*?\.")
+   regex = re.compile("data[0-9]+.*?\..*?\.")
    match = regex.search(ldn)
    if not match:
       print "Could not identify data scope in LDN %s" % ldn
