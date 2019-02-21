@@ -22,11 +22,9 @@ def getContainerContents(containerName):
   data = "'%"+query+"%'"
 
   argument = 'SearchQuery -glite="select dataset.logicalDatasetName, dataset.identifier where dataset.logicalDatasetName like %s" -processingStep=real_data -project=dataSuper_001' % data
-  #print 'argument', argument
 
   maxTries = 3
 
-  #print argument
   failures = 0
   for i in range(maxTries):
       try:
@@ -40,48 +38,30 @@ def getContainerContents(containerName):
       print 'Try voms-proxy-init -voms atlas'
       sys.exit(1)
 
-  #print 'made it'
 
-  #txt = results.output('xml')
-  #print txt
   dom = parseString(results)
   rows = dom.getElementsByTagName('row')
 
-  #final = {}
   datasets = []
-  #print 'found', len(rows)
   for row in rows:
-      #print 'here', row
       fields = row.getElementsByTagName('field')
       for field in fields:
-        #print field.attributes['name'].value
         if field.attributes['name'].value == 'logicalDatasetName':
           retName=field.firstChild.nodeValue
-          #print retName
-#
         if field.attributes['name'].value == 'identifier':
           identifier = field.firstChild.nodeValue
 
-          #print identifier
           #Now search for all datasets that match that
-          #print 'PART 2'
-          #argument.append("entity=contained_dataset")
           argument = 'SearchQuery -glite="SELECT contained_dataset.contained_datasetName WHERE dataset.identifier=%s" -processingStep=real_data -project=dataSuper_001' % identifier
 
           results = amiclient.execute(argument, format='xml')
-          #print results
-          #txt = results.output('xml')
-          #print txt
           dom = parseString(results)
           container = dom.getElementsByTagName('row')
 
-          #print len(container)
           for dataset in container:
                fields = dataset.getElementsByTagName('field')
                for field in fields:
                  if field.attributes['name'].value == 'contained_datasetName':
-                   #print 'hello'
-                   #print field.firstChild.nodeValue
                    datasets.append(field.firstChild.nodeValue.encode('ascii','ignore') + '/')
   
   return sorted(datasets)
@@ -93,9 +73,7 @@ def askAmi(query, property = 'totalEvents'):
   query = query.replace('*', '%%')
   data = "'"+query+"'"
 
-  #argument.append("entity=dataset")
   argument = 'SearchQuery -glite="SELECT dataset.logicalDatasetName, dataset.%s WHERE dataset.logicalDatasetName LIKE %s"' % (property, data)
-  #print argument
 
   if data.find('data') > -1:
         argument += ' -processingStep=real_data'
@@ -128,7 +106,6 @@ def askAmi(query, property = 'totalEvents'):
 
   maxTries = 3
 
-  #print argument
 
   failures = 0
   for i in range(maxTries):
@@ -146,9 +123,6 @@ def askAmi(query, property = 'totalEvents'):
             print 'Try voms-proxy-init -voms atlas'
             sys.exit(1)
 
-         #print results.getElementsByTagName('error')
-         #txt = results.output('xml')
-         #print txt
          dom = parseString(results)
 
          #they changed it so that a voms-proxy-init error now returns a search
@@ -161,7 +135,6 @@ def askAmi(query, property = 'totalEvents'):
          rows = dom.getElementsByTagName('row')
 
          for row in rows:
-            #print 'here', row.toprettyxml()
 
             fields = row.getElementsByTagName('field')
             retName = ''
@@ -175,7 +148,6 @@ def askAmi(query, property = 'totalEvents'):
                   if field.firstChild != None:
                      retNev = field.firstChild.nodeValue
 
-            #print retName, retNev
             final[retName] = retNev
      else:
         try:
@@ -193,11 +165,9 @@ def askAmi(query, property = 'totalEvents'):
            retName = row["ldn"]
            retNev  = row["events"]
            
-           #print retName, retNev
            final[retName] = retNev
   
 
-  #unicode -> normalcode
   results = {}
   for k in final.keys():
     results[str(k)] = int(final[k])
