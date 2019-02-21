@@ -120,7 +120,11 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
   m_doSetDetectorEta = m_globalConfig->GetValue("SetDetectorEta",true);
 
-  //Make sure the residual correction is turned on if requested, protect against applying it without the jet area subtraction                    
+  // Get name of vertex container
+  m_vertexContainerName = m_globalConfig->GetValue("VertexContainerName","PrimaryVertices");
+
+  //Make sure the residual correction is turned on if requested
+
   if ( !calibSeq.Contains("JetArea") && !calibSeq.Contains("Residual") ) {
     m_doJetArea = false;
     m_doResidual = false;
@@ -138,9 +142,13 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
     }
     if ( !calibSeq.Contains("Residual") ) m_doResidual = false;
   } else if ( !calibSeq.Contains("JetArea") && calibSeq.Contains("Residual") ) {
-    ATH_MSG_FATAL("JetCalibrationTool::initializeTool : You are trying to initialize JetCalibTools with the jet area correction turned off and the residual offset correction turned on. This is inconsistent. Aborting.");
-    return StatusCode::SUCCESS;
+    m_doJetArea = false;
+    ATH_MSG_INFO("ApplyOnlyResidual should be true if only Residual pile up correction wants to be applied. Need to specify pile up starting scale in the configuration file.");
   }
+  // get nJet threshold and name
+  m_useNjetInResidual = m_globalConfig->GetValue("OffsetCorrection.UseNjet", false);
+  m_nJetThreshold = m_globalConfig->GetValue("OffsetCorrection.nJetThreshold", 20);
+  m_nJetContainerName = m_globalConfig->GetValue("OffsetCorrection.nJetContainerName", "HLT_xAOD__JetContainer_a4tcemsubjesISFS");
 
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
 
@@ -181,7 +189,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   std::vector<TString> vecCalibSeq = JetCalibUtils::Vectorize(calibSeq,"_");
   TString vecCalibSeqtmp;
   for ( unsigned int i=0; i<vecCalibSeq.size(); ++i) {
-    if ( vecCalibSeq[i].EqualTo("Residual") || vecCalibSeq[i].EqualTo("Origin") || vecCalibSeq[i].EqualTo("DEV") ) continue;
+    if ( vecCalibSeq[i].EqualTo("Origin") || vecCalibSeq[i].EqualTo("DEV") ) continue;
+    if ( vecCalibSeq[i].EqualTo("Residual") && m_doJetArea ) continue;
     ATH_CHECK( getCalibClass(name,vecCalibSeq[i] ));
   }
 
@@ -196,11 +205,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
   std::string suffix = "";
   //ATH_MSG_INFO("Initializing sub tools.");
-  if ( calibration.EqualTo("JetArea") ) {
+  if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
     ATH_MSG_INFO("Initializing pileup correction.");
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
-    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_doResidual,m_doOrigin,m_isData,m_devMode);
+    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_doResidual,m_doJetArea,m_doOrigin,m_isData,m_devMode);
     ATH_CHECK( m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str()) );
     m_jetPileupCorr->msg().setLevel( this->msg().level() );
     if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
@@ -319,7 +328,6 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     return StatusCode::SUCCESS;
   }
   ATH_MSG_FATAL("Calibration string not recognized: " << calibration << ", aborting.");
-  //ATH_MSG_INFO("Initializing of sub tools is complete.");
   return StatusCode::FAILURE;
 }
 
@@ -443,6 +451,30 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   jetEventInfo.setRho(rho);
   ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
 
+  // Necessary retrieval and calculation for use of nJetX instead of NPV
+  if(m_useNjetInResidual) {
+    // retrieve the container
+    const xAOD::JetContainer * jets = 0;
+    if (evtStore()->contains<xAOD::JetContainer>(m_nJetContainerName) ) {
+      ATH_MSG_VERBOSE("  Found jet container " << m_nJetContainerName);
+      if ( evtStore()->retrieve(jets, m_nJetContainerName).isFailure() || !jets ) {
+        ATH_MSG_FATAL("Could not retrieve xAOD::JetContainer from evtStore.");
+        return StatusCode::FAILURE;
+      }
+    } else {
+      ATH_MSG_FATAL("Could not find jet container " << m_nJetContainerName);
+      return StatusCode::FAILURE;
+    }
+
+    // count jets above threshold
+    int nJets = 0;
+    for (auto jet : *jets) {
+      if(jet->pt()/m_GeV > m_nJetThreshold)
+        nJets += 1;
+    }
+    jetEventInfo.setNjet(nJets);
+  }
+
   // Retrieve EventInfo object, which now has multiple uses
   if ( m_doResidual || m_doGSC ) {
     const xAOD::EventInfo * eventObj = 0;
@@ -478,12 +510,12 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // To do this, we need the primary vertices
     // However, other users of the GSC may not have the PV collection (in particular: trigger GSC in 2016)
     // So only retrieve vertices if needed for NPV (residual) or a non-zero PV index was specified (GSC)
-    if (m_doResidual || (m_doGSC && jetEventInfo.PVIndex()))
+    if ((m_doResidual && !m_useNjetInResidual) || (m_doGSC && jetEventInfo.PVIndex()))
     {
       //Retrieve VertexContainer object, use it to obtain NPV for the residual correction or check validity of GSC non-PV0 usage
       const xAOD::VertexContainer * vertices = 0;
       static unsigned int vertexContainerWarnings = 0;
-      if ( evtStore()->retrieve(vertices,"PrimaryVertices").isFailure() || !vertices ) {
+      if ( evtStore()->retrieve(vertices,m_vertexContainerName).isFailure() || !vertices ) {
         ++vertexContainerWarnings;
         if ( vertexContainerWarnings < 20 )
           ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");

@@ -104,11 +104,16 @@ private:
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
+  bool m_useNjetInResidual;
+  float m_nJetThreshold;
+  std::string m_nJetContainerName;
   std::string m_dir;
   std::string m_eInfoName;
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
+  bool m_doOnlyResidual;
+  std::string m_vertexContainerName;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
