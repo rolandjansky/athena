@@ -225,6 +225,15 @@ def get_derivations(ldns):
    return dictionary
 
 
+# Check whether an LDN is actually available and valid on AMI.
+def is_available(ldn):
+   amiclient = pyAMI.client.Client('atlas')
+   try: results = pyAMI.atlas.api.list_datasets(amiclient, patterns = [ldn], fields = ['ldn'])
+   except pyAMI.exception.Error: exit_with_pyami_exception()
+   for d in results: if d['ldn'] == ldn: return True
+   return False
+
+
 if __name__ == '__main__':
     #data
     print 'Testing data15'
