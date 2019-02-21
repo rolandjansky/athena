@@ -249,6 +249,7 @@ double EfieldInterpolator::relativeDistance(double x1, double y1, double x2, dou
 double EfieldInterpolator::extrapolateLinear(double x1, double y1, double x2, double y2, double xaim){
 	// follow linear extrapolation: y=mx+b
 	double delx 	= x2-x1;
+        if(delx == 0) return 0.; // slope not defined
 	double dely 	= y2-y1;
 	double b 	= y1 - (dely/delx)*x1;
 	return (xaim*(dely/delx)+b) ;  		
