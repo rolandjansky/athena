@@ -33,9 +33,8 @@ def makeMuonPrepDataAlgs():
   ToolSvc += MuonCscRawDataProviderTool
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool",
-                                                          RawDataProviderTool = MuonCscRawDataProviderTool,
-                                                          useBStoRdoTool      = True)
+  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool")
+
   ToolSvc += CscRdoToCscPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
@@ -58,8 +57,9 @@ def makeMuonPrepDataAlgs():
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
   CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                  cluster_builder = CscClusterBuilderTool)    
-  
-  eventAlgs_MuonPRD.append( CscRdoToCscPrepData )  
+
+  eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
+  viewAlgs_MuonPRD.append( CscRawDataProvider )  
   viewAlgs_MuonPRD.append( CscRdoToCscPrepData )  
   viewAlgs_MuonPRD.append( CscClusterBuilder ) 
 
@@ -108,8 +108,7 @@ def makeMuonPrepDataAlgs():
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-                                                       #RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                       #useBStoRdoTool      = True)
+
   ToolSvc += RpcRdoToRpcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -209,10 +208,8 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
   CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool_L2SA",
-                                                          RawDataProviderTool = MuonCscRawDataProviderTool,
                                                           RDOContainer        = MuonCscRawDataProviderTool.RdoLocation,
                                                           OutputCollection    = "CSC_Measurements_L2SA",
-                                                          useBStoRdoTool      = True,
                                                           OutputLevel         = OutputLevel )
   ToolSvc += CscRdoToCscPrepDataTool
 
@@ -249,8 +246,6 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool_L2SA",
-                                                       #RawDataProviderTool = MuonMdtRawDataProviderTool,
-                                                       #useBStoRdoTool      = True,
                                                        RDOContainer        = MuonMdtRawDataProviderTool.RdoLocation,
                                                        OutputCollection    = "MDT_DriftCircles_L2SA",
                                                        OutputLevel         = OutputLevel )
