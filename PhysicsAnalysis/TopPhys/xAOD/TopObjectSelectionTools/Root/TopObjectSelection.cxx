@@ -17,6 +17,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
+#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace top {
 
@@ -439,7 +440,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
 	
 	float radius2=std::max(0.02,std::min(0.4,30000./jet2->pt()));
 	
-	dr_jets = sqrt( pow(jetPtr->eta()-jet2->eta(),2) + pow(jetPtr->phi()- jet2->phi(),2) );
+	dr_jets = xAOD::P4Helpers::deltaR(jetPtr,jet2,false);
 	if ( dr_jets < std::min(radius1,radius2) ) passDRcut = false;
       
       }
