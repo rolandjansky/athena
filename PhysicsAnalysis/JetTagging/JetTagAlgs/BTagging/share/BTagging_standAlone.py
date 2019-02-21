@@ -195,7 +195,7 @@ if  globalflags.DataSource() == "data" and UseGoodRunLBList:
   # add the filter sequence with its Selector alg (which uses the Selector tool).
   # It is run before the topSequence
   from AthenaCommon.AlgSequence import AthSequencer
-  seq = AthSequencer("AthFilterSeq")
+  seq = AthSequencer("AthMasterSeq")
   from GoodRunsListsUser.GoodRunsListsUserConf import *
   seq += GRLTriggerSelectorAlg('GRLTriggerAlg')
 

@@ -33,8 +33,8 @@ class SelectEventNumberGetter ( Configured ) :
 
         # add to sequencer
         mlog.info(" now adding to sequencer" )
-        from AthenaCommon.AppMgr import athFilterSeq
-        sequencer = athFilterSeq
+        from AthenaCommon.AppMgr import athMasterSeq
+        sequencer = athMasterSeq
         sequencer += self.SelectEventNumberHandle()
         
         mlog.info(" leaving configure" )

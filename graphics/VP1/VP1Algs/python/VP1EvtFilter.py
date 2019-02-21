@@ -57,7 +57,7 @@ def installEventFilter(filters):
             if evt==filter[1] and (filter[0]==None or filter[0]==run): return not filters[0]
         return filters[0]
     from AthenaCommon.AlgSequence import AthSequencer
-    seq = AthSequencer('AthFilterSeq')
+    seq = AthSequencer('AthMasterSeq')
     from GaudiSequencer.PyComps import PyEvtFilter
     seq += PyEvtFilter ('vp1filteralg')
     seq.vp1filteralg.filter_fct = vp1filter

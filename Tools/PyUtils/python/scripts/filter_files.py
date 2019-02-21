@@ -167,10 +167,10 @@ def main(args):
     job = acas.AlgSequence()
     
     ## filter configuration ##
-    ##  -> we use the special sequence 'AthFilterSeq' which
+    ##  -> we use the special sequence 'AthMasterSeq' which
     ##      is run before any other algorithm (which are usually in the
     ##      'TopAlg' sequence
-    seq = acas.AthSequencer('AthFilterSeq')
+    seq = acas.AthSequencer('AthMasterSeq')
     
     import GaudiSequencer.PyComps as gspc
     seq += gspc.PyEvtFilter(

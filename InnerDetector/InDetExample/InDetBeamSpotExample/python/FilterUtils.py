@@ -11,7 +11,10 @@ __version__ = '$Id $'
 
 # General setup
 from AthenaCommon.AlgSequence import AthSequencer
-filterSeq = AthSequencer("AthFilterSeq")
+# Leave it named 'filterSeq' for now to not
+# break JOs importing this file. Should be changed
+# to masterSeq to avoid confusion...
+filterSeq = AthSequencer("AthMasterSeq")
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
