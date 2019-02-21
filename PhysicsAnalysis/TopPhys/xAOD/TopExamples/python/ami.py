@@ -207,6 +207,24 @@ def get_type(ldn):
    sys.exit(1)
 
 
+# Get a list of all derivations registered on AMI for a list of
+# LDNs. This removes the p-tags from the LDNs and replaces them
+# with wildcards to search on AMI. The function returns a
+# dictionary with dataset numbers as keys, and a list of LDNs as
+# values. The LDNs are assumed to be TOPQ derivations.
+def get_derivations(ldns):
+   amiclient = pyAMI.client.Client('atlas')
+   regex = re.compile("_p[0-9]+")
+   wildcards = [regex.sub('_p%', d) for d in ldns]
+   try: results = pyAMI.atlas.api.list_datasets(amiclient, patterns = wildcards, fields = ['ldn', 'dataset_number'], type = 'DAOD_TOPQ1')
+   except pyAMI.exception.Error: exit_with_pyami_exception()
+
+   dictionary = dict()
+   for ldn in ldns: dictionary[get_dataset_number(ldn)] = []
+   for d in results: dictionary[d['dataset_number']].append(d['ldn'])
+   return dictionary
+
+
 if __name__ == '__main__':
     #data
     print 'Testing data15'
