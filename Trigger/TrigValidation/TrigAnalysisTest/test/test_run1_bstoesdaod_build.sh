@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # art-description: Trigger test on Run 1 Bytestream data
-# art-type: grid
+# art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.0-TrigMC/Athena
@@ -50,5 +50,4 @@ else
   echo "art-result: xAODContainers 1"
 fi
 
-source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
