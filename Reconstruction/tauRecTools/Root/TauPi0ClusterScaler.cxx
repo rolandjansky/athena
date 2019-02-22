@@ -93,11 +93,6 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
     ATH_MSG_DEBUG("Resetting neutral PFO kinematics");
     for( auto pfo : neutralPFOContainer )
     {
-      //if( not pfo.isValid() ){
-      //    ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-      //    continue;
-      //}
-        // xAOD::PFO* pfo = const_cast<xAOD::PFO*>(*neutralPFOLink);
         const xAOD::CaloCluster* cl = pfo->cluster(0);
 
         // apply cluster vertex correction 
@@ -124,8 +119,8 @@ void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContain
     ATH_MSG_DEBUG("Creating charged PFOs");
     for(auto tauTrackLink : pTau.tauTrackLinks(xAOD::TauJetParameters::classifiedCharged)){
         if( not tauTrackLink.isValid() ){
-          ATH_MSG_WARNING("Invalid tauTrackLink");
-          continue;
+            ATH_MSG_WARNING("Invalid tauTrackLink");
+            continue;
         }
         const xAOD::TauTrack* tauTrack = (*tauTrackLink);
         // create pfo
@@ -167,12 +162,6 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAO
         // assign hadPFO to closest extrapolated chargedPFO track within dR<0.4
         float dRmin = 0.4; 
         for( auto chargedPFO : chargedPFOContainer ){
-	  //if( not chargedPFO.isValid() ){
-	  //    ATH_MSG_WARNING("Invalid protoChargedPFOLink");
-	  //    continue;
-	  //}
-            // xAOD::PFO* chargedPFO = const_cast<xAOD::PFO*>(*chargedPFOLink);
-
             // get extrapolated positions from tau-track
             std::vector<const xAOD::IParticle*> tauTrackPcleVec;
             chargedPFO->associatedParticles(xAOD::PFODetails::CaloCluster, tauTrackPcleVec);
@@ -271,11 +260,6 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD
         xAOD::PFO* neutralPFOMatch = 0;
         float dRmin = 0.04; 
         for( auto neutralPFO : neutralPFOContainer ){
-	  //if( not neutralPFO.isValid() ){
-	  //    ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-	  //    continue;
-	  //}
-            // xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
             // calculate dR (false means use eta instead of rapidity)
             float dR = xAOD::P4Helpers::deltaR((*neutralPFO->cluster(0)), etaCalo, phiCalo, false);
             ATH_MSG_DEBUG("neutralPFO, eta: " << neutralPFO->cluster(0)->eta()
@@ -320,12 +304,6 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContaine
     ATH_MSG_DEBUG("Subtracting charged energy from neutral PFOs");
     for( auto neutralPFO : neutralPFOContainer )
     {
-      //if( not neutralPFO.isValid() ){
-      //    ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-      //    continue;
-      //}
-        // xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
-
         // get associated charged PFOs
         std::vector<const xAOD::IParticle*> chargedPFOs;
         neutralPFO->associatedParticles(xAOD::PFODetails::Track, chargedPFOs);
