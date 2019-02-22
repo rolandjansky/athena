@@ -108,12 +108,19 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     msg() << MSG::DEBUG << "Executing xAOD::TrigMissingETMuon::hltExecute()" << endmsg;
   }
 
+  if(msgLvl() <= MSG::WARNING) {
+    msg() << MSG::WARNING << "Executing xAOD::TrigMissingETMuon::hltExecute()" << endmsg;
+  }
+
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "REGTEST: tes_in.size() = " << tes_in_size << endmsg;
 
     for (unsigned u=0; u<tes_in_size; ++u) {
       msg() << MSG::DEBUG << "REGTEST: tes_in[" << u << "].size() = " << tes_in[u].size() << endmsg;
     }
+  }
+  if(msgLvl() <= MSG::WARNING) {
+    msg() << MSG::WARNING << "tes_in_size" << tes_in_size << endmsg;
   }
   //algorithm is muon seeded, therefore:
   //    algorithm has TrigMissingET as only seed if in unseeded mode
@@ -138,16 +145,16 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     else{
       std::vector<const xAOD::TrigMissingET*> vectorOfMET;
       for (HLT::TEVec::const_iterator met_it = tes_in[0].begin(); met_it != tes_in[0].end(); ++met_it) {
-	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
-	if(status != HLT::OK) {
-	  msg() << MSG::ERROR 
-		<< "no TrigMissingET object found for this TE ... ?!?"
-		<< endmsg;
-	  return HLT::NAV_ERROR;
-	}
+      	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
+      	if(status != HLT::OK) {
+      	  msg() << MSG::ERROR 
+      		<< "no TrigMissingET object found for this TE ... ?!?"
+      		<< endmsg;
+      	  return HLT::NAV_ERROR;
+      	}
       }
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "REGTEST: Florian: No muon input. Will save the input TE without updating it " << endmsg;
+      if (msgLvl() <= MSG::WARNING) {
+      	msg() << MSG::WARNING << "REGTEST: No muon input. Will save the input TE without updating it " << endmsg;
       }
 
       // Check if EDM is there
@@ -172,20 +179,20 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     }
     if (tes_in1_size == 0) {
       if (msgLvl() <= MSG::DEBUG){
-	msg() << MSG::DEBUG
+      	msg() << MSG::DEBUG
 	      << "No muon feature found: skipping muon correction" << endmsg;
       }
 
       // Save ouput TE before leaving.
       std::vector<const xAOD::TrigMissingET*> vectorOfMET;
       for (HLT::TEVec::const_iterator met_it = tes_in[0].begin(); met_it != tes_in[0].end(); ++met_it) {
-	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
-	if(status != HLT::OK) {
-	  msg() << MSG::ERROR 
-		<< "no TrigMissingET object found for this TE ... ?!?"
-		<< endmsg;
-	  return HLT::NAV_ERROR;
-	}
+      	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
+      	if(status != HLT::OK) {
+      	  msg() << MSG::ERROR 
+      		<< "no TrigMissingET object found for this TE ... ?!?"
+      		<< endmsg;
+      	  return HLT::NAV_ERROR;
+      	}
       }
 
       // Check if EDM is there
@@ -226,10 +233,10 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   const xAOD::TrigMissingET *met_temp=vectorOfMET[0];
   m_met = const_cast<xAOD::TrigMissingET *>(met_temp);
   // ++++++++++++++++++++++++++++++++++++++++++
-  msg() << MSG::DEBUG << "xAOD::TrigMissingET object retrieved." <<endmsg;
+  msg() << MSG::WARNING << "xAOD::TrigMissingET object retrieved." <<endmsg;
 
   flag=m_met->flag();
-  msg() << MSG::DEBUG << "Flag got." <<endmsg;
+  msg() << MSG::WARNING << "Flag got." <<endmsg;
 
   // Now we loop over all the muons
   float muon_ex=0;
@@ -241,7 +248,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   unsigned int Nmuons=0;
   bool MuonError=false;
 
-  msg() << MSG::DEBUG << "REGTEST: Ready to access xAOD::MuonContainer  muons " << endmsg;
+  msg() << MSG::WARNING << "REGTEST: Ready to access xAOD::MuonContainer  muons " << endmsg;
 
   std::vector<const xAOD::TrackParticle*> vecOfMuonTrk;
 
@@ -250,8 +257,8 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
         << "REGTEST: Using muon pt threshold "<<m_muonptcut<<" GeV."<< endmsg;
   }
 
-  for (HLT::TEVec::const_iterator muon_it = tes_in[muonIndex].begin();
-       muon_it != tes_in[muonIndex].end(); ++muon_it) {
+  for (HLT::TEVec::const_iterator muon_it = tes_in[muonIndex].begin();muon_it != tes_in[muonIndex].end(); ++muon_it) 
+  {
 
     // Get the muon container linked to the TE
     const xAOD::MuonContainer* muonContainer(0);
@@ -351,8 +358,11 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Setting energies and flag" << endmsg;
   unsigned int muonComp = m_met->getNumberOfComponents() - 1;
   // Suggested by Diego: Checking the component name of the input
+  msg() << MSG::WARNING << "MET component number: " << muonComp << endmsg;
+  msg() << MSG::WARNING << "MET component name: " << m_met->nameOfComponent(muonComp) << endmsg;
   if( (m_met->nameOfComponent(muonComp)).substr(0,4)!="Muon") {
     msg() << MSG::ERROR << "Could not find MET container with muon information!!! Exit..." << endmsg;
+    msg() << MSG::ERROR << "MET component number: " << muonComp << endmsg;
     msg() << MSG::ERROR << "MET component name: " << m_met->nameOfComponent(muonComp) << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);    
   }
