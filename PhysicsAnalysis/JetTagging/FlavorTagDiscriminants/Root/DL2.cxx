@@ -257,7 +257,6 @@ namespace FlavorTagDiscriminants {
                  if (tp->pt() <= 1e3) return false;
                  if (std::abs(aug.d0(*tp)) >= 1.0) return false;
                  if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
-                 // if ((pix_hits(*tp) + sct_hits(*tp) + pix_dead(*tp) + sct_dead(*tp)) < 7) return false;
                  if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
                  if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
                  if (pix_holes(*tp) > 1) return false;
