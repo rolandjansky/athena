@@ -4,11 +4,9 @@
 
 #include "LumiBlockComps/LumiBlockMuTool.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
-#include "AthenaKernel/errorcheck.h"
+//#include "EventInfo/EventID.h"
+//#include "EventInfo/EventInfo.h"
+//#include "EventInfo/EventType.h"
 
 //--------------------------------------------------
 
@@ -28,6 +26,7 @@ StatusCode
 LumiBlockMuTool::initialize()
 {
   ATH_MSG_DEBUG("LumiBlockMuTool::initialize() begin");
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   // Nothing else to do if not reading from DB
   if (!m_useDB) 
@@ -50,9 +49,7 @@ LumiBlockMuTool::finalize()
 float
 LumiBlockMuTool::actualInteractionsPerCrossing() const {
 
-  // Get eventInfo object
-  const EventInfo* eventInfo;
-  CHECK(evtStore()->retrieve(eventInfo), 0);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);  
 
   // Take value from DB?     
   if (m_useDB) {
@@ -60,17 +57,18 @@ LumiBlockMuTool::actualInteractionsPerCrossing() const {
     if (m_lumiTool->muToLumi() > 0.)
       mu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi();
 
-    ATH_MSG_DEBUG("From DB, LB " << eventInfo->event_ID()->lumi_block() << " bcid " << eventInfo->event_ID()->bunch_crossing_id() << " -> " << mu);
+    ATH_MSG_DEBUG("From DB, LB " << eventInfo->lumiBlock() << " bcid " << eventInfo->bcid() << " -> " << mu);
     
     return mu;
   }
 
   // Read MC data from LB number?
-  if (eventInfo->event_type()->test(EventType::IS_SIMULATION)) {
+
+  if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 
     if (m_MCLumiBlockHack) {
       ATH_MSG_DEBUG("Returning lumi block as mu for MC event ");
-      return eventInfo->event_ID()->lumi_block() % 100; // Never greater than 100 according to Ayana
+      return eventInfo->lumiBlock() % 100; // Never greater than 100 according to Ayana
     }
     
     // Try reading from eventInfo, but fall back if less than zero
@@ -79,7 +77,7 @@ LumiBlockMuTool::actualInteractionsPerCrossing() const {
     if ( eventInfo->actualInteractionsPerCrossing() >= 0) {
       return eventInfo->actualInteractionsPerCrossing();
     } else {
-      return eventInfo->event_ID()->lumi_block() % 100;
+      return eventInfo->lumiBlock() % 100;
     }
 
   }
@@ -94,23 +92,21 @@ LumiBlockMuTool::averageInteractionsPerCrossing() const{
   // Already set by callback if using DB
   if (m_useDB) return m_lumiTool->lbAverageInteractionsPerCrossing();
 
-  // Otherwise get from EventInfo
-  const EventInfo* eventInfo;
-  CHECK(evtStore()->retrieve(eventInfo), 0);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
 
   // Read MC data from LB number?
-  if (eventInfo->event_type()->test(EventType::IS_SIMULATION)) {
+  if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 
     if (m_MCLumiBlockHack) {
       ATH_MSG_DEBUG("Returning lumi block as mu for MC event ");
-      return eventInfo->event_ID()->lumi_block() % 100;
+      return eventInfo->lumiBlock() % 100;
     }
 
     // Try reading from eventInfo, but fall back if zero
     if ( eventInfo->averageInteractionsPerCrossing() > 0) {
       return eventInfo->averageInteractionsPerCrossing();
     } else {
-      return eventInfo->event_ID()->lumi_block() % 100;
+      return eventInfo->lumiBlock() % 100;
     }
     
   } 
