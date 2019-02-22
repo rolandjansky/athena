@@ -4,11 +4,6 @@
 
 #include "LArMinBiasAlg.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/PileUpEventInfo.h"
-
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -83,6 +78,8 @@
 
     ATH_CHECK(m_cablingKey.initialize());
 
+    ATH_CHECK(m_eventInfoKey.initialize());
+
     m_n1=0;
     m_n2=0;
 
@@ -94,15 +91,15 @@
   //__________________________________________________________________________
   StatusCode LArMinBiasAlg::stop()
   {
-    std::cout << "number of events in the two samples  " << m_n1 << " " << m_n2 << std::endl;
+    ATH_MSG_INFO("number of events in the two samples  " << m_n1 << " " << m_n2);
     this->fillNtuple();
-    std::cout <<" stop after fill ntuple " << std::endl;
+    ATH_MSG_INFO(" stop after fill ntuple");
     return StatusCode::SUCCESS;
   }
   //__________________________________________________________________________
   StatusCode LArMinBiasAlg::finalize()
   {
-    std::cout << " finalize() " << std::endl;
+    ATH_MSG_INFO(" finalize()");
     return StatusCode::SUCCESS; 
   }
   
@@ -124,7 +121,7 @@
 
       m_ncell = m_calo_id->calo_cell_hash_max();
 
-      std::cout << " --- first event " << m_ncell << std::endl;
+      ATH_MSG_INFO(" --- first event " << m_ncell);
       m_symCellIndex.resize(m_ncell,-1);
       std::vector<int> doneCell;
       doneCell.resize(m_ncell,-1);
@@ -173,16 +170,18 @@
            nsym++;
         }
       }
-      std::cout << " --- number of symmetric cells found " << nsym << " " << m_CellList.size() << std::endl;
+      ATH_MSG_INFO(" --- number of symmetric cells found " << nsym << " " << m_CellList.size());
       if (nsym>=MAX_SYM_CELLS) ATH_MSG_ERROR(" More than allowed number of symmetric cells... Fix array size for ntuple writing !!!! ");
       m_nsymcell=nsym;
       m_first=false;
     }
 
-
-  const EventInfo* eventInfo;
-  ATH_CHECK (evtStore()->retrieve(eventInfo));
-  int channelNumber = eventInfo->event_type()->mc_channel_number() ;
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+    if (!eventInfo.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve EventInfo");
+      return StatusCode::FAILURE;
+    }
+    int channelNumber = eventInfo->mcChannelNumber();
 
   m_nevt_total++;
 
@@ -204,7 +203,7 @@
   } 
 
 
-  if ((m_nevt_total%100)==1) std::cout << " ---- process event number " << m_nevt_total <<  " " << channelNumber << "  weight " << weight << std::endl;
+  if ((m_nevt_total%100)==1) ATH_MSG_INFO(" ---- process event number " << m_nevt_total <<  " " << channelNumber << "  weight " << weight);
 
    for (int i=0;i<m_ncell;i++) m_eCell[i]=0.;
 
@@ -249,7 +248,7 @@
             int index2= m_symCellIndex[index];
             if (index2<0) return;
             if (index2 >= ((int)(m_CellList.size())) ) {
-                std::cout << " problem " << index << " " << index2 << " " << m_CellList.size() << std::endl;
+	      ATH_MSG_INFO(" problem " << index << " " << index2 << " " << m_CellList.size());
             }
             double oldN =  m_CellList[index2].nevt;
             double oldAverage = m_CellList[index2].average;
@@ -275,7 +274,7 @@
  void LArMinBiasAlg::fillNtuple()
  {
 
-   std::cout << " in fillNtuple " << m_nsymcell << std::endl;
+   ATH_MSG_INFO(" in fillNtuple " << m_nsymcell);
    for (int i=0;i<m_nsymcell;i++) {
      m_identifier[i] = m_CellList[i].identifier.get_identifier32().get_compact();
      m_layer[i] = m_CellList[i].layer;
@@ -289,14 +288,14 @@
      m_rms[i] = (float) (sqrt(m_CellList[i].rms));
    }
    m_tree->Fill();
-   std::cout << " after tree fill " << std::endl;
+   ATH_MSG_INFO(" after tree fill ");
 
-    for (int i=0;i<m_nsymcell;i++) {
+   for (int i=0;i<m_nsymcell;i++) {
      m_CellList[i].nevt=0;
      m_CellList[i].offset=0.;
      m_CellList[i].average=0;
      m_CellList[i].rms=0;
    }
-   std::cout << " end of fillNtuple " << std::endl;
+   ATH_MSG_INFO(" end of fillNtuple ");
  
  }
