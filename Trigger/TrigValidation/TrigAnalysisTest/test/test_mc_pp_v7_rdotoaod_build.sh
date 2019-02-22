@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to ESD and AOD test, plus extra tests using these files. With FTK
+# art-description: Trigger MC pp v7 RDO to AOD test
 # art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
@@ -20,17 +20,16 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: AOD.pool.root.checkFile0
+# art-output: AOD.pool.root.checkFiletrigSize.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_ftk_rdotoesdaod_build"
-export INPUT="ftk"
+export NAME="mc_pp_v7_rdotoaod_build"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v7"
 export EVENTS="3"
-export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
-export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
+export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoAOD.py"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
-source exec_art_triganalysistest_post.sh
