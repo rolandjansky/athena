@@ -201,14 +201,14 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	    
 	    if(!passedSelection(*rcjet))continue; // Calculate JSS only if passed object selection
 	    
-	    //	std::cout <<"retrieved PL rcjets" << std::endl;
+
 	    std::vector<fastjet::PseudoJet> clusters;
 	    clusters.clear();
 	    
 	  for (auto subjet : rcjet->getConstituents() ){
-	      //std::cout <<"retrieved PL subjets" << std::endl;
+
 	      const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
-	      //std::cout <<"retrieved PL rawjets" << std::endl;
+
 	      
 	      const xAOD::TruthParticleContainer* myTruthParticle(nullptr);
         // The truth collection is needed to determine the charge of the particles     
@@ -218,7 +218,7 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
    		}
     
 	  for (auto clus_itr : subjet_raw->getConstituents() ){
-		//	  std::cout <<"retrieved PL clusters" << std::endl;
+
 		
 		TLorentzVector temp_p4;
 		temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
@@ -226,7 +226,7 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
    
       // Only in case AntiKt4EMPFlowJets are used include in the substructure only the charged component of the substructure
 		  if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),false).find("AntiKt4EMPFlowJets")!=std::string::npos){
-        bool isCharged=false;
+		    bool isCharged=false;
 		    bool found=false;
 		
 		    for (auto truthParticle: *myTruthParticle ){
