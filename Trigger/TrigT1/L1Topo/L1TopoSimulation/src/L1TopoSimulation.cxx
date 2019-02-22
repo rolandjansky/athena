@@ -72,7 +72,6 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
    m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
    m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this),
-//   m_EventInfoKey("EventInfo"),
    m_topoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
    declareProperty( "TrigConfigSvc", m_l1topoConfigSvc, "Service to provide the L1Topo menu");
@@ -138,7 +137,7 @@ L1TopoSimulation::initialize() {
 
    CHECK(m_topoCTPLocation.initialize());
    CHECK(m_topoOverflowCTPLocation.initialize());
-//   CHECK(m_EventInfoKey.initialize());
+   CHECK(m_EventInfoKey.initialize());
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
    ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
@@ -249,12 +248,9 @@ L1TopoSimulation::execute() {
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
 
    // Event Info
-//ReadHandle doesn't seem to work yet for eventinfo
-//   SG::ReadHandle< EventInfo > evt(m_EventInfoKey);
-//   CHECK(evt.isValid());
-   const EventInfo *evt;
-   CHECK(evtStore()->retrieve(evt));
-   inputEvent.setEventInfo(evt->event_ID()->run_number(),evt->event_ID()->event_number(),evt->event_ID()->lumi_block(),evt->event_ID()->bunch_crossing_id());
+   SG::ReadHandle< xAOD::EventInfo > evt(m_EventInfoKey);
+
+   inputEvent.setEventInfo(evt->runNumber(),evt->eventNumber(),evt->lumiBlock(),evt->bcid());
 
    // EM TAU
    CHECK(m_emtauInputProvider->fillTopoInputEvent(inputEvent));
