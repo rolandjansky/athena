@@ -12,6 +12,7 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
+#include "AthenaKernel/IIOVSvc.h"
 
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/ValidityKey.h"
