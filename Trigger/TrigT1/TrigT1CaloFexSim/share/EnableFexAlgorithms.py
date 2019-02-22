@@ -38,8 +38,7 @@ def enableJGTowerReader(debug = False):
         jJetRound_LargeR_jet_min_ET_MeV = 5000,
         
         makeJetsFromMap = True,
-        towerMap = '/afs/cern.ch/work/c/ckaldero/public/L1CaloSim/jetTowerMaps/jFexJet_towerMap_2019-02-15.txt',
-        # towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-15.txt', # once it's on cvmfs
+        towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-15.txt', # once it's on cvmfs
         map_seed_tower_noise_multiplier = 2.0,
         map_seed_total_noise_multiplier = 0.0,
         map_seed_min_ET_MeV = 500,
