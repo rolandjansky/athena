@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -31,7 +31,7 @@
 namespace LVL1BS {
 
 L1TopoByteStreamxAODCnv::L1TopoByteStreamxAODCnv(ISvcLocator* svcloc)
-    : Converter(ByteStream_StorageType, classID(), svcloc),
+    : Converter(storageType(), classID(), svcloc),
       AthMessaging(svcloc != 0 ? msgSvc() : 0, "L1TopoByteStreamxAODCnv"),
       m_name("L1TopoByteStreamxAODCnv") {}
 
@@ -41,11 +41,11 @@ const CLID& L1TopoByteStreamxAODCnv::classID() {
   return ClassID_traits<xAOD::L1TopoRawDataContainer>::ID();
 }
 
-//  Init method gets all necessary services etc.
+long L1TopoByteStreamxAODCnv::storageType() {
+  return ByteStreamAddress::storageType();
+}
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
+//  Init method gets all necessary services etc.
 
 StatusCode L1TopoByteStreamxAODCnv::initialize() {
   ATH_MSG_DEBUG("Initializing " << m_name << " - package version "
