@@ -28,6 +28,30 @@
 
 class TrigEFMissingEtComponent {
   public: // all attributes are public: like a struct
+    enum Component 
+    { 
+        PreSamplB, EMB1     , EMB2     , EMB3     ,     // LAr barrel
+        PreSamplE, EME1     , EME2     , EME3     ,     // LAr EM endcap 
+        HEC0     , HEC1     , HEC2     , HEC3     ,     // Hadronic end cap cal.
+        TileBar0 , TileBar1 , TileBar2 ,                // Tile barrel
+        TileGap1 , TileGap2 , TileGap3 ,                // Tile gap (ITC & scint)
+        TileExt0 , TileExt1 , TileExt2 ,                // Tile extended barrel
+        FCalEM   , FCalHad1 , FCalHad2 ,                // Forward cal endcap
+        TCLCW    ,                                      // Topo. clusters Had
+        TCLCWB1  , TCLCWB2  ,                           // pos. and neg. eta barrel 
+        TCLCWE1  , TCLCWE2  ,                           // pos. and neg. eta endcap 
+        TCEM     ,                                      // Topo. clusters EM
+        TCEMB1   , TCEMB2   ,                           // pos. and neg. eta barrel 
+        TCEME1   , TCEME2   ,                           // pos. and neg. eta endcap 
+        JET      ,                                      // Jet 
+        JETB1    , JETB2    ,                           //
+        JETE1    , JETE2    ,                           // 
+        TCPUC    ,                                      // Topo. cluster Fit 
+        TCPUCUnc ,                                      // Topo. cluster Fit -- uncorrected
+        Muons                                           // Muons 
+  };
+
+
     unsigned short m_usedChannels; //<! counter for channels
     short m_sumOfSigns;            //<! sum of energy signs (-1, +1)
     float m_ex, m_ey, m_ez; //<! 3 components of the missing energy
