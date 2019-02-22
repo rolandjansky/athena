@@ -15,10 +15,7 @@
 
 // running in Athena
 #include "TrigT1CaloSim/RoIROD.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+#include "xAODEventInfo/EventInfo.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 
 #include <algorithm>
@@ -84,9 +81,9 @@ StatusCode LVL1::RoIROD::execute( )
 {
   ATH_MSG_DEBUG("Executing" );
 
-  const EventInfo* evt;
+  const xAOD::EventInfo* evt;
   if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
-    m_eventNumber = evt->event_ID()->event_number();
+    m_eventNumber = evt->eventNumber();
   }else{
     ATH_MSG_ERROR( " Unable to retrieve EventInfo from StoreGate ");
   }

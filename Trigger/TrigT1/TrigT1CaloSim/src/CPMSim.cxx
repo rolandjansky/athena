@@ -29,8 +29,8 @@
 #include "TrigT1CaloEvent/CPMTobRoI_ClassDEF.h"
 #include "TrigT1CaloEvent/CPMCMXData_ClassDEF.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
@@ -107,9 +107,9 @@ StatusCode CPMSim::execute( )
   ATH_MSG_DEBUG ( "starting CPMSim" ); 
 
   // For RoI output SLink record
-  const EventInfo* evt;
+  const xAOD::EventInfo* evt;
   if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
-    m_eventNumber = evt->event_ID()->event_number();
+    m_eventNumber =evt->eventNumber();
   }else{
     ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
   }
