@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 CmxCpHitsByteStreamAuxCnv::CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxCpHitsByteStreamAuxCnv"),
   m_name("CmxCpHitsByteStreamAuxCnv"),
   m_readTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
@@ -61,6 +61,11 @@ CmxCpHitsByteStreamAuxCnv::CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& CmxCpHitsByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::CMXCPHitsAuxContainer>::ID();
+}
+
+long CmxCpHitsByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

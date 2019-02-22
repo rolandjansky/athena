@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 JemEtSumsByteStreamxAODCnv::JemEtSumsByteStreamxAODCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "JemEtSumsByteStreamxAODCnv"),
     m_name("JemEtSumsByteStreamxAODCnv")
 {
@@ -43,6 +43,11 @@ JemEtSumsByteStreamxAODCnv::JemEtSumsByteStreamxAODCnv(ISvcLocator* svcloc) :
 
 const CLID& JemEtSumsByteStreamxAODCnv::classID() {
   return ClassID_traits<xAOD::JEMEtSumsContainer>::ID();
+}
+
+long JemEtSumsByteStreamxAODCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

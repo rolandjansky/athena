@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,7 @@ namespace LVL1BS {
 template <typename Container>
 JepRoiReadByteStreamV1Cnv<Container>::JepRoiReadByteStreamV1Cnv(
       ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("JepRoiReadByteStreamV1Cnv"),
       m_tool("LVL1BS::JepRoiByteStreamV1Tool/JepRoiByteStreamV1Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
@@ -47,6 +47,12 @@ template <typename Container>
 const CLID& JepRoiReadByteStreamV1Cnv<Container>::classID()
 {
   return ClassID_traits<Container>::ID();
+}
+
+template <typename Container>
+long JepRoiReadByteStreamV1Cnv<Container>::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

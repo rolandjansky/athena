@@ -31,7 +31,7 @@
 namespace LVL1BS {
 
 RodHeaderByteStreamCnv::RodHeaderByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("RodHeaderByteStreamCnv"),
       m_tool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool"),
       m_log(msgSvc(), m_name), m_debug(false)
@@ -47,6 +47,11 @@ RodHeaderByteStreamCnv::~RodHeaderByteStreamCnv()
 const CLID& RodHeaderByteStreamCnv::classID()
 {
   return ClassID_traits<DataVector<LVL1::RODHeader> >::ID();
+}
+
+long RodHeaderByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

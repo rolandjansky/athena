@@ -30,7 +30,7 @@
 namespace LVL1BS {
 
 CpByteStreamCnv::CpByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("CpByteStreamCnv"),
       m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool"),
       m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
@@ -47,6 +47,11 @@ CpByteStreamCnv::~CpByteStreamCnv()
 const CLID& CpByteStreamCnv::classID()
 {
   return ClassID_traits<LVL1::CPBSCollection>::ID();
+}
+
+long CpByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

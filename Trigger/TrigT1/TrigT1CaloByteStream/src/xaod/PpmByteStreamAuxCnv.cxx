@@ -36,7 +36,7 @@
 
 namespace LVL1BS {
 PpmByteStreamAuxCnv::PpmByteStreamAuxCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "PpmByteStreamAuxCnv"),
     m_name("PpmByteStreamAuxCnv"),
     m_readTool("LVL1BS::PpmByteStreamReadV1V2Tool/PpmByteStreamReadV1V2Tool"),
@@ -46,6 +46,11 @@ PpmByteStreamAuxCnv::PpmByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& PpmByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::TriggerTowerAuxContainer>::ID();
+}
+
+long PpmByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

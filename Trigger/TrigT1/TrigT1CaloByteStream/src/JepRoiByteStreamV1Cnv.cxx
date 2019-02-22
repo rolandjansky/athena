@@ -30,7 +30,7 @@
 namespace LVL1BS {
 
 JepRoiByteStreamV1Cnv::JepRoiByteStreamV1Cnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("JepRoiByteStreamV1Cnv"),
       m_tool("LVL1BS::JepRoiByteStreamV1Tool/JepRoiByteStreamV1Tool"),
       m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
@@ -47,6 +47,11 @@ JepRoiByteStreamV1Cnv::~JepRoiByteStreamV1Cnv()
 const CLID& JepRoiByteStreamV1Cnv::classID()
 {
   return ClassID_traits<LVL1::JEPRoIBSCollectionV1>::ID();
+}
+
+long JepRoiByteStreamV1Cnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

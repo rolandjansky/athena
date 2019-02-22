@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 CpmRoiByteStreamV2Cnv::CpmRoiByteStreamV2Cnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("CpmRoiByteStreamV2Cnv"),
       m_tool("LVL1BS::CpmRoiByteStreamV2Tool/CpmRoiByteStreamV2Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
@@ -50,6 +50,11 @@ CpmRoiByteStreamV2Cnv::~CpmRoiByteStreamV2Cnv()
 const CLID& CpmRoiByteStreamV2Cnv::classID()
 {
   return ClassID_traits<DataVector<LVL1::CPMTobRoI> >::ID();
+}
+
+long CpmRoiByteStreamV2Cnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

@@ -27,7 +27,7 @@ namespace LVL1BS {
 
 template <typename Container>
 JepReadByteStreamV1Cnv<Container>::JepReadByteStreamV1Cnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("JepReadByteStreamV1Cnv"),
       m_tool("LVL1BS::JepByteStreamV1Tool/JepByteStreamV1Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
@@ -46,6 +46,12 @@ template <typename Container>
 const CLID& JepReadByteStreamV1Cnv<Container>::classID()
 {
   return ClassID_traits<Container>::ID();
+}
+
+template <typename Container>
+long JepReadByteStreamV1Cnv<Container>::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

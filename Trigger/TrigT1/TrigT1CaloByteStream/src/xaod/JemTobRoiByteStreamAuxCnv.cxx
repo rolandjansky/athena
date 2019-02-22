@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 JemTobRoiByteStreamAuxCnv::JemTobRoiByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "JemTobRoiByteStreamAuxCnv"),
   m_name("JemTobRoiByteStreamAuxCnv"),
   m_readTool("LVL1BS::JepRoiByteStreamV2Tool/JepRoiByteStreamV2Tool")
@@ -61,6 +61,11 @@ JemTobRoiByteStreamAuxCnv::JemTobRoiByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& JemTobRoiByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::JEMTobRoIAuxContainer>::ID();
+}
+
+long JemTobRoiByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

@@ -54,7 +54,7 @@
 
 namespace LVL1BS {
 CpmTowerByteStreamAuxCnv::CpmTowerByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CpmTowerByteStreamAuxCnv"),
   m_name("CpmTowerByteStreamAuxCnv"),
   m_cpmReadTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
@@ -63,6 +63,11 @@ CpmTowerByteStreamAuxCnv::CpmTowerByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& CpmTowerByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::CPMTowerAuxContainer>::ID();
+}
+
+long CpmTowerByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 JetElementByteStreamAuxCnv::JetElementByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "JetElementByteStreamAuxCnv"),
   m_name("JetElementByteStreamAuxCnv"),
   m_readTool("LVL1BS::JepByteStreamV2Tool/JepByteStreamV2Tool")
@@ -61,6 +61,11 @@ JetElementByteStreamAuxCnv::JetElementByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& JetElementByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::JetElementAuxContainer>::ID();
+}
+
+long JetElementByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

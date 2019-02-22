@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 CmxRoIByteStreamxAODCnv::CmxRoIByteStreamxAODCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxRoIByteStreamxAODCnv"),
     m_name("CmxRoIByteStreamxAODCnv")
 {
@@ -43,6 +43,11 @@ CmxRoIByteStreamxAODCnv::CmxRoIByteStreamxAODCnv(ISvcLocator* svcloc) :
 
 const CLID& CmxRoIByteStreamxAODCnv::classID() {
   return ClassID_traits<xAOD::CMXRoIContainer>::ID();
+}
+
+long CmxRoIByteStreamxAODCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

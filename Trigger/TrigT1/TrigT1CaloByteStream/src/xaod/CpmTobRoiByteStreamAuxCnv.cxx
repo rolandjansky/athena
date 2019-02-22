@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 CpmTobRoiByteStreamAuxCnv::CpmTobRoiByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CpmTobRoiByteStreamAuxCnv"),
   m_name("CpmTobRoiByteStreamAuxCnv"),
   m_readTool("LVL1BS::CpmRoiByteStreamV2Tool/CpmRoiByteStreamV2Tool")
@@ -61,6 +61,11 @@ CpmTobRoiByteStreamAuxCnv::CpmTobRoiByteStreamAuxCnv(ISvcLocator* svcloc) :
 
 const CLID& CpmTobRoiByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::CPMTobRoIAuxContainer>::ID();
+}
+
+long CpmTobRoiByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.

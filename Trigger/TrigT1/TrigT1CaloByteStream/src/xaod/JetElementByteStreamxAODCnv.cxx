@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 JetElementByteStreamxAODCnv::JetElementByteStreamxAODCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "JetElementByteStreamxAODCnv"),
     m_name("JetElementByteStreamxAODCnv")
 {
@@ -43,6 +43,11 @@ JetElementByteStreamxAODCnv::JetElementByteStreamxAODCnv(ISvcLocator* svcloc) :
 
 const CLID& JetElementByteStreamxAODCnv::classID() {
   return ClassID_traits<xAOD::JetElementContainer>::ID();
+}
+
+long JetElementByteStreamxAODCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 //  Init method gets all necessary services etc.
