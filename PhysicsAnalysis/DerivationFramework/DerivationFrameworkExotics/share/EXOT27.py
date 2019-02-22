@@ -18,6 +18,8 @@ from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
+    DerivationFramework__InDetTrackSelectionToolWrapper,
+    DerivationFramework__TrackParticleThinning,
     DerivationFramework__EgammaTrackParticleThinning,
     DerivationFramework__MuonTrackParticleThinning,
     DerivationFramework__TauTrackParticleThinning,
@@ -35,6 +37,7 @@ import DerivationFrameworkEGamma.EGammaCommon as EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon as MuonsCommon
 import DerivationFrameworkTau.TauCommon as TauCommon
 import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
+import DerivationFrameworkInDet.InDetCommon as InDetCommon
 from JetRec.JetRecStandardToolManager import jtm
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
     DerivationFramework__GenericTruthThinning)
@@ -73,7 +76,8 @@ EXOT27ExtraVariables = defaultdict(set)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
   "PrimaryVertices", "BTagging_AntiKt4EMTopo", "MET_Reference_AntiKt4EMTopo",
-  "AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow"
+  "AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow",
+  "AntiKt2LCTopoJets","InDetTrackParticles"
   ]
 EXOT27AllVariables = [
   ]
@@ -169,6 +173,15 @@ ExtendedJetCommon.replaceAODReducedJets(
 # Includes the 5% pT trimmed R=1.0 jets
 ExtendedJetCommon.addDefaultTrimmedJets(EXOT27Seq, "EXOT27Jets")
 
+# add akt2
+JetCommon.addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=7000, algseq=EXOT27Seq, outputGroup="EXOT27Jets")
+
+EXOT27ExtraVariables["AntiKt2LCTopoJets"].update([
+    "Width",
+    "GhostBQuarksFinal",
+    "GhostTrack",
+    "GhostTrackCount",
+    ])
 
 OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
@@ -178,6 +191,7 @@ for lrj in OutputLargeR:
   EXOT27ExtraVariables[lrj].update([
       "Width",
       "GhostBQuarksFinal",
+      "Tau4_wta",
       ])
 OutputLargeRParent = [
   "AntiKt10LCTopoJets",
@@ -211,6 +225,20 @@ for extra in HbbCommon.xbbTaggerExtraVariables:
   EXOT27ExtraVariables[partition[0]].update(partition[2].split('.') )
 
 ################################################################################
+# Setup augmentation (add new decorations to objects)
+################################################################################
+EXOT27AugmentationTools = []
+
+EXOT27TrackSelection = DerivationFramework__InDetTrackSelectionToolWrapper(name = "EXOT27TrackSelection",
+                                                                           ContainerName = "InDetTrackParticles",
+                                                                           DecorationName = "EXOT27DFLoose" )
+
+EXOT27TrackSelection.TrackSelectionTool.CutLevel = "Loose"
+ToolSvc += EXOT27TrackSelection
+
+EXOT27AugmentationTools.append(EXOT27TrackSelection) 
+
+################################################################################
 # Setup thinning (remove objects from collections)
 ################################################################################
 EXOT27ThinningHelper = ThinningHelper("EXOT27ThinningHelper")
@@ -225,8 +253,16 @@ for large_r in OutputLargeR:
   EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
         "EXOT27{0}ThinningTool".format(large_r),
         ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-        SelectionString="{0}.pt > 100*GeV".format(large_r),
+        SelectionString = "{0}.pt > 100*GeV".format(large_r),
         ContainerName = large_r) )
+
+EXOT27Akt2Jet = "(AntiKt2LCTopoJets.pt > 10*GeV) && (abs(AntiKt2LCTopoJets.eta) < 3.1)"
+
+EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
+      "EXOT27AntiKt2LCTopoJetsThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27Akt2Jet,
+      ContainerName = "AntiKt2LCTopoJets") )
 
 EXOT27BaselineElectron = "Electrons.DFCommonElectronsLHLooseBL"
 EXOT27BaselineMuon     = "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
@@ -237,19 +273,37 @@ EXOT27SignalElectron   = (EXOT27BaselineElectron + " && Electrons.DFCommonElectr
 EXOT27SignalMuon       = EXOT27BaselineMuon + " && Muons.pt > 20.*GeV"
 EXOT27SignalPhoton     = EXOT27BaselinePhoton + " && Photons.pt > 100.*GeV"
 
-# Set up the standard set of track thinning tools
+EXOT27BaselineTrack = "(InDetTrackParticles.EXOT27DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm) && (InDetTrackParticles.d0 < 2.0*mm)"
+
+# Set up the track thinning tools
 EXOT27ThinningTools += [
+  DerivationFramework__TrackParticleThinning(
+      "EXOT27TrackParticleThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27BaselineTrack,
+      InDetTrackParticlesKey = "InDetTrackParticles",
+      ApplyAnd        = True,
+      ),
+  DerivationFramework__JetTrackParticleThinning( 
+      "EXOT27AKt2JetTPThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      JetKey = "AntiKt2LCTopoJets",
+      SelectionString = EXOT27Akt2Jet,
+      InDetTrackParticlesKey  = "InDetTrackParticles",
+      DeltaRMatch     = 0.33,
+      ApplyAnd        = True,
+      ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27ElectronTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Electrons",
-      SelectionString = EXOT27BaselineElectron
+      SelectionString = EXOT27BaselineElectron,
       ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27PhotonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Photons",
-      SelectionString = EXOT27BaselinePhoton
+      SelectionString = EXOT27BaselinePhoton,
       ),
   DerivationFramework__MuonTrackParticleThinning(
       "EXOT27MuonTrackParticleThinningTool",
@@ -260,9 +314,9 @@ EXOT27ThinningTools += [
       "EXOT27TauTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       TauKey          = "TauJets",
-      SelectionString = EXOT27BaselineTauJet
+      SelectionString = EXOT27BaselineTauJet,
       ),
-  ]
+]
 
 # Also thin the output objects by the same rules
 EXOT27ThinningTools += [
@@ -464,6 +518,7 @@ for tool in EXOT27SkimmingTools:
 EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "EXOT27SecondaryKernel",
     SkimmingTools = EXOT27SkimmingTools,
+    AugmentationTools = EXOT27AugmentationTools,
     ThinningTools = EXOT27ThinningTools
     )
 
@@ -484,6 +539,7 @@ JetCommon.addJetOutputs(
     contentlist=["EXOT27Jets"],
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+      "AntiKt2LCTopoJets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",

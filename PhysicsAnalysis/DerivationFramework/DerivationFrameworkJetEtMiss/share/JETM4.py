@@ -215,6 +215,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
 
+#===============================
+# add xbb taggers
+#===============================
+from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -239,6 +246,10 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
 JETM4SlimmingHelper.ExtraVariables = ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawE.rawEta.rawPhi.rawM","Photons."+NewTrigVars["Photons"],"JetETMissNeutralParticleFlowObjects.m.mEM.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_CENTER_LAMBDA.pt.ptEM.phi.eta",
 "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",
 "TauJets.truthJetLink.truthParticleLink.IsTruthMatched"]
+
+# XbbScore variables
+from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+JETM4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
 for truthc in [
     "TruthMuons",
