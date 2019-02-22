@@ -61,9 +61,6 @@ long JepReadByteStreamV1V2Cnv<Container>::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 template <typename Container>
 StatusCode JepReadByteStreamV1V2Cnv<Container>::initialize()

@@ -52,9 +52,6 @@ long RodHeaderByteStreamxAODCnv::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode RodHeaderByteStreamxAODCnv::initialize() {
   ATH_MSG_DEBUG(

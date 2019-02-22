@@ -51,9 +51,6 @@ long L1CaloByteStreamAuxCnv<ContainerT,AuxContainerT>::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 template<typename ContainerT, typename AuxContainerT>
 StatusCode L1CaloByteStreamAuxCnv<ContainerT, AuxContainerT>::initialize() {

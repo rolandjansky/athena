@@ -59,9 +59,6 @@ long CpmRoiByteStreamV2Cnv::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode CpmRoiByteStreamV2Cnv::initialize()
 {

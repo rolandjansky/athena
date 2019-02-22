@@ -56,9 +56,6 @@ long JepByteStreamCnv::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode JepByteStreamCnv::initialize()
 {

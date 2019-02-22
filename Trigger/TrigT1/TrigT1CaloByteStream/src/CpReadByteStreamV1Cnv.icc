@@ -56,9 +56,6 @@ long CpReadByteStreamV1Cnv<Container>::storageType()
 
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 template <typename Container>
 StatusCode CpReadByteStreamV1Cnv<Container>::initialize()
