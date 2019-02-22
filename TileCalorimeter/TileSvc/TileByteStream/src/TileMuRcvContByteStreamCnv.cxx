@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -32,7 +32,7 @@
 
 
 TileMuRcvContByteStreamCnv::TileMuRcvContByteStreamCnv(ISvcLocator* svcloc)
-  : Converter(ByteStream_StorageType, classID(),svcloc)
+  : Converter(storageType(), classID(),svcloc)
   , ::AthMessaging(msgSvc(), "TileMuRcvContByteStreamCnv")
   , m_name("TileMuRcvContByteStreamCnv")
   , m_tool("TileMuRcvContByteStreamTool")
@@ -45,7 +45,11 @@ TileMuRcvContByteStreamCnv::TileMuRcvContByteStreamCnv(ISvcLocator* svcloc)
 }
 
 const CLID& TileMuRcvContByteStreamCnv::classID(){
-return ClassID_traits<TileMuonReceiverContainer>::ID() ;
+  return ClassID_traits<TileMuonReceiverContainer>::ID();
+}
+
+long TileMuRcvContByteStreamCnv::storageType() {
+  return ByteStreamAddress::storageType();
 }
 
 StatusCode TileMuRcvContByteStreamCnv::initialize()
