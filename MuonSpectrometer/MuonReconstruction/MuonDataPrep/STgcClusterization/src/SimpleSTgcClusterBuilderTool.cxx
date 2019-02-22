@@ -48,11 +48,18 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
 //
 StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
 							   std::vector<Muon::sTgcPrepData*>& clustersVect)
-
 {
 
   ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
-  ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 
+
+  IdentifierHash hash;
+  if ( stripsVect.size()>0 ) {
+    hash = stripsVect.at(0).collectionHash();
+  } 
+  else {
+    ATH_MSG_DEBUG("Empty PRD collection: no clusterization");
+    return StatusCode::SUCCESS;
+  }
 
   // clear the clusters vector
   for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
@@ -71,7 +78,62 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   } 
 
   /// now add the clusters to the PRD container
-  
+  //
+  clustersVect.clear();
+
+  for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
+    for ( unsigned int gasGap=0 ; gasGap<5 ; ++gasGap ) {
+      //
+      // loop on the clusters of that gap
+      //
+      for ( unsigned int i=0 ; i<m_clusters[multilayer][gasGap].size() ; ++i ) { 
+        // get the cluster
+        std::vector<Muon::sTgcPrepData> cluster = m_clusters[multilayer][gasGap].at(i);
+        //
+        // loop on the strips and set the cluster weighted position and charge
+        //
+        std::vector<Identifier> rdoList;
+        Identifier clusterId;
+        double weightedPosX = 0.0;
+        double posY = (cluster.at(0)).localPosition().y();
+
+        double maxCharge = -1.0;
+        double totalCharge  = 0.0;
+        for ( auto it : cluster ) {
+          rdoList.push_back(it.identify());
+          weightedPosX += it.localPosition().x()*it.charge();
+          totalCharge += it.charge();
+          //
+          // Set the cluster identifier to the max charge strip
+          //
+          if ( it.charge()>maxCharge ) {
+            maxCharge = it.charge();
+            clusterId = it.identify();
+          } 
+        } 
+        weightedPosX = weightedPosX/totalCharge;
+        Amg::Vector2D localPosition(weightedPosX,posY);        
+        //
+        // get the error on the cluster position
+        //
+        double sigmaSq = 0.0;
+        for ( auto it : cluster ) {
+          sigmaSq += it.charge()*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
+        } 
+        double sigma = sqrt(sigmaSq/totalCharge);
+        
+        Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+        (*covN)(0,0) = sigma;
+
+        //
+        // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
+        //
+        sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
+            rdoList, covN, cluster.at(0).detectorElement());
+        clustersVect.push_back(prdN);   
+      }
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -100,7 +162,11 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     return true;
   }
   else {
+    //
+    // check if the strip can be added to a cluster
+    //
     for ( unsigned int i=0 ; i<m_clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
+
       unsigned int firstStrip = *(m_clustersStripNum[multilayer][gasGap].at(i).begin());
       unsigned int lastStrip  = *(m_clustersStripNum[multilayer][gasGap].at(i).end());
 
@@ -111,8 +177,19 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
 
 	return true;
       }
-
     }
+    // if not, build a new cluster starting from it
+    //
+    set<unsigned int> clusterStripNum;
+    vector<Muon::sTgcPrepData> cluster;
+        
+    clusterStripNum.insert(stripNum);
+    cluster.push_back(strip);
+
+    m_clustersStripNum[multilayer][gasGap].push_back(clusterStripNum);
+    m_clusters[multilayer][gasGap].push_back(cluster);
+
+    return true;
   }
 
   return false;

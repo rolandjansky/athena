@@ -148,7 +148,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-//    const Identifier elementId = m_stgcIdHelper->elementID(rdoId);
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
@@ -219,15 +218,17 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
     if(m_merge) {
       // eta strips 
-      if(channelType==1) {
+
+      if (channelType==0) {
+        sTgcPadPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+      } 
+      else if(channelType==1) {
         sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
-      } else if (channelType==2) { 
+      } 
+      else if (channelType==2) { 
         // wires
         sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
-      } else if (channelType==0) { 
-        // pads 
-        sTgcPadPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
-      }
+      } 
       else {
         ATH_MSG_ERROR("Unknown sTGC channel type");
         return StatusCode::FAILURE;
