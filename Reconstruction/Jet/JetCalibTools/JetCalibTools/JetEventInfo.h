@@ -14,7 +14,7 @@ class JetEventInfo {
   void setRho(double rho) { m_rho = rho; }
   void setMu(double mu) { m_mu = mu; }
   void setNPV(double NPV) { m_npv = NPV; }
-  void setNjet(double nJet) { m_nJet = nJet; }
+  void setNjet(int nJet) { m_nJet = nJet; }
   void setPVIndex(int PVindex) { m_PVindex = PVindex; }
 
   double rho() { return m_rho; }

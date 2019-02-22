@@ -117,12 +117,9 @@ double ResidualOffsetCorrection::GetResidualOffsetET( double abseta, double mu, 
     // further correction to nJet if desired
     int nJetCorr = nJet;
 
-    double alpha, beta, etaEdge;
-    if(!MuOnly){ beta    = OffsetNjet[0];
-    } else { beta  = 0; }
-    if(!NOnly){ alpha = OffsetMu[0];
-    } else { alpha = 0; }
-    etaEdge=0;
+    double alpha   = NOnly ? 0 : OffsetMu[0];
+    double beta    = MuOnly ? 0 : OffsetNjet[0];
+    double etaEdge = 0;
     int bin=1;
     for (;bin<=OffsetBins->GetNbins();++bin) {
       etaEdge = OffsetBins->GetBinLowEdge(bin);
@@ -138,12 +135,9 @@ double ResidualOffsetCorrection::GetResidualOffsetET( double abseta, double mu, 
     //NPV beamspot correction
     const double NPVCorr = GetNPVBeamspotCorrection(NPV);
 
-    double alpha, beta, etaEdge;
-    if(!MuOnly){ beta   = OffsetNPV[0];
-    } else { beta  = 0; }
-    if(!NOnly){ alpha = OffsetMu[0];
-    } else { alpha = 0; }
-    etaEdge = 0;
+    double alpha   = NOnly ? 0 : OffsetMu[0];
+    double beta    = MuOnly ? 0 : OffsetNPV[0];
+    double etaEdge = 0;
     int bin=1;
     for (;bin<=OffsetBins->GetNbins();++bin) {
       etaEdge = OffsetBins->GetBinLowEdge(bin);

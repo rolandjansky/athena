@@ -162,9 +162,9 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     const int nJet   = jetEventInfo.nJet();
 
     // Retrieve the offset correction from the residual correction class
-    double offsetET;  // pT residual subtraction
-    double pT_offset; // pT difference before/after pileup corrections
-    double pileup_SF; // final calibration factor applied to the four vector
+    double offsetET  = 0;  // pT residual subtraction
+    double pT_offset = pT_det; // pT difference before/after pileup corrections
+    double pileup_SF = 1; // final calibration factor applied to the four vector
 
     xAOD::JetFourMom_t calibP4;
     if(!m_doSequentialResidual){ // Default, both corrections are applied simultaneously

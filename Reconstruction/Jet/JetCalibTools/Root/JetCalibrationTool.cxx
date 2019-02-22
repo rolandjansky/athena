@@ -147,7 +147,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
   // get nJet threshold and name
   m_useNjetInResidual = m_globalConfig->GetValue("OffsetCorrection.UseNjet", false);
-  m_nJetThreshold = m_globalConfig->GetValue("OffsetCorrection.nJetThreshold", 20);
+  m_nJetPtThreshold = m_globalConfig->GetValue("OffsetCorrection.nJetPtThreshold", 20);
   m_nJetContainerName = m_globalConfig->GetValue("OffsetCorrection.nJetContainerName", "HLT_xAOD__JetContainer_a4tcemsubjesISFS");
 
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
@@ -469,7 +469,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // count jets above threshold
     int nJets = 0;
     for (auto jet : *jets) {
-      if(jet->pt()/m_GeV > m_nJetThreshold)
+      if(jet->pt()/m_GeV > m_nJetPtThreshold)
         nJets += 1;
     }
     jetEventInfo.setNjet(nJets);
