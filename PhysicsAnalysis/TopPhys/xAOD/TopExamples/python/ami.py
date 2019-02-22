@@ -28,6 +28,21 @@ def exit_with_pyami_exception():
    sys.exit(1)
 
 
+# Exception to be thrown when information cannot be extracted
+# from an LDN, e.g. the p-tag cannot be identified.
+class ldn_decypher_error(Exception):
+   """Raised when information cannot be extracted from an LDN"""
+   pass
+
+
+# Exception to be thrown when the wrong LDN type is fed into a
+# function (e.g. data-type LDN into an MC-only function). This
+# assumes there are only data and MC as types.
+class ldn_wrong_type(Exception):
+   """Raised when an LDN of a wrong type is used"""
+   pass
+
+
 def getContainerContents(containerName):
   amiclient = pyAMI.client.Client('atlas')
 
@@ -173,54 +188,43 @@ def askAmi(query, property = 'totalEvents'):
 
 # Take a single LDN, extract its dataset number and return it.
 def get_dataset_number(ldn):
-   if is_data(ldn):
-      print "Function get_dataset_number(ldn) was called with a data-type LDN. This shouldn't happen."
-      sys.exit(1)
+   if is_data(ldn): raise ldn_wrong_type
    regex = re.compile("\.[0-9]{6}\.")
    match = regex.search(ldn)
-   if not match:
-      print "Could not find dataset number in LDN %s" % ldn
-      sys.exit(1)
-   else:
-      return match.group(0)[1:-1]
+   if not match: raise ldn_decypher_error
+   else: return match.group(0)[1:-1]
 
 
 # Take a single LDN, extract its p-tag and return it.
 def get_ptag(ldn):
    regex = re.compile("_p[0-9]+")
    match = regex.search(ldn)
-   if not match:
-      print "Could not find p-tag in LDN %s" % ldn
-      sys.exit(1)
-   else:
-      return match.group(0)[1:]
+   if not match: raise ldn_decypher_error
+   else: return match.group(0)[1:]
 
 
-# Return the type of LDN we're looking at (EVNT, HITS, AOD, TOPQ1
-# or other derivation etc.).
+# Return the type of LDN we're looking at (e.g. simul.HITS,
+# recon.AOD, DAOD_TOPQ1 or other derivation).
 def get_type(ldn):
    match = re.search("\.recon\.AOD\.", ldn)
-   if match: return "AOD"
+   if match: return match.group(0)[1:-1]
    match = re.search("\.simul.HITS\.", ldn)
-   if match: return "HITS"
+   if match: return match.group(0)[1:-1]
    match = re.search("\.DAOD_[A-Z]+[0-9]+\.", ldn)
    if match: return match.group(0)[1:-1]
-   # If none of the above, exit with an error.
-   print "Could not identify type of LDN %s" % ldn
-   sys.exit(1)
+   # If none of the above, raise exception.
+   raise ldn_decypher_error
 
 
 # Get the data scope of a data-type LDN (e.g.
 # data15_13TeV.periodA or data16_13TeV.AllYear) and return it.
 # This function should only be called on data LDNs.
 def get_data_scope(ldn):
+   if not is_data(ldn): raise ldn_wrong_type
    regex = re.compile("data[0-9]+.*?\..*?\.")
    match = regex.search(ldn)
-   if not match:
-      print "Could not identify data scope in LDN %s" % ldn
-      sys.exit(1)
-   else:
-      return match.group(0)[:-1]
+   if not match: raise ldn_decypher_error
+   else: return match.group(0)[:-1]
 
 
 # Get a list of all derivations registered on AMI for a list of
@@ -241,18 +245,14 @@ def get_derivations(ldns):
    # LDNs that were searched for. If MC, use the dataset number
    # as dictionary key, if data, use the data scope.
    for ldn in ldns:
-      if is_data(ldn):
-         dictionary[get_data_scope(ldn)] = []
-      else:
-         dictionary[get_dataset_number(ldn)] = []
+      try: dictionary[get_dataset_number(ldn)] = []
+      except ldn_wrong_type: dictionary[get_data_scope(ldn)] = []
 
    # Go through the results and add them to appropriate
    # dictionary entries (appending to lists).
    for d in results:
-      if is_data(ldn):
-         dictionary[get_data_scope(d['ldn'])].append(d['ldn'])
-      else:
-         dictionary[get_dataset_number(d['ldn'])].append(d['ldn'])
+      try: dictionary[get_dataset_number(d['ldn'])].append(d['ldn'])
+      except ldn_wrong_type: dictionary[get_data_scope(d['ldn'])].append(d['ldn'])
    return dictionary
 
 
@@ -273,11 +273,15 @@ def is_data(ldn):
 
 
 # From a given list of LDNs, pick the latest one (i.e. extract
-# the p-tag and pick the LDN with the highest one).
+# the p-tag and pick the LDN with the highest one). If the p-tag
+# cannot be identified, just return None.
 def pick_newest_derivation(ldn_list):
    if len(ldn_list) == 0: return ""
-   get_ptag_as_int = lambda a: int(get_ptag(a)[1:])
-   return sorted(ldn_list, key = get_ptag_as_int)[-1]
+   try:
+      get_ptag_as_int = lambda a: int(get_ptag(a)[1:])
+      return sorted(ldn_list, key = get_ptag_as_int)[-1]
+   except ldn_decypher_error:
+      return None
 
 
 # Print the status of a list of samples on AMI. This takes a list
@@ -291,11 +295,20 @@ def check_sample_status(samples, stop_on_error = False):
       status_ok = True
 
       for ldn in s.datasets:
-         if is_data(ldn):
-            dict_key = get_data_scope(ldn)
-         else:
-            dict_key = get_dataset_number(ldn)
-         dataset_type = get_type(ldn)
+         # First try to understand what type of LDN we're looking
+         # at (e.g. recon.AOD or DAOD_xx derivations). If this
+         # fails, exit here.
+         try:
+            dataset_type = get_type(ldn)
+         except:
+            print "Could not identify dataset type (e.g. recon.AOD or DAOD_TOPQ1) of LDN: %s" % ldn
+            sys.exit(1)
+
+         # Try to guess the name of the dictionary key. If the
+         # LDN is of type MC, then the dataset number should be
+         # the key, for data it's the data scope.
+         try: dict_key = get_dataset_number(ldn)
+         except ldn_wrong_type: dict_key = get_data_scope(ldn)
          latest_ldn = pick_newest_derivation(derivations[dict_key])
 
          status = ""
@@ -303,29 +316,32 @@ def check_sample_status(samples, stop_on_error = False):
          # First output whether the requested LDN exists and
          # has a valid entry in the AMI database.
          if is_available(ldn):
-            status = logger.OKGREEN + "found" + logger.ENDC + ", "
+            status = logger.OKGREEN + "found" + logger.ENDC
          else:
-            status = logger.FAIL + "not found" + logger.ENDC + ", "
+            status = logger.FAIL + "not found" + logger.ENDC
             status_ok = False
 
          # If the dataset is _not_ a derivation, output its type
          # and mark it in red.
          if dataset_type[0:5] != "DAOD_":
-            status += logger.WARNING + "Type: " + dataset_type + logger.ENDC + ", "
+            status += ", " + logger.WARNING + "Type: " + dataset_type + logger.ENDC
             status_ok = False
 
-         # Then output the derivation status: (1) no
-         # derivation available at all, (2) derivations
-         # available, but the requested p-tag is not the
-         # latest, (3) requested p-tag is the latest.
+         # Then output the derivation status: (1) no derivation
+         # available at all, (2) derivations available, but the
+         # requested p-tag is not the latest, (3) requested p-tag
+         # is the latest.
          if not latest_ldn:
-            status += logger.FAIL + "no derivation available" + logger.ENDC
             status_ok = False
          elif not ldn == latest_ldn:
-            status += logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
-            status_ok = False
+            try:
+               status += ", " + logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
+               status_ok = False
+            except ldn_decypher_error:
+               print "Could not identify p-tag of LDN: %s" % latest_ldn
+               sys.exit(1)
          else:
-            status += logger.OKGREEN + "latest" + logger.ENDC
+            status += ", " + logger.OKGREEN + "latest" + logger.ENDC
 
          print " - %s (%s)" % (ldn, status)
 
