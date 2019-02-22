@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Tree RIO Cint Core MathCore pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( Boost )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
 
@@ -27,7 +28,7 @@ atlas_add_library( FileStagerLib
                    src/*.cxx
                    ${FileStagerLibDictSource}
                    PUBLIC_HEADERS FileStager
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_component( FileStager

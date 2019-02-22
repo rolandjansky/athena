@@ -735,11 +735,11 @@ def getKernel_G4ZDecayProducts_FatrasID_FastCalo (name="ISF_Kernel_G4ZDecayProdu
 
 ############## Simulator: ParametricSimulation ###############
 def getKernel_ParametricSimulation(name="ISF_Kernel_ParametricSimulation", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParametricSimulationSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParametricSimulationSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParametricSimulationSelector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParametricSimulationSelector' ] )
     # set the simFlags accordingly (TODO: is this even needed?)
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ParametricSimulation"

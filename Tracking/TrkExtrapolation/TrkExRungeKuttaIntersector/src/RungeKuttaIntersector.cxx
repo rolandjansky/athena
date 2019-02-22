@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -71,22 +71,6 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 	m_toroidZ6		(11400.0*Gaudi::Units::mm),	// endcap toroid central field - outer z
 	m_toroidZ7		(12900.0*Gaudi::Units::mm),	// toroid exit fringe fields
 	m_toroidZ8		(14000.0*Gaudi::Units::mm),	// essentially out of any toroid fields
-	m_cOverP{},
-	m_direction{},
-	m_distance{},
-	m_fieldValue{},
-	m_intersectionNumber	(0),
-	m_maxSteps{},
-	m_pathLength{},
-	m_position{},
-	m_previousDistance{},
-	m_qOverP{},
-	m_rCurrent{},
-	m_rStart{},
-	m_sinTheta{},
-	m_stepLength{},
-	m_trapped		(false),
-	m_zStart{},
 	m_countExtrapolations	(0),
 	m_countShortStep	(0),
 	m_countStep		(0),
@@ -159,7 +143,6 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
     if (std::abs(qOverP) > m_momentumThreshold)
     {
 	ATH_MSG_DEBUG(" trapped as below momentum threshold" );
-	m_intersectionNumber = 0;
 	return 0;
     }
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
@@ -178,7 +161,6 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
     if (perigee)	return approachPerigeeSurface(*perigee,trackIntersection,qOverP);
     
     ATH_MSG_WARNING( " unrecognized Surface" );
-    m_intersectionNumber = 0;
     return 0;
 }
                                     
@@ -188,34 +170,38 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
 					      const TrackSurfaceIntersection*	trackIntersection,
 					      const double			qOverP)
 {
-    // set member data
-    setCache(trackIntersection, qOverP);
+    ++m_countExtrapolations;
+    auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+    const Amg::Vector3D& pos = isect->position();
+    const double rStart = pos.perp();
+    const double zStart = pos.z();
+    Amg::Vector3D fieldValue = field(pos);
 
     // straight line distance along track to closest approach to line
     const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
-    distanceToLine (surface.center(),lineDirection);
-    m_maxSteps				= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance			= 1.1*m_distance;
+    double stepLength = 0;
+    double distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
+    unsigned long long stepsUntilTrapped =  m_stepsUntilTrapped;
+    double previousDistance			= 1.1*distance;
 
     // integration loop (step)
-    while (m_distance > m_shortStepMax && notTrapped())
+    while (distance > m_shortStepMax)
     {
-	assignStepLength();
-	step();
-	distanceToLine (surface.center(),lineDirection);
+        if (isTrapped(distance, previousDistance, stepsUntilTrapped)) {
+            // trapped
+            if (msgLvl(MSG::DEBUG)) debugFailure (std::move(isect), surface, qOverP,
+                                                  rStart, zStart, true);
+            return nullptr;
+        }
+        assignStepLength(*isect, stepLength);
+	step(*isect, fieldValue, stepLength, qOverP);
+	distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
     }
 
     // if intersection OK: make short final step to surface - assuming constant field
-    if (! m_trapped)
-    {
-	if (m_distance > m_shortStepMin)	shortStep();
-	return newIntersection(surface);
-    }
-
-    // trapped: ensure cache reset
-    m_intersectionNumber = 0;
-    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
-    return 0;
+    if (distance > m_shortStepMin)	shortStep(*isect, fieldValue, stepLength, qOverP);
+    return newIntersection(std::move(isect), surface, qOverP,
+                           rStart, zStart);
 }
 	
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
@@ -224,34 +210,38 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		s
 						   const TrackSurfaceIntersection*	trackIntersection,
 						   const double      			qOverP)
 {
-    // set member data
-    setCache(trackIntersection, qOverP);
+    ++m_countExtrapolations;
+    auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+    const Amg::Vector3D& pos = isect->position();
+    const double rStart = pos.perp();
+    const double zStart = pos.z();
+    Amg::Vector3D fieldValue = field(pos);
 
     // straight line distance along track to closest approach to line
     const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
-    distanceToLine (surface.center(),lineDirection);
-    m_maxSteps				= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance			= 1.1*m_distance;
+    double stepLength = 0;
+    double distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
+    unsigned long long stepsUntilTrapped =  m_stepsUntilTrapped;
+    double previousDistance			= 1.1*distance;
 
     // integration loop (step)
-    while (m_distance > m_shortStepMax && notTrapped())
+    while (distance > m_shortStepMax)
     {
-	assignStepLength();
-	step();
-	distanceToLine (surface.center(),lineDirection);
+        if (isTrapped(distance, previousDistance, stepsUntilTrapped)) {
+            // trapped
+            if (msgLvl(MSG::DEBUG)) debugFailure (std::move(isect), surface, qOverP,
+                                                  rStart, zStart, true);
+            return nullptr;
+        }
+	assignStepLength(*isect, stepLength);
+	step(*isect, fieldValue, stepLength, qOverP);
+	distance = distanceToLine (*isect, surface.center(),lineDirection, stepLength);
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (! m_trapped)
-    {
-	if (m_distance > m_shortStepMin)	shortStep();
-	return newIntersection(surface);
-    }
-
-    // trapped: ensure cache reset
-    m_intersectionNumber = 0;
-    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
-    return 0;
+    if (distance > m_shortStepMin)	shortStep(*isect, fieldValue, stepLength, qOverP);
+    return newIntersection(std::move(isect), surface, qOverP,
+                           rStart, zStart);
 }
             
 /**IIntersector interface method for specific Surface type : CylinderSurface */
@@ -260,24 +250,34 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surfac
 						 const TrackSurfaceIntersection*	trackIntersection,
 						 const double				qOverP)
 {
-    // set member data
-    setCache(trackIntersection, qOverP);
+    ++m_countExtrapolations;
+    auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+    const Amg::Vector3D& pos = isect->position();
+    const double rStart = pos.perp();
+    const double zStart = pos.z();
+    Amg::Vector3D fieldValue = field(pos);
 
     // calculate straight line distance along track to intersect with cylinder radius
     double cylinderRadius	= (surface.globalReferencePoint() - surface.center()).perp();
-    Amg::Vector3D offset	= surface.center() - m_position;
+    Amg::Vector3D offset	= surface.center() - isect->position();
     double rCurrent		= offset.perp();
-    distanceToCylinder (cylinderRadius,rCurrent,offset);
-    m_maxSteps			= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance		= 1.1*m_distance;
+    double stepLength = 0;
+    double distance = distanceToCylinder (*isect, cylinderRadius,rCurrent,offset, stepLength);
+    unsigned long long stepsUntilTrapped =  m_stepsUntilTrapped;
+    double previousDistance		= 1.1*distance;
+    bool trapped = false;
 
     // integration loop (step)
-    while (m_distance > m_shortStepMax && ! m_trapped && notTrapped())
+    while (distance > m_shortStepMax)
     {
-	assignStepLength();
+        if (isTrapped(distance, previousDistance, stepsUntilTrapped)) {
+            trapped = true;
+            break;
+        }
+	assignStepLength(*isect, stepLength);
 	double rPrevious= rCurrent;
-	step();
-	offset		= surface.center() - m_position;
+	step(*isect, fieldValue, stepLength, qOverP);
+	offset		= surface.center() - isect->position();
 	rCurrent	= offset.perp();
 	double deltaR1	= rCurrent - rPrevious;
 	double deltaR2	= cylinderRadius - rCurrent;	
@@ -285,30 +285,33 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surfac
 	if (deltaR1 != 0.) scale = deltaR2 / deltaR1;
 	if (scale < 1.)
 	{
-	    m_stepLength *= scale;
-	    if (scale < -1.) m_trapped = true;
+	    stepLength *= scale;
+	    if (scale < -1.) {
+                trapped = true;
+                break;
+            }
 	}
-	m_distance	= std::abs(m_stepLength);
+	distance	= std::abs(stepLength);
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (! m_trapped
+    if (! trapped
 	&& std::abs(cylinderRadius - rCurrent) < m_shortStepMax)
     {
-	distanceToCylinder (cylinderRadius,rCurrent,offset);	
+        distance = distanceToCylinder (*isect, cylinderRadius,rCurrent,offset, stepLength);
 	// protect against divergence (looping)
-	if (m_distance < m_shortStepMax)
+	if (distance < m_shortStepMax)
 	{
-	    if (m_distance > m_shortStepMin) shortStep();
-	    return newIntersection(surface);
+	    if (distance > m_shortStepMin) shortStep(*isect, fieldValue, stepLength, qOverP);
+	    return newIntersection(std::move(isect), surface, qOverP,
+                                   rStart, zStart);
 	}
     }
 
-    // trapped: ensure cache reset
-    m_trapped			= true;
-    m_intersectionNumber	= 0;
-    if (msgLvl(MSG::DEBUG))	debugFailure (surface);
-    return 0;
+    // trapped
+    if (msgLvl(MSG::DEBUG)) debugFailure (std::move(isect), surface, qOverP,
+                                          rStart, zStart, true);
+    return nullptr;
 }
 
 /**IIntersector interface method for specific Surface type : DiscSurface */
@@ -317,32 +320,37 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double			qOverP)
 {
-    setCache(trackIntersection, qOverP);
+    ++m_countExtrapolations;
+    auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+    const Amg::Vector3D& pos = isect->position();
+    const double rStart = pos.perp();
+    const double zStart = pos.z();
+    Amg::Vector3D fieldValue = field(pos);
 
     // straight line distance along track to intersect with disc
-    distanceToDisc (surface.center().z());
-    m_maxSteps		= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance 	= 1.1*m_distance;
+    double stepLength = 0;
+    double distance = distanceToDisc (*isect, surface.center().z(), stepLength);
+    unsigned long long stepsUntilTrapped =  m_stepsUntilTrapped;
+    double previousDistance 	= 1.1*distance;
     
     // integration loop
-    while (std::abs(m_stepLength) > m_shortStepMax && notTrapped())
+    while (std::abs(stepLength) > m_shortStepMax)
     {
-	assignStepLength();
-	step();
-	distanceToDisc (surface.center().z());
+        if (isTrapped(distance, previousDistance, stepsUntilTrapped)) {
+            // trapped
+            if (msgLvl(MSG::DEBUG)) debugFailure (std::move(isect), surface, qOverP,
+                                                  rStart, zStart, true);
+            return nullptr;
+        }
+        assignStepLength(*isect, stepLength);
+	step(*isect, fieldValue, stepLength, qOverP);
+	distance = distanceToDisc (*isect, surface.center().z(), stepLength);
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (! m_trapped)
-    {
-	if (std::abs(m_stepLength) > m_shortStepMin)	shortStep();
-	return newIntersection(surface);
-    }
-
-    // trapped: ensure cache reset
-    m_intersectionNumber = 0;
-    if (msgLvl(MSG::DEBUG))				debugFailure (surface);
-    return 0;
+    if (std::abs(stepLength) > m_shortStepMin)	shortStep(*isect, fieldValue, stepLength, qOverP);
+    return newIntersection(std::move(isect), surface, qOverP,
+                           rStart, zStart);
 }
 
 /**IIntersector interface method for specific Surface type : PlaneSurface */
@@ -351,74 +359,83 @@ RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&		surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double			qOverP)
 {
-    // set member data
-    setCache(trackIntersection, qOverP);
+    ++m_countExtrapolations;
+    auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
+    const Amg::Vector3D& pos = isect->position();
+    const double rStart = pos.perp();
+    const double zStart = pos.z();
+    Amg::Vector3D fieldValue = field(pos);
 
     // straight line distance along track to intersect with plane
-    distanceToPlane (surface.center(),surface.normal());
-    m_maxSteps		= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance	= 1.1*m_distance;
+    double stepLength = 0;
+    double distance = distanceToPlane (*isect, surface.center(),surface.normal(), stepLength);
+    unsigned long long stepsUntilTrapped =  m_stepsUntilTrapped;
+    double previousDistance	= 1.1*distance;
     
     // integration loop (step)
-    while (m_distance > m_shortStepMax && notTrapped())
+    while (distance > m_shortStepMax)
     {
-	assignStepLength();
-	step();
-	distanceToPlane (surface.center(),surface.normal());
+        if (isTrapped(distance, previousDistance, stepsUntilTrapped)) {
+            // trapped
+            if (msgLvl(MSG::DEBUG)) debugFailure (std::move(isect), surface, qOverP,
+                                                  rStart, zStart, true);
+            return nullptr;
+        }
+        assignStepLength(*isect, stepLength);
+	step(*isect, fieldValue, stepLength, qOverP);
+	distance = distanceToPlane (*isect, surface.center(),surface.normal(), stepLength);
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (! m_trapped)
-    {
-	if (m_distance > m_shortStepMin)	shortStep();
-	return newIntersection(surface);
-    }
-
-    // trapped: ensure cache reset
-    m_intersectionNumber = 0;
-    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
-    return 0;
+    if (distance > m_shortStepMin)	shortStep(*isect, fieldValue, stepLength, qOverP);
+    return newIntersection(std::move(isect), surface, qOverP,
+                           rStart, zStart);
 }
 
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
 
 void
-RungeKuttaIntersector::assignStepLength (void)
+RungeKuttaIntersector::assignStepLength (const TrackSurfaceIntersection& isect,
+                                         double& stepLength) const
 {
+    const Amg::Vector3D& pos = isect.position();
+    const double sinTheta = isect.direction().perp();
+
     // step length assigned according to abs value of current rz position
     // use default (large) value for most regions of InDet and Calo
     // TODO: consider bounded steps acc region => solves in/outwards problem
-    double zCurrent	= std::abs(m_position.z());
+    const double zCurrent	= std::abs(pos.z());
+    const double rCurrent = pos.perp();
     double stepMax	= m_stepMax3;
     // m_stepFlag		= 0;
 
     // first treat InDet and Solenoid regions
     // TODO: so far validated out to R = 1.0m
-    if (m_rCurrent < m_solenoidR && zCurrent < m_solenoidZ)
+    if (rCurrent < m_solenoidR && zCurrent < m_solenoidZ)
     {
-	if (m_rCurrent < m_inDetR2)
+	if (rCurrent < m_inDetR2)
 	{
 	    // inner barrel, forward tracks and endcap regions generally happy with long steps
 	    // double number of steps for middle barrel and much of the transition region
-	    if (zCurrent < m_inDetZ0 && m_rCurrent < m_inDetR0)
+	    if (zCurrent < m_inDetZ0 && rCurrent < m_inDetR0)
 	    {
 		// inner barrel
 		// stepMax = m_stepMax3;
 	    }
-	    else if (zCurrent > m_inDetZ2 || m_sinTheta < 0.35)
+	    else if (zCurrent > m_inDetZ2 || sinTheta < 0.35)
 	    {
 		// endcap and far forward
 		// stepMax = m_stepMax3;
 	    }
 	
 	    // double number of steps for most of the remainder
-	    else if (zCurrent > m_inDetZ1 && m_sinTheta < 0.60)
+	    else if (zCurrent > m_inDetZ1 && sinTheta < 0.60)
 	    {
 		// barrel:endcap transition
 		stepMax = m_stepMax2;
 	    }
-	    else if (m_rCurrent > m_inDetR0)
+	    else if (rCurrent > m_inDetR0)
 	    {
 		// middle barrel
 		stepMax = m_stepMax2;
@@ -427,7 +444,7 @@ RungeKuttaIntersector::assignStepLength (void)
 	    // the remaining transition region requires much shorter steps
 	    else
 	    {
-		if (m_rCurrent > m_inDetR1)
+		if (rCurrent > m_inDetR1)
 		{
 		    // middle/outer transition region
 		    stepMax = m_stepMax1;
@@ -441,19 +458,19 @@ RungeKuttaIntersector::assignStepLength (void)
 	}
 	// take care when moving to region with shorter steps
 	// FIXME : bug somewhere (Precise not precise....)  check final/short step...
-	// else if (m_rCurrent < m_solenoidR)
+	// else if (rCurrent < m_solenoidR)
 
 	// field less uniform (approaching coil structure)
-	else if (m_rCurrent < 1000.)	// 1000
+	else if (rCurrent < 1000.)	// 1000
 	{
 	    if (zCurrent > 700.)
 	    {
 		// stepMax = m_stepMax3;
 		// exception at higher radii (influence of coil structure)
-		if (m_rCurrent > 850. )	stepMax = m_stepMax2;
+		if (rCurrent > 850. )	stepMax = m_stepMax2;
 	    }
 	    // // double number of steps for most of the remainder
-	    else if (zCurrent > 420. && m_sinTheta < 0.60)
+	    else if (zCurrent > 420. && sinTheta < 0.60)
 	    {
 		// barrel:endcap transition
 		stepMax = m_stepMax2;
@@ -461,7 +478,7 @@ RungeKuttaIntersector::assignStepLength (void)
 	    else
 	    {
 		// decrease step length with increasing radius
-		if (m_rCurrent > 900. )
+		if (rCurrent > 900. )
 		{
 		    // coil structure
 		    stepMax = m_stepMax0;
@@ -483,12 +500,12 @@ RungeKuttaIntersector::assignStepLength (void)
     
     // secondly treat MuonSpectrometer regions
     // start with central barrel
-    else if (m_rCurrent > m_muonR0 && zCurrent < m_toroidZ4)	// Z3
+    else if (rCurrent > m_muonR0 && zCurrent < m_toroidZ4)	// Z3
     {
 	// ++m_count0;
 	// optimize - only refresh phi occasionally
 	double period   =  M_PI/4.;
-	double phi	=  m_position.phi() + 0.5*period;
+	double phi	=  pos.phi() + 0.5*period;
 	if (phi < 0.) phi += 2.*M_PI;   
 	int n           =  static_cast<int>(phi/period);
 	phi             -= static_cast<double>(n)*period;
@@ -497,8 +514,8 @@ RungeKuttaIntersector::assignStepLength (void)
 	// sol 1: 12.1 full steps, 0.34 reduc, 0 short
 	// sol 2: 12.0 full steps, 0.34 reduc, 0 short
 	// sol 3: 11.9 full steps, 0.34 reduc, 0 short  (tidy-up)
-	double radius	= m_rCurrent;
-	if (m_stepLength < 0.) radius -= m_stepMax2;
+	double radius	= rCurrent;
+	if (stepLength < 0.) radius -= m_stepMax2;
 	if (zCurrent > m_toroidZ3 && phi < 0.04)
 	{
 	    // fringe and coil regions 
@@ -541,7 +558,7 @@ RungeKuttaIntersector::assignStepLength (void)
 	    // ++m_count4;
 	}
     }
-    else if (m_rCurrent > m_muonR0 || zCurrent > m_muonZ0)
+    else if (rCurrent > m_muonR0 || zCurrent > m_muonZ0)
     {
 	if (zCurrent > m_toroidZ4)
 	{
@@ -555,7 +572,7 @@ RungeKuttaIntersector::assignStepLength (void)
 		// toroid exit fringe fields
 		stepMax = m_stepMax3;
 	    }
-	    else if (m_rCurrent > m_toroidR0 && m_rCurrent < m_toroidR1
+	    else if (rCurrent > m_toroidR0 && rCurrent < m_toroidR1
 		     && zCurrent > m_toroidZ5 && zCurrent < m_toroidZ6)
 	    {
 		// endcap toroid central field
@@ -567,15 +584,15 @@ RungeKuttaIntersector::assignStepLength (void)
 		stepMax = m_stepMax1;
 	    }
 	}
-	else if (m_rCurrent > m_toroidR3)
+	else if (rCurrent > m_toroidR3)
 	{
 	    // main region of barrel toroid :
 	    // generally take long steps but with care near coil end loop
 	    if (zCurrent < m_toroidZ2)
 	    {
 		stepMax = m_stepMax4;
-		// if (m_rCurrent > 9000.) stepMax = m_stepMax3;
-		// if (m_rCurrent > 9400.) stepMax = m_stepMax2;
+		// if (rCurrent > 9000.) stepMax = m_stepMax3;
+		// if (rCurrent > 9400.) stepMax = m_stepMax2;
 	    }
 	    else if (zCurrent < m_toroidZ3)
 	    {
@@ -586,12 +603,12 @@ RungeKuttaIntersector::assignStepLength (void)
 		stepMax = m_stepMax1;
 	    }	
 	}
-	else if (m_rCurrent > m_toroidR2)
+	else if (rCurrent > m_toroidR2)
 	{
 	    // toroid field after inner barrel or outer endcap coil
 	    stepMax = m_stepMax3;
 	}
-	else if (zCurrent < m_toroidZ0 || zCurrent > m_toroidZ1 || m_rCurrent > m_muonR0)
+	else if (zCurrent < m_toroidZ0 || zCurrent > m_toroidZ1 || rCurrent > m_muonR0)
 	{
 	    // small steps in toroid high field regions and near iron structures
 	    stepMax = m_stepMax1;
@@ -606,15 +623,15 @@ RungeKuttaIntersector::assignStepLength (void)
     // finally assign Calo regions
     else
     {
-	if ((m_rCurrent < m_solenoidR)
-	    || (m_rCurrent > m_caloR0 && m_rCurrent < m_caloR1)
-	    ||  m_rCurrent > m_caloR3 
+	if ((rCurrent < m_solenoidR)
+	    || (rCurrent > m_caloR0 && rCurrent < m_caloR1)
+	    ||  rCurrent > m_caloR3 
 	    || (zCurrent > m_caloZ1 && zCurrent < m_caloZ2)
 	    ||  zCurrent > m_caloZ3)
 	{
 	    stepMax = m_stepMax1;
 	}
-	else if ((m_rCurrent > m_caloR2 && m_rCurrent < m_caloR4)
+	else if ((rCurrent > m_caloR2 && rCurrent < m_caloR4)
 		 || zCurrent > m_caloZ0)
 	{
 	    stepMax = m_stepMax2;
@@ -622,65 +639,75 @@ RungeKuttaIntersector::assignStepLength (void)
     }
 
     // finally reset stepLength as necessary
-    if (std::abs(m_stepLength) < stepMax) return;
-    if (m_stepLength > 0.)
+    if (std::abs(stepLength) < stepMax) return;
+    if (stepLength > 0.)
     {
-	m_stepLength =  stepMax;
+	stepLength =  stepMax;
     }
     else
     {
-	m_stepLength = -stepMax;
+	stepLength = -stepMax;
     }
 }
 
 void
-RungeKuttaIntersector::debugFailure (const Surface& surface)
+RungeKuttaIntersector::debugFailure (std::unique_ptr<TrackSurfaceIntersection> isect,
+                                     const Surface& surface,
+                                     const double qOverP,
+                                     const double rStart,
+                                     const double zStart,
+                                     const bool trapped) const
 {
     // forget low momentum (prone to looping...)
-    if (std::abs(m_qOverP) > m_momentumWarnThreshold)	return;
+    if (std::abs(qOverP) > m_momentumWarnThreshold)	return;
 
     double pt	= 1.E+8;
-    if (m_qOverP != 0.) pt = m_sinTheta/(m_qOverP*Gaudi::Units::GeV);
+    const double sinTheta = isect->direction().perp();
+    if (qOverP != 0.) pt = sinTheta/(qOverP*Gaudi::Units::GeV);
+
+    const double rCurrent = isect->position().perp();
     
     MsgStream log(msgSvc(), name());
-    if (m_rCurrent > m_rStart)
+    if (rCurrent > rStart)
     {
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
 	    << " fail to intersect surface when extrapolating outwards from R,Z"
-	    << std::setw(8) << std::setprecision(1) << m_rStart << ","
-	    << std::setw(7) << std::setprecision(0) << m_zStart << " mm, with pt"
+	    << std::setw(8) << std::setprecision(1) << rStart << ","
+	    << std::setw(7) << std::setprecision(0) << zStart << " mm, with pt"
 	    << std::setw(7) << std::setprecision(2) << pt << " GeV, direction eta"
-	    << std::setw(5) << std::setprecision(2) << m_direction.eta();
+	    << std::setw(5) << std::setprecision(2) << isect->direction().eta();
     }
     else
     {
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
 	    << " fail to intersect surface when extrapolating inwards from R,Z"
-	    << std::setw(8) << std::setprecision(1) << m_rStart << ","
-	    << std::setw(7) << std::setprecision(0) << m_zStart << " mm, with pt"
+	    << std::setw(8) << std::setprecision(1) << rStart << ","
+	    << std::setw(7) << std::setprecision(0) << zStart << " mm, with pt"
 	    << std::setw(7) << std::setprecision(2) << pt << " GeV, direction eta"
-	    << std::setw(5) << std::setprecision(2) << m_direction.eta();
+	    << std::setw(5) << std::setprecision(2) << isect->direction().eta();
     }
-    // if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+    // if (trapped) log << MSG::DEBUG << " looping in mag field ";
     log << MSG::DEBUG << endmsg;
     
     if (dynamic_cast<const PlaneSurface*>(&surface))
     {
-	distanceToPlane (surface.center(),surface.normal());
+        double stepLength = 0;
+        (void)distanceToPlane (*isect, surface.center(),surface.normal(), stepLength);
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   PlaneSurface"
 	    << " at R,Z" << std::setw(8) << std::setprecision(1) << surface.center().perp() << ","
 	    << std::setw(7) << std::setprecision(0) << surface.center().z()
-	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
-	// if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+	    << "  at line distance " << std::setw(9) << std::setprecision(1) << stepLength;
+	// if (trapped) log << MSG::DEBUG << " looping in mag field ";
 	log << MSG::DEBUG << endmsg;
     }
     else if (dynamic_cast<const CylinderSurface*>(&surface))
     {
 	double cylinderRadius	= (surface.globalReferencePoint() - surface.center()).perp();
-	Amg::Vector3D offset	= surface.center() - m_position;
+	Amg::Vector3D offset	= surface.center() - isect->position();
 	double rCurrent		= offset.perp();
-	distanceToCylinder (cylinderRadius,rCurrent,offset);
-	if (m_distance < m_shortStepMin)
+        double stepLength = 0;
+	double distance = distanceToCylinder (*isect, cylinderRadius,rCurrent,offset, stepLength);
+	if (distance < m_shortStepMin)
 	{
 	    log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
 		<< "  closest approach to CylinderSurface at radius "
@@ -693,19 +720,20 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 	    log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "  CylinderSurface"
 		<< "  radius " << std::setw(6) << std::setprecision(1) << cylinderRadius
 		<< "  rCurrent " << std::setw(6) << std::setprecision(1) << rCurrent
-		<< "  distance " << std::setw(6) << std::setprecision(1) << m_stepLength;
-	    if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+		<< "  distance " << std::setw(6) << std::setprecision(1) << stepLength;
+	    if (trapped) log << MSG::DEBUG << " looping in mag field ";
 	    log << MSG::DEBUG << endmsg;
 	}
     }
     else if (dynamic_cast<const DiscSurface*>(&surface))
-    {	
-	distanceToDisc (surface.center().z());
+    {
+        double stepLength = 0;
+        (void)distanceToDisc (*isect, surface.center().z(), stepLength);
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   DiscSurface"
 	    << " at R,Z" << std::setw(8) << std::setprecision(1) << surface.center().perp() << ","
 	    << std::setw(7) << std::setprecision(0) << surface.center().z()
-	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
-	if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+	    << "  at line distance " << std::setw(9) << std::setprecision(1) << stepLength;
+	if (trapped) log << MSG::DEBUG << " looping in mag field ";
 	log << MSG::DEBUG << endmsg;
     }
     else if (dynamic_cast<const PerigeeSurface*>(&surface))
@@ -722,138 +750,150 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 }
 
 bool
-RungeKuttaIntersector::notTrapped (void)
+RungeKuttaIntersector::isTrapped (const double distance,
+                                  double& previousDistance,
+                                  unsigned long long& stepsUntilTrapped) const
 {
     // catch loopers
-    if (m_distance > m_previousDistance)
+    if (distance > previousDistance)
     {
-	m_trapped = true;
 	// 	    ATH_MSG_INFO( 0.001/m_qOverP << " trapped: distance,previous  "
-	// 			  << m_distance << "  " << m_previousDistance );
-	return false;
+	// 			  << distance << "  " << previousDistance );
+	return true;
     }
 
-    if (m_countStep > m_maxSteps)
+    if (stepsUntilTrapped <= 0)
     {
-	m_trapped = true;
-// 	ATH_MSG_INFO( 0.001/m_qOverP << " trapped after " << m_stepsUntilTrapped
+      // 	ATH_MSG_INFO( 0.001/m_qOverP << " trapped after " << m_stepsUntilTrapped
 // 		  << " steps : step,distance  "
-// 		  << m_stepLength << "  " << m_previousDistance
+// 		  << m_stepLength << "  " << previousDistance
 // 		  << "  position,direction " << m_position << " " << m_direction );
-	return false;
+	return true;
     }
+
+    --stepsUntilTrapped;
 
     // store previous value to check steps are converging (with 10% safety factor)
-    m_previousDistance = 1.1*m_distance;
+    previousDistance = 1.1*distance;
 
-    return true;
+    return false;
 }
 
 void
-RungeKuttaIntersector::shortStep (void)
+RungeKuttaIntersector::shortStep (TrackSurfaceIntersection& isect,
+                                  const Amg::Vector3D& fieldValue,
+                                  const double stepLength,
+                                  const double qOverP) const
 {
+    Amg::Vector3D& pos = isect.position();
+    Amg::Vector3D& dir = isect.direction();
+    const double cOverP = Gaudi::Units::c_light*qOverP;
+
     // as step except for const field assumption
-    double	  stepOverP  	=  0.5*m_stepLength*m_cOverP;
-    Amg::Vector3D product0	=  stepOverP*m_direction.cross(m_fieldValue);
+    double	  stepOverP  	=  0.5*stepLength*cOverP;
+    Amg::Vector3D product0	=  stepOverP*dir.cross(fieldValue);
     // intermediate point (half way through step)
-    Amg::Vector3D direction1	=  m_direction + product0;
-    Amg::Vector3D product1	=  stepOverP*direction1.cross(m_fieldValue);
-    Amg::Vector3D direction2	=  m_direction + product1;
-    Amg::Vector3D product2	=  stepOverP*direction2.cross(m_fieldValue);
+    Amg::Vector3D direction1	=  dir + product0;
+    Amg::Vector3D product1	=  stepOverP*direction1.cross(fieldValue);
+    Amg::Vector3D direction2	=  dir + product1;
+    Amg::Vector3D product2	=  stepOverP*direction2.cross(fieldValue);
     // step end point
-    m_position			+= m_stepLength*(m_direction + m_third*(product0+product1+product2));
-    Amg::Vector3D direction3	=  m_direction + 2.*product2;
-    Amg::Vector3D product3	=  stepOverP*direction3.cross(m_fieldValue);
-    m_direction			+= m_third*(product0+product3 + 2.*(product1+product2));
-    m_rCurrent			=  m_position.perp();
-    m_sinTheta			=  m_direction.perp();
-    m_pathLength		+= m_stepLength;
+    pos				+= stepLength*(dir + m_third*(product0+product1+product2));
+    Amg::Vector3D direction3	=  dir + 2.*product2;
+    Amg::Vector3D product3	=  stepOverP*direction3.cross(fieldValue);
+    dir				+= m_third*(product0+product3 + 2.*(product1+product2));
+    isect.pathlength()		+= stepLength;
     ++m_countShortStep;
 }
 
 void
-RungeKuttaIntersector::step (void)
+RungeKuttaIntersector::step (TrackSurfaceIntersection& isect,
+                             Amg::Vector3D& fieldValue,
+                             double& stepLength,
+                             const double qOverP) const
 {
-    double	  stepOverP  	=  0.5*m_stepLength*m_cOverP;
-    Amg::Vector3D product0	=  stepOverP*m_direction.cross(m_fieldValue);
+    Amg::Vector3D& pos = isect.position();
+    Amg::Vector3D& dir = isect.direction();
+    const double cOverP = Gaudi::Units::c_light*qOverP;
+
+    double	  stepOverP  	=  0.5*stepLength*cOverP;
+    Amg::Vector3D product0	=  stepOverP*dir.cross(fieldValue);
 
     // intermediate field look-up point (half way through step)
-    Amg::Vector3D position1	=  m_position + 0.5*m_stepLength*(m_direction + 0.5*product0);
+    Amg::Vector3D position1	=  pos + 0.5*stepLength*(dir + 0.5*product0);
     Amg::Vector3D fieldValue1	=  field(position1);
-    Amg::Vector3D direction1	=  m_direction + product0;
+    Amg::Vector3D direction1	=  dir + product0;
     Amg::Vector3D product1	=  stepOverP*direction1.cross(fieldValue1);
-    Amg::Vector3D direction2	=  m_direction + product1;
+    Amg::Vector3D direction2	=  dir + product1;
     Amg::Vector3D product2	=  stepOverP*direction2.cross(fieldValue1);
 
     // field look-up at step end point
-    Amg::Vector3D offsetAtEnd	=  m_stepLength*(m_direction + m_third*(product0+product1+product2));
-    Amg::Vector3D fieldAtEnd	=  field(m_position+offsetAtEnd);
+    Amg::Vector3D offsetAtEnd	=  stepLength*(dir + m_third*(product0+product1+product2));
+    Amg::Vector3D fieldAtEnd	=  field(pos+offsetAtEnd);
 
     // redo with reduced stepLength if non-uniform field derivative detected
-    if ((fieldValue1 - 0.5*(m_fieldValue + fieldAtEnd)).mag() > 0.00001
-	&& std::abs(m_stepLength) > m_stepMax0)
+    if ((fieldValue1 - 0.5*(fieldValue + fieldAtEnd)).mag() > 0.00001
+	&& std::abs(stepLength) > m_stepMax0)
     {
-	if (m_stepLength > 0.)
+	if (stepLength > 0.)
 	{
-	    // ATH_MSG_INFO(" reduction at stepLength " << m_stepLength
-	    // 		 << " at " << m_position.perp() << ", " << m_position.z());
+	    // ATH_MSG_INFO(" reduction at stepLength " << stepLength
+	    // 		 << " at " << pos.perp() << ", " << pos.z());
 	    
-	    // if (std::abs(m_stepLength) > m_stepMax1 && m_stepFlag > 20 && m_stepFlag < 30)
+	    // if (std::abs(stepLength) > m_stepMax1 && m_stepFlag > 20 && m_stepFlag < 30)
 	    // {
 	    // 	double period   =  M_PI/4.;
-	    // 	double phi	=  m_position.phi() + 0.5*period;
+	    // 	double phi	=  pos.phi() + 0.5*period;
 	    // 	if (phi < 0.) phi += 2.*M_PI;   
 	    //     int n           =  static_cast<int>(phi/period);
 	    //     phi             -= static_cast<double>(n)*period;
 	    //     if (phi > 0.5*period) phi = period - phi;
- 	    // 	ATH_MSG_INFO(" reduction at stepLength " << m_stepLength
+ 	    // 	ATH_MSG_INFO(" reduction at stepLength " << stepLength
 	    // 		     << "  stepFlag " << m_stepFlag
- 	    // 		     << " at " << m_position.perp() << ", " << m_position.z()
-	    // 		     << "  phi " << phi << "  field " << 1000.*m_fieldValue);
+ 	    // 		     << " at " << pos.perp() << ", " << pos.z()
+	    // 		     << "  phi " << phi << "  field " << 1000.*fieldValue);
 	    // }
-	    m_stepLength =  m_stepMax0;
+	    stepLength =  m_stepMax0;
 	}
 	else
 	{
-	    //  if (std::abs(m_stepLength) > m_stepMax1 && m_stepFlag > 20 && m_stepFlag < 30)
+	    //  if (std::abs(stepLength) > m_stepMax1 && m_stepFlag > 20 && m_stepFlag < 30)
 	    // {
 	    // 	double period   =  M_PI/4.;
-	    // 	double phi	=  m_position.phi() + 0.5*period;
+	    // 	double phi	=  pos.phi() + 0.5*period;
 	    // 	if (phi < 0.) phi += 2.*M_PI;   
 	    //     int n           =  static_cast<int>(phi/period);
 	    //     phi             -= static_cast<double>(n)*period;
 	    //     if (phi > 0.5*period) phi = period - phi;
- 	    // 	ATH_MSG_INFO(" reduction at stepLength " << m_stepLength
+ 	    // 	ATH_MSG_INFO(" reduction at stepLength " << stepLength
 	    // 		     << "  stepFlag " << m_stepFlag
- 	    // 		     << " at " << m_position.perp() << ", " << m_position.z()
-	    // 		     << "  phi " << phi << "  field " << 1000.*m_fieldValue);
+ 	    // 		     << " at " << pos.perp() << ", " << pos.z()
+	    // 		     << "  phi " << phi << "  field " << 1000.*fieldValue);
 	    // }
-	    m_stepLength = -m_stepMax0;
+	    stepLength = -m_stepMax0;
 	}	    
 	++m_countStepReduction;
-	stepOverP  			=  0.5*m_stepLength*m_cOverP;
-	product0			=  stepOverP*m_direction.cross(m_fieldValue);
+	stepOverP  			=  0.5*stepLength*cOverP;
+	product0			=  stepOverP*dir.cross(fieldValue);
 	// intermediate point (half way through step)
-	Amg::Vector3D position1p	=  m_position + 0.5*m_stepLength*(m_direction + 0.5*product0);
+	Amg::Vector3D position1p	=  pos + 0.5*stepLength*(dir + 0.5*product0);
 	Amg::Vector3D fieldValue1p	=  field(position1p);
-	Amg::Vector3D direction1p	=  m_direction + product0;
+	Amg::Vector3D direction1p	=  dir + product0;
 	product1			=  stepOverP*direction1p.cross(fieldValue1p);
-	Amg::Vector3D direction2p	=  m_direction + product1;
+	Amg::Vector3D direction2p	=  dir + product1;
 	product2			=  stepOverP*direction2p.cross(fieldValue1p);
 	// step end point
-	offsetAtEnd			=  m_stepLength *
-					   (m_direction + m_third*(product0+product1+product2));
-	fieldAtEnd			=  field(m_position+offsetAtEnd);
+	offsetAtEnd			=  stepLength *
+					   (dir + m_third*(product0+product1+product2));
+	fieldAtEnd			=  field(pos+offsetAtEnd);
     }
 
-    Amg::Vector3D direction3	=  m_direction + 2.*product2;
+    Amg::Vector3D direction3	=  dir + 2.*product2;
     Amg::Vector3D product3	=  stepOverP*direction3.cross(fieldAtEnd);
-    m_direction			+= m_third*(product0+product3 + 2.*(product1+product2));
-    m_fieldValue		=  fieldAtEnd;
-    m_position			+= offsetAtEnd;
-    m_rCurrent			=  m_position.perp();
-    m_sinTheta			=  m_direction.perp();
-    m_pathLength		+= m_stepLength;
+    dir				+= m_third*(product0+product3 + 2.*(product1+product2));
+    fieldValue			=  fieldAtEnd;
+    pos			        += offsetAtEnd;
+    isect.pathlength()		+= stepLength;
     ++m_countStep;
 }
 

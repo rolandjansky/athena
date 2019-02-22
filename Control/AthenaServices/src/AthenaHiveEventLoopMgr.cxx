@@ -39,7 +39,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
@@ -664,7 +663,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
            << endmsg;
 
     // FIXME!!! Fire BeginRun "Incident"
-    m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,*evtContext));
+    m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,*evtContext));
 
   }
 
@@ -705,7 +704,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   resetTimeout(Athena::Timeout::instance(*evtContext));
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
-    //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
+    //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"BeginEvent",*evtContext));
 
 
     CHECK( m_conditionsCleaner->event (*evtContext, true) );

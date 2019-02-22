@@ -6,13 +6,17 @@
 from AthenaCommon.Logging import logging
 log_TRT_BS_ERR = logging.getLogger( 'RemoveTRTBSErrFromESD' )
 
+# Setup the output sequence
+from AthenaCommon.AppMgr import theApp
+StreamESD = theApp.getOutputStream( "StreamESD" )
+
 try:
-    topSequence.StreamESD.ItemList.remove("TRT_BSErrContainer#TRT_ByteStreamErrs")
+    StreamESD.ItemList.remove("TRT_BSErrContainer#TRT_ByteStreamErrs")
     log_TRT_BS_ERR.info("Removing TRT_BSErrContainer#TRT_ByteStreamErrs from ESD ItemList")
 except:
     pass
 try:
-    topSequence.StreamESD.ItemList.remove("TRT_BSIdErrContainer#TRT_ByteStreamIdErrs")
+    StreamESD.ItemList.remove("TRT_BSIdErrContainer#TRT_ByteStreamIdErrs")
     log_TRT_BS_ERR.info("Removing TRT_BSIdErrContainer#TRT_ByteStreamIdErrs from ESD ItemList")
 except:
     pass

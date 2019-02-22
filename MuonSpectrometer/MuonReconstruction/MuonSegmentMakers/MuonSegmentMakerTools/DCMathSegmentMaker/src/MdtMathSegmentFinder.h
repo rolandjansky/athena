@@ -73,9 +73,6 @@ namespace Muon {
     bool   m_useSegmentQuality; //<! use segment quality in hit dropping instead of chi2
 
     unsigned int m_maxHitsPerFullSearch; //<! maximum number of hits, above will use faster search mode
-    mutable TrkDriftCircleMath::SegmentFinder* m_segmentFinder; //<! pointer to actual finder
-    mutable TrkDriftCircleMath::DCSLFitter* m_dcslFitter; //<! pointer to default fitter
-    mutable TrkDriftCircleMath::DCSLFitter* m_fitter; //<! pointer to selected fitter
   };
 
 }

@@ -27,6 +27,14 @@ atlas_add_component( BLM_G4_SD
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils StoreGateLib SGtests GaudiKernel InDetSimEvent G4AtlasToolsLib MCTruth )
 
+
+
+atlas_add_test( BLM_G4_SDToolConfig_test
+                SCRIPT test/BLM_G4_SDToolConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

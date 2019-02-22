@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConfiguredFactory
 
@@ -63,9 +63,9 @@ def getSCT_CablingCondAlgFromCoraCool(name="SCT_CablingCondAlgFromCoraCool", **k
     from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
     return CfgMgr.SCT_CablingCondAlgFromCoraCool(name, **kwargs)
 
-def getSCT_CablingToolCB(name="SCT_CablingToolCB", **kwargs):
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingToolCB
-    return CfgMgr.SCT_CablingToolCB(name, **kwargs)
+def getSCT_CablingToolInc(name="SCT_CablingToolInc", **kwargs):
+    from SCT_Cabling.SCT_CablingConf import SCT_CablingToolInc
+    return CfgMgr.SCT_CablingToolInc(name, **kwargs)
 
 def getSCT_FillCablingFromCoraCool(name="SCT_FillCablingFromCoraCool", **kwargs):
     from SCT_Cabling.SCT_CablingConf import SCT_FillCablingFromCoraCool

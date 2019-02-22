@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_CablingToolCB_h
-#define SCT_CablingToolCB_h
+#ifndef SCT_CablingToolInc_h
+#define SCT_CablingToolInc_h
 /**
- * @file SCT_CablingToolCB.h
- * Header file for  SCT cabling tool using call back
+ * @file SCT_CablingToolInc.h
+ * Header file for  SCT cabling tool using incident
  * @author Shaun Roe
  * @date 20 October, 2008
  **/
@@ -35,9 +35,9 @@ class SCT_ID;
 class Identifier;
 
 /**
- * @class SCT_CablingToolCB, providing mappings of online and offline identifiers and also serial numbers
+ * @class SCT_CablingToolInc, providing mappings of online and offline identifiers and also serial numbers
  **/
-class SCT_CablingToolCB: public extends<AthAlgTool, ISCT_CablingTool, IIncidentListener> {
+class SCT_CablingToolInc: public extends<AthAlgTool, ISCT_CablingTool, IIncidentListener> {
  public:
 
   ///Incident listener method
@@ -45,13 +45,13 @@ class SCT_CablingToolCB: public extends<AthAlgTool, ISCT_CablingTool, IIncidentL
     
   //@name Service methods, reimplemented
   //@{
-  SCT_CablingToolCB(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~SCT_CablingToolCB() = default;
+  SCT_CablingToolInc(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~SCT_CablingToolInc() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   //@}
   
-  //@name ISCT_CablingToolCB methods implemented, these are visible to clients
+  //@name ISCT_CablingTool methods implemented, these are visible to clients
   //@{
   /// size of the data structure (for the SCT should be 8176, one for each module side)
   virtual unsigned int size(const EventContext& ctx) const override;
@@ -108,4 +108,4 @@ class SCT_CablingToolCB: public extends<AthAlgTool, ISCT_CablingTool, IIncidentL
   bool m_usingDatabase;
 };
 
-#endif // SCT_CablingToolCB_h
+#endif // SCT_CablingToolInc_h

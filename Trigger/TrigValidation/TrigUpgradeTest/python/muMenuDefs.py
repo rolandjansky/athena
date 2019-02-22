@@ -139,7 +139,7 @@ def muEFMSStep():
 
     ### get EF reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
-    muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efmsViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
     
@@ -169,7 +169,7 @@ def muEFSAStep():
    
     ### get EF reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
-    muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
     
@@ -221,6 +221,37 @@ def muEFCBStep():
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
+
+### EF SA full scan ###
+def muEFSAFSStep():
+
+    efsafsInputMaker = EventViewCreatorAlgorithm("MuonFSInputMaker", RoIsLink="initialRoI",OutputLevel=VERBOSE)
+    efsafsInputMaker.InViewRoIs = "MUFSRoIs"
+    efsafsInputMaker.Views = "MUFSViewRoI"
+    efsafsInputMaker.ViewPerRoI=True
+    efsafsInputMaker.ViewFallThrough=True
+
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS', OutputLevel=DEBUG )
+ 
+    efsafsInputMaker.ViewNodeName = muEFSAFSRecoSequence.name()
+
+    # setup EFSA hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
+    trigMuonEFSAFSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAFSHypoAlg" )
+    trigMuonEFSAFSHypo.OutputLevel = DEBUG
+    trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
+
+    muonEFSAFSSequence = seqAND( "muonEFSAFSSequence", [efsafsInputMaker, muEFSAFSRecoSequence ] )
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    
+    return MenuSequence( Sequence    = muonEFSAFSSequence,
+                         Maker       = efsafsInputMaker,
+                         Hypo        = trigMuonEFSAFSHypo,
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+
 
 ### l2Muiso step ###
 def muIsoStep():

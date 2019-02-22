@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,7 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
   
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
-  for ( std::string typeKeyAux: m_collectionsToSerialize ) {
+  for ( const auto& [typeKeyAux, moduleIdVec] : m_collectionsToSerialize ) {
     const std::string type = typeKeyAux.substr( 0, typeKeyAux.find('#') );
     if ( type.find('_') == std::string::npos ) {
       ATH_MSG_ERROR( "Unversioned object to be recorded " << typeKeyAux );
@@ -70,7 +70,20 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 
     const bool isAux = (key.find("Aux") != std::string::npos);
 
-    m_toSerialize.push_back( Address{ type+"#"+key, type, clid, key, isAux, sel } );      
+    if (moduleIdVec.empty()) {
+      ATH_MSG_ERROR( "No HLT result module IDs given for " << typeKeyAux );
+      return StatusCode::FAILURE;
+    }
+
+    if (msgLevel(MSG::DEBUG)) {
+      std::ostringstream ss;
+      std::copy(moduleIdVec.begin(), moduleIdVec.end()-1, std::ostream_iterator<uint16_t>(ss, ", "));
+      ss << moduleIdVec.back();
+      ATH_MSG_DEBUG( typeKeyAux << " will be written to " << moduleIdVec.size() << " result ROBFragments with IDs: ["
+                     << ss.str() << "]" );
+    }
+
+    m_toSerialize.push_back( Address{ type+"#"+key, type, clid, key, moduleIdVec, isAux, sel } );
   }
   return StatusCode::SUCCESS;
 }
@@ -153,7 +166,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     }
 
     std::vector<uint32_t> fragment;
-    Address auxAddress = { "", typeName, clid, address.key+"."+name, false };
+    Address auxAddress = { "", typeName, clid, address.key+"."+name, address.moduleIdVec, false };
     ATH_CHECK( makeHeader( auxAddress, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
@@ -171,7 +184,13 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
   
-  std::vector<uint32_t> payload;    
+  // Leave this check until there is a justified case for appending data to an existing result
+  if (not resultToFill.getSerialisedData().empty()) {
+    ATH_MSG_ERROR("Trying to fill a result which is not empty! Likely misconfiguration, returning a FAILURE");
+    return StatusCode::FAILURE;
+  }
+
+  // Loop over collections to serialise
   for ( const Address& address: m_toSerialize ) {
     ATH_MSG_DEBUG( "Streaming " << address.typeKey  );
     // obtain object
@@ -221,13 +240,12 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     }
     fragment[0] = fragment.size();
     
-    payload.insert( payload.end(), fragment.begin(), fragment.end() );
-    ATH_MSG_DEBUG( "Payload size after inserting " << address.typeKey << " " << payload.size()*sizeof(uint32_t) << " bytes" );
-    
+    for (const uint16_t id : address.moduleIdVec) {
+      resultToFill.addSerialisedData(id, fragment);
+      ATH_MSG_DEBUG( "Module " << id << " payload after inserting " << address.typeKey << " has "
+                      << resultToFill.getSerialisedData().at(id).size()*sizeof(uint32_t) << " bytes");
+    }
   }
-  
-  ATH_CHECK( resultToFill.addSerialisedDataWithCheck( m_moduleID, payload ) );
   
   return StatusCode::SUCCESS;
 }
-

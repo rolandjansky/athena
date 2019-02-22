@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETSUBSTRUCTURE_KTDELTARTOOL_H
@@ -7,26 +7,22 @@
 
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 
-class KtDeltaRTool : public JetSubStructureMomentToolsBase {
-  ASG_TOOL_CLASS(KtDeltaRTool, IJetModifier)
+class KtDeltaRTool :
+  public JetSubStructureMomentToolsBase {
+    ASG_TOOL_CLASS(KtDeltaRTool, IJetModifier)
 
-public:
+  public:
+    // Ctor.
+    KtDeltaRTool(const std::string& t);
 
-  // Ctor.
-  KtDeltaRTool(const std::string& t);
+    // Add moment to a jet.
+    int modifyJet(xAOD::Jet& injet) const;
 
-  // Initialization.
-  StatusCode initialize();
+    // Display properties.
+    void print() const;
 
-  // Add moment to a jet.
-  int modifyJet(xAOD::Jet&) const;
-
-  // Display properties.
-  void print() const;
-
-private:
-
-  double m_jetrad;
+  private:
+    double m_jetrad;
 
 };
 

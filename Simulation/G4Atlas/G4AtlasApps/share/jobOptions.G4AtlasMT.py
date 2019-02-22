@@ -74,9 +74,11 @@ simFlags.ReleaseGeoModel = False
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
-# Setup the algorithm sequence
+# Setup the algorithm and output sequences
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
+from AthenaCommon.AppMgr import theApp
+StreamHITS = theApp.getOutputStream( "StreamHITS" )
 
 from AthenaCommon import CfgMgr
 CfgMgr.SGInputLoader().Load += [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
@@ -94,13 +96,13 @@ topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
 # algorithm but rather in Geant4 components.
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
-topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
+StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
 
 # Increase verbosity of the output stream
-#topSeq.StreamHITS.OutputLevel = DEBUG
+#StreamHITS.OutputLevel = DEBUG
 
 # Disable alg filtering - doesn't work yet in multi-threading
-topSeq.StreamHITS.AcceptAlgs = []
+StreamHITS.AcceptAlgs = []
 
 # Override algorithm cloning settings
 for alg in topSeq:

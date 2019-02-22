@@ -8,6 +8,8 @@
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
 //#include "AthenaBaseComps/AthAlgTool.h"
 #include "CSC_Digitization/CSC_Digitizer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
@@ -85,13 +87,8 @@ public: //possibly these should be private?
 					   CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData);
   StatusCode FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits,CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData);
 
-  StatusCode CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData);
+  StatusCode CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine);
   
-  // accessors
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
-
-
  private:
   
   ToolHandle<ICscCalibTool> m_pcalib;
@@ -140,7 +137,7 @@ protected:
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputObjectName; // name of the input objects
   
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
+  ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   std::string m_rndmEngineName;// name of random engine
 

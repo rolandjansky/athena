@@ -19,15 +19,15 @@ atlas_install_scripts( share/athena.py share/athena_preload.sh share/chappy.py s
 atlas_add_alias( athena "athena.py" )
 
 atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh
-                EXTRA_PATTERNS "^Ran .* tests in|built on" )
+                EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in|built on" )
 atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh
-                EXTRA_PATTERNS "^Ran .* tests in" )
+                EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
 atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh 
-                EXTRA_PATTERNS "^Ran .* tests in" )
+                EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
 atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh
-                EXTRA_PATTERNS "^Ran .* tests in" )
+                EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
 atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
-                EXTRA_PATTERNS "^Ran .* tests in|^outFileName: " )
+                EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in|^outFileName: " )
 atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFElements
 		POST_EXEC_SCRIPT nopost.sh ) 
 

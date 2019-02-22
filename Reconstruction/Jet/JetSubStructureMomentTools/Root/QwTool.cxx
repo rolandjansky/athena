@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/QwTool.h"
@@ -9,14 +9,17 @@ QwTool::QwTool(const std::string& myname)
 : JetSubStructureMomentToolsBase(myname) {
 }
 
-// StatusCode QwTool::initialize() {
-//   return StatusCode::SUCCESS;
-// }
+int QwTool::modifyJet(xAOD::Jet& injet) const {
+  
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
+  float qw_value = -999;
 
-int QwTool::modifyJet(xAOD::Jet& jet) const {
-  //if(checkForConstituents(jet) == false) return 1;
-
-  static JetSubStructureUtils::Qw qw;
-  jet.setAttribute("Qw", qw.result(jet));
+  if (decorate) {
+    static JetSubStructureUtils::Qw qw;
+    qw_value = qw.result(jet);
+  }
+    
+  injet.setAttribute(m_prefix+"Qw", qw_value);
   return 0;
 }

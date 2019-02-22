@@ -38,11 +38,12 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ),
    m_regionSelector( "RegSelSvc", name ),
+   m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
    m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
    m_cscClusterProvider("CscThresholdClusterBuilderTool")
 {
    declareInterface<TrigL2MuonSA::CscDataPreparator>(this);
-
+   declareProperty("CscRawDataProvider",  m_rawDataProviderTool);
    declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
    declareProperty("CscClusterProvider",  m_cscClusterProvider);
 }
@@ -75,6 +76,14 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    // Retrieve ActiveStore
    ATH_CHECK( m_activeStore.retrieve() ); 
 
+   // Retreive raw data provider tool
+   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
+   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+     return StatusCode::FAILURE;
+   } else
+     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+   
    ATH_CHECK( m_cscPrepDataProvider.retrieve() );
    ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
 
@@ -135,6 +144,11 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
   bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
 
   // Decode
+  if(m_decodeBS) {
+    if ( m_rawDataProviderTool->convert(cscHashIDs).isFailure()) {
+      ATH_MSG_WARNING("Conversion of BS for decoding of CSCs failed");
+    }
+  }
   std::vector<IdentifierHash> cscHashIDs_decode;
   cscHashIDs_decode.clear();
   if( !cscHashIDs.empty() || to_full_decode ){

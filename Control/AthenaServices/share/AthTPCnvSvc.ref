@@ -47,7 +47,7 @@ Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthBeginSeq) 
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthAllAlgSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthEndSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthFilterSeq.AthAlgEvtSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthFilterSeq.AthOutSeq) ... dupe ignored
+Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthRegSeq) ... dupe ignored
 StatusCodeSvc        INFO reinitialize
 ClassIDSvc           INFO RE-initializing ClassIDSvc

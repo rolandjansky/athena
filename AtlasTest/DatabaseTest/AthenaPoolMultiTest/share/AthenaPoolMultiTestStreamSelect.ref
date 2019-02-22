@@ -1,0 +1,401 @@
+ReadData             INFO in initialize()
+EventSelector.S...  DEBUG Property update for OutputLevel : new value = 2
+EventSelector.S...  DEBUG Property update for OutputLevel : new value = 2
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 0 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 1.2 y = -2.3 z = 226.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 4.4 y = -8.0 z = 94.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 7.6 y = -13.7 z = 70.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 10.8 y = -19.3 z = 59.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 14.0 y = -25.0 z = 54.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 17.2 y = -30.7 z = 50.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 20.4 y = -36.4 z = 48.1 detector = DummyHitDetector
+ReadData             INFO Hit x = 23.7 y = -42.0 z = 46.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 26.9 y = -47.7 z = 44.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 30.1 y = -53.4 z = 43.8 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 2
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 3
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 4
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 5
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 6
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 6 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 601.2 y = -2.3 z = -373.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 604.4 y = -8.0 z = -505.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 607.6 y = -13.7 z = -529.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 610.8 y = -19.3 z = -540.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 614.0 y = -25.0 z = -545.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 617.2 y = -30.7 z = -549.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 620.4 y = -36.4 z = -551.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 623.7 y = -42.0 z = -553.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 626.9 y = -47.7 z = -555.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 630.1 y = -53.4 z = -556.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 8
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 9
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 9 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 901.2 y = -2.3 z = -673.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 904.4 y = -8.0 z = -805.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 907.6 y = -13.7 z = -829.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 910.8 y = -19.3 z = -840.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 914.0 y = -25.0 z = -845.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 917.2 y = -30.7 z = -849.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 920.4 y = -36.4 z = -851.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 923.7 y = -42.0 z = -853.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 926.9 y = -47.7 z = -855.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 930.1 y = -53.4 z = -856.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 11
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 12
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 12 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 1201.2 y = -2.3 z = -973.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1204.4 y = -8.0 z = -1105.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1207.6 y = -13.7 z = -1129.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1210.8 y = -19.3 z = -1140.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1214.0 y = -25.0 z = -1145.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1217.2 y = -30.7 z = -1149.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1220.4 y = -36.4 z = -1151.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1223.7 y = -42.0 z = -1153.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1226.9 y = -47.7 z = -1155.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1230.1 y = -53.4 z = -1156.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 14
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 15
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 15 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 1501.2 y = -2.3 z = -1273.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1504.4 y = -8.0 z = -1405.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1507.6 y = -13.7 z = -1429.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1510.8 y = -19.3 z = -1440.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1514.0 y = -25.0 z = -1445.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1517.2 y = -30.7 z = -1449.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1520.4 y = -36.4 z = -1451.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1523.7 y = -42.0 z = -1453.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1526.9 y = -47.7 z = -1455.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1530.1 y = -53.4 z = -1456.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 16 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 1601.2 y = -2.3 z = -1373.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1604.4 y = -8.0 z = -1505.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1607.6 y = -13.7 z = -1529.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1610.8 y = -19.3 z = -1540.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1614.0 y = -25.0 z = -1545.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1617.2 y = -30.7 z = -1549.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1620.4 y = -36.4 z = -1551.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1623.7 y = -42.0 z = -1553.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1626.9 y = -47.7 z = -1555.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1630.1 y = -53.4 z = -1556.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 18
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+ReadData             INFO EventStreamInfo: Number of events = 20
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 38853911, key = EventInfoAux.
+ReadData             INFO CLID = 40774348, key = SimpleTag
+ReadData             INFO CLID = 45903698, key = EventInfo
+ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 18 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
+ReadData             INFO Hit x = 1801.2 y = -2.3 z = -1573.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1804.4 y = -8.0 z = -1705.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1807.6 y = -13.7 z = -1729.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1810.8 y = -19.3 z = -1740.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1814.0 y = -25.0 z = -1745.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 1817.2 y = -30.7 z = -1749.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 1820.4 y = -36.4 z = -1751.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1823.7 y = -42.0 z = -1753.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1755.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyHitDetector
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...   INFO Rejecting event
+EventSelector        INFO Request skipping event from: EventSelector.Selector1
+EventSelector.S...   INFO StreamSelectorTool::postNext
+EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventSelector
+EventSelector.S...  DEBUG Found attribute list
+EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
+EventSelector        INFO skipping event 20
+EventSelector        INFO Disconnecting input sourceID: 1493FAFB-462F-434F-9DE6-5F15E2EDEC31
+ReadData             INFO in finalize()

@@ -245,7 +245,7 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
     StreamESD.ForceRead = True # otherwise unread stuff is not copied
     if InDetFlags.doDBMstandalone(): 
-      topSequence.StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"] 
+      StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
 
   if doWriteAOD:
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -266,7 +266,7 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
     if InDetFlags.doDBMstandalone():
-      topSequence.StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
+      StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
     StreamAOD.ForceRead = True # otherwise unread stuff is not copied
   
   if 'doCopyRDO' in dir() and doCopyRDO:

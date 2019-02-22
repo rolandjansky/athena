@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Response/MDT_Response.h"
@@ -10,13 +10,10 @@ MDT_Response::MDT_Response() :
   m_xhit(0.0), 
   m_pathLength(0.0), 
   m_rtParameters(0),
-  m_ranEngine( 0 ),
-  m_hasOwnership(true),
   m_t0(0.0)
 {
   InitTubeParameters();
   InitClusters(200.,0.2);
-  InitRandom();
   InitdEdxTable(); 
 }
 
@@ -25,21 +22,15 @@ MDT_Response::MDT_Response(double timewindow, double binsize) :
   m_xhit(0.0), 
   m_pathLength(0.0), 
   m_rtParameters(0),
-  m_ranEngine( 0 ),
-  m_hasOwnership(true),
   m_t0(0.0)
 {
   InitTubeParameters();
   InitClusters(timewindow,binsize);
-  InitRandom();
   InitdEdxTable(); 
 }
 			
 MDT_Response::~MDT_Response() 
 {
-  if( m_hasOwnership ){
-    if( m_ranEngine ) delete m_ranEngine;
-  }
   delete[] m_rtParameters; m_rtParameters=0;
 }
 
@@ -102,10 +93,6 @@ void MDT_Response::InitdEdxTable()
 }
 
 
-void MDT_Response::InitRandom(){
-  m_ranEngine = new CLHEP::RanluxEngine(); //TODO possibly use CLHEP::dSFMTEngine() here?
-}
-
 void MDT_Response::InitRt(){
   //std::cout << "Setting rt-relation" << std::endl;
   if(m_rtParameters) delete m_rtParameters;
@@ -162,7 +149,7 @@ void MDT_Response::InitRt(){
 //     std::cout << "    Par[" << i << "] = " << m_rtParameters[i] << std::endl;
 }
 
-void MDT_Response::DoStepping()
+void MDT_Response::DoStepping(CLHEP::HepRandomEngine *rndmEngine)
 {
   //double propDelay = PropagationDelay(m_xhit);
   double damping = DampingFactor(m_xhit);
@@ -172,15 +159,15 @@ void MDT_Response::DoStepping()
   for(int i=0;i<2;++i){        // splite track into to segments
     double cl(0.);             // current position along track
     while(cl < m_pathLength){   
-      cl += DoStep();              // Do step along track
+      cl += DoStep(rndmEngine);    // Do step along track
       double r = sqrt(cl*cl + r2); // calculate corresponding r
-      int q = GenerateQ();         // generate cluster size
+      int q = GenerateQ(rndmEngine);// generate cluster size
       double t = RtoT(r);     
       // check if value lies within window
       if(t-m_t0 > m_bins*m_binsize + 3.*SigmaDiffusion(r) ) {
 	break;
       }
-      double tc = t + Diffusion(r) - m_t0;
+      double tc = t + Diffusion(r, rndmEngine) - m_t0;
       int bin( (int)(tc/m_binsize+m_offset) );
 	
       // fill value into corresponding bin
@@ -194,7 +181,7 @@ void MDT_Response::DoStepping()
 }
 
 
-void MDT_Response::DoStepping(double ParticleCharge,double ParticleGamma)
+void MDT_Response::DoStepping(double ParticleCharge,double ParticleGamma, CLHEP::HepRandomEngine *rndmEngine)
 {
 // extract  Cluster Density for the given value of particle gamma from the vector gammaFactorVec()
 	double correctedClusterDensity;
@@ -227,19 +214,19 @@ void MDT_Response::DoStepping(double ParticleCharge,double ParticleGamma)
     while(cl < m_pathLength){ 
 
     if(fabs(ParticleCharge)!=1.){ 	 
-      cl += 8.5/(correctedClusterDensity*pow(ParticleCharge,2))*DoStep();                // Do step along track
+      cl += 8.5/(correctedClusterDensity*pow(ParticleCharge,2))*DoStep(rndmEngine);                // Do step along track
 	}else{  
-      cl += 8.5/(correctedClusterDensity)*DoStep();                // Do step along track
+      cl += 8.5/(correctedClusterDensity)*DoStep(rndmEngine);                // Do step along track
 	}  
 	  
       double r = sqrt(cl*cl + r2); // calculate corresponding r
-      int q = GenerateQ();         // generate cluster size
+      int q = GenerateQ(rndmEngine);         // generate cluster size
       double t = RtoT(r);     
       // check if value lies within window
       if(t-m_t0 > m_bins*m_binsize + 3.*SigmaDiffusion(r) ) {
 	break;
       }
-      double tc = t + Diffusion(r) - m_t0;
+      double tc = t + Diffusion(r, rndmEngine) - m_t0;
       int bin( (int)(tc/m_binsize+m_offset) );
 	
       // fill value into corresponding bin
@@ -264,10 +251,10 @@ void MDT_Response::Reset()
   m_amplifier.Reset();
 } 
   
-bool MDT_Response::GetSignal()
+bool MDT_Response::GetSignal(CLHEP::HepRandomEngine *rndmEngine)
 {
   // generate and propagate clusters
-  DoStepping();
+  DoStepping(rndmEngine);
 
   // get amplifier response and see if it passed threshold
   bool hasSignal = m_amplifier.AddClusters(m_clusters);  
@@ -275,10 +262,10 @@ bool MDT_Response::GetSignal()
 }
 
 
-bool MDT_Response::GetSignal(double ParticleCharge,double ParticleGamma) 
+bool MDT_Response::GetSignal(double ParticleCharge,double ParticleGamma,CLHEP::HepRandomEngine *rndmEngine) 
 {
   // generate and propagate clusters
-  DoStepping(ParticleCharge,ParticleGamma); 
+  DoStepping(ParticleCharge,ParticleGamma,rndmEngine); 
 
   // get amplifier response and see if it passed threshold
   bool hasSignal = m_amplifier.AddClusters(m_clusters);  

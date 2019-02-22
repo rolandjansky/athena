@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelToTPIDTool/PixeldEdxTestAlg.h"
@@ -13,11 +13,9 @@
 
 // Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/GaudiException.h" 
 #include "GaudiKernel/ThreadLocalContext.h"
-
-// Event Info 
-#include "EventInfo/EventIncident.h"
 
 // AttributeList
 #include "CoralBase/Attribute.h"
@@ -95,7 +93,6 @@ StatusCode PixeldEdxTestAlg::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode PixeldEdxTestAlg::readWithBeginRun(){
-    StatusCode status;
     ATH_MSG_INFO ( "in readWithBeginRun()"  );
 
     // As a result of the restructuring the EventIncident class (dropping the reference to EventInfo)
@@ -106,8 +103,7 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
 
-    EventIncident evtInc(name(), "BeginRun", getContext());
-    incSvc->fireIncident( evtInc );
+    incSvc->fireIncident( Incident(name(), IncidentType::BeginRun, getContext()) );
 
     return StatusCode::SUCCESS;
 }
