@@ -10,9 +10,7 @@ atlas_subdir( AthenaConfiguration )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool )
-atlas_install_runtime(python/*.pkl )
 atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
-atlas_install_joboptions( share/zeroJO.py )
 atlas_install_data( share/*.ref )
 
 atlas_add_test( ComponentAccumulatorTest
@@ -26,12 +24,6 @@ atlas_add_test( UnifyPropertiesTest
 atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( GenerateBootstrapTest
-   SCRIPT test/test_gen_bootstrap.sh
-   #ignore location of bootstrap file and whether it was already downloaded
-   EXTRA_PATTERNS ".*copy bootstrap.*pkl|.*\/share\/bootstrap.*pkl|File.*exists in the current directory|^Willing to acquire"
-   )
 
 if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
     atlas_add_test( AllConfigFlagsTest
