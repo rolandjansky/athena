@@ -5,6 +5,8 @@
 
 #include "CaloEvent/CaloCellClusterWeights.h"
 
+#include "CaloGeoHelpers/CaloSampling.h"
+
 #include <numeric>
 
 namespace {                                                                             /////////////////////////////////////////////////////////////
@@ -53,7 +55,15 @@ StatusCode CaloTopoClusterFromTowerCalibrator::execute(xAOD::CaloClusterContaine
       const CaloCellClusterWeights::weight_t& wght(pCellWeights->at(*fCell));      // Retrieve list of weights associated with this cluster. //
       double weight(fCell.weight());                                               // Get cell-in-tower weight.                              //
       weight *= accumulateWeight(wght);                                            // Combine with calibration weights.                      //
-      pClus->reweightCell(fCell,weight);                                           // Set new weight.                                        //
+      if ( weight == 0. ) { 
+	ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("[NO_LCW_REWEIGHT] Tower (%6.3f,%6.3f) cell [%6zu] weight = %6.3f [# LCW weights %zu geo %6.3f LCW %6.3f] SamplingID %2u Name \042%s\042",
+						  pClus->eta(),pClus->phi(),(size_t)fCell->caloDDE()->calo_hash(),weight,wght.size(),fCell.weight(),weight/std::max(fCell.weight(),1e-08),
+						  (unsigned int)fCell->caloDDE()->getSampling(),CaloSampling::getSamplingName(fCell->caloDDE()->getSampling()).c_str()) );
+      } else {
+	ATH_MSG_DEBUG(   CaloRec::Helpers::fmtMsg("[DO_LCW_REWEIGHT] Tower (%6.3f,%6.3f) cell [%6zu] weight = %6.3f [# LCW weights %zu geo %6.3f LCW %6.3f]",
+						  pClus->eta(),pClus->phi(),(size_t)fCell->caloDDE()->calo_hash(),weight,wght.size(),fCell.weight(),weight/fCell.weight()) );
+	pClus->reweightCell(fCell,weight);                                         // Set new weight.                                        //
+      }
     }                                                                              ////////////////////////////////////////////////////////////
     // preserve raw (EM) kinematics
     double rawE(pClus->e());                       ////////////////////////////////////////////////////////////////////////////////////////////

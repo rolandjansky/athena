@@ -17,13 +17,22 @@
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "CaloEvent/CaloCellClusterWeights.h"
 
+#include "CaloGeoHelpers/CaloSampling.h"
+
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include <string>
 #include <vector>
+#include <bitset>
+#include <map>
 
 class CaloCell;
 class CaloCellClusterWeights;
+class CaloClusterCellLink;
+
+#ifndef _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE
+#define _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE 28
+#endif
 
 class CaloTopoClusterFromTowerMaker : public AthAlgTool, virtual public CaloClusterCollectionProcessor
 {
@@ -43,8 +52,8 @@ private:
 
   ///@name Internally used types
   ///@{
-  typedef std::vector<CaloProtoCluster*> protocont_t; ///< Container for @c CaloProtoCluster pointers
-  typedef std::size_t                    uint_t;      ///< Unsigned integral type
+  typedef std::vector<CaloProtoCluster> protocont_t; ///< Container for @c CaloProtoCluster objects
+  typedef std::size_t                   uint_t;      ///< Unsigned integral type
   ///@}
 
   /// @name Tool properties
@@ -73,7 +82,7 @@ private:
   ///@{
   xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins); ///< Returns a cluster size tag from number of eta and phi bins in tower grid
   xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins);              ///< Returns a cluster size tag from number of towers (bins) in tower grid
-  int cleanupCells(CaloClusterCellLink* clk);                                   ///< Checks @c CaloClusterCellLink for consistency
+  int cleanupCells(CaloClusterCellLink* clk,uint_t nclus);                      ///< Checks @c CaloClusterCellLink for consistency
   ///@}
 
   ///@name Tower builders
@@ -100,8 +109,13 @@ private:
   
   ///@name Helpers
   ///@{
-  std::string formatStr(const char* fmt, ... ) const; ///< Message formatter
+  bool        filterProtoCluster(const CaloClusterCellLink& clnk) const;
   ///@}
+
+  ///@brief Excluded sampling
+  std::vector<CaloSampling::CaloSample>                       m_excludedSamplings;
+  std::vector<std::string>                                    m_excludedSamplingsName;
+  std::bitset< _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE >   m_exludedSamplingsPattern;
 };
 
 ///@class CaloTopoClusterFromTowerMaker

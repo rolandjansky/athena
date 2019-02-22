@@ -81,6 +81,7 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
         towerConverter.CaloTopoClusterContainerKey = topoclusterkey 
         towerConverter.CellClusterWeightKey        = cellweightkey
         towerConverter.PrepareLCW                  = True
+
     else:
         mlog.info('###############################################')
         mlog.info('## Produce EM calibrated topo-tower clusters ##')
@@ -92,8 +93,12 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
     mlog.info(' ')
     if configDict['ApplyCellEnergyThreshold']:
         towerConverter.CellEnergyThreshold = configDict['CellEnergyThreshold']
+
+    import AthenaCommon.Constants as Lvl
+
     if debugOn:
-        towerConverter.OutputLevel = Lvl.DEBUG
+        towerConverter.OutputLevel  = Lvl.DEBUG
+
     # setting up the moments: external tools
     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
     caloNoiseTool = CaloNoiseToolDefault()
@@ -163,11 +168,11 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
     mlog.info('instantiated CaloClusterMaker "{0}"'.format(clusterMaker.name()))
 
     # bad cell corrections          
-##    from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
-##    badChannelCorr = CaloClusterBadChannelListCorr()
+    from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
+    badChannelCorr = CaloClusterBadChannelListCorr()
 
     # Correction tools
-##    clusterMaker.ClusterCorrectionTools += [ badChannelCorr ]
+    clusterMaker.ClusterCorrectionTools += [ badChannelCorr ]
     clusterMaker.ClusterCorrectionTools += [ clusterMoments ]
     clusterMaker                        += clusterMoments
 
@@ -175,12 +180,15 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
         from CaloRec.CaloRecConf import CaloTopoClusterFromTowerCalibrator
         calgname = clusterMakerName+'Calibrator'
         mlog.info('TopoTowers: add LCW calibration tool <'+calgname+'>')
-        clusterCalibrator = CaloTopoClusterFromTowerCalibrator(calgname)
+        towerCalibrator = CaloTopoClusterFromTowerCalibrator(calgname)
         mlog.info('TopoTowers: '+calgname+'.CellClusterWeightKey = "'+cellweightkey+'"')
-        clusterCalibrator.CellClusterWeightKey     = cellweightkey
-        clusterCalibrator.OrderClusterByPt         = ptordered
-        clusterMaker.ClusterCorrectionTools       += [ clusterCalibrator ]
-        clusterMaker                              += clusterCalibrator
+        towerCalibrator.CellClusterWeightKey     = cellweightkey
+        towerCalibrator.OrderClusterByPt         = ptordered
+        if debugOn:
+            towerCalibrator.OutputLevel = Lvl.DEBUG
+        clusterMaker.ClusterCorrectionTools     += [ towerCalibrator ]
+        clusterMaker                            += towerCalibrator
+
 
     # done
     return clusterMaker

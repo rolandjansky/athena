@@ -40,6 +40,7 @@
 #include <cstdint>
 #include <limits>
 #include <math.h>
+//#include <cstdio>
 
 
 using HepGeom::Vector3D;
@@ -375,20 +376,22 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
       // loop over all cell members and fill cell vector for used cells
       xAOD::CaloCluster::cell_iterator cellIter    = theCluster->cell_begin();
       xAOD::CaloCluster::cell_iterator cellIterEnd = theCluster->cell_end();
+      //      printf("CaloClusterMomentMaker::execute(...) - number of cells cluster %4i is %zu\n",iClus,theCluster->size());
+      //     int iCell(0);
       for(; cellIter != cellIterEnd; cellIter++ ){
-        CxxUtils::prefetchNext(cellIter, cellIterEnd);
+	CxxUtils::prefetchNext(cellIter, cellIterEnd);
         const CaloCell* pCell = *cellIter;
-
-	Identifier myId = pCell->ID();
-	IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId); 
-	if ( clusterIdx[(unsigned int)myHashId].first != noCluster) {
-	  // check weight and assign to current cluster if weight is > 0.5
-	  double weight = cellIter.weight();
-	  if ( weight > 0.5 )
+	//	printf("CaloClusterMomentMaker::execute(...) - cell %4i/%4zu reference %p\n",++iCell,theCluster->size(),(void*)pCell);
+	if ( pCell != 0 ) { 
+	  Identifier myId = pCell->ID();
+	  IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId); 
+	  if ( clusterIdx[(unsigned int)myHashId].first != noCluster) {
+	    // check weight and assign to current cluster if weight is > 0.5
+	    double weight = cellIter.weight();
+	    if ( weight > 0.5 )  clusterIdx[(unsigned int)myHashId].first = iClus;
+	  } else {
 	    clusterIdx[(unsigned int)myHashId].first = iClus;
-	}
-	else {
-	  clusterIdx[(unsigned int)myHashId].first = iClus;
+	  }
 	}
       }
       ++iClus;

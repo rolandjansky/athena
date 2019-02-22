@@ -148,6 +148,7 @@ private:
   ///@name Access to detector store and other services and stores
   ///@{
   const CaloDetDescrManager* m_caloDDM;               ///< Pointer to calorimeter detector description 
+  std::string m_logFileName;                          ///< Name of log file
   ///@}
 
 protected:

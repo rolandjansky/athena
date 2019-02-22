@@ -8,6 +8,11 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include <cstdarg>
+#include <string>
+#include <map>
+
+#define _SNAMELU( NAME ) { CaloSampling::NAME , #NAME }
+#define _SIDLU( ID ) { #ID , CaloSampling::ID } 
 
 class CaloCell;
 
@@ -147,5 +152,55 @@ namespace CaloRec {
     bool calculateKine(xAOD::CaloCluster* pClus,bool onlyKine=false);
     /// @}
   } // Helpers
+
+  ///@brief Stores
+  namespace Lookup {
+    static const std::map<CaloSampling::CaloSample,std::string> samplingNames;
+    static const std::map<std::string,CaloSampling::CaloSample> samplingIds;
+    static const std::string&       getSamplingName(CaloSampling::CaloSample sid);
+    static CaloSampling::CaloSample getSamplingId(const std::string& sname);
+  }
 } // CaloRec
+
+std::map<CaloSampling::CaloSample,std::string> CaloRec::Lookup::samplingNames = {
+  // EM
+  _SNAMELU( PreSamplerB ), _SNAMELU( EMB1 ),  _SNAMELU( EMB2 ),  _SNAMELU( EMB3 ), 
+  _SNAMELU( PreSamplerE ), _SNAMELU( EME1 ),  _SNAMELU( EME2 ),  _SNAMELU( EME3 ),
+  // HAD 
+  _SNAMELU( HEC0 ),     _SNAMELU( HEC1 ),     _SNAMELU( HEC2 ),     _SNAMELU( HEC3 ), 
+  _SNAMELU( TileBar0 ), _SNAMELU( TileBar1 ), _SNAMELU( TileBar2 ),
+  // Tile
+  _SNAMELU( TileBar0 ), _SNAMELU( TileBar1 ), _SNAMELU( TileBar2 ),
+  _SNAMELU( TileGap0 ), _SNAMELU( TileGap1 ), _SNAMELU( TileGap2 ),
+  _SNAMELU( TileExt0 ), _SNAMELU( TileExt1 ), _SNAMELU( TileExt2 ),
+  // FCal
+  _SNAMELU( FCAL0 ),    _SNAMELU( FCAL1 ),    _SNAMELU( FCAL2 ),
+  // Mini-FCal
+  _SNAMELU( MINIFCAL0 ),    _SNAMELU( MINIFCAL1 ),    _SNAMELU( MINIFCAL2 ), _SNAMELU( MINIFCAL3 ),
+  // unknown
+  _SNAMELU( Unknown )
+};
+
+std::map<CaloSampling::CaloSample,std::string> CaloRec::Lookup::samplingIds = {
+  // EM
+  _SIDLU( PreSamplerB ), _SIDLU( EMB1 ),  _SIDLU( EMB2 ),  _SIDLU( EMB3 ), 
+  _SIDLU( PreSamplerE ), _SIDLU( EME1 ),  _SIDLU( EME2 ),  _SIDLU( EME3 ),
+  // HAD 
+  _SIDLU( HEC0 ),     _SIDLU( HEC1 ),     _SIDLU( HEC2 ),     _SIDLU( HEC3 ), 
+  _SIDLU( TileBar0 ), _SIDLU( TileBar1 ), _SIDLU( TileBar2 ),
+  // Tile
+  _SIDLU( TileBar0 ), _SIDLU( TileBar1 ), _SIDLU( TileBar2 ),
+  _SIDLU( TileGap0 ), _SIDLU( TileGap1 ), _SIDLU( TileGap2 ),
+  _SIDLU( TileExt0 ), _SIDLU( TileExt1 ), _SIDLU( TileExt2 ),
+  // FCal
+  _SIDLU( FCAL0 ),    _SIDLU( FCAL1 ),    _SIDLU( FCAL2 ),
+  // Mini-FCal
+  _SIDLU( MINIFCAL0 ),    _SIDLU( MINIFCAL1 ),    _SIDLU( MINIFCAL2 ), _SIDLU( MINIFCAL3 ),
+  // unknown
+  _SIDLU( Unknown )
+};
+
+inline const std::string&       CaloRec::Lookup::getSamplingName(CaloSampling::CaloSample sid) { return samplingNames.find(sid)->second; }
+inline CaloSampling::CaloSample CaloRec::Lookup::getSamplingId(const std::string& sname) { auto fid(samplingIds.find(sname)); return fid != samplingIds.end() ? fid.second : samplingIds.find("Unknown")->second; }
+ 
 #endif
