@@ -119,7 +119,7 @@ decisionObjectsToRecord = []
 for d in decisionObjects:
     decisionObjectsToRecord.extend([
         "xAOD::TrigCompositeContainer_v1#%s" % d,
-        "xAOD::TrigCompositeAuxContainer_v1#%s" % d
+        "xAOD::TrigCompositeAuxContainer_v2#%s.decisions" % d
     ])
 
 ##########################################
@@ -141,7 +141,7 @@ serialiser.addCollectionListToMainResult([
     "xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters",
     "xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
     "xAOD::TrigElectronContainer_v1#Electrons",
-    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot",
+    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ])
 
 ##### Result maker part 2 - stream tags #####

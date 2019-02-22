@@ -68,7 +68,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
    SCRIPT test/test_egamma_run_data.sh
    PROPERTIES TIMEOUT 1000   
-   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Fragment size"
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|payload after inserting"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
    )
 
@@ -194,6 +194,14 @@ atlas_add_test( pebTest
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest
    EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_"
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_dataScoutingTest )
+atlas_add_test( dataScoutingTest
+   SCRIPT test/test_dataScouting.sh
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_dataScoutingTest
+   EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|ROBFragments with IDs|{module.*words}|TriggerSummary.*HLT_"
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
