@@ -89,13 +89,10 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_minMomentum(50.0),
   m_cloneParameters(false),
   m_parametricScattering(false),
-  m_g4runManager(0),
-  m_g4physicsList(0),
-  m_g4detector(0),
-  m_g4dynPar(0),
-  m_g4zeroPos(0),
-  m_g4step(0),
-  m_g4stepPoint(0),
+  m_g4runManager(nullptr),
+  m_g4zeroPos(nullptr),
+  m_g4step(nullptr),
+  m_g4stepPoint(nullptr),
   m_particleBroker("ISF_ParticleBrokerSvc", n),
   m_truthRecordSvc("ISF_ValidationTruthService", n), 
   m_processCode(121),
@@ -207,15 +204,12 @@ StatusCode iFatras::G4HadIntProcessor::initialize()
 StatusCode iFatras::G4HadIntProcessor::finalize()
 {
 
-  // clean up locally stored Geant4 instances
-  delete m_g4dynPar;
-  delete m_g4zeroPos;
-  //delete m_g4step; will be deleted via m_g4stepPoint
-  delete m_g4stepPoint;
-
   ATH_MSG_INFO( " ---------- Statistics output -------------------------- " );
   //ATH_MSG_INFO( "                     Minimum energy cut for brem photons : " <<   m_minimumBremPhotonMomentum  );
   //ATH_MSG_INFO( "                     Brem photons (above cut, recorded)  : " <<   m_recordedBremPhotons        );
+
+  // Release G4StepPoint to G4Step owner to prevent double-delete
+  m_g4step->SetPreStepPoint(m_g4stepPoint.release());
 
   ATH_MSG_INFO( "finalize() successful" );
   return StatusCode::SUCCESS;
@@ -346,11 +340,10 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   initProcessPDG(-321);
 
   // set up locally stored Geant4 instances
-  m_g4dynPar          = new G4DynamicParticle();
-  m_g4zeroPos         = new G4ThreeVector(0, 0, 0);
-  m_g4step            = new G4Step();
-  m_g4stepPoint       = new G4StepPoint();
-  m_g4step->SetPreStepPoint( m_g4stepPoint);
+  m_g4zeroPos.reset(new G4ThreeVector(0, 0, 0));
+  m_g4step.reset(new G4Step());
+  m_g4stepPoint.reset(new G4StepPoint());
+  m_g4step->SetPreStepPoint(m_g4stepPoint.get()); // ownership taken
 
   // define the available G4Material
   m_g4Material.clear();
@@ -456,9 +449,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   const G4ThreeVector mom( momentum.x(), momentum.y(), momentum.z() );
   inputPar->SetMomentum( mom);
   // position and timing dummy
-  G4Track* g4track=new G4Track( inputPar, 0 /* time */, *m_g4zeroPos);
-  //G4TouchableHandle g4touchable(new G4TouchableHistory());     // TODO check memory handling here
-  //g4track->SetTouchableHandle( g4touchable);
+  std::unique_ptr<G4Track> g4track = std::make_unique<G4Track>( inputPar, 0 /* time */, *m_g4zeroPos);
 
   // setup up G4Material ---------------------------------------------------------------------------
   std::pair<G4Material*, G4MaterialCutsCouple*> g4mat = retrieveG4Material(ematprop);
@@ -470,9 +461,10 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
   // preparing G4Step and G4Track
   m_g4step->DeleteSecondaryVector();
-  g4track->SetStep( m_g4step);
+  g4track->SetStep(m_g4step.get());
 
   // by default, the current process is the inelastic hadr. interaction
+  // Does not take ownership (see definition of m_g4HadrInelasticProcesses) -> no delete or smart pointer
   G4VProcess *process = processIter_inelast!=m_g4HadrInelasticProcesses.end() ? processIter_inelast->second : 0;
  
   // if elastic interactions are enabled and there is a elastic process
@@ -484,16 +476,18 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
     if( rand < 0.5) process = processIter_elast->second;
   }
 
+  if (!process)
+  {
+    ATH_MSG_WARNING( " [ ---- ] Cannot get G4VProcess from map (nullptr)!");
+    return chDef;
+  }
+
   ATH_MSG_VERBOSE ( " [ g4sim ] Computing " << process->GetProcessName() << " process with current particle" );
 
-  // do the G4VProcess (actually a G4HadronicProcess) ------------------------------------
-  //process->SetVerboseLevel(10);
-  //ATH_MSG_VERBOSE ( "Verbose Level is " << process->GetVerboseLevel() ); 
-  
+  // Does not take ownership -> no delete or smart pointer
   G4VParticleChange* g4change = process->PostStepDoIt(*g4track, *m_g4step);
   if (!g4change) {
     ATH_MSG_WARNING( " [ ---- ] Geant4 did not return any hadronic interaction information of particle with pdg=" << pdg );
-    delete g4track;
     return chDef;
   }
 
@@ -575,14 +569,12 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
     // free up memory
     g4change->Clear();
-    delete g4track;
     return children;
 
   }
 
   // free up memory
   g4change->Clear();
-  delete g4track;
   return chDef;
 }
 
