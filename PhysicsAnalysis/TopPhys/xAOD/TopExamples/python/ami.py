@@ -311,20 +311,20 @@ def check_sample_status(samples, stop_on_error = False):
          except ldn_wrong_type: dict_key = get_data_scope(ldn)
          latest_ldn = pick_newest_derivation(derivations[dict_key])
 
-         status = ""
+         status_msg = ""
 
          # First output whether the requested LDN exists and
          # has a valid entry in the AMI database.
          if is_available(ldn):
-            status = logger.OKGREEN + "found" + logger.ENDC
+            status_msg = logger.OKGREEN + "found" + logger.ENDC
          else:
-            status = logger.FAIL + "not found" + logger.ENDC
+            status_msg = logger.FAIL + "not found" + logger.ENDC
             status_ok = False
 
          # If the dataset is _not_ a derivation, output its type
          # and mark it in red.
          if dataset_type[0:5] != "DAOD_":
-            status += ", " + logger.WARNING + "Type: " + dataset_type + logger.ENDC
+            status_msg += ", " + logger.WARNING + "Type: " + dataset_type + logger.ENDC
             status_ok = False
 
          # Then output the derivation status: (1) no derivation
@@ -335,15 +335,15 @@ def check_sample_status(samples, stop_on_error = False):
             status_ok = False
          elif not ldn == latest_ldn:
             try:
-               status += ", " + logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
+               status_msg += ", " + logger.WARNING + "latest p-tag: " + get_ptag(latest_ldn) + logger.ENDC
                status_ok = False
             except ldn_decypher_error:
                print "Could not identify p-tag of LDN: %s" % latest_ldn
                sys.exit(1)
          else:
-            status += ", " + logger.OKGREEN + "latest" + logger.ENDC
+            status_msg += ", " + logger.OKGREEN + "latest" + logger.ENDC
 
-         print " - %s (%s)" % (ldn, status)
+         print " - %s (%s)" % (ldn, status_msg)
 
       # Make the function stop if requested and any of the
       # datasets of the previous sample list had problems.
