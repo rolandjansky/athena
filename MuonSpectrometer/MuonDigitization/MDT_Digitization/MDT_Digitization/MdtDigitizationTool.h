@@ -56,7 +56,6 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 
@@ -99,7 +98,7 @@ class MdtCalibrationDbSvc;
 class MuonSimDataCollection;
 
 
-class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class MdtDigitizationTool : public PileUpToolBase {
   
  public:
   MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
@@ -123,10 +122,6 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
   virtual StatusCode processAllSubEvents() override final;
-
-  /** Just calls processAllSubEvents - leaving for back-compatibility
-      (IMuonDigitizationTool) */
-  StatusCode digitize() override final;
 
   struct GeoCorOut {
   GeoCorOut( double sSag, double sTrack, Amg::Vector3D lp, double lSag ) : sagSign(sSag), trackingSign(sTrack), localPosition(lp), localSag(lSag) {}

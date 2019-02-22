@@ -8,6 +8,7 @@ atlas_subdir( CscOverlay )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
+                          Control/PileUpTools
                           GaudiKernel
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
                           MuonSpectrometer/MuonCnv/MuonCSC_CnvTools

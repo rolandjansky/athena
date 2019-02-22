@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventInfo
                           GaudiKernel
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
                           PRIVATE

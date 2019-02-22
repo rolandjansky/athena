@@ -49,8 +49,6 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   m_inputHitCollectionName("TGC_Hits"),
   m_vetoThisBarcode(crazyParticleBarcode) 
 {
-  declareInterface<IMuonDigitizationTool>(this);
-
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
   declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
@@ -205,11 +203,6 @@ StatusCode TgcDigitizationTool::mergeEvent() {
   m_TGCHitCollList.clear();
 
   return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
-StatusCode TgcDigitizationTool::digitize() {
-  return this->processAllSubEvents();
 }
 
 //_____________________________________________________________________________
