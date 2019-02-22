@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTaggingAccessors_v1.h 584372 2014-02-20 10:51:12Z jerdmann $
 #ifndef XAOD_BTAGGINGACCESSORS_V1_H
 #define XAOD_BTAGGINGACCESSORS_V1_H
 
