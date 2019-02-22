@@ -92,13 +92,15 @@ hypo.HypoTools = [hypoTool1, hypoTool2]
 ################################################################################
 # HLT result maker configuration
 ################################################################################
-
-from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMSerialiserTool, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
 
 # Tool serialising EDM objects to fill the HLT result
-serialiser = TriggerEDMSerialiserTool()
-serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPebDecisions",
-                                     "xAOD::TrigCompositeAuxContainer_v1#MTCalibPebDecisionsAux."]
+serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
+serialiser.addCollectionListToMainResult([
+  "xAOD::TrigCompositeContainer_v1#"+hypo.HypoOutputDecisions,
+  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.decisions",
+])
 
 # StreamTag definitions
 streamExamplePEB = ['ExamplePEB', 'calibration', "True", "False"]
