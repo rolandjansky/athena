@@ -55,7 +55,7 @@ names = ['Data15_TOPQ1',
          'Data16_TOPQ1', 
          'Data17_TOPQ1']
 samples = TopExamples.grid.Samples(names)
-TopExamples.ami.check_sample_status(samples)
+TopExamples.ami.check_sample_status(samples)  # Call with (samples, True) to halt on error
 TopExamples.grid.submit(config, samples)
 
 ###############################################################################
@@ -74,6 +74,6 @@ names = ['TOPQ1_ttbar_PowPy8',
          'TOPQ1_ttV',    
          ]
 samples = TopExamples.grid.Samples(names)
-TopExamples.ami.check_sample_status(samples)
+TopExamples.ami.check_sample_status(samples)  # Call with (samples, True) to halt on error
 TopExamples.grid.submit(config, samples)
 
