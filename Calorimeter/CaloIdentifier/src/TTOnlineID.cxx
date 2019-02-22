@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/TTOnlineID.h"
@@ -235,13 +235,6 @@ void TTOnlineID::channel_Id_checks   ( int crate, int module, int submodule, int
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
   id << detzside_field_value() << crate << module << submodule << channel;
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in TTOnlineID::channel_Id_checks(field values), did not build, " +
-      strformat ("crate: %d , module: %d, submodule: %d , channel: %d ",
-                 crate , module , submodule, channel);
-    throw CaloID_Exception(errorMessage , 2);
-  }
   if (!m_full_channel_range.match(id)) {
     std::string errorMessage = "[TTOnlineID]::channnelId() result is not OK: ID, range = "
       + std::string(id) + " , " + (std::string)m_full_channel_range;
@@ -324,13 +317,6 @@ void TTOnlineID::submodule_Id_checks( int crate, int module, int submodule ) con
   ExpandedIdentifier expId(calo_exp());
   expId << detzside_field_value() << crate <<  module << submodule;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in TTOnlineID::submodule_Id_checks, values ok but did not build, "+
-      strformat ("crate: %d , module: %d , submodule: %d",
-                 crate , module, submodule);
-    throw CaloID_Exception(errorMessage , 99);
-  }
   if (!m_full_submodule_range.match(expId)) { std::string errorMessage = "TTOnlineID::submodule_Id_checks() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_submodule_range;
     throw CaloID_Exception(errorMessage , 99);
@@ -346,12 +332,6 @@ void TTOnlineID::module_Id_checks( int crate, int module ) const
   ExpandedIdentifier expId(calo_exp());
   expId << detzside_field_value() << crate << module;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in TTOnlineID::module_Id_checks, values ok but did not build, " +
-      strformat ("crate: %d , module: %d", crate , module);
-    throw CaloID_Exception(errorMessage , 99);
-  }
   if (!m_full_module_range.match(expId)) { std::string errorMessage = "TTOnlineID::module_Id_checks() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_module_range;
     throw CaloID_Exception(errorMessage , 99);
@@ -367,12 +347,6 @@ void TTOnlineID::crate_Id_checks( int crate ) const
   ExpandedIdentifier expId(calo_exp());
   expId << detzside_field_value() << crate;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in TTOnlineID::crate_Id_checks, values ok but did not build, " +
-      strformat ("crate: %d", crate);
-    throw CaloID_Exception(errorMessage , 99);
-  }
   if (!m_full_crate_range.match(expId)) { std::string errorMessage = "TTOnlineID::crate_Id_checks() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_crate_range;
     throw CaloID_Exception(errorMessage , 99);
