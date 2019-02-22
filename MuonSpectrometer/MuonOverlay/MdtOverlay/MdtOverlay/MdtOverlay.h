@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -50,11 +50,10 @@ private:
   // and written out with the original SG keys.
   std::string m_mainInputMDT_Name;
   std::string m_overlayInputMDT_Name;
-  std::string m_sdo;
  
   float m_adcIntegrationWindow;
   const MdtIdHelper   * m_mdtHelper;
-  bool m_copySDO, m_clean_overlay_data, m_clean_overlay_signal;
+  bool m_clean_overlay_data, m_clean_overlay_signal;
   ToolHandle<IMuonDigitizationTool> m_digTool;
   ToolHandle<IMuonDigitizationTool> m_rdoTool;
 };

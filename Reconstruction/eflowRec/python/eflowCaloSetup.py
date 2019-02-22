@@ -18,6 +18,10 @@ def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
         print traceback.format_exc()
         return False
 
+    from eflowRec.eflowRecFlags import jobproperties;
+    if True == jobproperties.eflowRecFlags.fixMuonLogic:
+        eflowPreparation.FixMuonLogic=True
+    
     Configured._eflowPreparationHandle = eflowPreparationAlgorithm
 
     try:
