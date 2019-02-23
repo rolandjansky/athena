@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # The earliest bunch crossing time for which interactions will be sent
@@ -32,6 +32,9 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
         kwargs.setdefault("LastXing",  BCM_LastXing()  ) 
+
+    kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+    kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
 
     from AthenaCommon import CfgMgr
     return CfgMgr.BCM_DigitizationTool(name,**kwargs)
