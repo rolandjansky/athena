@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARONLINEID_BASE_H
@@ -122,7 +122,9 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Create a feedthrough identifier from fields 
    */
-  HWIdentifier feedthrough_Id( int barrel_ec, int pos_neg, int feedthrough ) const;
+  HWIdentifier feedthrough_Id( int barrel_ec, int pos_neg, int feedthrough) const;
+  HWIdentifier feedthrough_Id( int barrel_ec, int pos_neg, int feedthrough,
+                               bool checks) const;
   
   /**
    * @brief Create a feedthrough identifier from hash_id 
@@ -147,7 +149,12 @@ class LArOnlineID_Base : public AtlasDetectorID
   HWIdentifier feb_Id(int barrel_ec,
 		      int pos_neg,
 		      int feedthrough, 
-		      int slot ) const;
+		      int slot) const;
+  HWIdentifier feb_Id(int barrel_ec,
+		      int pos_neg,
+		      int feedthrough, 
+		      int slot,
+                      bool checks) const;
   /**
    * @brief create feb identifier from hash id 
    */
@@ -173,7 +180,13 @@ class LArOnlineID_Base : public AtlasDetectorID
 			  int pos_neg,
 			  int feedthrough, 
 			  int slot,
-			  int channel ) const;
+			  int channel) const;
+  HWIdentifier channel_Id(int barrel_ec,
+			  int pos_neg,
+			  int feedthrough, 
+			  int slot,
+			  int channel,
+                          bool checks) const;
   /**
    * @brief Create channel identifiers from hash id 
    */
@@ -206,11 +219,15 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Define a channel identifier from a feedthrough identifier
    */
-  HWIdentifier channel_Id(const HWIdentifier feedthroughId, int slot, int channel ) const;
+  HWIdentifier channel_Id(const HWIdentifier feedthroughId, int slot, int channel) const;
+  HWIdentifier channel_Id(const HWIdentifier feedthroughId, int slot, int channel,
+                          bool checks) const;
   /**
    * @brief Define a channel identifier from a feb identifier
    */
-  HWIdentifier channel_Id(const HWIdentifier febId, int channel ) const;
+  HWIdentifier channel_Id(const HWIdentifier febId, int channel) const;
+  HWIdentifier channel_Id(const HWIdentifier febId, int channel,
+                          bool checks) const;
 
 
   /**
