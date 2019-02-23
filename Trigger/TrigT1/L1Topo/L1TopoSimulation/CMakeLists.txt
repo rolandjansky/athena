@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/AthenaMonitoring
-   Event/EventInfo
    GaudiKernel
    Trigger/TrigConfiguration/TrigConfBase
    Trigger/TrigConfiguration/TrigConfInterfaces
@@ -44,7 +43,7 @@ atlas_add_component( L1TopoSimulation
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib
    TrigInterfacesLib TrigT1CaloEventLib TrigT1CaloUtilsLib
-   AthenaBaseComps EventInfo GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
+   AthenaBaseComps GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
    L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms TrigT1Interfaces
    TrigT1Result TrigConfInterfaces )
 

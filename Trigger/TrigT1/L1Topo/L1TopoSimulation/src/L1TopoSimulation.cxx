@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulation.h"
@@ -137,7 +137,6 @@ L1TopoSimulation::initialize() {
 
    CHECK(m_topoCTPLocation.initialize());
    CHECK(m_topoOverflowCTPLocation.initialize());
-   CHECK(m_EventInfoKey.initialize());
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
    ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
@@ -227,7 +226,7 @@ L1TopoSimulation::start() {
 
 StatusCode
 L1TopoSimulation::execute() {
-  
+   const EventContext& ctx = Gaudi::Hive::currentContext();
 
    if (m_prescale>1 && not m_scaler->decision(m_prescale)){
       ATH_MSG_DEBUG( "This event not processed due to prescale");
@@ -247,10 +246,10 @@ L1TopoSimulation::execute() {
    // fill the L1Topo Input Event
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
 
-   // Event Info
-   SG::ReadHandle< xAOD::EventInfo > evt(m_EventInfoKey);
-
-   inputEvent.setEventInfo(evt->runNumber(),evt->eventNumber(),evt->lumiBlock(),evt->bcid());
+   inputEvent.setEventInfo(ctx.eventID().run_number(),
+                           ctx.eventID().event_number(),
+                           ctx.eventID().lumi_block(),
+                           ctx.eventID().bunch_crossing_id());
 
    // EM TAU
    CHECK(m_emtauInputProvider->fillTopoInputEvent(inputEvent));
