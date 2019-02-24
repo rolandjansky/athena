@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Constants import VERBOSE,INFO
 from AthenaCommon.KeyStore import CfgItemList
@@ -48,10 +48,6 @@ StreamESD = AthenaPoolOutputStream( "StreamESD" )
 StreamESD.ItemList = esdList()
 
 msg.info( "ESD item list: %r", esdList() )
-
-StreamESD = AthenaPoolOutputStream( "StreamESD" )
-StreamESD.ItemList = esdList()
-msg.info( "ESD item list: %r",StreamESD.ItemList )
 
 msg.info( "removing TrigEsd item list" )
 del esdList.TrigEsd
