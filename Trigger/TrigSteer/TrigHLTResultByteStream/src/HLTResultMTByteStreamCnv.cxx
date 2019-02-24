@@ -21,6 +21,15 @@
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
 
+// Local definitions
+namespace {
+  /**
+   * ROBFragment module ID of the HLT result which contains all Trigger EDM collections. Can be considered to be made
+   * a property set from the EDM configuration to avoid multiple definitions, but the value should never change from 0.
+   */
+  constexpr uint16_t fullResultModuleId = 0;
+}
+
 // =============================================================================
 // Standard constructor
 // =============================================================================
@@ -117,26 +126,48 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   const std::vector<uint32_t>& hltBits = hltResult->getHltBitsAsWords();
   re->hlt_info(hltBits.size(), hltBits.data());
 
+  // Read the stream tags to decide which HLT ROBFragments to write out
+  std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
+  for (const eformat::helper::StreamTag& st : hltResult->getStreamTags()) {
+    // In case of full event building, add the full result ID
+    if (st.robs.empty() && st.dets.empty()) {
+      eformat::helper::SourceIdentifier sid(eformat::SubDetector::TDAQ_HLT, fullResultModuleId);
+      resultIdsToWrite.insert(sid);
+    }
+    // In case of partial event building, add the results explicitly requested in the stream tag
+    for (const uint32_t robid : st.robs) {
+      eformat::helper::SourceIdentifier sid(robid);
+      if (sid.subdetector_id() == eformat::SubDetector::TDAQ_HLT)
+        resultIdsToWrite.insert(sid);
+    }
+  }
+
   // Clear the FEA stack
   m_fullEventAssembler.clear();
 
-  // Loop over all module IDs and fill the ROBFragments
-  ATH_MSG_DEBUG("Iterating over modules to assemble output data");
-  for (const auto& p : hltResult->getSerialisedData()) {
-    const uint16_t moduleId = p.first;
-    const std::vector<uint32_t>& data = p.second;
+  // Loop over the module IDs and fill the ROBFragments
+  ATH_MSG_DEBUG("Iterating over " << resultIdsToWrite.size() << " HLT result IDs to assemble output data");
+  const std::unordered_map<uint16_t, std::vector<uint32_t>>& serialisedData = hltResult->getSerialisedData();
+  for (const eformat::helper::SourceIdentifier& resultId : resultIdsToWrite) {
+    // Find the serialised data for this module ID
+    const auto it = serialisedData.find(resultId.module_id());
+    if (it==serialisedData.end()) {
+      ATH_MSG_ERROR("HLT result with ID 0x" << MSG::hex << resultId.code() << MSG::dec
+                    << " requested by a stream tag, but missing in the serialised data");
+      return StatusCode::FAILURE;
+    }
+    const std::vector<uint32_t>& data = it->second;
 
     // Get a pointer to ROD data vector to be filled
-    eformat::helper::SourceIdentifier sid(eformat::TDAQ_HLT,moduleId);
-    std::vector<uint32_t>* rod = m_fullEventAssembler.getRodData(sid.code());
+    std::vector<uint32_t>* rod = m_fullEventAssembler.getRodData(resultId.code());
     if (!rod) {
-      ATH_MSG_ERROR("Failed to get RODDATA pointer for module " << sid.code());
+      ATH_MSG_ERROR("Failed to get RODDATA pointer for HLT result ID 0x" << MSG::hex << resultId.code() << MSG::dec);
       return StatusCode::FAILURE;
     }
 
     // Fill the ROD data vector
     rod->assign(data.cbegin(), data.cend());
-    ATH_MSG_DEBUG("Assembled data for module 0x" << MSG::hex << sid.code() << MSG::dec << " with "
+    ATH_MSG_DEBUG("Assembled data for HLT result ID 0x" << MSG::hex << resultId.code() << MSG::dec << " with "
                   << data.size() << " words of serialised payload");
   }
 
