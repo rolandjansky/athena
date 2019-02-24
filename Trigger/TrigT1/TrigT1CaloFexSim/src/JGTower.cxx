@@ -29,9 +29,9 @@ JGTower::~JGTower(){}
 bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dphi){
 
   bool inEtaBox = fabs(eta1-eta2)<deta;
+  if(phi2>TMath::Pi()) phi2 = phi2-2*TMath::Pi();
   float deltaPhi= fabs(phi1-phi2);
   if(deltaPhi>TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
-
   bool inPhiBox = deltaPhi<dphi;
 
   return inEtaBox&&inPhiBox;
