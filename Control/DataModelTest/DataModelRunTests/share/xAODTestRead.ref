@@ -1,31 +1,30 @@
-Fri Nov 30 18:11:07 CET 2018
+Sat Feb 23 21:59:22 CET 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3g/fd1aa8b860d] -- built on [2018-11-30T1805]
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.22/2840e19] -- built on [2019-02-22T2103]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5428 configurables from 6 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5463 configurables from 40 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus012.cern.ch on Fri Nov 30 18:11:19 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on lxplus057.cern.ch on Sat Feb 23 21:59:36 2019
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3108 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3274 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
@@ -34,13 +33,14 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-29T2311/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-22T2138/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus057.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestRead_catalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
@@ -64,7 +64,7 @@ Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::H_v1> is a
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:61404
+RootDatabase.open    INFO xaoddata.root File version:61408
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -73,23 +73,23 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:61404
+RootDatabase.open    INFO xaoddata.root File version:61408
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 39B954F1-EF4D-9844-A986-B41617931281
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:61404
-ClassIDSvc           INFO  getRegistryEntries: read 2039 CLIDRegistry entries for module ALL
+RootDatabase.open    INFO xaoddata.root File version:61408
+ClassIDSvc           INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1671 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 6317 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1729 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 6251 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-ClassIDSvc           INFO  getRegistryEntries: read 813 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 815 CLIDRegistry entries for module ALL
 MetaInputLoader      INFO Initializing MetaInputLoader...
 MetaInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
     +  ( 'DMTest::S1' , 'MetaS1' ) 
@@ -102,44 +102,38 @@ Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - pac
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: xaoddata2.root
 Stream1              INFO I/O reinitialization...
-ClassIDSvc           INFO  getRegistryEntries: read 337 CLIDRegistry entries for module ALL
-DecisionSvc          INFO Inserting stream: Stream2 with no Algs
-Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version AthenaServices-00-00-00
-Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
-Stream2              INFO Data output: xaoddata2b.root
-Stream2              INFO I/O reinitialization...
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 39B954F1-EF4D-9844-A986-B41617931281
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 39B954F1-EF4D-9844-A986-B41617931281
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:61404
+RootDatabase.open    INFO xaoddata.root File version:61408
 ApplicationMgr       INFO Application Manager Started successfully
+ClassIDSvc           INFO  getRegistryEntries: read 339 CLIDRegistry entries for module ALL
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 0
-MetaInputLoader      INFO createMetaObj for MetaCAux. and sid 39B954F1-EF4D-9844-A986-B41617931281
-MetaInputLoader      INFO  address0 0x164a6d00
+MetaInputLoader      INFO createMetaObj for MetaCAux. and sid 86A0372F-4C2A-494D-BB9D-FBE5643385FA
+MetaInputLoader      INFO  address0 0x1a5ff500
 MetaDataStore_ImplWARNING record_impl: Doing auto-symlinks for object with CLID 9723 and SG key MetaCAux.: Proxy already set for base CLID 187169987; not making auto-symlink.
-MetaInputLoader      INFO  address1 0x164a6d00
+MetaInputLoader      INFO  address1 0x1a5ff500
 MetaInputLoader      INFO Now have mcb with 1 entries
 MetaInputLoader      INFO Retrieved mcb with entries = 0
-MetaInputLoader      INFO createMetaObj for MetaC and sid 39B954F1-EF4D-9844-A986-B41617931281
-MetaInputLoader      INFO  address0 0x164a5800
-MetaInputLoader      INFO  address1 0x164a5800
+MetaInputLoader      INFO createMetaObj for MetaS1 and sid 86A0372F-4C2A-494D-BB9D-FBE5643385FA
+MetaInputLoader      INFO  address0 0x16d27400
+MetaInputLoader      INFO  address1 0x16d27400
 MetaInputLoader      INFO Now have mcb with 1 entries
 MetaInputLoader      INFO Retrieved mcb with entries = 0
-MetaInputLoader      INFO createMetaObj for MetaS1 and sid 39B954F1-EF4D-9844-A986-B41617931281
-MetaInputLoader      INFO  address0 0x1997a600
-MetaInputLoader      INFO  address1 0x1997a600
+MetaInputLoader      INFO createMetaObj for MetaC and sid 86A0372F-4C2A-494D-BB9D-FBE5643385FA
+MetaInputLoader      INFO  address0 0x1a5ff400
+MetaInputLoader      INFO  address1 0x1a5ff400
 MetaInputLoader      INFO Now have mcb with 1 entries
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 DMTest::MetaRea...   INFO MetaS1: 24
@@ -227,9 +221,9 @@ hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 4
 ClassIDSvc           INFO  getRegistryEntries: read 32 CLIDRegistry entries for module ALL
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 5E9B2ECE-2BFF-0F4D-AFE7-E79B3FA98539
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 2E7A8D94-138C-9B4C-B790-AFABC059DFCD
 Domain[ROOT_All]     INFO                           xaoddata2.root
-RootDatabase.open    INFO xaoddata2.root File version:61404
+RootDatabase.open    INFO xaoddata2.root File version:61408
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
@@ -242,18 +236,15 @@ StorageSvc           INFO Building shape according to reflection information usi
 StorageSvc           INFO xAOD::ShallowAuxContainer [C63C39D7-9501-49DC-B1B0-6AD98B1AEEFA]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO xAOD::AuxContainerBase [C87C71B3-B03F-42FC-AF99-DF497F148397]
-ClassIDSvc           INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] C7DBF7F2-D498-8341-B9BA-F66580ED6E9E
-Domain[ROOT_All]     INFO                           xaoddata2b.root
-RootDatabase.open    INFO xaoddata2b.root File version:61404
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
+ClassIDSvc           INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -338,11 +329,11 @@ hview: 820.5 819.5 818.5 817.5 816.5 815.5 814.5 813.5 812.5 811.5 810.5 809.5 8
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -427,11 +418,11 @@ hview: 1220.5 1219.5 1218.5 1217.5 1216.5 1215.5 1214.5 1213.5 1212.5 1211.5 121
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -516,11 +507,11 @@ hview: 1620.5 1619.5 1618.5 1617.5 1616.5 1615.5 1614.5 1613.5 1612.5 1611.5 161
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -555,11 +546,11 @@ hview: 2020.5 2019.5 2018.5 2017.5 2016.5 2015.5 2014.5 2013.5 2012.5 2011.5 201
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -644,11 +635,11 @@ hview: 2420.5 2419.5 2418.5 2417.5 2416.5 2415.5 2414.5 2413.5 2412.5 2411.5 241
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -733,11 +724,11 @@ hview: 2820.5 2819.5 2818.5 2817.5 2816.5 2815.5 2814.5 2813.5 2812.5 2811.5 281
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -822,11 +813,11 @@ hview: 3220.5 3219.5 3218.5 3217.5 3216.5 3215.5 3214.5 3213.5 3212.5 3211.5 321
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -911,11 +902,11 @@ hview: 3620.5 3619.5 3618.5 3617.5 3616.5 3615.5 3614.5 3613.5 3612.5 3611.5 361
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1000,11 +991,11 @@ hview: 4020.5 4019.5 4018.5 4017.5 4016.5 4015.5 4014.5 4013.5 4012.5 4011.5 401
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1089,11 +1080,11 @@ hview: 4420.5 4419.5 4418.5 4417.5 4416.5 4415.5 4414.5 4413.5 4412.5 4411.5 441
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1178,11 +1169,11 @@ hview: 4820.5 4819.5 4818.5 4817.5 4816.5 4815.5 4814.5 4813.5 4812.5 4811.5 481
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1267,11 +1258,11 @@ hview: 5220.5 5219.5 5218.5 5217.5 5216.5 5215.5 5214.5 5213.5 5212.5 5211.5 521
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1356,11 +1347,11 @@ hview: 5620.5 5619.5 5618.5 5617.5 5616.5 5615.5 5614.5 5613.5 5612.5 5611.5 561
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1445,11 +1436,11 @@ hview: 6020.5 6019.5 6018.5 6017.5 6016.5 6015.5 6014.5 6013.5 6012.5 6011.5 601
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1534,11 +1525,11 @@ hview: 6420.5 6419.5 6418.5 6417.5 6416.5 6415.5 6414.5 6413.5 6412.5 6411.5 641
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1623,11 +1614,11 @@ hview: 6820.5 6819.5 6818.5 6817.5 6816.5 6815.5 6814.5 6813.5 6812.5 6811.5 681
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1712,11 +1703,11 @@ hview: 7220.5 7219.5 7218.5 7217.5 7216.5 7215.5 7214.5 7213.5 7212.5 7211.5 721
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1801,11 +1792,11 @@ hview: 7620.5 7619.5 7618.5 7617.5 7616.5 7615.5 7614.5 7613.5 7612.5 7611.5 761
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::CInfoAuxContainer' , 'MetaCAux.' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 MetaInputLoader      INFO Retrieved mcb with entries = 1
-MetaInputLoader      INFO   MetaObj  ( 'DMTest::S1' , 'MetaS1' )  is still valid for 39B954F1-EF4D-9844-A986-B41617931281
+MetaInputLoader      INFO   MetaObj  ( 'DMTest::C' , 'MetaC' )  is still valid for 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 DMTest::MetaRea...   INFO MetaS1: 24
 DMTest::MetaRea...   INFO MetaC: 3 2.5
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1888,15 +1879,12 @@ cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
 hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
-Stream2              INFO Records written: 21
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 39B954F1-EF4D-9844-A986-B41617931281
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 86A0372F-4C2A-494D-BB9D-FBE5643385FA
 xaoddata2.root       INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 5E9B2ECE-2BFF-0F4D-AFE7-E79B3FA98539
-xaoddata2b.root      INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] C7DBF7F2-D498-8341-B9BA-F66580ED6E9E
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 2E7A8D94-138C-9B4C-B790-AFABC059DFCD
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
