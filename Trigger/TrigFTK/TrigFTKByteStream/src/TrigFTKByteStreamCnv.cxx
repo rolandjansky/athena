@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamData/ROBData.h"
@@ -22,7 +22,7 @@
 
 //------------------------------------------------------------------------------
 FTK::TrigFTKByteStreamCnv::TrigFTKByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),
+  Converter(storageType(), classID(),svcloc),
   m_log(0),
   m_tool("FTK::TrigFTKByteStreamTool"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "TrigFTKByteStreamCnv"),

@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 JemEtSumsByteStreamAuxCnv::JemEtSumsByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "JemEtSumsByteStreamAuxCnv"),
   m_name("JemEtSumsByteStreamAuxCnv"),
   m_readTool("LVL1BS::JepByteStreamV2Tool/JepByteStreamV2Tool")
@@ -63,11 +63,13 @@ const CLID& JemEtSumsByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::JEMEtSumsAuxContainer>::ID();
 }
 
+long JemEtSumsByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 StatusCode JemEtSumsByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG(
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,7 @@
  * base class in the correct way.
  */
 L1TopoByteStreamCnv::L1TopoByteStreamCnv(ISvcLocator* svcloc)
-    : Converter(ByteStream_StorageType, classID(), svcloc),
+    : Converter(storageType(), classID(), svcloc),
       AthMessaging(svcloc != 0 ? msgSvc() : 0, "L1TopoByteStreamCnv"),
       m_tool("L1TopoByteStreamTool"),
       m_srcIdMap(0),
@@ -51,6 +51,10 @@ L1TopoByteStreamCnv::~L1TopoByteStreamCnv() {
  */
 const CLID& L1TopoByteStreamCnv::classID() {
   return ClassID_traits<L1TopoRDOCollection>::ID();
+}
+
+long L1TopoByteStreamCnv::storageType() {
+  return ByteStreamAddress::storageType();
 }
 
 /**
