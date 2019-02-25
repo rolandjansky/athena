@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 #include "PixelRawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "InDetRawData/PixelRDORawData.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 
 //#define PIXEL_DEBUG
 
@@ -31,11 +30,10 @@
 // constructor
 ////////////////////////
 PixelRawContByteStreamCnv::PixelRawContByteStreamCnv(ISvcLocator* svcloc) : 
-  Converter(ByteStream_StorageType, classID(),svcloc),
-  m_PixelRawContBSTool(NULL),
-  m_ByteStreamEventAccess(NULL),
-  m_StoreGate(NULL),
-  m_ChronoStat(NULL),
+  Converter(storageType(), classID(),svcloc),
+  m_PixelRawContBSTool(nullptr),
+  m_ByteStreamEventAccess(nullptr),
+  m_StoreGate(nullptr),
   m_log(msgSvc(), "PixelRawContByteStreamCnv")
 {}
 
@@ -78,12 +76,7 @@ StatusCode PixelRawContByteStreamCnv::initialize() {
     return StatusCode::FAILURE;
   } 
 
-  StatusCode scChrono =serviceLocator()->service("ChronoStatSvc",m_ChronoStat );
-  if (!scChrono.isSuccess()) {
-    m_log << MSG::ERROR << "Cannot retrieve ChronoStatSvc" << endmsg;
-  }
-
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 ////////////////////////
@@ -95,6 +88,10 @@ const CLID& PixelRawContByteStreamCnv::classID() {
 
 }
 
+long PixelRawContByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
 
 ////////////////////////
 // createRep() - convert Pixel_RDO in the container into ByteStream
