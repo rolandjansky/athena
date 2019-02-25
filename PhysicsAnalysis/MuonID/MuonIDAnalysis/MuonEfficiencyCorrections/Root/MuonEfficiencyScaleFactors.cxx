@@ -500,7 +500,8 @@ namespace CP {
             ATH_MSG_ERROR("Initialize first the tool!");
             return SystematicCode::Unsupported;
         }
-        /// Nominal has been given
+        /// Nominal has been given. It's the first systematic
+        /// inserted in this vector. 
         if (systConfig.name().empty()){
             m_current_sf = m_sf_sets.begin()->get();
             return SystematicCode::Ok;
