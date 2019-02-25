@@ -76,7 +76,6 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = "", BreakDo
         EffiTool.LowPtThreshold = 15.e3
         EffiTool.BreakDownSystematics = BreakDownSystematics
         EffiTool.UncorrelateSystematics = UncorrelateSystematics
-        EffiTool.OutputLevel  = 0
         if len(CustomInput) > 0 : EffiTool.CustomInputFolder = CustomInput
         elif len(Release) > 0: EffiTool.CalibrationRelease = Release
         ToolSvc += EffiTool
