@@ -515,7 +515,7 @@ namespace Muon {
       MuonStationIndex::ChIndex             chIndex = seed.hough->m_descriptor.chIndex;
       MuonStationIndex::LayerIndex          layer   = Muon::MuonStationIndex::toLayerIndex(chIndex);
       MuonStationIndex::DetectorRegionIndex region  = seed.hough->m_descriptor.region;
-      
+ 
       // creating new road with said seed
       Road road(seed);
       

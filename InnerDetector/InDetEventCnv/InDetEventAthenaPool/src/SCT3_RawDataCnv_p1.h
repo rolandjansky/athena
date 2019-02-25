@@ -23,8 +23,8 @@ class SCT3_RawDataCnv_p1  : public T_AthenaPoolTPCnvBase<SCT3_RawData, SCT3_RawD
 public:
 
   SCT3_RawDataCnv_p1() {}
-  virtual void          persToTrans(const SCT3_RawData_p1* persObj, SCT3_RawData* transObj, MsgStream &log);
-  virtual void          transToPers(const SCT3_RawData* transObj, SCT3_RawData_p1* persObj, MsgStream &log);
+  virtual void          persToTrans(const SCT3_RawData_p1* persObj, SCT3_RawData* transObj, MsgStream& log);
+  virtual void          transToPers(const SCT3_RawData* transObj, SCT3_RawData_p1* persObj, MsgStream& log);
 };
 
 

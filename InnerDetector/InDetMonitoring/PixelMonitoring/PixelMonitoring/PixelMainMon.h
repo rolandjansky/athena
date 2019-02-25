@@ -395,7 +395,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   // hit efficiency
   TProfile_LW* m_hiteff_incl_mod[PixLayer::COUNT];
   TProfile* m_hiteff_lastXlb_mod[PixLayer::COUNT];
-  
+
   // npixhits/track/lumi
   TH2F_LW* m_npixhits_per_track_lumi;
   TH2F* m_npixhits_per_track_lastXlb;
@@ -475,6 +475,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // ROD error histograms
   static const int kNumErrorBits{32};
+  static const int kNumErrorBitsIBL{40};
   static const int kNumErrorStates{16};
   static const int kNumErrorStatesIBL{27};
   TProfile_LW* m_errhist_errcat_LB[PixLayerIBL2D3DDBM::COUNT][ErrorCategory::COUNT];
@@ -499,6 +500,9 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
   TProfile_LW* m_errhist_expert_DBMIBL_LB[PixLayerDBM::COUNT - PixLayerDBM::kDBMA][kNumErrorStatesIBL];
   TH3F* m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
+  TH1F_LW* m_errhist_expert_servrec_ibl_unweighted;
+  TH1F_LW* m_errhist_expert_servrec_ibl_weighted;
+  TH1F_LW* m_errhist_expert_servrec_ibl_count;
 
   // Histograms in low-stat folder
   std::unique_ptr<PixelMon2DMapsLW> m_errors_LB;

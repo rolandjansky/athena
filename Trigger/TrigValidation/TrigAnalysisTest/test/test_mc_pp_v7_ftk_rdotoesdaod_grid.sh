@@ -22,7 +22,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: AOD.pool.root.checkFile0
 # art-output: AOD.pool.root.checkFiletrigSize.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 
 export NAME="mc_pp_v7_ftk_rdotoesdaod_grid"
@@ -30,7 +30,7 @@ export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v7"
-export EVENTS="100"
+export EVENTS="50"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
 

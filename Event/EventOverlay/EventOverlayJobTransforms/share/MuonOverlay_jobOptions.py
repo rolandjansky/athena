@@ -43,6 +43,8 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         include ( "CscOverlay/CscOverlay_jobOptions.py" )
         job.CscOverlay.IsByteStream = readBS
         job.CscOverlay.DataStore = "OriginalEvent_SG"
+        
+        job += CfgGetter.getAlgorithm("CscTruthOverlay")
 
         #print "ACH123: Setting DEBUG v99"
         #job.CscOverlay.MakeRDOTool.OutputLevel=DEBUG
@@ -64,6 +66,8 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
            ToolSvc.MdtRawDataProviderTool.EvtStore = "OriginalEvent_SG"
            job.MdtOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
 
+        job += CfgGetter.getAlgorithm("MdtTruthOverlay")
+
         #job.MdtOverlay.OutputLevel = VERBOSE
         #job.MdtDigitToMdtRDO.OutputLevel = VERBOSE
 
@@ -79,6 +83,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
            job.RpcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False 
         #job.RpcOverlay.OutputLevel = VERBOSE
         #job.RpcDigitToRpcRDO.OutputLevel = VERBOSE
+        job += CfgGetter.getAlgorithm("RpcTruthOverlay")
 
     if DetFlags.overlay.TGC_on():
        # include ( "TgcOverlay/TgcOverlay_jobOptions.py" )
@@ -96,5 +101,6 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
            # StoreGateSvc.Dump = True  #true will dump data store contents
 
            # StoreGateSvc.OutputLevel=DEBUG
+        job += CfgGetter.getAlgorithm("TgcTruthOverlay")
 
             

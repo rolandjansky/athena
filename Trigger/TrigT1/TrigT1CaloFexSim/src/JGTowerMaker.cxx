@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODL1Calo includes
@@ -26,11 +26,12 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
   declareProperty("useSCQuality",m_useSCQuality=true);
   declareProperty("useAllCalo",m_useAllCalo=false);
+  declareProperty("SuperCellType",m_scType="SCell");
+  declareProperty("SuperCellQuality",m_scQuality=0x200);
 }
 
 
 JGTowerMaker::~JGTowerMaker() {
-
 
   jT.clear();
   gT.clear();
@@ -65,35 +66,40 @@ StatusCode JGTowerMaker::finalize() {
 StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContainer*jgTContainer){
 
   const CaloCellContainer* scells = 0;
-  CHECK( evtStore()->retrieve( scells, "SCell") );
+  CHECK( evtStore()->retrieve( scells, m_scType.data()) );
+  const CaloCellContainer* cells = 0;
+  CHECK( evtStore()->retrieve( cells, "AllCalo") );
+  const xAOD::TriggerTowerContainer* TTs;
+  if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
+    ATH_MSG_INFO("ERROR loading trigger tower");
+    return StatusCode::FAILURE;
+  }
+
 
   for (unsigned hs=0;hs<jgT.size();++hs){
       
-      xAOD::JGTower* m_trigTower = new xAOD::JGTower();
-      jgTContainer->push_back(m_trigTower);
       JGTower*jgt = jgT.at(hs);      
-      m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());
       float jgEt=0;
       float lar_et=0;
       float tile_et=0;
       std::vector<int> jgTowerTileIndex = jgt->GetTileIndices();
 
       std::vector<int> jgTowerSCIndex = jgt->GetSCIndices();
+
       //Filling tower energy with SC
  
       for(unsigned i=0; i<jgTowerSCIndex.size(); i++){
          const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
          const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
          CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
-         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  & 0x40))) continue;
+         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  &  m_scQuality ))) continue;
          float scell_et = scell->et();
          jgEt += scell_et; 
          lar_et+=scell_et;
       }
+
       if(jgt->sampling()==1){
         if(m_useAllCalo){
-          const CaloCellContainer* cells = 0;
-          CHECK( evtStore()->retrieve( cells, "AllCalo") );
           for(unsigned cell_hs=0 ; cell_hs<jgTowerTileIndex.size(); cell_hs++){
              const CaloCell * cell = cells->findCell(jgTowerTileIndex.at(cell_hs));
              jgEt+=cell->e()*cell->sinTh();
@@ -102,11 +108,6 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
         } 
 
         else{
-          const xAOD::TriggerTowerContainer* TTs;
-          if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
-            ATH_MSG_INFO("ERROR loading trigger tower");
-            return StatusCode::FAILURE;
-          }
 
           for(unsigned tt_hs=0 ; tt_hs<TTs->size(); tt_hs++){
              const xAOD::TriggerTower * tt = TTs->at(tt_hs);
@@ -119,6 +120,10 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
         }
       }
+      if(jgEt == 0) continue;
+      xAOD::JGTower* m_trigTower = new xAOD::JGTower();
+      jgTContainer->push_back(m_trigTower);
+      m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());
       m_trigTower->setdEta(jgt->dEta());
       m_trigTower->setdPhi(jgt->dPhi());
       m_trigTower->setEt(jgEt);

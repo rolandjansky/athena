@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -22,10 +22,6 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
         kwargs.setdefault("LastXing",  TGC_LastXing() )
-
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
 
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
