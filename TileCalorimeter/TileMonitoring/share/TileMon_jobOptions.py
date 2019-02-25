@@ -3,7 +3,6 @@
 #
 
 #**************************************************************
-
 #
 # jopOptions file for Tile Monitoring in Athena 
 #
