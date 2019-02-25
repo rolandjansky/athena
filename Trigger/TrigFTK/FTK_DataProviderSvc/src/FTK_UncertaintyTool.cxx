@@ -168,7 +168,8 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
   m_noIBL(false),
-  m_ftkparversion("DEC2017_V1")
+  m_ftkparversion("FEB2019"),
+  m_compatMode(false)
 {
   declareInterface< IFTK_UncertaintyTool >( this );
   declareProperty( "NoIBL",  m_noIBL);
@@ -183,18 +184,24 @@ StatusCode FTK_UncertaintyTool::initialize() {
   //   Load Constants
   //
   if(m_noIBL){
+    m_compatMode = true;
     LoadConstants_NoIBL();
   }
   else{
-    if(m_ftkparversion == "LEGACY"){
+    if(m_ftkparversion == "LEGACY") {
+      m_compatMode = true;
       LoadConstants();
     }
-    else if(m_ftkparversion == "DEC2017_V1"){
+    else if(m_ftkparversion == "DEC2017_V1") {
+      m_compatMode = true;
       LoadConstants_DEC2017_V1();
     }
-    else{
-      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default DEC2017_V1 parameters");
-      LoadConstants_DEC2017_V1();
+    else if (m_ftkparversion == "FEB2019") {
+      m_compatMode = false;
+    }
+    else {
+      m_compatMode = false;
+      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default FEB2019 parameters");
     }
   }
 
@@ -211,9 +218,9 @@ StatusCode FTK_UncertaintyTool::finalize() {
 //
 // Covariance Matrix if there is a BLayer Hit
 //
-double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
+double FTK_UncertaintyTool::getParamCovMtx_old(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
 {
-  ATH_MSG_VERBOSE("In getParamCovMtx: id0: " << id0 << " id1: " << id1); 
+  ATH_MSG_VERBOSE("In getParamCovMtx (old parametrization): id0: " << id0 << " id1: " << id1); 
 
 
   //
@@ -304,6 +311,94 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   return sigmaTP*sigmaTP;
 
 }
+
+double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
+{
+  if (m_compatMode) {
+    return getParamCovMtx_old(trk, hasIBL, id0, id1);
+  }
+
+  //
+  // Use diagonal Maxtrix for now
+  //
+  if (id0 != id1) {
+    return 0.;
+  }
+
+  ATH_MSG_VERBOSE("Using new parametrization");
+
+  double trkIpt = trk.getInvPt();
+  double trkTheta = atan2(1.0,trk.getCotTh());
+  double trkEta = -log(tan(trkTheta/2));
+
+  FastSimParameterSet *paramSet = nullptr;
+  switch (id0) {
+  case FTKTrackParam::d0:
+    paramSet = &FastSimParameters_d0;
+    break;
+
+  case FTKTrackParam::z0:
+    paramSet = &FastSimParameters_z0;
+    break;
+
+  case FTKTrackParam::phi:
+    paramSet = &FastSimParameters_phi;
+    break;
+
+  case FTKTrackParam::eta:
+    paramSet = &FastSimParameters_eta;
+    break;
+
+  case FTKTrackParam::Ipt:
+    paramSet = &FastSimParameters_Ipt;
+    break;
+
+  case FTKTrackParam::qOp:
+    // derive from 1/pt errors
+    paramSet = &FastSimParameters_Ipt;
+    break;
+
+  case FTKTrackParam::theta:
+    // derive from eta errors
+    paramSet = &FastSimParameters_eta;
+    break;
+
+  case FTKTrackParam::pt:
+    // derive from 1/pt errors
+    paramSet = &FastSimParameters_Ipt;
+    break;
+  }
+
+  if (!paramSet) {
+    ATH_MSG_ERROR("Unknown track parameter ID: " << id0);
+    return 0.;
+  }
+
+  double sigmaTP = GetError(hasIBL, trkEta, trkIpt, *paramSet);
+
+  // handle derived uncertainties
+  switch (id0) {
+  case FTKTrackParam::qOp: {
+    // derive from 1/pt errors
+    const double sigmaEta = GetError(hasIBL, trkEta, trkIpt, FastSimParameters_eta);
+    sigmaTP= getSigmaQoverP(trkIpt, sigmaTP, trkEta, sigmaEta);
+  } break;
+
+  case FTKTrackParam::theta:
+    // derive from eta errors
+    sigmaTP = getSigmaTheta(trkEta, sigmaTP);
+    break;
+
+  case FTKTrackParam::pt:
+    // derive from 1/pt errors
+    sigmaTP = getSigmaPt(trkIpt, sigmaTP);
+    break;
+  }
+  
+  return sigmaTP*sigmaTP;
+}
+
+
 
 
 

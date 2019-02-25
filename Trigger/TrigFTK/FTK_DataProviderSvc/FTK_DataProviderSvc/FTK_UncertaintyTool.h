@@ -69,6 +69,8 @@ public:
 
  private:
 
+  double getParamCovMtx_old(const FTK_RawTrack& trk, bool hasIBL, int id0, int id1);
+
   //
   //  Helper functions with the uncerianties
   //
@@ -186,7 +188,8 @@ public:
   //
   std::string m_ftkparversion;
 
-
+  // Enable old parametrisations
+  bool m_compatMode;
 };
 
 
