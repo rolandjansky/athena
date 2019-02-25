@@ -500,6 +500,11 @@ namespace CP {
             ATH_MSG_ERROR("Initialize first the tool!");
             return SystematicCode::Unsupported;
         }
+        /// Nominal has been given
+        if (systConfig.name().empty()){
+            m_current_sf = m_sf_sets.begin()->get();
+            return SystematicCode::Ok;
+        }
         for (std::set<SystematicVariation>::const_iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
             std::map<SystematicVariation, EffiCollection*>::const_iterator sf_set = m_filtered_sys_sets.find(*t);
             if (sf_set != m_filtered_sys_sets.end()){
