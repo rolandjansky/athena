@@ -2,10 +2,6 @@
 
 # art-description: athenaHLT on latest available run
 # art-type: build
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-include: 21.0/AthenaP1
-# art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
 # art-include: master/Athena
 
