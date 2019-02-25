@@ -46,7 +46,7 @@ StatusCode TauPi0Selector::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau) 
+StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
 {
     // decay mode enum
     auto kDecayModeProto = xAOD::TauJetParameters::PanTau_DecayModeProto;
@@ -70,14 +70,8 @@ StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau)
     // Pi0NeutralPFOs 
     //---------------------------------------------------------------------
     int nRecoPi0s=0;
-    for( auto neutralPFOLink : pTau.protoNeutralPFOLinks() )
+    for( auto neutralPFO : neutralPFOContainer )
     {
-        if( not neutralPFOLink.isValid() ){
-            ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-            continue;
-        }
-        xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
-
         // Set number of pi0s to 0 for all neutral PFOs. Required when rerunning on xAOD level
         neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0Proto, 0);
 
@@ -111,7 +105,7 @@ StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau)
         }
 
         // Set element link to Pi0tagged PFO
-        pTau.addProtoPi0PFOLink(neutralPFOLink);
+        pTau.addProtoPi0PFOLink(ElementLink< xAOD::PFOContainer > (neutralPFO, neutralPFOContainer));
     }
     // Calculate visTau TLV and store it in pPi0Details.
     TLorentzVector p4 = getP4(pTau);
