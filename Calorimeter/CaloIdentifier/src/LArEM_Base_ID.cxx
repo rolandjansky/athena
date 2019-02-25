@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -150,14 +150,6 @@ void LArEM_Base_ID::region_id_checks   ( int barrel_ec, int sampling, int region
   ExpandedIdentifier expId(lar_em_exp());
   expId << barrel_ec << sampling << region ;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in LArEM_Base_ID::region_id_checks, " +
-      strformat ("barrel_ec: %d , sampling: %d, region: %d ",
-                 barrel_ec , sampling , region);
-    throw LArID_Exception(errorMessage , 5);
-  }
-  
   if (!m_full_region_range.match(expId)) { 
     std::string errorMessage = "LArEM_Base_ID::region_id_checks() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_region_range;
@@ -174,14 +166,6 @@ void LArEM_Base_ID::channel_id_checks   ( int barrel_ec, int sampling, int regio
     // Fill expanded id
     ExpandedIdentifier expId(lar_em_exp());
     expId << barrel_ec << sampling << region << eta << phi << m_slar ;
-
-    if( expId.last_error () != ExpandedIdentifier::none) {
-	std::string errorMessage = 
-          "Error in LArEM_Base_ID::channel_id_checks(field values), " + 
-          strformat ("barrel_ec: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
-                     barrel_ec , sampling , region, eta, phi);
-	throw LArID_Exception(errorMessage , 6);
-    }
 
     if (!m_full_em_range.match(expId)) { 
 	std::string errorMessage = "LArEM_Base_ID::channel_id_checks() result is not OK: ID, range = "
