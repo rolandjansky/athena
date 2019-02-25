@@ -42,6 +42,7 @@ class ComponentAccumulator(object):
 
         #To check if this accumulator was merged:
         self._wasMerged=False
+        self._isMergable=True
 
 
     def empty(self):
@@ -451,7 +452,9 @@ class ComponentAccumulator(object):
 
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
-
+        
+        if not other._isMergable:
+            raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
 
         if not Configurable.configurableRun3Behavior:
             raise ConfigurationError("discoverd Configurable.configurableRun3Behavior=False while working woth ComponentAccumulator")
@@ -883,6 +886,7 @@ def foreach_component(componentAccumulator, path):
    PublicTools - are located under ToolSvc/ and type/instance_name is used
    Services - located under SvcMgr/ and type/instance_name is used
    """
+   componentAccumulator._isMergable=False
    return PropSetterProxy(componentAccumulator, path)
 
 
