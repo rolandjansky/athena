@@ -28,9 +28,6 @@
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 
-#define N_FIXED_PHASES 100
-#define PHASE_STEP 0.5
-
 class IIOVRegistrationSvc;
 
 class TileOFC2DBAlg: public AthAlgorithm {
