@@ -526,7 +526,7 @@ namespace CP {
                 }   
             }
         }
-        return SystematicCode::Unsupported;
+        return SystematicCode::Ok;
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
