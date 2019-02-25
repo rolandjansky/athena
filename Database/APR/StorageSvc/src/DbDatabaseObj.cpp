@@ -884,7 +884,7 @@ void DbDatabaseObj::setAge(int value) {
   if ( 0 == m_info )  {
     m_fileAge = 0;
   }
-  else  {
+  else if (m_fileAge >= 0) {
     switch ( value )  {
     case 0:
       m_fileAge = 0;
