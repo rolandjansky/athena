@@ -99,6 +99,7 @@ namespace FlavorTagDiscriminants {
       }
     }
 
+
     // save out things
     for (const auto& dec: m_decorators) {
       // the second argument to compute(...) is for sequences
@@ -234,9 +235,11 @@ namespace FlavorTagDiscriminants {
       AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
       AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
       AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
+      AE::ConstAccessor<unsigned char> pix_dead("numberOfPixelDeadSensors");
       AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
       AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
       AE::ConstAccessor<unsigned char> sct_shared("numberOfSCTSharedHits");
+      AE::ConstAccessor<unsigned char> sct_dead("numberOfSCTDeadSensors");
       switch (selection) {
       case TrackSelection::ALL: return [](const Tp*) {return true;};
         // the following numbers come from Nicole, Dec 2018:
@@ -252,12 +255,11 @@ namespace FlavorTagDiscriminants {
                  if (std::abs(tp->eta()) > 2.5) return false;
                  double n_module_shared = (
                    pix_shared(*tp) + sct_shared(*tp) / 2);
-                   //pix_shared(*tp) + double(sct_shared(*tp)) / 2);
                  if (n_module_shared > 1) return false;
                  if (tp->pt() <= 1e3) return false;
                  if (std::abs(aug.d0(*tp)) >= 1.0) return false;
                  if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
-                 if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
+                 if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp) + sct_dead(*tp) < 7) return false;
                  if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
                  if (pix_holes(*tp) > 1) return false;
                  return true;
