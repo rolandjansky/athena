@@ -167,7 +167,8 @@ namespace CP {
             float m_lowpt_threshold;
          
             CP::SystematicSet m_affectingSys;
-            /// It turned out that the 
+            /// It turned out that the code spends a large time in the look up of
+            /// the systematics. This map tries to mitigate this issue.
             std::map<CP::SystematicVariation, EffiCollection*> m_filtered_sys_sets;
    
             bool m_init;
