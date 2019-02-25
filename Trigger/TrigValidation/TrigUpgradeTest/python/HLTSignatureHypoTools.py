@@ -10,22 +10,26 @@ def TestHypoTool(name, prop, threshold_value):
     h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop, LinkName=UseThisLinkName)
     return h
 
-def MuTestHypoTool(name, conf):
+def MuTestHypoTool(chainDict):
     #threshold = conf.replace("HLT_mu","")
+    conf = name = chainDict['chainName']
     threshold = getThreshold(conf, 'mu') 
     return TestHypoTool(name,prop="pt", threshold_value=threshold)
 
-def ElTestHypoTool(name,conf):
+def ElTestHypoTool(chainDict):
     #threshold = conf.replace("HLT_e","")
+    conf = name = chainDict['chainName']
     threshold = getThreshold(conf, 'e') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
-def GammTestHypoTool(name,conf):
+def GammTestHypoTool(chainDict):
+    conf = name = chainDict['chainName']
     threshold = getThreshold(conf, 'g') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
-def MuTest2HypoTool(name, conf):
+def MuTest2HypoTool(chainDict):
+    conf = name = chainDict['chainName']
     threshold = getThreshold(conf, 'mu')  
     return TestHypoTool(name,prop="pt2", threshold_value=threshold)
 

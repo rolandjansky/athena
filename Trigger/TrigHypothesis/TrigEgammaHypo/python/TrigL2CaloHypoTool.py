@@ -78,7 +78,7 @@ def _IncTool(name, threshold, sel):
         tool.CARCOREthr     = same( -9999. ) 
         tool.CAERATIOthr    = same( -9999. )
 
-    elif sel == "etcut":
+    elif "etcut" in sel: # stcut is part of the name, it can as well be etcut1step (test chains)
         tool.ETthr          = same( ( float( threshold ) -  3 )*GeV ) 
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
@@ -155,20 +155,23 @@ def TrigL2CaloHypoToolFromName( name, conf ):
 if __name__ == "__main__":    
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut", "HLT_e10_nocut" )
-    assert t, "cant configure NoCut"    
+    # t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut", "HLT_e10_nocut" )
+    # assert t, "cant configure NoCut"    
+    # not possible after recent trimming in SignatureDict, will be restored
     #print t
 
     t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut","HLT_e10_etcut" )
     assert t, "cant configure EtCut"
     print t
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight", "HLT_e10_tight" )
-    assert t, "cant configure rel selection - tight"
+    # t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight", "HLT_e10_tight" )
+    # assert t, "cant configure rel selection - tight"
+    # not possible after recent trimming in SignatureDict, will be restored
     #print t    
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf", "HLT_e10_perf" )
-    assert t, "cant configure rel selection - perf"
+    # t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf", "HLT_e10_perf" )
+    # assert t, "cant configure rel selection - perf"
+    # not possible after recent trimming in SignatureDict, will be restored
     #print t    
 
     t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut", "HLT_2e5_etcut" )
