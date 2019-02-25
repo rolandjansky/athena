@@ -12,10 +12,11 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "TileCalibAlgs/ITileCalibTool.h"
+
 #include <string>
 
 class TFile;
-class ITileCalibTool;
 class IROBDataProviderSvc;
 
 class TileLaserCalibAlg: public AthAlgorithm {
@@ -30,7 +31,8 @@ class TileLaserCalibAlg: public AthAlgorithm {
     StatusCode execute();
     StatusCode finalize();
 
-    lastools_t m_lasTools;
+    lastools_t m_lasTools{this,
+      "Tools",{},"Tile laser calibration tools"};
 
   private:
 

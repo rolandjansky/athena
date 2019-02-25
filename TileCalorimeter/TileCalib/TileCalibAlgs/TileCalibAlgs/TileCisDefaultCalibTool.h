@@ -21,6 +21,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 
 #include "TString.h"
@@ -37,7 +38,6 @@ class TileCablingSvc;
 class TFile;
 class TileRawChannelContainer;
 class TMap;
-class ITileStuckBitsProbsTool;
 
 class TileCisDefaultCalibTool: public AthAlgTool
                              , virtual public ITileCalibTool {
@@ -92,9 +92,10 @@ class TileCisDefaultCalibTool: public AthAlgTool
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
     ServiceHandle<TileCablingSvc> m_cablingSvc;
-    ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
-    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+    ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs{this,
+      "StuckBitsProbsTool","StuckBitsProbsTool","Tile stuck bits probabilities tool"};
 
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
       "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,

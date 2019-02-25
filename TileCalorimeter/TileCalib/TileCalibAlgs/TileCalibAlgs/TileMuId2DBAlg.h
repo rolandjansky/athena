@@ -46,7 +46,8 @@ class TileMuId2DBAlg: public AthAlgorithm {
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
 
-  ToolHandle<ICaloNoiseTool> m_noiseTool;
+  ToolHandle<ICaloNoiseTool> m_noiseTool{this,
+    "noiseTool", "CaloNoiseToolDB/calonoisetooldb", "Calo noise tool"};
 
   //float m_eta;
   //float m_phi;

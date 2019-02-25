@@ -63,8 +63,10 @@ class TileOFC2DBAlg: public AthAlgorithm {
 
     //=== non-property members
     IIOVRegistrationSvc* m_regSvc;
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+      "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc{this,
+      "TileCondToolOfc", "TileCondToolOfc", "Tile OFC tool"};
 
     //=== store all folders to be registered
     std::set<std::string> m_folders;

@@ -8,8 +8,6 @@
 #include "TileEvent/TileLaserObject.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 
 #include "GaudiKernel/MsgStream.h"
@@ -43,9 +41,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_isLaserCalib(false),
   m_tileHWID(nullptr),
   m_cabling(nullptr),
-  m_tileToolEmscale("TileCondToolEmscale"),
-  m_tileBadChanTool("TileBadChanTool"),
-  m_stuckBitsProbs(""),
   m_toolRunNo(0),
   m_ADC_problem(0),
   m_las_filter(0),
@@ -72,7 +67,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
   declareProperty("pisaMethod2", m_pisaMethod2=true);
-  declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   
   //creating multi-dim arrays on the heap and initialize all elements to zeros

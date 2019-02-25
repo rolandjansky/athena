@@ -22,18 +22,18 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolIntegrator.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCondToolPulseShape.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileCondToolNoiseRawChn.h"
+#include "TileConditions/TileCondToolOfcCool.h"
+#include "TileConditions/TileCondToolMuID.h"
+#include "TileConditions/TileCondToolAutoCr.h"
 
-class ITileBadChanTool;
-class TileCondToolEmscale;
-class TileCondToolIntegrator;
-class TileCondToolTiming;
-class TileCondToolPulseShape;
-class TileCondToolNoiseSample;
-class TileCondToolNoiseRawChn;
-class TileCondToolOfcCool;
-class TileCondToolMuID;
 
-class TileCondToolAutoCr;
 class ITHistSvc;
 class TileHWID;
 class TileID;
@@ -97,16 +97,26 @@ class TileInfoDump: public AthAlgorithm {
       "EventInfo", "EventInfo", "EventInfo key"};
 
     //=== Non-property members
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    ToolHandle<TileCondToolIntegrator> m_tileToolIntegrator;
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
-    ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr;
-    ToolHandle<TileCondToolNoiseRawChn> m_tileToolNoiseRawChn;
-    ToolHandle<TileCondToolOfcCool> m_tileToolOfcCool;
-    ToolHandle<TileCondToolMuID> m_tileToolMuID;
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+      "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+      "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
+    ToolHandle<TileCondToolIntegrator> m_tileToolIntegrator{this,
+      "TileCondToolIntegrator", "TileCondToolIntegrator", "Tile integrator tool"};
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+      "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
+      "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+      "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
+    ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr{this,
+      "TileCondToolAutoCr", "TileCondToolAutoCr", "Tile auto cr tool"};
+    ToolHandle<TileCondToolNoiseRawChn> m_tileToolNoiseRawChn{this,
+      "TileCondToolNoiseRawChn", "TileCondToolNoiseRawChn", "Tile raw channel noise tool"};
+    ToolHandle<TileCondToolOfcCool> m_tileToolOfcCool{this,
+      "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OfcCool tool"};
+    ToolHandle<TileCondToolMuID> m_tileToolMuID{this,
+      "TileCondToolMuID", "TileCondToolMuID", "Tile MuID tool"};
 
     //=== a handle on the Hist/TTree registration service 
     ITHistSvc* m_thistSvc;

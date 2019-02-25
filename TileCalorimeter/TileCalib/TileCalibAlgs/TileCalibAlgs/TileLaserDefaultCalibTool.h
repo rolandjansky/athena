@@ -3,8 +3,7 @@
 */
 
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
-#define TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
-
+#define TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H 
 
 // Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
@@ -15,6 +14,9 @@
 #include "TileConditions/ITileDCSTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
+
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -44,7 +46,6 @@ class TileLaserObject;
 class TileHWID;
 class TFile;
 class RunningStat;
-class ITileStuckBitsProbsTool;
 
 class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTool
 {
@@ -73,11 +74,14 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
-  ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
-  ToolHandle<ITileBadChanTool>     m_tileBadChanTool;
-  ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
-  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+    "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
+  ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+    "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+  ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs{this,
+    "StuckBitsProbsTool", "StuckBitsProbsTool", "Tile stuck bits probabilities tool"};
 
+  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelOpt2", "Tile raw channel container"};
   SG::ReadHandleKey<TileLaserObject> m_laserContainerKey{this,
