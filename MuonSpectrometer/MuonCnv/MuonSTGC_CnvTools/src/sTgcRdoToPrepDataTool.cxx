@@ -102,9 +102,10 @@ StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
 StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataCollection *rdoColl, 
 							  std::vector<IdentifierHash>& idWithDataVect)
 {
-  ATH_MSG_DEBUG(" ***************** Start of process STGC Collection");
 
   const IdentifierHash hash = rdoColl->identifyHash();
+
+  ATH_MSG_DEBUG(" ***************** Start of process STGC Collection with hash Id: " << hash);
 
   sTgcPrepDataCollection* prdColl = nullptr;
   
@@ -166,6 +167,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     const int channel = m_stgcIdHelper->channel(rdoId);
 
     const int charge = (int) rdo->charge();
+    const int rdoTime = (int) rdo->time();
     const uint16_t bcTag = rdo->bcTag();
 
     // to be fixed: for now do not set the resolution, it will be added in the 
@@ -220,14 +222,25 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
       // eta strips 
 
       if (channelType==0) {
-        sTgcPadPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+        //
+        // check if there is already a pad with smaller time
+        //
+        bool addPad = true;
+        for ( auto it : sTgcPadPrds ) { 
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addPad = false;
+          }
+        }
+        if (addPad) {
+          sTgcPadPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
       } 
       else if(channelType==1) {
-        sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+        sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
       } 
       else if (channelType==2) { 
         // wires
-        sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+        sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
       } 
       else {
         ATH_MSG_ERROR("Unknown sTGC channel type");
@@ -237,22 +250,29 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
       // 
       // if not merging just add the PRD to the collection
       //
-      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
     } 
   } //end it = rdoColl
 
-
-  //vector<Muon::sTgcPrepData> >
   if(m_merge) {
     // merge the eta and phi prds that fire closeby strips or wires
     vector<Muon::sTgcPrepData*> sTgcStripClusters;
     vector<Muon::sTgcPrepData*> sTgcWireClusters;
-    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcStripPrds,sTgcStripClusters));
-    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
+    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcStripPrds,sTgcStripClusters));
+ //   ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
+    //
+    // Add the clusters to the event store
+    //
+    for ( auto it : sTgcStripClusters ) {
+      prdColl->push_back(it);
+    } 
+    for ( auto it : sTgcWireClusters ) {
+      prdColl->push_back(it);
+    } 
   }
 
 
-    // clear vector and delete elements
+  // clear vector and delete elements
   sTgcStripPrds.clear();
   sTgcWirePrds.clear();
   sTgcPadPrds.clear();

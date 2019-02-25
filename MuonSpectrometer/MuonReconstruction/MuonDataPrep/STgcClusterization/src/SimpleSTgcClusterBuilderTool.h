@@ -19,7 +19,7 @@ namespace MuonGM
 
 
 //
-// Simple clusterization tool for MicroMegas
+// Simple clusterization tool for STgc
 //
 namespace Muon
 {
@@ -42,7 +42,7 @@ namespace Muon
     /** standard finalize method */
     virtual StatusCode finalize();
 
-    StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
+    StatusCode getClusters(const IdentifierHash hash, std::vector<Muon::sTgcPrepData>& stripsVect, 
 			   std::vector<Muon::sTgcPrepData*>& clustersVect);
 
   private: 

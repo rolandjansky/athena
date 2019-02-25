@@ -46,20 +46,12 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
 //
 // Build the clusters given a vector of single-hit PRD
 //
-StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
+StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash hash, 
+                                                           std::vector<Muon::sTgcPrepData>& stripsVect, 
 							   std::vector<Muon::sTgcPrepData*>& clustersVect)
 {
 
   ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
-
-  IdentifierHash hash;
-  if ( stripsVect.size()>0 ) {
-    hash = stripsVect.at(0).collectionHash();
-  } 
-  else {
-    ATH_MSG_DEBUG("Empty PRD collection: no clusterization");
-    return StatusCode::SUCCESS;
-  }
 
   // clear the clusters vector
   for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
@@ -103,6 +95,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
           rdoList.push_back(it.identify());
           weightedPosX += it.localPosition().x()*it.charge();
           totalCharge += it.charge();
+          ATH_MSG_DEBUG("Channel local position and charge: " << it.localPosition().x() << " " << it.charge() );
           //
           // Set the cluster identifier to the max charge strip
           //
@@ -117,11 +110,17 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // get the error on the cluster position
         //
         double sigmaSq = 0.0;
-        for ( auto it : cluster ) {
-          sigmaSq += it.charge()*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
-        } 
+        ATH_MSG_DEBUG("Cluster size: " << cluster.size());
+        if ( cluster.size() > 1 ) {
+          for ( auto it : cluster ) {
+            sigmaSq += it.charge()*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
+          } 
+        }
+        else {
+          sigmaSq = 5.;
+        }
         double sigma = sqrt(sigmaSq/totalCharge);
-        
+        ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sigma);         
         Amg::MatrixX* covN = new Amg::MatrixX(1,1);
         (*covN)(0,0) = sigma;
 
@@ -135,6 +134,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
     }
   }
 
+  ATH_MSG_DEBUG("Size of the output cluster vector: " << clustersVect.size());
   return StatusCode::SUCCESS;
 }
 
@@ -147,9 +147,13 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
   int gasGap = m_stgcIdHelper->gasGap(prd_id);
   unsigned int stripNum = m_stgcIdHelper->channel(prd_id);
 
+  ATH_MSG_DEBUG(">>>>>>>>>>>>>> In addStrip, multilayer, gasGap, stripNum: " << multilayer << " " 
+    << gasGap << " " << stripNum);
+  
   // if no cluster is present start creating a new one
   if ( m_clustersStripNum[multilayer][gasGap].size()==0 ) {
 
+    ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
     set<unsigned int> clusterStripNum;
     vector<Muon::sTgcPrepData> cluster;
 
@@ -167,14 +171,22 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     //
     for ( unsigned int i=0 ; i<m_clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
 
-      unsigned int firstStrip = *(m_clustersStripNum[multilayer][gasGap].at(i).begin());
-      unsigned int lastStrip  = *(m_clustersStripNum[multilayer][gasGap].at(i).end());
+      set<unsigned int> clusterStripNum = m_clustersStripNum[multilayer][gasGap].at(i);
 
+      unsigned int firstStrip = *(m_clustersStripNum[multilayer][gasGap].at(i).begin());
+      unsigned int lastStrip  = *(--m_clustersStripNum[multilayer][gasGap].at(i).end());
+
+      ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
       if ( stripNum==lastStrip+1 || stripNum==firstStrip-1 ) {
 
+        ATH_MSG_DEBUG(">> inserting a new strip");
 	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
 	m_clusters[multilayer][gasGap].at(i).push_back(strip);
 
+        ATH_MSG_DEBUG("size after inserting is: " << m_clustersStripNum[multilayer][gasGap].at(i).size());
+        ATH_MSG_DEBUG("and the first and last strip are: " 
+          << *(m_clustersStripNum[multilayer][gasGap].at(i).begin()) << " "  
+          << *(--m_clustersStripNum[multilayer][gasGap].at(i).end())); 
 	return true;
       }
     }

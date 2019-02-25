@@ -14,6 +14,8 @@ namespace Muon {
   class sTgcPrepData;
 }
 
+class IdentifierHash;
+
 static const InterfaceID IID_ISTgcClusterBuilderTool("Muon::ISTgcClusterBuilderTool", 1, 0);
 
 namespace Muon {
@@ -22,10 +24,10 @@ namespace Muon {
   public:    // static methods
     
     static const InterfaceID& interfaceID()  { return IID_ISTgcClusterBuilderTool; } 
-    
+  
   public:    // interface methods
     
-    virtual StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
+    virtual StatusCode getClusters(const IdentifierHash hash, std::vector<Muon::sTgcPrepData>& stripsVect, 
 				   std::vector<Muon::sTgcPrepData*>& clustersVect)=0;
     
   };
