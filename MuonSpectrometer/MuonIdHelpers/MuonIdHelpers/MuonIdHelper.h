@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -446,7 +446,6 @@ inline bool MuonIdHelper::validStation(int stationName, int technology) const
 inline void  MuonIdHelper::addStationID(ExpandedIdentifier& id, int stationName, int stationEta, int stationPhi, int technology) const {
 
   id << stationName << stationEta << stationPhi << technology;
-  assert(id.last_error() == ExpandedIdentifier::none);
 }
 /*******************************************************************************/
 // Check if ID for muon system
