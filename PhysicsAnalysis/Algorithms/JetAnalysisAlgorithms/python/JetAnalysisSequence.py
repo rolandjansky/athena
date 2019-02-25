@@ -342,9 +342,6 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.calibrationTool.IsData = 0
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'LRJetPreselFromSelectionAlg'+postfix)
-    alg.selection = ['preselection,as_char']
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
     # Jet uncertainties
     alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesAlg'+postfix )
     # R=1.0 jets have a validity range 
