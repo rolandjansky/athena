@@ -79,7 +79,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
     "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
   ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs{this,
-    "StuckBitsProbsTool", "StuckBitsProbsTool", "Tile stuck bits probabilities tool"};
+    "StuckBitsProbsTool", "", "Tile stuck bits probabilities tool"};
 
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,

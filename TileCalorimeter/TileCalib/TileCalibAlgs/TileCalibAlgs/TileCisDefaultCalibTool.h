@@ -93,7 +93,7 @@ class TileCisDefaultCalibTool: public AthAlgTool
     const TileCablingService* m_cabling;
     ServiceHandle<TileCablingSvc> m_cablingSvc;
     ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs{this,
-      "StuckBitsProbsTool","StuckBitsProbsTool","Tile stuck bits probabilities tool"};
+      "StuckBitsProbsTool","","Tile stuck bits probabilities tool"};
 
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
