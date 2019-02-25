@@ -13,7 +13,7 @@ def metCellMenuSequence():
     (metCellSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metCellAthSequence,ConfigFlags)
   
     #hypo
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromName, MissingETHypoToolMT
+    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict, MissingETHypoToolMT
 
     metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
     metHypoAlg.METContainerKey=sequenceOut
@@ -22,5 +22,5 @@ def metCellMenuSequence():
     return  MenuSequence( Sequence    = metCellSequence,
                           Maker       = InputMakerAlg,
                           Hypo        = metHypoAlg,
-                          HypoToolGen = TrigMETCellHypoToolFromName )
+                          HypoToolGen = TrigMETCellHypoToolFromDict )
 

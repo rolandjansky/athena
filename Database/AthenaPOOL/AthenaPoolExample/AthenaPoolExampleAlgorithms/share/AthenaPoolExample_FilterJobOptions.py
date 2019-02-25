@@ -41,6 +41,8 @@ import AthenaCommon.AtlasUnixStandardJob
 ## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+regSequence = AthSequencer("AthRegSeq")
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -81,7 +83,7 @@ topSequence += AthPoolEx__ReadData("ReadData")
 #---   Secondary Write portion  ----- Don't change it !!!
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile5.root" , True, noTag=True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile5.root" )
 Stream1.ItemList += [ "ExampleTrackContainer#MyTracks" ]
 Stream1.WritingTool.ProcessingTag = "Stream1_derived"
 
@@ -100,7 +102,7 @@ RegStream1.WriteInputDataHeader = False
 RegStream1.OutputCollection = "SimplePoolCollection5.root"
 RegStream1.ItemList += [ "DataHeader#*" ]
 RegStream1.ItemList += [ "TagAthenaAttributeList#RunEventTag" ]
-topSequence += RegStream1
+regSequence += RegStream1
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)

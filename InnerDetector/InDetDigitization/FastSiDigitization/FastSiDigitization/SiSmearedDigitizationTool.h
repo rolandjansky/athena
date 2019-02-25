@@ -98,9 +98,9 @@ public:
   StatusCode processAllSubEvents();
   StatusCode mergeEvent();
 
-  typedef std::multimap<IdentifierHash, const InDet::PixelCluster*> Pixel_detElement_RIO_map;
-  typedef std::multimap<IdentifierHash, const iFatras::PlanarCluster*> Planar_detElement_RIO_map;
-  typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
+  typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
+  typedef std::multimap<IdentifierHash, iFatras::PlanarCluster*> Planar_detElement_RIO_map;
+  typedef std::multimap<IdentifierHash, InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);

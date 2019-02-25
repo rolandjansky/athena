@@ -22,8 +22,6 @@ class StatusCode;
 
 template <typename> class CnvFactory;
 class StoreGateSvc;
-// Externals
-extern long ByteStream_StorageType;
 
 namespace LVL1BS {
 /** ByteStream converter for JetElement.
@@ -45,8 +43,8 @@ public:
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return ByteStream_StorageType;}
-  static  long storageType(){ return ByteStream_StorageType; }
+  virtual long repSvcType() const { return i_repSvcType(); }
+  static  long storageType();
 
   static const CLID& classID();
 

@@ -13,13 +13,14 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
-   Control/AthLinks )
+   Control/AthLinks 
+   Control/CxxUtils)
 
 # Component(s) in the package:
 atlas_add_library( xAODBTagging
    xAODBTagging/*.h xAODBTagging/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODBTagging
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODTracking )
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODTracking CxxUtils)
 
 atlas_add_dictionary( xAODBTaggingDict
    xAODBTagging/xAODBTaggingDict.h

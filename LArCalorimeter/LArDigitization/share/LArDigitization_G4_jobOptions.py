@@ -34,14 +34,6 @@ topSequence += digitmaker1
 digitmaker1.Nsamples = LArNSamples
 # Calorimeter Noise
 digitmaker1.NoiseOnOff = jobproperties.Digitization.doCaloNoise.get_Value()
-# rndm service
-#digitmaker1.RndmSvc = jobproperties.Digitization.digitizationRndmSvc.get_Value()
-digitmaker1.RndmSvc = jobproperties.Digitization.rndmSvc.get_Value()
-if LArDigitUseOldSeed:
-    digitmaker1.UseRndmEvtRun = TRUE
-else:
-# new random seed initialization
-    jobproperties.Digitization.rndmSeedList.addSeed("LArDigitization", 1234, 5678 )
 
 # ADC2MeVTool
 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault

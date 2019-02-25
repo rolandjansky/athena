@@ -10,7 +10,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/Solenoi
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue Jan 29 12:11:05 2019
+                                          running on karma on Sun Feb  3 21:41:27 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AtlasFieldSvc        INFO initialize() ...
@@ -34,9 +34,8 @@ AtlasFieldSvc        INFO Initialized the field map from /home/sss/nobackup/atla
 AtlasFieldSvc        INFO Currents imported and map initialized
 AtlasFieldSvc        INFO BeginRun incident handled
 AtlasFieldSvc        INFO incidents handled successfully
- SolenoidParametrization: centralField      2T  - please be patient while the solenoid is parametrised !! 
-ToolSvc.Trk::So...   INFO  SolenoidParametrization  current: 7730  valid radius,Z : 570, 2150
 test_plane
+ SolenoidParametrization: centralField      2T  - please be patient while the solenoid is parametrised !! 
 test_line
 test_cylinder
 test_disc

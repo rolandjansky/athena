@@ -15,14 +15,14 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
    case xAOD::NAME:                                                \
    {                                                               \
-     static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
+     static const SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
      return &a;							   \
    }                                                               \
    break;
 
 namespace xAOD {
 
-  SG::AuxElement::Accessor< int >* taggerInfoAccessorV1int(BTagInfo info ) 
+  const SG::AuxElement::Accessor< int >* taggerInfoAccessorV1int(BTagInfo info ) 
   {   
     switch( info ) {
       DEFINE_ACCESSOR( int, SV0_NGTinJet );
@@ -44,7 +44,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< float >* taggerInfoAccessorV1float(BTagInfo info ) 
+  const SG::AuxElement::Accessor< float >* taggerInfoAccessorV1float(BTagInfo info ) 
   {   
     switch( info ) {
       DEFINE_ACCESSOR( float, SV0_masssvx );
@@ -65,7 +65,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< uint8_t >* taggerInfoAccessorV1uint8_t(BTagInfo info ) 
+  const SG::AuxElement::Accessor< uint8_t >* taggerInfoAccessorV1uint8_t(BTagInfo info ) 
   {   
     switch( info ) {
       //DEFINE_ACCESSOR( uint8_t, IP2D_isFromV0 );
@@ -77,7 +77,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< std::string >* taggerInfoAccessorV1string(BTagInfo info ) 
+  const SG::AuxElement::Accessor< std::string >* taggerInfoAccessorV1string(BTagInfo info ) 
   {   
     switch( info ) {
       //DEFINE_ACCESSOR( std::string, IP2D_gradeName );
@@ -89,7 +89,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< std::vector<int> >* taggerInfoAccessorV1vectorOfInts(BTagInfo info ) 
+  const SG::AuxElement::Accessor< std::vector<int> >* taggerInfoAccessorV1vectorOfInts(BTagInfo info ) 
   {   
     switch( info ) {
       DEFINE_ACCESSOR( std::vector<int>, IP2D_gradeOfTracks );
@@ -101,7 +101,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< std::vector<float> >* taggerInfoAccessorV1vectorOfFloats(BTagInfo info ) 
+  const SG::AuxElement::Accessor< std::vector<float> >* taggerInfoAccessorV1vectorOfFloats(BTagInfo info ) 
   {   
     switch( info ) {
       DEFINE_ACCESSOR( std::vector<float>, IP3D_valD0wrtPVofTracks );
@@ -123,7 +123,7 @@ namespace xAOD {
     }
   }
 
-  SG::AuxElement::Accessor< std::vector<bool> >* taggerInfoAccessorV1vectorOfBools(BTagInfo info ) 
+  const SG::AuxElement::Accessor< std::vector<bool> >* taggerInfoAccessorV1vectorOfBools(BTagInfo info ) 
   {   
     switch( info ) {
       DEFINE_ACCESSOR( std::vector<bool>, IP3D_flagFromV0ofTracks );

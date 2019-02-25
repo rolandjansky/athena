@@ -26,9 +26,6 @@ TrigT1CaloDataAccessV2::TrigT1CaloDataAccessV2(const std::string& name /*="TrigT
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode TrigT1CaloDataAccessV2::initialize()
 {

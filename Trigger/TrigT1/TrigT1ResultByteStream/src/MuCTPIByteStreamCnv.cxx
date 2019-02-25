@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,7 @@
  * base class in the correct way.
  */
 MuCTPIByteStreamCnv::MuCTPIByteStreamCnv( ISvcLocator* svcloc )
-  : Converter( ByteStream_StorageType, classID(), svcloc ),
+  : Converter( storageType(), classID(), svcloc ),
     m_tool( "MuCTPIByteStreamTool" ), m_srcIdMap( 0 ),
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
     m_ctp_tool( "CTPByteStreamTool" ),
@@ -64,6 +64,10 @@ const CLID& MuCTPIByteStreamCnv::classID() {
 
   return ClassID_traits<MuCTPI_RDO>::ID();
 
+}
+
+long MuCTPIByteStreamCnv::storageType() {
+  return ByteStreamAddress::storageType();
 }
 
 /**

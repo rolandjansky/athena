@@ -15,6 +15,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
@@ -104,6 +106,6 @@
   std::vector<int> m_symCellIndex;
   float m_first;
   int m_ncell = 0;
-
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EvtInfo", "EventInfo", "EventInfo name"};
   };
 #endif

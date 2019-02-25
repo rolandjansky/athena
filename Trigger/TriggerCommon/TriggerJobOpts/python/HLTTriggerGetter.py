@@ -135,7 +135,7 @@ class HLTSimulationGetter(Configured):
 
         #scheduling eventinfo
         from RecExConfig.ObjKeyStore import objKeyStore
-        if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
+        if ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
             from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
             topSequence += xAODMaker__EventInfoCnvAlg()
 	        

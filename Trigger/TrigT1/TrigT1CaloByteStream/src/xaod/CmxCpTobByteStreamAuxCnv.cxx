@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 CmxCpTobByteStreamAuxCnv::CmxCpTobByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxCpTobByteStreamAuxCnv"),
   m_name("CmxCpTobByteStreamAuxCnv"),
   m_readTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
@@ -63,11 +63,13 @@ const CLID& CmxCpTobByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::CMXCPTobAuxContainer>::ID();
 }
 
+long CmxCpTobByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 StatusCode CmxCpTobByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG(
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);

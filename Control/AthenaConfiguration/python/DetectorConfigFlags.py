@@ -76,9 +76,10 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.SimulatePixel', False)
     dcf.addFlag('Detector.SimulateSCT',   False)
     dcf.addFlag('Detector.SimulateTRT',   False) # Set default according to prevFlags.GeoModel.Run?
+    dcf.addFlag('Detector.SimulateHGTD',  False)
     dcf.addFlag('Detector.SimulateID',    lambda prevFlags : (prevFlags.Detector.SimulateBCM or prevFlags.Detector.SimulateDBM or
                                                               prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
-                                                              prevFlags.Detector.SimulateTRT))
+                                                              prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateHGTD))
     dcf.addFlag('Detector.SimulateLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.SimulateTile',  False)
     dcf.addFlag('Detector.SimulateCalo',  lambda prevFlags : (prevFlags.Detector.SimulateLAr or prevFlags.Detector.SimulateTile))
@@ -100,6 +101,7 @@ def createDetectorConfigFlags():
                                                                prevFlags.Detector.SimulateALFA or prevFlags.Detector.SimulateAFP or
                                                                prevFlags.Detector.SimulateFwdRegion))
     dcf.addFlag('Detector.SimulateCavern',False)
+
     dcf.addFlag('Detector.Simulate',      lambda prevFlags : (prevFlags.Detector.SimulateBpipe or prevFlags.Detector.SimulateID or
                                                               prevFlags.Detector.SimulateCalo or prevFlags.Detector.SimulateMuon or
                                                               prevFlags.Detector.SimulateForward or prevFlags.Detector.SimulateCavern))
@@ -128,5 +130,4 @@ def createDetectorConfigFlags():
                                                              prevFlags.Detector.OverlaysTGC or prevFlags.Detector.OverlayMM))
     dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or
                                                              prevFlags.Detector.OverlayMuon))
-
     return dcf

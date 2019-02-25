@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
   
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
@@ -40,7 +40,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_printTable(false),
      m_noDBM(true),
      m_pixIdMapping("PixelCablingSvc", name),
-     m_sctCablingToolCB("SCT_CablingToolCB")
+     m_sctCablingToolInc("SCT_CablingToolInc")
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
@@ -126,8 +126,8 @@ SiRegionSelectorTable::createTable()
       return StatusCode::FAILURE;
     }
   } else { // SCT
-    if (m_sctCablingToolCB.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT_CablingToolCB." << endmsg;
+    if (m_sctCablingToolInc.retrieve().isFailure()) {
+      msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -187,7 +187,7 @@ SiRegionSelectorTable::createTable()
 	if ( sctId!=0 ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingToolCB->getRobIdFromOfflineId(element->identify());
+	  robId=m_sctCablingToolInc->getRobIdFromOfflineId(element->identify());
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;

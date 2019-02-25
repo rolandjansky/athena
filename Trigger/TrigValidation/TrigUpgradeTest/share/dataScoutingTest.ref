@@ -1,0 +1,426 @@
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#L1J will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#L1MET will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#L1MU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#L1TAU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#RerunL1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#RerunL1MU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeAuxContainer_v1#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#L1J will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#L1MET will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#L1MU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#L1TAU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#RerunL1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#RerunL1MU will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot will be written to 2 result ROBFragments with IDs: [0, 3]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG xAOD::TrigElectronContainer_v1#Electrons will be written to 2 result ROBFragments with IDs: [0, 3]
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 426 words}
+                   {module 0: 1999 words}
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1277 words}
+                   {module 0: 2850 words}
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 833 words}
+                   {module 0: 2406 words}
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1462 words}
+                   {module 0: 3035 words}
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 537 words}
+                   {module 0: 2110 words}
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1980 words}
+                   {module 0: 3553 words}
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 611 words}
+                   {module 0: 2184 words}
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1351 words}
+                   {module 0: 2924 words}
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 463 words}
+                   {module 0: 2036 words}
+--> Payload size = {module 3: 134 words}
+                   {module 0: 1707 words}
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1536 words}
+                   {module 0: 3109 words}
+TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep4                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 463 words}
+                   {module 0: 2036 words}
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1684 words}
+                   {module 0: 3257 words}
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1129 words}
+                   {module 0: 2702 words}
+TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep4                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 426 words}
+                   {module 0: 1999 words}
+--> Payload size = {module 3: 134 words}
+                   {module 0: 1707 words}
+TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep4                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+HLTRMakerAlg.HLTResultMTMaker.StreamT...16  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+--> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+--> Payload size = {module 3: 574 words}
+                   {module 0: 2147 words}
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 685 words}
+                   {module 0: 2258 words}
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+--> Payload size = {module 3: 463 words}
+                   {module 0: 2036 words}
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+TriggerSummaryStep4                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1462 words}
+                   {module 0: 3035 words}

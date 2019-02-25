@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -609,14 +609,6 @@ void CaloLVL1_ID::tower_id_checks   ( int pos_neg_z, int sampling, int region,
   ExpandedIdentifier id(calo_exp());
   id << pos_neg_z << sampling << region << eta << phi;
 
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in CaloLVL1_ID::tower_id(field values), did not build, " +
-      strformat("pos_neg_z: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
-                pos_neg_z, sampling, region, eta, phi);
-    throw CaloID_Exception(errorMessage , 2);
-  }
-
   if (!m_full_tower_range.match(id)) { 
     std::string errorMessage = "CaloLVL1_ID::tower_id() result is not OK: ID, range = "
       + std::string(id) + " , " + (std::string)m_full_tower_range;
@@ -640,16 +632,6 @@ void CaloLVL1_ID::tower_id_checks   ( const Identifier regionId,
 
     id << eta << phi;
 
-    if( id.last_error () != ExpandedIdentifier::none) {
-    
-      std::string errorMessage =
-        "Error in CaloLVL1_ID::tower_id(regionId,field values), values ok but did not build, " +
-        strformat ("eta: %d , phi: %d ", 
-                   eta, phi);
-      throw CaloID_Exception(errorMessage , 2);
-    }
-
-
     if (!m_full_tower_range.match(id)) {
       std::string errorMessage = "CaloLVL1_ID::tower_id(regionId,field values) result is not OK: ID, range = "
                                 + std::string(id) + " , " + (std::string)m_full_tower_range;
@@ -662,14 +644,6 @@ void CaloLVL1_ID::region_id_checks (int pos_neg_z, int sampling, int region)cons
     // Fill expanded id
     ExpandedIdentifier id(calo_exp());
     id << pos_neg_z << sampling << region ;
-
-    if( id.last_error () != ExpandedIdentifier::none) {
-      std::string errorMessage =
-        "Error in CaloLVL1_ID::region_id(field values), did not build, " +
-        strformat ("pos_neg_z: %d , sampling: %d, region: %d ", 
-                   pos_neg_z , sampling , region);
-      throw CaloID_Exception(errorMessage , 2);
-    }
 
     if (!m_full_region_range.match(id)) { 
       std::string errorMessage = "CaloLVL1_ID::region_id() result is not OK: ID, range = "
@@ -684,14 +658,6 @@ void CaloLVL1_ID::layer_id_checks   ( int pos_neg_z, int sampling, int region,
     // Fill expanded id
     ExpandedIdentifier id(calo_exp());
     id << pos_neg_z << sampling << region << eta << phi << layer;
-
-    if( id.last_error () != ExpandedIdentifier::none) {
-      std::string errorMessage =
-        "Error in CaloLVL1_ID::layer_id(field values), did not build, " +
-        strformat ("pos_neg_z: %d , sampling: %d, region: %d , eta: %d , phi: %d , layer: %d ", 
-                   pos_neg_z , sampling , region, eta, phi, layer);
-      throw CaloID_Exception(errorMessage , 2);
-    }
 
     if (!m_full_layer_range.match(id)) { 
       std::string errorMessage = "CaloLVL1_ID::layer_id(field values) result is not OK: ID, range = "
@@ -714,13 +680,6 @@ void CaloLVL1_ID::layer_id_checks   ( const Identifier towerId,
     }
 
     id << layer;
-
-    if( id.last_error () != ExpandedIdentifier::none) {
-      std::string errorMessage =
-        "Error in CaloLVL1_ID::layer_id(towerId,layer), values ok but did not build, " +
-        strformat ("layer: %d  ", layer);
-      throw CaloID_Exception(errorMessage , 2);
-    }
 
     if (!m_full_layer_range.match(id)) {
       std::string errorMessage = "CaloLVL1_ID::layer_id(towerId) result is not OK: ID, range = "

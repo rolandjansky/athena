@@ -52,7 +52,7 @@ class DefaultShapeDumper(LArShapeDumper) :
     if doStream :
       from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
       StreamLArSamples = AthenaPoolOutputStream('StreamLArSamples', 'LArSamples.root', True)
-      topSequence.StreamLArSamples.MetadataItemList += ['LArSamplesContainer#Samples']
+      StreamLArSamples.MetadataItemList += ['LArSamplesContainer#Samples']
       StreamLArSamples.WriteOnExecute = False
       StreamLArSamples.WriteOnFinalize = True
     else :

@@ -105,7 +105,7 @@ def bJetStep1Sequence():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
@@ -119,7 +119,7 @@ def bJetStep1Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
 
 def bJetStep1SequenceALLTE():
     # menu components
@@ -178,7 +178,7 @@ def bJetStep1SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
@@ -192,7 +192,7 @@ def bJetStep1SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
 
 
 
@@ -235,7 +235,7 @@ def bJetStep2Sequence():
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.RoIs = "step1RoI"
@@ -250,7 +250,7 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
 
 
 def bJetStep2SequenceALLTE():
@@ -274,7 +274,7 @@ def bJetStep2SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
@@ -288,7 +288,7 @@ def bJetStep2SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging

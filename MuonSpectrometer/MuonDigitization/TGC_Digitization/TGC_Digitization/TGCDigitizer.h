@@ -1,27 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONDIGITIZATION_TGC_DIGITIZER_H
-#define MUONDIGITIZATION_TGC_DIGITIZER_H 
+#ifndef TGC_DIGITIZATION_TGC_DIGITIZER_H
+#define TGC_DIGITIZATION_TGC_DIGITIZER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class IMuonDigitizationTool;
+class IPileUpTool;
 
 class TGCDigitizer : public AthAlgorithm {
  public:
+
+  /** Constructor with parameters */
   TGCDigitizer(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TGCDigitizer();
-    
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+
+  /** Destructor */
+  virtual ~TGCDigitizer() = default;
+
+  /** Basic algorithm methods */
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-   ToolHandle<IMuonDigitizationTool> m_digTool;
-
+   ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "TgcDigitizationTool", "TgcDigitizationTool name"};
 };
 
-#endif // MUONDIGITIZATION_TGC_DIGITIZER_H
+#endif // TGC_DIGITIZATION_TGC_DIGITIZER_H

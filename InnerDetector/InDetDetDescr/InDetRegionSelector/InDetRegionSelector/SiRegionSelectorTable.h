@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
  
 #ifndef InDetRegionSelector_SiRegionSelectorTable_h
@@ -48,7 +48,7 @@ private:
 
   // cablings
   ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
-  ToolHandle<ISCT_CablingTool>  m_sctCablingToolCB; // This class accesses SCT cabling during initialization.
+  ToolHandle<ISCT_CablingTool>  m_sctCablingToolInc; // This class accesses SCT cabling during initialization.
 
 };
 

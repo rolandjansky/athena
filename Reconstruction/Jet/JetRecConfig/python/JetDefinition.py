@@ -8,7 +8,7 @@
 #                                                                      #
 ########################################################################
 
-__all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAOD"]
+__all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 
 # Code from JetRecUtils
 # define the convention that we write R truncating the decimal point

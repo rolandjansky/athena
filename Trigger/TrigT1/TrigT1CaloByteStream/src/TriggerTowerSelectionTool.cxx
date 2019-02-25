@@ -61,9 +61,6 @@ TriggerTowerSelectionTool::~TriggerTowerSelectionTool()
 
 // Initialisation
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode TriggerTowerSelectionTool::initialize()
 {

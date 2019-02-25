@@ -19,7 +19,6 @@
 from AthenaCommon.AlgSequence import AthSequencer
 topSequence = AthSequencer("AthAlgSeq")
 athOutSeq = AthSequencer("AthOutSeq")
-athRegSeq = AthSequencer("AthRegSeq")
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
@@ -46,8 +45,6 @@ svcMgr.PoolSvc.ReadCatalog = [ "XMLFileCatalog_file:SplittableData.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "XMLFileCatalog_file:EventSplit.xml"
 #PoolSvc.FileOpen = "update"
  
-#svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]; # The input file name
-#svcMgr.EventSelector.InputCollections =  ["PFN:SplittableCollection.root"]; # The input file name
 svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]
 #svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
@@ -73,17 +70,6 @@ Splitter2.OutputLevel = INFO
 Splitter3 = EventSplit("Splitter3")  # Accept bit 3
 Splitter3.L1bitmask = 4 
 Splitter3.OutputLevel = DEBUG
-Splitter456 = EventSplit("Splitter456")  # Accept bits 4,5,6
-Splitter456.L1bitmask = 8
-Splitter456.L1bitmask += 16
-Splitter456.L1bitmask += 32
-Splitter456.OutputLevel = INFO
-Splitter7 = EventSplit("Splitter7")  # Accept bit 7
-Splitter7.L1bitmask = 64
-Splitter7.OutputLevel = INFO
-Splitter48 = EventSplit("Splitter48") # Accept bits 4,8
-Splitter48.L1bitmask = 136
-Splitter48.OutputLevel = INFO
 Triggered = EventSplit("Triggered")   # Accept all bits
 Triggered.L1bitmask = 65535   # assume -1 will set all bits on
 Triggered.OutputLevel = INFO
@@ -91,9 +77,6 @@ Triggered.OutputLevel = INFO
 topSequence+=Splitter1
 topSequence+=Splitter2
 topSequence+=Splitter3
-topSequence+=Splitter456
-topSequence+=Splitter7
-topSequence+=Splitter48
 topSequence+=Triggered
 
 #--------------------------------------------------------------
@@ -109,17 +92,20 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 ToolSvc = Service( "ToolSvc" )
 
-# We use 5 test output streams
-# Define them
+# Filtered stream 2
 Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", False, noTag=False )
 Stream2.CheckNumberOfWrites = False
+# Filtered stream 1
 Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", False, noTag=False )
 Stream1.WritingTool.AttributeListKey="SimpleTagDecisions"
 Stream1.CheckNumberOfWrites = False
+# Filtered stream 3
 Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", False, noTag=False )
 Stream3.CheckNumberOfWrites = False
+# Events that didn't satisfy any filters
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
+# Events that failed at least one filter
 Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Bad.CheckNumberOfWrites = False
 
@@ -129,18 +115,15 @@ Bad.CheckNumberOfWrites = False
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-#Stream2.MetadataItemList   += exampleMetadataList
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 # bit 1
 Stream1.TakeItemsFromInput = True
-#Stream1.MetadataItemList   += exampleMetadataList
 Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 Stream3.TakeItemsFromInput = True
-#Stream3.MetadataItemList   += exampleMetadataList
 Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
@@ -156,13 +139,6 @@ Others.VetoAlgs  += ["Splitter3"]
 # corrupted
 Bad.TakeItemsFromInput = True
 Bad.VetoAlgs   = ["Triggered"]
-
-# Add the outputstreams to the execution sequence
-athOutSeq+=Stream1
-athOutSeq+=Stream2
-athOutSeq+=Stream3
-athOutSeq+=Others
-athOutSeq+=Bad
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)

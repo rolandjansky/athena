@@ -57,6 +57,12 @@ def _createCfgFlags():
         return createDetectorConfigFlags()
     acf.addFlagsCategory( "Detector", __detector )
 
+#Simulation Flags:
+    def __simulation():
+        from G4AtlasApps.SimConfigFlags import createSimConfigFlags
+        return createSimConfigFlags()
+    acf.addFlagsCategory( "Sim", __simulation )
+
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #

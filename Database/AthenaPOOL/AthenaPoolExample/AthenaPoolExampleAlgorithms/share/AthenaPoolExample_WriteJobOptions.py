@@ -57,8 +57,11 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
+## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+outSequence = AthSequencer("AthOutSeq")
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -73,6 +76,16 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+import sys
+try:
+    os.unlink ('Catalog1.xml')
+except OSError:
+    pass
+try:
+    os.unlink ('Catalog2.xml')
+except OSError:
+    pass
 
 #Explicitly specify the output file catalog
 from PoolSvc.PoolSvcConf import PoolSvc
@@ -102,20 +115,22 @@ MagicWriteTag.Magic = 24
 topSequence += MagicWriteTag
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root" , True, noTag=True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root" )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.ItemList += [ "ExampleHitContainer#PetersHits" ]
 Stream1.WritingTool.AttributeListKey = MagicWriteTag.Key
 
-Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile2.root" , True, noTag=True )
-Stream2.ItemList += [ "ExampleHitContainer#*" ]
-Stream2.ExcludeList += [ "ExampleHitContainer#MyHits" ]
-Stream2.WritingTool.AttributeListKey = "RunEventTag"
+Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile2.root" )
+from AthenaCommon.AppMgr import theApp
+outStream = theApp.getOutputStream( "Stream2" )
+outStream.ItemList += [ "ExampleHitContainer#*" ]
+outStream.ExcludeList += [ "ExampleHitContainer#MyHits" ]
+outStream.WritingTool.AttributeListKey = "RunEventTag"
 
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__PassNoneFilter
 topSequence += AthPoolEx__PassNoneFilter( "PassNoneFilter" )
 
-Stream3 = AthenaPoolOutputStream( "Stream3" , "EmptyPoolFile.root" , True, noTag=True )
+Stream3 = AthenaPoolOutputStream( "Stream3" , "EmptyPoolFile.root" )
 Stream3.RequireAlgs = [ "PassNoneFilter" ]
 
 #--------------------------------------------------------------

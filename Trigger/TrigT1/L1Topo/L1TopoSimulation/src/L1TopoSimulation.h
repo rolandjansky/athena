@@ -10,8 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -19,6 +18,8 @@
 #include <memory>
 
 #include "TrigT1Interfaces/FrontPanelCTP.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 class TH1;
 class IMonitorToolBase;
@@ -85,7 +86,7 @@ namespace LVL1 {
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
-//      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
+      SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
       int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms

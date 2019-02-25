@@ -100,10 +100,10 @@ def electronMenuSequence():
     theElectronHypo.RunInView=True
     theElectronHypo.OutputLevel = VERBOSE
 
-    from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
+    from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromDict
 
     return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
                           Sequence    = electronAthSequence,
                           Hypo        = theElectronHypo,
-                          HypoToolGen = TrigL2ElectronHypoToolFromName )
+                          HypoToolGen = TrigL2ElectronHypoToolFromDict )
 

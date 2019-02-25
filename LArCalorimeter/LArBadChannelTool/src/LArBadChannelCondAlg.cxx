@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelCondAlg.h"
@@ -70,7 +70,7 @@ StatusCode LArBadChannelCondAlg::execute() {
    CondAttrListCollection::const_iterator chanIt_e=attrListColl->end();
    for (;chanIt!=chanIt_e;++chanIt) {
      
-     const AthenaAttributeList& attrList( chanIt->second);
+     const coral::AttributeList& attrList = chanIt->second;
      const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
      unsigned int chanSize = attrList["ChannelSize"].data<unsigned int>();
      unsigned int stateSize = attrList["StatusWordSize"].data<unsigned int>();

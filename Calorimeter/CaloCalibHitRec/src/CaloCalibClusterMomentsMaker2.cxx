@@ -824,7 +824,7 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
                                                    const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
 {
   static unsigned int nWarnings = 0;
-  engFrac.resize(kCalibFracMax, 0.0);
+  engFrac.assign(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
   for(std::map<int, MyClusInfo::ClusCalibEnergy >::const_iterator it = clusInfo.engCalibParticle.begin(); it != clusInfo.engCalibParticle.end(); it++){

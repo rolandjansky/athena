@@ -81,6 +81,12 @@ if rec.doFileMetaData():
                  "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
    objKeyStore.addManyTypesMetaData( metadataItems )
 
+# Setup the algorithm and output sequences
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+outSequence = AthSequencer("AthOutSeq")
+
 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
         RoIBResultToAOD
 idx=0
@@ -88,7 +94,9 @@ for i in topSequence.getAllChildren():
     idx += 1
     if "TrigSteer_HLT" in i.getName():
        if not hasattr(i,'RoIBResultToxAOD'):
-           topSequence.insert(idx+1, RoIBResultToAOD("RoIBResultToxAOD"))
+           idx += 1
+           topSequence.insert(idx, RoIBResultToAOD("RoIBResultToxAOD"))
+for i in outSequence.getAllChildren():
     if "StreamRDO" in i.getName():
        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker,WritexAODTrigDecision
        topSequence.insert(idx, TrigDecisionMaker('TrigDecMaker'))

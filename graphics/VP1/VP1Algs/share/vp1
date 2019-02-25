@@ -135,6 +135,7 @@ CRUISEWITHTIME=""
 LOGFILE=""
 FILTEREVENTS=""
 FLAG_BATCH=0
+FLAG_BATCH_RANDOM_CONFIG=0
 FLAG_BATCH_ALL_EVENTS=0
 FLAG_BATCH_N_EVENTS=0
 FLAG_BATCH_OUT_FOLDER=""
@@ -233,10 +234,6 @@ while [ $i -le $# ]; do
 		FLAG_BATCH_ALL_EVENTS=1
 	elif [ "x${arg}" == "x-batch-random-config" ]; then 
 		FLAG_BATCH_RANDOM_CONFIG=1
-		echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose the option 'batch-random-config' ('${arg}').\e[39m"
-		echo -e "Thus, for each event a different configuration file will be used, randomly picked from the configuration files (.vp1) you provide.\e[0m"
-		echo
-	#elif [ "x${arg}" == "x-batch-output-folder" ]; then 
 	elif [ "x${arg:0:21}" == "x-batch-output-folder=" ]; then
     	FLAG_BATCH_OUT_FOLDER=${arg:21:$((${#arg}-21))}
 	    if [ "x$FLAG_BATCH_OUT_FOLDER" == "x" ]; then
@@ -249,7 +246,7 @@ while [ $i -le $# ]; do
 	    fi
 	elif [ "x${arg:0:16}" == "x-batch-n-events=" ]; then
 	FLAG_BATCH_N_EVENTS=${arg:16:$((${#arg}-16))}
-	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose to run VP1 in 'batch-mode' over ${FLAG_BATCH_N_EVENTS} events only. ('${arg}').\e[39m"
+	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose to run VP1 in 'batch-mode' over ${FLAG_BATCH_N_EVENTS} events ('${arg}'). VP1 will exit after having processed the given number of events.\e[39m"
 	if [ "x$FLAG_BATCH_N_EVENTS" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed a numeric argument to -batch-n-events"
 	else
@@ -487,7 +484,7 @@ if [ "x$FLAG_BATCH_RANDOM_CONFIG" == "x1" -a "x$FLAG_BATCH" == "x0" ]; then
 	ERRORS="$ERRORS\nOption '-batch-random-config' can't be used without '-batch'..."
 fi
 if [ "x$FLAG_BATCH_RANDOM_CONFIG" == "x1" ]; then
-	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose the option 'batch-random-config' ('${arg}').\e[39m"
+	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose the option '-batch-random-config'.\e[39m"
 	echo -e "Thus, for each event a different configuration file will be used, randomly picked from the configuration files (.vp1) you provided:\e[0m"
 	printf "["; printf '"%s", ' "${FILES_VP1CFG[@]}"; printf "]\n"; echo
 fi

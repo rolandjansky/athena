@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_validator_header
@@ -13,8 +13,6 @@
 #include "JetInterface/IJetExecuteTool.h"
 
 class TH1;
-
-//using namespace std;
 
 class Validator :
   virtual public IJetExecuteTool,
