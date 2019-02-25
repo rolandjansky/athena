@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_FastCaloSimServices
@@ -35,3 +35,4 @@ addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConv
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",                   "ISF_LegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcV2",                           "ISF_FastCaloSimSvcV2")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getDNNCaloSimSvc",                           "ISF_DNNCaloSimSvc")

@@ -20,8 +20,6 @@ class StatusCode;
 
 template <typename> class CnvFactory;
 
-// Externals
-extern long ByteStream_StorageType;
 
 namespace LVL1BS {
 
@@ -44,8 +42,8 @@ public:
   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return ByteStream_StorageType;}
-  static  long storageType(){ return ByteStream_StorageType; }
+  virtual long repSvcType() const { return i_repSvcType(); }
+  static  long storageType();
   static const CLID& classID();
 
 private:

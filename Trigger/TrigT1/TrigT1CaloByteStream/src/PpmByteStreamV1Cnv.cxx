@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 PpmByteStreamV1Cnv::PpmByteStreamV1Cnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("PpmByteStreamV1Cnv"),
       m_tool("LVL1BS::PpmByteStreamV1Tool/PpmByteStreamV1Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
@@ -52,11 +52,13 @@ const CLID& PpmByteStreamV1Cnv::classID()
   return ClassID_traits<DataVector<LVL1::TriggerTower> >::ID();
 }
 
+long PpmByteStreamV1Cnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode PpmByteStreamV1Cnv::initialize()
 {

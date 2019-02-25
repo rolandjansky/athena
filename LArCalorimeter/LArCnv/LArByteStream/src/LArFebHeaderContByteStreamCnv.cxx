@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArFebHeaderContByteStreamCnv.h"
@@ -33,7 +33,7 @@
 
 
 LArFebHeaderContByteStreamCnv::LArFebHeaderContByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),m_tool(NULL),m_ByteStreamEventAccess(NULL),m_rdpSvc(NULL),m_storeGate(NULL){}
+  Converter(storageType(), classID(),svcloc),m_tool(NULL),m_ByteStreamEventAccess(NULL),m_rdpSvc(NULL),m_storeGate(NULL){}
 
 const CLID& LArFebHeaderContByteStreamCnv::classID(){
   return ClassID_traits<LArFebHeaderContainer>::ID() ;

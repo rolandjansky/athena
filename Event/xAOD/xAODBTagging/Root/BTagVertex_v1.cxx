@@ -23,18 +23,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagVertex_v1, float, pv_compatibility, setPV_compatibility )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( BTagVertex_v1, std::vector<float>, compToOtherSV, setCompToOtherSV)
 
-  /*static SG::AuxElement::Accessor< std::vector< ElementLink< xAOD::BTagVertexContainer > > >reco_vertexLinkAcc( "reco_vertexLink" );
-
-  const std::vector<ElementLink<xAOD::BTagVertexContainer> >& BTagVertex_v1::reco_vertexLink() const {
-    return reco_vertexLinkAcc( *this );
-  }
-
-  void BTagVertex_v1::setReco_vertexLink(const std::vector<ElementLink<xAOD::BTagVertexContainer> >& value) {
-    reco_vertexLinkAcc( *this ) = value;
-    return;
-  }*/
-
-
+  
   // Implementation of accessors for the constituent tracks
 
   AUXSTORE_OBJECT_SETTER_AND_GETTER( BTagVertex_v1, std::vector<float>, track_chi2, setTrack_chi2)
@@ -43,7 +32,7 @@ namespace xAOD {
   AUXSTORE_OBJECT_SETTER_AND_GETTER( BTagVertex_v1, std::vector<float>, track_refPy, setTrack_refPy)
   AUXSTORE_OBJECT_SETTER_AND_GETTER( BTagVertex_v1, std::vector<float>, track_refPz, setTrack_refPz)
 
-  static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::TrackParticleContainer > > > track_linkAcc( "track_links" );
+  static const SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::TrackParticleContainer > > > track_linkAcc( "track_links" );
 
   const std::vector<ElementLink<xAOD::TrackParticleContainer> >& BTagVertex_v1::track_links() const {
     return track_linkAcc( *this );

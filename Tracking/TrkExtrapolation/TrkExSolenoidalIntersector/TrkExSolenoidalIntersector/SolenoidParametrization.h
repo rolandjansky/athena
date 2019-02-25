@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -33,44 +33,75 @@ class SolenoidParametrization
 {
     
 public:
-    // private constructors (as singleton)
-    ~SolenoidParametrization			(void);
+    class BinParameters
+    {
+    public:
+      BinParameters (const double zAtAxis, const double cotTheta)
+        : m_cotTheta (cotTheta), m_zAtAxis (zAtAxis) {}
+      BinParameters (const double r, const double z, const double cotTheta);
+      double m_signTheta = 1;
+      double m_cotTheta = 0;
+      double m_zAtAxis = 0;
+      double m_interpolateZ = 0;
+      double m_complementZ = 0;
+      double m_interpolateTheta = 0;
+      double m_complementTheta = 0;
+    };
+    class Parameters
+      : public BinParameters
+    {
+    public:
+      Parameters (const SolenoidParametrization& spar,
+                  const double r, const double z, const double cotTheta);
+      double m_fieldAtOrigin;
+      double m_quadraticTerm;
+      double m_cubicTerm;
+    };
+
+    SolenoidParametrization		(MagField::IMagFieldSvc* magFieldSvc);	// configuration from Intersector
+    ~SolenoidParametrization() = default;
     
     // forbidden copy constructor
     // forbidden assignment operator
 
-    static SolenoidParametrization*	instance (MagField::IMagFieldSvc* magFieldSvc);	// initialize singleton
-    static void                 clearInstance(void);	// clear (to be used before reinitialization)
-    
-    double			centralField (void) const;
-    double			fieldComponent (double) const;		// parametrized - perp to track in rz-plane
+    double			centralField() const;
+    double			fieldComponent (double z,
+                                                const Parameters& parms) const;		// parametrized - perp to track in rz-plane
     double			fieldComponent (double r, double z, double cotTheta) const; // from MagFieldSvc
-    void			fieldIntegrals (double&, double&, double, double);
-    bool			hasParametrization (void) const;
-    double			maximumR (void) const;		// param valid to maximumR
-    double			maximumZ (void) const;		// param valid to maximumZ
-    void			printFieldIntegrals (void) const;
-    void			printParametersForEtaLine (double, double);
-    void			printResidualForEtaLine (double, double);
-    void			setParameters (double, double, double); // set line in rz-plane
-    bool			validOrigin(Amg::Vector3D origin) const; // param valid for this origin?
+    void			fieldIntegrals (double& firstIntegral,
+                                                double& secondIntegral,
+                                                double zBegin,
+                                                double zEnd,
+                                                Parameters& parms) const;
+    double			maximumR() const;		// param valid to maximumR
+    double			maximumZ() const;		// param valid to maximumZ
+    void			printFieldIntegrals() const;
+    void			printParametersForEtaLine(double eta, double z_origin) const;
+    void			printResidualForEtaLine (double eta, double zOrigin) const;
+    bool			validOrigin(const Amg::Vector3D& origin) const; // param valid for this origin?
+
+    // OK to use this parametrization for CURRENT?
+    bool                        currentMatches (double current) const;
 
 private:
-    //  implementation does not work without magnetic field service
-    //  SolenoidParametrization		(void);				// singleton constructor
-    SolenoidParametrization		(MagField::IMagFieldSvc* magFieldSvc);	// configuration from Intersector
-    int				fieldKey(void);
-    void			integrate(double&, double&, double, double) const;
-    double			interpolate(int, int, int, int) const;
-    void			parametrizeSolenoid (void);
-    void			setTerms(int);
+    friend class Parameters;
 
-    static SolenoidParametrization* 		s_instance;
+    static int			fieldKey(BinParameters& parms);
+    void			integrate(double& firstIntegral,
+                                          double& secondIntegral,
+                                          double zBegin,
+                                          double zEnd,
+                                          const Parameters& parms) const;
+    double			interpolate(int key1, int key2,
+                                            int key3, int key4,
+                                            const Parameters& parms) const;
+    void			parametrizeSolenoid();
+    void			setTerms(int, Parameters& parms) const;
+
     static const double		s_binInvSizeTheta;
     static const double		s_binInvSizeZ;
     static const double		s_binZeroTheta;
     static const double		s_binZeroZ;
-    static double		s_centralField;
     static const double		s_lightSpeed;
     static const int	       	s_maxBinTheta;
     static const int	       	s_maxBinZ;
@@ -81,60 +112,52 @@ private:
     static const double		s_rOuter;
     static const double		s_zInner;
     static const double		s_zOuter;
-    static double		s_parameters[14688];
 
-    double 			m_complementTheta;
-    double 			m_complementZ;
-    double 			m_cotTheta;
-    double			m_cubicTerm;
-    double			m_fieldAtOrigin;
-    bool			m_hasParametrization;
-    double 			m_interpolateTheta;
-    double 			m_interpolateZ;
     MagField::IMagFieldSvc*	m_magFieldSvc;
-    double			m_quadraticTerm;
-    double			m_signTheta;
-    double			m_zAtAxis;
+    double                      m_currentMin;
+    double                      m_currentMax;
+    double		        m_centralField;
+    double		        m_parameters[14688];
     
     // copy, assignment: no semantics, no implementation
-    SolenoidParametrization (const SolenoidParametrization&);
-    SolenoidParametrization &operator= (const SolenoidParametrization&);
+    SolenoidParametrization (const SolenoidParametrization&) = delete;
+    SolenoidParametrization &operator= (const SolenoidParametrization&) = delete;
 };
 
 //<<<<<< INLINE PRIVATE MEMBER FUNCTIONS                                >>>>>>
 
 inline int
-SolenoidParametrization::fieldKey(void) 
+SolenoidParametrization::fieldKey(BinParameters& parms)
 {
-    double	z	= m_zAtAxis - s_binZeroZ;
+    double	z	= parms.m_zAtAxis - s_binZeroZ;
     int		zBin  	= static_cast<int>(s_binInvSizeZ*z);
-    m_interpolateZ    	= z*s_binInvSizeZ - double(zBin);
+    parms.m_interpolateZ = z*s_binInvSizeZ - double(zBin);
     if (zBin < 0)
     {
-	m_interpolateZ	= 0.;
+	parms.m_interpolateZ	= 0.;
 	zBin 		= 0;
     }
     else if (zBin > s_maxBinZ - 2)
     {
-	m_interpolateZ	= 0.;
+	parms.m_interpolateZ	= 0.;
 	zBin 		= s_maxBinZ - 1;
     }
-    m_complementZ	= 1. - m_interpolateZ;
+    parms.m_complementZ	= 1. - parms.m_interpolateZ;
     
-    int	thetaBin 	= static_cast<int>(s_binInvSizeTheta*m_cotTheta);
-    m_interpolateTheta = m_cotTheta*s_binInvSizeTheta - double(thetaBin);
+    int	thetaBin 	= static_cast<int>(s_binInvSizeTheta*parms.m_cotTheta);
+    parms.m_interpolateTheta = parms.m_cotTheta*s_binInvSizeTheta - double(thetaBin);
     if (thetaBin > s_maxBinTheta - 3)
     {
-	m_interpolateTheta	= 0.;
+	parms.m_interpolateTheta	= 0.;
 	thetaBin 		= s_maxBinTheta - 2;
     }
-    m_complementTheta	= 1. - m_interpolateTheta;
-    // std::cout << " m_zAtAxis " << m_zAtAxis
-    // 	      << "   m_cotTheta " << m_cotTheta
+    parms.m_complementTheta	= 1. - parms.m_interpolateTheta;
+    // std::cout << " zAtAxis " << zAtAxis
+    // 	      << "   cotTheta " << cotTheta
     // 	      << "   zBin " << zBin
-    // 	      << "   interpolateZ " << m_interpolateZ
+    // 	      << "   interpolateZ " << parms.m_interpolateZ
     // 	      << "   thetaBin " << thetaBin
-    // 	      << "   interpolateTheta " << m_interpolateTheta << std::endl;
+    // 	      << "   interpolateTheta " << parms.m_interpolateTheta << std::endl;
     
     return 2*s_numberParameters*(s_maxBinTheta*zBin + thetaBin);
 }
@@ -143,7 +166,8 @@ inline void
 SolenoidParametrization::integrate(double& 	firstIntegral,
 				   double& 	secondIntegral,
 				   double 	zBegin,
-				   double 	zEnd) const
+				   double 	zEnd,
+                                   const Parameters& parms) const
 { 
     double	zDiff	=  zEnd - zBegin;
     double 	zBeg2	=  zBegin*zBegin;
@@ -152,29 +176,30 @@ SolenoidParametrization::integrate(double& 	firstIntegral,
     double 	zEnd3	=  zEnd2*zEnd;
     double	zDiff4	=  0.25*(zEnd2 + zBeg2)*(zEnd2 - zBeg2);
     
-    firstIntegral	+= m_fieldAtOrigin*zDiff +
-			   m_quadraticTerm*(zEnd3 - zBeg3)*0.333333333333 +
-			   m_cubicTerm*zDiff4;
+    firstIntegral	+= parms.m_fieldAtOrigin*zDiff +
+			   parms.m_quadraticTerm*(zEnd3 - zBeg3)*0.333333333333 +
+			   parms.m_cubicTerm*zDiff4;
     double   zDiffInv	=  1./zDiff;
-    secondIntegral	+= m_fieldAtOrigin*zDiff +
- 			   m_quadraticTerm*(zDiffInv*zDiff4 - zBeg3)*0.666666666667 +
-			   m_cubicTerm*(0.1*zDiffInv*(zEnd2*zEnd3 - zBeg2*zBeg3) - 0.5*zBeg2*zBeg2);
+    secondIntegral	+= parms.m_fieldAtOrigin*zDiff +
+ 			   parms.m_quadraticTerm*(zDiffInv*zDiff4 - zBeg3)*0.666666666667 +
+			   parms.m_cubicTerm*(0.1*zDiffInv*(zEnd2*zEnd3 - zBeg2*zBeg3) - 0.5*zBeg2*zBeg2);
 }
 
 inline double
 SolenoidParametrization::interpolate(int key1,
-		       int key2,
-		       int key3,
-		       int key4) const
+                                     int key2,
+                                     int key3,
+                                     int key4,
+                                     const Parameters& parms) const
 {
-    return ((s_parameters[key1]*m_complementZ +
-	     s_parameters[key2]*m_interpolateZ)*m_complementTheta +
-	    (s_parameters[key3]*m_complementZ +
-	     s_parameters[key4]*m_interpolateZ)*m_interpolateTheta);
+    return ((m_parameters[key1]*parms.m_complementZ +
+	     m_parameters[key2]*parms.m_interpolateZ)*parms.m_complementTheta +
+	    (m_parameters[key3]*parms.m_complementZ +
+	     m_parameters[key4]*parms.m_interpolateZ)*parms.m_interpolateTheta);
 }
 
 inline void
-SolenoidParametrization::setTerms(int key1)
+SolenoidParametrization::setTerms(int key1, Parameters& parms) const
 {
     int		key2   	= key1 + s_numberParameters;
     int		key3   	= key2 + s_numberParameters;
@@ -182,52 +207,34 @@ SolenoidParametrization::setTerms(int key1)
 
     assert (key1 >= 0);
     assert (key4 < 14688);
-    assert (s_parameters[key1] != 0.);
-    assert (s_parameters[key3] != 0.);
-    if (m_cotTheta < 7.)
+    assert (m_parameters[key1] != 0.);
+    assert (m_parameters[key3] != 0.);
+    if (parms.m_cotTheta < 7.)
     {
-	assert (s_parameters[key2] != 0.);
-	assert (s_parameters[key4] != 0.);
+	assert (m_parameters[key2] != 0.);
+	assert (m_parameters[key4] != 0.);
     }
     
     
-    m_fieldAtOrigin	= interpolate(key1++,key2++,key3++,key4++);
-    m_quadraticTerm 	= interpolate(key1++,key2++,key3++,key4++);
-    m_cubicTerm       	= interpolate(key1,key2,key3,key4);
+    parms.m_fieldAtOrigin	= interpolate(key1++,key2++,key3++,key4++,parms);
+    parms.m_quadraticTerm 	= interpolate(key1++,key2++,key3++,key4++,parms);
+    parms.m_cubicTerm       	= interpolate(key1,key2,key3,key4,parms);
 }
 
 //<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
 
-// class does not work without magnetic field service
-//inline SolenoidParametrization*
-//SolenoidParametrization::instance()
-//{
-//    if (s_instance == 0) s_instance = new SolenoidParametrization();
-//    return s_instance;
-//}
-
-inline SolenoidParametrization*
-SolenoidParametrization::instance(MagField::IMagFieldSvc* magFieldSvc)
-{
-    // this method is provided to configure the initialization.
-    // It should not be called more than once without an intervening clearInstance().
-    assert (s_instance == 0);
-    s_instance = new SolenoidParametrization(magFieldSvc);
-    return s_instance;
-}
-
 inline double
 SolenoidParametrization::centralField (void) const
-{ return s_centralField; }
+{ return m_centralField; }
 
 inline double
-SolenoidParametrization::fieldComponent (double z) const
+SolenoidParametrization::fieldComponent (double z, const Parameters& parms) const
 {
-    double	z_local		= m_signTheta*z - m_zAtAxis;
+    double	z_local		= parms.m_signTheta*z - parms.m_zAtAxis;
     double	z_squared	= z_local*z_local;
-    double    	value		= m_fieldAtOrigin +
-				  m_quadraticTerm*z_squared +
-				  m_cubicTerm*z_squared*z_local;
+    double    	value		= parms.m_fieldAtOrigin +
+				  parms.m_quadraticTerm*z_squared +
+				  parms.m_cubicTerm*z_squared*z_local;
     return value;
 }
 
@@ -244,32 +251,29 @@ inline void
 SolenoidParametrization::fieldIntegrals(double&	firstIntegral,
 					double&	secondIntegral,
 					double 	zBegin,
-					double 	zEnd) 
+					double 	zEnd,
+                                        Parameters& parms) const
 {
-    zBegin	= m_signTheta*zBegin;
-    zEnd	= m_signTheta*zEnd;
+    zBegin	= parms.m_signTheta*zBegin;
+    zEnd	= parms.m_signTheta*zEnd;
     if (zEnd < s_zInner || zBegin > s_zInner)
     {
-	integrate(firstIntegral,secondIntegral,zBegin-m_zAtAxis,zEnd-m_zAtAxis);
+	integrate(firstIntegral,secondIntegral,zBegin-parms.m_zAtAxis,zEnd-parms.m_zAtAxis, parms);
     }
     else
     {
-	integrate(firstIntegral,secondIntegral,zBegin-m_zAtAxis,s_zInner);
-	int	key	= fieldKey() + s_numberParameters/2;
-	setTerms(key);
-	integrate(firstIntegral,secondIntegral,s_zInner,zEnd-m_zAtAxis);
+	integrate(firstIntegral,secondIntegral,zBegin-parms.m_zAtAxis,s_zInner, parms);
+	int	key	= fieldKey(parms) + s_numberParameters/2;
+	setTerms(key, parms);
+	integrate(firstIntegral,secondIntegral,s_zInner,zEnd-parms.m_zAtAxis,parms);
     }
 	
     // std::cout << " zBegin < 0. " << zBegin
     // 	      << "   zEnd " << zEnd
-    // 	      << "   m_signTheta " << m_signTheta
-    // 	      << "   m_zAtAxis " << m_zAtAxis << std::endl;
+    // 	      << "   m_signTheta " << parms.m_signTheta
+    // 	      << "   m_zAtAxis " << parms.m_zAtAxis << std::endl;
 }
 
-inline bool
-SolenoidParametrization::hasParametrization (void) const
-{ return m_hasParametrization; }
-   
 inline double
 SolenoidParametrization::maximumR (void) const
 { return s_rInner; }
@@ -278,32 +282,8 @@ inline double
 SolenoidParametrization::maximumZ (void) const
 { return s_zInner; }
 
-inline void
-SolenoidParametrization::setParameters (double r, double z, double cotTheta) 
-{
-    if (cotTheta > 0.)
-    {
-	m_signTheta	= 1.;
-	m_cotTheta	= cotTheta;
-	m_zAtAxis    	= z - r*cotTheta;
-    }
-    else
-    {
-	m_signTheta	= -1.;
-	m_cotTheta	= -cotTheta;
-	m_zAtAxis    	=  r*cotTheta - z;
-    }
-    int	key  		= fieldKey();
-    if (r > s_rInner || m_signTheta*z > s_zInner)
-    {
-	key	+= s_numberParameters/2;
-    }
-//      cout << "r " << r << "   key " << key << endl;
-    setTerms(key);
-}
- 
 inline bool
-SolenoidParametrization::validOrigin(Amg::Vector3D origin) const
+SolenoidParametrization::validOrigin(const Amg::Vector3D& origin) const
 { return (origin.perp()			< s_maximumImpactAtOrigin
 	  && std::abs(origin.z())	< s_maximumZatOrigin); }
 

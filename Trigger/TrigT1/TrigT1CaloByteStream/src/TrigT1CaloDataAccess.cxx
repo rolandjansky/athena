@@ -49,9 +49,6 @@ TrigT1CaloDataAccess::~TrigT1CaloDataAccess()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode TrigT1CaloDataAccess::initialize()
 {

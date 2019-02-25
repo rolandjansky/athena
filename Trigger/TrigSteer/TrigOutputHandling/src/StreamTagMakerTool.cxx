@@ -23,13 +23,7 @@ StatusCode StreamTagMakerTool::initialize() {
   ATH_CHECK( m_pebDecisionKeys.initialize() );
   ATH_CHECK( m_finalChainDecisions.initialize() );
   // Transform string->vector<string> map from the ChainToStream property into id->StreamTagInfo map
-#if __cplusplus >= 201500L // C++17 needed for structured binding
   for (const auto& [chainName, streamTagInfoAsStringVec] : m_chainToStreamProperty) {
-#else // standard older than C++17 - remove when ATLAS moves to C++17 with gcc8
-  for (const auto& chainAndStream: m_chainToStreamProperty) {
-    const std::string& chainName = chainAndStream.first;
-    const std::vector<std::string>& streamTagInfoAsStringVec = chainAndStream.second;
-#endif
     if (streamTagInfoAsStringVec.size()!=4) {
       ATH_MSG_ERROR("Invalid StreamTagInfo object, expected 4 elements {name,type,obeysLumiBlock,forceFullEventBuilding}, but received"
                     << streamTagInfoAsStringVec.size() << " elements for chain " << chainName);
@@ -96,16 +90,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
       return StatusCode::FAILURE;
     }
 
-    #if __cplusplus >= 201500L // C++17 needed for structured binding
-      auto [st_name, st_type, obeysLB, forceFullEvent] = mappingIter->second;
-    #else // standard older than C++17 - remove when ATLAS moves to C++17 with gcc8
-      std::string st_type;
-      std::string st_name;
-      bool obeysLB;
-      bool forceFullEvent;
-      std::tie(st_name, st_type, obeysLB, forceFullEvent) = mappingIter->second;
-    #endif
-
+    auto [st_name, st_type, obeysLB, forceFullEvent] = mappingIter->second;
     std::set<uint32_t> robs;
     std::set<eformat::SubDetector> subdets;
     if (!forceFullEvent) {

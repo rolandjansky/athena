@@ -39,7 +39,7 @@
 
 
 TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc) 
-  : Converter(ByteStream_StorageType, classID(), svcloc)
+  : Converter(storageType(), classID(), svcloc)
   , ::AthMessaging(msgSvc(), "TileDigitsContByteStreamCnv")
   , m_name("TileDigitsContByteStreamCnv")
   , m_tool("TileDigitsContByteStreamTool")
@@ -53,6 +53,7 @@ TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc)
 
 const CLID& TileDigitsContByteStreamCnv::classID(){ return ClassID_traits<TileDigitsContainer>::ID();}
 
+long TileDigitsContByteStreamCnv::storageType() { return ByteStreamAddress::storageType(); }
 
 StatusCode TileDigitsContByteStreamCnv::initialize() {
   

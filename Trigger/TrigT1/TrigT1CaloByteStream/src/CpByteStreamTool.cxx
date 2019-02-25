@@ -92,9 +92,6 @@ CpByteStreamTool::~CpByteStreamTool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode CpByteStreamTool::initialize()
 {

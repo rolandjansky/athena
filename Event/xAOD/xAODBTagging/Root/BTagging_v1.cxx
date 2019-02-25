@@ -29,9 +29,9 @@ namespace xAOD {
                                          setSV0_significance3D )
 
    // The accessor object(s):
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       sv0TPAcc1( "SV0_TrackParticles" );
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       sv0TPAcc2( "SV0_TrackParticleLinks" );
 
    const BTagging_v1::TPELVec_t& BTagging_v1::SV0_TrackParticleLinks() const {
@@ -102,9 +102,9 @@ namespace xAOD {
                                          setSV1_pc )
 
    // The accessor object(s):
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       sv1TPAcc1( "SV1_TrackParticles" );
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       sv1TPAcc2( "SV1_TrackParticleLinks" );
 
    const BTagging_v1::TPELVec_t& BTagging_v1::SV1_TrackParticleLinks() const {
@@ -175,9 +175,9 @@ namespace xAOD {
                                          setIP2D_pc )
 
    // The accessor object(s):
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       ip2dTPAcc1( "IP2D_TrackParticles" );
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       ip2dTPAcc2( "IP2D_TrackParticleLinks" );
 
    const BTagging_v1::TPELVec_t& BTagging_v1::IP2D_TrackParticleLinks() const {
@@ -249,9 +249,9 @@ namespace xAOD {
                                          setIP3D_pc )
 
    // The accessor object(s):
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       ip3dTPAcc1( "IP3D_TrackParticles" );
-   static SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
+   static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
       ip3dTPAcc2( "IP3D_TrackParticleLinks" );
 
    const BTagging_v1::TPELVec_t& BTagging_v1::IP3D_TrackParticleLinks() const {
@@ -410,7 +410,7 @@ namespace xAOD {
 
    bool BTagging_v1::taggerInfo( int& value, const BTagInfo info ) const {
 
-      Accessor< int >* acc = taggerInfoAccessorV1int( info );
+      const Accessor< int >* acc = taggerInfoAccessorV1int( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -419,7 +419,7 @@ namespace xAOD {
 
    bool BTagging_v1::taggerInfo( float& value, const BTagInfo info) const {
 
-      Accessor< float >* acc = taggerInfoAccessorV1float( info );
+      const Accessor< float >* acc = taggerInfoAccessorV1float( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -428,7 +428,7 @@ namespace xAOD {
 
    bool BTagging_v1::taggerInfo( bool& value, const BTagInfo info ) const {
 
-      Accessor< uint8_t >* acc = taggerInfoAccessorV1uint8_t( info );
+      const Accessor< uint8_t >* acc = taggerInfoAccessorV1uint8_t( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -438,7 +438,7 @@ namespace xAOD {
    bool BTagging_v1::taggerInfo( std::string& value,
                                  const BTagInfo info ) const {
 
-      Accessor< std::string >* acc = taggerInfoAccessorV1string( info );
+      const Accessor< std::string >* acc = taggerInfoAccessorV1string( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -448,7 +448,7 @@ namespace xAOD {
    bool BTagging_v1::taggerInfo( std::vector<int>& value,
                                  const BTagInfo info ) const {
 
-      Accessor< std::vector<int> >* acc = taggerInfoAccessorV1vectorOfInts( info );
+      const Accessor< std::vector<int> >* acc = taggerInfoAccessorV1vectorOfInts( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -458,7 +458,7 @@ namespace xAOD {
    bool BTagging_v1::taggerInfo( std::vector<float>& value,
                                  const BTagInfo info ) const {
 
-      Accessor< std::vector<float> >* acc = taggerInfoAccessorV1vectorOfFloats( info );
+      const Accessor< std::vector<float> >* acc = taggerInfoAccessorV1vectorOfFloats( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -468,7 +468,7 @@ namespace xAOD {
    bool BTagging_v1::taggerInfo( std::vector<bool>& value,
                                  const BTagInfo info ) const {
 
-      Accessor< std::vector<bool> >* acc = taggerInfoAccessorV1vectorOfBools( info );
+      const Accessor< std::vector<bool> >* acc = taggerInfoAccessorV1vectorOfBools( info );
       if( ! acc ) return false;
       if( ! acc->isAvailable( *this ) ) return false;
       value = ( *acc )( *this );
@@ -477,7 +477,7 @@ namespace xAOD {
 
    void BTagging_v1::setTaggerInfo( int value, const BTagInfo info ) {
 
-      Accessor< int >* acc = taggerInfoAccessorV1int( info );
+      const Accessor< int >* acc = taggerInfoAccessorV1int( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -485,7 +485,7 @@ namespace xAOD {
 
    void BTagging_v1::setTaggerInfo( float value, const BTagInfo info ) {
 
-      Accessor< float >* acc = taggerInfoAccessorV1float( info );
+      const Accessor< float >* acc = taggerInfoAccessorV1float( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -493,7 +493,7 @@ namespace xAOD {
 
    void BTagging_v1::setTaggerInfo( bool value, const BTagInfo info ) {
 
-      Accessor< uint8_t >* acc = taggerInfoAccessorV1uint8_t( info );
+      const Accessor< uint8_t >* acc = taggerInfoAccessorV1uint8_t( info );
       if( ! acc ) return;
       ( *acc )( *this ) = uint8_t(value);
       return;
@@ -502,7 +502,7 @@ namespace xAOD {
    void BTagging_v1::setTaggerInfo( const std::string& value,
                                     const BTagInfo info ) {
 
-      Accessor< std::string >* acc = taggerInfoAccessorV1string( info );
+      const Accessor< std::string >* acc = taggerInfoAccessorV1string( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -511,7 +511,7 @@ namespace xAOD {
    void BTagging_v1::setTaggerInfo( const std::vector<int>& value,
                                     const BTagInfo info ) {
 
-      Accessor< std::vector<int> >* acc = taggerInfoAccessorV1vectorOfInts( info );
+      const Accessor< std::vector<int> >* acc = taggerInfoAccessorV1vectorOfInts( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -520,7 +520,7 @@ namespace xAOD {
    void BTagging_v1::setTaggerInfo( const std::vector<float>& value,
                                     const BTagInfo info ) {
 
-      Accessor< std::vector<float> >* acc = taggerInfoAccessorV1vectorOfFloats( info );
+      const Accessor< std::vector<float> >* acc = taggerInfoAccessorV1vectorOfFloats( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -529,7 +529,7 @@ namespace xAOD {
    void BTagging_v1::setTaggerInfo( const std::vector<bool>& value,
                                     const BTagInfo info ) {
 
-      Accessor< std::vector<bool> >* acc = taggerInfoAccessorV1vectorOfBools( info );
+      const Accessor< std::vector<bool> >* acc = taggerInfoAccessorV1vectorOfBools( info );
       if( ! acc ) return;
       ( *acc )( *this ) = value;
       return;
@@ -543,7 +543,7 @@ namespace xAOD {
   static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> > DynVxELVec;
   static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> > DynBTagVxELVec;
 
-   void BTagging_v1::toPersistent() {
+   void BTagging_v1::toPersistent ATLAS_NOT_REENTRANT () {
 
       TPELVec_t::iterator itr;
       TPELVec_t::iterator end;
@@ -584,14 +584,13 @@ namespace xAOD {
 
       for(; dyniter != DynTPELVec.end(); ++dyniter){
 
-	if( dyniter->second.isAvailableWritable( *this ) ) {
-	  itr = dyniter->second( *this ).begin();
-	  end = dyniter->second( *this ).end();
-	  for( ; itr != end; ++itr ) {
+        if( dyniter->second.isAvailableWritable( *this ) ) {
+          itr = dyniter->second( *this ).begin();
+          end = dyniter->second( *this ).end();
+          for( ; itr != end; ++itr ) {
             itr->toPersistent();
-	  }
-	}
-
+          }
+        }
       }
 
 
@@ -602,14 +601,13 @@ namespace xAOD {
 
       for(; dynvxiter != DynVxELVec.end(); ++dynvxiter){
 
-	if( dynvxiter->second.isAvailableWritable( *this ) ) {
-	  vxitr = dynvxiter->second( *this ).begin();
-	  vxend = dynvxiter->second( *this ).end();
-	  for( ; vxitr != vxend; ++vxitr ) {
+        if( dynvxiter->second.isAvailableWritable( *this ) ) {
+          vxitr = dynvxiter->second( *this ).begin();
+          vxend = dynvxiter->second( *this ).end();
+          for( ; vxitr != vxend; ++vxitr ) {
             vxitr->toPersistent();
-	  }
-	}
-
+          }
+        }
       }
 
       BTagVxELVec_t::iterator btagvxitr;
@@ -619,46 +617,43 @@ namespace xAOD {
 
       for(; dynbtagvxiter != DynBTagVxELVec.end(); ++dynbtagvxiter){
 
-	    if( dynbtagvxiter->second.isAvailableWritable( *this ) ) {
-	      btagvxitr = dynbtagvxiter->second( *this ).begin();
-	      btagvxend = dynbtagvxiter->second( *this ).end();
-	      for( ; btagvxitr != btagvxend; ++btagvxitr ) {
+        if( dynbtagvxiter->second.isAvailableWritable( *this ) ) {
+          btagvxitr = dynbtagvxiter->second( *this ).begin();
+          btagvxend = dynbtagvxiter->second( *this ).end();
+          for( ; btagvxitr != btagvxend; ++btagvxitr ) {
             btagvxitr->toPersistent();
-	      }
-	    }
-
+          }
+        }
       }
-
-
 
       return;
    }
 
   
-  void BTagging_v1::setDynTPELName( const std::string &taggername,
+  void BTagging_v1::setDynTPELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
 				   const std::string &variablename) {
     
     std::string varname = taggername+ "_" + variablename;
-    Accessor< TPELVec_t > acc( varname );
+    const Accessor< TPELVec_t > acc( varname );
     DynTPELVec.insert(std::make_pair(varname,acc));
     return;
   }
 
-  void BTagging_v1::setDynVxELName( const std::string &taggername,
+  void BTagging_v1::setDynVxELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
 				    const std::string &variablename) {
     
     std::string varname = taggername+ "_" + variablename;
-    Accessor< VxELVec_t > acc( varname );
+    const Accessor< VxELVec_t > acc( varname );
     DynVxELVec.insert(std::make_pair(varname,acc));
     return;
   }
 
 
-  void BTagging_v1::setDynBTagVxELName( const std::string &taggername,
+  void BTagging_v1::setDynBTagVxELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
 					const std::string &variablename) {
     
     std::string varname = taggername+ "_" + variablename;
-    Accessor< BTagVxELVec_t > acc( varname );
+    const Accessor< BTagVxELVec_t > acc( varname );
     DynBTagVxELVec.insert(std::make_pair(varname,acc));
     return;
   }

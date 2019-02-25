@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -50,7 +50,7 @@ public:
     AthenaAttributeList();
 
     /// Copy attribute lists.
-    AthenaAttributeList(const coral::AttributeList& rhs);
+    explicit AthenaAttributeList(const coral::AttributeList& rhs);
         
     /// Construct attribute list according to the specification.
     /// The link to the specification is kept internally.

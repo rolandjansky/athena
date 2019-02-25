@@ -296,7 +296,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___CscDigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.CscDigitizationTool'
-        expected_property_list = ['DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'RndmEngine', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'isPileUp', 'pedestal']
+        expected_property_list = ['DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'isPileUp', 'pedestal']
         expected_nonstring_properties = {'LastXing': '175', 'FirstXing': '-375'}
         expected_string_properties = {'InputObjectName': 'CSC_Hits', 'OutputObjectName': 'CSC_DIGITS'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -308,7 +308,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MdtDigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.MdtDigitizationTool'
-        expected_property_list = ['DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MDTCondSummarySvc', 'MaskedStations', 'MdtCalibrationDbSvc', 'RndmEngine', 'RndmSvc', 'TwinRndmEngine', 'TwinRndmSvc', 'UseDeadChamberSvc', 'UseTof']
+        expected_property_list = ['DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MDTCondSummarySvc', 'MaskedStations', 'MdtCalibrationDbSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-800'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -320,7 +320,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___RpcDigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.RpcDigitizationTool'
-        expected_property_list = ['ClusterSize1_2uncorr', 'ClusterSize_fromCOOL', 'CutProjectedTracks', 'DeadTime', 'DetStore', 'DumpFromDbFirst', 'EfficiencyPatchForBMShighEta', 'Efficiency_fromCOOL', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FracClusterSize1_A', 'FracClusterSize1_C', 'FracClusterSize2_A', 'FracClusterSize2_C', 'FracClusterSizeTail_A', 'FracClusterSizeTail_C', 'IgnoreRunDependentConfig', 'LastXing', 'MeanClusterSizeTail_A', 'MeanClusterSizeTail_C', 'OnlyEtaEff_A', 'OnlyEtaEff_C', 'OnlyPhiEff_A', 'OnlyPhiEff_C', 'PanelId_OFF_fromlist', 'PanelId_OK_fromlist', 'PatchForRpcTime', 'PatchForRpcTimeShift', 'PhiAndEtaEff_A', 'PhiAndEtaEff_C', 'PrintCalibrationVector', 'RPCCondSummarySvc', 'RPCInfoFromDb', 'RndmEngine', 'RndmSvc', 'testbeam_clustersize', 'turnON_clustersize', 'turnON_efficiency']
+        expected_property_list = ['ClusterSize1_2uncorr', 'ClusterSize_fromCOOL', 'CutProjectedTracks', 'DeadTime', 'DetStore', 'DumpFromDbFirst', 'EfficiencyPatchForBMShighEta', 'Efficiency_fromCOOL', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FracClusterSize1_A', 'FracClusterSize1_C', 'FracClusterSize2_A', 'FracClusterSize2_C', 'FracClusterSizeTail_A', 'FracClusterSizeTail_C', 'IgnoreRunDependentConfig', 'LastXing', 'MeanClusterSizeTail_A', 'MeanClusterSizeTail_C', 'OnlyEtaEff_A', 'OnlyEtaEff_C', 'OnlyPhiEff_A', 'OnlyPhiEff_C', 'PanelId_OFF_fromlist', 'PanelId_OK_fromlist', 'PatchForRpcTime', 'PatchForRpcTimeShift', 'PhiAndEtaEff_A', 'PhiAndEtaEff_C', 'PrintCalibrationVector', 'RPCCondSummarySvc', 'RPCInfoFromDb', 'RndmSvc', 'testbeam_clustersize', 'turnON_clustersize', 'turnON_efficiency']
         expected_nonstring_properties = {'LastXing': '125', 'FirstXing': '-150'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -332,7 +332,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TgcDigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.TgcDigitizationTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'RndmEngine', 'RndmSvc']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'RndmSvc']
         expected_nonstring_properties = {'LastXing': '75', 'FirstXing': '-50'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(

@@ -290,8 +290,6 @@ int main()
   ServiceHandle<MagField::IMagFieldSvc> field ("MagField::AtlasFieldSvc/AtlasFieldSvc", "test");
   Incident inc_br ("test", IncidentType::BeginRun);
   dynamic_cast<IIncidentListener*>(&*field)->handle (inc_br);
-  Incident inc_be ("test", IncidentType::BeginEvent);
-  dynamic_cast<IIncidentListener*>(&*tool)->handle (inc_be);
   
   test_plane (*tool);
   test_line (*tool);

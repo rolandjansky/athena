@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONDIGITIZATION_CSCDIGITBUILDER_H
-#define MUONDIGITIZATION_CSCDIGITBUILDER_H 
-
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-
-class IMuonDigitizationTool;
+#ifndef CSC_DIGITIZATION_CSCDIGITBUILDER_H
+#define CSC_DIGITIZATION_CSCDIGITBUILDER_H
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27, 2003
@@ -20,20 +15,27 @@ class IMuonDigitizationTool;
 // loop over the digit and build the digit container
 // store the digits in StoreGate
 
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+class IPileUpTool;
+
 class CscDigitBuilder : public AthAlgorithm {
 
- public:
+public:
 
+  /** Constructor with parameters */
   CscDigitBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  ~CscDigitBuilder();
-    
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
 
- private:
+  /** Destructor */
+  virtual ~CscDigitBuilder() = default;
 
-   ToolHandle<IMuonDigitizationTool> m_digTool;
+  /** Basic algorithm methods */
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+
+private:
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "CscDigitizationTool", "CscDigitizationTool name"};
 };
 
-#endif // MUONDIGITIZATION_CSCDIGITBUILDER_H
+#endif // CSC_DIGITIZATION_CSCDIGITBUILDER_H

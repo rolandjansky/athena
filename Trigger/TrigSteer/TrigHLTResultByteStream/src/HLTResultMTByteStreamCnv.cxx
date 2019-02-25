@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -25,7 +25,7 @@
 // Standard constructor
 // =============================================================================
 HLT::HLTResultMTByteStreamCnv::HLTResultMTByteStreamCnv(ISvcLocator* svcLoc) :
-  Converter(ByteStream_StorageType, classID(), svcLoc),
+  Converter(storageType(), classID(), svcLoc),
   AthMessaging(msgSvc(), "HLTResultMTByteStreamCnv"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "HLTResultMTByteStreamCnv") {
     m_fullEventAssembler.idMap().setDetId(eformat::TDAQ_HLT);
@@ -153,9 +153,13 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 }
 
 // =============================================================================
-// CLID
+// CLID / storageType
 // =============================================================================
 const CLID& HLT::HLTResultMTByteStreamCnv::classID() {
   return ClassID_traits<HLT::HLTResultMT>::ID();
 }
 
+long HLT::HLTResultMTByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}

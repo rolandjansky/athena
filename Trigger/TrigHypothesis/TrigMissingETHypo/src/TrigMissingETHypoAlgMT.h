@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALGMT_H
 #define TRIGMISSINGETHYPO_TRIGMISSINGETHYPOALGMT_H
@@ -13,8 +13,6 @@
 
 #include "TrigMissingETHypo/ITrigMissingETHypoToolMT.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
-
-using TrigCompositeUtils::DecisionContainer;
 
 /**
  * @class TrigMissingETHypoAlgMT
@@ -36,7 +34,7 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
   // TODO: Consider taking muonContainer etc in case they are needed in future.
   StatusCode decide(const xAOD::TrigMissingETContainer*,
                     TrigCompositeUtils::DecisionContainer* newDecisions,
-                    const DecisionContainer* previousDecisions
+                    const TrigCompositeUtils::DecisionContainer* previousDecisions
         ) const;
 
   ToolHandleArray<ITrigMissingETHypoToolMT> m_hypoTools {

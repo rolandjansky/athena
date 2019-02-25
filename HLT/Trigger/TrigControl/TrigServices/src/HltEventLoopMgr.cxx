@@ -308,8 +308,6 @@ StatusCode HltEventLoopMgr::finalize()
   }
   m_topAlgList.clear();
 
-// Backward compatibility can be removed when we switch to using C++17 by default
-#if __cplusplus >= 201500L // C++17 (needed for fold expressions)
   // Release all handles
   auto releaseAndCheck = [&](auto& handle, std::string handleType) {
     if (handle.release().isFailure())
@@ -336,40 +334,6 @@ StatusCode HltEventLoopMgr::finalize()
                  m_aess,
                  m_schedulerSvc,
                  m_hltROBDataProviderSvc);
-
-#else // standard older than C++17
-  // Release service handles
-  if (m_incidentSvc.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_incidentSvc.typeAndName();
-  if (m_robDataProviderSvc.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_robDataProviderSvc.typeAndName();
-  if (m_evtStore.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_evtStore.typeAndName();
-  if (m_detectorStore.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_detectorStore.typeAndName();
-  if (m_inputMetaDataStore.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_inputMetaDataStore.typeAndName();
-  if (m_THistSvc.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_THistSvc.typeAndName();
-  if (m_evtSelector.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_evtSelector.typeAndName();
-  if (m_outputCnvSvc.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_outputCnvSvc.typeAndName();
-
-  // Release tool handles
-  if (m_coolHelper.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_coolHelper.typeAndName();
-  if (m_hltResultMaker.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_hltResultMaker.typeAndName();
-
-  // Release SmartIFs
-  m_whiteboard.reset();
-  m_algResourcePool.reset();
-  m_aess.reset();
-  m_schedulerSvc.reset();
-  m_hltROBDataProviderSvc.reset();
-
-#endif
 
   return StatusCode::SUCCESS;
 }

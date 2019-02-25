@@ -84,12 +84,12 @@ def muFastStep():
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence ])
     
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
   
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
                          Hypo        = trigMufastHypo,
-                         HypoToolGen = TrigMufastHypoToolFromName )
+                         HypoToolGen = TrigMufastHypoToolFromDict )
 
 
 ### ************* Step2  ************* ###
@@ -118,12 +118,12 @@ def muCombStep():
     
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
     
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolFromName )
+                         HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
 ### ************* Step3  ************* ###
@@ -151,12 +151,12 @@ def muEFMSStep():
     
     muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, muEFMSRecoSequence] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFMSonlySequence,
                          Maker       = efmsViewsMaker,
                          Hypo        = trigMuonEFMSHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
 ###  EFSA step ###
 def muEFSAStep():
@@ -181,12 +181,12 @@ def muEFSAStep():
     
     muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFSAonlySequence,
                          Maker       = efsaViewsMaker,
                          Hypo        = trigMuonEFSAHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
 def muEFCBStep():
 
@@ -215,12 +215,12 @@ def muEFCBStep():
     
     muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFCBSequence,
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 ### EF SA full scan ###
 def muEFSAFSStep():
@@ -245,12 +245,12 @@ def muEFSAFSStep():
 
     muonEFSAFSSequence = seqAND( "muonEFSAFSSequence", [efsafsInputMaker, muEFSAFSRecoSequence ] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFSAFSSequence,
                          Maker       = efsafsInputMaker,
                          Hypo        = trigMuonEFSAFSHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
 
 ### l2Muiso step ###
@@ -277,12 +277,12 @@ def muIsoStep():
     ### Define a Sequence to run for muIso ### 
     l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muIsoSequence,
                          Maker       = l2muIsoViewsMaker,
                          Hypo        = trigmuIsoHypo,
-                         HypoToolGen = TrigMuisoHypoToolFromName )
+                         HypoToolGen = TrigMuisoHypoToolFromDict )
   
   
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):

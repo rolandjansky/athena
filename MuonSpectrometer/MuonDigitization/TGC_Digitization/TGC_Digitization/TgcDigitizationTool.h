@@ -11,7 +11,6 @@
  * @author John Chapman, Yoji Hasegawa, Susumu Oda
  */
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
@@ -38,7 +37,7 @@ namespace MuonGM{
   class MuonDetectorManager;
 }
 
-class TgcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class TgcDigitizationTool : public PileUpToolBase {
 public:
   TgcDigitizationTool(const std::string& type, 
 		      const std::string& name,
@@ -69,17 +68,13 @@ public:
   volume of a chamber. */
   virtual StatusCode processAllSubEvents() override final;
 
-  /** Used by TGCDigitizer. Just calls processAllSubEvents - leaving
-      for back-compatibility (IMuonDigitizationTool) */
-  virtual StatusCode digitize() override final;
-
   /** Finalize */
   virtual StatusCode finalize() override final;
 
 private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
-  /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
+  /** Core part of digitization used by processAllSubEvents and mergeEvent */
   StatusCode digitizeCore();
 
 protected:  

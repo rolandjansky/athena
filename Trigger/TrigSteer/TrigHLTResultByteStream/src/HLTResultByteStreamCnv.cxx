@@ -1,14 +1,13 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTResultByteStream/HLTResultByteStreamCnv.h"
 #include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
 
 #include "ByteStreamData/ROBData.h"
-//#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -33,7 +32,7 @@
 */
 
 HLT::HLTResultByteStreamCnv::HLTResultByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),
+  Converter(storageType(), classID(),svcloc),
   m_log(0),
   m_tool("HLT::HLTResultByteStreamTool"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "HLTResultByteStreamCnv"),
@@ -46,6 +45,11 @@ HLT::HLTResultByteStreamCnv::HLTResultByteStreamCnv(ISvcLocator* svcloc) :
 const CLID& HLT::HLTResultByteStreamCnv::classID()
 {
   return ClassID_traits<HLT::HLTResult>::ID() ;
+}
+
+long HLT::HLTResultByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 
 StatusCode  HLT::HLTResultByteStreamCnv::finalize()
