@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETIDENTIFIER_PIXELID_H
@@ -97,6 +97,11 @@ public:
                            int layer_disk, 
                            int phi_module, 
                            int eta_module ) const;
+    Identifier  wafer_id ( int barrel_ec,  
+                           int layer_disk, 
+                           int phi_module, 
+                           int eta_module,
+                           bool checks) const;
 
     /// For a single crystal from a pixel id - DO NOT USE wafer id as
     /// input
@@ -112,6 +117,13 @@ public:
                            int eta_module, 
                            int phi_index,  
                            int eta_index) const;
+    Identifier  pixel_id ( int barrel_ec,  
+                           int layer_disk, 
+                           int phi_module, 
+                           int eta_module, 
+                           int phi_index,  
+                           int eta_index,
+                           bool checks) const;
     Identifier  pixel_id ( const Identifier& id, 
                            int phi_index,   
                            int eta_index) const;
@@ -235,6 +247,7 @@ public:
     /// Create pixel Identifier from expanded id, which is returned by the
     /// id_iterators
     Identifier          pixel_id        (const ExpandedIdentifier& pixel_id) const;
+    Identifier          pixel_id        (const ExpandedIdentifier& pixel_id, bool checks) const;
 
     /// Create expanded id from compact id (return == 0 for OK)
     void                get_expanded_id (const Identifier& id,
@@ -332,7 +345,8 @@ inline Identifier
 PixelID::wafer_id ( int barrel_ec, 
                     int layer_disk, 
                     int phi_module, 
-                    int eta_module ) const
+                    int eta_module,
+                    bool checks) const
 {
     
     // Build identifier
@@ -347,11 +361,20 @@ PixelID::wafer_id ( int barrel_ec,
     m_eta_mod_impl.pack  (eta_module,          result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
         wafer_id_checks ( barrel_ec, layer_disk, phi_module, eta_module );
     }
 
     return result;
+}
+
+inline Identifier
+PixelID::wafer_id ( int barrel_ec, 
+                    int layer_disk, 
+                    int phi_module, 
+                    int eta_module ) const
+{
+  return wafer_id (barrel_ec, layer_disk, phi_module, eta_module, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -391,7 +414,8 @@ PixelID::pixel_id ( int barrel_ec,
                     int phi_module, 
                     int eta_module,      
                     int phi_index,
-                    int eta_index) const
+                    int eta_index,
+                    bool checks) const
 {
 
     // Build identifier
@@ -405,7 +429,7 @@ PixelID::pixel_id ( int barrel_ec,
     m_phi_index_impl.pack      (phi_index,   result);
     m_eta_index_impl.pack      (eta_index,   result);
 
-    if(m_do_checks) {
+    if(checks) {
 
         pixel_id_checks ( barrel_ec, 
                           layer_disk, 
@@ -418,11 +442,24 @@ PixelID::pixel_id ( int barrel_ec,
     return result;
 }
 
+inline Identifier
+PixelID::pixel_id ( int barrel_ec,  
+                    int layer_disk, 
+                    int phi_module, 
+                    int eta_module,      
+                    int phi_index,
+                    int eta_index) const
+{
+  return pixel_id (barrel_ec, layer_disk, phi_module, eta_module,
+                   phi_index, eta_index, do_checks());
+}
+
 /// Create pixel Identifier from expanded id, which is returned by the
 /// id_iterators
 //----------------------------------------------------------------------------
 inline Identifier               
-PixelID::pixel_id       (const ExpandedIdentifier& id) const
+PixelID::pixel_id       (const ExpandedIdentifier& id,
+                         bool checks) const
 {
     Identifier result;
     result = pixel_id(id[m_BARREL_EC_INDEX],
@@ -432,7 +469,7 @@ PixelID::pixel_id       (const ExpandedIdentifier& id) const
                       id[m_PHI_INDEX_INDEX],
                       id[m_ETA_INDEX_INDEX]);
 
-    if(m_do_checks) {
+    if(checks) {
         pixel_id_checks (id[m_BARREL_EC_INDEX],
                          id[m_LAYER_DISK_INDEX],
                          id[m_PHI_MODULE_INDEX],
@@ -442,6 +479,12 @@ PixelID::pixel_id       (const ExpandedIdentifier& id) const
     }
 
     return (result);
+}
+
+inline Identifier               
+PixelID::pixel_id       (const ExpandedIdentifier& id) const
+{
+  return pixel_id (id, do_checks());
 }
 
 

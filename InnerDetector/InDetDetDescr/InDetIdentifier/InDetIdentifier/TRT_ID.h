@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETIDENTIFIER_TRT_ID_H
@@ -114,11 +114,16 @@ public:
     //@{
     /// For +/-barrel or +/-endcap id
     Identifier  barrel_ec_id( int barrel_ec ) const;
+    Identifier  barrel_ec_id( int barrel_ec, bool checks ) const;
 
     /// For an individual module phi sector
     Identifier  module_id ( int barrel_ec, 
                             int phi_module,
                             int layer_or_wheel ) const;
+    Identifier  module_id ( int barrel_ec, 
+                            int phi_module,
+                            int layer_or_wheel,
+                            bool checks) const;
 
     /// From hash - optimized, no checks
     Identifier  module_id ( IdentifierHash module_hash ) const;
@@ -128,6 +133,11 @@ public:
                            int phi_module,
                            int layer_or_wheel, 
                            int straw_layer ) const;
+    Identifier  layer_id ( int barrel_ec, 
+                           int phi_module,
+                           int layer_or_wheel, 
+                           int straw_layer,
+                           bool checks) const;
 
     /// From hash - optimized, no checks
     Identifier  layer_id ( IdentifierHash straw_layer_hash ) const;
@@ -135,6 +145,9 @@ public:
     /// For an individual straw layer
     Identifier  layer_id ( const Identifier& module_id, 
                            int straw_layer ) const;
+    Identifier  layer_id ( const Identifier& module_id, 
+                           int straw_layer,
+                           bool checks) const;
 
     /// For an individual straw layer from straw id
     Identifier  layer_id ( const Identifier& straw_id ) const;
@@ -145,13 +158,26 @@ public:
                            int layer_or_wheel, 
                            int straw_layer, 
                            int straw ) const;
+    Identifier  straw_id ( int barrel_ec, 
+                           int phi_module,
+                           int layer_or_wheel, 
+                           int straw_layer, 
+                           int straw,
+                           bool checks) const;
 
     Identifier  straw_id (const Identifier& module_id, 
                           int straw_layer, 
                           int straw ) const;
+    Identifier  straw_id (const Identifier& module_id, 
+                          int straw_layer, 
+                          int straw,
+                          bool checks) const;
 
     Identifier  straw_id (const Identifier& layer_id, 
                           int straw ) const;
+    Identifier  straw_id (const Identifier& layer_id, 
+                          int straw,
+                          bool checks) const;
 
     /// Access to straw id from hash - must have done
     /// init_straw_hash_vector before using this
@@ -384,7 +410,7 @@ TRT_ID::is_valid() const
 
 //----------------------------------------------------------------------------
 inline Identifier
-TRT_ID::barrel_ec_id( int barrel_ec ) const
+TRT_ID::barrel_ec_id( int barrel_ec, bool checks ) const
 {
     
     // Check if TRT_ID is valid for this layout
@@ -398,18 +424,25 @@ TRT_ID::barrel_ec_id( int barrel_ec ) const
     m_trt_impl.pack      (trt_field_value(),   result);
     m_bec_impl.pack      (barrel_ec,           result);
 
-    if(m_do_checks) {
+    if(checks) {
         barrel_ec_id_checks ( barrel_ec );
     }
 
     return result;
 }
 
+inline Identifier
+TRT_ID::barrel_ec_id( int barrel_ec ) const
+{
+  return barrel_ec_id (barrel_ec, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier
 TRT_ID::module_id ( int barrel_ec, 
                     int phi_module,
-                    int layer_or_wheel ) const
+                    int layer_or_wheel,
+                    bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -424,11 +457,19 @@ TRT_ID::module_id ( int barrel_ec,
     m_phi_mod_impl.pack  (phi_module,          result);
     m_lay_wheel_impl.pack(layer_or_wheel,      result);
 
-    if(m_do_checks) {
+    if(checks) {
         module_id_checks ( barrel_ec, phi_module, layer_or_wheel );
     }
 
     return result;
+}
+
+inline Identifier
+TRT_ID::module_id ( int barrel_ec, 
+                    int phi_module,
+                    int layer_or_wheel ) const
+{
+  return module_id (barrel_ec, phi_module, layer_or_wheel, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -456,7 +497,8 @@ inline Identifier
 TRT_ID::layer_id ( int barrel_ec, 
                    int phi_module,
                    int layer_or_wheel, 
-                   int straw_layer ) const
+                   int straw_layer,
+                   bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -472,17 +514,28 @@ TRT_ID::layer_id ( int barrel_ec,
     m_lay_wheel_impl.pack(layer_or_wheel,      result);
     m_str_lay_impl.pack  (straw_layer,         result);
 
-    if(m_do_checks) {
+    if(checks) {
         layer_id_checks ( barrel_ec, phi_module, layer_or_wheel, straw_layer );
     }
 
     return result;
 }
 
+inline Identifier
+TRT_ID::layer_id ( int barrel_ec, 
+                   int phi_module,
+                   int layer_or_wheel, 
+                   int straw_layer ) const
+{
+  return layer_id (barrel_ec, phi_module, layer_or_wheel, straw_layer,
+                   do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier  
 TRT_ID::layer_id ( const Identifier& module_id, 
-                   int straw_layer ) const
+                   int straw_layer,
+                   bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -494,13 +547,20 @@ TRT_ID::layer_id ( const Identifier& module_id,
     m_str_lay_impl.reset (result);
     m_str_lay_impl.pack  (straw_layer, result);
 
-    if(m_do_checks) {
+    if(checks) {
         layer_id_checks ( barrel_ec(module_id), 
                           phi_module(module_id), 
                           layer_or_wheel(module_id), 
                           straw_layer );
     }
     return result;
+}
+
+inline Identifier  
+TRT_ID::layer_id ( const Identifier& module_id, 
+                   int straw_layer ) const
+{
+  return layer_id (module_id, straw_layer, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -522,7 +582,8 @@ TRT_ID::straw_id ( int barrel_ec,
                    int phi_module,
                    int layer_or_wheel, 
                    int straw_layer, 
-                   int straw ) const
+                   int straw,
+                   bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -539,11 +600,22 @@ TRT_ID::straw_id ( int barrel_ec,
     m_str_lay_impl.pack  (straw_layer,         result);
     m_straw_impl.pack    (straw,               result);
 
-    if(m_do_checks) {
+    if(checks) {
         straw_id_checks ( barrel_ec, phi_module, layer_or_wheel, straw_layer, straw );
     }
 
     return result;
+}
+
+inline Identifier
+TRT_ID::straw_id ( int barrel_ec, 
+                   int phi_module,
+                   int layer_or_wheel, 
+                   int straw_layer, 
+                   int straw ) const
+{
+  return straw_id (barrel_ec, phi_module, layer_or_wheel, straw_layer, straw,
+                   do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -568,7 +640,8 @@ TRT_ID::straw_id        (const ExpandedIdentifier& id) const
 inline Identifier
 TRT_ID::straw_id(const Identifier& module_id, 
                  int straw_layer, 
-                 int straw ) const
+                 int straw,
+                 bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -582,7 +655,7 @@ TRT_ID::straw_id(const Identifier& module_id,
     m_str_lay_impl.pack  (straw_layer, result);
     m_straw_impl.pack    (straw,       result);
 
-    if(m_do_checks) {
+    if(checks) {
         straw_id_checks ( barrel_ec(module_id), 
                           phi_module(module_id), 
                           layer_or_wheel(module_id), 
@@ -592,10 +665,19 @@ TRT_ID::straw_id(const Identifier& module_id,
     return result;
 }
 
+inline Identifier
+TRT_ID::straw_id(const Identifier& module_id, 
+                 int straw_layer, 
+                 int straw ) const
+{
+  return straw_id (module_id, straw_layer, straw, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier
 TRT_ID::straw_id(const Identifier& layer_id, 
-                 int straw ) const
+                 int straw,
+                 bool checks) const
 {
     // Check if TRT_ID is valid for this layout
     if (!m_is_valid) invalidMessage();
@@ -607,7 +689,7 @@ TRT_ID::straw_id(const Identifier& layer_id,
     m_straw_impl.reset   (result);
     m_straw_impl.pack    (straw, result);
 
-    if(m_do_checks) {
+    if(checks) {
         straw_id_checks ( barrel_ec(layer_id), 
                           phi_module(layer_id), 
                           layer_or_wheel(layer_id), 
@@ -615,6 +697,13 @@ TRT_ID::straw_id(const Identifier& layer_id,
                           straw );
     }
     return result;
+}
+
+inline Identifier
+TRT_ID::straw_id(const Identifier& layer_id, 
+                 int straw ) const
+{
+  return straw_id (layer_id, straw, do_checks());
 }
 
 //----------------------------------------------------------------------------
