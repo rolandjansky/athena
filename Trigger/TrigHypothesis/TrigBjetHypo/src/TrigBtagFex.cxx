@@ -451,6 +451,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
+  delete jet;
 
   return HLT::OK;
 }
