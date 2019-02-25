@@ -35,7 +35,7 @@
 #include <stdint.h>
 
 TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* svcloc) 
-  : Converter(ByteStream_StorageType, classID(), svcloc)
+  : Converter(storageType(), classID(), svcloc)
   , ::AthMessaging(msgSvc(), "TileRawChannelContByteStreamCnv")
   , m_name("TileRawChannelContByteStreamCnv")
   , m_tool("TileRawChannelContByteStreamTool")
@@ -48,6 +48,8 @@ TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* sv
 }
 
 const CLID& TileRawChannelContByteStreamCnv::classID() { return ClassID_traits<TileRawChannelContainer>::ID();}
+
+long TileRawChannelContByteStreamCnv::storageType() { return ByteStreamAddress::storageType(); }
 
 StatusCode TileRawChannelContByteStreamCnv::initialize() {
 
