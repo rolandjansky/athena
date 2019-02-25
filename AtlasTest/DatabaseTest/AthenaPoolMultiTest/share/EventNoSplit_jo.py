@@ -125,16 +125,10 @@ Stream3.VetoAlgs   = ["Splitter2"]
 StreamAll.TakeItemsFromInput = True
 StreamAll.ForceRead=TRUE
 
-# Add the outputstreams to the execution sequence
-athOutSeq+=Stream1
-athOutSeq+=Stream2
-athOutSeq+=Stream3
-
-for stream in athOutSeq:
+for stream in [Stream1, Stream2, Stream3]:
   stream.WriteOnExecute = False
   stream.MetadataItemList = []
 
-athOutSeq+=StreamAll
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
