@@ -37,6 +37,8 @@ def load_files_for_qball_scenario(MASS, CHARGE):
     del BLINE1
     del BLINE2
 
+assert "MASS" in simdict
+assert "CHARGE" in simdict
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
@@ -49,13 +51,14 @@ try:
         doG4SimConfig = False
     else:
         from G4AtlasApps.SimFlags import simFlags
+        if not "InteractingPDGCodes" in simFlags.specialConfiguration.get_Value():
+            CODE=10000000+int(float(simdict["CHARGE"])*100)
+            simFlags.specialConfiguration.get_Value()['InteractingPDGCodes'] = str([CODE,-1*CODE])
         simdict = simFlags.specialConfiguration.get_Value()
 except:
     from G4AtlasApps.SimFlags import simFlags
     simdict = simFlags.specialConfiguration.get_Value()
 
-assert "MASS" in simdict
-assert "CHARGE" in simdict
 load_files_for_qball_scenario(simdict["MASS"], simdict["CHARGE"])
 
 if doG4SimConfig:
