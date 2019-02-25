@@ -687,8 +687,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     pEventPtr = CxxUtils::make_unique<EventInfo>
       (new EventID(1,m_nevt), new EventType());
     pEvent = pEventPtr.get();
-    eventID=*(pEvent->event_ID());
     pEventPtr->event_ID()->set_lumi_block( m_nevt );
+    eventID=*(pEvent->event_ID());
     StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
     if( !sc.isSuccess() )  {
       error() 
