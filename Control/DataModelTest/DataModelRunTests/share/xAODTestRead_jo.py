@@ -158,25 +158,6 @@ Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 Stream1.ItemList   += fullItemList # List of DO's to write out
 
-topSequence += DMTest__xAODTestClearDecor ('xAODTestClearDecor')
-topSequence += DMTest__xAODTestClearDecor ('xAODTestClearDecor_scopy',
-                                           ReadPrefix = 'scopy_')
-
-topSequence += DMTest__xAODTestDecor ('xAODTestDecor2',
-                                      DecorName = 'dInt200',
-                                      Offset = 200)
-
-topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor2_scopy',
-                                      ReadPrefix = 'scopy_',
-                                      DecorName = 'dInt250',
-                                      Offset = 600)
-# Stream's output file
-Stream2_Augmented = MSMgr.NewPoolStream ('Stream2','xaoddata2b.root',asAlg=True, noTag=True)
-Stream2_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
-Stream2 = Stream2_Augmented.GetEventStream()
-Stream2.WritingTool.SubLevelBranchName = '<key>'
-Stream2.ItemList   += fullItemList # List of DO's to write out
-
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 

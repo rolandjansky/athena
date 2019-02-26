@@ -46,19 +46,17 @@ endfunction (datamodel_run_test)
 datamodel_run_test (DataModelTestWrite)
 datamodel_run_test (DataModelTestRead DEPENDS DataModelTestWrite)
 datamodel_run_test (DataModelTestRead2 DEPENDS DataModelTestRead)
-datamodel_run_test (AuxDataTestWrite)
+datamodel_run_test (AuxDataTestWrite) #i:auxdata.root
 datamodel_run_test (AuxDataTestRead DEPENDS AuxDataTestWrite)
 datamodel_run_test (AuxDataTestRead2 DEPENDS AuxDataTestRead)
-datamodel_run_test (AuxDataTestRead2b DEPENDS AuxDataTestRead)
 datamodel_run_test (AuxDataTestTypelessRead DEPENDS AuxDataTestWrite)
 datamodel_run_test (AuxDataTestRead3 DEPENDS AuxDataTestTypelessRead)
-datamodel_run_test (xAODTestWrite)
-datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite)
-datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead)
-datamodel_run_test (xAODTestRead2b DEPENDS xAODTestRead)
+datamodel_run_test (xAODTestWrite) # in:xaoddata.root
+datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite) #i:xaoddata.root o:xaoddata2.root
+datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead) #i:xaoddata2.root o:xaoddata2x.root
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
-datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
+datamodel_run_test (xAODTestReadRename DEPENDS xaAODTestWrite)
 datamodel_run_test (xAODTestReadRenameMT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)
