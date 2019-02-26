@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "StoreGate/StoreGate.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "InDetBCM_RawData/InDetBCM_RawDataCLASS_DEF.h"
@@ -26,12 +25,11 @@
 ////////////////////////
 // constructor
 ////////////////////////
-BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(ByteStream_StorageType, classID(),svcloc),
+BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(storageType(), classID(),svcloc),
   m_BCMRawContBSTool{},
   m_ByteStreamEventAccess{},
-  m_StoreGate{},
-  m_ChronoStat{} {
-  //nop
+  m_StoreGate{}
+{
 }
 
 // ////////////////////////
@@ -70,12 +68,7 @@ StatusCode BCM_RawContByteStreamCnv::initialize() {
     return StatusCode::FAILURE;
   }
 
-  StatusCode scChrono =serviceLocator()->service("ChronoStatSvc",m_ChronoStat );
-  if (!scChrono.isSuccess()) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Cannot retrieve ChronoStatSvc" << endmsg;
-  }
-
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 ////////////////////////
@@ -83,6 +76,10 @@ StatusCode BCM_RawContByteStreamCnv::initialize() {
 ////////////////////////
 const CLID& BCM_RawContByteStreamCnv::classID() {
   return ClassID_traits<BCM_RDO_Container>::ID();
+}
+
+long BCM_RawContByteStreamCnv::storageType() {
+  return ByteStreamAddress::storageType();
 }
 
 ////////////////////////

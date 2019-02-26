@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawContByteStreamCnv.h"
@@ -18,7 +18,7 @@
 // Constructor
 
 SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
-  Converter(ByteStream_StorageType, classID(),svcLoc),
+  Converter(storageType(), classID(),svcLoc),
   m_rawContByteStreamTool{"SCTRawContByteStreamTool"},
   m_byteStreamEventAccess{"ByteStreamCnvSvc", "SCTRawContByteStreamCnv"},
   m_log{msgSvc(), "SCTRawContByteStreamCnv"}
