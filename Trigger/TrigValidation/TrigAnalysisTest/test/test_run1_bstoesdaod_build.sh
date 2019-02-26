@@ -29,6 +29,7 @@ export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export EVENTS="5"
 export JOB_LOG="athena.log"
+export RECO_LOG="log.RAWtoESD"
 
 Reco_tf.py --maxEvents $EVENTS \
 --AMITag 'q222' \
@@ -42,7 +43,7 @@ Reco_tf.py --maxEvents $EVENTS \
 --outputAODFile 'AOD.pool.root' \
 --outputHISTFile 'HIST.root' &> ${JOB_LOG}
 
-N_CONTAINERS=$(grep -o HLT_xAOD__ ${JOB_LOG} | wc -l)
+N_CONTAINERS=$(grep -o HLT_xAOD__ ${RECO_LOG} | wc -l)
 if [ $N_CONTAINERS -gt 0 ]; then 
   echo "xAOD Container Check: ${N_CONTAINERS} xAOD HLT containers found. OK."; 
   echo "art-result: xAODContainers 0"
