@@ -36,12 +36,12 @@ status=$?
 
 if [ ${status} -ne 0 ]; then
     echo "ERROR in configuration generation stage, stopping"
-    echo "art-result 1 Configuration"
+    echo "art-result: 1 Configuration"
     exit 1
 else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
-    echo "art-result 0 Configuration"
+    echo "art-result: 0 Configuration"
     echo 
     source exec_TrigUpgradeTest_art_athenaMT.sh
     source exec_TrigUpgradeTest_art_post.sh
