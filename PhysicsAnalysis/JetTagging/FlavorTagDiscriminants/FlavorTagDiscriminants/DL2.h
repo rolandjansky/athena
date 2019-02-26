@@ -124,7 +124,7 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, NoDefault || m_default_flag(*btag) ? NAN : m_getter(*btag)};
+        return {m_name, !NoDefault || m_default_flag(*btag) ? NAN : m_getter(*btag)};
       }
     };
 

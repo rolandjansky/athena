@@ -196,8 +196,9 @@ namespace FlavorTagDiscriminants {
     //
     Getter get_filler(std::string name, EDMType type,
                       std::string default_flag) {
-      if( default_flag.size() == 0)
+      if(default_flag.size() == 0 || name==default_flag)
       {
+        std::cout<<"HasDefault "<<name <<" "<<default_flag<<std::endl;
         switch (type) {
         case EDMType::INT: return BVarGetter<int, true>(name, default_flag);
         case EDMType::FLOAT: return BVarGetter<float, true>(name, default_flag);
