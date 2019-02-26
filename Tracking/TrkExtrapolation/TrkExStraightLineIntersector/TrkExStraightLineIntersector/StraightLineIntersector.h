@@ -19,52 +19,58 @@
 namespace Trk
 {
     
-class StraightLineIntersector: public AthAlgTool,
-			       virtual public IIntersector
+class StraightLineIntersector: public extends<AthAlgTool, IIntersector>
 {
     
 public:
     StraightLineIntersector	(const std::string& type, 
 				 const std::string& name,
 				 const IInterface* parent);
-    ~StraightLineIntersector	(void); 	// destructor
+    virtual ~StraightLineIntersector	(void); 	// destructor
 
-    StatusCode			initialize();
-    StatusCode			finalize();
+    virtual StatusCode			initialize() override;
+    virtual StatusCode			finalize() override;
 
     /**IIntersector interface method for general Surface type */
+    virtual 
     const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
 						 const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						 const double      	qOverP);
+						 const double      	qOverP) const override;
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
+    virtual 
     const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
 						       const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						       const double      	/*qOverP*/);
+						       const double      	/*qOverP*/) const override;
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
+    virtual
     const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
 							    const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-							    const double      	/*qOverP*/);
+							    const double      	/*qOverP*/) const override;
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
 							  const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-							  const double      	/*qOverP*/);
+							  const double      	/*qOverP*/) const override;
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
 						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						      const double      	/*qOverP*/);
+						      const double      	/*qOverP*/) const override;
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
 						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						      const double      	/*qOverP*/);
+						      const double      	/*qOverP*/) const override;
  
     /**IIntersector interface method for validity check over a particular extrapolation range */
+    virtual
     bool			isValid(Amg::Vector3D /*startPosition*/,
-					Amg::Vector3D /*endPosition*/) const
+					Amg::Vector3D /*endPosition*/) const override
 	{ return true; }
 	
 private:
