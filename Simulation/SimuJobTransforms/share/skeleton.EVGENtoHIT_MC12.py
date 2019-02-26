@@ -264,9 +264,9 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
         svcMgr.EventSelector.FirstEvent = 0
 
 if nThreads > 0:
-    from AthenaCommon.AlgSequence import AlgSequence
-    job = AlgSequence()
-    job.StreamHITS.AcceptAlgs = [] # doesn't work in MT yet
+    from AthenaCommon.AlgSequence import AthSequencer
+    outSeq = AthSequencer("AthOutSeq")
+    outSeq.StreamHITS.AcceptAlgs = [] # doesn't work in MT yet
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):
