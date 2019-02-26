@@ -176,7 +176,6 @@ StatusCode JGTowerMaker::ForwardMapping(){
   // Forward supercells are jTowers
   for(unsigned sc_hs=0;sc_hs<sc_hashMax;++sc_hs) {
      const Identifier scid=m_scid->cell_id(sc_hs);
-     //const Identifier tid=m_tid->cell_id(scid);
 
      if((m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2)) continue; //skip all tile SCs
 
