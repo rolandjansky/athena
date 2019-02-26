@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDEADMAPCONDDATA_H
 #define PIXELDEADMAPCONDDATA_H
 
 #include "AthenaKernel/CLASS_DEF.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <map>
 
 class PixelModuleData {
@@ -14,14 +13,20 @@ class PixelModuleData {
     PixelModuleData();
     virtual ~PixelModuleData();
 
-    void setModuleStatus(const CondAttrListCollection::ChanNum& chanNum, const int value);
-    int getModuleStatus(const CondAttrListCollection::ChanNum& chanNum) const;
+    void setBiasVoltage(const int chanNum, const float value);
+    float getBiasVoltage(const int chanNum) const;
 
-    void setChipStatus(const CondAttrListCollection::ChanNum& chanNum, const int value);
-    int getChipStatus(const CondAttrListCollection::ChanNum& chanNum) const;
+    void setTemperature(const int chanNum, const float value);
+    float getTemperature(const int chanNum) const;
 
-    void setTDAQModuleStatus(const CondAttrListCollection::ChanNum& chanNum, const int value);
-    int getTDAQModuleStatus(const CondAttrListCollection::ChanNum& chanNum) const;
+    void setModuleStatus(const int chanNum, const int value);
+    int getModuleStatus(const int chanNum) const;
+
+    void setChipStatus(const int chanNum, const int value);
+    int getChipStatus(const int chanNum) const;
+
+    enum DCSModuleStatus{OK,WARNING,ERROR,FATAL,NOSTATUS};
+    enum DCSModuleState{READY,ON,UNKNOWN,TRANSITION,UNDEFINED,NOSTATE};
 
     void setBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold);
     void setEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold);
@@ -65,10 +70,12 @@ class PixelModuleData {
     void clear();
 
   private:
-    typedef std::map<CondAttrListCollection::ChanNum, int> IntConditions;
+    typedef std::map<int, float> FloatConditions;
+    typedef std::map<int, int> IntConditions;
+    FloatConditions  m_biasVoltage;
+    FloatConditions  m_temperature;
     IntConditions  m_moduleStatus;
     IntConditions  m_chipStatus;
-    IntConditions  m_tdaqStatus;
 
     std::vector<int> m_BarrelAnalogThreshold;
     std::vector<int> m_EndcapAnalogThreshold;

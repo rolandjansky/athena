@@ -405,9 +405,18 @@ if dumpSctInfo:
         print xAOD_SCT_PrepDataToxAOD.properties()
 
 if dumpPixInfo:
-    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-    pixelDCSConditionsToolSetup.setup()
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+      conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+      conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+      condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
@@ -415,7 +424,6 @@ if dumpPixInfo:
 
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
     xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
-    xAOD_PixelPrepDataToxAOD.PixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
     xAOD_PixelPrepDataToxAOD.LorentzAngleTool       = ToolSvc.PixelLorentzAngleTool
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo

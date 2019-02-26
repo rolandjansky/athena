@@ -15,6 +15,8 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsData
+   InnerDetector/InDetConditions/PixelConditionsTools
+   InnerDetector/InDetConditions/SiPropertiesSvc
    PRIVATE
    Control/SGTools
    Control/StoreGate
@@ -24,7 +26,6 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
    DetectorDescription/DetDescrCond/DetDescrConditions
-   InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
@@ -52,7 +53,7 @@ atlas_add_component( PixelConditionsAlgorithms
    ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities
    GaudiKernel PixelConditionsData SGTools StoreGateLib CoralDB
    GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry
-   PixelCablingLib PixelConditionsAlgorithmsLib PathResolver )
+   PixelCablingLib PixelConditionsAlgorithmsLib SiPropertiesSvcLib PathResolver )
 
 # Install files from the package:
 #atlas_install_joboptions( share/*.py )
