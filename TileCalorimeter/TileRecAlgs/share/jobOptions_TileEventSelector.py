@@ -227,7 +227,7 @@ if not ReadESD:
 #import AthenaCommon.AlgSequence as acas
 #job = acas.AlgSequence()
 #
-#seq = acas.AthSequencer("AthFilterSeq")
+#seq = acas.AthSequencer("AthMasterSeq")
 #
 # example how to copy few events from input to output
 #

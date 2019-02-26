@@ -89,7 +89,7 @@ if 'GRL' in dir():
     GoodRunsListSelectorTool.OutputLevel = DEBUG
     from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
     topSequence = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
+    seq = AthSequencer("AthMasterSeq")
     from GoodRunsListsUser.GoodRunsListsUserConf import *
     seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
     seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!

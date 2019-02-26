@@ -128,7 +128,7 @@ if inputFileSummary['evt_type'][0] == "IS_DATA":
   ToolSvc += GoodRunsListSelectorTool()
   GoodRunsListSelectorTool.GoodRunsListVec = grllist 
   from GoodRunsListsUser.GoodRunsListsUserConf import *
-  seq = AthSequencer("AthFilterSeq")
+  seq = AthSequencer("AthMasterSeq")
   seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
   seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good_25ns']  
 ##################################### Mon Tools ##########################################
