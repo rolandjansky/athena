@@ -107,7 +107,7 @@ public:
     int get_label_value (const std::string& field, const std::string& label, int& value) const;  // > 0 == error
     IdDictSubRegion* find_subregion (const std::string& subregion_name) const;  
     IdDictRegion* find_region (const std::string& region_name) const;  
-    IdDictRegion* find_region (const std::string& region_name, const std::string group_name) const;  
+    IdDictRegion* find_region (const std::string& region_name, const std::string& group_name) const;  
     IdDictGroup* find_group (const std::string& group_name) const;
 
 
@@ -126,7 +126,7 @@ public:
     /// Find first region that matches id
     int find_region(const ExpandedIdentifier& id, size_type& index) const;
     IdDictRegion* find_region(const ExpandedIdentifier& id) const;
-    IdDictRegion* find_region(const ExpandedIdentifier& id,const std::string group_name) const;
+    IdDictRegion* find_region(const ExpandedIdentifier& id,const std::string& group_name) const;
     
     ///  Set up integral of bits for efficient unpacking
     void integrate_bits ();
@@ -139,8 +139,8 @@ public:
      *   'last_field' If last_field == "", all fields are
      * taken. Prepend prefix if provided.  */
     MultiRange build_multirange (const ExpandedIdentifier& region_id,
-                                 const Range prefix = Range(),
-                                 std::string last_field = "") const; 
+                                 const Range& prefix = Range(),
+                                 const std::string& last_field = "") const; 
 
     /**
      *   Get MultiRange for a specific region_id, constrained to be
@@ -150,8 +150,8 @@ public:
 
     MultiRange build_multirange (const ExpandedIdentifier& region_id,
                                  const std::string& group_name,
-                                 const Range prefix = Range(),
-                                 std::string last_field = "") const; 
+                                 const Range& prefix = Range(),
+                                 const std::string& last_field = "") const; 
  
     /** 
      *   Pack to 32bits the subset of id between (inclusive) index1
@@ -517,8 +517,6 @@ public:
                                   IdDictRegion& region,
                                   std::string tag = "");  
     void reset_implementation ();  
- 
-    std::string m_name; 
 }; 
  
 class IdDictRegionEntry 
