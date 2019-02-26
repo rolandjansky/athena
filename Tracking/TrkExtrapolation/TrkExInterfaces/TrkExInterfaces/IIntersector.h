@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,9 +26,6 @@ namespace Trk
     class Surface;
     class TrackIntersection;
   
-    /** Interface ID for IIntersector*/  
-    static const InterfaceID IID_IIntersector("IIntersector", 1, 0);
-  
     /**@class IIntersector
 
     Base class for Intersector AlgTools.
@@ -50,42 +47,40 @@ namespace Trk
     protected:
     
     public:
+        DeclareInterfaceID(IInterface, 1, 0);
 
 	/**Virtual destructor*/
-	virtual ~IIntersector(){}
+	virtual ~IIntersector() = default;
        
-	/** AlgTool and IAlgTool interface methods */
-	static const InterfaceID& interfaceID() { return IID_IIntersector; }
-
 	/**IIntersector interface method for general Surface type */
 	virtual const TrackSurfaceIntersection* intersectSurface(const Surface&		surface,
 						     const TrackSurfaceIntersection*	trackIntersection,
-						     const double      		qOverP) = 0;
+						     const double      		qOverP) const = 0;
                
 	/**IIntersector interface method for specific Surface type : PerigeeSurface */
 	virtual const TrackSurfaceIntersection* approachPerigeeSurface(const PerigeeSurface&	surface,
 							   const TrackSurfaceIntersection*		trackIntersection,
-							   const double      		qOverP) = 0;
+							   const double      		qOverP) const = 0;
 	
 	/**IIntersector interface method for specific Surface type : StraightLineSurface */
 	virtual const TrackSurfaceIntersection* approachStraightLineSurface(const StraightLineSurface& surface,
 								const TrackSurfaceIntersection*	trackIntersection,
-								const double      	qOverP) = 0;
+								const double      	qOverP) const = 0;
               
 	/**IIntersector interface method for specific Surface type : CylinderSurface */
 	virtual const TrackSurfaceIntersection* intersectCylinderSurface (const CylinderSurface&	surface,
 							      const TrackSurfaceIntersection*	trackIntersection,
-							      const double      	qOverP) = 0;
+							      const double      	qOverP) const = 0;
 
 	/**IIntersector interface method for specific Surface type : DiscSurface */
 	virtual const TrackSurfaceIntersection* intersectDiscSurface (const DiscSurface&	surface,
 							  const TrackSurfaceIntersection*	trackIntersection,
-							  const double      	qOverP) = 0;
+							  const double      	qOverP) const = 0;
 
 	/**IIntersector interface method for specific Surface type : PlaneSurface */
 	virtual const TrackSurfaceIntersection* intersectPlaneSurface(const PlaneSurface&	surface,
 							  const TrackSurfaceIntersection*	trackIntersection,
-							  const double      	qOverP) = 0;
+							  const double      	qOverP) const = 0;
  
 	/**IIntersector interface method
 	   for extrapolation validity check over a particular extrapolation range */

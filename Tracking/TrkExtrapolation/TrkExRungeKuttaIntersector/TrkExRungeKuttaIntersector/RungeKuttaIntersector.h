@@ -24,15 +24,14 @@
 namespace Trk
 {
     
-class RungeKuttaIntersector: public AthAlgTool,
-			     virtual public IIntersector
+class RungeKuttaIntersector: public extends<AthAlgTool, IIntersector>
 {
     
 public:
     RungeKuttaIntersector	(const std::string& type, 
 				 const std::string& name,
 				 const IInterface* parent);
-    virtual ~RungeKuttaIntersector();
+    virtual ~RungeKuttaIntersector() = default;
 
     virtual StatusCode			initialize() override;
     virtual StatusCode			finalize() override;
@@ -41,37 +40,37 @@ public:
     virtual
     const TrackSurfaceIntersection*		intersectSurface (const Surface&			surface,
 								  const TrackSurfaceIntersection*	trackIntersection,
-								  const double				qOverP) override;
+								  const double				qOverP) const override;
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
     virtual
     const TrackSurfaceIntersection*		approachPerigeeSurface (const PerigeeSurface&		surface,
 									const TrackSurfaceIntersection*	trackIntersection,
-									const double			qOverP) override;
+									const double			qOverP) const override;
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
     virtual
     const TrackSurfaceIntersection*		approachStraightLineSurface (const StraightLineSurface&		surface,
 									     const TrackSurfaceIntersection*	trackIntersection,
-									     const double			qOverP) override;
+									     const double			qOverP) const override;
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
     virtual
     const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface&		surface,
 									  const TrackSurfaceIntersection*	trackIntersection,
-									  const double				qOverP) override;
+									  const double				qOverP) const override;
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
     virtual
     const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&		surface,
 								      const TrackSurfaceIntersection*	trackIntersection,
-								      const double			qOverP) override;
+								      const double			qOverP) const override;
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
     virtual
     const TrackSurfaceIntersection*		intersectPlaneSurface (const PlaneSurface&		surface,
 								       const TrackSurfaceIntersection*	trackIntersection,
-								       const double			qOverP) override;
+								       const double			qOverP) const override;
  
     /**IIntersector interface method for validity check over a particular extrapolation range */
     virtual
