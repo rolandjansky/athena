@@ -18,7 +18,19 @@ if [ -z ${TEST} ]; then
 fi
 
 if [ -z ${REF_FOLDER} ]; then
-  export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+  # Try eos first
+  export REF_FOLDER="/eos/atlas/atlascerngroupdisk/data-art/grid-input/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+  # If not available, try cvmfs
+  if [ -d ${REF_FOLDER} ]; then
+    echo "Using reference directory from eos: ${REF_FOLDER}"
+  else
+    export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+    if [ -d ${REF_FOLDER} ]; then
+      echo "Reference from eos unavailable, using one from cvmfs: ${REF_FOLDER}"
+    else
+      echo "Reference directory for test ${NAME} not available from eos or cvmfs"
+    fi
+  fi
 fi
 
 # Note REGTESTEXP is a GNU grep regexp, not perl regexp
