@@ -253,32 +253,6 @@ def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
 
 
-class WrappedList:
-    def __init__(self, lst):
-        self._lst = lst
-    def __getitem__(self, item):
-        return self._lst[item]
-    def __setitem__(self, item):
-        return self._lst.append(item)
-
-
-#class duplicatedHypos(WrappedList):
-
-## allAlgs={}
-## def useExisting(name):
-##     global allAlgs
-##     return allAlgs[name]
-
-## def AlgExisting(name):
-##     global allAlgs
-##     return name in allAlgs
-
-
-## def remember(name, instance):
-##     global allAlgs
-##     allAlgs[name] = instance
-##     return instance
-
 
 ##########################################################
 # NOW sequences and chains
@@ -605,106 +579,6 @@ class RecoFragmentsPool:
         else:
             log.debug( "reconstruction fragment that would be created from %s is taken from the cache" % creator.func_name )
             return cls.fragments[requestHash]
-
-
-class NJMenuSequence( ComponentAccumulator ):
-    def __init__( self, name ):
-        super( NJMenuSequence, self ).__init__()
-        from AthenaCommon.CFElements import seqAND
-        self.name = name
-        self.mainSeq = seqAND( name )
-        self.addSequence( self.mainSeq )
-        self.filterAlg =  None
-        self.reco = None
-        self.hypoAlg = None
-
-    def addReco( self, reco ):
-        """ Adds reconstruction sequence, has to be one of InViewReco or InEventReco objects """
-        assert self.filterAlg, "The filter alg has to be setup first"
-        self.reco = reco
-        reco.addInputFromFilter( self.filterAlg )
-        self.addSequence( reco.sequence(), self.mainSeq.name() )
-        self.merge( reco )
-
-    def addFilter( self, chains, inKey ):
-        """ adds filter alg of type RoRSeqFilter, output key is predefined by the sequence name as: Filtered + the name"""
-        from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
-        self.filterAlg = RoRSeqFilter( self.name+'Filter' )
-        self.filterAlg.Input       = [ inKey ]
-        self.filterAlg.Output      = [ 'Filtered_'+self.name ]
-        self.filterAlg.Chains      = chains
-        from AthenaCommon.Constants import DEBUG
-        self.filterAlg.OutputLevel = DEBUG
-        self.addEventAlgo( self.filterAlg, self.mainSeq.name() )
-
-    def hypoDecisions( self ):
-        return "Decisions_"+self.name
-
-    def addHypo( self, hypo ):
-        self.hypoAlg = hypo
-        self.hypoAlg.HypoInputDecisions = self.reco.inputMaker().InputMakerOutputDecisions[-1]
-        self.hypoAlg.HypoOutputDecisions = self.hypoDecisions()
-        self.addEventAlgo( hypo, self.mainSeq.name() )
-
-    def sequence( self ):
-        return self.mainSeq
-
-    def filter( self ):
-        return self.filterAlg
-
-    def check( self ):
-        assert self.filterAlg, "Filter not configured"
-        assert self.hypoAlg, "Hypo alg is not configured"
-
-
-class HLTMenuAccumulator( ComponentAccumulator ):
-    def __init__( self ):
-        super( HLTMenuAccumulator, self ).__init__()
-        from AthenaCommon.CFElements import seqAND
-        HLTSteps =  seqAND( "HLTSteps" )
-        self.addSequence( HLTSteps )
-
-    def __getOrMakeStepSequence(self, step, isFilter = False ):
-       """ Constructs sequence for the step, the filtering step or, reco step will be created depending on isFilter flags
-
-       The function assures that all previous steps are aready in place i.e. HLTStep_1_filter, HLTStep_1 ... until HLTStep_N-1 are in place.
-       Therefore the steps can be added in any order (not yet sure if that will but better assure robustness now)
-       """
-       from AthenaCommon.CFElements import parOR
-       name = "HLTStep_%d%s" % (step, "_filters" if isFilter else "" )
-
-       s  = self.getSequence( name )
-       if s:
-           return s
-       # make sure that sequences for previous steps are in place
-       for p in range( 1, step ):
-           self.__getOrMakeStepSequence( p, isFilter = True )
-           self.__getOrMakeStepSequence( p, isFilter = False )
-       # make sure that filtering steps is placed before reco steps
-       if not isFilter:
-           self.__getOrMakeStepSequence( step, isFilter = True )
-       s = parOR( name )
-       self.addSequence( s, parentName="HLTSteps")
-       return s
-
-
-    def setupSteps( self, steps ):
-        """ The main menu function, it is responsible for crateion of step sequences and placing slice specific sequencers there.
-
-        It would rely on the MenuSeq object API in two aspects, to obtain filter alg and to obtain the reco sequence
-        The MenuSeq should already contain all the chains that are needed for the menu setup (chains info can be accessed via flags passed when steps were created)
-        """
-        for stepNo, fhSeq in enumerate( steps, 1 ):
-            filterStep = self.__getOrMakeStepSequence( stepNo, isFilter = True )
-            filterStep += fhSeq.filter() # FilterHypoSequence API
-
-            recoStep = self.__getOrMakeStepSequence( stepNo, isFilter = False )
-            self.addSequence( fhSeq.sequence(), recoStep.name() )
-
-
-    def steps( self ):
-        """ returns step seqeuncers """
-        return self.getSequence("HLTSteps")
 
 
 def getChainStepName(chainName, stepNumber):
