@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/TgcRdoContByteStreamCnv.h"
@@ -26,7 +26,7 @@ const std::string const_cnvName = "TgcRdoContByteStreamCnv";
 
 // constructor
 TgcRdoContByteStreamCnv::TgcRdoContByteStreamCnv(ISvcLocator* svcloc) 
-  : Converter(ByteStream_StorageType, classID(), svcloc),
+  : Converter(storageType(), classID(), svcloc),
   m_tool("Muon::TgcRdoContByteStreamTool"),
   m_byteStreamEventAccess("ByteStreamCnvSvc", const_cnvName),
   m_storeGate("StoreGateSvc", const_cnvName)
@@ -39,6 +39,10 @@ const CLID& TgcRdoContByteStreamCnv::classID()
   return ClassID_traits<TgcRdoContainer>::ID();
 }
 
+long TgcRdoContByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
 
 // initialize
 StatusCode TgcRdoContByteStreamCnv::initialize() 
