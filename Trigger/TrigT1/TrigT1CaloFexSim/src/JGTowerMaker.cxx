@@ -63,7 +63,7 @@ StatusCode JGTowerMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JGTowerMaker::FexAlg(std::vector<std::shared_ptr<JGTower>> jgT, xAOD::JGTowerContainer*jgTContainer){
+StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>> jgT, xAOD::JGTowerContainer*jgTContainer){
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType.data()) );
