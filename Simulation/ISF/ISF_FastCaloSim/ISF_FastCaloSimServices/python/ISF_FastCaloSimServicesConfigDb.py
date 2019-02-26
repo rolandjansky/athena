@@ -18,6 +18,7 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getLegacyFastShowerCellBuilder
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getPileupFastShowerCellBuilderTool", "ISF_PileupFastShowerCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloNoiseTool",                   "ISF_FCS_CaloNoiseTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
+#addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFCSFinalizerTool",  "ISF_CaloCellContainerFCSFinalizerTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvertTool",              "ISF_FastHitConvertTool")
 addAlgorithm("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")

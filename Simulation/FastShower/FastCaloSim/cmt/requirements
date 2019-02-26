@@ -72,7 +72,6 @@ ignore_pattern package_tag
 #CBNTAA_DetailedCellInfo.cxx \
 
 apply_pattern dual_use_library files="\
-CaloCellContainerFCSFinalizerTool.cxx \
 AddNoiseCellBuilderTool.cxx \
 BasicCellBuilderTool.cxx \
 EmptyCellBuilderTool.cxx \

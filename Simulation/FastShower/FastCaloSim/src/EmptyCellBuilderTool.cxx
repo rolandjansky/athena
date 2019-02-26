@@ -136,10 +136,10 @@ void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContaine
     theCellContainer->setHasTotalSize(true);
   } 	
   else {
-    msg(MSG::WARNING) << "CaloCellContainer size " << theCellContainer->size() 
-	<< " larger than hashMax ! Too many cells ! " << hashMax << endreq ;
+    ATH_MSG_WARNING("CaloCellContainer size " << theCellContainer->size() 
+	<< " larger than hashMax ! Too many cells ! " << hashMax);
 
-    }
+  }
 
   // check whether in order and complete
   if (theCellContainer->checkOrderedAndComplete()){
