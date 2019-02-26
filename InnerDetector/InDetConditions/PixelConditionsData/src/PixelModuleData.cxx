@@ -31,7 +31,7 @@ void PixelModuleData::setTemperature(const int chanNum, const float value) {
 float PixelModuleData::getTemperature(const int chanNum) const {
   auto itr = m_temperature.find(chanNum);
   if (itr!=m_temperature.end()) { return itr->second; }
-  return 0;
+  return -7.0; // this is temporaly fix
 }
 
 // Module status

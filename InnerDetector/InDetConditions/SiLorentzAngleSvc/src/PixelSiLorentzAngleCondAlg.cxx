@@ -24,7 +24,7 @@ PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, 
   declareProperty("NominalField", m_nominalField = 2.0834*Gaudi::Units::tesla);
   declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
   declareProperty("UseMagFieldDcs", m_useMagFieldDcs = true);
-  declareProperty("CorrectionFactor", m_correctionFactor = 1.0);
+  declareProperty("CorrectionFactor", m_correctionFactor = 0.9);
 }
 
 StatusCode PixelSiLorentzAngleCondAlg::initialize() {

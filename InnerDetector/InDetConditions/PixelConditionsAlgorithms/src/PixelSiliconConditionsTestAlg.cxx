@@ -45,7 +45,7 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
   for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(i) << std::endl; }
 // OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(IdentifierHash(i)) << std::endl; }
 
-  for (int i=0; i<2048; i++) { std::cout << "PIXEL LorentzAngle : " << i << " " << m_lorentzAngleTool->getTanLorentzAngle(IdentifierHash(i)) << std::endl; }
+  for (int i=0; i<2048; i++) { std::cout << "PIXEL LorentzAngle : " << i << " " << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)) << std::endl; }
 
   return StatusCode::SUCCESS;
 }
