@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -52,10 +52,13 @@ public:
 				 
   /** build a region identifier */
   Identifier  region_id   	(int barrel_ec, int sampling, int region ) const;
+  Identifier  region_id   	(int barrel_ec, int sampling, int region, bool checks ) const;
 
   /** build a cell identifier */
   Identifier  channel_id   	(int barrel_ec, int sampling, int region,
 				 int eta,       int phi )  const;
+  Identifier  channel_id   	(int barrel_ec, int sampling, int region,
+				 int eta,       int phi, bool checks )  const;
 
   /** allows to know in which region is a channel/cell
       -- valid for both kinds of channels */
@@ -65,6 +68,8 @@ public:
       -- valid for both kinds of channels */
   Identifier  channel_id   	(const Identifier regionId,
 				 int eta,       int phi ) const;
+  Identifier  channel_id   	(const Identifier regionId,
+				 int eta,       int phi, bool checks ) const;
 
   /** create hash id from channel id  */
   IdentifierHash channel_hash (Identifier channelId) const;

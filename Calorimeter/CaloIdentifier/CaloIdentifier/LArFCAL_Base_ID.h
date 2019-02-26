@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOIDENTIFIER_LARFCAL_BASE_ID_H
@@ -31,10 +31,13 @@ public:
 
   /** build a module identifier for a channel  */
   Identifier  module_id	( int pos_neg, int module ) const ;
+  Identifier  module_id	( int pos_neg, int module, bool checks ) const ;
 
   /** build a cell identifier for a channel  */
   Identifier  channel_id( int pos_neg,  int module,
 			  int eta,      int phi ) const ;
+  Identifier  channel_id( int pos_neg,  int module,
+			  int eta,      int phi, bool checks ) const ;
 
   /** allows to know in which region is a channel/cell
       -- valid for both kinds of channels */
@@ -44,6 +47,8 @@ public:
       -- valid for both kinds of channels */
   Identifier  channel_id( const Identifier moduleId,
 			  int eta, int phi) const ;
+  Identifier  channel_id( const Identifier moduleId,
+			  int eta, int phi, bool checks) const ;
 			     
     /** create module id from hash id*/
   Identifier module_id	(IdentifierHash module_hash_id) const;
