@@ -21,6 +21,7 @@
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/ActsVersion.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsLayerBuilder.h"
@@ -43,6 +44,10 @@ StatusCode
 ActsTrackingGeometrySvc::initialize()
 {
   ATH_MSG_INFO(name() << " is initializing");
+  ATH_MSG_INFO("Acts version is: v" << Acts::VersionMajor << "." 
+                                    << Acts::VersionMinor << "." 
+                                    << Acts::VersionPatch 
+                                    << " [" << Acts::CommitHash << "]");
   
   ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
