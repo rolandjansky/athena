@@ -1,10 +1,15 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 
-
 def RegSelConfig( flags ):
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger ('RegSelConfig')
+    log.warning("Please use regSeCfg - that name matches ComponentAccumulator generator functions naming convention ")
+    return regSelCfg( flags ) 
+
+def regSelCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from RegionSelector.RegionSelectorConf import RegSelSvc
     from AthenaCommon.SystemOfUnits import mm
@@ -13,92 +18,113 @@ def RegSelConfig( flags ):
     regSel = RegSelSvc()
     regSel.DeltaZ = 225 * mm
 
-    # there will be ifology here enabling only the configured detectors
-    from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
-    larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")
-    acc.addPublicTool( larTable )
-    regSel.LArRegionSelectorTable      = larTable
+    if flags.Detector.GeometryLAr:
+        regSel.enableCalo = True
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
+        from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+        acc.merge( LArGMCfg(  flags ) )
+
+        from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
+        larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")
+        acc.addPublicTool( larTable )
+        regSel.LArRegionSelectorTable      = larTable
+        
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
+
+    if flags.Detector.GeometryTile:
+        regSel.enableCalo = True
+
+        from TileGeoModel.TileGMConfig import TileGMCfg
+        acc.merge( TileGMCfg( flags ) )
+
+        from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
+        tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
+        acc.addPublicTool( tileTable )
+        # ??? that is puzzle, the RegSelSvc seems not to have such a property
+        # while it is set in:RegSelSvcDefault.py
+        # regSel.TileRegionSelectorTable     = tileTable
+
+    if flags.Detector.GeometryPixel:
+        regSel.enableID = True
+        regSel.enablePixel = True        
+        from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+        pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
+                                         ManagerName = "Pixel",
+                                         OutputFile  = "RoITablePixel.txt",
+                                         PrintHashId = True,
+                                         PrintTable  = False)
+        acc.addPublicTool(pixTable)
+
+    if flags.Detector.GeometrySCT:
+        regSel.enableID = True
+        regSel.enableSCT = True
+
+        from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+        sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
+                                         ManagerName = "SCT",
+                                         OutputFile  = "RoITableSCT.txt",
+                                         PrintHashId = True,
+                                         PrintTable  = False)
+        acc.addPublicTool(sctTable)
+
+    if flags.Detector.GeometryTRT:
+        regSel.enableID = True
+        regSel.enableTRT = True
+
+        from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
+        trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
+                                           ManagerName = "TRT",
+                                           OutputFile  = "RoITableTRT.txt",
+                                           PrintHashId = True,
+                                           PrintTable  = False)
+        acc.addPublicTool(trtTable)
 
 
-    from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
-    tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
-    acc.addPublicTool( tileTable )
-    # ??? that is puzzle, the RegSelSvc seems not to ahev such a property
-    # while it is set in:RegSelSvcDefault.py
-    #regSel.TileRegionSelectorTable     = tileTable
+    if flags.Detector.GeometryRPC:
+        regSel.enableMuon = True
+        regSel.enableRPC  = True
+        from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
+        rpcTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
+        acc.addPublicTool( rpcTable )
 
-    regSel.enableCalo = True
-    regSel.enableID = True
-    regSel.enablePixel = True
-    regSel.enableSCT = True
-    regSel.enableTRT = True
+    if flags.Detector.GeometryMDT:
+        regSel.enableMuon = True
+        regSel.enableMDT  = True
+        from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
+        mdtTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
+        acc.addPublicTool( mdtTable )
 
-    # Setup RegSelSvc for muon detector based on RegSelSvcDefault.py
-    from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
-    rpcTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
-    acc.addPublicTool( rpcTable )
+    if flags.Detector.GeometryTGC:
+        regSel.enableMuon = True
+        regSel.enableTGC  = True
+        from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
+        tgcTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
+        acc.addPublicTool( tgcTable )
 
-    from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
-    mdtTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
-    acc.addPublicTool( mdtTable )
+    if flags.Detector.GeometryCSC:
+        regSel.enableMuon = True
+        regSel.enableCSC  = True
+        from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
+        cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
+        acc.addPublicTool( cscTable )
 
-    from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
-    tgcTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
-    acc.addPublicTool( tgcTable )
-
-    from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
-    cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
-    acc.addPublicTool( cscTable )
-
-    # ??? that is same puzzle of Calo, the RegSelSvc seems not to ahev such a property
+    # ??? that is same puzzle of Calo, the RegSelSvc seems not to have such a property
     # while it is set in:RegSelSvcDefault.py 
-    #regSel.RPC_RegionLUT_CreatorTool   = rpcTable
-    #regSel.MDT_RegionLUT_CreatorTool   = mdtTable
-    #regSel.TGC_RegionLUT_CreatorTool   = tgcTable
-    #regSel.CSC_RegionLUT_CreatorTool   = cscTable
+    # regSel.RPC_RegionLUT_CreatorTool   = rpcTable
+    # regSel.MDT_RegionLUT_CreatorTool   = mdtTable
+    # regSel.TGC_RegionLUT_CreatorTool   = tgcTable
+    # regSel.CSC_RegionLUT_CreatorTool   = cscTable
 
-    regSel.enableMuon = True
-    regSel.enableRPC  = True
-    regSel.enableMDT  = True
-    regSel.enableTGC  = True
-    regSel.enableCSC  = True
-    regSel.enableMM   = False   
 
-    from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-    pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
-                                     ManagerName = "Pixel",
-                                     OutputFile  = "RoITablePixel.txt",
-                                     PrintHashId = True,
-                                     PrintTable  = False)
-    acc.addPublicTool(pixTable)
+    if flags.Detector.GeometryMM:
+        regSel.enableMM  = True   
 
-    from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-    sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
-                                     ManagerName = "SCT",
-                                     OutputFile  = "RoITableSCT.txt",
-                                     PrintHashId = True,
-                                     PrintTable  = False)
-    acc.addPublicTool(sctTable)
-
-    from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-    trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
-                                       ManagerName = "TRT",
-                                       OutputFile  = "RoITableTRT.txt",
-                                       PrintHashId = True,
-                                       PrintTable  = False)
-    acc.addPublicTool(trtTable)
     acc.addService( regSel )
 
 
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    acc.merge( LArGMCfg(  flags ) )
-    acc.merge( TileGMCfg( flags ) )
 
-    return acc, regSel
+    return acc
 
 if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -110,6 +136,15 @@ if __name__ == "__main__":
 
     Configurable.configurableRun3Behavior=True
 
+    ConfigFlags.Detector.GeometryPixel = True     
+    ConfigFlags.Detector.GeometrySCT   = True 
+    ConfigFlags.Detector.GeometryTRT   = True 
+    ConfigFlags.Detector.GeometryLAr   = True     
+    ConfigFlags.Detector.GeometryTile  = True     
+    ConfigFlags.Detector.GeometryMDT   = True 
+    ConfigFlags.Detector.GeometryTGC   = True
+    ConfigFlags.Detector.GeometryCSC   = True     
+    ConfigFlags.Detector.GeometryRPC   = True     
     
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
@@ -121,16 +156,16 @@ if __name__ == "__main__":
 
     ## move up
 
-# when trying AOD
-#    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-#    cfg.merge( PoolReadCfg( ConfigFlags ) )
+    # when trying AOD
+    #    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    #    cfg.merge( PoolReadCfg( ConfigFlags ) )
 
     
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg( ConfigFlags ))
     
     
-    acc,regSel = RegSelConfig( ConfigFlags )
+    acc,regSel = regSelCfg( ConfigFlags )
     cfg.merge( acc )
 
 
