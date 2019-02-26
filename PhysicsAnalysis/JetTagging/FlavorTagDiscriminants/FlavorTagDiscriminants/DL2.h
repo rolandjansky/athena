@@ -106,7 +106,7 @@ namespace FlavorTagDiscriminants {
     // to populate the lwtnn input map. We define a functor here to
     // deal with the b-tagging cases.
     //
-    template <typename T>
+    template <typename T, bool NoDefault = false>
     class BVarGetter
     {
     private:
@@ -117,14 +117,14 @@ namespace FlavorTagDiscriminants {
     public:
       BVarGetter(const std::string& name, const std::string& default_flag):
         m_getter(name),
-        m_default_flag(default_flag),
+        m_default_flag(NoDefault ? "dummyDefault" : default_flag),
         m_name(name)
         {
         }
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
+        return {m_name, NoDefault || m_default_flag(*btag) ? NAN : m_getter(*btag)};
       }
     };
 
