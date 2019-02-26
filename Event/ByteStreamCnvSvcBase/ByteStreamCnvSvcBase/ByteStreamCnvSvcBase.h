@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVCBASE_BYTESTREAMCNVSVCBASE_H
@@ -29,19 +29,19 @@ public:
 
    virtual ~ByteStreamCnvSvcBase();
    /// Required of all Gaudi Services
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /// Required of all Gaudi services:  see Gaudi documentation for details
-   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
    /// Checks whether an IOpaqueAddress is a GenericAddress
-   virtual StatusCode updateServiceState(IOpaqueAddress* pAddress);
+   virtual StatusCode updateServiceState(IOpaqueAddress* pAddress) override;
 
    /// Implementation of IByteStreamEventAccess: Get RawEvent
-   virtual RawEventWrite* getRawEvent() { return m_rawEventWrite; }
+   virtual RawEventWrite* getRawEvent() override { return m_rawEventWrite; }
 
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
-   virtual void handle(const Incident&);
+   virtual void handle(const Incident&) override;
 
 protected: // data
    RawEventWrite* m_rawEventWrite;
