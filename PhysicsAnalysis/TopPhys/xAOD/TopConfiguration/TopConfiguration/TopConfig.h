@@ -918,10 +918,8 @@ class TopConfig final {
   // Function to set the options for global trigger tool
   void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
   inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
-  inline auto const & getGlobalTriggerElectronTriggers() const { return m_trigGlobalConfiguration.electron_trigger; }
-  inline auto const & getGlobalTriggerElectronTriggersLoose() const { return m_trigGlobalConfiguration.electron_trigger_loose; }
-  inline auto const & getGlobalTriggerMuonTriggers() const { return m_trigGlobalConfiguration.muon_trigger; }
-  inline auto const & getGlobalTriggerMuonTriggersLoose() const { return m_trigGlobalConfiguration.muon_trigger_loose; }
+  inline auto const & getGlobalTriggers() const { return m_trigGlobalConfiguration.trigger; }
+  inline auto const & getGlobalTriggersLoose() const { return m_trigGlobalConfiguration.trigger_loose; }
   inline bool useGlobalTriggerConfiguration() const { return m_trigGlobalConfiguration.isConfigured; } // Was this subsequently configured
   inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
   inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const { return m_trigGlobalConfiguration.muon_trigger_systematics; }
@@ -1379,10 +1377,8 @@ class TopConfig final {
     // Boolean to be set to true if the user activates a flag
     bool isActivated  = false;
     // Maps of periods -> list of triggers
-    triggermap_t electron_trigger;
-    triggermap_t electron_trigger_loose;
-    triggermap_t muon_trigger;
-    triggermap_t muon_trigger_loose;
+    triggermap_t trigger;
+    triggermap_t trigger_loose;
 
     // -- Set from TopCPTools  --//
     // Boolean to be set to true if we set this information

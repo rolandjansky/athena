@@ -352,10 +352,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
 
     registerParameter("UseGlobalLeptonTriggerSF", "Switch to activate event-level trigger scale factors allowing multiple OR of single-, di-, tri- lepton triggers, True or False (default False)", "False");
-    registerParameter("ElectronTriggers",         "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("ElectronTriggersLoose",    "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("MuonTriggers",             "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("MuonTriggersLoose",        "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)","None");
+    registerParameter("GlobalTriggers",           "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("GlobalTriggersLoose",      "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("ElectronTriggers",         "Deprecated, use GlobalTriggers instead.", "None");
+    registerParameter("ElectronTriggersLoose",    "Deprecated, use GlobalTriggersLoose instead.", "None");
+    registerParameter("MuonTriggers",             "Deprecated, use GlobalTriggers instead.", "None");
+    registerParameter("MuonTriggersLoose",        "Deprecated, use GlobalTriggersLoose instead.", "None");
 
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
 }
