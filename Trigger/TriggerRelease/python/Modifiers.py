@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -342,6 +342,13 @@ class BFieldFromDCS(_modifier):
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
         conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
         svcMgr.AtlasFieldSvc.UseDCS = True
+
+class BFieldAutoConfig(_modifier):
+    """
+    Read field currents from configuration ptree (athenaHLT)
+    """
+    def postSetup(self):
+        if hasattr(svcMgr,'HltEventLoopMgr'): svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
 
 class allowCOOLUpdates(_modifier):
     """

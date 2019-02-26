@@ -381,27 +381,14 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
-    // do the necessary resets
-    ATH_CHECK(clearTemporaryStores());
-
-    // update SOR in det store
-    ATH_CHECK( processRunParams(pt) );
+    ATH_CHECK(clearTemporaryStores());  // do the necessary resets
+    ATH_CHECK( processRunParams(pt) );  // update SOR in det store
+    ATH_CHECK( updateMagField(pt) );    // update magnetic field
 
     auto& soral = getSorAttrList();
 
     updateInternal(soral);       // update internally kept info
     updateMetadataStore(soral);  // update metadata store
-
-    /* Old code: kept for reference for the moment
-    const EventInfo * evinfo;
-    if(updMagField(pt).isFailure() ||     // update mag field when appropriate
-       updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
-       prepXAODEventInfo().isFailure() || // update xAOD event data in SG
-       !(evinfo = prepEventInfo()))       // update old event data in SG
-      return StatusCode::FAILURE;
-
-    bookAllHistograms();
-    */
 
     // start top level algorithms
     for (auto& ita : m_topAlgList) {
@@ -885,8 +872,40 @@ void HltEventLoopMgr::updateMetadataStore(const coral::AttributeList & sor_attrl
   else {
     ATH_MSG_DEBUG("Recorded MetaData in InputMetaDataStore");
   }
-
 }
+
+//=========================================================================
+StatusCode HltEventLoopMgr::updateMagField(const ptree& pt) const
+{
+  if (m_setMagFieldFromPtree) {
+    try {
+      auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
+      auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
+
+      IProperty* fieldSvc{nullptr};
+      service("AtlasFieldSvc", fieldSvc, /*createIf=*/false).ignore();
+      if ( fieldSvc==nullptr ) {
+        ATH_MSG_ERROR("Cannot retrieve AtlasFieldSvc");
+        return StatusCode::FAILURE;
+      }
+
+      ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseSoleCurrent", sol_cur) );
+      ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseToroCurrent", tor_cur) );
+
+      ATH_MSG_INFO("*****************************************");
+      ATH_MSG_INFO("  Auto-configuration of magnetic field:  ");
+      ATH_MSG_INFO("    solenoid current from IS = " << sol_cur);
+      ATH_MSG_INFO("     torroid current from IS = " << tor_cur);
+      ATH_MSG_INFO("*****************************************");
+    }
+    catch(ptree_bad_path& e) {
+      ATH_MSG_ERROR( "Cannot read magnet currents from ptree: " << e.what() );
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 // =============================================================================
 StatusCode HltEventLoopMgr::clearTemporaryStores()

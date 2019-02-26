@@ -131,6 +131,9 @@ private:
   // Update internally kept data from new sor
   void updateMetadataStore(const coral::AttributeList & sor_attrlist) const;
 
+  /// Set magnetic field currents from ptree
+  StatusCode updateMagField(const boost::property_tree::ptree& pt) const;
+
   /// Clear per-event stores
   StatusCode clearTemporaryStores();
 
@@ -230,14 +233,17 @@ private:
     this, "AlgErrorDebugStreamName", "HLTError",
     "Debug stream name for events with HLT algorithm errors"};
 
+  Gaudi::Property<std::string> m_sorPath{
+    this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
+
+  Gaudi::Property<bool> m_setMagFieldFromPtree{
+    this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
   SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
     this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
-
-  Gaudi::Property<std::string> m_sorPath{
-    this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
