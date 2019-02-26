@@ -101,7 +101,7 @@ StreamAll.TakeItemsFromInput = True
 StreamAll.ForceRead=TRUE
 
 # Add the outputstreams to the execution sequence
-athOutSeq+=StreamAll
+#athOutSeq+=StreamAll
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
