@@ -119,7 +119,7 @@ decisionObjectsToRecord = []
 for d in decisionObjects:
     decisionObjectsToRecord.extend([
         "xAOD::TrigCompositeContainer_v1#%s" % d,
-        "xAOD::TrigCompositeAuxContainer_v1#%s" % d
+        "xAOD::TrigCompositeAuxContainer_v2#%s.decisions" % d
     ])
 
 ##########################################
@@ -147,7 +147,7 @@ from TrigUpgradeTest.pebMenuDefs import dataScoutingResultIDFromName
 electronDSModuleIDs = [serialiser.fullResultID(), dataScoutingResultIDFromName('dataScoutingElectronTest')] # 0 is main (full) result; we get the other ID from the EDM configuration
 serialiser.addCollectionListToResults([
     "xAOD::TrigElectronContainer_v1#Electrons",
-    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot",
+    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ], electronDSModuleIDs)
 
 ##### Result maker part 2 - stream tags #####
