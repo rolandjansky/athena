@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************
@@ -26,8 +26,6 @@
 
 #include "JetTagTools/JetFitterTag.h"
 
-//#include "JetEvent/Jet.h"
-
 #include "JetTagTools/IJetFitterNtupleWriter.h"
 #include "JetTagTools/IJetFitterClassifierTool.h"
 #include "JetTagTools/IJetFitterVariablesFactory.h"
@@ -35,7 +33,6 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#
 #include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 
@@ -156,7 +153,7 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetFitterTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode JetFitterTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     /** author to know which jet algorithm: */
     std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag);
@@ -165,25 +162,25 @@ namespace Analysis {
       jetauthor = m_ForcedCalibName;
     } 
 
-    double jetpT = jetToTag.pt();
-    double jeteta = jetToTag.eta();
+    double jetpT = jetToTag->pt();
+    double jeteta = jetToTag->eta();
 
     /** for the reference mode we need the true label: */
     std::string pref  = "";
     if (m_runModus == "reference" ) {
       // here we require a jet selection:
-      if (jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
+      if (jetToTag->pt()>m_jetPtMinRef && fabs(jetToTag->eta())<2.5 ) {
         // and also a truth match:
-	int label = xAOD::jetFlavourLabel(&jetToTag);
+	int label = xAOD::jetFlavourLabel(jetToTag);
 	double deltaRtoClosestB = 999., deltaRtoClosestC = 999.;
-	if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+	if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	  // for purification: require no b or c quark closer
 	  // than dR=m_purificationDeltaR
-	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
+	  jetToTag->getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
 	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
           //JBdV 04/05/2006 purify also w.r.t tau
           double deltaRtoClosestT;
-	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
+	  jetToTag->getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
           deltaRmin = deltaRtoClosestT < deltaRmin ? 
 	    deltaRtoClosestT : deltaRmin;
         } else {
@@ -210,10 +207,6 @@ namespace Analysis {
     }
 
     
-    //IJetFitterTagInfo* theVariables = 0;
-    //   m_variablesFactory->getITagInfoObject(jetToTag);
-
- 
     // ====================================
     // ====================================
     // === augment variables here =========
@@ -250,273 +243,10 @@ namespace Analysis {
 	    ATH_MSG_WARNING("#BTAG# jet fitter failed in fillLikelihoodValues");
       } 
 
-
-      // generic tag class supports arbitrary double and int variables 
-      // JetFitterGenericTagInfo* generic_vars = 
-      // 	dynamic_cast<JetFitterGenericTagInfo*>(theVariables); 
-
-      //if (m_svx_tagger_name.size() > 0 && generic_vars){ 
-      // augment_with_svinfoplus(generic_vars, jetToTag); 
-      //}
-      //if (m_ipinfo_tagger_name.size() > 0 && generic_vars){ 
-      //	augment_with_ipinfoplus(generic_vars, jetToTag); 
-      //}
-
-      // this function is a bit of a hack: the single_weight is just there
-      // to accomidate the JetFitterCOMBNN classifier, which takes 
-      // IP3D as a function argument. 
-      // double single_weight = get_simple_tagger_weights(theVariables,*BTag);
-      // get_tagger_weights(theVariables, *BTag); 
-
-      // try { 
-      // 	// this may throw a runtime_error if something is configured wrong
-      // 	m_classifier->fillLikelihoodValues(*theVariables,
-      // 					   jetauthor,
-      // 					   jetToTag.pt(),
-      // 					   jetToTag.eta(),
-      // 					   single_weight);
-
-
-
-      // 	if (generic_vars && !m_save_temporary_variables) { 
-      // 	  // some variables which are used in the NN don't need to be 
-      // 	  // stored, we can safely remove them now. 
-      // 	  generic_vars->clearTemporary(); 
-      // 	}
-      // }
-      // catch (const std::runtime_error e) {
-      // 	std::string warning = "problem tagging jet with " + jetauthor + " (";
-      // 	warning.append( e.what() ); 
-      // 	warning.append("). No tagging will be done."); 
-      // 	ATH_MSG_WARNING(warning); 
-      // }
-      //ELG: what to store not yet defined
-      /*JetTagInfoBase* info_to_store = 0; 
-      if (m_store_only_base_object) {
-        info_to_store = new BaseTagInfo(*theVariables);
-        delete theVariables;
-        theVariables = 0;
-      }
-      else {
-        info_to_store = theVariables;
-      }
-
-      jetToTag.addInfo(info_to_store);
-      */
     } // end if "analysis" block 
     return StatusCode::SUCCESS;
   }
 
-  // int JetFitterTag
-  // ::augment_with_svinfoplus(JetFitterGenericTagInfo* tag_info, 
-  // 			    const xAOD::Jet& jet_with_sv1) { 
-  //   /*const SVInfoPlus* sv_info = dynamic_cast<const SVInfoPlus*>
-  //     (jet_with_sv1.tagInfo(m_svx_tagger_name));
-
-  //   int n_gt_jet = -1;
-  //   int n_gt_svx = -1;
-  //   int n_2t     = -1;
-  //   double mass       = -1;
-  //   double energyfrac = -1;
-  //   double normdist   = -1;
-
-  //   // this tag is often missing if no secondary vertex is constructed
-  //   if (! sv_info){
-  //     // double-check to make sure it's not just misnamed 
-  //     if (dynamic_cast<const BaseTagInfo*>
-  // 	  (jet_with_sv1.tagInfo(m_svx_tagger_name)))
-  // 	throw std::runtime_error
-  // 	  (m_svx_tagger_name + " tagger is stored as a base object."); 
-  //   }
-  //   else { 
-  //     n_gt_jet   = sv_info->getNGTrackInJet(); 	
-  //     n_gt_svx   = sv_info->getNGTrackInSvx(); 	
-  //     n_2t       = sv_info->getN2T(); 		
-  //     mass       = sv_info->getMass(); 		
-  //     energyfrac = sv_info->getEnergyFraction(); 
-  //     normdist   = sv_info->getNormDist();       
-  //   }
-
-  //   // keep track of number of overwrites
-  //   int n_ow = 0; 
-
-  //   const std::string& tn = m_svx_tagger_name; 
-  //   n_ow += tag_info->setTemporaryInt("n_" + tn + "_gt_jet"     , n_gt_jet  );
-  //   n_ow += tag_info->setTemporaryInt("n_" + tn + "_gt_svx"     , n_gt_svx  );
-  //   n_ow += tag_info->setTemporaryInt("n_" + tn + "_2t"         , n_2t      );
-  //   n_ow += tag_info->setTemporaryDouble    (tn + "_mass"       , mass      );
-  //   n_ow += tag_info->setTemporaryDouble    (tn + "_energyfrac" , energyfrac);
-  //   n_ow += tag_info->setTemporaryDouble    (tn + "_normdist"   , normdist  );
-  //   return n_ow;*/
-  //   return 0;
-  // }
-
-  // int JetFitterTag
-  // ::augment_with_ipinfoplus(JetFitterGenericTagInfo* tag_info, 
-  // 			    const xAOD::Jet& jet_with_ipinfo) { 
-  //   /*const IPInfoPlus* ip_info = dynamic_cast<const IPInfoPlus*>
-  //     (jet_with_ipinfo.tagInfo(m_ipinfo_tagger_name));
-
-  //   // TODO: this needs to be filled out more
-  //   int n_ip_tracks = -1; 
-
-  //   // this tag is often missing if no secondary vertex is constructed
-  //   if (! ip_info){
-  //     // double-check to make sure it's not just misnamed 
-  //     if (dynamic_cast<const BaseTagInfo*>
-  // 	  (jet_with_ipinfo.tagInfo(m_ipinfo_tagger_name)))
-  // 	throw std::runtime_error
-  // 	  (m_ipinfo_tagger_name + 
-  // 	   " tagger is stored as a base object, bad bad bad..."); 
-  //   }
-  //   else { 
-  //     n_ip_tracks = ip_info->numTrackInfo(); 
-  //   }
-
-  //   int n_ow = 0; 
-  //   const std::string& tn = m_ipinfo_tagger_name; 
-  //   n_ow += tag_info->setTemporaryInt("n_" + tn + "_tracks", n_ip_tracks  );
-  //   return n_ow;*/
-  //   return 0; 
-  // }
-
-
-  // double JetFitterTag
-  // ::get_simple_tagger_weights(IJetFitterTagInfo* tag_info, 
-  // 			      const xAOD::BTagging& BTag) { 
-  //   JetFitterGenericTagInfo* generic_vars = 
-  //     dynamic_cast<JetFitterGenericTagInfo*>(tag_info); 
-  //   int n_overwrite = 0; 
-  //   if (!generic_vars && m_supplementalTaggers.size() > 1) { 
-  //     std::string warning = "You've given more than one supplemental"
-  // 	" tagger. No room for this using JetFitterTagInfo."
-  // 	" Using first tagger given (" + m_supplementalTaggers.at(0) + ")"
-  // 	" and dropping all others."; 
-  //     ATH_MSG_WARNING(warning); 
-  //     m_supplementalTaggers.erase(m_supplementalTaggers.begin() + 1, 
-  // 				  m_supplementalTaggers.end()); 
-  //   }
-
-  //   double single_weight = 0; 
-  //   for (std::vector<std::string>::const_iterator 
-  // 	   titr = m_supplementalTaggers.begin(); 
-  // 	 titr != m_supplementalTaggers.end(); 
-  // 	 titr++) { 
-      
-  //     const std::vector<double> prob = get_likelihood_vector(BTag, *titr); 
-
-  //     if (prob.size() > 0) {
-  // 	double pb = prob.at(0);
-  // 	double w  = 0.;
-  // 	if (prob.size() == 1) { 
-  // 	  w = pb; 
-  // 	}
-  // 	else {
-  // 	  double pu = prob.at(1);
-  // 	  if (pb <= 0. || pu <= 0.) {
-  // 	  ATH_MSG_WARNING
-  // 	    ("At least one " << *titr << 
-  // 	     " prob. null (or negative !?) for JetFitter"
-  // 	     " : pb,pu = " << pb << " " << pu << 
-  // 	     ", conservatively putting the weight to 0");
-  // 	  } else {
-  // 	    w = log(pb/pu);
-  // 	  }
-  // 	}
-  // 	if (generic_vars) { 
-  // 	  n_overwrite += generic_vars->setTemporaryDouble(*titr,w); 
-  // 	}
-  // 	single_weight = w; 
-  //     }
-	
-  //   }
-  //   if (n_overwrite != 0) { 
-  //     ATH_MSG_WARNING(n_overwrite << " varaibels have been overwritten"
-  // 		      " while filling JetFitterGenericTagInfo"); 
-  //   }
-  //   return single_weight; 
-  // }
-
-  // void JetFitterTag
-  // ::get_tagger_weights(IJetFitterTagInfo* tag_info, 
-  // 		       const xAOD::BTagging& BTag) { 
-
-  //   JetFitterGenericTagInfo* generic_vars = 
-  //     dynamic_cast<JetFitterGenericTagInfo*>(tag_info); 
-
-  //   int n_overwrite = 0; 
-  //   if (!generic_vars && m_multiweightSupplementalTaggers.size() > 0) { 
-  //     std::string warning = "You've given a supplemental"
-  // 	" tagger. No room for this using JetFitterTagInfo."; 
-  //     ATH_MSG_WARNING(warning); 
-  //   }
-  //   if (!generic_vars) return; 
-
-  //   for (std::vector<std::string>::const_iterator 
-  // 	   tagger_itr = m_multiweightSupplementalTaggers.begin(); 
-  // 	 tagger_itr != m_multiweightSupplementalTaggers.end(); 
-  // 	 tagger_itr++) { 
-
-  //     std::vector<double> prob = get_likelihood_vector(BTag,*tagger_itr); 
-  //     if (prob.size() > 0) { 
-  // 	std::string pb_name = *tagger_itr + "_pb"; 
-  // 	double pb = prob.at(0);
-  // 	n_overwrite += generic_vars->setTemporaryDouble(pb_name, pb); 
-  //     }
-  //     if (prob.size() > 1) { 
-  // 	std::string pu_name = *tagger_itr + "_pu"; 
-  // 	double pu = prob.at(1);
-  // 	n_overwrite += generic_vars->setTemporaryDouble(pu_name, pu); 
-  //     }
-  //     if (prob.size() > 2) { 
-  // 	std::string pc_name = *tagger_itr + "_pc"; 
-  // 	double pc = prob.at(2); 
-  // 	n_overwrite += generic_vars->setTemporaryDouble(pc_name, pc); 
-  //     }
-  //     if (prob.size() > 3) { 
-  // 	std::string ptau_name = *tagger_itr + "_ptau"; 
-  // 	double ptau = prob.at(3); 
-  // 	n_overwrite += generic_vars->setTemporaryDouble(ptau_name, ptau); 
-  //     }
-	
-  //   }
-  //   if (n_overwrite != 0) { 
-  //     ATH_MSG_WARNING(n_overwrite << " varaibels have been overwritten"
-  // 		      " while filling JetFitterGenericTagInfo"); 
-  //   }
-  // }
-
-/*  std::vector<double> JetFitterTag
-  ::get_likelihood_vector(const xAOD::Jet& jet, 
-			  const std::string& tag_name) const { 
-    const JetTagInfoBase* pos(jet.tagInfo(tag_name));
-    if (pos==0) {
-      ATH_MSG_WARNING("Could not find tag to combine it with JetFitter."
-		      " Tag name: " << tag_name);
-      return std::vector<double>(); 
-    } else if (!pos->isValid() && m_proxy_likelihoods.count(tag_name)) { 
-      return m_proxy_likelihoods.find(tag_name)->second; 
-    }
-    return pos->tagLikelihood();
-      
-  }*/
-
-  // std::vector<double> JetFitterTag
-  // ::get_likelihood_vector(const xAOD::BTagging& BTag,
-  //                         const std::string& tag_name) const {
-
-  //   std::vector<double> tagLikelihood = std::vector<double>();
-  //   double pb = 0,  pu = 0, pc = 0;
-  //   BTag.variable<double>(tag_name, "pb", pb);
-  //   tagLikelihood.push_back(pb);
-  //   BTag.variable<double>(tag_name, "pu", pu);
-  //   tagLikelihood.push_back(pu);
-  //   //if (m_useCHypo) {
-  //     BTag.variable<double>(tag_name, "pc", pc);
-  //     tagLikelihood.push_back(pc);
-  //   //}
-  //   return tagLikelihood;
-  // }
 }//end namespace
 
   
