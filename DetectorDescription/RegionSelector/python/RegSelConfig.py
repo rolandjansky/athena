@@ -148,6 +148,7 @@ if __name__ == "__main__":
     
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
+    ConfigFlags.Input.isMC = False
     ConfigFlags.dump()
     ConfigFlags.lock()
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     cfg.merge(TrigBSReadCfg( ConfigFlags ))
     
     
-    acc,regSel = regSelCfg( ConfigFlags )
+    acc = regSelCfg( ConfigFlags )
     cfg.merge( acc )
 
 
