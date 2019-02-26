@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -73,8 +73,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     , m_rndmSvc("AtRndmGenSvc",name)
     , m_hits(0)
     , m_hits_DigiHSTruth(0)
-    , m_doChecks(false)
-    , m_doChecksTB(false)
     , m_mbtsOffset(0)
     , m_cablingSvc("TileCablingSvc", name)
     , m_cabling(0)
@@ -364,12 +362,6 @@ StatusCode TileHitVecToCntTool::createContainers() {
     if(m_doDigiTruth) m_hits_DigiHSTruth = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
 
   }
-
-  // disable checks for TileID and remember previous state
-  m_doChecks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
-  m_doChecksTB = m_tileTBID->do_checks();
-  m_tileTBID->set_do_checks(false);
 
   ATH_MSG_VERBOSE("TileHitVecToCntTool createContainers finished");
 
@@ -941,9 +933,6 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     //    ATH_MSG_DEBUG ( " nHit=" << nHit
     //                    << " eHitTot=" << eHitTot );
   }
-
-  m_tileID->set_do_checks(m_doChecks); // set back this flag to TileID
-  m_tileTBID->set_do_checks(m_doChecksTB); // set back this flag to TileTBID
 
   if (m_run2) {
     // Merge MBTS and E1 where it is needed.
