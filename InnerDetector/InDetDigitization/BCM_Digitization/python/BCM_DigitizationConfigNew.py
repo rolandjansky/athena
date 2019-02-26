@@ -23,6 +23,8 @@ def BCM_DigitizationToolCfg(configFlags, name="BCM_DigitizationTool", **kwargs):
     # Build the argument dict
     kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
+    kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+    kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
     if configFlags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("ModNoise", [90.82] * 8)
     else:
@@ -73,4 +75,3 @@ def getBCM_Range(name="BCM_Range" , **kwargs):
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["SiHitCollection#BCMHits"])
     return CfgMgr.PileUpXingFolder(name, **kwargs)
-
