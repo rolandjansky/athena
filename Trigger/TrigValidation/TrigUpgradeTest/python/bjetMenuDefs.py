@@ -3,22 +3,23 @@
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 import AthenaCommon.CfgMgr as CfgMgr
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Include import include
 
 # Set InDet Flags
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-from AthenaCommon.Include import include
-include("InDetRecExample/InDetRecConditionsAccess.py")
+def inDetSetup():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doCaloSeededBrem = False
+    InDetFlags.InDet25nsec = True 
+    InDetFlags.doPrimaryVertex3DFinding = False 
+    InDetFlags.doPrintConfigurables = False
+    InDetFlags.doResolveBackTracks = True 
+    InDetFlags.doSiSPSeededTrackFinder = True
+    InDetFlags.doTRTPhaseCalculation = True
+    InDetFlags.doTRTSeededTrackFinder = True
+    InDetFlags.doTruth = False
+    InDetFlags.init()
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -44,18 +45,22 @@ def getBJetSequence( step ):
 def bJetStep1Sequence():
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-    # input maker
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
-    InputMakerAlg.RoIs='FSJETRoI'
-    InputMakerAlg.OutputLevel = DEBUG
+    from TrigUpgradeTest.jetDefs import jetAthSequence
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+
+     
+    ## # input maker
+    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    ## InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+    ## InputMakerAlg.RoIs='FSJETRoI'
+    ## InputMakerAlg.OutputLevel = DEBUG
 
 
     # Construct jets
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
+    #from TrigUpgradeTest.jetDefs import jetRecoSequence    
+    #(recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -100,7 +105,7 @@ def bJetStep1Sequence():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
@@ -114,21 +119,25 @@ def bJetStep1Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
 
 def bJetStep1SequenceALLTE():
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-    # input maker
-    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
-    InputMakerAlg.RoIs='FSJETRoI'
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
     # Construct jets
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
+    from TrigUpgradeTest.jetDefs import jetAthSequence
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+
+    ## # input maker
+    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    ## InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
+    ## InputMakerAlg.RoIs='FSJETRoI'
+
+    ## # Construct jets
+    ## from TrigUpgradeTest.jetDefs import jetRecoSequence
+    ## (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -169,7 +178,7 @@ def bJetStep1SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
@@ -183,7 +192,7 @@ def bJetStep1SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
 
 
 
@@ -226,7 +235,7 @@ def bJetStep2Sequence():
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.RoIs = "step1RoI"
@@ -241,7 +250,7 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
 
 
 def bJetStep2SequenceALLTE():
@@ -265,7 +274,7 @@ def bJetStep2SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
@@ -279,7 +288,7 @@ def bJetStep2SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging

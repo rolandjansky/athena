@@ -280,7 +280,7 @@ namespace xAOD {
     }
     else {
       float internalAttribute = anAttribute;
-      (*(PFOAttributesAccessor_v1<float>::accessor(AttributeType)))(*this) = internalAttribute;
+      (*(PFOAttributesAccessor_v1<float>::constAccessor(AttributeType)))(*this) = internalAttribute;
     }
   }
 
@@ -767,7 +767,7 @@ namespace xAOD {
     //clusters
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accClusters = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
     if (p_accClusters){
-      const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accClusters = *p_accClusters;
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accClusters = *p_accClusters;
       if ( accClusters.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theClusterLinks = accClusters(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstClus = theClusterLinks.begin();
@@ -779,7 +779,7 @@ namespace xAOD {
     //tracks
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accTracks = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
     if (p_accTracks){
-      const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accTracks = *p_accTracks;
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accTracks = *p_accTracks;
       if ( accTracks.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theTrackLinks = accTracks(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstTrack = theTrackLinks.begin();
@@ -792,7 +792,7 @@ namespace xAOD {
     //shots    
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accShots = PFOParticleTypeMapper_temp::getAccessor(PFODetails::TauShot);
     if (p_accShots){
-      const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accShots = *p_accShots;
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accShots = *p_accShots;
       if ( accShots.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theShotLinks = accShots(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstShot = theShotLinks.begin();

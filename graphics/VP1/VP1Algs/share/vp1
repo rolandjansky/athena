@@ -135,7 +135,9 @@ CRUISEWITHTIME=""
 LOGFILE=""
 FILTEREVENTS=""
 FLAG_BATCH=0
+FLAG_BATCH_RANDOM_CONFIG=0
 FLAG_BATCH_ALL_EVENTS=0
+FLAG_BATCH_N_EVENTS=0
 FLAG_BATCH_OUT_FOLDER=""
 FLAG_LARHV=0
 # FLAG_FULLTOROIDS=0
@@ -197,6 +199,10 @@ while [ $i -le $# ]; do
 	FLAG_HELP=1
     
     
+    ########################
+    # COMMAND-LINE OPTIONS #
+    ########################
+    
     elif [ "x${arg}" == "x-larhv" ]; then
 	FLAG_LARHV=1
   #     elif [ "x${arg}" == "x-fulltoroids" ]; then
@@ -208,46 +214,49 @@ while [ $i -le $# ]; do
 	#
 	#
 	#
-	##############
-	# BATCH MODE #
-    ##############
+	#-----------
+	# BATCH MODE 
+    #-----------
 	# check if the user provided config files with -batch/-b options
 	elif [ "x${arg}" == "x-batch" -o "x${arg}" == "x-b" ]; then 
 		if [[ "$*" == *.vp1* ]]
         then
-    		#echo "config file: YES"
 			FLAG_BATCH=1
 			# text in bold, note in bold and red. at the end we reset the text style
 			echo ""
 			echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose to run VP1 in 'batch-mode' ('${arg}').\e[39m"
-			echo -e "Thus the main VP1 window will be not shown, but in the end you will get a PNG file with the rendered image of the 3D window, based on the configuration file you provided.\e[0m"
+			echo -e "Thus, the main VP1 window will be not shown, but in the end you will get a PNG file with the rendered image of the 3D window, based on the configuration file you provided.\e[0m"
 			echo ""
-			echo "(sleeping for 2 secs...)"
-			echo ""
-			sleep 2s # to let the user read the warning message about the batch mode
 		else
-    		#echo "config file: NO"
-			ERRORS="$ERRORS\nBatch mode needs a configuration file ('.vp1')"
+			ERRORS="$ERRORS\nBatch mode needs at least one configuration file ('.vp1')"
 		fi
 	elif [ "x${arg}" == "x-batch-all-events" ]; then 
 		FLAG_BATCH_ALL_EVENTS=1
-		if [ "x$FLAG_BATCH_ALL_EVENTS" == "x1" -a "x$FLAG_BATCH" == "x0" ]; then
-    		ERRORS="$ERRORS\nOption '-batch-all-events' can't be used without '-batch'..."
-		fi
-	#elif [ "x${arg}" == "x-batch-output-folder" ]; then 
+	elif [ "x${arg}" == "x-batch-random-config" ]; then 
+		FLAG_BATCH_RANDOM_CONFIG=1
 	elif [ "x${arg:0:21}" == "x-batch-output-folder=" ]; then
     	FLAG_BATCH_OUT_FOLDER=${arg:21:$((${#arg}-21))}
 	    if [ "x$FLAG_BATCH_OUT_FOLDER" == "x" ]; then
 	   	ERRORS="$ERRORS\nNeed argument to -batch-output-folder. Ex: -batch-output-folder=myFolder"
 	    fi
-    	if [ "x$FLAG_BATCH_OUT_FOLDER" != "x" -a "x$FLAG_BATCH" == "x0" ]; then
-    		ERRORS="$ERRORS\nOption '-batch-output-folder' can't be used without '-batch'..."
-    	fi
 	elif [ "x${arg:0:21}" == "x-batch-output-folder" ]; then # catch arg without '=' character
     	FLAG_BATCH_OUT_FOLDER_2=${arg:20:$((${#arg}-20))}
 	    if [ "x$FLAG_BATCH_OUT_FOLDER_2" == "x" ]; then
 	   	ERRORS="$ERRORS\nNeed argument to -batch-output-folder. Ex: -batch-output-folder=path/to/myFolder"
 	    fi
+	elif [ "x${arg:0:16}" == "x-batch-n-events=" ]; then
+	FLAG_BATCH_N_EVENTS=${arg:16:$((${#arg}-16))}
+	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose to run VP1 in 'batch-mode' over ${FLAG_BATCH_N_EVENTS} events ('${arg}'). VP1 will exit after having processed the given number of events.\e[39m"
+	if [ "x$FLAG_BATCH_N_EVENTS" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed a numeric argument to -batch-n-events"
+	else
+	    #check it is integer:
+	    echo "$FLAG_BATCH_N_EVENTS" | grep '^[0-9][0-9]*$' > /dev/null 2>&1 || \
+		ERRORS="$ERRORS\nArgument to -batch-n-events must be an integer!"
+	fi
+	#echo "(sleeping for 2 secs...)"
+	echo ""
+	sleep 2s # to let the user read the warning messages about the batch mode
 	### end of batch mode settings
 	#
 	#
@@ -393,18 +402,21 @@ while [ $i -le $# ]; do
 		LOCALEVENTSRC_AVAILDIRS[${#LOCALEVENTSRC_AVAILDIRS[@]}]="$EXTRADIR"
 	    fi
 	fi
-    
-    ###################
+
+
+ 	###################
     # VP1 CONFIG FILE #
     ###################
     elif [ ${#arg} -gt 4 -a ${arg:$((${#arg}-4)):4} == ".vp1" ]; then
 	FILES_VP1CFG[${#FILES_VP1CFG[@]}]="${arg}"
-    
+	
+	    
     #####################
     # EXTRA JOB OPTIONS #
     #####################
     elif [ ${#arg} -gt 3 -a ${arg:$((${#arg}-3)):3} == ".py" ]; then
 	FILES_EXTRAJOBOPT[${#FILES_EXTRAJOBOPT[@]}]="${arg}"
+    
     
     ########################
     # EOS / LFN INPUT DATA #
@@ -457,6 +469,30 @@ done
 ###     SETTINGS     ###
 ########################
 
+
+# batch mode
+if [ "x$FLAG_BATCH_N_EVENTS" != "x0" -a "x$FLAG_BATCH" == "x0" ]; then
+	ERRORS="$ERRORS\nOption '-batch-n-events' can't be used without '-batch'..."
+fi
+if [ "x$FLAG_BATCH_N_EVENTS" != "x0" -a "x$FLAG_BATCH_ALL_EVENTS" == "x1" ]; then
+	ERRORS="$ERRORS\nOption '-batch-n-events' can't be used together with '-batch-all-events'... Please choose one or the other."
+fi
+if [ "x$FLAG_BATCH_ALL_EVENTS" == "x1" -a "x$FLAG_BATCH" == "x0" ]; then
+	ERRORS="$ERRORS\nOption '-batch-all-events' can't be used without '-batch'..."
+fi
+if [ "x$FLAG_BATCH_RANDOM_CONFIG" == "x1" -a "x$FLAG_BATCH" == "x0" ]; then
+	ERRORS="$ERRORS\nOption '-batch-random-config' can't be used without '-batch'..."
+fi
+if [ "x$FLAG_BATCH_RANDOM_CONFIG" == "x1" ]; then
+	echo -e "\e[1m\e[31m\e[4mNote!\e[24m You chose the option '-batch-random-config'.\e[39m"
+	echo -e "Thus, for each event a different configuration file will be used, randomly picked from the configuration files (.vp1) you provided:\e[0m"
+	printf "["; printf '"%s", ' "${FILES_VP1CFG[@]}"; printf "]\n"; echo
+fi
+if [ "x$FLAG_BATCH_OUT_FOLDER" != "x" -a "x$FLAG_BATCH" == "x0" ]; then
+	ERRORS="$ERRORS\nOption '-batch-output-folder' can't be used without '-batch'..."
+fi
+    	
+    			
 #live & noautoconf flags (AutoConfiguration is disabled in live and livelocal modes)
 
 if [ "x$FLAG_LIVE" == "x1" ]; then
@@ -621,7 +657,11 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo
     echo "  -batch-all-events           : Process all events in the input data file in '-batch' mode. Use this together with '-batch'."
     echo
+    echo "  -batch-n-events=N           : Process 'N' events in the input data file in '-batch' mode. Use this together with '-batch'."
+    echo
     echo "  -batch-output-folder        : Specify an output folder to store the event displays produced with the '-batch' option."
+    echo
+    echo "  -batch-random-config        : Run VP1 in 'batch' mode; for each single event a configuration file will be randomly picked out of the configuration files provided by the user. Use this together with '-batch'."
     echo
     echo "  -larhv                      : Access current LAr HV data in the DCS_OFL database via VP1 CaloReadout system."
     echo
@@ -731,6 +771,7 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo "liberally (when it makes sense - of course dont put e.g. both -trigdec=file.xml and -trigdec=embedded)"
     echo
     echo
+    echo "*********"
     echo "Examples:"
     echo
     echo "  * Simply run on the input files myevents1.pool.root and myevents2.pool.root"
@@ -763,7 +804,7 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo
     echo "     \$>$APP myevents1.pool.root myconfig1.vp1 myconfig2.vp1"
     echo
-    echo "  * Run on myevents1.pool.root, and preload the tab/channel configuration files myconfig1.vp1 and myconfig2.vp1:"
+    echo "  * Run on myevents1.pool.root, and preload two tab/channel configuration files: myconfig1.vp1 and myconfig2.vp1; at start, VP1 will create multiple tabs, from the pieces of configuration information contained in both files:"
     echo
     echo "     \$>$APP myevents1.pool.root myconfig1.vp1 myconfig2.vp1"
     echo
@@ -802,7 +843,7 @@ while [ $i -le $((${#FILES_VP1CFG[@]}-1)) ]; do
     if [ "x$PYTHONFILES" == "x" ]; then
 	PYTHONFILES='vp1CfgFiles=["'"${FILES_VP1CFG[$i]}"'"'
     else
-	PYTHONFILES="${PYTHONFILES},${FILES_VP1CFG[$i]}"'"'
+	PYTHONFILES="${PYTHONFILES}"',"'"${FILES_VP1CFG[$i]}"'"'
     fi
     i=$((i+1))
 done
@@ -912,9 +953,17 @@ if [ "x$FLAG_BATCH_ALL_EVENTS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1BatchAllEvents=True"
 fi
+if [ "x$FLAG_BATCH_N_EVENTS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1BatchNEvents=$FLAG_BATCH_N_EVENTS"
+fi
 if [ "x$FLAG_BATCH_OUT_FOLDER" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1BatchOutFolder=\"$FLAG_BATCH_OUT_FOLDER\""
+fi
+if [ "x$FLAG_BATCH_RANDOM_CONFIG" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1BatchRandomConfiguration=True"
 fi
 if [ "x$FLAG_LARHV" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi

@@ -45,7 +45,7 @@ cellTool.CellsCollection = "cells"
 helperTool = EFMissingETFromHelper("theHelperTool") 
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
-
+metAlg.METContainerKey="HLT_MET"
 
 metAlg.METTools=[ cellTool ]
 metAlg.HelperTool= helperTool 
@@ -83,7 +83,7 @@ hypoAlg = MissingETHypoAlgMT("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
 for t in hypoAlg.HypoTools:
     t.OutputLevel=VERBOSE
-hypoAlg.METContainerKey="HLT_MET"
+hypoAlg.METContainerKey=metAlg.METContainerKey
 
 # Not sure how to implement monitoring at the moment. 
 # Left here in case will be useful.

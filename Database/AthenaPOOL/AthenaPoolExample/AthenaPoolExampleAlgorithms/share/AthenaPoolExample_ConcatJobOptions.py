@@ -17,6 +17,8 @@ import AthenaCommon.AtlasUnixGeneratorJob
 ## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+outSequence = AthSequencer("AthOutSeq")
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -46,18 +48,18 @@ topSequence += AthPoolEx__WriteData("WriteData")
 
 # Run OutputStream as an algorithm
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root", True, noTag=True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root" )
 Stream1.ItemList += [ "ExampleHitContainer#My*" ]
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeInputDataHeader
-topSequence += MakeInputDataHeader( StreamName = "Stream1" )
+outSequence += MakeInputDataHeader( StreamName = "Stream1" )
 topSequence += AthPoolEx__ReWriteData( "ReWriteData" )
 
 # Run OutputStream as an algorithm
-Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile3.root", True, noTag=True )
+Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile3.root" )
 Stream2.ItemList += [ "ExampleTrackContainer#*Tracks" ]
 
 # Must make sure that no OutStream's have been declared

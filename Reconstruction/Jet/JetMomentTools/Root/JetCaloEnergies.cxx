@@ -22,7 +22,7 @@ JetCaloEnergies::JetCaloEnergies(const std::string& name)
 
 int JetCaloEnergies::modifyJet(xAOD::Jet& jet) const {
   ATH_MSG_VERBOSE("Begin modifying jet.");
-  static xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& ePerSamplingAcc =
+  static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& ePerSamplingAcc =
     *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
   size_t numConstit = jet.numConstituents();
   std::vector<float> & ePerSampling = ePerSamplingAcc(jet);
@@ -65,9 +65,9 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
         ePerSampling[s] += constit->eSample( (xAOD::CaloCluster::CaloSample) s );
       }
     }
-  static xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc =
+  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc =
     *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
-  static xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc =
+  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc =
     *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);      
   
   emFracAcc(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling );
@@ -140,15 +140,21 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
     }
   }
 
-  static xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc = *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
+  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc = 
+    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
   if(eTot != 0.0){
-    emFracAcc(jet) = emTot/eTot; //ratio of EM layer calorimeter energy of neutrals to sum of all constituents at EM scale (note charged PFO have an EM scale at track scale, and charged weights are ignored)
+    emFracAcc(jet) = emTot/eTot; 
+    /*
+     * Ratio of EM layer calorimeter energy of neutrals to sum of all constituents 
+     * at EM scale (note charged PFO have an EM scale at track scale, and charged weights are ignored)
+     * */
   }
   else {
     emFracAcc(jet)  = 0.;
   }
 
-  static xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc = *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);     
+  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc = 
+    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);     
   if (eTot != 0.0){
     hecFracAcc(jet) = hecTot/eTot;
   }

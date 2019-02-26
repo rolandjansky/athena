@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 ## Get the logger
@@ -46,8 +46,9 @@ def getHITSStreamItemList():
                          "TrackRecordCollection#MuonExitLayer"]
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
         if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-            hitsItemList += ["GenericMuonSimHitCollection#*"] #MicroMegas only
             hitsItemList += ["sTGCSimHitCollection#*"]
+            hitsItemList += ["MMSimHitCollection#*"]
+            hitsItemList += ["GenericMuonSimHitCollection#*"]
 
     ## FwdRegion
     if DetFlags.FwdRegion_on():
@@ -78,10 +79,6 @@ def getHITSStreamItemList():
     if simFlags.RecordStepInfo.get_Value():
         hitsItemList +=["ISF_FCS_Parametrization::FCS_StepInfoCollection#MergedEventSteps"]
 
-    ## add xAOD::TrackParticles output collection Parametric Simulation
-    if simFlags.SimulationFlavour == "ParametricSimulation":
-        hitsItemList +=["xAOD::TrackParticleContainer#*",
-                            "xAOD::TrackParticleAuxContainer#*"]
     ## Add cosmics and test beam configuration hit persistency if required cf. geom tag
     layout = simFlags.SimLayout.get_Value()
     if "tb" not in layout:
@@ -110,6 +107,16 @@ def getEVNTStreamItemList():
     else:
         evntItemList += ["TrackRecordCollection#CosmicRecord"]
     return evntItemList
+
+def getAODStreamItemList():
+    AODItemList=[]
+    ## EventInfo always written by default
+    AODItemList += ["EventInfo#*"]
+    ## add xAOD::TrackParticles output collection Parametric Simulation
+    AODItemList += ["xAOD::TrackParticleContainer#*",
+                     "xAOD::TrackParticleAuxContainer#*"]
+    ## return the item list     
+    return AODItemList
 
 class ISF_HITSStream:
     """
@@ -151,7 +158,19 @@ class ISF_HITSStream:
             stream1.ItemList = getHITSStreamItemList()
             ## Make stream aware of aborted events
             stream1.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]
-
+            
+        ## xAOD Stream if ParametricSimulation
+        # TODO: name of the AOD file cannot be changed via Sim_tf because it
+        # does not have an --outputAODFile option
+        xAODStream = None
+        if simFlags.SimulationFlavour == "ParametricSimulation":
+            output_file = athenaCommonFlags.PoolAODOutput()
+            xAODStream = AthenaPoolOutputStream("StreamAOD", output_file, noTag=True)
+            xAODStream.ForceRead = True
+            xAODStream.ItemList = getAODStreamItemList()
+            ## Make stream aware of aborted events
+            xAODStream.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]
+        
         ## StreamEVGEN: needed for cosmic simulations and cavern BG
         ## Separate stream of track record (TR) info -- it does not apply to the CTB simulations.
         # TODO: Can this be merged into the cosmics sec above, or do the AthenaPool includes *need* to be in-between?

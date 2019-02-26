@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -134,8 +134,8 @@ public:
   void quiescent (int slot)
   {
     unsigned int mask = (1<<slot);
-    if ((m_inGrace & mask) == 0) return;
     std::lock_guard<std::mutex> g (m_mutex);
+    if ((m_inGrace & mask) == 0) return;
     m_inGrace &= ~mask;
     if (!m_inGrace) {
       for (T* p : m_garbage) delete p;

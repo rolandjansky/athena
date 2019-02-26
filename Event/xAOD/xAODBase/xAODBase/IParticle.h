@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IParticle.h 604340 2014-07-01 04:04:52Z ssnyder $
 #ifndef XAODBASE_IPARTICLE_H
 #define XAODBASE_IPARTICLE_H
 
@@ -17,10 +16,11 @@
 // Local include(s):
 #include "ObjectType.h"
 
+
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
-
-   /// Class providing the definition of the 4-vector interface
+   
+    /// Class providing the definition of the 4-vector interface
    ///
    /// All particle-like classes in the xAOD EDM inherit from this simple
    /// interface class to make it simple to write generic analysis code

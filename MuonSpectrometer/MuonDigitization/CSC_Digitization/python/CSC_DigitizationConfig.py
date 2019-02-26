@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -27,11 +27,6 @@ def getCscRange(name="CscRange", **kwargs):
 
 
 def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    cscRndm = kwargs.setdefault("RndmEngine", "CSC_Digitization")
-    
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(cscRndm, 49261510, 105132394)
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the CSC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 
@@ -47,10 +42,6 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
     kwargs.setdefault("NewDigitEDM", True)
     kwargs.setdefault("DriftVelocity", 39)
     kwargs.setdefault("ElectronEnergy", 66) # eV
-
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
 
     return CfgMgr.CscDigitizationTool(name, **kwargs)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_MDT_RESPONSE_DIGITOOL_H
@@ -36,15 +36,11 @@ class MDT_Response_DigiTool : public AthAlgTool,
 			 const std::string& name,
 			 const IInterface* parent );
 
-  MdtDigiToolOutput digitize(const MdtDigiToolInput& input);
+  MdtDigiToolOutput digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine *rndmEngine);
 
   StatusCode initialize();
 
   bool initializeTube();
-
-  // accessors
-    ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-    CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
 
  private:
   MDT_Response m_tube;
@@ -56,13 +52,6 @@ class MDT_Response_DigiTool : public AthAlgTool,
   const MuonGM::MuonDetectorManager* m_muonGeoMgr;
   const MdtIdHelper*         m_idHelper;
   bool m_DoQballGamma;
-//    CLHEP::HepRandomEngine* p_engine;
-
- protected:
-    CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-    std::string m_rndmEngineName;// name of random engine
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-
 };
 
 #endif

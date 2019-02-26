@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
 #define TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
@@ -14,6 +14,8 @@
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
+#include "Gaudi/Parsers/Factory.h" // Needed to declare less common Property types
+
 
 /**
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
@@ -35,10 +37,15 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 
   virtual StatusCode  initialize() override;
 
- private:
-  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG.aux1.aux2..etc key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
-
-  Gaudi::Property<int> m_moduleID { this, "ModuleID", 0, "The HLT result fragment to which the output should be added"};
+ private: 
+  Gaudi::Property<std::map<std::string,std::vector<uint16_t>>> m_collectionsToSerialize {
+    this, "CollectionsToSerialize", {},
+    "EDM streaming map {collectionKey, moduleIdVec} where collectionKey is a string formatted like for "
+    "AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. The type has to be an exact type, i.e. with _vN not the alias "
+    "type. moduleIdVec is the vector of HLTResult ROB module IDs to which the collection should be written. ID=0 is "
+    "the main result, other IDs are used for data scouting."
+  };
+  
 
   // internal structure to keep configuration organised conveniently
   struct Address {
@@ -47,12 +54,14 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 	     const std::string& persType_,
 	     const CLID clid_,
 	     const std::string& key_,
+	     const std::vector<uint16_t> module_={},
 	     const Catrgory category_ = None,
 	     const xAOD::AuxSelection& sel_ = {} )
     : transType(transType_),
       persType(persType_),
       clid(clid_),
       key(key_),
+      moduleIdVec(module_),
       category(category_),
       sel(sel_){}
 
@@ -60,6 +69,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     std::string persType; // actuall versioned type
     CLID clid;
     std::string key;
+    std::vector<uint16_t> moduleIdVec;
     Catrgory category;
     xAOD::AuxSelection sel = {}; // xAOD dynamic varaibles selection, relevant only for xAODAux category
 

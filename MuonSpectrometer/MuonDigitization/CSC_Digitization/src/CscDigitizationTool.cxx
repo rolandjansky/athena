@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27 2003
 // Digitization algorithm for the CSC hits
-#include "MuonReadoutGeometry/MuonDetectorManager.h" 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -15,14 +15,13 @@
 #include "StoreGate/DataHandle.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "CSC_Digitization/CscDigitizationTool.h"
 
-#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 using namespace MuonGM;
 
@@ -30,14 +29,9 @@ static constexpr unsigned int crazyParticleBarcode(
     std::numeric_limits<int32_t>::max());
 // Barcodes at the HepMC level are int
 
-CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
-  : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool")
-  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0)
-  , m_vetoThisBarcode(crazyParticleBarcode), m_run(0), m_evt(0), m_mergeSvc(0)
-  , m_inputObjectName("CSC_Hits"), m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
-
-  declareInterface<IMuonDigitizationTool>(this);
+CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
+  : PileUpToolBase(type, name, pIID)
+  , m_vetoThisBarcode(crazyParticleBarcode) {
 
   declareProperty("InputObjectName",  m_inputObjectName = "CSC_Hits", "name of the input objects");
   declareProperty("pedestal",m_pedestal = 0.0);
@@ -45,10 +39,6 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("WindowUpperOffset",m_timeWindowUpperOffset = +25.);
   declareProperty("isPileUp",m_isPileUp = false);
 
-  declareProperty("RndmSvc", 		m_rndmSvc, "Random Number Service used in Muon digitization" );
-  declareProperty("RndmEngine",       m_rndmEngineName,       "Random engine name");
-  //    declareProperty("MCStore",  m_sgSvc, "Simulated Data Event Store");
-  declareProperty("cscCalibTool",     m_pcalib);
   declareProperty("maskBadChannels",  m_maskBadChannel=true);
   declareProperty("amplification",    m_amplification=0.58e5);
 
@@ -60,9 +50,11 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
+
 CscDigitizationTool::~CscDigitizationTool()  {
   delete m_cscDigitizer;
 }
+
 
 StatusCode CscDigitizationTool::initialize() {
 
@@ -87,20 +79,20 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Retrieved Active Store Service." );
 
   ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
-  
+
   // initialize transient detector store and MuonDetDescrManager
   if ( detStore()->retrieve(m_geoMgr).isFailure() ) {
     ATH_MSG_FATAL ( "Could not retrieve MuonDetectorManager!" );
     return StatusCode::FAILURE;
   }
-  else 
+  else
     ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
 
   //locate the PileUpMergeSvc and initialize our local ptr
-  
+
   const bool CREATEIF(true);
-  if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() || 
+  if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
       0 == m_mergeSvc) {
     ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
     return StatusCode::FAILURE;
@@ -115,16 +107,7 @@ StatusCode CscDigitizationTool::initialize() {
   }
 
   //random number initialization
-  if (!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR ( " Could not initialize Random Number Service" );
-  }      
-  // getting our random numbers stream
-
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   /** CSC calibratin tool for the Condtiions Data base access */
   if ( m_pcalib.retrieve().isFailure() ) {
@@ -133,7 +116,7 @@ StatusCode CscDigitizationTool::initialize() {
   }
 
   ICscCalibTool * cscCalibTool = &*(m_pcalib);
-  
+
   //initialize the CSC digitizer
   CscHitIdHelper * cscHitHelper = CscHitIdHelper::GetHelper();
   m_cscDigitizer = new CSC_Digitizer(cscHitHelper, m_geoMgr, cscCalibTool);
@@ -143,7 +126,7 @@ StatusCode CscDigitizationTool::initialize() {
   m_cscDigitizer->setElectronEnergy  (m_electronEnergy);
   if (m_NInterFixed)
     m_cscDigitizer->setNInterFixed();
-  
+
   if ( m_cscDigitizer->initialize().isFailure() ) {
     ATH_MSG_FATAL ( "Could not initialize CSC Digitizer!" );
     return StatusCode::FAILURE;
@@ -163,9 +146,9 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_DEBUG("WP Current MSG Level DEBUG ? " << msgLvl(MSG::DEBUG) );
   ATH_MSG_DEBUG("WP Current MSG Level VERBOSE ? " << msgLvl(MSG::VERBOSE) );
 
-  
+
   return StatusCode::SUCCESS;
-    
+
 }
 
 // Inherited from PileUpTools
@@ -177,11 +160,6 @@ StatusCode CscDigitizationTool::prepareEvent(unsigned int /*nInputEvents*/) {
   m_cscHitCollList.clear();
 
   return StatusCode::SUCCESS;
-}
-///////////////////////////////
-
-StatusCode CscDigitizationTool::digitize() {
-  return this->processAllSubEvents();
 }
 ///////////////////////////////
 
@@ -200,36 +178,38 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
   SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey);
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
-  //merging of the hit collection in getNextEvent method    
+  //merging of the hit collection in getNextEvent method
 
   if (0 == m_thpcCSC ) {
     StatusCode sc = getNextEvent();
     if (StatusCode::FAILURE == sc) {
-      ATH_MSG_INFO ( "There are no CSC hits in this event" );      
+      ATH_MSG_INFO ( "There are no CSC hits in this event" );
       return sc; // there are no hits in this event
     }
   }
 
-  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr());
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper);
 
 }
 
-StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData) {
-  
+StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine) {
+
   // get the iterator pairs for this DetEl
   //iterate over hits
-  const EventInfo* pevt = 0;
-  ATH_CHECK( evtStore()->retrieve(pevt, "") );
-  m_evt = pevt->event_ID()->event_number();
-  m_run = pevt->event_ID()->run_number();
-  
-  
+  const xAOD::EventInfo* pevt = nullptr;
+  ATH_CHECK( evtStore()->retrieve(pevt) );
+  m_evt = pevt->eventNumber();
+  m_run = pevt->runNumber();
+
+
   std::map <IdentifierHash,deposits> myDeposits;
   csc_map    data_map;
   csc_newmap data_SampleMap, data_SampleMapOddPhase;
-  
-  TimedHitCollection< CSCSimHit >::const_iterator i, e;  
-  
+
+  TimedHitCollection< CSCSimHit >::const_iterator i, e;
+
   // Perform null check on m_thpcCSC
   if(!m_thpcCSC) {
     ATH_MSG_ERROR ( "m_thpcCSC is null" );
@@ -237,19 +217,19 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   }
 
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
- 
+
     // Loop over the hits:
     while (i != e) {
-        
+
       TimedHitPtr<CSCSimHit> phit(*i++);
       const CSCSimHit& hit(*phit);
 
       //      const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
       //      const HepMC::GenParticle* genPart = McLink.cptr(); // some times empty pointer returned
-        
+
       ATH_MSG_DEBUG(hit.print());
 
-    
+
 
       double globalHitTime(hitTime(phit));
       double bunchTime(globalHitTime - hit.globalTime());
@@ -261,12 +241,12 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
       std::vector<IdentifierHash> hashVec;
       StatusCode status = (m_newDigitEDM)
-        ? m_cscDigitizer->digitize_hit(&hit, hashVec, data_SampleMap, data_SampleMapOddPhase, m_rndmEngine)
-        : m_cscDigitizer->digitize_hit(&hit, hashVec, data_map, m_rndmEngine);
+        ? m_cscDigitizer->digitize_hit(&hit, hashVec, data_SampleMap, data_SampleMapOddPhase, rndmEngine)
+        : m_cscDigitizer->digitize_hit(&hit, hashVec, data_map, rndmEngine);
 
       if (status.isFailure()) {
-	ATH_MSG_ERROR ( "CSC Digitizer Failed to digitize a hit!" );
-	return status;
+        ATH_MSG_ERROR ( "CSC Digitizer Failed to digitize a hit!" );
+        return status;
       }
 
       std::vector<IdentifierHash>::const_iterator vecBeg = hashVec.begin();
@@ -300,7 +280,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
       for (; vecBeg != vecEnd; vecBeg++) {
         CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
-        myDeposits[(*vecBeg)].push_back(deposit); 
+        myDeposits[(*vecBeg)].push_back(deposit);
       }
       hashVec.clear();
     }
@@ -310,14 +290,14 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   if (m_thpcCSC) {
     delete m_thpcCSC;
     m_thpcCSC=0;
-  } 
-  
+  }
+
   // now loop over the digit map
   // build the digits
   // build the digit collections and record them
 
   if (m_newDigitEDM) {
-    double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+    double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
     bool phaseToSet = (flat<0.5) ? true : false;
     if (phaseToSet)
       return FillCollectionWithNewDigitEDM(data_SampleMapOddPhase, myDeposits, phaseToSet, cscDigits, cscSimData);
@@ -326,11 +306,11 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   }  else
     return FillCollectionWithOldDigitEDM(data_map, myDeposits, cscDigits, cscSimData);
 
-}  
-  
+}
+
 
 StatusCode CscDigitizationTool::
-FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap, 
+FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
                               std::map<IdentifierHash,deposits>& myDeposits,
                               bool phaseToSet, CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData
                               ) {
@@ -344,7 +324,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 
   csc_newmap::const_iterator cscMap    = data_SampleMap.begin();
   csc_newmap::const_iterator cscMapEnd = data_SampleMap.end();
-  
+
   for (; cscMap != cscMapEnd; ++cscMap) {
     Identifier digitId;
     IdentifierHash hashId = (*cscMap).first;
@@ -356,67 +336,67 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     Identifier elementId = m_cscIdHelper->parentID(digitId);
     IdentifierHash coll_hash;
     if (m_cscIdHelper->get_hash(elementId, coll_hash, &cscContext)) {
-      ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection " 
+      ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection "
                       << "context begin_index = " << cscContext.begin_index()
                       << " context end_index  = " << cscContext.end_index()
                       << " the identifier is " );
       elementId.show();
-    } 
-    
+    }
 
-    // get the charge 
+
+    // get the charge
     double stripCharge = 0.0;
     double driftTime = 0.0;
     //if (stripCharge < m_noiseLevel) continue;
-    
-    
+
+
     const std::vector<float> samples = (*cscMap).second;
     //    csc_newmap::iterator ii= data_SampleMapOddPhase.find(hashId);
     //    const std::vector<float> samplesOddPhase = (*ii).second;
-    
-    
+
+
     //    if (msgLvl(MSG::DEBUG)) {
     unsigned int samplingPhase =0;
     double samplingTime = m_pcalib->getSamplingTime();
     m_pcalib->findCharge(samplingTime, samplingPhase, samples, stripCharge, driftTime);
     //    }
     driftTime += m_pcalib->getLatency();
-    
+
     /** mask this readout channel if it is a dead channel or a hot channel */
     if ( !m_pcalib->isGood( hashId ) && m_maskBadChannel ) {
       stripCharge = 0.0;
-      driftTime   = 2*m_timeWindowUpperOffset; 
+      driftTime   = 2*m_timeWindowUpperOffset;
     }
-    
+
     int zsec = m_cscIdHelper->stationEta(digitId);
     int phisec = m_cscIdHelper->stationPhi(digitId);
     int istation = m_cscIdHelper->stationName(digitId) - 49;
-    
+
     int wlay = m_cscIdHelper->wireLayer(digitId);
     int measphi = m_cscIdHelper->measuresPhi(digitId);
     int istrip = m_cscIdHelper->strip(digitId);
-    
+
     int sector = zsec*(2*phisec-istation+1);
-    
+
     auto depositsForHash = myDeposits.find(hashId);
     if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
       cscSimData->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
-    
+
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
     // Now, we pass driftTime as well as stripCharge.
     // SimHIT time should be added to distinguish prompt muons from secondary.... 11/19/2009 WP
-    
+
     //   CscDigit * newDigit  = new CscDigit(digitId, samples);
     //    CscDigit * newDigitOddPhase  = new CscDigit(digitId, samplesOddPhase);
 
     ATH_MSG_DEBUG ( "NEWDigit sec:measphi:wlay:istr:chg:t(w/latency) "
-                    << m_run << " " << m_evt << " " << m_cscIdHelper->show_to_string(digitId,&context) 
+                    << m_run << " " << m_evt << " " << m_cscIdHelper->show_to_string(digitId,&context)
                     << " hash:eleId = " << hashId << " " << elementId << " " << prevId << "   "
                     << sector << " " << measphi << " " <<  wlay << " " << istrip << "   "
-                    << int(stripCharge+1) << " " << float(driftTime) 
+                    << int(stripCharge+1) << " " << float(driftTime)
                     << " phase=" << phaseToSet
                     << "  samps: " << samples[0] << " " << samples[1] << " "
                     << samples[2] << " " << samples[3]
@@ -434,22 +414,22 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 
         //        const std::vector<float> samplesToPut
         //          = (phaseToSet) ? samplesOddPhase : samples ;
-        
+
         CscDigit * newDigit  = new CscDigit(digitId, samples);
         newCollection->push_back(newDigit);
 
-        if ( cscDigits->addCollection(newCollection, coll_hash).isFailure() ) 
-          ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash 
+        if ( cscDigits->addCollection(newCollection, coll_hash).isFailure() )
+          ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash
                           << " in StoreGate!" );
 
         collection = newCollection;
 
-      } else {  
+      } else {
         CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
         if (phaseToSet) existingCollection->set_samplingPhase();
         //        const std::vector<float> samplesToPut
         //          = (existingCollection->samplingPhase()) ? samplesOddPhase : samples ;
-        
+
         CscDigit * newDigit  = new CscDigit(digitId, samples);
 
         existingCollection->push_back(newDigit);
@@ -466,7 +446,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
       if (phaseToSet) collection->set_samplingPhase();
       //      const std::vector<float> samplesToPut
       //        = (collection->samplingPhase()) ? samplesOddPhase : samples ;
-      
+
       CscDigit * newDigit  = new CscDigit(digitId, samples);
 
       collection->push_back(newDigit);
@@ -493,66 +473,66 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
       ATH_MSG_ERROR ( "cannot get CSC channel identifier from hash " << hashId );
       return StatusCode::FAILURE;
     }
-    
-    // get the charge 
+
+    // get the charge
     double stripCharge = 0.0;
-    //double gaus = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.0,1.0);
-    
+    //double gaus = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0,1.0);
+
     //if (stripCharge < m_noiseLevel) continue;
     stripCharge   = ((*cscMap).second).second + m_pedestal; // + m_noiseLevel*gaus;
     double driftTime =((*cscMap).second).first;  // SimHIT time is added yet 12/03/2009
-    
+
     //    stripCharge   = ((*cscMap).second).stripCharge + m_pedestal; // + m_noiseLevel*gaus;  v2
     //    double driftTime =((*cscMap).second).driftTime0; // for version2 v2
-    
+
     /** mask this readout channel if it is a dead channel or a hot channel */
     if ( !m_pcalib->isGood( hashId ) && m_maskBadChannel ) {
       stripCharge = 0.0;
-      driftTime   = 2*m_timeWindowUpperOffset; 
+      driftTime   = 2*m_timeWindowUpperOffset;
     }
-    
-    ATH_MSG_VERBOSE ( "CSC Digit Id = " << m_cscIdHelper->show_to_string(digitId,&context) 
-                      << " hash = " << hashId 
+
+    ATH_MSG_VERBOSE ( "CSC Digit Id = " << m_cscIdHelper->show_to_string(digitId,&context)
+                      << " hash = " << hashId
                       << " charge = " << int (stripCharge+1) );
-    
+
     int zsec = m_cscIdHelper->stationEta(digitId);
     int phisec = m_cscIdHelper->stationPhi(digitId);
     int istation = m_cscIdHelper->stationName(digitId) - 49;
-    
+
     int wlay = m_cscIdHelper->wireLayer(digitId);
     int measphi = m_cscIdHelper->measuresPhi(digitId);
     int istrip = m_cscIdHelper->strip(digitId);
-    
+
     int sector = zsec*(2*phisec-istation+1);
-    
+
     auto depositsForHash = myDeposits.find(hashId);
     if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
       cscSimData->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
-    
+
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
     // Now, we pass driftTime as well as stripCharge.
     // SimHIT time should be added to distinguish prompt muons from secondary.... 11/19/2009 WP
     CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1), float(driftTime) );
     Identifier elementId = m_cscIdHelper->parentID(digitId);
-    
+
     ATH_MSG_DEBUG ( "CSC Digit sector:measphi:wlay:istrip:charge "
                     << m_run << " " << m_evt << " " << sector << " "
                     << measphi << " " <<  wlay << " " << istrip
                     << " " << int(stripCharge+1) << " " << float(driftTime) << " " << (newDigit->sampleCharges()).size());
-    
-    
+
+
     IdentifierHash coll_hash;
     if (m_cscIdHelper->get_hash(elementId, coll_hash, &cscContext)) {
-      ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection " 
+      ATH_MSG_ERROR ( "Unable to get CSC hash id from CSC Digit collection "
                       << "context begin_index = " << cscContext.begin_index()
                       << " context end_index  = " << cscContext.end_index()
                       << " the identifier is " );
       elementId.show();
-    } 
-    
+    }
+
     if (prevId != elementId) {
       auto it_coll = cscDigits->indexFindPtr(coll_hash);
       if (nullptr ==  it_coll) {
@@ -561,9 +541,9 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
         collection = newCollection;
         StatusCode status = cscDigits->addCollection(collection, coll_hash );
         if (status.isFailure())
-          ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash 
+          ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash
                           << " in StoreGate!" );
-      } else {  
+      } else {
         CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
         existingCollection->push_back(newDigit);
         collection = existingCollection;
@@ -581,18 +561,10 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
   }
   return StatusCode::SUCCESS;
 }
-  
 
-
-StatusCode CscDigitizationTool::finalize() {
-    
-  ATH_MSG_DEBUG ( "finalize." );
-
-  return StatusCode::SUCCESS;
-}
 
 // Get next event and extract collection of hit collections:
-StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-PileUp Event... 
+StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-PileUp Event...
 {
   // Get the messaging service, print where you are
 
@@ -604,7 +576,7 @@ StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-Pile
 
   //this is a list<pair<time_t, DataLink<CSCSimHitCollection> > >
   TimedHitCollList hitCollList;
-  
+
   if (!(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList).isSuccess()) ) {
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
@@ -613,14 +585,14 @@ StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-Pile
     ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG ( hitCollList.size() 
-                    << " CSCSimHitCollections with key " << m_inputObjectName 
+    ATH_MSG_DEBUG ( hitCollList.size()
+                    << " CSCSimHitCollections with key " << m_inputObjectName
                     << " found" );
   }
-  
+
   // create a new hits collection
   m_thpcCSC = new TimedHitCollection<CSCSimHit>();
-  
+
   //now merge all collections into one
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
@@ -647,13 +619,13 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
-					  bSubEvents, eSubEvents).isSuccess()) &&
+                                          bSubEvents, eSubEvents).isSuccess()) &&
         hitCollList.size() == 0) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_VERBOSE(hitCollList.size() << " CSCSimHitCollection with key " <<
-		    m_inputObjectName << " found");
+                    m_inputObjectName << " found");
   }
 
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -666,10 +638,10 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
     PileUpTimeEventIndex timeIndex(iColl->first);
 
     ATH_MSG_DEBUG("CSCSimHitCollection found with " << hitCollPtr->size() <<
-		  " hits");
+                  " hits");
     ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
-		    << " index: " << timeIndex.index()
-		    << " type: " << timeIndex.type());
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
 
     m_thpcCSC->insert(timeIndex, hitCollPtr);
     m_cscHitCollList.push_back(hitCollPtr);
@@ -693,10 +665,9 @@ StatusCode CscDigitizationTool::mergeEvent() {
   SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey);
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
-  if ( CoreDigitization(cscDigits.ptr(),cscSimData.ptr()).isFailure() ) { // 
-    ATH_MSG_ERROR ("mergeEvent() got failure from CoreDigitization()");
-    return StatusCode::FAILURE;
-  }
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATH_CHECK(CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper));
 
   // remove cloned one in processBunchXing......
   std::list<CSCSimHitCollection*>::iterator cscHitColl = m_cscHitCollList.begin();
@@ -707,6 +678,6 @@ StatusCode CscDigitizationTool::mergeEvent() {
       ++cscHitColl;
     }
   m_cscHitCollList.clear();
-  
+
   return StatusCode::SUCCESS;
 }

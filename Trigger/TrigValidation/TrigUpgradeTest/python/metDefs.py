@@ -2,48 +2,35 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-def metCellRecoSequence(RoIs):
+
     #################################################
     # Useful imports
     #################################################
-    from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING
+from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING
 
-    from math import pi 
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCaloDataAccess
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+from math import pi 
 
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-    from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-
-    #################################################
-    # Declare reco sequence. This will be returned at the end of the function
-    #################################################
-    metCellRecoSequence = seqAND("metCellRecoSequence")
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
+from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
 
-    #################################################
-    # Set up monitoring for CaloDataAccess
-    #################################################
-    mon = GenericMonitoringTool("CaloDataAccessSvcMon")
-    mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                       defineHistogram( "roiROBs_LAr", path='EXPERT', title="Number of ROBs unpacked in RoI requests", xbins=20, xmin=0, xmax=20 ),
-                       defineHistogram( "TIME_locking_LAr_FullDet", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                       defineHistogram( "roiEta_LAr,roiPhi_LAr", type="TH2F", path='EXPERT', title="Geometric usage", xbins=50, xmin=-5, xmax=5, ybins=64, ymin=-pi, ymax=pi )]
+def metCellAthSequence(ConfigFlags):
+    from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
+    InputMakerAlg= clusterFSInputMaker()
+    (recoSequence, sequenceOut) = metCellRecoSequence()
 
-    svcMgr += TrigCaloDataAccessSvc()
-    svcMgr.TrigCaloDataAccessSvc.MonTool = mon
-    svcMgr.TrigCaloDataAccessSvc.OutputLevel=WARNING
+    MetAthSequence =  seqAND("MetAthSequence",[InputMakerAlg, recoSequence ])
+    return (MetAthSequence, InputMakerAlg, sequenceOut)
 
-    #################################################
-    # Get cells
-    #################################################
+    
+def metCellRecoSequence():
 
-    from TrigT2CaloCommon.CaloDef import algoHLTCaloCell
-    cellMakerAlgo = algoHLTCaloCell(inputEDM=RoIs, outputEDM='CaloCells')
-    metCellRecoSequence += cellMakerAlgo
+    from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
+    (metCellRecoSequence, CellsName) = HLTFSCellMakerRecoSequence()
 
 
     #################################################
@@ -80,7 +67,10 @@ def metCellRecoSequence(RoIs):
         #///////////////////////////////////////////
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCellsMT
     cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
-    cellTool.CellsCollection = cellMakerAlgo.CellsName
+
+    ### WARNING: this setting does not work for the scheduler: the variable is set, but the scheduler retrieves the default one
+    cellTool.CellsCollection = CellsName
+
     
     metAlg.METTools.append(cellTool)
 

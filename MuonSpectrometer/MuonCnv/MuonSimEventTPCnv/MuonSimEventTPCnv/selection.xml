@@ -20,5 +20,7 @@
     <class name="Muon::GenericMuonSimHitCollection_p2" id="3760C0D8-C7EA-42C7-925A-E841196F2138"/>
     <class name="Muon::sTGCSimHitCollection_p1" id="f8b975d2-8130-11e8-abf4-4b4a6a2b6ee5"/> 
     <class name="Muon::sTGCSimHitCollection_p2" id="b9521cc6-6e3b-11e8-adbb-02163e01bddd"/> 
+    <class name="Muon::MMSimHitCollection_p1" id="ac0b677c-fe08-11e8-b174-02163e018187"/>
+    <class name="Muon::MMSimHitCollection_p2" id="b9bdd436-fe08-11e8-a40f-02163e018187"/>
     
 </lcgdict>

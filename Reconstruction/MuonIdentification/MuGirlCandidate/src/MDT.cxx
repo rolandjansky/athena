@@ -297,7 +297,8 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                 MdtSegmentMakerInfo* pMdtSegmentMakerInfo = new MdtSegmentMakerInfo(pRoad, mdts);
                 pCand->getMdtSegmentMakerInfo().push_back(pMdtSegmentMakerInfo);
             }
-            pSegments = pSegmentMaker->find(*pRoad, mdts, clusters, true, momentum);
+            pSegments = NULL;
+	    pSegmentMaker->find(*pRoad, mdts, clusters, 0, true, momentum);
             if (pSegments == NULL || pSegments->empty())
             {
                 if (pSegments != NULL)

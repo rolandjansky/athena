@@ -19,7 +19,6 @@
 from AthenaCommon.AlgSequence import AthSequencer
 topSequence = AthSequencer("AthAlgSeq")
 athOutSeq = AthSequencer("AthOutSeq")
-athRegSeq = AthSequencer("AthRegSeq")
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
@@ -46,9 +45,8 @@ svcMgr.PoolSvc.ReadCatalog = [ "XMLFileCatalog_file:SplittableData.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "XMLFileCatalog_file:EventSplit.xml"
 #PoolSvc.FileOpen = "update"
  
-#svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]; # The input file name
-svcMgr.EventSelector.InputCollections =  ["PFN:SplittableCollection.root"]; # The input file name
-svcMgr.EventSelector.CollectionType = "ExplicitROOT"
+svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]
+#svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 
 #--------------------------------------------------------------
@@ -56,21 +54,6 @@ svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 #--------------------------------------------------------------
 # include stream transform
 include( "AthenaPoolMultiTest/ExampleStreamConfig.py" )
-
-#--------------------------------------------------------------
-# Add the tag object ** needed to write collections at all **
-#--------------------------------------------------------------
-from AthenaPoolMultiTest.AthenaPoolMultiTestConf import EventTagWriter
-
-EventTagWriter             = EventTagWriter("EventTagWriter")
-EventTagWriter.OutputLevel = INFO
-topSequence += EventTagWriter
-
-from AthenaPoolMultiTest.AthenaPoolMultiTestConf import RunEventTagWriter
-
-RunEventTagWriter             = RunEventTagWriter("RunEventTagWriter")
-#RunEventTagWriter.OutputLevel = DEBUG
-topSequence += RunEventTagWriter
 
 #--------------------------------------------------------------
 # Configure the filters
@@ -87,17 +70,6 @@ Splitter2.OutputLevel = INFO
 Splitter3 = EventSplit("Splitter3")  # Accept bit 3
 Splitter3.L1bitmask = 4 
 Splitter3.OutputLevel = DEBUG
-Splitter456 = EventSplit("Splitter456")  # Accept bits 4,5,6
-Splitter456.L1bitmask = 8
-Splitter456.L1bitmask += 16
-Splitter456.L1bitmask += 32
-Splitter456.OutputLevel = INFO
-Splitter7 = EventSplit("Splitter7")  # Accept bit 7
-Splitter7.L1bitmask = 64
-Splitter7.OutputLevel = INFO
-Splitter48 = EventSplit("Splitter48") # Accept bits 4,8
-Splitter48.L1bitmask = 136
-Splitter48.OutputLevel = INFO
 Triggered = EventSplit("Triggered")   # Accept all bits
 Triggered.L1bitmask = 65535   # assume -1 will set all bits on
 Triggered.OutputLevel = INFO
@@ -105,9 +77,6 @@ Triggered.OutputLevel = INFO
 topSequence+=Splitter1
 topSequence+=Splitter2
 topSequence+=Splitter3
-topSequence+=Splitter456
-topSequence+=Splitter7
-topSequence+=Splitter48
 topSequence+=Triggered
 
 #--------------------------------------------------------------
@@ -123,37 +92,38 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 ToolSvc = Service( "ToolSvc" )
 
-# We use 5 test output streams
-# Define them
-Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", True, noTag=True )
+# Filtered stream 2
+Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", False, noTag=False )
 Stream2.CheckNumberOfWrites = False
-Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", True, noTag=True )
+# Filtered stream 1
+Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", False, noTag=False )
+Stream1.WritingTool.AttributeListKey="SimpleTagDecisions"
 Stream1.CheckNumberOfWrites = False
-Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", True, noTag=True )
+# Filtered stream 3
+Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", False, noTag=False )
 Stream3.CheckNumberOfWrites = False
-Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", True, noTag=True )
+# Events that didn't satisfy any filters
+Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
-Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", True, noTag=True )
+# Events that failed at least one filter
+Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Bad.CheckNumberOfWrites = False
 
 # Configure them using filter methods and itemlist
 # Must make sure that no OutStream's have been declared
-theApp.OutStream    = [];
+#theApp.OutStream    = [];
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-#Stream2.MetadataItemList   += exampleMetadataList
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 # bit 1
 Stream1.TakeItemsFromInput = True
-#Stream1.MetadataItemList   += exampleMetadataList
 Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 Stream3.TakeItemsFromInput = True
-#Stream3.MetadataItemList   += exampleMetadataList
 Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
@@ -170,131 +140,6 @@ Others.VetoAlgs  += ["Splitter3"]
 Bad.TakeItemsFromInput = True
 Bad.VetoAlgs   = ["Triggered"]
 
-# Add the outputstreams to the execution sequence
-athOutSeq+=Stream1
-athOutSeq+=Stream2
-athOutSeq+=Stream3
-athOutSeq+=Others
-athOutSeq+=Bad
-
-#--------------------------------------------------------------
-# Now do collections
-#--------------------------------------------------------------
-# Explicit (i.e. not just files) collections (ROOT)
-#
-from RegistrationServices.RegistrationServicesConf import RegistrationStream
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamLCGTool
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-
-TagTool = RegistrationStreamTagTool("TagTool")
-TagTool.OutputLevel = INFO
-
-
-# bit 1
-CollBit1                  = RegistrationStream("CollBit1")
-CollBit1.CollectionType = "ExplicitROOT"
-#CollBit1.OutputCollection = "AthenaPoolMultiTest_Split1"; # The output file name
-CollBit1.OutputCollection = "Collection_Split1.root"
-CollBit1.ItemList        += [ "DataHeader#*" ]
-CollBit1.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-CollBit1.ItemList        += [ "CollectionMetadataContainer#*" ]
-CollBit1.OutputLevel      = INFO
-CollBit1.AcceptAlgs       = ["Splitter1"]
-#CollBit1.CollectionOpenMode = "UPDATE"
-
-# bit ( 2 | 3 )
-Coll23 = RegistrationStream("Coll23")
-Coll23.CollectionType = "ExplicitROOT"
-Coll23.OutputCollection = "Collection_Split23.root"
-Coll23.ItemList        += [ "DataHeader#*" ]
-Coll23.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll23.OutputLevel      = INFO
-Coll23.AcceptAlgs       = ["Splitter2"]
-Coll23.AcceptAlgs      += ["Splitter3"]
-Coll23.WriteAllProv     = False
-Coll23.IncludeProvStages = ["NonExisting"]
-Coll23.ExcludeProvStages = ["Stream1"]
-
-# bit ( 4 | 5 | 6 )
-Coll456 = RegistrationStream("Coll456")
-Coll456.CollectionType = "ExplicitROOT"
-Coll456.OutputCollection = "Collection_Split456.root"
-Coll456.ItemList        += [ "DataHeader#*" ]
-Coll456.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll456.OutputLevel      = INFO
-Coll456.AcceptAlgs       = ["Splitter456"]
-
-# not ( 1 & 2 & 3 & 4 & 5 & 6 )   complement of previous 3
-CollBar = RegistrationStream("CollBar")
-CollBar.CollectionType = "ExplicitROOT"
-CollBar.OutputCollection = "Collection_SplitBar.root"
-#CollBar.Tool = TagTool
-CollBar.ItemList        += [ "DataHeader#*" ]
-CollBar.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
-CollBar.OutputLevel      = INFO
-CollBar.VetoAlgs         = ["Splitter1"]
-CollBar.VetoAlgs        += ["Splitter2"]
-CollBar.VetoAlgs        += ["Splitter3"]
-CollBar.VetoAlgs        += ["Splitter456"]
-
-#--------------------------------------------------------------
-# Overlapping collections
-#
-
-# bit ( 1 & 7 )
-Coll1and7 = RegistrationStream("Coll1and7")
-Coll1and7.CollectionType = "ExplicitROOT"
-Coll1and7.OutputCollection = "Collection_Split1plus7"
-Coll1and7.ItemList        += [ "DataHeader#*" ]
-Coll1and7.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll1and7.OutputLevel      = INFO
-Coll1and7.RequireAlgs      = ["Splitter1"]
-Coll1and7.RequireAlgs     += ["Splitter7"]
-
-# bit ( 3 | 4 | 8 )
-Coll348 = RegistrationStream("Coll348")
-Coll348.CollectionType = "ExplicitROOT"
-Coll348.OutputCollection = "Collection_Split348.root"
-Coll348.ItemList        += [ "DataHeader#*" ]
-Coll348.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll348.OutputLevel      = INFO
-Coll348.AcceptAlgs       = ["Splitter48"]
-Coll348.AcceptAlgs      += ["Splitter3"]
-#Coll348.CollectionOpenMode = "UPDATE"
-
-#--------------------------------------------------------------
-# Complete collection
-#
-# All bits, but with valid trigger info
-CTTool = RegistrationStreamLCGTool("CollTrigTool")
-CollTrig = RegistrationStream("CollTrig")
-CollTrig.CollectionType = "ExplicitROOT"
-CollTrig.OutputCollection = "Collection_SplitTrig.root"
-CollTrig.ItemList        += [ "DataHeader#*" ]
-CollTrig.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-CollTrig.AcceptAlgs       = ["Triggered"]
-#CollTrig.OutputLevel = DEBUG
-CollTrig.Tool = CTTool
-
-# not Trigger, i.e. corrupted
-CollBad = RegistrationStream("CollBad")
-CollBad.CollectionType = "ExplicitROOT"
-CollBad.OutputCollection = "Collection_SplitBad.root"
-CollBad.WriteInputDataHeader = TRUE
-CollBad.ItemList        += [ "DataHeader#EventSelector" ]
-CollBad.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-CollBad.OutputLevel      = INFO
-CollBad.VetoAlgs         = ["Triggered"]
-
-athRegSeq+=CollBit1
-athRegSeq+=Coll23
-athRegSeq+=Coll456
-athRegSeq+=CollBar
-athRegSeq+=Coll1and7
-athRegSeq+=Coll348
-athRegSeq+=CollTrig
-athRegSeq+=CollBad
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------
@@ -303,6 +148,7 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
+svcMgr.DecisionSvc.SaveDecisions = True
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
 svcMgr.ItemListSvc.OutputLevel = DEBUG
 #svcMgr.DecisionSvc.OutputLevel = VERBOSE

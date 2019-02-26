@@ -51,7 +51,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
   m_tofTool(""),
   m_invSpeed(1./299.792458),
   m_mdtCalibSvcSettings( 0 ),
-  m_calibHit( 0 ),
   m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
 {
   // create calibration service settings 
@@ -106,8 +105,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
 {
 
   m_mdtCalibSvcSettings->initialize();
-  
-  m_calibHit = new MdtCalibHit();
   
   m_errorStrategy.setParameter(MuonDriftCircleErrorStrategy::BroadError,               m_createTubeHits                 );
   m_errorStrategy.setParameter(MuonDriftCircleErrorStrategy::ScaledError,              m_scaleMdtCov                    );
@@ -195,7 +192,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
 
 StatusCode Muon::MdtDriftCircleOnTrackCreator::finalize()
 {
-  delete m_calibHit;
   delete m_mdtCalibSvcSettings;
   return AthAlgTool::finalize(); 
 }
@@ -379,23 +375,25 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
   double radius(0.),errRadius(0.),sigmaR(1.),driftTime(0.);
   bool ok = true;
   
+  std::unique_ptr<MdtCalibHit> calibHit;
   if ( m_doMdt ) {
     const MuonGM::MdtReadoutElement* detEl = DC.detectorElement();
     if(!detEl){
       ATH_MSG_WARNING( "MdtPrepData without not a MdtReadoutElement" );
   
-Amg::MatrixX  localCov(1,1);
-  localCov(0,0) = 0.0;
-
-return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
+      Amg::MatrixX  localCov(1,1);
+      localCov(0,0) = 0.0;
+ 
+      return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     }
     
     // call calibration Service
-    m_calibHit->setIdentifier( DC.identify() );
-    m_calibHit->setTdc( DC.tdc() );
-    m_calibHit->setAdc( DC.adc() );
-    m_calibHit->setGlobalPointOfClosestApproach(gpos);
-    m_calibHit->setGeometry(detEl);
+    calibHit=std::make_unique<MdtCalibHit>();
+    calibHit->setIdentifier( DC.identify() );
+    calibHit->setTdc( DC.tdc() );
+    calibHit->setAdc( DC.adc() );
+    calibHit->setGlobalPointOfClosestApproach(gpos);
+    calibHit->setGeometry(detEl);
     
     switch (m_timeCorrectionType){
       case ATLTIME:
@@ -429,17 +427,17 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     }
     
     // call the calibration service providing the time when the particle passed the tube
-    ok = m_mdtCalibSvc->driftRadiusFromTime( *m_calibHit, inputData, *m_mdtCalibSvcSettings );
+    ok = m_mdtCalibSvc->driftRadiusFromTime( *calibHit, inputData, *m_mdtCalibSvcSettings );
     
-    driftTime = m_calibHit->driftTime();
-    radius    = m_calibHit->driftRadius();  // copy new values
+    driftTime = calibHit->driftTime();
+    radius    = calibHit->driftRadius();  // copy new values
     errRadius=radius; // Use same value      
     if ( myStrategy->creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition)){
       const Amg::Vector2D* myLocalPosition = DC.detectorElement()->surface(DC.identify()).Trk::Surface::globalToLocal(gpos);
 	  if (myLocalPosition) {
         errRadius = (*myLocalPosition)[Trk::driftRadius];
          delete myLocalPosition;
-  } else {
+	  } else {
         ATH_MSG_WARNING("ErrorAtPredictedPosition failed because local position transformation didn't succeed. Using measured radius instead.");
         errRadius=radius; 
       }
@@ -469,7 +467,7 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     }
   }else{
     // Use calib service errors.
-    sigmaR   =sqrt(m_calibHit->sigma2DriftRadius());
+    if(calibHit) sigmaR   =sqrt(calibHit->sigma2DriftRadius());
   }
   ATH_MSG_DEBUG("Tube : " << m_idHelper->toString(DC.identify()) << " SigmaR = "<<sigmaR);
   double sigmaR2=0.0;

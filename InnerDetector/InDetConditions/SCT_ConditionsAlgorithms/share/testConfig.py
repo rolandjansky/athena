@@ -153,7 +153,7 @@ job += MyConfigTestAlg
 import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.EventSelector.RunNumber =200805
 ServiceMgr.EventSelector.InitialTimeStamp=1333597198
-theApp.EvtMax = 1
+theApp.EvtMax = 20
 
 ServiceMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = DEBUG

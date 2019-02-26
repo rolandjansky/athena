@@ -4,6 +4,7 @@
 #include "TrkVertexSeedFinderTools/ZScanSeedFinder.h"
 #include "TrkVertexSeedFinderTools/ImagingSeedFinder.h"
 #include "TrkVertexSeedFinderTools/TrackDensitySeedFinder.h"
+#include "TrkVertexSeedFinderTools/IndexedCrossDistancesSeedFinder.h"
 
 using namespace Trk ;
 
@@ -13,4 +14,4 @@ DECLARE_COMPONENT( DummySeedFinder )
 DECLARE_COMPONENT( ZScanSeedFinder )
 DECLARE_COMPONENT( ImagingSeedFinder )
 DECLARE_COMPONENT( TrackDensitySeedFinder )
-
+DECLARE_COMPONENT( IndexedCrossDistancesSeedFinder )

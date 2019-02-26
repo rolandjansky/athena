@@ -184,7 +184,10 @@ void VP1Gui::init()
   VP1Msg::message("               Launching the VP1 GUI");
   VP1Msg::message("===================================================");
   VP1Msg::message("");
-  m_d->the_scheduler = VP1ExecutionScheduler::init(m_d->sg,m_d->detstore,m_d->svclocator,m_d->toolSvc,
+  m_d->the_scheduler = VP1ExecutionScheduler::init(m_d->sg,
+		                 m_d->detstore,
+						 m_d->svclocator,
+						 m_d->toolSvc,
 						 m_d->initialvp1files,
 						 m_d->initialCruiseMode,m_d->initialCruiseSeconds,
 						 m_d->singleEventSource,m_d->singleEventLocalTmpDir,
@@ -204,13 +207,9 @@ void VP1Gui::cleanup()
 //____________________________________________________________________
 bool VP1Gui::executeNewEvent( const int& run, const uint64_t& event, const unsigned& triggerType, const unsigned& time )
 {
-	//tests
-	int evN = event;
-	qulonglong evNqu = event;
-
-	qDebug() << "tests:" << QString::number(event) << QString::number(evN) << QString::number(evNqu);
-
   VP1Msg::messageDebug("Examining new event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )");
+
+
 
   bool b = m_d->the_scheduler->executeNewEvent(run,event,triggerType,time);
 
@@ -219,7 +218,7 @@ bool VP1Gui::executeNewEvent( const int& run, const uint64_t& event, const unsig
   // only when the user clicks on the "Next event" button.
 
   VP1Msg::messageDebug("Leaving event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )"
-		       +(nextRequestedEventFile().empty()?QString(""):". Next requested event: "+QString(nextRequestedEventFile().c_str())));
+		       +(nextRequestedEventFile().empty()?QString(""):". Next requested event file: "+QString(nextRequestedEventFile().c_str())));
 
   VP1Msg::messageDebug("end of VP1Gui::executeNewEvent().");
 

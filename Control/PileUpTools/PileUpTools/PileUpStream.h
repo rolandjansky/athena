@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPSTREAM_PILEUPSTREAM_H
@@ -16,13 +16,14 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Forward declarations
 class IMessageSvc;
 class ISvcLocator;
 class StoreGateSvc;
 class ActiveStoreSvc;
+class PileUpMergeSvc;
 
 /** @class PileUpStream
  * @brief a triple selector/context/store defines a stream
@@ -60,7 +61,7 @@ public:
   //@}
 
   ///return next Event, load store with next Event
-  const EventInfo* nextEventPre(bool readRecord=true);
+  const xAOD::EventInfo* nextEventPre(bool readRecord=true);
 
   ///like nextEventPre, but doesn't actually load anything
   bool nextEventPre_Passive(bool readRecord);
@@ -91,6 +92,7 @@ public:
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  
 private:
   ISvcLocator* serviceLocator() { return p_svcLoc; }
 
@@ -120,6 +122,8 @@ private:
   /// Input Iterators
   EvtIterator* p_iter; 
 
+  PileUpMergeSvc* p_mergeSvc;
+  
   ActiveStoreSvc* p_activeStore;
 
   //mutable so that ownership can be passed upon copy
@@ -134,8 +138,6 @@ private:
   unsigned int m_iOriginalRing; ///> original ring in which event was used
 };
 #endif // PILEUPSTREAM_PILEUPSTREAM_H
-
-
 
 
 

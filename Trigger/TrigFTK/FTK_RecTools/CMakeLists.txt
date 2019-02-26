@@ -51,12 +51,12 @@ atlas_add_library( FTK_RecToolsLib
                    PUBLIC_HEADERS FTK_RecTools
 		   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 		   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData TrkVxEdmCnvLib TrigFTKSimLib InDetCondTools InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces PixelConditionsData)
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData TrkVxEdmCnvLib TrigFTKSimLib InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces PixelConditionsData)
 
 atlas_add_component( FTK_RecTools
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 		     PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex TrkVxEdmCnvLib FTK_DataProviderInterfaces TrigFTK_RawData TrigFTKSimLib TrkParameters FTK_RecToolsLib InDetCondTools InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces PixelConditionsData)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex TrkVxEdmCnvLib FTK_DataProviderInterfaces TrigFTK_RawData TrigFTKSimLib TrkParameters FTK_RecToolsLib InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces PixelConditionsData)
 
 

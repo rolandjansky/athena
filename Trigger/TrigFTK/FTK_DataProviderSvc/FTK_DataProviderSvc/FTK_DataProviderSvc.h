@@ -7,8 +7,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/EventContext.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -34,7 +32,6 @@
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 
-#include <mutex>
 #include <vector>
 #include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 
@@ -277,14 +274,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_doVertexSorting;
   bool m_processAuxTracks;
   bool m_getHashIDfromConstants;
-
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;  
-
 
 };
 

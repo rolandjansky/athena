@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvAlg.h 751296 2016-06-01 08:00:25Z krasznaa $
@@ -20,6 +20,7 @@
 #include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfoContainer.h"
+#include "EventInfo/EventInfo.h"
 
 namespace xAODMaker {
 
@@ -50,8 +51,9 @@ namespace xAODMaker {
       virtual StatusCode beginRun() override;
 
    private:
-      /// StoreGate key for the input object
-      std::string m_aodKey;
+      /// Key for the input object
+      /// If blank, we do a keyless retrieve from SG instead!
+      SG::ReadHandleKey<EventInfo> m_aodKey;
       /// Key for the output object
       SG::WriteHandleKey<xAOD::EventInfo> m_xaodKey;
 

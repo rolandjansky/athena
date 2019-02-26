@@ -12,25 +12,22 @@ from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 import AthenaCommon.CfgGetter as CfgGetter
 
-from AthenaCommon import CfgMgr
+# Set InDet Flags
+def inDetSetup():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doCaloSeededBrem = False
+    InDetFlags.InDet25nsec = True 
+    InDetFlags.doPrimaryVertex3DFinding = False 
+    InDetFlags.doPrintConfigurables = False
+    InDetFlags.doResolveBackTracks = True 
+    InDetFlags.doSiSPSeededTrackFinder = True
+    InDetFlags.doTRTPhaseCalculation = True
+    InDetFlags.doTRTSeededTrackFinder = True
+    InDetFlags.doTruth = False
+    InDetFlags.init()
 
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-include("InDetRecExample/InDetRecConditionsAccess.py")
+    ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from InDetRecExample.InDetKeys import InDetKeys
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -87,12 +84,12 @@ def muFastStep():
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence ])
     
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
   
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
                          Hypo        = trigMufastHypo,
-                         HypoToolGen = TrigMufastHypoToolFromName )
+                         HypoToolGen = TrigMufastHypoToolFromDict )
 
 
 ### ************* Step2  ************* ###
@@ -121,12 +118,12 @@ def muCombStep():
     
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
     
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolFromName )
+                         HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
 ### ************* Step3  ************* ###
@@ -142,7 +139,7 @@ def muEFMSStep():
 
     ### get EF reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
-    muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efmsViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
     
@@ -154,12 +151,12 @@ def muEFMSStep():
     
     muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, muEFMSRecoSequence] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFMSonlySequence,
                          Maker       = efmsViewsMaker,
                          Hypo        = trigMuonEFMSHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
 ###  EFSA step ###
 def muEFSAStep():
@@ -172,7 +169,7 @@ def muEFSAStep():
    
     ### get EF reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
-    muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
     
@@ -184,12 +181,12 @@ def muEFSAStep():
     
     muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
     
     return MenuSequence( Sequence    = muonEFSAonlySequence,
                          Maker       = efsaViewsMaker,
                          Hypo        = trigMuonEFSAHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
 def muEFCBStep():
 
@@ -218,12 +215,43 @@ def muEFCBStep():
     
     muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
 
     return MenuSequence( Sequence    = muonEFCBSequence,
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+
+### EF SA full scan ###
+def muEFSAFSStep():
+
+    efsafsInputMaker = EventViewCreatorAlgorithm("MuonFSInputMaker", RoIsLink="initialRoI",OutputLevel=VERBOSE)
+    efsafsInputMaker.InViewRoIs = "MUFSRoIs"
+    efsafsInputMaker.Views = "MUFSViewRoI"
+    efsafsInputMaker.ViewPerRoI=True
+    efsafsInputMaker.ViewFallThrough=True
+
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS', OutputLevel=DEBUG )
+ 
+    efsafsInputMaker.ViewNodeName = muEFSAFSRecoSequence.name()
+
+    # setup EFSA hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
+    trigMuonEFSAFSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAFSHypoAlg" )
+    trigMuonEFSAFSHypo.OutputLevel = DEBUG
+    trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
+
+    muonEFSAFSSequence = seqAND( "muonEFSAFSSequence", [efsafsInputMaker, muEFSAFSRecoSequence ] )
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
+    
+    return MenuSequence( Sequence    = muonEFSAFSSequence,
+                         Maker       = efsafsInputMaker,
+                         Hypo        = trigMuonEFSAFSHypo,
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
+
 
 ### l2Muiso step ###
 def muIsoStep():
@@ -249,12 +277,12 @@ def muIsoStep():
     ### Define a Sequence to run for muIso ### 
     l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromDict
 
     return MenuSequence( Sequence    = l2muIsoSequence,
                          Maker       = l2muIsoViewsMaker,
                          Hypo        = trigmuIsoHypo,
-                         HypoToolGen = TrigMuisoHypoToolFromName )
+                         HypoToolGen = TrigMuisoHypoToolFromDict )
   
   
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):

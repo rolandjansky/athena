@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthCnvSvc.cxx 
@@ -23,6 +23,8 @@
 #include "AthenaBaseComps/AthCnvSvc.h"
 
 #include "GaudiKernel/Converter.h"
+
+#include "CxxUtils/checker_macros.h"
 
 enum CnvSvcAction   {
   CREATE_OBJ,
@@ -209,7 +211,11 @@ AthCnvSvc::setDataProvider(IDataProviderSvc* pDataSvc)
 SmartIF<IDataProviderSvc>&
 AthCnvSvc::dataProvider()  const
 {
-  return m_dataSvc;
+  // FIXME: Ideally the return type should be const, but that would require
+  //        changes in the Gaudi IConverter base class.
+  SmartIF<IDataProviderSvc>& svc ATLAS_THREAD_SAFE =
+    const_cast<SmartIF<IDataProviderSvc>&>(m_dataSvc);
+  return svc;
 }
 
 /// Implementation of IConverter: 
@@ -225,7 +231,11 @@ AthCnvSvc::setConversionSvc(IConversionSvc* /*svc*/)
 SmartIF<IConversionSvc>&
 AthCnvSvc::conversionSvc() const
 {
-  return m_cnvSvc;
+  // FIXME: Ideally the return type should be const, but that would require
+  //        changes in the Gaudi IConverter base class.
+  SmartIF<IConversionSvc>& svc ATLAS_THREAD_SAFE =
+    const_cast<SmartIF<IConversionSvc>&>(m_cnvSvc);
+  return svc;
 }
 
 /// Set address creator facility
@@ -250,7 +260,11 @@ AthCnvSvc::setAddressCreator(IAddressCreator* creator)
 SmartIF<IAddressCreator>&
 AthCnvSvc::addressCreator() const
 {
-  return m_addressCreator;
+  // FIXME: Ideally the return type should be const, but that would require
+  //        changes in the Gaudi IConverter base class.
+  SmartIF<IAddressCreator>& svc ATLAS_THREAD_SAFE =
+    const_cast<SmartIF<IAddressCreator>&>(m_addressCreator);
+  return svc;
 }
 
 /// Implementation of IConverter:

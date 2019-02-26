@@ -54,10 +54,13 @@ public:
 
 
   //init/cleanup:
-  static VP1ExecutionScheduler* init(StoreGateSvc* eventStore,StoreGateSvc* detStore,
-				     ISvcLocator* svcLocator,IToolSvc*toolSvc,
+  static VP1ExecutionScheduler* init(StoreGateSvc* eventStore,
+		             StoreGateSvc* detStore,
+				     ISvcLocator* svcLocator,
+					 IToolSvc*toolSvc,
 				     QStringList joboptions,
-				     QString initialCruiseMode = "NONE", unsigned initialCruiseSeconds = 10,
+				     QString initialCruiseMode = "NONE",
+					 unsigned initialCruiseSeconds = 10,
 				     QString singleEventSource = "",
 				     QString singleEventLocalTmpDir = "",
 				     unsigned localFileCacheLimit = 10,

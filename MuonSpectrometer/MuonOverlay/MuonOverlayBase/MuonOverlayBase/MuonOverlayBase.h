@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -26,20 +26,8 @@ class MuonOverlayBase : public IDC_OverlayBase  {
 public:
   
   MuonOverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : IDC_OverlayBase(name, pSvcLocator)
-  {}
-
-  template<class TypeToBeCopied> 
-  void copyMuonObjects(StoreGateSvc *to, StoreGateSvc *from, std::string key);
-
-  template<class TypeToBeCopied, class Datum> 
-  void copyMuonIDCobject(StoreGateSvc* from, StoreGateSvc *to);
-
-  template<class TypeToBeCopied, class Datum> 
-  TypeToBeCopied* copyMuonDigitContainer(const TypeToBeCopied* oldObject);
+    : IDC_OverlayBase(name, pSvcLocator) {}
 
 };
-
-#include "MuonOverlayBase/MuonOverlayBase.icc"
 
 #endif /* MUONOVERLAYBASE_H */

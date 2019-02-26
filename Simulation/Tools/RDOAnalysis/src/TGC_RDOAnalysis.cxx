@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -73,33 +73,33 @@ TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_radius_vec(0)
   , m_localZ_vec(0)
 
-  , h_tgcID(0)
-  , h_tgcSubDetID(0)
-  , h_tgcRodID(0)
-  , h_tgcTrigType(0)
-  , h_tgcBcID(0)
-  , h_tgcL1ID(0)
-  , h_bcTag(0)
-  , h_subDetID(0)
-  , h_rodID(0)
-  , h_sswID(0)
-  , h_slbID(0)
-  , h_bcID(0)
-  , h_l1ID(0)
-  , h_type(0)
-  , h_slbType(0)
-  , h_bitPos(0)
-  , h_track(0)
-  , h_adj(0)
-  , h_sdoID(0)
-  , h_sdoWord(0)
-  , h_xPos(0)
-  , h_yPos(0)
-  , h_zPos(0)
-  , h_barcode(0)
-  , h_eventIndex(0)
-  , h_radius(0)
-  , h_localZ(0)
+  , m_h_tgcID(0)
+  , m_h_tgcSubDetID(0)
+  , m_h_tgcRodID(0)
+  , m_h_tgcTrigType(0)
+  , m_h_tgcBcID(0)
+  , m_h_tgcL1ID(0)
+  , m_h_bcTag(0)
+  , m_h_subDetID(0)
+  , m_h_rodID(0)
+  , m_h_sswID(0)
+  , m_h_slbID(0)
+  , m_h_bcID(0)
+  , m_h_l1ID(0)
+  , m_h_type(0)
+  , m_h_slbType(0)
+  , m_h_bitPos(0)
+  , m_h_track(0)
+  , m_h_adj(0)
+  , m_h_sdoID(0)
+  , m_h_sdoWord(0)
+  , m_h_xPos(0)
+  , m_h_yPos(0)
+  , m_h_zPos(0)
+  , m_h_barcode(0)
+  , m_h_eventIndex(0)
+  , m_h_radius(0)
+  , m_h_localZ(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -190,113 +190,113 @@ StatusCode TGC_RDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  h_tgcID = new TH1F("h_tgcID", "TGC ID", 100, 0, 25);
-  h_tgcID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcID->GetName(), h_tgcID));
+  m_h_tgcID = new TH1F("h_tgcID", "TGC ID", 100, 0, 25);
+  m_h_tgcID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcID->GetName(), m_h_tgcID));
 
-  h_tgcSubDetID = new TH1F("h_tgcSubDetID", "TGC sub-detector ID", 100, 0, 110);
-  h_tgcSubDetID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcSubDetID->GetName(), h_tgcSubDetID));
+  m_h_tgcSubDetID = new TH1F("h_tgcSubDetID", "TGC sub-detector ID", 100, 0, 110);
+  m_h_tgcSubDetID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcSubDetID->GetName(), m_h_tgcSubDetID));
 
-  h_tgcRodID = new TH1F("h_tgcRodID", "TGC ROD ID", 100, 0, 15);
-  h_tgcRodID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcRodID->GetName(), h_tgcRodID));
+  m_h_tgcRodID = new TH1F("h_tgcRodID", "TGC ROD ID", 100, 0, 15);
+  m_h_tgcRodID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcRodID->GetName(), m_h_tgcRodID));
 
-  h_tgcTrigType = new TH1F("h_tgcTrigType", "TGC trigger type", 100, 0, 2);
-  h_tgcTrigType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcTrigType->GetName(), h_tgcTrigType));
+  m_h_tgcTrigType = new TH1F("h_tgcTrigType", "TGC trigger type", 100, 0, 2);
+  m_h_tgcTrigType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcTrigType->GetName(), m_h_tgcTrigType));
 
-  h_tgcBcID = new TH1F("h_tgcBcID", "TGC BCID", 100, 0, 2);
-  h_tgcBcID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcBcID->GetName(), h_tgcBcID));
+  m_h_tgcBcID = new TH1F("h_tgcBcID", "TGC BCID", 100, 0, 2);
+  m_h_tgcBcID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcBcID->GetName(), m_h_tgcBcID));
 
-  h_tgcL1ID = new TH1F("h_tgcL1ID", "TGC L1ID", 100, 0, 2);
-  h_tgcL1ID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_tgcL1ID->GetName(), h_tgcL1ID));
+  m_h_tgcL1ID = new TH1F("h_tgcL1ID", "TGC L1ID", 100, 0, 2);
+  m_h_tgcL1ID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_tgcL1ID->GetName(), m_h_tgcL1ID));
 
-  h_bcTag = new TH1F("h_bcTag", "BC Tag", 100, 0, 5);
-  h_bcTag->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_bcTag->GetName(), h_bcTag));
+  m_h_bcTag = new TH1F("h_bcTag", "BC Tag", 100, 0, 5);
+  m_h_bcTag->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_bcTag->GetName(), m_h_bcTag));
 
-  h_subDetID = new TH1F("h_subDetID", "Sub-detector ID", 100, 0, 110);
-  h_subDetID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_subDetID->GetName(), h_subDetID));
+  m_h_subDetID = new TH1F("h_subDetID", "Sub-detector ID", 100, 0, 110);
+  m_h_subDetID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_subDetID->GetName(), m_h_subDetID));
 
-  h_rodID = new TH1F("h_rodID", "ROD ID", 100, 0, 15);
-  h_rodID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rodID->GetName(), h_rodID));
+  m_h_rodID = new TH1F("h_rodID", "ROD ID", 100, 0, 15);
+  m_h_rodID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rodID->GetName(), m_h_rodID));
 
-  h_sswID = new TH1F("h_sswID", "SSW ID", 100, 0, 10);
-  h_sswID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sswID->GetName(), h_sswID));
+  m_h_sswID = new TH1F("h_sswID", "SSW ID", 100, 0, 10);
+  m_h_sswID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sswID->GetName(), m_h_sswID));
 
-  h_slbID = new TH1F("h_slbID", "SLB ID", 100, 0, 30);
-  h_slbID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_slbID->GetName(), h_slbID));
+  m_h_slbID = new TH1F("h_slbID", "SLB ID", 100, 0, 30);
+  m_h_slbID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_slbID->GetName(), m_h_slbID));
 
-  h_bcID = new TH1F("h_bcID", "BCID", 100, 0, 10);
-  h_bcID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_bcID->GetName(), h_bcID));
+  m_h_bcID = new TH1F("h_bcID", "BCID", 100, 0, 10);
+  m_h_bcID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_bcID->GetName(), m_h_bcID));
 
-  h_l1ID = new TH1F("h_l1ID", "L1ID", 100, 0, 10);
-  h_l1ID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_l1ID->GetName(), h_l1ID));
+  m_h_l1ID = new TH1F("h_l1ID", "L1ID", 100, 0, 10);
+  m_h_l1ID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_l1ID->GetName(), m_h_l1ID));
 
-  h_type = new TH1F("h_type", "type (hit or coinc)", 100, 0, 10);
-  h_type->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_type->GetName(), h_type));
+  m_h_type = new TH1F("h_type", "type (hit or coinc)", 100, 0, 10);
+  m_h_type->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_type->GetName(), m_h_type));
 
-  h_slbType = new TH1F("h_slbType", "SLB type", 100, 0, 10);
-  h_slbType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_slbType->GetName(), h_slbType));
+  m_h_slbType = new TH1F("h_slbType", "SLB type", 100, 0, 10);
+  m_h_slbType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_slbType->GetName(), m_h_slbType));
 
-  h_bitPos = new TH1F("h_bitPos", "Bitmap position", 100, 0, 220);
-  h_bitPos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_bitPos->GetName(), h_bitPos));
+  m_h_bitPos = new TH1F("h_bitPos", "Bitmap position", 100, 0, 220);
+  m_h_bitPos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_bitPos->GetName(), m_h_bitPos));
 
-  h_track = new TH1F("h_track", "tracklet", 100, 0, 10);
-  h_track->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_track->GetName(), h_track));
+  m_h_track = new TH1F("h_track", "tracklet", 100, 0, 10);
+  m_h_track->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_track->GetName(), m_h_track));
 
-  h_adj = new TH1F("h_adj", "Adjacent", 100, 0, 2);
-  h_adj->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_adj->GetName(), h_adj));
+  m_h_adj = new TH1F("h_adj", "Adjacent", 100, 0, 2);
+  m_h_adj->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_adj->GetName(), m_h_adj));
 
-  h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
-  h_sdoID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  m_h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
+  m_h_sdoID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoID->GetName(), m_h_sdoID));
 
-  h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
-  h_sdoWord->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  m_h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
+  m_h_sdoWord->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoWord->GetName(), m_h_sdoWord));
 
-  h_xPos = new TH1F("h_xPos", "Global x-position (SDO)", 100, -15000, 15000);
-  h_xPos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_xPos->GetName(), h_xPos));
+  m_h_xPos = new TH1F("h_xPos", "Global x-position (SDO)", 100, -15000, 15000);
+  m_h_xPos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_xPos->GetName(), m_h_xPos));
 
-  h_yPos = new TH1F("h_yPos", "Global y-position (SDO)", 100, -15000, 15000);
-  h_yPos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_yPos->GetName(), h_yPos));
+  m_h_yPos = new TH1F("h_yPos", "Global y-position (SDO)", 100, -15000, 15000);
+  m_h_yPos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_yPos->GetName(), m_h_yPos));
 
-  h_zPos = new TH1F("h_zPos", "Global z-position (SDO)", 100, -15000, 15000);
-  h_zPos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_zPos->GetName(), h_zPos));
+  m_h_zPos = new TH1F("h_zPos", "Global z-position (SDO)", 100, -15000, 15000);
+  m_h_zPos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_zPos->GetName(), m_h_zPos));
 
-  h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
-  h_barcode->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  m_h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
+  m_h_barcode->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_barcode->GetName(), m_h_barcode));
 
-  h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
-  h_eventIndex->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  m_h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
+  m_h_eventIndex->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_eventIndex->GetName(), m_h_eventIndex));
 
-  h_radius = new TH1F("h_radius", "Radius (SDO)", 100, 0, 1);
-  h_radius->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_radius->GetName(), h_radius));
+  m_h_radius = new TH1F("h_radius", "Radius (SDO)", 100, 0, 1);
+  m_h_radius->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_radius->GetName(), m_h_radius));
 
-  h_localZ = new TH1F("h_localZ", "Local z-position (SDO)", 100, -250, 250);
-  h_localZ->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_localZ->GetName(), h_localZ));
+  m_h_localZ = new TH1F("h_localZ", "Local z-position (SDO)", 100, -250, 250);
+  m_h_localZ->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_localZ->GetName(), m_h_localZ));
 
   return StatusCode::SUCCESS;
 }
@@ -387,12 +387,12 @@ StatusCode TGC_RDOAnalysis::execute() {
       m_tgcOrbit->push_back(tgcOrbit);
       m_tgcVersion->push_back(tgcVersion);
 
-      h_tgcID->Fill(tgcID);
-      h_tgcSubDetID->Fill(tgcSubDetID);
-      h_tgcRodID->Fill(tgcRodID);
-      h_tgcTrigType->Fill(tgcTrigType);
-      h_tgcBcID->Fill(tgcBcID);
-      h_tgcL1ID->Fill(tgcL1ID);
+      m_h_tgcID->Fill(tgcID);
+      m_h_tgcSubDetID->Fill(tgcSubDetID);
+      m_h_tgcRodID->Fill(tgcRodID);
+      m_h_tgcTrigType->Fill(tgcTrigType);
+      m_h_tgcBcID->Fill(tgcBcID);
+      m_h_tgcL1ID->Fill(tgcL1ID);
 
       const TgcRdo* p_TGCraw(*tgcCont_itr);
       TgcRdo::const_iterator tgc_itr(p_TGCraw->begin());
@@ -465,19 +465,19 @@ StatusCode TGC_RDOAnalysis::execute() {
         m_veto->push_back(veto);
         m_roi->push_back(roi);
 
-        h_bcTag->Fill(bctag);
-        h_subDetID->Fill(subDetID);
-        h_rodID->Fill(rodID);
-        h_sswID->Fill(sswID);
-        h_slbID->Fill(slbID);
-        h_bcID->Fill(bcID);
-        h_l1ID->Fill(l1ID);
-        h_type->Fill(int(type_var));
-        h_slbType->Fill(int(slbType_var));
+        m_h_bcTag->Fill(bctag);
+        m_h_subDetID->Fill(subDetID);
+        m_h_rodID->Fill(rodID);
+        m_h_sswID->Fill(sswID);
+        m_h_slbID->Fill(slbID);
+        m_h_bcID->Fill(bcID);
+        m_h_l1ID->Fill(l1ID);
+        m_h_type->Fill(int(type_var));
+        m_h_slbType->Fill(int(slbType_var));
         if (int(type_var) == 0) {
-          h_bitPos->Fill(bitPos);
-          h_track->Fill(track);
-          h_adj->Fill(adj);
+          m_h_bitPos->Fill(bitPos);
+          m_h_track->Fill(track);
+          m_h_adj->Fill(adj);
         }
       }
     }
@@ -510,11 +510,11 @@ StatusCode TGC_RDOAnalysis::execute() {
       m_yPos->push_back(yPos);
       m_zPos->push_back(zPos);
 
-      h_sdoID->Fill(sdoID_int);
-      h_sdoWord->Fill(sdoWord);
-      h_xPos->Fill(xPos);
-      h_yPos->Fill(yPos);
-      h_zPos->Fill(zPos);
+      m_h_sdoID->Fill(sdoID_int);
+      m_h_sdoWord->Fill(sdoWord);
+      m_h_xPos->Fill(xPos);
+      m_h_yPos->Fill(yPos);
+      m_h_zPos->Fill(zPos);
 
       // loop over deposits
       const std::vector<MuonSimData::Deposit>& deposits = sdo.getdeposits();
@@ -533,10 +533,10 @@ StatusCode TGC_RDOAnalysis::execute() {
         m_radius->push_back(radius);
         m_localZ->push_back(localZ);
 
-        h_barcode->Fill(bar);
-        h_eventIndex->Fill(eventIx);
-        h_radius->Fill(radius);
-        h_localZ->Fill(localZ);
+        m_h_barcode->Fill(bar);
+        m_h_eventIndex->Fill(eventIx);
+        m_h_radius->Fill(radius);
+        m_h_localZ->Fill(localZ);
 
         barcode_vec.push_back(bar);
         eventIndex_vec.push_back(eventIx);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_TRIGT1CALODATAACCESS_H
@@ -18,7 +18,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Incident.h"
-#include "EventInfo/EventIncident.h"
 
 class IInterface;
 class IROBDataProviderSvc;

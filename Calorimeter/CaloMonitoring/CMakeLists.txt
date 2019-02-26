@@ -34,7 +34,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArRecEvent
    Reconstruction/Jet/JetEvent
    Reconstruction/RecBackground/RecBackgroundEvent
-   Trigger/TriggerAnalysis/TrigAnalysisInterfaces )
+   Trigger/TrigAnalysis/TrigAnalysisInterfaces )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist MathCore Gpad )

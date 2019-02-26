@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.cxx 
@@ -19,7 +19,7 @@
 
 ItemListSvc::ItemListSvc(const std::string& name, 
 		       ISvcLocator* pSvcLocator ) : 
-  AthService(name, pSvcLocator),
+  base_class(name, pSvcLocator),
   m_verboseThresh(0.20)
 {
   declareProperty("VerboseThreshold",m_verboseThresh,"overlaps above this fraction print their items, def=0.2");
@@ -71,7 +71,7 @@ StatusCode ItemListSvc::finalize()
 }
 
 // add item to list for stream
-StatusCode ItemListSvc::addStreamItem(const std::string stream, const std::string itemname)
+StatusCode ItemListSvc::addStreamItem(const std::string& stream, const std::string& itemname)
 {
   // Add to stream list
   // Check if item is already present
@@ -93,7 +93,7 @@ StatusCode ItemListSvc::addStreamItem(const std::string stream, const std::strin
 }
 
 // remove item from list for stream
-StatusCode ItemListSvc::removeStreamItem(const std::string stream, const std::string itemname)
+StatusCode ItemListSvc::removeStreamItem(const std::string& stream, const std::string& itemname)
 {
   std::map<std::string, std::set<std::string> >::iterator it = m_streamItems.find(stream);
   if (it == m_streamItems.end()) {
@@ -108,7 +108,7 @@ StatusCode ItemListSvc::removeStreamItem(const std::string stream, const std::st
 }
 
 // simple test to see if item or (stream,item) is already being written
-bool ItemListSvc::containsItem(const std::string itemname, const std::string stream) const
+bool ItemListSvc::containsItem(const std::string& itemname, const std::string& stream) const
 {
   bool contains=false;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.begin();
@@ -122,7 +122,7 @@ bool ItemListSvc::containsItem(const std::string itemname, const std::string str
 }
 
 // This returns all the streams that an item was written to
-std::vector<std::string> ItemListSvc::getStreamsForItem(const std::string itemname) const
+std::vector<std::string> ItemListSvc::getStreamsForItem(const std::string& itemname) const
 {
   std::vector<std::string> t;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.begin();
@@ -134,26 +134,10 @@ std::vector<std::string> ItemListSvc::getStreamsForItem(const std::string itemna
 }
 
 // This returns the items that were output to a certain stream
-std::vector<std::string> ItemListSvc::getItemsForStream(const std::string stream) const
+std::vector<std::string> ItemListSvc::getItemsForStream(const std::string& stream) const
 {
   std::vector<std::string> t;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.find(stream);
   if (it != m_streamItems.end()) std::copy(it->second.begin(), it->second.end(),t.begin());
   return t;
-}
-
-
-StatusCode
-ItemListSvc::queryInterface( const InterfaceID& riid, void** ppvi )
-{
-  // valid placeholder? 
-  if ( nullptr == ppvi ) { return StatusCode::FAILURE ; }  // RETURN 
-  if ( IItemListSvc::interfaceID() == riid ) 
-    {
-      *ppvi = static_cast<IItemListSvc*>(this);
-      addRef(); // NB! : inrement the reference count!
-      return StatusCode::SUCCESS;                     // RETURN
-    }
-  // Interface is not directly availible: try out a base class
-  return Service::queryInterface( riid, ppvi );
 }

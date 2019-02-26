@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: tabstop=2:shiftwidth=2:expandtab
@@ -224,18 +224,10 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     int m_lastEventPassedBd;
     int m_lastEventPassedBs;
     int m_lastEventPassedLb;
-    int m_lastEventPassedBc;
-    int m_lastEventPassedBcDplus;
-    int m_lastEventPassedBcDstar;
-    int m_lastEventPassedBcD0;
     unsigned int m_countPassedEventsBplus;
     unsigned int m_countPassedEventsBs;
     unsigned int m_countPassedEventsBd;
     unsigned int m_countPassedEventsLb;
-    unsigned int m_countPassedEventsBc;
-    unsigned int m_countPassedEventsBcDplus;
-    unsigned int m_countPassedEventsBcDstar;
-    unsigned int m_countPassedEventsBcD0;
     
     unsigned int m_countPassedEEID;
     unsigned int m_countPassedEEOS;

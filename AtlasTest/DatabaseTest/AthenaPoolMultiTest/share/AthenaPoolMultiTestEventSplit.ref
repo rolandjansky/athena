@@ -11,9 +11,6 @@ Splitter3            INFO in initialize()
 Splitter3           DEBUG input handles: 0
 Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
-Splitter456          INFO in initialize()
-Splitter7            INFO in initialize()
-Splitter48           INFO in initialize()
 Triggered            INFO in initialize()
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
@@ -46,58 +43,275 @@ Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package ver
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
 Bad                  INFO I/O reinitialization...
-DecisionSvc          INFO Inserting stream: CollBit1 with no Algs
-DecisionSvc          INFO Inserting stream: Coll23 with no Algs
-DecisionSvc          INFO Inserting stream: Coll456 with no Algs
-DecisionSvc          INFO Inserting stream: CollBar with no Algs
-DecisionSvc          INFO Inserting stream: Coll1and7 with no Algs
-DecisionSvc          INFO Inserting stream: Coll348 with no Algs
-DecisionSvc          INFO Inserting stream: CollTrig with no Algs
-DecisionSvc          INFO Inserting stream: CollBad with no Algs
-CollBit1.Regist...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollBit1.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-Coll23.Registra...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll23.Registra...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split23.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-Coll456.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll456.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split456.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-CollBar.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollBar.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBar.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-Coll1and7.Regis...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll1and7.Regis...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1plus7' already registered ( POOL : "registerPFN" from "FileCatalog" )
-Coll348.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-Coll348.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split348.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-CollTrig.CollTr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollTrig.CollTr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitTrig.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
-CollBad.Registr...   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-CollBad.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBad.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 0 run: 0
+Splitter1           DEBUG Trigmask = 1
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 0 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 0 run: 0
+Splitter3           DEBUG Trigmask = 1
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 0 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 1 run: 0
+Splitter1           DEBUG Trigmask = 2
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 1 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 1 run: 0
+Splitter3           DEBUG Trigmask = 2
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 1 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 2 run: 0
+Splitter1           DEBUG Trigmask = 4
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 2 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 2 run: 0
+Splitter3           DEBUG Trigmask = 4
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 2 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 3 run: 0
+Splitter1           DEBUG Trigmask = 256
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 3 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 3 run: 0
+Splitter3           DEBUG Trigmask = 256
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 3 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 4 run: 0
+Splitter1           DEBUG Trigmask = 18
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 4 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 4 run: 0
+Splitter3           DEBUG Trigmask = 18
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 4 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 5 run: 0
+Splitter1           DEBUG Trigmask = 36
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 5 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 5 run: 0
+Splitter3           DEBUG Trigmask = 36
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 5 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 6 run: 0
+Splitter1           DEBUG Trigmask = 65
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 6 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 6 run: 0
+Splitter3           DEBUG Trigmask = 65
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 6 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 7 run: 0
+Splitter1           DEBUG Trigmask = 130
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 7 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 7 run: 0
+Splitter3           DEBUG Trigmask = 130
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 7 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 8 run: 0
+Splitter1           DEBUG Trigmask = 260
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 8 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 8 run: 0
+Splitter3           DEBUG Trigmask = 260
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 8 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 9 run: 0
+Splitter1           DEBUG Trigmask = 513
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 9 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 9 run: 0
+Splitter3           DEBUG Trigmask = 513
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 9 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 10 run: 0
+Splitter1           DEBUG Trigmask = 1026
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 10 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 10 run: 0
+Splitter3           DEBUG Trigmask = 1026
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 10 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 11 run: 0
+Splitter1           DEBUG Trigmask = 2052
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 11 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 11 run: 0
+Splitter3           DEBUG Trigmask = 2052
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 11 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 12 run: 0
+Splitter1           DEBUG Trigmask = 4097
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 12 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 12 run: 0
+Splitter3           DEBUG Trigmask = 4097
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 12 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 13 run: 0
+Splitter1           DEBUG Trigmask = 8194
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 13 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 13 run: 0
+Splitter3           DEBUG Trigmask = 8194
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 13 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 14 run: 0
+Splitter1           DEBUG Trigmask = 16388
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 14 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 14 run: 0
+Splitter3           DEBUG Trigmask = 16388
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 14 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 15 run: 0
+Splitter1           DEBUG Trigmask = 32769
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 15 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 15 run: 0
+Splitter3           DEBUG Trigmask = 32769
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 15 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 16 run: 0
+Splitter1           DEBUG Trigmask = 3
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 16 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 16 run: 0
+Splitter3           DEBUG Trigmask = 3
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 16 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 17 run: 0
+Splitter1           DEBUG Trigmask = 6
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 17 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 17 run: 0
+Splitter3           DEBUG Trigmask = 6
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 17 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 18 run: 0
+Splitter1           DEBUG Trigmask = 5
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 18 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 18 run: 0
+Splitter3           DEBUG Trigmask = 5
+Splitter3            INFO L1 passed
+Triggered            INFO EventInfo event: 18 run: 0
+Triggered            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 19 run: 0
+Splitter1           DEBUG Trigmask = 10
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 19 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 19 run: 0
+Splitter3           DEBUG Trigmask = 10
+Splitter3            INFO L1 failed
+Triggered            INFO EventInfo event: 19 run: 0
+Triggered            INFO L1 passed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-Stream2              INFO Records written: 1
-Stream1              INFO Records written: 1
-Stream3              INFO Records written: 1
-Others               INFO Records written: 1
+Stream2              INFO Records written: 8
+Stream1              INFO Records written: 8
+Stream3              INFO Records written: 6
+Others               INFO Records written: 2
 Bad                  INFO Records written: 1
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
-Splitter456          INFO in finalize()
-Splitter7            INFO in finalize()
-Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
-ItemListSvc         DEBUG STREAM Others has (1) items
+ItemListSvc         DEBUG STREAM Others has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_Others
-ItemListSvc         DEBUG STREAM Stream1 has (1) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
+ItemListSvc         DEBUG STREAM Stream1 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream1
-ItemListSvc         DEBUG STREAM Stream2 has (1) items
+ItemListSvc         DEBUG  --> Overlap with Others (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
+ItemListSvc         DEBUG STREAM Stream2 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream2
-ItemListSvc         DEBUG STREAM Stream3 has (1) items
+ItemListSvc         DEBUG  --> Overlap with Others (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
+ItemListSvc         DEBUG STREAM Stream3 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream3
+ItemListSvc         DEBUG  --> Overlap with Others (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items

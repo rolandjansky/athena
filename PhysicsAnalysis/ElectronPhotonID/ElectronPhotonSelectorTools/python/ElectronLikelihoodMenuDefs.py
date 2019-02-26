@@ -1,17 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
- 
-import cppyy
-try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except :
-    pass
-
-from ROOT import LikeEnum, std
-
-# Next 3 lines are needed due to a difference how pyROOT and pyCintex handle stl vectors
-std.vector('float')
-std.vector('double')
-std.vector('int')
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Import a needed helper
 from PATCore.HelperUtils import *

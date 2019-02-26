@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkEventPrimitives
    Tracking/TrkEvent/TrkParametersBase
    PRIVATE
+   AtlasTest/TestTools
    Control/CxxUtils )
 
 # Component(s) in the package:
@@ -34,3 +35,10 @@ atlas_add_dictionary( TrkSurfacesDict
    TrkSurfaces/TrkSurfacesDict.h
    TrkSurfaces/selection.xml
    LINK_LIBRARIES TrkSurfaces )
+
+
+atlas_add_test( CylinderSurface_test
+                SOURCES test/CylinderSurface_test.cxx
+                LINK_LIBRARIES TrkSurfaces TestTools )
+
+ 

@@ -196,6 +196,7 @@ StatusCode ISF::NativeFastCaloSimSvc::setupEvent()
 
 StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
 { 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");
 
   // the return value
@@ -254,7 +255,7 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
     std::string chronoName=this->name()+"_"+ itrTool->name();
     
     if (m_chrono) m_chrono -> chronoStart( chronoName);
-    sc = (*itrTool)->process(m_theContainer);
+    sc = (*itrTool)->process(m_theContainer, ctx);
     if (m_chrono) {
       m_chrono -> chronoStop( chronoName );
       ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );

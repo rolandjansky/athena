@@ -11,22 +11,14 @@
 #ifndef SCT_SensorsTool_h
 #define SCT_SensorsTool_h
 
-//STL includes
-#include <vector>
-#include <mutex>
-
-//Interface include
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
-//Gaudi includes
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-//Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsData/SCT_SensorsCondData.h"
-
-// Read Handle Key
 #include "StoreGate/ReadCondHandleKey.h"
+
+//STL includes
+#include <vector>
 
 /**
  * @class SCT_SensorsTool
@@ -53,12 +45,6 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
  private:
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_SensorsCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_SensorsCondData> m_condData;
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_SensorsCondData> m_condKey{this, "CondKey", "SCT_SensorsCondData", "SCT sensor conditions"};
   // Provides SCT_SensorsCondData pointer

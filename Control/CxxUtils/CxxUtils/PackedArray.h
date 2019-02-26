@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PackedArray.h,v 1.2 2007-06-14 22:38:48 ssnyder Exp $
@@ -82,7 +82,7 @@ public:
    *                the size of an unsigned int.
    * @param allocator Allocator for the underlying vector.
    */
-  PackedArray (int bitsize,
+  PackedArray (int bitsize = 8,
                const allocator_type& allocator = allocator_type());
 
   /**

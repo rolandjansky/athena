@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaUtils.cxx 
@@ -152,9 +152,9 @@ void PyAthena::throw_py_exception (bool display)
 }
 
 StatusCode 
-PyAthena::callPyMethod( PyObject* self,
-                        const char* methodName,
-                        PyObject* arg /*= nullptr*/)
+PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
+                                               const char* methodName,
+                                               PyObject* arg /*= nullptr*/)
 {
   // that's a bit ugly...
   char* method = const_cast<char*>(methodName);
@@ -225,9 +225,10 @@ PyAthena::callPyMethod( PyObject* self,
   return StatusCode::FAILURE;
 }
 
-StatusCode PyAthena::queryInterface( PyObject* self,
-				     const InterfaceID& riid,
-				     void** ppvInterface )
+StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
+  ( PyObject* self,
+    const InterfaceID& riid,
+    void** ppvInterface )
 {
   StatusCode sc = StatusCode::FAILURE;
 
@@ -336,10 +337,11 @@ StatusCode PyAthena::queryInterface( PyObject* self,
 }
 
   /// helper function for PyAthena::Aud
-void PyAthena::pyAudit( PyObject* self,
-			const char* method,
-			const char* evt, 
-			const char* component )
+void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
+ ( PyObject* self,
+   const char* method,
+   const char* evt, 
+   const char* component )
 {
   PyGILStateEnsure ensure;
   PyObject* call = PyObject_CallMethod(self,
@@ -354,10 +356,12 @@ void PyAthena::pyAudit( PyObject* self,
 }
 
   /// helper function for PyAthena::Aud
-void PyAthena::pyAudit( PyObject* self, 
-			const char* method, 
-			const char* evt,
-			const char* component, const StatusCode& sc )
+void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
+  ( PyObject* self, 
+    const char* method, 
+    const char* evt,
+    const char* component,
+    const StatusCode& sc )
 {
   PyGILStateEnsure ensure;
   PyObject* pySc = TPython::ObjectProxy_FromVoidPtr((void*)&sc,

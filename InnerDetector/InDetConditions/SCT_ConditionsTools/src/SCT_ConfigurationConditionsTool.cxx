@@ -12,11 +12,6 @@
 // Constructor
 SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string &type, const std::string &name, const IInterface *parent) :
   base_class(type, name, parent),
-  m_mutex{},
-  m_cache{},
-  m_cacheElements{},
-  m_condData{},
-  m_detectorElements{},
   m_pHelper{nullptr},
   m_checkStripsInsideModules{true}
 { 
@@ -329,41 +324,12 @@ SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ig
 
 const SCT_ConfigurationCondData*
 SCT_ConfigurationConditionsTool::getCondData(const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cache.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cache[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<SCT_ConfigurationCondData> condData{m_condKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-    }
-    m_condData.set(*condData);
-    m_cache[slot] = evt;
-  }
-  return m_condData.get();
+  SG::ReadCondHandle<SCT_ConfigurationCondData> condData{m_condKey, ctx};
+  return condData.retrieve();
 }
 
 const InDetDD::SiDetectorElement* SCT_ConfigurationConditionsTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (slot>=m_cacheElements.size()) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-  }
-  if (m_cacheElements[slot]!=evt) {
-    std::lock_guard<std::mutex> lock{m_mutex};
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-    if (not condData.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
-    }
-    m_detectorElements.set(*condData);
-    m_cacheElements[slot] = evt;
-  }
-  return m_detectorElements->getDetectorElement(waferHash);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(waferHash);
 }

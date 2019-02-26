@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTRESULTBYTESTREAM_HLTResultMTByteStreamCnv_H
@@ -15,9 +15,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/Converter.h"
-
-// Externals
-extern unsigned char ByteStream_StorageType;
 
 namespace HLT {
   /** @class HLTResultMTByteStreamCnv
@@ -41,7 +38,7 @@ namespace HLT {
 
     // ------------------------- Converter definition helpers ------------------
     /// Storage type used by this converter
-    static unsigned char storageType() {return ByteStream_StorageType;}
+    static long storageType();
     /// CLID of the class HLTResultMT converted by this converter
     static const CLID& classID();
 

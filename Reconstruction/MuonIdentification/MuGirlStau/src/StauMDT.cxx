@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuGirlStau/StauMDT.h"
@@ -146,28 +146,16 @@ void MuGirlNS::StauMDT::findNewSegments(double beta)
 
         //build the segments
         TriggerClusters clusters;
-        auto pSegments = m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, true,
+	m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, 0, true,
                 m_pStau->idP());
 
         //choose the best segment and store it, ignore the number of hits
         const Muon::MuonSegment* pBestSegment = NULL;
-        bestMdtSegment(pSegments, pBestSegment, true);
         if (pBestSegment != NULL) m_pStau->newMdtSegments()->push_back(pBestSegment);
 
         //delete the MDCOTLists
         deleteMdcotLists(pMdocotLists);
         delete pMdocotLists;
-
-        //store the best segment and delete the others
-        if (pSegments != NULL)
-        {
-            for (auto pMuonSegment : *pSegments)
-            {
-                if (pBestSegment != pMuonSegment) delete pMuonSegment;
-            }
-            pSegments->clear();
-            delete pSegments;
-        }
 
         if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber++;
     }
@@ -200,24 +188,13 @@ void MuGirlNS::StauMDT::processMdtWithBeta(double currentBeta, MdtStepData* mdtD
         }
         //build the segments
         TriggerClusters clusters;
-        auto pSegments = m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, true,
+	m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, 0, true,
                 m_pStau->idP());
-
-        //store the data in the iteration
-        if (pSegments != NULL) fillStationData(mdtData, pSegments);
 
         //delete the MDCOTLists
         deleteMdcotLists(pMdocotLists);
         delete pMdocotLists;
 
-        //delete the segments
-        if (pSegments != NULL)
-        {
-            for (auto pMuonSegment : *pSegments)
-                delete pMuonSegment;
-            pSegments->clear();
-            delete pSegments;
-        }
         if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber++;
     }
 
@@ -388,24 +365,13 @@ void MuGirlNS::StauMDT::processMdtWithTTrack(double tTrack, MdtStepData* mdtData
         }
         //build the segments
         TriggerClusters clusters;
-        auto pSegments = m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, true,
+	m_pStau->mdtSegmentMaker()->find(*pRoad, *pMdocotLists, clusters, 0, true,
                 m_pStau->idP());
-
-        //store the data in the iteration
-        if (pSegments != NULL) fillStationData(mdtData, pSegments);
 
         //delete the MDCOTLists
         deleteMdcotLists(pMdocotLists);
         delete pMdocotLists;
 
-        //delete the segments
-        if (pSegments != NULL)
-        {
-            for (auto pMuonSegment : *pSegments)
-                delete pMuonSegment;
-            pSegments->clear();
-            delete pSegments;
-        }
     }
 
     //mdtData->dof = mdtData->totNumHits - 2*mdtData->pStationDataList->size();

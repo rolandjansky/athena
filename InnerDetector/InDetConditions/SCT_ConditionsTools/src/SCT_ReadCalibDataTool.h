@@ -10,27 +10,17 @@
 #ifndef SCT_READ_CALIB_DATA_TOOL
 #define SCT_READ_CALIB_DATA_TOOL
 
-// Include interface class
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"
 
-// Include STL
-#include <mutex>
-
-// Include Gaudi classes
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-// Include SCT stuff
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_CalibDefectData.h"
 #include "SCT_ConditionsData/SCT_WaferGoodStripInfo.h"
 #include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-
-// Include Athena stuff 
-#include "AthenaBaseComps/AthAlgTool.h"
+// Include Gaudi classes
+#include "GaudiKernel/ServiceHandle.h"
 
 // Forward declarations
 class SCT_ID;
@@ -72,20 +62,6 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   virtual std::list<Identifier> defectList(const std::string& defect) const override; //!<Returns module summary of defect
 
  private:
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheInfo;
-  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
-  // Pointers of SCT_CalibDefectData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataGain;
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataNoise;
-  // Pointer of SCT_AllGoodStripInfo
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_AllGoodStripInfo> m_condDataInfo;
-  // Pointer of InDetDD::SiDetectorElementCollection
-  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   // Read Cond Handles
   SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain{this, "CondKeyGain", "SCT_CalibDefectNPtGain", "SCT defects due to NPtGain calibration"};
   SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise{this, "CondKeyNoise", "SCT_CalibDefectNPtNoise", "SCT defects due to NPtNoise calibration"};

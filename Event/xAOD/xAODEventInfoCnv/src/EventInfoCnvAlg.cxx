@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvAlg.cxx 751296 2016-06-01 08:00:25Z krasznaa $
@@ -50,6 +50,7 @@ namespace xAODMaker {
         m_pileupKey = "Pileup" + m_xaodKey.key();
       }
 
+      CHECK( m_aodKey.initialize(SG::AllowEmpty) );
       CHECK( m_xaodKey.initialize() );
 
       /// FIXME: Should do this only if we have a PileUpEventInfo.
@@ -73,10 +74,14 @@ namespace xAODMaker {
       // Retrieve the AOD object:
       // FIXME: Use a ReadHandle.
       const EventInfo* aod = 0;
-      if( m_aodKey == "" ) {
+      if( m_aodKey.empty() ) {
+         // If key has not been set, do a keyless retrieve instead.
+         // This is not standard behavior, but is for compatibility
+         // with existing configurations.
          CHECK( evtStore()->retrieve( aod ) );
       } else {
-         CHECK( evtStore()->retrieve( aod, m_aodKey ) );
+         SG::ReadHandle<EventInfo> ei (m_aodKey, ctx);
+         aod = ei.cptr();
       }
 
       // Create/record the xAOD object(s):
@@ -160,9 +165,20 @@ namespace xAODMaker {
        // Run the conversion using the execute function:
        CHECK( execute (Gaudi::Hive::currentContext()) );
      }
+     else {
+       // Supress warning about use of beginRun().
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+       CHECK( Algorithm::beginRun() );
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+     }
 
-      // Return gracefully:
-      return StatusCode::SUCCESS;
+     // Return gracefully:
+     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMaker

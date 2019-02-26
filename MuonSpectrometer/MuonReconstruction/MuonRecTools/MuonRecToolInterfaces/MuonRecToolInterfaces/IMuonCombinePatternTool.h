@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IAlgTool.h"
@@ -39,7 +39,7 @@ namespace Muon {
     virtual void setPhiEtaHitAssMap(std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,IdentifierPrdLess> >*)=0;
 
     /** @brief create a collection of Muon::MuonPatternCombination from a collection of Muon::MuonPrdPattern objects */
-    virtual const MuonPatternCombinationCollection* makePatternCombinations(const MuonPrdPatternCollection* combinedpatterns)const=0;
+    virtual MuonPatternCombinationCollection* makePatternCombinations(const MuonPrdPatternCollection* combinedpatterns)const=0;
   };
   
   inline const InterfaceID& IMuonCombinePatternTool::interfaceID()

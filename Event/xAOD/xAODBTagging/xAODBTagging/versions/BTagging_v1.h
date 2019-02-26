@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "CxxUtils/checker_macros.h"
 
 namespace xAOD {
 
@@ -299,13 +300,13 @@ namespace xAOD {
     /// @}
 
     ///@name xAOD::BTagging helper for ElementLink Persistification
-    void toPersistent();
+    void toPersistent  ATLAS_NOT_REENTRANT ();
 
-    void setDynTPELName(const std::string &taggername,
+    void setDynTPELName ATLAS_NOT_REENTRANT (const std::string &taggername,
 			const std::string &variablename);
-    void setDynVxELName(const std::string &taggername,
+    void setDynVxELName ATLAS_NOT_REENTRANT (const std::string &taggername,
 			const std::string &variablename);
-    void setDynBTagVxELName(const std::string &taggername,
+    void setDynBTagVxELName ATLAS_NOT_REENTRANT (const std::string &taggername,
 			    const std::string &variablename);
 
 

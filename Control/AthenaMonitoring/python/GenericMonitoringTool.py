@@ -30,33 +30,26 @@ def defineHistogram(varname, type='TH1F', path=None,
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
 
-    if path is None:
-        import warnings
-        warnings.warn("WARNING: Calling defineHistrogram without path is deprecated. Specify e.g. path='EXPERT'", stacklevel=2)
-        path = 'EXPERT'
+    # Assert argument types
+    assert path is not None, "path is required"
+    assert labels is None or isinstance(labels, list), "labels must be of type list"
 
-    if title is None: title=varname
+    if title is None:
+        title = varname
+
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:
         coded += ", %d, %f, %f" % (ybins, ymin, ymax)
         if zmin is not None:
             coded += ", %f, %f" % (zmin, zmax)
+
     if ybins is None and ymin is not None:
         coded += ", %f, %f" % (ymin, ymax)
 
-    if isinstance(labels, list) and len(labels)>0:
+    if labels is not None and len(labels)>0:
         coded += ', ' + ':'.join(labels) + ':'    # C++ parser expects at least one ":"
 
-    # For backwards compatibility
-    elif labels is not None:
-        import warnings
-        warnings.warn("WARNING: The 'label1:label2' syntax in defineHistogram is deprecated. "
-                      "Please use a list instead: ['label1','label2']", stacklevel=2)
-        labels = labels.strip()   # remove spurious white-spaces
-        if len(labels)>0:
-            if labels[-1]!=':': labels += ':'
-            coded += ",%s " % labels
-
-    if len(opt)>0: coded += ", %s" % opt
+    if len(opt)>0:
+        coded += ", %s" % opt
 
     return coded

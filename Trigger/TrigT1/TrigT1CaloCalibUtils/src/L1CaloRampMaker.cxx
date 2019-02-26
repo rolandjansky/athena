@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
@@ -174,7 +174,7 @@ StatusCode L1CaloRampMaker::execute()
 	for (; itr != itrE; ++itr) {
 	  const unsigned int channel = itr->first;
           if (channel != 1 && channel != 2) continue;
-	  const AthenaAttributeList& attrList(itr->second);
+	  const coral::AttributeList& attrList = itr->second;
           const std::string strategy(attrList["name"].data<std::string>());
           const std::string status(attrList["status"].data<std::string>());
 	  ATH_MSG_INFO( "Gain Strategy: channel = " << channel

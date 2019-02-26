@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -23,10 +23,6 @@ def getRpcRange(name="RpcRange", **kwargs):
 
 
 def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    rpcRndm = kwargs.setdefault("RndmEngine", "RPC_Digitization")
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(rpcRndm, 49261510, 105132394) 
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 
@@ -147,10 +143,6 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     #kwargs.setdefault("OnlyPhiEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
     #kwargs.setdefault("OnlyEtaEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
 
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
-    
     return CfgMgr.RpcDigitizationTool(name, **kwargs)
 
 def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
@@ -162,5 +154,5 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     return RpcDigitizationTool(name, **kwargs)
 
 def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("RPC_DigitizationTool","Rpc_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Rpc_OverlayDigitizationTool")
     return CfgMgr.RPC_Digitizer(name,**kwargs)

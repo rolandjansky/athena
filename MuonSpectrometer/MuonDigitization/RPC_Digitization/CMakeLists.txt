@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonSimData
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement

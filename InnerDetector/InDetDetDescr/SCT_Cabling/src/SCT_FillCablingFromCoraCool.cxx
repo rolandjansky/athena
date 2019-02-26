@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -16,7 +16,6 @@
 #include "SCT_CablingUtilities.h"
 
 //Athena includes
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -266,7 +265,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   int nrods{0};
   std::set<int> tempRobSet;
   for (; rodIt != last_rod; ++rodIt) {
-    AthenaAttributeList rodAttributes{rodIt->second};
+    const coral::AttributeList& rodAttributes{rodIt->second};
     //int rod=rodAttributes["SRCid"].data<int>();
     int rob{rodAttributes["ROB"].data<int>()};
     if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :"<<std::hex<<rob<<std::dec);
@@ -303,7 +302,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   CondAttrListVec::const_iterator geoIt{pGeo->begin()};
   CondAttrListVec::const_iterator last_geo{pGeo->end()};
   for (;geoIt != last_geo;++geoIt) {
-    AthenaAttributeList geoAttributes{geoIt->second};
+    const coral::AttributeList& geoAttributes{geoIt->second};
     int mur{(db==COMP200) ? (geoAttributes["MUR"].data<int>()) : static_cast<int>(geoAttributes["MUR"].data<unsigned int>())};
     int position{(db==COMP200) ? (geoAttributes["position"].data<int>()) : static_cast<int>(geoAttributes["position"].data<short>())};
     if (mur > 10000) geoMurMap[mur]=position; //only for endcap case
@@ -321,7 +320,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   allInsertsSucceeded = true;
   std::set<int> tempRobSet2;
   for (; rodMurIt!=last_rodMur; ++rodMurIt) {
-    AthenaAttributeList rodMurAttributes{rodMurIt->second};
+    const coral::AttributeList& rodMurAttributes{rodMurIt->second};
     int mur{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["MUR"].data<unsigned int>()) : (rodMurAttributes["MUR"].data<int>())};
     int crate{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["crate"].data<unsigned char>()) : (rodMurAttributes["crate"].data<int>())};
     int crateSlot{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["rod"].data<unsigned char>()) : (rodMurAttributes["rod"].data<int>())};//slot is int16, others are int32
@@ -351,7 +350,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   long long lastSerialNumber{0};
   
   for (; murIt != last_mur; ++murIt) {
-    AthenaAttributeList murAttributes{murIt->second};
+    const coral::AttributeList& murAttributes{murIt->second};
     int mur{(db==CONDBR2) ? static_cast<int>(murAttributes["MUR"].data<unsigned int>()) : (murAttributes["MUR"].data<int>())};
     bool nullMur{murAttributes["moduleID"].isNull() or murAttributes["module"].isNull()};
     if (9999 == mur or nullMur) continue;

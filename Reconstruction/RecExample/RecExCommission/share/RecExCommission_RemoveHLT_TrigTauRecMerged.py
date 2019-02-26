@@ -7,7 +7,9 @@ from AthenaCommon.Logging import logging
 log_HLTTau = logging.getLogger( 'RemoveHLT_TrigTauRecMerged' )
 
 try:
-    topSequence.StreamESD.ItemList.remove("Analysis::TauJetContainer#HLT_TrigTauRecMerged")
+    from AthenaCommon.AppMgr import theApp
+    StreamESD = theApp.getOutputStream( "StreamESD" )
+    StreamESD.ItemList.remove("Analysis::TauJetContainer#HLT_TrigTauRecMerged")
     log_HLTTau.info("Removing Analysis::TauJetContainer#HLT_TrigTauRecMerged from ESD ItemList")
 except:
     pass

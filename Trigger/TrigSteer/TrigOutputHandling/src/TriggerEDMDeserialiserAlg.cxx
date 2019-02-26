@@ -137,7 +137,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 
     ATH_MSG_DEBUG( "Deserialised object of ptr: " << obj << " which used: " << usedBytes << " bytes from available: " << bsize );
     if ( obj == nullptr ) {
-      ATH_MSG_ERROR( "Deserialisation of object of CLID " << clid << " and transientTypeName " << transientTypeName << "#" << key << " failed, moving one to the next fragment" );
+      ATH_MSG_ERROR( "Deserialisation of object of CLID " << clid << " and transientTypeName " << transientTypeName << " # " << key << " failed, moving one to the next fragment" );
       ATH_CHECK(false);
     }
     const bool isxAODInterfaceContainer = transientTypeName.find("xAOD")   != std::string::npos and transientTypeName.find("Aux") == std::string::npos;

@@ -46,7 +46,9 @@ if 'zRange' in jobConfig:
     import InDetBeamSpotExample.FilterUtils as FilterUtils
     FilterUtils.filterSeq += FilterUtils.ZFilter(jobConfig['zRange'])
 
-topSequence.StreamAOD.OutputFile = jobConfig['outputfile']
+from AthenaCommon.AppMgr import theApp
+StreamAOD = theApp.getOutputStream( "StreamAOD" )
+StreamAOD.OutputFile = jobConfig['outputfile']
 
 # Reduce verbosity
 theApp.setOutputLevel = jobConfig['outputlevel']

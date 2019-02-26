@@ -278,7 +278,6 @@ namespace xAOD {
    //
    /////////////////////////////////////////////////////////////////////////////
 
-} // namespace xAOD
 
 std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
   os << "TrigComposite_v1 '" << tc.name() << "' link: name, key, index, CLID" << std::endl;
@@ -290,3 +289,5 @@ std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
   }
   return os;
 }
+
+} // namespace xAOD

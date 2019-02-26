@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 Configuration database for ISF_SimulationSelectors
 Elmar Ritsch, 10/11/2014
@@ -36,6 +36,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPil
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgFastCaloSimSelector"    , "ISF_FastHitConvAlgFastCaloSimSelector"   )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLegacyAFIIFastCaloSimSelector" , "ISF_DefaultLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimV2Selector"         , "ISF_DefaultFastCaloSimV2Selector"        )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultDNNCaloSimSelector"         , "ISF_DefaultDNNCaloSimSelector"        )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSelector" , "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasSelector"                , "ISF_DefaultFatrasSelector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasNewExtrapolationSelector", "ISF_DefaultFatrasNewExtrapolationSelector")
@@ -48,3 +49,4 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFullGeant4Sele
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPassBackGeant4Selector"               , "ISF_PassBackGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector"                 , "ISF_FatrasPileupSelector"                )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector_noHits"          , "ISF_FatrasPileupSelector_noHits"         )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultParametricSimulationSelector"  , "ISF_DefaultParametricSimulationSelector" )

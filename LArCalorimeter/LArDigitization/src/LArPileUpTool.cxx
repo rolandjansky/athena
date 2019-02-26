@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -27,6 +27,10 @@
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "EventInfoUtils/EventIDFromStore.h"
+
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include <CLHEP/Random/Randomize.h>
 
@@ -46,8 +50,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_larhec_id(nullptr),
   m_larfcal_id(nullptr),
   m_laronline_id(nullptr),
-  m_AtRndmGenSvc(nullptr),
-  m_engine(nullptr),
   m_nhit_tot(0),
   m_trigtime(0),
   m_n_cells(0),
@@ -97,7 +99,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_NSamples          = 5;
   m_firstSample       = 0;
   m_usePhase          = false;
-  m_rndmSvc           = "AtRndmGenSvc";
   m_rndmEvtRun        = false;
   m_RndmEvtOverlay    = false;
   m_isMcOverlay       = false;
@@ -157,7 +158,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("Nsamples",m_NSamples,"Number of ADC samples (default=5)");
   declareProperty("firstSample",m_firstSample,"First sample to use for the shape for in-time signal");
   declareProperty("UsePhase",m_usePhase,"use 1ns binned pulse shape (default=false)");
-  declareProperty("RndmSvc",m_rndmSvc,"Random number service for LAr digitization");
   declareProperty("UseRndmEvtRun",m_rndmEvtRun,"Use Run and Event number to seed rndm number (default=false)");
   declareProperty("MaskingTool",m_maskingTool,"Tool handle for dead channel masking");
   declareProperty("BadFebKey",m_badFebKey,"Key of BadFeb object in ConditionsStore");
@@ -383,25 +383,7 @@ StatusCode LArPileUpTool::initialize()
     m_triggerTimeTool.disable();
   }
 
-// initialize random number service
-  if ( m_NoiseOnOff  || m_addPhase || m_roundingNoNoise) {
-    static const bool CREATEIFNOTTHERE(true);
-    sc = service(m_rndmSvc, m_AtRndmGenSvc, CREATEIFNOTTHERE);
-    if (!sc.isSuccess() || 0 == m_AtRndmGenSvc) {
-      ATH_MSG_ERROR(" Unable to initialize AtRndmGenSvc");
-      return StatusCode::FAILURE;
-    }
-    else {
-      ATH_MSG_INFO(" Found random number service " << m_rndmSvc);
-    }
-    if (!m_rndmEvtRun) {
-      m_engine = m_AtRndmGenSvc->GetEngine("LArDigitization");
-      if (m_engine==0) {
-        ATH_MSG_ERROR(" Could find find random engine LArDigitization ");
-        return StatusCode::FAILURE;
-      }
-    }
-  }
+  ATH_CHECK(m_rndmGenSvc.retrieve());
 
   if (m_NSamples>32) {
      ATH_MSG_WARNING(" Cannot do more than 32 samples:  NSamples reset to 32 ");
@@ -481,29 +463,6 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
     if (!m_useMBTime) m_energySum_DigiHSTruth.resize(m_hitmap_DigiHSTruth->GetNbCells(),0.);
   }
 
-
-  // if noise on, get random number engine and initialize with well defined seeds
-  if (m_NoiseOnOff ||m_addPhase) {
-   //if use run-event number for seed
-   if (m_rndmEvtRun) {
-     const EventInfo* eventInfo;
-     StatusCode sc =  evtStore()->retrieve(eventInfo);
-     int iSeedNumber=1;
-     if (sc.isFailure()) {
-       ATH_MSG_ERROR(" can not retrieve event info. Dummy rndm initialization...");
-       m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,this->name());
-     }
-     else {
-       const EventID* myEventID=eventInfo->event_ID();
-       const int iSeedNumber = myEventID->event_number()+1;
-       const int iRunNumber = myEventID->run_number();
-       ATH_MSG_DEBUG(" Run/Event " <<  myEventID->run_number() << " " << myEventID->event_number());
-       ATH_MSG_DEBUG(" iSeedNumber,iRunNumber " << iSeedNumber << " " << iRunNumber);
-       m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,iRunNumber,this->name());
-     }
-   }
-  }
-
   // get the trigger time if requested
 
   m_trigtime=0;
@@ -512,9 +471,12 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
      ATH_MSG_DEBUG(" Trigger time used : " << m_trigtime);
   }
 
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {
-      m_trigtime = m_trigtime - (m_phaseMin + (m_phaseMax-m_phaseMin)*RandFlat::shoot(m_engine)  );
+    m_trigtime = m_trigtime - (m_phaseMin + (m_phaseMax-m_phaseMin)*RandFlat::shoot(*rngWrapper)  );
   }
 
   //
@@ -879,6 +841,9 @@ StatusCode LArPileUpTool::mergeEvent()
    const std::vector<std::pair<float,float> >* TimeE;
    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr;
 
+   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+   CLHEP::HepRandomEngine * engine = *rngWrapper;
+
    for( ; it!=it_end;++it) // now loop on cells
    {
       hitlist = m_hitmap->GetCell(it);
@@ -904,7 +869,7 @@ StatusCode LArPileUpTool::mergeEvent()
                // MakeDigit called if in no overlay mode or
                // if in overlay mode and random digit exists
                if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
-                if ( this->MakeDigit(cellID, ch_id,TimeE, digit, TimeE_DigiHSTruth)
+		 if ( this->MakeDigit(cellID, ch_id,TimeE, digit, engine, TimeE_DigiHSTruth)
                       == StatusCode::FAILURE ) return StatusCode::FAILURE;
                }
             }
@@ -1908,7 +1873,8 @@ void LArPileUpTool::cross_talk(const IdentifierHash& hashId,
 StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
                                     HWIdentifier & ch_id,
                                     const std::vector<std::pair<float,float> >* TimeE,
-                                    const LArDigit * rndmEvtDigit, const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth)
+                                    const LArDigit * rndmEvtDigit, CLHEP::HepRandomEngine * engine,
+				    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth)
 
 {
   bool createDigit_DigiHSTruth = true;
@@ -2155,7 +2121,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
         // Sqrt of noise covariance matrix
 	const std::vector<float>& CorGen=autoCorrNoise->autoCorrSqrt(cellId,igain);
 
-        RandGaussZiggurat::shootArray(m_engine,m_NSamples,m_Rndm,0.,1.);
+        RandGaussZiggurat::shootArray(engine,m_NSamples,m_Rndm,0.,1.);
 
         int index;
         for (int i=0;i<m_NSamples;i++) {
@@ -2210,7 +2176,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
     else {
       if (m_roundingNoNoise) {
-        float flatRndm = RandFlat::shoot(m_engine);
+        float flatRndm = RandFlat::shoot(engine);
         xAdc =  m_Samples[i]*energy2adc + Pedestal + flatRndm;
         if(m_doDigiTruth) {
           xAdc_DigiHSTruth =  m_Samples_DigiHSTruth[i]*energy2adc + Pedestal + flatRndm;

@@ -137,7 +137,6 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 			      xAOD::TrackParticleContainer* combinedTrackParticles,
 			      xAOD::TrackParticleContainer* extrapolatedTrackParticles, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
 
-  HLT::ErrorCode attachMuonSegmentCombinationCollection(HLT::TriggerElement* TEout);
   HLT::ErrorCode attachSegments(HLT::TriggerElement* TEout);
   HLT::ErrorCode attachMSTracks(HLT::TriggerElement* TEout);
   HLT::ErrorCode attachTrackParticleContainer(HLT::TriggerElement* TEout);

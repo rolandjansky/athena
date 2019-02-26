@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -8,6 +8,21 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/DataStore.h"
 #include "PileUpTools/IPileUpXingFolder.h"
+
+#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfoContainer.h"
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h" 
+#include "EventInfo/PileUpEventInfo.h" 
+#include "EventInfo/PileUpTimeEventIndex.h"
+#include "xAODCore/tools/PrintHelpers.h"
+
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+#include "xAODEventInfo/EventInfoContainer.h"    // NEW EDM
+#include "xAODEventInfo/EventInfoAuxContainer.h" // NEW EDM
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -31,12 +46,14 @@ PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)
     p_activeStore("ActiveStoreSvc", "ActiveStoreSvc"),
     m_intervals(this),
     m_pITriggerTime(""),
-    m_returnTimedData(true)
+    m_returnTimedData(true),
+    m_xAODCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this)
 {
   declareProperty("Intervals", m_intervals, "Folders specifying bunch xing intervals for different data objects");
   declareProperty("TriggerTimeTool", m_pITriggerTime, "allows to apply a trigger time offset");
   declareProperty("ReturnTimedData", m_returnTimedData, 
 		  "determine whether the TimedData returned by retrieveSubEvts have non trivial PileUpTimeEventIndex. May be set to false for overlay with real events ");
+  declareProperty( "xAODCnvTool", m_xAODCnvTool );
 }
 
 /// setup PileUpIntervals
@@ -99,6 +116,8 @@ PileUpMergeSvc::initialize()    {
           << endmsg;
       return StatusCode::FAILURE;
   }
+  // Retrieve the converter tool:
+  CHECK(m_xAODCnvTool.retrieve());
 
   decodeIntervals();
   
@@ -107,15 +126,138 @@ PileUpMergeSvc::initialize()    {
 
 }
 
-const PileUpEventInfo* PileUpMergeSvc::getPileUpEvent() const {
-  const PileUpEventInfo* p(0);
-  if (p_overStore->contains<PileUpEventInfo>("OverlayEvent")) {
-    if (p_overStore->retrieve(p).isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve OverlayEvent from " << p_overStore->name());
-    }
-  }
-  return p;
+
+const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const std::string& einame ) const
+{
+   if( !sg ) sg = p_overStore.get();
+   const xAOD::EventInfo* xAODEventInfo = einame.empty()?
+      sg->tryConstRetrieve<xAOD::EventInfo>()
+      : sg->tryConstRetrieve<xAOD::EventInfo>( einame );
+   if( xAODEventInfo ) {
+      ATH_MSG_DEBUG("Found xAOD::EventInfo");
+      ATH_MSG_DEBUG(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
+      if( xAODEventInfo->evtStore() == nullptr ) {
+         // SG is 0 only when the xAODEventInfo is first read
+         const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( sg );
+         // the loop below serves 2 purposes: to recreate subevent links cache
+         // and set SG pointer in subevents 
+         for( auto& subev : xAODEventInfo->subEvents() ) {
+            const_cast<xAOD::EventInfo*>( subev.ptr() )->setEvtStore( sg );
+         }
+      }
+   } else {
+      // Try reading old EventInfo
+      const EventInfo* pEvent = einame.empty()?
+         sg->tryConstRetrieve< ::EventInfo >()
+         : sg->tryConstRetrieve< ::EventInfo >( einame );
+      if( pEvent ) {
+         ATH_MSG_DEBUG("Converting (PileUp)EventInfo to xAOD::EventInfo");
+         // Create the xAOD object(s):
+         std::unique_ptr< xAOD::EventInfo >  pxAODEventInfo( new xAOD::EventInfo() );
+         std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
+         pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
+         pxAODEventInfo->setEvtStore( sg );
+         if( !m_xAODCnvTool->convert( pEvent, pxAODEventInfo.get(), false, false ).isSuccess() ) {
+            ATH_MSG_ERROR("Failed to convert  xAOD::EventInfo in SG");
+            return nullptr;
+         }
+
+         const PileUpEventInfo* pileupEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
+         if( pileupEvent ) {
+            // Create an EventInfoContainer for the pileup events:
+            std::unique_ptr< xAOD::EventInfoContainer > puei(new xAOD::EventInfoContainer());
+            std::unique_ptr< xAOD::EventInfoAuxContainer > puaux(new xAOD::EventInfoAuxContainer());
+            puei->setStore( puaux.get() );
+
+            // Sub-events for the main EventInfo object:
+            std::vector< xAOD::EventInfo::SubEvent > subEvents;
+
+            // A map translating between the AOD and xAOD pileup event types:
+            static std::map< PileUpEventInfo::SubEvent::pileup_type,
+               xAOD::EventInfo::PileUpType > pileupTypeMap;
+            if( ! pileupTypeMap.size() ) {
+#define DECLARE_SE_TYPE( TYPE )                                         \
+               pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
+
+               DECLARE_SE_TYPE( Unknown );
+               DECLARE_SE_TYPE( Signal );
+               DECLARE_SE_TYPE( MinimumBias );
+               DECLARE_SE_TYPE( Cavern );
+               DECLARE_SE_TYPE( HaloGas );
+               DECLARE_SE_TYPE( ZeroBias );
+
+#undef DECLARE_SE_TYPE
+            }
+
+            // A convenience type declaration:
+            typedef ElementLink< xAOD::EventInfoContainer > EiLink;
+
+            // Create xAOD::EventInfo objects for each pileup EventInfo object:
+            auto pu_itr = pileupEvent->beginSubEvt();
+            auto pu_end = pileupEvent->endSubEvt();
+            const unsigned int countEvents = std::distance(pu_itr,pu_end);
+            ATH_MSG_VERBOSE( "CHECKING: There are " << countEvents << " subevents in this Event." );
+            for( ; pu_itr != pu_end; ++pu_itr ) {
+               // Create a new xAOD::EventInfo object:
+               std::unique_ptr< xAOD::EventInfo > ei( new xAOD::EventInfo() );
+               // Fill it with information:
+               if( ! m_xAODCnvTool->convert( pu_itr->pSubEvt, ei.get(), true, false ).isSuccess() ) {
+                  ATH_MSG_ERROR("Failed to convert EventInfo to xAOD::EventInfo");
+                  continue;
+               }
+
+               StoreGateSvc* tmpSG = pu_itr->pSubEvtSG;
+               if(tmpSG) {
+                  ei->setEvtStore(tmpSG);
+                  ATH_MSG_VERBOSE("FOUND A STOREGATE");
+               } else {
+                  ATH_MSG_ERROR("FAILED TO FIND A STOREGATE");
+               }
+               // Store new EI into the container
+               puei->push_back( ei.release() );
+      
+               // And now add a sub-event to the temporary list:
+               auto typeItr = pileupTypeMap.find( pu_itr->type() );
+               xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
+               if( typeItr == pileupTypeMap.end() ) {
+                  ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
+               } else {
+                  type = typeItr->second;
+               }
+               ATH_MSG_VERBOSE("PileUpEventInfo: time = " << pu_itr->time() << ", index = " << pu_itr->index());
+               subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+                                                               pu_itr->index(),
+                                                               type,
+                                                               EiLink( "PileUpEventInfo", puei->size()-1, sg )));  // p_SG?
+               ATH_MSG_VERBOSE("PileUpEventInfo: time = " << subEvents.back().time() << ", index = " << subEvents.back().index());
+            }
+
+            if( subEvents.size() ) {
+               // And now update the main EventInfo object with the sub-events:
+               pxAODEventInfo->setSubEvents( subEvents );
+
+               // Record the xAOD object(s):
+               if( !sg->record( std::move( puaux ), "PileUpEventInfoAux." ).isSuccess()
+                   || !sg->record( std::move( puei ), "PileUpEventInfo" ).isSuccess() ) {  //MN: FIX - make keys configurable
+                  ATH_MSG_ERROR("Failed to record xAOD::EventInfoContainer in SG");
+               }
+            }
+         }
+         xAODEventInfo = pxAODEventInfo.get();  // remember pointer to return the new EventInfo
+         // Record the xAOD object(s):
+         if( ! sg->record( std::move( pxAODEventAuxInfo ), "EventInfoAux." ).isSuccess() //MN: FIX? key
+             || ! sg->record( std::move( pxAODEventInfo ), "EventInfo" ).isSuccess() ) {
+            ATH_MSG_ERROR("Failed to record the new xAOD::EventInfo in SG");
+         }
+      }
+   }
+
+   if( !xAODEventInfo ) {
+      ATH_MSG_DEBUG("Could not find EventInfo '" << einame << "' in store " << sg->name());
+   }
+   return xAODEventInfo;
 }
+
 
 const InterfaceID& 
 PileUpMergeSvc::interfaceID() {
@@ -159,13 +301,11 @@ PileUpMergeSvc::doRefresh(const Range& r, int iXing) {
 StatusCode
 PileUpMergeSvc::clearDataCaches() {
   StatusCode sc(StatusCode::FAILURE);
-  const PileUpEventInfo* pEvent;
+  const xAOD::EventInfo* pEvent;
   if (0 != (pEvent=getPileUpEvent())) {
     // access the sub events DATA objects...
-    PileUpEventInfo::SubEvent::const_iterator iEvt = pEvent->beginSubEvt();
-    PileUpEventInfo::SubEvent::const_iterator endEvt = pEvent->endSubEvt();
-    while (iEvt != endEvt) {
-      StoreGateSvc* pSubEvtSG(iEvt->pSubEvtSG);
+    for( const xAOD::EventInfo::SubEvent& subEv : pEvent->subEvents() ) {
+      StoreGateSvc* pSubEvtSG( subEv.ptr()->evtStore() );
       assert(pSubEvtSG);
       //go object-by-object (driven by PileUpXingFolder settings)
       for (const auto& item : m_ranges) {
@@ -174,7 +314,7 @@ PileUpMergeSvc::clearDataCaches() {
         SG::DataProxy* proxy = pSubEvtSG->proxy_exact (sgkey);
         //FIXME turning the double iEvt->time is fraught with peril. Luckily 
         //FIXME it just works, but we should have the beam xing in iEvt
-        if (proxy && doRefresh (item.second, int(iEvt->time()))) {
+        if (proxy && doRefresh (item.second, int(subEv.time()))) {
           proxy->setObject ((DataObject*)0);
           if (msg().level() <= MSG::DEBUG) {
             msg() << MSG::DEBUG
@@ -186,15 +326,14 @@ PileUpMergeSvc::clearDataCaches() {
         }
       }
       //even if we don't clear the store we need to empty the trash...
-      iEvt->pSubEvtSG->emptyTrash();
+      pSubEvtSG->emptyTrash();
 #ifndef NDEBUG
       if (msg().level() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE
-	      << "clearDataCachesByFolder: done with store " << iEvt->pSubEvtSG->name()
+	      << "clearDataCachesByFolder: done with store " << pSubEvtSG->name()
 	      << endmsg;
       }
 #endif
-      ++iEvt;	
     } //stores loop
     sc=StatusCode::SUCCESS;
   } //NO PILEUP EVENT?!?

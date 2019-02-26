@@ -7,7 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 #
-# art-input: user.zhidong.valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.no_pileup.e5112_s3195_tid12019815_01_EXT0
+# art-input: user.artprod.user.zhidong.valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.no_pileup.e5112_s3195_tid12019815_01_EXT0
 # art-input-nfiles: 6
 # art-output: art_core_*
 # art-cores: 4
@@ -47,7 +47,7 @@ case $ArtProcess in
      unset  ATHENA_PROC_NUMBER
 
 
-     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.AOD.pool.root     $ValOption  --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.AOD.pool.root     $ValOption  --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup' --postExec 'r2e:topSequence.BeamBackgroundFiller.Enable = False'
 
      echo  "art-result: $? reco_${ArtProcess}"
      ls -lR

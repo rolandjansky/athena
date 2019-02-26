@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -454,7 +454,7 @@ private:
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTRT;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolLAR;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolTile;
-  ToolHandle< ISCT_CablingTool > m_SCTCablingToolCB; // Retrieve SCT_CablingToolCB in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingToolCB in BeginRun incident.
+  ToolHandle< ISCT_CablingTool > m_SCTCablingToolInc; // Retrieve SCT_CablingToolInc in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingToolInc in BeginRun incident.
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;

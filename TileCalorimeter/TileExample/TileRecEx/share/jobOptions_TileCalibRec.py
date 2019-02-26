@@ -203,8 +203,10 @@ else:
                 Year = 2016
             elif RunNumber < 342540:
                 Year = 2017
-            else:
+            elif RunNumber < 367980:
                 Year = 2018
+            else:
+                Year = 2019
 
 
             if 'RunStream' in dir():
@@ -788,17 +790,6 @@ jobproperties.print_JobProperties('tree&value')
 include( "TileConditions/TileConditions_jobOptions.py" )
 tileInfoConfigurator.OutputLevel = OutputLevel
 # use correct timing constants for different run types
-from TileConditions.TileCondToolConf import *
-if TilePhysTiming:
-    if RUN2 and TileLasPulse: tileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
-    else:                     tileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
-elif TileLasPulse:
-    tileCondToolTiming = getTileCondToolTiming( 'COOL','LAS')
-elif TileCisPulse:
-    tileCondToolTiming = getTileCondToolTiming( 'COOL','CIS')
-else:
-    tileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
-tileInfoConfigurator.TileCondToolTiming = tileCondToolTiming
 print tileInfoConfigurator
 
 #============================================================
@@ -856,7 +847,6 @@ if not ReadPool:
 
     from TileByteStream.TileByteStreamConf import TileROD_Decoder
     ToolSvc += TileROD_Decoder()
-    ToolSvc.TileROD_Decoder.TileCondToolTiming = tileCondToolTiming
     if TileCompareMode:
         ToolSvc.TileROD_Decoder.useFrag5Raw  = True
         ToolSvc.TileROD_Decoder.useFrag5Reco = True
@@ -910,7 +900,6 @@ if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
         tileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
 
     if PhaseFromCOOL:
-        tileRawChannelBuilderOptATLAS.TileCondToolTiming = tileCondToolTiming
         tileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
 
     tileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
@@ -923,7 +912,6 @@ if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
 if doTileMF:
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileCondToolTiming
         ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
@@ -942,7 +930,6 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileCondToolTiming
         ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
 
     ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
@@ -1635,8 +1622,8 @@ if doTileCalib:
 
         # declare LASER tool(s) and set jobOptions if necessary
         TileLaserTool = TileLaserDefaultCalibTool()
-        TileLaserTool.rawChannelContainer    = "TileRawChannelOpt2"
-        TileLaserTool.laserObjContainer      = "TileLaserObj"
+        TileLaserTool.TileRawChannelContainer    = "TileRawChannelOpt2"
+        TileLaserTool.TileLaserObject      = "TileLaserObj"
 
         if hasattr(ToolSvc, 'TileDigitsMon'):
             TileLaserTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon

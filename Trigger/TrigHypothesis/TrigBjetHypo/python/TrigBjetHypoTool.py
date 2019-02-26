@@ -38,9 +38,9 @@ def TrigBjetHypoToolFromDict( chainDict ):
     print chainDict
     chainPart = chainDict['chainParts'][0]
     conf_dict = { 'threshold'    : chainPart['threshold'],
-                  'multiplicity' : chainPart['threshold'],
+                  'multiplicity' : '1' if len(chainPart['multiplicity']) == 0 else chainPart['multiplicity'],
                   'gscThreshold' : '0' if 'gscThreshold' not in chainPart else chainPart['gscThreshold'].replace('gsc',''),
-                  'bTag' :         chainPart['bTag'],
+                  'bTag' :         chainPart['bTag'][1:],
                   'bConfig' :      'EF' if len(chainPart['bConfig']) == 0 else chainPart['bConfig'][0],
                   'minEta' :       chainPart['etaRange'].split('eta')[0],
                   'maxEta' :       chainPart['etaRange'].split('eta')[1]}

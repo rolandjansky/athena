@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,8 +20,6 @@
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 #include "IDC_OverlayBase/IDC_OverlayCommon.h"
-
-class StoreGateSvc;
 
 class IDC_MultiHitOverlayBase;
 
@@ -59,16 +57,8 @@ public:
     Overlay::overlayContainer(data, mc, output, this);
   }
 
-  template<class IDC_Container> void overlayContainer(const std::auto_ptr<IDC_Container>& data, const std::auto_ptr<IDC_Container>& mc, const std::auto_ptr<IDC_Container>& output) {
-    this->overlayContainer(data.get(), mc.get(), output.get());
-  }
-
   template<class IDC_Container> std::string shortPrint(const IDC_Container *container, unsigned numprint = 25) {
     return Overlay::shortPrint(container, numprint);
-  }
-  
-  template<class IDC_Container> std::string shortPrint(const std::auto_ptr<IDC_Container>& ac, unsigned numprint = 25) {
-    return Overlay::shortPrint(ac, numprint);
   }
 
   /**
@@ -77,16 +67,6 @@ public:
    *  collection is empty.
    */
   template<class Collection> void mergeCollections(Collection *mc_coll, Collection *data_coll, Collection *out_coll);
-
-  /** things to copy to the output stream */
-  template<class TypeToBeCopied> 
-  void copyObjects(StoreGateSvc *to, StoreGateSvc *from, std::string key);
-
-  template<class TypeToBeCopied, class Datum> 
-  void copyMuonIDCobject(StoreGateSvc* from, StoreGateSvc *to);
-
-  template<class TypeToBeCopied, class Datum> 
-  TypeToBeCopied* copyMuonDigitContainer(const TypeToBeCopied* oldObject);
  
 };
 

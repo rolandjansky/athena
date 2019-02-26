@@ -17,5 +17,5 @@ atlas_add_library( MVAUtils
 
 atlas_add_executable( convertXmlToRootTree util/convertXmlToRootTree.cxx
 		      INCLUDE_DIRS MVAUtils
-		      LINK_LIBRARIES MVAUtils )
+		      LINK_LIBRARIES MVAUtils CxxUtils)
 

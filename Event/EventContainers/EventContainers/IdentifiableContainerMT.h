@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLECONTAINERMT_H
@@ -78,7 +78,7 @@ public:
            m_alreadyPresent = true;
            return sc;
         }
-        bool alreadyPresent(){ return m_alreadyPresent; }
+        bool alreadyPresent() const { return m_alreadyPresent; }
     };
 
 
@@ -104,18 +104,13 @@ public:
     public:
 
         /// iterator constructor
-        const_iterator() : m_sptr(), m_current(nullptr), m_idContainer(nullptr), m_end(false) { }
+        const_iterator() : m_sptr(), m_current(nullptr), m_hash(0), m_idContainer(nullptr), m_end(false) { }
+        const_iterator(const_iterator&&) = default;
+        const_iterator(const const_iterator&) = default;
+        const_iterator& operator = ( const const_iterator & ) = default; //move operators may be useful for shared_ptr
+        const_iterator& operator = ( const_iterator && ) = default;
+        ~const_iterator() = default;
 
-        /// assignment operator
-        const_iterator& operator = ( const const_iterator & it ) {
-            if(this == &it) return *this;//Safeguard against self assignment
-            m_hashItr     = it.m_hashItr;
-            m_sptr        = it.m_sptr;
-            m_current     = it.m_current;
-            m_idContainer = it.m_idContainer;
-            m_end         = it.m_end;
-            return *this;
-        }
 
         /// increment operator
         const_iterator& operator ++ () {
@@ -194,7 +189,8 @@ public:
     protected:
         friend class IdentifiableContainerMT<T>;
 
-        const_iterator(const MyType* idC, bool end) : m_sptr(), m_current(nullptr), m_idContainer(idC), m_end(end)
+        const_iterator(const MyType* idC, bool end) : m_sptr(), m_current(nullptr), m_hash(0), 
+         m_idContainer(idC), m_end(end)
         {
             if(!m_end) {
                 auto ids = m_idContainer->GetAllCurrentHashes();

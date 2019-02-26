@@ -115,9 +115,10 @@ if tileESDMon:
 
 
     if (jobproperties.Beam.beamType() == 'collisions'):
+        jetPtMin = 20000.
         TileJetMonTool = CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
                                          , OutputLevel       = INFO
-                                         , jetPtMin          = 20000.0
+                                         , jetPtMin          = jetPtMin
                                          , jetEtaMax         = 1.6
                                          , jetCollectionName = 'AntiKt4EMTopoJets'
                                          , do_1dim_histos    = False
@@ -131,20 +132,32 @@ if tileESDMon:
                                          , do_jet_cleaning   = False
                                          # , useJVTTool        = jvt
                                          # , useJetCleaning    = cleaning
-                                         , jet_JVT_threshold = 0.64
+                                         , jet_JVT_threshold = 0.59
+                                         , jet_JVT_pTmax     = 120000 # MeV
                                          , histoPathBase     = "/Tile/Jet")
 
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.useTracks():
+            jet_tracking_eta_limit = 2.4
             jvt = CfgMgr.JetVertexTaggerTool('JVT')
             ToolSvc += jvt
             cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
             cleaning.CutLevel = "LooseBad"
             cleaning.DoUgly = False
             ToolSvc += cleaning
-            TileJetMonTool.do_jet_cleaning   = True
-            TileJetMonTool.useJVTTool        = jvt
-            TileJetMonTool.useJetCleaning    = cleaning
+            ecTool                 = CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
+            ecTool.JetCleaningTool = cleaning
+            ecTool.PtCut           = jetPtMin
+            ecTool.EtaCut          = jet_tracking_eta_limit
+            ecTool.JvtDecorator    = "passJvt"
+            ecTool.OrDecorator     = "passOR"
+            ecTool.CleaningLevel   = cleaning.CutLevel
+            ToolSvc += ecTool
+            TileJetMonTool.do_jet_cleaning        = True
+            TileJetMonTool.useJVTTool             = jvt
+            TileJetMonTool.useJetCleaning         = cleaning
+            TileJetMonTool.useEventCleaning       = ecTool
+            TileJetMonTool.jet_tracking_eta_limit = jet_tracking_eta_limit
 
         if DQMonFlags.monManDataType == 'heavyioncollisions':
             if not rec.doHIP(): 

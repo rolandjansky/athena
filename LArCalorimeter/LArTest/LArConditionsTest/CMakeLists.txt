@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArCOOLConditions )
 
 # External dependencies:
@@ -45,7 +44,7 @@ atlas_add_component( LArConditionsTest
                      src/LArOFCtoOFC.cxx
                      src/LArFebRodMapConvert.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities LArCOOLConditions )
 
 # Install files from the package:
 atlas_install_headers( LArConditionsTest )

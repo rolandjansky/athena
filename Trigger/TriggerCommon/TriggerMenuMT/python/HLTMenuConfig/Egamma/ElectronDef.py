@@ -9,7 +9,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
-from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence        
+
+from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+from TrigUpgradeTest.electronMenuDefs import electronMenuSequence, inDetSetup
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -17,10 +19,13 @@ from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
 #----------------------------------------------------------------
 
 def fastCaloSequenceCfg( flags ):
-    return fastCaloSequence()
+    return fastCaloMenuSequence("Electron")
+
     
-def electronSequenceCfg( flags ):
-    return electronSequence()
+def electronSequenceCfg( flags ):    
+    inDetSetup()
+    return electronMenuSequence()
+
 
 
 #----------------------------------------------------------------
@@ -44,9 +49,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         if 'etcut' in self.chainName:            
             myStepNames += ["Step1_etcut"]
             myStepNames += ["Step2_etcut"]            
-            for step in myStepNames: 
+            for step in myStepNames:
                 chainSteps += [self.getEtCutStep(step)]
-            log.debug("chainSteps are: ", chainSteps )
         else:
             raise RuntimeError("Chain configuration unknown for chain: " + self.chainName )
             

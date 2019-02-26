@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_VERSIONS_JET_V1_H
@@ -348,16 +348,6 @@ namespace xAOD {
     void reset();
     /// @}
     ////////////////////////////////////////////////////////
-
-
-    
-
-  private:
-
-    /// JM: CACHING NEEDS UPDATING FOR MT
-    typedef std::map<std::string, std::vector<const IParticle*> > VectIPartMap_t; 
-    /// cached container for vector<IParticle*>
-    mutable VectIPartMap_t m_assoParticleCache;
 
   protected:
     /// Pointer to the fastjet object this jet is build from. WARNING : this pointer is meant to be used in reco flow only.

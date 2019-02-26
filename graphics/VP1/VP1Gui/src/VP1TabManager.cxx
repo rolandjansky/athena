@@ -543,6 +543,7 @@ QStringList VP1TabManager::tabList() {
 void VP1TabManager::removeTab( QString tabname ) {
 
   if (!m_d->checkTabnameExists(tabname)) return;
+
   bool save = m_d->dontEmitVisibilityChanges;
   m_d->dontEmitVisibilityChanges=true;
 
@@ -577,6 +578,17 @@ void VP1TabManager::removeTab( QString tabname ) {
   m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 }
+
+
+//_______________________________________________________________________
+void VP1TabManager::removeAllTabs()
+{
+	VP1Msg::messageDebug("VP1TabManager::removeAllTabs()");
+	foreach(QString tab, tabList() ) {
+		removeTab(tab);
+	}
+}
+
 
 //___________________________________________________________________________________
 void VP1TabManager::removeChannel(QString channeluniquename) {

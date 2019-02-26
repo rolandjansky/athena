@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERTIMINGTOOL_H
@@ -36,12 +36,16 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/HWIdentifier.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TileCalibAlgs/TileSimpleStat.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -50,6 +54,17 @@
 #include <string> 
 #include <map>
 #include <sstream>
+
+#define NDIODES 10
+#define NDIODES_LASER1 4
+#define NMONITORS 4
+#define NPMTS 2
+
+#define NGAINS 2
+#define NPARTITIONS 4 
+#define NDRAWERS 64
+#define NCHANNELS 48
+#define NDIGI 8
 
 class TileHWID;
 class TileRawChannelContainer;
@@ -139,7 +154,7 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
 
     struct DrawerData {
         DrawerData(const std::string &id);
-        PMTData* pmtd[48];
+        PMTData* pmtd[NCHANNELS];
         DigitizerData digid[8];
 
         // Time difference for Inter module timing
@@ -156,69 +171,69 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
         float FarDigitizerMeanTime;
     };
 
-    DrawerData* m_drawerData[4][64];
+    DrawerData* (*m_drawerData)[NDRAWERS];
 
     static const int NROS = 5;
 
     // ---- Ntuple data ----
 
     // mean of Gaussian fit to DrawerData.Digi0TimeDiffHisto
-    float m_DrawerOffset[NROS][64];
-    float m_DrawerOffsetError[NROS][64];
+    float (*m_DrawerOffset)[NDRAWERS];
+    float (*m_DrawerOffsetError)[NDRAWERS];
 
     // time diff wrt Digi0
-    float m_ChannelOffset[NROS][64][48];
-    float m_ChannelOffsetError[NROS][64][48];
+    float (*m_ChannelOffset)[NDRAWERS][NCHANNELS];
+    float (*m_ChannelOffsetError)[NDRAWERS][NCHANNELS];
     // Maximum ADC amplitude
-    float m_ADCAmplitude[NROS][64][48];
+    float (*m_ADCAmplitude)[NDRAWERS][NCHANNELS];
 
-    float m_PedestalMean[NROS][64][48];
-    float m_PedestalSigma[NROS][64][48];
+    float (*m_PedestalMean)[NDRAWERS][NCHANNELS];
+    float (*m_PedestalSigma)[NDRAWERS][NCHANNELS];
 
     // time diff wrt PMT0
-    float m_TimeDiffMean[NROS][64][48];
-    float m_TimeDiffMeanError[NROS][64][48];
-    float m_TimeDiffSigma[NROS][64][48];
+    float (*m_TimeDiffMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffSigma)[NDRAWERS][NCHANNELS];
 
     // mon-->
-    float m_MeanOddPmtTdiffPMT0[NROS][64];
-    int m_OddPmtCounterPMT0[NROS][64];
-    float m_MeanEvenPmtTdiffPMT0[NROS][64];
-    int m_EvenPmtCounterPMT0[NROS][64];
-    float m_EvenOddTimeDiffPMT0[NROS][64];
+    float (*m_MeanOddPmtTdiffPMT0)[NDRAWERS];
+    int (*m_OddPmtCounterPMT0)[NDRAWERS];
+    float (*m_MeanEvenPmtTdiffPMT0)[NDRAWERS];
+    int (*m_EvenPmtCounterPMT0)[NDRAWERS];
+    float (*m_EvenOddTimeDiffPMT0)[NDRAWERS];
     // <-- mon
 
 #ifdef TileLaserTimingPMT0Mon
-    float m_TimeDiffHighMean[NROS][64][48];
-    float m_TimeDiffHighMeanError[NROS][64][48];
-    float m_TimeDiffHighSigma[NROS][64][48];
+    float (*m_TimeDiffHighMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffHighMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffHighSigma)[NDRAWERS][NCHANNELS];
 
-    float m_TimeDiffLowMean[NROS][64][48];
-    float m_TimeDiffLowMeanError[NROS][64][48];
-    float m_TimeDiffLowSigma[NROS][64][48];
+    float (*m_TimeDiffLowMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffLowMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffLowSigma)[NDRAWERS][NCHANNELS];
 
-    float m_TimeDiffNoCFCorrMean[NROS][64][48];
-    float m_TimeDiffNoCFCorrMeanError[NROS][64][48];
-    float m_TimeDiffNoCFCorrSigma[NROS][64][48];
+    float (*m_TimeDiffNoCFCorrMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffNoCFCorrMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffNoCFCorrSigma)[NDRAWERS][NCHANNELS];
 #endif
 
-    float m_FiberLength[NROS][64][48]; // Not needed
+    float (*m_FiberLength)[NDRAWERS][NCHANNELS]; // Not needed
 
 #ifdef TileLaserTimingMon
-    float m_TimeDiffPMTDigi0[NROS][64][48]; // Not needed
-    float m_FiberCorrection[NROS][64][48]; // Not needed
-    int m_IsConnected[NROS][64][48]; // Not needed
+    float (*m_TimeDiffPMTDigi0)[NDRAWERS][NCHANNELS]; // Not needed
+    float (*m_FiberCorrection)[NDRAWERS][NCHANNELS]; // Not needed
+    int (*m_IsConnected)[NDRAWERS][NCHANNELS]; // Not needed
 
-    float m_MeanOddPmtTdiff[NROS][64];
-    int m_OddPmtCounter[NROS][64];
-    float m_MeanEvenPmtTdiff[NROS][64];
-    int m_EvenPmtCounter[NROS][64];
+    float (*m_MeanOddPmtTdiff)[NDRAWERS];
+    int (*m_OddPmtCounter)[NDRAWERS];
+    float (*m_MeanEvenPmtTdiff)[NDRAWERS];
+    int (*m_EvenPmtCounter)[NDRAWERS];
 
-    float m_EvenOddTimeDiff[NROS][64];
+    float (*m_EvenOddTimeDiff)[NDRAWERS];
 #endif
 
-    float m_DSkewSet[NROS][64][8];
-    float m_DigiMean[NROS][64][8];
+    float (*m_DSkewSet)[NDRAWERS][NDIGI];
+    float (*m_DigiMean)[NDRAWERS][NDIGI];
 
     /** @return drawer data */
     inline DrawerData* drawerData(int ros, int drawer) {
@@ -229,6 +244,14 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
       }
       return m_drawerData[ros - 1][drawer];
     }
+
+    //StoreGate
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
+      "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
 
     // Tools info
     const TileHWID* m_tileHWID;
@@ -327,9 +350,9 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
      */
     void fitGauss2(TH1F &hi, float &p1, float &p2, float &chi2, float &p1_err, float w1, float w2);
 
-    typedef float TPMTArray[5][64][48];
-    typedef float TDrawerArrayF[5][64];
-    typedef int TDrawerArrayI[5][64];
+    typedef float (*TPMTArray)[NDRAWERS][NCHANNELS];
+    typedef float (*TDrawerArrayF)[NDRAWERS];
+    typedef int (*TDrawerArrayI)[NDRAWERS];
 
     /**
      * Correct for differences between even and odd PMTs

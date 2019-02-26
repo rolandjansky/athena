@@ -172,7 +172,7 @@ StatusCode ISF::FastCaloTool::commonSetup()
     std::string chronoName=this->name()+"_"+ tool->name();
 
     if (m_chrono) m_chrono -> chronoStart( chronoName);
-    StatusCode sc = tool->process(m_theContainer);
+    StatusCode sc = tool->process(m_theContainer, ctx);
     if (m_chrono) {
       m_chrono -> chronoStop( chronoName );
       ATH_MSG_DEBUG( "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );
@@ -448,7 +448,7 @@ StatusCode ISF::FastCaloTool::releaseEventST()
     std::string chronoName=this->name()+"_"+ tool->name();
 
     if (m_chrono) m_chrono -> chronoStart( chronoName);
-    sc = tool->process(m_theContainer);
+    sc = tool->process(m_theContainer, ctx);
     if (m_chrono) {
       m_chrono -> chronoStop( chronoName );
       ATH_MSG_DEBUG( "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );

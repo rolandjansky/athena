@@ -106,7 +106,6 @@ class AlgScheduler:
         else :
             self.log.warning(self.SchedulerSvc.getFullName() + " has no property \"ShowDataDependencies\"")
 
-
 #
 ## set the DataLoader Algorithm to handle unmet input data deps
     def setDataLoaderAlg(self,dataLoadAlg):
@@ -123,6 +122,13 @@ class AlgScheduler:
         else :
             self.log.warning(self.SchedulerSvc.getFullName() + " has no property \"EnableConditions\"")
 
+#
+## enable verbose view state logging
+    def EnableVerboseViews(self,enable=True):
+        if ( 'VerboseSubSlots' in self.SchedulerSvc.properties() ):
+            self.SchedulerSvc.VerboseSubSlots = enable
+        else :
+            self.log.warning(self.SchedulerSvc.getFullName() + " has no property \"VerboseSubSlots\"")
 
 #
 ## explicitly set the thread pool size

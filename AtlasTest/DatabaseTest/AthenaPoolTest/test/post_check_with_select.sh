@@ -69,7 +69,7 @@ select=$2
 		egrep -a -v 'package version' |\
 		    # spurious warning for EventSelector
 		egrep -a -v 'Service already offline' |\
-		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle' |\
+		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle|DEBUG Event type:|handle: Event type:' |\
 		    # Must remove excess print for CaloShowerContainer
 		egrep -a -v 'CaloShowerContainer' |\
                     # Destructor can be called at different times.

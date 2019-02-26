@@ -188,7 +188,7 @@ StatusCode CscSegmentUtilTool::initialize()
 ///////////////////
 //Note: this code was required for old MuGirl but is not used by the current reconstruction
 //Leaving it in place for backwards compatibility
-std::vector<const MuonSegment*>* CscSegmentUtilTool::
+std::unique_ptr<std::vector<std::unique_ptr<MuonSegment> > > CscSegmentUtilTool::
 getMuonSegments(Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                 ICscSegmentFinder::ChamberTrkClusters& phi_clus,
@@ -196,7 +196,7 @@ getMuonSegments(Identifier eta_id, Identifier phi_id,
 
   if (! enoughHitLayers(eta_clus, phi_clus) ) {
     ATH_MSG_DEBUG (" Could not find at least two individual layer hits! ");
-    std::vector<const MuonSegment*>* segments = 0;
+    std::unique_ptr<std::vector< std::unique_ptr<MuonSegment> > > segments;
     return segments;
   }
   
@@ -204,14 +204,11 @@ getMuonSegments(Identifier eta_id, Identifier phi_id,
     ATH_MSG_DEBUG ( "getMuonSegments2: No of clusters in layer " << i << " " << eta_clus[i].size() << " " << phi_clus[i].size() );
 
   ATH_MSG_DEBUG ("getMuonSegments called get2dMuonSegmentCombination");
-  MuonSegmentCombination* Muon2dSegComb
-    = get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000);
+  std::unique_ptr<MuonSegmentCombination> Muon2dSegComb(get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000));
   
   ATH_MSG_DEBUG ("getMuonSegments called get4dMuonSegmentCombination");
-  MuonSegmentCombination* Muon4dSegComb
-    = get4dMuonSegmentCombination(Muon2dSegComb);
+  std::unique_ptr<MuonSegmentCombination> Muon4dSegComb(get4dMuonSegmentCombination(Muon2dSegComb.get()));
 
-  delete Muon2dSegComb;
   //  delete 4dMuonSegComb; WP careful...
 
   // Add the case for only 2d segments following the idea below ??
@@ -224,19 +221,17 @@ getMuonSegments(Identifier eta_id, Identifier phi_id,
     return segments;
   }
   */
-  std::vector<const MuonSegment*>* segments_clone = 0;
+  std::unique_ptr<std::vector<std::unique_ptr<MuonSegment> > > segments_clone (new std::vector<std::unique_ptr<MuonSegment> >);
 
   if (Muon4dSegComb) {
-    const std::vector<const MuonSegment*>* segments = Muon4dSegComb->stationSegments(0);
+    std::vector<std::unique_ptr<MuonSegment> >* segments = Muon4dSegComb->stationSegments(0);
   
     if (!segments->empty()) {
-      segments_clone = new std::vector<const MuonSegment*>;
       for (unsigned int i=0; i<segments->size(); ++i){
-        segments_clone->push_back( (*segments)[i]->clone());
+        segments_clone->push_back(std::move(segments->at(i)));
       }
     }
-    
-    delete Muon4dSegComb;
+
   }
   
   return segments_clone;
@@ -272,29 +267,29 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
 
   // get2dSegments does : find_2dsegments -> find_2dseg3hit -> add_2dsegments
   get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, etaStat, phiStat);
-  MuonSegmentCombination::SegmentVec* psegs = new MuonSegmentCombination::SegmentVec;
+  std::unique_ptr<MuonSegmentCombination::SegmentVec> psegs (new MuonSegmentCombination::SegmentVec);
   for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin(); iseg!=eta_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, false, eta_id, nGoodEta==2); // build_segment does getRios
+    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, false, eta_id, nGoodEta==2)); // build_segment does getRios
     if (pseg) {
-      psegs->push_back(pseg);
       ATH_MSG_DEBUG( " =============================> get2dMuonSegmentCombination::  MuonSegment time (eta) from build_segment is " << pseg->time() );
+      psegs->push_back(std::move(pseg));
       //      pseg->dump(cout);
     }
   }
-  pcol->addSegments(psegs);
   ATH_MSG_DEBUG("added "<<psegs->size()<<" eta segments");
+  pcol->addSegments(std::move(psegs));
    
   // Insert phi-segments.
-  psegs = new MuonSegmentCombination::SegmentVec;
+  std::unique_ptr<MuonSegmentCombination::SegmentVec> phisegs(new MuonSegmentCombination::SegmentVec);
   for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin(); iseg!=phi_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, true, phi_id, nGoodPhi==2);
+    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, true, phi_id, nGoodPhi==2));
     if (pseg) {
-      psegs->push_back(pseg);
       ATH_MSG_DEBUG( " get2dMuonSegmentCombination::  MuonSegment time (phi) from build_segment is " << pseg->time() );
+      phisegs->push_back(std::move(pseg));
     }
   }
-  pcol->addSegments(psegs);
-  ATH_MSG_DEBUG("added "<<psegs->size()<<" phi segments");
+  ATH_MSG_DEBUG("added "<<phisegs->size()<<" phi segments");
+  pcol->addSegments(std::move(phisegs));
 
   // Add  to SG container.
   ATH_MSG_DEBUG ( "Added " << eta_segs.size() << " r-segments and "
@@ -1839,7 +1834,7 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
-  ICscSegmentFinder::SegmentVec* pnewsegs = new ICscSegmentFinder::SegmentVec;
+  std::unique_ptr<ICscSegmentFinder::SegmentVec> pnewsegs(new ICscSegmentFinder::SegmentVec);
   if(insegs->useStripsInSegment(1) && insegs->useStripsInSegment(0)){
     for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();
 	  irsg!=rsegs.end(); ++irsg ) {
@@ -1877,10 +1872,10 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 	  continue;
 	}
 	//if don't use phi, make segments from eta only; if don't use eta, make segments from phi only; else make segments from both
-	MuonSegment* pseg=make_4dMuonSegment(rsg, psg, insegs->use2LayerSegments(1), insegs->use2LayerSegments(0));
+	std::unique_ptr<MuonSegment> pseg(make_4dMuonSegment(rsg, psg, insegs->use2LayerSegments(1), insegs->use2LayerSegments(0)));
 	if( pseg ){
 	  ATH_MSG_DEBUG("created new 4d segment");
-	  pnewsegs->push_back(pseg);
+	  pnewsegs->push_back(std::move(pseg));
 	}
       } // for phisegs
     } // for rsegs
@@ -1894,9 +1889,9 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 	ATH_MSG_DEBUG("only "<<rsg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
 	continue;
       }
-      MuonSegment* pseg=new MuonSegment(rsg);
+      std::unique_ptr<MuonSegment> pseg(new MuonSegment(rsg));
       ATH_MSG_DEBUG("created new 4d segment from eta hits only");
-      pnewsegs->push_back(pseg);
+      pnewsegs->push_back(std::move(pseg));
     }
   }
   else if(!insegs->useStripsInSegment(1)){
@@ -1908,21 +1903,19 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 	ATH_MSG_DEBUG("only "<<psg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
         continue;
       }
-      MuonSegment* pseg=new MuonSegment(psg);
+      std::unique_ptr<MuonSegment> pseg(new MuonSegment(psg));
       ATH_MSG_DEBUG("created new 4d segment from phi hits only");
-      pnewsegs->push_back(pseg);
+      pnewsegs->push_back(std::move(pseg));
     }
   }
 
   if (pnewsegs->empty()) {
-    delete pnewsegs;
-    pnewsegs=0;
     return pcol;
   }
   else ATH_MSG_DEBUG("created "<<pnewsegs->size()<<" new 4d segments");
 
   pcol =new MuonSegmentCombination;
-  pcol->addSegments(pnewsegs);
+  pcol->addSegments(std::move(pnewsegs));
 
   return pcol;
 }

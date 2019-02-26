@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
@@ -58,11 +58,11 @@ namespace Muon {
     virtual StatusCode finalize();
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
-    const MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-						  const std::vector<const CscPrepDataCollection*>& cscCols,  
-						  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-						  const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-						  const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
+    MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+					    const std::vector<const CscPrepDataCollection*>& cscCols,  
+					    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+					    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+					    const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
 
   private:
 
@@ -80,7 +80,7 @@ namespace Muon {
     void cleanUp() const;
 
     /** analyse hits */
-    const MuonPatternCombinationCollection* analyse( const MuonHoughHitContainer& hitcontainer ) const;
+    MuonPatternCombinationCollection* analyse( const MuonHoughHitContainer& hitcontainer ) const;
 
 
   private:

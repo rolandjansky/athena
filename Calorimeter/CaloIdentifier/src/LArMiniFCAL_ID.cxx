@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
@@ -350,7 +350,7 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
 }
 
-void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const
+void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int /*module*/ ) const
 {
 	
   // Check that id is within allowed range
@@ -359,13 +359,6 @@ void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const
   //expId << pos_neg << module;
   expId << pos_neg << 0;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::module_id, " +
-      strformat ("pos_neg: %d , module: %d", pos_neg , module);
-    throw LArID_Exception(errorMessage , 9);
-  }
-
   if (!m_full_module_range.match(expId)) { 
     std::string errorMessage = "LArMiniFCAL_ID::module_id() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_module_range;
@@ -373,7 +366,7 @@ void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const
   }
 }
 
-void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int module, int depth, int eta, int phi) const
+void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int /*module*/, int depth, int eta, int phi) const
 {
 	
   // Check that id is within allowed range
@@ -381,14 +374,6 @@ void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int module, int depth, int
   ExpandedIdentifier expId(lar_fcal_exp());
   //expId << pos_neg << module << depth << eta << phi ;
   expId << pos_neg << 0 << depth << eta << phi ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArMiniFCAL_ID::channel_id, " +
-      strformat ("pos_neg: %d , module: %d, depth: %d,eta: %d, phi: %d ",
-                 pos_neg , module , depth, eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
 
   if (!m_full_channel_range.match(expId)) { 
     std::string errorMessage = "LArMiniFCAL_ID::channel_id() result is not OK: ID, range = "

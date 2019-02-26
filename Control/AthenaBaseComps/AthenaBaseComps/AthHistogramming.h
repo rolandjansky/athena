@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthHistogramming.h
@@ -55,7 +55,7 @@ public:
    *  and more to a root file)
    * Returns (kind of) a pointer to the @c THistSvc
    */
-  ServiceHandle<ITHistSvc>& histSvc() const;
+  const ServiceHandle<ITHistSvc>& histSvc() const;
 
 
 
@@ -65,7 +65,7 @@ public:
 protected:
 
   /// To be called by the derived classes to fill the internal configuration
-  StatusCode configAthHistogramming ( ServiceHandle<ITHistSvc>& histSvc,
+  StatusCode configAthHistogramming ( const ServiceHandle<ITHistSvc>& histSvc,
                                       const std::string& prefix,          const std::string& rootDir,
                                       const std::string& histNamePrefix,  const std::string& histNamePostfix,
                                       const std::string& histTitlePrefix, const std::string& histTitlePostfix );
@@ -164,7 +164,7 @@ private:
 private:
 
   /// Pointer to the THistSvc (event store by default)
-  mutable ServiceHandle<ITHistSvc> m_histSvc;
+  ServiceHandle<ITHistSvc> m_histSvc;
 
 
   /// Typedef for convenience
@@ -211,7 +211,7 @@ private:
   std::string m_name;
 
   ///Cached Message Stream
-  mutable MsgStream m_msg;
+  MsgStream m_msg;
 
 };
 
@@ -332,7 +332,7 @@ inline StatusCode AthHistogramming::book( const TTree& treeRef, const std::strin
 
 
 // For the THistSvc
-inline ServiceHandle<ITHistSvc>& AthHistogramming::histSvc() const
+inline const ServiceHandle<ITHistSvc>& AthHistogramming::histSvc() const
 {
   return m_histSvc;
 }

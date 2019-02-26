@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonHypo/TrigMuonEFExtrapolatorNSWHypo.h"
@@ -7,10 +7,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "MuonSegment/MuonSegmentCombinationCollection.h"
-#include "MuonSegment/MuonSegmentCombination.h"
+#include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
-#include "MuonSegmentMakerUtils/MuonSegmentCombiSummary.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 class ISvcLocator;
@@ -162,105 +160,84 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
    int n_seg_sameside = 0; // for monitoring
 
    // get MuonSegmentCombinationCollection
-   std::vector<const MuonSegmentCombinationCollection*> vectorOfSegmentCombination;
-   if(getFeatures(outputTE, vectorOfSegmentCombination)!=HLT::OK) {
-      if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombinationCollection found" << endmsg;
+   std::vector<const Trk::SegmentCollection*> vectorOfSegmentCollection;
+   if(getFeatures(outputTE, vectorOfSegmentCollection)!=HLT::OK) {
+      if (debug) msg() << MSG::DEBUG << "No SegmentCollection found" << endmsg;
       return HLT::MISSING_FEATURE;
    } 
    else {
-      if (debug) msg() << MSG::DEBUG << "vector of MuonSegmentCombinationCollection found with size=" << vectorOfSegmentCombination.size() << endmsg;
+      if (debug) msg() << MSG::DEBUG << "vector of SegmentCollection found with size=" << vectorOfSegmentCollection.size() << endmsg;
    } // this size should be 1.
 
    // loop on MuonSegmentCombination
-   for (unsigned int i=0; i<vectorOfSegmentCombination.size(); i++) {
+   for (unsigned int i=0; i<vectorOfSegmentCollection.size(); i++) {
 
-      if (debug) msg() << MSG::DEBUG << "++ Element " << i << " of vector of MuonSegmentCombinationCollection ++" << endmsg;
+      if (debug) msg() << MSG::DEBUG << "++ Element " << i << " of vector of SegmentCollection ++" << endmsg;
 
-      const MuonSegmentCombinationCollection* segCombiColl = vectorOfSegmentCombination[i];
-      if(!segCombiColl){
-	 msg() << MSG::ERROR << "Retrieval of MuonSegmentCombinationCollection from vector failed" << endmsg;
+      const Trk::SegmentCollection* segColl = vectorOfSegmentCollection[i];
+      if(!segColl){
+	 msg() << MSG::ERROR << "Retrieval of SegmentCollection from vector failed" << endmsg;
 	 return HLT::NAV_ERROR;
       }
       else {
-	 if (debug) msg() << MSG::DEBUG << "MuonSegmentCombinationCollection OK with size=" << segCombiColl->size() << endmsg;
+	 if (debug) msg() << MSG::DEBUG << "SegmentCollection OK with size=" << segColl->size() << endmsg;
       }
 
-      MuonSegmentCombinationCollection::const_iterator segCombiItr  = segCombiColl->begin();
-      MuonSegmentCombinationCollection::const_iterator segCombiItrE = segCombiColl->end();
-      for (int j=0; segCombiItr != segCombiItrE; ++segCombiItr, ++j ) {
+      Trk::SegmentCollection::const_iterator segItr  = segColl->begin();
+      Trk::SegmentCollection::const_iterator segItrE = segColl->end();
+      for (int j=0; segItr != segItrE; ++segItr, ++j ) {
 
-	 msg() << MSG::DEBUG << "-- MuonSegmentCombination:" << j << " --" << endmsg;
+	 msg() << MSG::DEBUG << "-- Segment:" << j << " --" << endmsg;
 
-	 const Muon::MuonSegmentCombination* segCombi = (*segCombiItr);
-	 if (!segCombi) {
-	    if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombination found." << endmsg;
-	    continue;
+	 const Muon::MuonSegment* segment=dynamic_cast<const Muon::MuonSegment*>(*segItr);
+
+	 // get chamber identifier, chamber index and station index
+	 Identifier chid = m_edmhelperTool->chamberId( *segment );
+	 Muon::MuonStationIndex::ChIndex chIndex = m_idhelperTool->chamberIndex(chid);
+	 if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endmsg;
+
+	 // only in EI and CSC
+	 if( chIndex!=Muon::MuonStationIndex::EIS && chIndex!=Muon::MuonStationIndex::EIL &&
+	     chIndex!=Muon::MuonStationIndex::CSS && chIndex!=Muon::MuonStationIndex::CSL ) {
+	   continue;
 	 }
 
-	 unsigned int nstations = segCombi->numberOfStations();
-	 if (debug) msg() << MSG::DEBUG << "nr stations=" << nstations << endmsg;
+	 const Amg::Vector3D& dir = segment->globalDirection();
+	 const Amg::Vector3D& pos = segment->globalPosition();
+	 if (debug) {
+	   msg() << MSG::DEBUG << "    GlobalDirection eta/phi=" << dir.eta() << "/" << dir.phi() << endmsg;
+	   msg() << MSG::DEBUG << "    GlobalPosition x/y/z=" << pos.x() << "/" << pos.y() << "/" << pos.z() << endmsg;
+	 }
 
-	 for(unsigned int i_st=0; i_st<nstations; i_st++) {
+	 // same side segments only
+	 if( (pos.eta() * roi_eta < 0) ) continue;
 
-	    const Muon::MuonSegmentCombination::SegmentVec* stationSegs = segCombi->stationSegments(i_st) ;
-	    // check if not empty
-	    if( !stationSegs || stationSegs->empty() ) continue;
-	    if (debug) msg() << MSG::DEBUG << "i_st=" << i_st << " : n segments=" << stationSegs->size() << endmsg;
+	 n_seg_sameside++;
 
-	    // get chamber identifier, chamber index and station index
-	    Identifier chid = m_edmhelperTool->chamberId( *stationSegs->front() );
-	    Muon::MuonStationIndex::ChIndex chIndex = m_idhelperTool->chamberIndex(chid);
-	    if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endmsg;
+	 // dTheta: direction and position theta difference
+	 double dTheta = pos.theta() - dir.theta();
+	 if( roi_eta < 0 ) dTheta *= -1;
+	 bool isPassed_dTheta = dThetaCut(roi_eta, dTheta);
 
-	    // only in EI and CSC
-	    if( chIndex!=Muon::MuonStationIndex::EIS && chIndex!=Muon::MuonStationIndex::EIL &&
-		chIndex!=Muon::MuonStationIndex::CSS && chIndex!=Muon::MuonStationIndex::CSL ) {
-	       continue;
-	    }
+	 // dL: NSW position and RoI position difference
+	 double dLeta = fabs(pos.eta() - roi_eta);
+	 double dLphi = fabs(pos.phi() - roi_phi);
+	 if( dLphi > CLHEP::pi ) dLphi = CLHEP::twopi - dLphi;
+	 bool isPassed_dL = dLCut(roi_eta, dLeta, dLphi);
 
-	    // loop on segments
-	    for(unsigned int i_seg=0; i_seg<stationSegs->size(); i_seg++) {
-	       const Muon::MuonSegment* segment = (*stationSegs)[i_seg];
-	       const Amg::Vector3D& dir = segment->globalDirection();
-	       const Amg::Vector3D& pos = segment->globalPosition();
-	       if (debug) {
-		  msg() << MSG::DEBUG << "  i_seg=" << i_seg << endmsg;
-		  msg() << MSG::DEBUG << "    GlobalDirection eta/phi=" << dir.eta() << "/" << dir.phi() << endmsg;
-		  msg() << MSG::DEBUG << "    GlobalPosition x/y/z=" << pos.x() << "/" << pos.y() << "/" << pos.z() << endmsg;
-	       }
-
-	       // same side segments only
-	       if( (pos.eta() * roi_eta < 0) ) continue;
-
-	       n_seg_sameside++;
-
-	       // dTheta: direction and position theta difference
-	       double dTheta = pos.theta() - dir.theta();
-	       if( roi_eta < 0 ) dTheta *= -1;
-	       bool isPassed_dTheta = dThetaCut(roi_eta, dTheta);
-
-	       // dL: NSW position and RoI position difference
-	       double dLeta = fabs(pos.eta() - roi_eta);
-	       double dLphi = fabs(pos.phi() - roi_phi);
-	       if( dLphi > CLHEP::pi ) dLphi = CLHEP::twopi - dLphi;
-	       bool isPassed_dL = dLCut(roi_eta, dLeta, dLphi);
-
-	       // monitoring
-	       m_fex_dTheta.push_back(dTheta);
-	       m_fex_dLeta.push_back(dLeta);
-	       m_fex_dLphi.push_back(dLphi);
-	       if(debug) {
-		  msg() << MSG::DEBUG << "  dTheta=" << dTheta << ": isPassed=" << isPassed_dTheta << endmsg;
-		  msg() << MSG::DEBUG << "  dLeta/phi=" << dLeta << "/" << dLphi << ": isPassed_dL=" << isPassed_dL << endmsg;
-	       }
+	 // monitoring
+	 m_fex_dTheta.push_back(dTheta);
+	 m_fex_dLeta.push_back(dLeta);
+	 m_fex_dLphi.push_back(dLphi);
+	 if(debug) {
+	   msg() << MSG::DEBUG << "  dTheta=" << dTheta << ": isPassed=" << isPassed_dTheta << endmsg;
+	   msg() << MSG::DEBUG << "  dLeta/phi=" << dLeta << "/" << dLphi << ": isPassed_dL=" << isPassed_dL << endmsg;
+	 }
 	     
-	       // this segment passes cut
-	       if( isPassed_dTheta && isPassed_dL ) n_seg_passed++;
-	    }
-
-	 } // end of station loop 
-      } // end of SegComb loop
-   } // end of vector SegComb loop
+	 // this segment passes cut
+	 if( isPassed_dTheta && isPassed_dL ) n_seg_passed++;
+      } //end of segment loop
+   } // end of vector SegColl loop
 
    // monitoring
    m_fex_n_seg_passed   = n_seg_passed;

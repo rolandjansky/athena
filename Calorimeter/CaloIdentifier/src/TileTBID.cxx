@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -117,14 +117,6 @@ TileTBID::type_id       ( int type )      const
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileTBID::TILE_TESTBEAM << type;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in TileTBID::type_id , values ok but did not build, " +
-              strformat ("testbeam: %d, type: %d ",
-                         TileTBID::TILE_TESTBEAM, type);
-	    throw TileID_Exception(errorMessage , 2);
-	}
-
 	if (!m_full_type_range.match(expId)) { 
 	    std::string errorMessage = "TileTBID::type_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_type_range;
@@ -150,14 +142,6 @@ TileTBID::module_id       ( int type, int module )       const
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileTBID::TILE_TESTBEAM << type << module;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in TileTBID::module_id , values ok but did not build, " +
-              strformat ("testbeam: %d, type: %d, module: %d ",
-                         TileTBID::TILE_TESTBEAM, type, module);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_module_range.match(expId)) { 
 	    std::string errorMessage = "TileTBID::module_id() result is not OK: ID, range = "
@@ -188,14 +172,6 @@ TileTBID::channel_id ( int type, int module, int channel ) const
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileTBID::TILE_TESTBEAM << type << module << channel;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in TileTBID::channel_id , values ok but did not build, " +
-              strformat ("testbeam: %d, type: %d, module: %d, channel: %d ",
-                         TileTBID::TILE_TESTBEAM, type, module, channel);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_channel_range.match(expId)) { 
 	    std::string errorMessage = "TileTBID::channel_id() result is not OK: ID, range = "
@@ -247,13 +223,6 @@ TileTBID::channel_id    ( const Identifier & module_id,
 	}
 
 	expId << channel;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in TileTBID::channel_id , values ok but did not build, " +
-              strformat ("channel: %d ", channel);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_channel_range.match(expId)) { 
 	    std::string errorMessage = "TileTBID::channel_id() result is not OK: ID, range = "

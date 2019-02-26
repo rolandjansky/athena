@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
@@ -257,8 +257,8 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
   // we just retrieve that one, waiting for a better method to retrieve that
   // information.
   const int defaultChannel = 1;
-  const AthenaAttributeList& chanDefaultAttrList(
-      chanDefaultsAttrListCollection->attributeList(defaultChannel));
+  const coral::AttributeList& chanDefaultAttrList =
+      chanDefaultsAttrListCollection->attributeList(defaultChannel);
 
   m_bcidDecision1 =
       chanDefaultAttrList[this->specificationName(eBcidDecision1)].data<int>();
@@ -291,7 +291,7 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
       continue;
     }
     // ------------------------------------------------------------------------
-    const AthenaAttributeList& chanCalibAttrList(it_AttrListColl->second);
+    const coral::AttributeList& chanCalibAttrList(it_AttrListColl->second);
     // ------------------------------------------------------------------------
     unsigned short extBcidThreshold =
         chanCalibAttrList[this->specificationName(eExtBcidThreshold)]
@@ -433,7 +433,7 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
         continue;
       }
 
-      const AthenaAttributeList& chanCalibAttrList(it_AttrListColl->second);
+      const coral::AttributeList& chanCalibAttrList(it_AttrListColl->second);
 
       if (m_pprConditionsVec[index] == nullptr){
           std::cout << "L1CaloPprConditionsContainerRun2 : Could not find channel "

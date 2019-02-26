@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,15 +13,15 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
 
-#include "EventInfo/PileUpEventInfo.h" // OLD EDM
 #include "EventInfo/EventID.h"         // OLD EDM
 #include "EventInfo/EventType.h"       // OLD EDM
-#include "EventInfo/EventIncident.h"   // OLD EDM
+#include "EventInfo/EventInfo.h"       // OLD EDM
 
 #include "PileUpTools/IBeamIntensity.h"
 #include "PileUpTools/IBeamLuminosity.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IBkgStreamsCache.h"
+#include "PileUpTools/PileUpMisc.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -30,10 +30,9 @@
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
 #include "xAODEventInfo/EventInfoContainer.h"    // NEW EDM
 #include "xAODEventInfo/EventInfoAuxContainer.h" // NEW EDM
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 // xAOD include(s):
-//#include "xAODCore/tools/PrintHelpers.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 
 // Gaudi headers
 #include "GaudiKernel/IAlgorithm.h"
@@ -48,7 +47,6 @@
 
 // std library headers
 #include <cmath>
-//#include <vector>
 
 //=========================================================================
 // Standard Constructor
@@ -68,9 +66,9 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_timeKeeper("",name), m_allowSubEvtsEOF(true),
     m_xingByXing(false), m_isEventOverlayJob(false),
     m_failureMode(1),
+    m_evinfContName( c_pileUpEventInfoContName ),
     m_beamInt("FlatBM", name),
     m_beamLumi("LumiProfileSvc", name),
-    m_xAODCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),//Will need a special configuration here + extra config tweaks
     m_currentRun(0), m_firstRun(true),
     m_msg( name ),
     m_maxBunchCrossingPerOrbit(3564),
@@ -106,9 +104,9 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("BeamLuminosity", m_beamLumi,
                   "The service providing the beam luminosity distribution vs. run");
   declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
-  declareProperty( "xAODCnvTool", m_xAODCnvTool );
   declareProperty("IsEmbedding", m_isEmbedding, "Set this to True for embedding jobs.");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
+  declareProperty("EventInfoContName", m_evinfContName, "SG key for the EventInfoContainer object");
   //  m_caches.push_back("BkgStreamsCache/MinBiasCache");
 }
 
@@ -150,9 +148,6 @@ StatusCode PileUpEventLoopMgr::initialize()
 
   //locate the IncidentSvc and initialize our local ptr
   CHECK(m_incidentSvc.retrieve());
-
-  // Retrieve the converter tool:
-  CHECK(m_xAODCnvTool.retrieve());
 
   //locate the PileUpMergeSvc and initialize our local ptr
   CHECK(m_mergeSvc.retrieve());
@@ -308,14 +303,17 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       }
     }
 
-  const EventInfo* pEvent(0);
-  const EventInfo* pEventSignal(0);
+  ATH_MSG_DEBUG("Flags: " << m_isEmbedding <<", "<< m_isEventOverlayJob
+                << ", " << m_isEventOverlayJobMC );
+
+  const xAOD::EventInfo*  pEvent(nullptr), *pEventSignal(nullptr);
+  
   // loop over events if the maxevt (received as input) is different from -1.
   // if evtmax is -1 it means infinite loop (till time limit that is)
   bool noTimeLimit(false);
   while( (maxevt == -1 || m_nevt < maxevt) &&
          (noTimeLimit = (m_timeKeeper.empty() || m_timeKeeper->nextIter()) )  &&
-         0 != (pEvent = m_origStream.nextEventPre()) ) //FIXME this call has to be able to cope with xAOD::EventInfo rather than EventInfo being in m_origStream
+         0 != (pEvent = m_origStream.nextEventPre()) )
     {
       if (m_isEventOverlayJob) {
         pEventSignal = m_signalStream.nextEventPre();
@@ -330,138 +328,128 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
         }
       ++m_nevt; ++total_nevt; ++m_ncurevt;
       ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
-                     pEvent->event_ID()->run_number() << '/' <<
-                     pEvent->event_ID()->event_number() << '/' <<
-                     pEvent->event_ID()->lumi_block() );
+                     pEvent->runNumber() << '/' <<
+                     pEvent->eventNumber() << '/' <<
+                     pEvent->lumiBlock() );
 
       //-----------------------------------------------------------------------
       // Setup overlaid event in the event store
       //-----------------------------------------------------------------------
+
+      xAOD::EventInfo *pOverEvent = new xAOD::EventInfo();
+      xAOD::EventAuxInfo *pOverEventAux = new xAOD::EventAuxInfo();
+      pOverEvent->setStore( pOverEventAux );
+      ATH_MSG_DEBUG(" #subevents in the signal event =" << pEvent->subEvents().size());
+
+      // Copy the eventInfo data from origStream event
+      *pOverEvent = *pEvent;
+      pOverEvent->clearSubEvents();  // start clean without any subevents
+
+      // Record the xAOD object(s):
+      CHECK( m_evtStore->record( pOverEventAux, c_pileUpEventInfoObjName + "Aux." ) );
+      CHECK( m_evtStore->record( pOverEvent, c_pileUpEventInfoObjName ) );
+      pOverEvent->setEvtStore( &*m_evtStore ); 
+      // Create an EventInfoContainer for the pileup events:
+      xAOD::EventInfoContainer *puei(new xAOD::EventInfoContainer());
+      xAOD::EventInfoAuxContainer *puaux(new xAOD::EventInfoAuxContainer());
+      puei->setStore( puaux );
+
+      // Record the EI container object(s):
+      CHECK( m_evtStore->record( puei, m_evinfContName ) );
+      CHECK( m_evtStore->record( puaux, m_evinfContName+"Aux." ) );
+ 
       //ask the BeamIntensitySvc to choose (and remember)
       //in which xing this event will be wrto the beam int distribution
       m_beamInt->selectT0();
 
-      EventID* pOvrID = new EventID(*(pEvent->event_ID()));
-      unsigned int t0BCID(pOvrID->bunch_crossing_id());
-      if (!m_isEventOverlayJob)
-        {
-          // Use the position in the beam intensity array to set a BCID-like quantity
-          t0BCID = m_beamInt->getCurrentT0BunchCrossing();
-          pOvrID->set_bunch_crossing_id(t0BCID);
-        }
-      else if (m_isEventOverlayJobMC)
-        {
-          pOvrID->set_event_number(pEventSignal->event_ID()->event_number());
-        }
-      ATH_MSG_VERBOSE ( "BCID =" << pOvrID->bunch_crossing_id() );
-      EventType *pOvrEt = new EventType(); //FIXME
-      pOvrEt->set_user_type("Overlaid"); //FIXME
-      if (m_isEventOverlayJob)
-        {
-          ATH_MSG_INFO ( "nextEvent(): using signal event " <<
-                         pEventSignal->event_type()->mc_channel_number() << '/' <<
-                         pEventSignal->event_type()->mc_event_number() );
+      if (!m_isEventOverlayJob) {
+         // Use the position in the beam intensity array to set a BCID-like quantity
+         pOverEvent->setBCID( m_beamInt->getCurrentT0BunchCrossing() );
+      }
+      else if (m_isEventOverlayJobMC) {
+         pOverEvent->setEventNumber( pEventSignal->eventNumber() );
+      }
 
-          pOvrEt->set_mc_channel_number(pEventSignal->event_type()->mc_channel_number());
-          pOvrEt->set_mc_event_number(pEventSignal->event_type()->mc_event_number());
-          const unsigned int nWeights(pEventSignal->event_type()->n_mc_event_weights());
-          for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
-            {
-              pOvrEt->set_mc_event_weight(pEventSignal->event_type()->mc_event_weight(iWeight),iWeight);
-            }
+      unsigned int t0BCID = pOverEvent->bcid();
+      ATH_MSG_VERBOSE ( "BCID =" << t0BCID );
+      
+      // pOvrEt->set_user_type("Overlaid"); //FIXME    ?? MN: ?? what to do with that
+      
+      if (m_isEventOverlayJob) {
+         ATH_MSG_INFO ( "nextEvent(): using signal event " <<
+                        pEventSignal->mcChannelNumber() << '/' <<
+                        pEventSignal->mcEventNumber() );
 
-          // MC+MC overlay should always be marked as simulation
-          if (m_isEventOverlayJobMC)
-            {
-              pOvrEt->add_type(EventType::IS_SIMULATION);
-            }
-        }
-      else
-        {
-          pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
-          pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
-          const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
-          for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
-            {
-              pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight),iWeight);
-            }
-
+         pOverEvent->setMCChannelNumber( pEventSignal->mcChannelNumber() );
+         pOverEvent->setMCEventNumber( pEventSignal->mcEventNumber() );
+         pOverEvent->setMCEventWeights( pEventSignal->mcEventWeights() );
+         // MC+MC overlay should always be marked as simulation
+         if (m_isEventOverlayJobMC) {
+            pOverEvent->setEventTypeBitmask( xAOD::EventInfo::IS_SIMULATION );
+         }
+      } else {
           // Overlay RDO files should be treated like data for reco
           // purposes, so only set this for SimHit level pile-up.
-          pOvrEt->add_type(EventType::IS_SIMULATION);
-        }
+          pOverEvent->setEventTypeBitmask( pEvent->eventTypeBitmask() | xAOD::EventInfo::IS_SIMULATION );
+      }
 
-      PileUpEventInfo *pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
-      if(m_isEmbedding || m_isEventOverlayJobMC)
-        {
+      if(m_isEmbedding || m_isEventOverlayJobMC) {
           pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
           pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
-        }
-      if(m_isEventOverlayJob)
-        {
-          // Propagate core event flags
-          pOverEvent->setEventFlags(EventInfo::Core, (pEventSignal->eventFlags(EventInfo::Core) | pEvent->eventFlags(EventInfo::Core)));
-          pOverEvent->setErrorState(EventInfo::Core, std::max(pEventSignal->errorState(EventInfo::Core), pEvent->errorState(EventInfo::Core)));
-        }
-      ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
+      }
+      if(m_isEventOverlayJob) {
+         // Propagate core event flags
+         pOverEvent->setEventFlags(xAOD::EventInfo::Core,
+                                   pEventSignal->eventFlags(xAOD::EventInfo::Core)
+                                   | pEvent->eventFlags(xAOD::EventInfo::Core) );
+         pOverEvent->setErrorState(xAOD::EventInfo::Core,
+                                   std::max( pEventSignal->errorState(xAOD::EventInfo::Core),
+                                             pEvent->errorState(xAOD::EventInfo::Core) ) );
+      }
 
       // when doing overlay add the hard-scatter event as sub-event
-      if (m_isEventOverlayJob)
-        {
-          pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal,
-                                pEventSignal, &m_signalStream.store());
-        }
+      if( m_isEventOverlayJob ) {
+         addSubEvent(pOverEvent, pEventSignal, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
+      }
 
       //  register as sub event of the overlaid
       bool addpEvent(true);
       if(m_isEmbedding || m_isEventOverlayJobMC)
-        {
-          const PileUpEventInfo* pOldEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
-          if(pOldEvent)
-            {
-              PileUpEventInfo::SubEvent::const_iterator it  = pOldEvent->beginSubEvt();
-              PileUpEventInfo::SubEvent::const_iterator end = pOldEvent->endSubEvt();
-              if (m_isEventOverlayJobMC)
-                {
-                  // we can skip the first sub-event when doing MC+MC overlay
-                  ++it;
-                }
-              else
-                {
-                  if (it != end) { addpEvent=false; }
-                }
-              for (; it != end; ++it)
-                {
-                  const EventInfo* sevt = (*it).pSubEvt;
-                  pOverEvent->addSubEvt((*it).time() , (*it).type(), sevt, &m_origStream.store());
-                }
-            }
-        }
-      if(addpEvent)
-        {
-          pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal,
-                                pEvent, &m_origStream.store());
-        }
+      {
+         auto it = pEvent->subEvents().begin();
+         auto end = pEvent->subEvents().end();
+         ATH_MSG_DEBUG( "Copy subevents " << (int)(end-it) ); 
+         if( m_isEventOverlayJobMC ) {
+            // we can skip the first sub-event when doing MC+MC overlay
+            if( it != end ) ++it;
+         }
+         else {
+            if (it != end) { addpEvent=false; }
+         }
+         for (; it != end; ++it) {
+            addSubEvent( pOverEvent, *it, puei, m_evinfContName );
+         }
+      }
+      
+      if( addpEvent ) {
+         addSubEvent(pOverEvent, pEvent, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
+      }
 
-      CHECK(m_evtStore->record(pOverEvent, "McEventInfo"));
+      ATH_MSG_INFO ( "set aliases" );
+      CHECK(m_evtStore->setAlias(pOverEvent, "EventInfo"));
       //add an alias to "OverlayEvent" (backward compatibility)
       CHECK(m_evtStore->setAlias(pOverEvent, "OverlayEvent"));
       //add an alias to "MyEvent" (backward compatibility)
       CHECK(m_evtStore->setAlias(pOverEvent, "MyEvent"));
-
-      //symlink to EventInfo to support transparent access for standard code
-      const EventInfo *pEI(0);
-      CHECK(m_evtStore->symLink(pOverEvent, pEI));
 
       //FIXME at this point one may want to look into the original event
       //FIXME to decide whether to skip it or to do the pile-up
 
       ///ask the BeamLuminositySvc to check for a new scalefactor
       bool needupdate;
-      float sf = m_beamLumi->scaleFactor(pEvent->event_ID()->run_number(), pEvent->event_ID()->lumi_block(), needupdate );
+      float sf = m_beamLumi->scaleFactor( pEvent->runNumber(), pEvent->lumiBlock(), needupdate );
       float currentaveragemu(sf*m_maxCollPerXing);
-      if(!m_isEmbedding && !m_isEventOverlayJobMC)
-        {
+      if( !m_isEmbedding && !m_isEventOverlayJobMC ) {
           pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
           //FIXME check whether actualInteractionsPerCrossing should be set
           //to mu for the central bunch crossing, as below, or whether it
@@ -495,7 +483,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
           while (cacheIterator != endOfCaches)
             {
               // Now set the BCID for background events - also requires changes to PileUpEventInfo, SubEvent
-              if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter, m_loadProxies, currentBCID)).isFailure()) {
+              if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, pOverEvent, t0BinCenter, m_loadProxies, currentBCID)).isFailure()) {
                 //if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter)).isFailure()) {
                 if (maxevt == -1 && m_allowSubEvtsEOF) {
                   ATH_MSG_INFO ( "No more sub events for " << cacheIterator->name() );
@@ -509,104 +497,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
             }
         }  //loop over xings
 
-      //////////// START OF TEMPORARY HACK /////////////////////
-      ATH_MSG_DEBUG("Converting PileUpEventInfo to xAOD::EventInfo");
-      // Copy completed PileUpEventInfo into xAODEventInfo at this point temporarily
-      // Create the xAOD object(s):
-      std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
-      std::unique_ptr< xAOD::EventInfo > pxAODEventInfo( new xAOD::EventInfo());
-      pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
-      CHECK(m_xAODCnvTool->convert( pOverEvent, pxAODEventInfo.get(), true, false ));
-       // Before the record, keep a pointer to the EventInfo object, to be able
-      // to add ElementLinks to it afterwards.
-      xAOD::EventInfo* pLocalXAODEventInfo = pxAODEventInfo.get();
-
-      //ATH_MSG_INFO ("Dumping xAOD::EventInfo prior to adding SubEvents");
-      //xAOD::dump( *pLocalXAODEventInfo );
-      // Record the xAOD object(s):
-      CHECK( m_evtStore->record( std::move( pxAODEventAuxInfo ), "EventInfoAux." ) );
-      CHECK( m_evtStore->record( std::move( pxAODEventInfo ), "EventInfo" ) );
-
-      // Create an EventInfoContainer for the pileup events:
-      std::unique_ptr< xAOD::EventInfoContainer > puei(new xAOD::EventInfoContainer());
-      std::unique_ptr< xAOD::EventInfoAuxContainer > puaux(new xAOD::EventInfoAuxContainer());
-      puei->setStore( puaux.get() );
-
-      // Sub-events for the main EventInfo object:
-      std::vector< xAOD::EventInfo::SubEvent > subEvents;
-
-      // A map translating between the AOD and xAOD pileup event types:
-      static std::map< PileUpEventInfo::SubEvent::pileup_type,
-                       xAOD::EventInfo::PileUpType > pileupTypeMap;
-      if( ! pileupTypeMap.size() ) {
-#define DECLARE_SE_TYPE( TYPE )                                         \
-         pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
-
-         DECLARE_SE_TYPE( Unknown );
-         DECLARE_SE_TYPE( Signal );
-         DECLARE_SE_TYPE( MinimumBias );
-         DECLARE_SE_TYPE( Cavern );
-         DECLARE_SE_TYPE( HaloGas );
-         DECLARE_SE_TYPE( ZeroBias );
-
-#undef DECLARE_SE_TYPE
-      }
-
-      // A convenience type declaration:
-      typedef ElementLink< xAOD::EventInfoContainer > EiLink;
-
-      // Create xAOD::EventInfo objects for each pileup EventInfo object:
-      PileUpEventInfo::SubEvent::const_iterator pu_itr = pOverEvent->beginSubEvt();
-      PileUpEventInfo::SubEvent::const_iterator pu_end = pOverEvent->endSubEvt();
-      const unsigned int countEvents = std::distance(pu_itr,pu_end);
-      ATH_MSG_VERBOSE( "CHECKING: There are " << countEvents << " subevents in this Event." );
-
-      for( ; pu_itr != pu_end; ++pu_itr ) {
-         // Create a new xAOD object:
-         xAOD::EventInfo* ei = new xAOD::EventInfo();
-         puei->push_back( ei );
-         // Fill it with information:
-         CHECK( m_xAODCnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
-         StoreGateSvc* tmpSG = pu_itr->pSubEvtSG;
-         if(tmpSG)
-           {
-             ei->setEvtStore(tmpSG);
-             ATH_MSG_VERBOSE("FOUND A STOREGATE");
-           }
-         else
-           {
-             ATH_MSG_ERROR("FAILED TO FIND A STOREGATE");
-           }
-         // And now add a sub-event to the temporary list:
-         auto typeItr = pileupTypeMap.find( pu_itr->type() );
-         xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
-         if( typeItr == pileupTypeMap.end() ) {
-            ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
-         } else {
-            type = typeItr->second;
-         }
-         ATH_MSG_VERBOSE("PileUpEventInfo: time = " << pu_itr->time() << ", index = " << pu_itr->index());
-         subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
-                                                         pu_itr->index(),
-                                                         type,
-                                                         EiLink( "PileUpEventInfo",
-                                                                 puei->size() -
-                                                                 1,
-                                                                 m_evtStore.operator->() ) ) );
-         ATH_MSG_VERBOSE("PileUpEventInfo: time = " << subEvents.back().time() << ", index = " << subEvents.back().index());
-      }
-
-      // And now update the main EventInfo object with the sub-events:
-      pLocalXAODEventInfo->setSubEvents( subEvents );
-
-      // Record the xAOD object(s):
-      CHECK( m_evtStore->record( std::move( puaux ), "PileUpEventInfoAux." ) );
-      CHECK( m_evtStore->record( std::move( puei ), "PileUpEventInfo" ) );
-      //ATH_MSG_INFO("Dumping xAOD::EventInfo after adding SubEvents");
-      //xAOD::dump( *pLocalXAODEventInfo );
-
-      //////////// END OF TEMPORARY HACK /////////////////////
-
       //set active store back to the overlaid one
       pActiveStore->setStore(&(*m_evtStore));
 
@@ -614,8 +504,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       // (PileUpEventInfo) is considered to be current
       if(m_skipExecAlgs)
         {
-          ATH_MSG_INFO ( "Firing reseed incident (" << pOverEvent->event_ID()->event_number() << "," << pOverEvent->event_ID()->run_number() << ")" );
-          m_incidentSvc->fireIncident(ContextIncident<std::pair<unsigned,unsigned> >(this->name(),"ReseedIncident",std::pair<unsigned,unsigned>(pOverEvent->event_ID()->event_number(),pOverEvent->event_ID()->run_number())));
+          ATH_MSG_INFO ( "Firing reseed incident (" << pOverEvent->eventNumber() << "," << pOverEvent->runNumber() << ")" );
+          m_incidentSvc->fireIncident(ContextIncident<std::pair<unsigned,unsigned> >(this->name(),"ReseedIncident",std::pair<unsigned,unsigned>(pOverEvent->eventNumber(),pOverEvent->runNumber())));
           m_incidentSvc->fireIncident(Incident(this->name(),"AfterReseedIncident"));
           ATH_MSG_INFO ( "Not going to process this event" );
         }
@@ -803,15 +693,16 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms()
 StatusCode PileUpEventLoopMgr::executeEvent(void* par)
 {
 
-  const EventInfo* pEvent(reinterpret_cast<PileUpEventInfo*>(par)); //AUIII!
+  const xAOD::EventInfo* pEvent(reinterpret_cast<xAOD::EventInfo*>(par)); //AUIII!
   assert(pEvent);
 
-  m_eventContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  // Make EventID for the Event Context
+  EventID   ev_id = eventIDFromxAOD( pEvent );
+  m_eventContext->setEventID( ev_id );
   m_eventContext->set(m_nevt,0);
 
   /// Is this correct, or should it be set to a pileup store?
-  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
-                                                            pEvent->event_ID()->run_number()) );
+  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), pEvent->runNumber()) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(*m_eventContext);
@@ -823,8 +714,11 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     return (StatusCode::FAILURE);
   }
 
+  // Make EventInfo for incidents
+  EventInfo ei( new EventID(ev_id), new EventType( eventTypeFromxAOD(pEvent) ) );
+
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) )
+  if (m_firstRun || (m_currentRun != pEvent->runNumber()) )
     {
       // Fire EndRun incident unless this is the first run
       if (!m_firstRun)
@@ -833,17 +727,17 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
           CHECK(this->endRunAlgorithms());
         }
       m_firstRun=false;
-      m_currentRun = pEvent->event_ID()->run_number();
+      m_currentRun = pEvent->runNumber();
 
       ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
 
       // Fire BeginRun "Incident"
-      m_incidentSvc->fireIncident(EventIncident(this->name(),IncidentType::BeginRun,*m_eventContext));
+      m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::BeginRun,*m_eventContext));
       CHECK(this->beginRunAlgorithms());
     }
 
   // Fire BeginEvent "Incident"
-  //m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"BeginEvent"));
+  //m_incidentSvc->fireIncident(Incident(ei, this->name(),IncidentType::BeginEvent));
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
@@ -895,7 +789,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
 
   // Fire EndEvent "Incident"
-  //m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"EndEvent"));
+  //m_incidentSvc->fireIncident( Incident(ei, this->name(), IncidentType::EndEvent) );
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event

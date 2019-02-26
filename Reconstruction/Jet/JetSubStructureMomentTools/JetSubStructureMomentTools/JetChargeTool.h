@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetChargeTool.h
@@ -10,17 +10,17 @@
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 
 class JetChargeTool :
-public JetSubStructureMomentToolsBase {
-  ASG_TOOL_CLASS(JetChargeTool, IJetModifier)
-    
-public:
-  // Constructor and destructor
-  JetChargeTool(std::string name);
+  public JetSubStructureMomentToolsBase {
+    ASG_TOOL_CLASS(JetChargeTool, IJetModifier)
 
-  int modifyJet(xAOD::Jet &jet) const;
+    public:
+      // Constructor and destructor
+      JetChargeTool(std::string name);
 
-private:
-  double m_k;
+      int modifyJet(xAOD::Jet &jet) const;
+
+    private:
+      double m_k;
 
 };
 

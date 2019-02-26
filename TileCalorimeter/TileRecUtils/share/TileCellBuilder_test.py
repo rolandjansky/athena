@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileCellBuilder_test.py
 # Author: sss
@@ -456,7 +456,7 @@ class TestAlg (Alg):
         tool = getattr (self, self.prepAlg.tool)
 
         ccc = ROOT.CaloCellContainer()
-        if not tool.process (ccc):
+        if not tool.process (ccc, self.getContext()):
             return StatusCode.Failure
 
         rctype = self.prepAlg.rctype

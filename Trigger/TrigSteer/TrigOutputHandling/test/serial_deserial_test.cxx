@@ -66,13 +66,22 @@ int main() {
 
   TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
   deser.sysInitialize();
-  // TDOD simplify :-) ?
-  IProxyDict* xdict = &*deser.evtStore();
-  xdict = deser.evtStore()->hiveProxyDict();
-  EventContext ctx;
-  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
-  Gaudi::Hive::setCurrentContext (ctx);  
 
+  TriggerEDMDeserialiserAlg deser2 ("deserialiser2", pSvcLoc);  deser2.addRef();
+  deser2.sysInitialize();
+
+
+  // TDOD simplify :-) ?
+  auto runAlg = [&](TriggerEDMDeserialiserAlg& alg) {
+    IProxyDict* xdict = &*alg.evtStore();
+    xdict = alg.evtStore()->hiveProxyDict();
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
+    Gaudi::Hive::setCurrentContext (ctx);  
+    return alg.execute( ctx );
+  };
+
+  
 
   for ( int rep = 0; rep < 50 ; ++ rep ) {
     testTrigEMContinerInsert();
@@ -83,10 +92,10 @@ int main() {
     
     pStore->clearStore();
     // now objects are only in serialised form in HLTResultMT object
-    SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();     
     
     VALUE( pStore->record( hltres, "HLTResultMT" ) ) EXPECTED ( StatusCode::SUCCESS );
-    VALUE( deser.execute( ctx ) ) EXPECTED ( StatusCode::SUCCESS );
+    VALUE( runAlg( deser ) ) EXPECTED ( StatusCode::SUCCESS );
+    VALUE( runAlg( deser2 ) ) EXPECTED ( StatusCode::SUCCESS );
     
     testTrigEMContinerReadAndCheck();
     testTrigCompositeContinerReadAndCheck();

@@ -1,12 +1,5 @@
-if hasattr(topSequence, 'StreamRDO'):
-    outStream = topSequence.StreamRDO
-else:
-    ## temporary back-compatibility
-    outStreams = AlgSequence( "Streams" )
-    if hasattr(outStreams, 'StreamRDO'):
-        outStream = outStreams.StreamRDO
-    else:
-        raise AttributeError("AthenaPoolOutputStream not found")
+from AthenaCommon.AppMgr import theApp
+outStream = theApp.getOutputStream( "StreamRDO" )
 
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.CfgGetter import getService, getPublicTool

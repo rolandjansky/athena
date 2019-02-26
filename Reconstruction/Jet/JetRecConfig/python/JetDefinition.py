@@ -8,7 +8,7 @@
 #                                                                      #
 ########################################################################
 
-__all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAOD"]
+__all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 
 # Code from JetRecUtils
 # define the convention that we write R truncating the decimal point
@@ -16,8 +16,14 @@ __all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAOD"]
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
-from ROOT import xAOD
-xAOD.Type.ObjectType
+# Trigger xAODType.ObjectType dict entry loading
+import cppyy
+try:
+    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+except:
+    pass
+from ROOT import xAODType
+xAODType.ObjectType
 
 def formatRvalue(parameter):
     # impose precision limits where there could be ambiguity
@@ -76,12 +82,12 @@ class JetConstit(object):
 
     def defineLabelAndContainerName(self):
         labelnames = {
-            xAOD.Type.CaloCluster:      "Topo",
-            xAOD.Type.ParticleFlow:     "EMPFlow",
-            xAOD.Type.TrackParticle:    "Track",
-            xAOD.Type.TruthParticle:    "Truth",
-            xAOD.Type.TrackCaloCluster: "TrackCaloCluster",
-            xAOD.Type.Jet:              "Jets",
+            xAODType.CaloCluster:      "Topo",
+            xAODType.ParticleFlow:     "EMPFlow",
+            xAODType.TrackParticle:    "Track",
+            xAODType.TruthParticle:    "Truth",
+            xAODType.TrackCaloCluster: "TrackCaloCluster",
+            xAODType.Jet:              "Jets",
             }
 
         self.label = ""
@@ -104,34 +110,34 @@ class JetConstit(object):
                 else:
                     modstring += mod
 
-        if self.__basetype==xAOD.Type.Jet:
+        if self.__basetype==xAODType.Jet:
             self.label += labelnames[self.__basetype]
         else:
             self.label += labelnames[self.__basetype]
             self.label += modstring
-            if self.__basetype==xAOD.Type.TruthParticle:
+            if self.__basetype==xAODType.TruthParticle:
                 self.label = self.label.replace("NoWZ","WZ")
 
         containernames = {
-            xAOD.Type.CaloCluster:      "TopoClusters",
-            xAOD.Type.ParticleFlow:     "ParticleFlowObjects",
-            xAOD.Type.TrackParticle:    "JetSelectedTracks",
-            xAOD.Type.TruthParticle:    "JetInputTruthParticles",
-            xAOD.Type.TrackCaloCluster: "TrackCaloClusters",
-            xAOD.Type.Jet:              "Jets",
+            xAODType.CaloCluster:      "TopoClusters",
+            xAODType.ParticleFlow:     "ParticleFlowObjects",
+            xAODType.TrackParticle:    "JetSelectedTracks",
+            xAODType.TruthParticle:    "JetInputTruthParticles",
+            xAODType.TrackCaloCluster: "TrackCaloClusters",
+            xAODType.Jet:              "Jets",
             }
         defaultaffixes = {
-            xAOD.Type.CaloCluster:      "CaloCal",
-            xAOD.Type.ParticleFlow:     "CHS",
-            xAOD.Type.TrackParticle:    "",
-            xAOD.Type.TruthParticle:    "",
-            xAOD.Type.TrackCaloCluster: "CombinedAndNeutral",
-            xAOD.Type.Jet:              "",
+            xAODType.CaloCluster:      "CaloCal",
+            xAODType.ParticleFlow:     "CHS",
+            xAODType.TrackParticle:    "",
+            xAODType.TruthParticle:    "",
+            xAODType.TrackCaloCluster: "CombinedAndNeutral",
+            xAODType.Jet:              "",
             }
 
         if not modstring:
             modstring = defaultaffixes[self.__basetype]
-        modsfirst = [xAOD.Type.TruthParticle, xAOD.Type.TrackCaloCluster]
+        modsfirst = [xAODType.TruthParticle, xAODType.TrackCaloCluster]
         if self.__basetype in modsfirst:
             self.inputname += containernames[self.basetype]+modstring
         else:
@@ -239,7 +245,7 @@ class JetDefinition(object):
 
     def defineName(self):
         self.basename = buildJetAlgName(self.__algorithm,self.__radius)+self.__inputdef.label
-        if self.inputdef.basetype == xAOD.Type.CaloCluster:
+        if self.inputdef.basetype == xAODType.CaloCluster:
             # Omit cluster origin correction from jet name
             # Keep the origin correction explicit because sometimes we may not
             # wish to apply it, whereas PFlow corrections are applied implicitly

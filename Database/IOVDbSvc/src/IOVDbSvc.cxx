@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -20,9 +20,8 @@
 #include "FileCatalog/IFileCatalog.h"
 
 #include "EventInfoMgt/ITagInfoMgr.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/TagInfo.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 
 #include "IOVDbParser.h"
@@ -225,8 +224,7 @@ StatusCode IOVDbSvc::initialize() {
   // check for global tag in jobopt, which will override anything in input file
   if (m_par_globalTag!="") {
     m_globalTag=m_par_globalTag;
-    ATH_MSG_INFO( "Global tag: " << m_par_globalTag << 
-      " set from joboptions" );
+    ATH_MSG_INFO( "Global tag: " << m_par_globalTag << " set from joboptions" );
   }
 
   // setup folders and process tag overrides
@@ -302,7 +300,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
   if (storeID!=StoreID::DETECTOR_STORE) return StatusCode::SUCCESS;
   // Preloading of addresses should be done ONLY for detector store
   ATH_MSG_DEBUG( "preLoadAddress: storeID -> " << storeID );
-  // check FLMD of input, see if any requested folders are available there
+  // check File Level Meta Data of input, see if any requested folders are available there
   const DataHandle<IOVMetaDataContainer> cont;
   const DataHandle<IOVMetaDataContainer> contEnd;
   if (StatusCode::SUCCESS==m_h_metaDataStore->retrieve(cont,contEnd)) {
@@ -433,7 +431,6 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
                                    const EventContext& /*ctx*/)
 {
@@ -469,15 +466,13 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     return::StatusCode::SUCCESS;
   }
   if (m_state==IOVDbSvc::EVENT_LOOP) {
-    // determine iovTime from event
-    const DataHandle<EventInfo> evt;
-    const DataHandle<EventInfo> evtEnd;
-    if (StatusCode::SUCCESS==m_h_sgSvc->retrieve(evt,evtEnd)) {
-      m_iovTime.setRunEvent(evt->event_ID()->run_number(),
-                            evt->event_ID()->lumi_block());
+    // determine iovTime from eventID in the event context
+    const EventIDBase* evid = EventIDFromStore( m_h_sgSvc );
+    if( evid ) {
+      m_iovTime.setRunEvent( evid->run_number(), evid->lumi_block()) ;
       // save both seconds and ns offset for timestamp
-      uint64_t nsTime=evt->event_ID()->time_stamp()*1000000000LL;
-      nsTime += evt->event_ID()->time_stamp_ns_offset();
+      uint64_t nsTime = evid->time_stamp() *1000000000LL;
+      nsTime += evid->time_stamp_ns_offset();
       m_iovTime.setTimestamp(nsTime);
       ATH_MSG_DEBUG( "updateAddress - using iovTime from EventInfo: " << m_iovTime);
     } else {
@@ -664,8 +659,9 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
 {
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
+  // Is this a different run compared to the previous call?
+  bool newRun = m_iovTime.isValid() && (m_iovTime.run() != beginRunTime.run());
   m_iovTime=beginRunTime;
-
   // For a MC event, the run number we need to use to look up the conditions
   // may be different from that of the event itself.  Override the run
   // number with the conditions run number from the event context,
@@ -677,14 +673,17 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   }
 
   ATH_MSG_DEBUG( "signalBeginRun> begin run time " << m_iovTime);
-  if(!m_par_onlineMode) return StatusCode::SUCCESS;
-  static int first=0;
-  if (!first) {
-    first=1; 
-    ATH_MSG_DEBUG( "first call SKIPPING ... " );
+  if (!m_par_onlineMode) {
     return StatusCode::SUCCESS;
   }
-  // all other stuff is event based so happens after this. 
+
+  // ONLINE mode: allow adding of new calibration constants between runs
+  if (!newRun) {
+    ATH_MSG_DEBUG( "Same run as previous signalBeginRun call. Skipping re-loading of folders..." );
+    return StatusCode::SUCCESS;
+  }
+
+  // all other stuff is event based so happens after this.
   // this is before first event of each run
   ATH_MSG_DEBUG( "In online mode will recheck ... " );
   ATH_MSG_DEBUG( "First reload PoolCataloge ... " );

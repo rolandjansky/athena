@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
         m_globalPosition(nullptr),
-        m_mutex(),
         m_containedChildRots(0)
         //
         {}
@@ -28,7 +27,6 @@ InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack():
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(const InDet::CompetingSCT_ClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
         m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : nullptr),
-        m_mutex(),
         m_containedChildRots(0) {
     m_containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack* >;
     std::vector< const InDet::SCT_ClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -46,7 +44,6 @@ InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(
 ):
 Trk::CompetingRIOsOnTrack(assgnProb),
 m_globalPosition(nullptr),
-m_mutex(),
 m_containedChildRots(childrots)
 {
   // initialize local position and error matrix
@@ -68,17 +65,15 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());
 
-        std::lock_guard<std::mutex> lock{m_mutex};
         m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : nullptr;
     }
     return (*this);
 }
 
 InDet::CompetingSCT_ClustersOnTrack::~CompetingSCT_ClustersOnTrack() {
-   
-    delete m_globalPosition;
     clearChildRotVector();
     delete m_containedChildRots;
+    delete m_globalPosition;
 }
 
 void InDet::CompetingSCT_ClustersOnTrack::clearChildRotVector() {

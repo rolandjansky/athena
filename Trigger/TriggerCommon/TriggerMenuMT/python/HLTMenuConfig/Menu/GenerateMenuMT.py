@@ -13,6 +13,7 @@ AlgScheduler.ShowDataFlow( True )
 
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
@@ -28,12 +29,14 @@ import os, traceback, operator, commands, time
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
+
 _func_to_modify_the_menu = None
 _func_to_modify_signatures = None
 
 class GenerateMenuMT:   
     
-    def __init__(self):
+    def __init__(self, logLevel=DEBUG):
+        log.setLevel(logLevel)
         self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []
@@ -69,7 +72,8 @@ class GenerateMenuMT:
                 self.doEgammaChains = False
                         
         listOfChainConfigs = []
-        chainDicts = splitInterSignatureChainDict(chainDicts)        
+        chainDicts = splitInterSignatureChainDict(chainDicts)  
+      
         if log.isEnabledFor(logging.DEBUG):
             import pprint
             pp = pprint.PrettyPrinter(indent=4, depth=8)
@@ -195,7 +199,7 @@ class GenerateMenuMT:
 
 
 
-    def generateChainConfigs(self):
+    def generateAllChainConfigs(self):
 
         # get all chain names from menu 
         log.debug ("getting chains from Menu")
@@ -208,6 +212,8 @@ class GenerateMenuMT:
         for chain in chainsInMenu:
             log.debug("Currently processing chain: %s ", chain) 
             chainDict = decodeChainName.getChainDict(chain)
+            self.triggerConfigHLT.allChainDicts.append(chainDict)
+
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
 
@@ -241,7 +247,7 @@ class GenerateMenuMT:
         # --------------------------------------------------------------------
         # HLT menu generation 
         # --------------------------------------------------------------------
-        finalListOfChainConfigs = self.generateChainConfigs()
+        finalListOfChainConfigs = self.generateAllChainConfigs()
         log.debug("Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
 
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
@@ -252,5 +258,7 @@ class GenerateMenuMT:
             for step in cc.steps:
                 print step
 
-        makeHLTTree(finalListOfChainConfigs)
+        makeHLTTree(finalListOfChainConfigs, self.triggerConfigHLT)
+        # the return values used for debugging, might be removed later
+        return finalListOfChainConfigs
             

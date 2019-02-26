@@ -49,7 +49,7 @@ if doMisAlign:
 ## here, the (default) top sequence is used:
 ### from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 ### job = AlgSequence()
-### seq = AthSequencer("AthFilterSeq")
+### seq = AthSequencer("AthMasterSeq")
 
 #-----------------
 # This block handles good run lists. Uncomment to enable goodrunlist
@@ -64,10 +64,10 @@ if doMisAlign:
 #seq.GRLTriggerAlg1.GoodRunsListArray = ['MyLBCollection'] ## pick up correct name from inside xml file!
 #-----------------
 
-## AthFilterSeq is always executed before the top sequence, and is configured such that
+## AthMasterSeq is always executed before the top sequence, and is configured such that
 ## any follow-up sequence (eg. top sequence) is not executed in case GRLTriggerAlg1 does
 ## not pass the event
-## In short, the sequence AthFilterSeq makes sure that all algs in the job sequence
+## In short, the sequence AthMasterSeq makes sure that all algs in the job sequence
 ## are skipped when an event gets rejects
 
 ## Add the ntuple dumper to the top sequence, as usual

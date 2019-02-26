@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONSEGMENTOVERLAPREMOVALTOOL_H
 #define MUON_IMUONSEGMENTOVERLAPREMOVALTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-
+#include "TrkSegment/SegmentCollection.h"
 
 #include <vector>
 
@@ -25,7 +25,7 @@ namespace Muon {
   */
   class IMuonSegmentOverlapRemovalTool : virtual public IAlgTool {
   public:
-    typedef std::vector<const MuonSegment*> SegVec;
+    typedef std::vector<MuonSegment*>       SegVec;
     typedef SegVec::iterator                SegIt;
     typedef SegVec::const_iterator          SegCit;
   public:
@@ -33,9 +33,8 @@ namespace Muon {
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_IMuonSegmentOverlapRemovalTool; }
 
-    /** @brief remove duplicates from a vector of segments. The caller should take 
-	ownership of the segments */
-    virtual SegVec removeDuplicates( const SegVec& segments ) const = 0;
+    /** @brief remove duplicates from a Trk::SegmentCollection*/
+    virtual void removeDuplicates( Trk::SegmentCollection* segments ) const = 0;
 
     /** @brief remove duplicates from a MuonSegmentCombination.
         The callers should take ownership of the new SegmentCombination. If the combination is 

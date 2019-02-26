@@ -26,7 +26,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArGeoModel/LArHV
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
@@ -43,7 +42,7 @@ atlas_add_component( CaloCondPhysAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier EventInfo xAODEventInfo LArHV LArReadoutGeometry LArSimEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

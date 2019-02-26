@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@
 #include "HepMC/GenParticle.h"
 
 //Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
@@ -79,13 +79,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_SetEtaOn(false)
   , m_mergeSvc(0)
   , m_inputHitCollectionName("RPC_Hits")
-  , m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0)
-  , m_rndmEngineName("RPC_Digitization")
   , m_tagInfoMgr(0)
 {
-
-  declareInterface<IMuonDigitizationTool>(this);
 
   declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
   declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
@@ -94,8 +89,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("DeadTime"             ,  m_deadTime              = 100.        , "dead time"                      );
   declareProperty("UncorrJitter"         ,  m_UncorrJitter          = 1.5         , "jitter uncorrelated"            );
   declareProperty("CorrJitter"           ,  m_CorrJitter            = 0.0         , "jitter correlated"              );
-  declareProperty("RndmSvc"              ,  m_rndmSvc                  , "Random Number Service used in Muon digitization" );
-  declareProperty("RndmEngine"           ,  m_rndmEngineName           , "Random engine name");
   declareProperty("PatchForRpcTime"      ,  m_patch_for_rpc_time       = false );
   declareProperty("PatchForRpcTimeShift" ,  m_rpc_time_shift           = 12.5   ); // shift rpc digit time to match hardware time calibration: Zmumu muons are at the center of BC0, i.e. at 12.5ns+BC0shift w.r.t. RPC readout (BC0shift=2x3.125)
   declareProperty("RPC_TimeSchema"       ,  m_RPC_TimeSchema           = "RPC_TimeSchema"); // RPC time Info tag name
@@ -159,7 +152,6 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
   ATH_MSG_DEBUG ( "DeadTime               " << m_deadTime                  );
   ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc                   );
-  ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName            );
   ATH_MSG_DEBUG ( "PatchForRpcTime        " << m_patch_for_rpc_time        );
   ATH_MSG_DEBUG ( "RpcTimeShift           " << m_rpc_time_shift            );
   ATH_MSG_DEBUG ( "RPC_TimeSchema         " << m_RPC_TimeSchema            );
@@ -335,19 +327,7 @@ StatusCode RpcDigitizationTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (!m_rndmSvc.retrieve().isSuccess())
-    {
-      ATH_MSG_ERROR ( " Could not initialize Random Number Service" );
-      return StatusCode::FAILURE;
-    }
-
-  // getting our random numbers stream
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   // get TagInfoMgr
   if ( service("TagInfoMgr", m_tagInfoMgr).isFailure() || m_tagInfoMgr==0) {
@@ -541,11 +521,6 @@ StatusCode RpcDigitizationTool::mergeEvent() {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::digitize() {
-  return this->processAllSubEvents();
-}
-
-//--------------------------------------------
 StatusCode RpcDigitizationTool::processAllSubEvents() {
 
   StatusCode status = StatusCode::SUCCESS;
@@ -589,6 +564,10 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
 
 //--------------------------------------------
 StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
+
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
 
   //StatusCode status = StatusCode::SUCCESS;
   //status.ignore();
@@ -697,15 +676,15 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
       //      Identifier atlasRpcIdphi;
       
       double corrtimejitter    =  0 ;
-      if(m_CorrJitter>0.01) corrtimejitter    = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_CorrJitter); //correlated jitter
+      if(m_CorrJitter>0.01) corrtimejitter    = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.,m_CorrJitter); //correlated jitter
       //      std::cout<<" Correlated eta / phi jitter = "<<corrtimejitter<<std::endl;
       // handle here the special case where eta panel is dead => phi strip status (dead or eff.) cannot be resolved; 
       // measured panel eff. will be used in that case and no phi strip killing will happen
       bool undefPhiStripStat = false;
 
-      std::vector<int> pcseta    = PhysicalClusterSize(&idpaneleta, &hit); //set to one for new algorithms
+      std::vector<int> pcseta    = PhysicalClusterSize(&idpaneleta, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on eta panel: size/first/last= "<<pcseta[0]   <<"/"<<pcseta[1]   <<"/"<<pcseta[2] );
-      std::vector<int> pcsphi = PhysicalClusterSize(&idpanelphi, &hit); //set to one for new algorithms
+      std::vector<int> pcsphi = PhysicalClusterSize(&idpanelphi, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on phi panel: size/first/last= "<<pcsphi[0]<<"/"<<pcsphi[1]<<"/"<<pcsphi[2] );
 
       // create Identifiers
@@ -716,7 +695,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat).isFailure()) return StatusCode::FAILURE ;
+      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine).isFailure()) return StatusCode::FAILURE ;
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -735,7 +714,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
                         << " measphi "      <<    imeasphi ) ;
         
 	//pcs contains the cluster size, the first strip number and the last strip number of the cluster
-	pcs = TurnOnStrips(pcs, &atlasId);
+	pcs = TurnOnStrips(pcs, &atlasId, rndmEngine);
         if(pcs[2]<0) return StatusCode::FAILURE;
 
 	ATH_MSG_DEBUG ( "Simulated cluster1: size/first/last= "<<pcs[0]<<"/"<<pcs[1]<<"/"<<pcs[2] );
@@ -930,7 +909,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 
 	  // first add time jitter to the time:
           double uncorrjitter    = 0 ;
-	  if(m_UncorrJitter>0.01) uncorrjitter = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_UncorrJitter);
+	  if(m_UncorrJitter>0.01) uncorrjitter = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.,m_UncorrJitter);
 	  //	  std::cout<<" uncorrelated jitter = "<<uncorrjitter<<std::endl;
 
 	  //Historically patch for the cavern background
@@ -1035,7 +1014,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 }
 
 //--------------------------------------------
-std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit)
+std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine)
 {
 
   // ME unused: int stationName = m_idHelper->stationName(*id);
@@ -1136,7 +1115,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
     else if(xstrip>8&&xstrip<22) pcs1_prob=m_constPara[0];
     else if(xstrip>22&&xstrip<30) pcs1_prob=m_fgausPara[0]*exp(-(xstrip-m_fgausPara[1])*(xstrip-m_fgausPara[1])*0.5/(m_fgausPara[2]*m_fgausPara[2]))/100.;
 
-    if(CLHEP::RandFlat::shoot(m_rndmEngine)<pcs1_prob) pcsIs1=1;
+    if(CLHEP::RandFlat::shoot(rndmEngine)<pcs1_prob) pcsIs1=1;
 
     for(int i=1;i<5;i++){
       cs1[i]=pcs1_prob*cs[i];
@@ -1152,7 +1131,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
     double pcs1_missing=pcs1_tot-pcs1_av*100;
     double pcs2_to_convert=pcs1_missing/pcs2_tot;
 
-    if(!pcsIs1&&CLHEP::RandFlat::shoot(m_rndmEngine)<pcs2_to_convert){
+    if(!pcsIs1&&CLHEP::RandFlat::shoot(rndmEngine)<pcs2_to_convert){
       pcsIs1=1;
       for(int i=1;i<5;i++){
 	cs1[i]=cs1[i]+pcs2_to_convert*cs2[i]; // recover
@@ -1175,11 +1154,11 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
     // now assign cs 'not physical', according to the distributions cs1 and cs2
 
     if(pcsIs1){
-      double rand1=CLHEP::RandFlat::shoot(m_rndmEngine,100.);
+      double rand1=CLHEP::RandFlat::shoot(rndmEngine,100.);
       if(rand1>cs1_tot+cs2_tot){ // it means that cs is 1
 	result[0]=1;
       } else {
-	double rand=CLHEP::RandFlat::shoot(m_rndmEngine,cs1_tot);
+	double rand=CLHEP::RandFlat::shoot(rndmEngine,cs1_tot);
 	if(rand<cs1[1]) result[0]=2;
 	else if(rand<cs1[1]+cs1[2]) result[0]=3;
 	else if(rand<cs1[1]+cs1[2]+cs1[3]) result[0]=4;
@@ -1187,7 +1166,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
       }
 
     } else {
-      double rand=CLHEP::RandFlat::shoot(m_rndmEngine,cs2_tot);
+      double rand=CLHEP::RandFlat::shoot(rndmEngine,cs2_tot);
       if(rand<cs2[1]) result[0]=2;
       else if(rand<cs2[1]+cs2[2]) result[0]=3;
       else if(rand<cs2[1]+cs2[2]+cs2[3]) result[0]=4;
@@ -1198,7 +1177,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
   else{
 
     float xstripnorm=xstrip/30.;
-    result[0] = ClusterSizeEvaluation(id, xstripnorm );
+    result[0] = ClusterSizeEvaluation(id, xstripnorm, rndmEngine );
 
     int nstrips = ele->Nstrips(measuresPhi);
     //
@@ -1217,7 +1196,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
 }
 
 //--------------------------------------------
-std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const Identifier* id)
+std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const Identifier* id, CLHEP::HepRandomEngine* rndmEngine)
 {
 
   int nstrips;
@@ -1238,21 +1217,21 @@ std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const I
     if(stripsAlreadyTurnedOn==1){
 
       if(pcs[0]==2){
-	if(CLHEP::RandFlat::shoot(m_rndmEngine)<0.5) pcs[1]--;
+	if(CLHEP::RandFlat::shoot(rndmEngine)<0.5) pcs[1]--;
 	else pcs[2]++;
       } else if(pcs[0]==3){
 	//  out3 << pcs[1]<< " ";
-	if(CLHEP::RandFlat::shoot(m_rndmEngine)<m_cs3Para){
+	if(CLHEP::RandFlat::shoot(rndmEngine)<m_cs3Para){
 	  pcs[1]--;   // -+-
 	  pcs[2]++;
 	} else {
-	  if(CLHEP::RandFlat::shoot(m_rndmEngine)<0.5) pcs[2]+=2; // +--
+	  if(CLHEP::RandFlat::shoot(rndmEngine)<0.5) pcs[2]+=2; // +--
 	  else pcs[1]-=2;  // --+
 	}
 	// out3 << pcs[1] <<std::endl;
       } else if(pcs[0]==4){
 	// out4 << pcs[1]<< std::endl;
-	double rand=CLHEP::RandFlat::shoot(m_rndmEngine);
+	double rand=CLHEP::RandFlat::shoot(rndmEngine);
 	if(rand<m_cs4Para[0]){ pcs[2]+=3;} // +---
 	else if(rand<m_cs4Para[0]+m_cs4Para[1]){  // -+--
 	  pcs[1]--;
@@ -1269,27 +1248,27 @@ std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const I
 
       if(pcs[0]==3){
 	double rand_norm=m_cs3Para+0.5*(1-m_cs3Para);
-	if(CLHEP::RandFlat::shoot(m_rndmEngine)<0.5){   //  +-- or -+-
+	if(CLHEP::RandFlat::shoot(rndmEngine)<0.5){   //  +-- or -+-
 	  //out3 << pcs[1]<< " ";
-	  if(CLHEP::RandFlat::shoot(m_rndmEngine)<m_cs3Para/rand_norm) pcs[1]--; // -+-
+	  if(CLHEP::RandFlat::shoot(rndmEngine)<m_cs3Para/rand_norm) pcs[1]--; // -+-
 	  else pcs[2]++; // +--
 	} else { // -+- or --+
 	  //out3 << pcs[1]<<" ";
-	  if(CLHEP::RandFlat::shoot(m_rndmEngine)<m_cs3Para/rand_norm) pcs[2]++; // -+-
+	  if(CLHEP::RandFlat::shoot(rndmEngine)<m_cs3Para/rand_norm) pcs[2]++; // -+-
 	  else pcs[1]--; // --+
 	}
 	//out3 << pcs[1]<< " "<< std::endl;
       } else if(pcs[0]==4){
-	if(CLHEP::RandFlat::shoot(m_rndmEngine)<0.5){ // strip crossed is the first of the two
+	if(CLHEP::RandFlat::shoot(rndmEngine)<0.5){ // strip crossed is the first of the two
 	  //out4<<pcs[1]<<" ";
-	  double rand=CLHEP::RandFlat::shoot(m_rndmEngine,2*m_cs4Para[0]+m_cs4Para[1]+m_cs4Para[2]);
+	  double rand=CLHEP::RandFlat::shoot(rndmEngine,2*m_cs4Para[0]+m_cs4Para[1]+m_cs4Para[2]);
 	  if(rand<2*m_cs4Para[0]){ pcs[2]+=2;} // the '2*' is to compensate for the 0.5
 	  else if(rand<2*m_cs4Para[0]+m_cs4Para[1]){ pcs[1]--;pcs[2]++;}
 	  else { pcs[1]-=2;}
 	  //out4<<pcs[1]<<std::endl;
 	} else {  // strip crossed is the second of the two
 	  //out4<<pcs[2]<<" ";
-	  double rand=CLHEP::RandFlat::shoot(m_rndmEngine,m_cs4Para[1]+m_cs4Para[2]+2*m_cs4Para[3]);
+	  double rand=CLHEP::RandFlat::shoot(rndmEngine,m_cs4Para[1]+m_cs4Para[2]+2*m_cs4Para[3]);
 	  if(rand<2*m_cs4Para[3]){ pcs[1]-=2;}
 	  else if(rand<2*m_cs4Para[3]+m_cs4Para[2]){ pcs[1]--;pcs[2]++;}
 	  else { pcs[2]+=2;}
@@ -1799,7 +1778,7 @@ StatusCode RpcDigitizationTool::readParameters(){
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus) {
+StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DetectionEfficiency" );
 
@@ -2159,7 +2138,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
   ATH_MSG_DEBUG ( "DetectionEfficiency: Final Efficiency Values applied for "<<m_idHelper->show_to_string(*IdEtaRpcStrip)<<" are " << PhiAndEtaEff << "=PhiAndEtaEff " <<OnlyEtaEff << "=OnlyEtaEff " <<OnlyPhiEff << "=OnlyPhiEff " << GapEff << "=GapEff " << EtaEff << "=EtaEff " << PhiEff << "=PhiEff ");
 
-  float rndmEff = CLHEP::RandFlat::shoot(m_rndmEngine, 1) ;
+  float rndmEff = CLHEP::RandFlat::shoot(rndmEngine, 1) ;
 
   if(rndmEff < I0){
     m_SetPhiOn = true ;
@@ -2189,7 +2168,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 }
 
 //--------------------------------------------
-int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, float xstripnorm) {
+int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in ClusterSizeEvaluation" );
 
@@ -2321,7 +2300,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     FracClusterSize2norm = FracClusterSize2 / FracClusterSize1plus2 ;
   }
 
-  float rndmCS = CLHEP::RandFlat::shoot(m_rndmEngine, ITot ) ;
+  float rndmCS = CLHEP::RandFlat::shoot(rndmEngine, ITot ) ;
 
   //Expanded CS2 of 1.3 to match average CS1 and CS2 (to be investigate)
   if(rndmCS < FracClusterSize1plus2){
@@ -2336,7 +2315,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       ClusterSize =  1 ;
     }
     if(m_ClusterSize1_2uncorr==1){
-      float rndmCS1_2 = CLHEP::RandFlat::shoot(m_rndmEngine, 1 ) ;
+      float rndmCS1_2 = CLHEP::RandFlat::shoot(rndmEngine, 1 ) ;
       ClusterSize =  1 ;
       if(rndmCS1_2<FracClusterSize2norm)ClusterSize =  2 ;
     }
@@ -2344,8 +2323,8 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   }
   else if( ( FracClusterSize1plus2 <= rndmCS ) && ( rndmCS <= ITot ) ){
     ClusterSize = m_FirstClusterSizeInTail  ;
-    ClusterSize += int(CLHEP::RandExponential::shoot(m_rndmEngine, MeanClusterSizeTail )) ;
-    float rndmLR = CLHEP::RandFlat::shoot(m_rndmEngine, 1.0 ) ;
+    ClusterSize += int(CLHEP::RandExponential::shoot(rndmEngine, MeanClusterSizeTail )) ;
+    float rndmLR = CLHEP::RandFlat::shoot(rndmEngine, 1.0 ) ;
     if(rndmLR>0.5)ClusterSize = - ClusterSize ;
   }
   else{

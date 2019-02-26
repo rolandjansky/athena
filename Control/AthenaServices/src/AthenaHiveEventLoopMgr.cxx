@@ -39,7 +39,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
@@ -622,14 +621,33 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     return StatusCode::FAILURE;
   }
 
-
-
   // const EventInfo* pEvent(reinterpret_cast<EventInfo*>(createdEvts_IntPtr)); //AUIII!
   const EventInfo* pEvent = m_pEvent;
   assert(pEvent);
 
-  // Make sure context is set before firing any incidents.
-  //Gaudi::Hive::setCurrentContext (*evtContext);
+  // Make sure Event Info is available before firing any incidents.
+  evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+
+  EventID::number_type evtNumber = pEvent->event_ID()->event_number();
+  unsigned int conditionsRun = pEvent->event_ID()->run_number();
+  const AthenaAttributeList* attr = nullptr;
+  if (eventStore()->contains<AthenaAttributeList> ("Input") &&
+      eventStore()->retrieve(attr, "Input").isSuccess())
+  {
+    if (attr->exists ("ConditionsRun")) {
+      conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
+    }
+  }
+  evtContext->template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
+  Gaudi::Hive::setCurrentContext (*evtContext);
+
+  // Record EventContext in current whiteboard
+  if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
+                           "EventContext").isFailure())
+  {
+    error() << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
@@ -645,7 +663,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
            << endmsg;
 
     // FIXME!!! Fire BeginRun "Incident"
-    m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,*evtContext));
+    m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,*evtContext));
 
   }
 
@@ -668,31 +686,6 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
       }
   }
 
-  EventID::number_type evtNumber = pEvent->event_ID()->event_number();
-  evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
-
-  unsigned int conditionsRun = pEvent->event_ID()->run_number();
-  const AthenaAttributeList* attr = nullptr;
-  if (eventStore()->contains<AthenaAttributeList> ("Input") &&
-      eventStore()->retrieve(attr, "Input").isSuccess())
-  {
-    if (attr->exists ("ConditionsRun")) {
-      conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
-    }
-  }
-  evtContext->template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
-
-  // Make sure context global context has event id
-  Gaudi::Hive::setCurrentContext (*evtContext);
-
-  // Record a copy of the EventContext in current whiteboard
-  if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
-                           "EventContext").isFailure())
-  {
-    error() << "Error recording event context object" << endmsg;
-    return (StatusCode::FAILURE);
-  }
-
   m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
 		 0 == (m_nev % m_eventPrintoutInterval.value()));
   if (m_doEvtHeartbeat)  {
@@ -711,7 +704,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   resetTimeout(Athena::Timeout::instance(*evtContext));
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
-    //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
+    //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"BeginEvent",*evtContext));
 
 
     CHECK( m_conditionsCleaner->event (*evtContext, true) );

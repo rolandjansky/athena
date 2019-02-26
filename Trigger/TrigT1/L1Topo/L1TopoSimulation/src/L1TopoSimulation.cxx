@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulation.h"
@@ -72,7 +72,6 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
    m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
    m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this),
-//   m_EventInfoKey("EventInfo"),
    m_topoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
    declareProperty( "TrigConfigSvc", m_l1topoConfigSvc, "Service to provide the L1Topo menu");
@@ -138,7 +137,6 @@ L1TopoSimulation::initialize() {
 
    CHECK(m_topoCTPLocation.initialize());
    CHECK(m_topoOverflowCTPLocation.initialize());
-//   CHECK(m_EventInfoKey.initialize());
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
    ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
@@ -228,7 +226,7 @@ L1TopoSimulation::start() {
 
 StatusCode
 L1TopoSimulation::execute() {
-  
+   const EventContext& ctx = Gaudi::Hive::currentContext();
 
    if (m_prescale>1 && not m_scaler->decision(m_prescale)){
       ATH_MSG_DEBUG( "This event not processed due to prescale");
@@ -248,13 +246,10 @@ L1TopoSimulation::execute() {
    // fill the L1Topo Input Event
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
 
-   // Event Info
-//ReadHandle doesn't seem to work yet for eventinfo
-//   SG::ReadHandle< EventInfo > evt(m_EventInfoKey);
-//   CHECK(evt.isValid());
-   const EventInfo *evt;
-   CHECK(evtStore()->retrieve(evt));
-   inputEvent.setEventInfo(evt->event_ID()->run_number(),evt->event_ID()->event_number(),evt->event_ID()->lumi_block(),evt->event_ID()->bunch_crossing_id());
+   inputEvent.setEventInfo(ctx.eventID().run_number(),
+                           ctx.eventID().event_number(),
+                           ctx.eventID().lumi_block(),
+                           ctx.eventID().bunch_crossing_id());
 
    // EM TAU
    CHECK(m_emtauInputProvider->fillTopoInputEvent(inputEvent));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSOVERLAPREMOVALTOOL_H
@@ -9,6 +9,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonSegment/MuonSegmentCombination.h"
 
 namespace Muon {
   
@@ -37,7 +38,7 @@ namespace Muon {
  
      /** @brief remove duplicates from a vector of segments. The caller should take 
          ownership of the segments */
-    SegVec removeDuplicates( const SegVec& segments ) const;
+    void removeDuplicates( Trk::SegmentCollection* segments ) const;
 
     /** @brief remove duplicates from a MuonSegmentCombination.
         The callers should take ownership of the new SegmentCombination. If the combination is 
@@ -46,6 +47,10 @@ namespace Muon {
     const MuonSegmentCombination* removeDuplicates( const MuonSegmentCombination& combi ) const;
    
   private:
+
+    //this is only needed now by the call to remove duplicates from a MuonSegmentCombination
+    //cleaning of MuonSegmentCombinations is turned off, so perhaps this can be removed entirely
+    SegVec removeDuplicates( MuonSegmentCombination::SegmentVec& segments ) const;
 
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
     ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool

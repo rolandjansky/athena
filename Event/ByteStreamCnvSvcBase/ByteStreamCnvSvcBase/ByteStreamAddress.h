@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVCBASE_BYTESTREAMADDRESS_H
@@ -46,6 +46,9 @@ public:
 
    // @brief get event id
    const EventContext& getEventContext() const;
+
+   // @brief storage type to be used by all bytestream converters
+   static constexpr long storageType() { return 0x43; }
 
 private:
    // @brief it holds a vector of rob ids

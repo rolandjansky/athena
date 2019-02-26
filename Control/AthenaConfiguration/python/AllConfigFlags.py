@@ -51,22 +51,17 @@ def _createCfgFlags():
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
 
-
 #Detector Flags:
-    acf.addFlag('Detector.SimulatePixel', False)
-    acf.addFlag("Detector.SimulateSCT",   False)
-    acf.addFlag("Detector.SimulateTRT",   False)
-    acf.addFlag("Detector.SimulateMuon",  False)
-    acf.addFlag("Detector.SimulateCavern",False)
-    acf.addFlag("Detector.Simulate", lambda prevFlags : (prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
-                                                         prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateMuon or
-                                                         prevFlags.Detector.SimulateCavern))
-    acf.addFlag("Detector.OverlayPixel", False)
-    acf.addFlag("Detector.OverlaySCT",   False)
-    acf.addFlag("Detector.OverlayTRT",   False)
-    acf.addFlag("Detector.OverlayMuon",  False)
-    acf.addFlag("Detector.Overlay", lambda prevFlags : (prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
-                                                        prevFlags.Detector.OverlayTRT or prevFlags.Detector.OverlayMuon ))
+    def __detector():
+        from AthenaConfiguration.DetectorConfigFlags import createDetectorConfigFlags
+        return createDetectorConfigFlags()
+    acf.addFlagsCategory( "Detector", __detector )
+
+#Simulation Flags:
+    def __simulation():
+        from G4AtlasApps.SimConfigFlags import createSimConfigFlags
+        return createSimConfigFlags()
+    acf.addFlagsCategory( "Sim", __simulation )
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
@@ -81,17 +76,10 @@ def _createCfgFlags():
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
 
 
-#LAr Flags:
-    try:
-        import LArConfiguration # Suppress flake8 unused import warning: # noqa: F401
-        haveLArConfiguration = True
-    except ImportError:
-        haveLArConfiguration = False
-
-    if haveLArConfiguration:
+    def __lar():
         from LArConfiguration.LArConfigFlags import createLArConfigFlags
-        lcf=createLArConfigFlags()
-        acf.join(lcf)
+        return createLArConfigFlags()
+    acf.addFlagsCategory( "LAr", __lar ) 
 
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
@@ -103,39 +91,23 @@ def _createCfgFlags():
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
 
 
-# Trigger
-    try:
-        import TriggerJobOpts # Suppress flake8 unused import warning: # noqa: F401
-        haveTriggerJobOpts = True
-    except ImportError:
-        haveTriggerJobOpts = False
-
-    if haveTriggerJobOpts:
+    def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
-        acf.join( createTriggerFlags() )
+        return createTriggerFlags()
+    acf.addFlagsCategory( "Trigger", __trigger )
 
-# Muon 
-    try:
-        import MuonConfig # Suppress flake8 unused import warning: # noqa: F401
-        haveMuonConfig = True
-    except ImportError:
-        haveMuonConfig = False
-
-    if haveMuonConfig:
+    def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
-        acf.join( createMuonConfigFlags() )
+        return createMuonConfigFlags()
+    acf.addFlagsCategory( "Muon", __muon )
 
-# DQ
-    try:
-        import AthenaMonitoring # Suppress flake8 unused import warning: # noqa: F401
-        haveDQConfig = True
-    except ImportError:
-        haveDQConfig = False
 
-    if haveDQConfig:
+    def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
-        acf.join( createDQConfigFlags() )
-        createComplexDQConfigFlags(acf)
+        dqf = createDQConfigFlags()
+        createComplexDQConfigFlags(acf)  # TODO try to use the same style?
+        return dqf
+    acf.addFlagsCategory("DQ", __dq )
 
     return acf
 
@@ -151,6 +123,7 @@ if __name__=="__main__":
     else:
         ConfigFlags.Input.Files = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1",]
     
+    ConfigFlags.loadAllDynamicFlags()
     ConfigFlags.initAll()
     ConfigFlags.dump()
     
