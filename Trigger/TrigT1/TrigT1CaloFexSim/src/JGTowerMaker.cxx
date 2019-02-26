@@ -33,8 +33,8 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
 JGTowerMaker::~JGTowerMaker() {
 
-  jT.clear();
-  gT.clear();
+  m_jT.clear();
+  m_gT.clear();
 }
 
 
@@ -63,7 +63,7 @@ StatusCode JGTowerMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContainer*jgTContainer){
+StatusCode JGTowerMaker::FexAlg(std::vector<std::shared_ptr<JGTower>> jgT, xAOD::JGTowerContainer*jgTContainer){
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType.data()) );
@@ -82,7 +82,7 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
   for (unsigned hs=0;hs<jgT.size();++hs){
       
-      JGTower*jgt = jgT.at(hs);      
+      std::shared_ptr<JGTower> jgt = jgT.at(hs);      
       float jgEt=0;
       float lar_et=0;
       float tile_et=0;
@@ -155,8 +155,8 @@ StatusCode JGTowerMaker::execute() {
    xAOD::JGTowerContainer*    gTContainer    = new xAOD::JGTowerContainer() ;
    gTContainer->setStore(gTAuxContainer);
 
-   CHECK( FexAlg(jT,jTContainer));
-   CHECK( FexAlg(gT,gTContainer));
+   CHECK( FexAlg(m_jT,jTContainer));
+   CHECK( FexAlg(m_gT,gTContainer));
 
    CHECK( evtStore()->record( gTContainer, "GTower" ) );
    CHECK( evtStore()->record( gTAuxContainer, "GTowerAux." )) ;
@@ -194,10 +194,10 @@ StatusCode JGTowerMaker::ForwardMapping(){
      float scDEta = dde->deta();
      float scDPhi = dde->dphi();
 
-     JGTower*JGT = new JGTower(scEta,scDEta,scPhi,scDPhi);
+     std::shared_ptr<JGTower> JGT = std::make_shared<JGTower>(scEta,scDEta,scPhi,scDPhi);
      JGT->SetSCIndices(sc_hs);
      JGT->SetSampling(2);
-     jT.push_back(JGT);
+     m_jT.push_back(JGT);
   }
   //define gTowers geometry
 
@@ -216,7 +216,7 @@ StatusCode JGTowerMaker::ForwardMapping(){
            float fgT_Phi = iPhi*fgT_dPhi+fgT_dPhi/2;
            if(fgT_Phi>TMath::Pi()) fgT_Phi = fgT_Phi-2*TMath::Pi();
            //Allocate supercells into gTowers
-           JGTower*JGT = new JGTower(fgT_Eta,fgT_dEta,fgT_Phi,fgT_dPhi);
+           std::shared_ptr<JGTower> JGT = std::make_shared<JGTower>(fgT_Eta,fgT_dEta,fgT_Phi,fgT_dPhi);
            JGT->SetSampling(2);
 
            for(unsigned sc_hs=0;sc_hs<sc_hashMax;++sc_hs) {
@@ -239,7 +239,7 @@ StatusCode JGTowerMaker::ForwardMapping(){
                 JGT->SetSCIndices(sc_hs);
               }
            }
-           gT.push_back(JGT);
+           m_gT.push_back(JGT);
         }
      }
   }
@@ -260,14 +260,14 @@ StatusCode JGTowerMaker::TileMapping(){
        if(cell==nullptr) continue;
        if(!(m_ccIdHelper->is_tile(cell->ID()))) continue;
 
-       for (unsigned hs=0;hs<jT.size();++hs){
-           JGTower*jt = jT.at(hs);
+       for (unsigned hs=0;hs<m_jT.size();++hs){
+           std::shared_ptr<JGTower> jt = m_jT.at(hs);
            if(jt->sampling()==0) continue;
            if(inBox(jt->Eta(),cell->eta(),jt->dEta()/2,jt->Phi(),cell->phi(),jt->dPhi()/2)) jt->SetTileIndices(cell_hs);
        }
 
-       for (unsigned hs=0;hs<gT.size();++hs){
-           JGTower*gt = gT.at(hs);
+       for (unsigned hs=0;hs<m_gT.size();++hs){
+           std::shared_ptr<JGTower> gt = m_gT.at(hs);
            if(gt->sampling()==0) continue;
            if(inBox(gt->Eta(),cell->eta(),gt->dEta()/2,gt->Phi(),cell->phi(),gt->dPhi()/2)) gt->SetTileIndices(cell_hs);
        }
@@ -302,7 +302,7 @@ StatusCode JGTowerMaker::SCTowerMapping(){
       float jPhi = (m_jTowerId->phi(jid)+1-0.5)*jDPhi+m_jTowerId->phi0(rid);
       if(jPhi>TMath::Pi()) jPhi = jPhi-2*TMath::Pi(); //m_jTowerId->phi0(rid)-jDPhi*(2*nTowers-m_jTowerId->phi(jid));
 
-      JGTower*JT = new JGTower(jEta,jDEta,jPhi,jDPhi);
+      std::shared_ptr<JGTower> JT = std::make_shared<JGTower>(jEta,jDEta,jPhi,jDPhi);
  
       unsigned sc_hashMax = m_scid-> calo_cell_hash_max();
       JT->SetSampling(m_jTowerId->sampling(jid));
@@ -362,11 +362,11 @@ StatusCode JGTowerMaker::SCTowerMapping(){
           if(hs!=0) continue;
 
       }     //SC loop
-      jT.push_back(JT);
+      m_jT.push_back(JT);
   }         //jTower loop
 
-  myJMap->set(jSCs);
-  CHECK(detStore()->record(myJMap,"JTowerSCMap"));
+  m_JMap->set(jSCs);
+  CHECK(detStore()->record(m_JMap,"JTowerSCMap"));
 
   int m_gTowerHashMax = m_gTowerId->tower_hash_max();
 
@@ -388,7 +388,7 @@ StatusCode JGTowerMaker::SCTowerMapping(){
       float gEta = (m_gTowerId->eta(gid)+1-0.5)*gDEta*detSide+m_gTowerId->eta0(rid)*detSide;
       float gPhi = (m_gTowerId->phi(gid)+1-0.5)*gDPhi+m_gTowerId->phi0(rid);
       if(gPhi>TMath::Pi()) gPhi = gPhi-2*TMath::Pi();
-      JGTower*GT = new JGTower(gEta,gDEta,gPhi,gDPhi);
+      std::shared_ptr<JGTower> GT = std::make_shared<JGTower>(gEta,gDEta,gPhi,gDPhi);
 
       unsigned sc_hashMax = m_scid-> calo_cell_hash_max();
       GT->SetSampling(m_jTowerId->sampling(gid));
@@ -448,11 +448,11 @@ StatusCode JGTowerMaker::SCTowerMapping(){
 
         } //inbox matching
       }     //SC looping
-      gT.push_back(GT);
+      m_gT.push_back(GT);
   }         //gTower looping
 
-  myGMap->set(gSCs);  //not properly in use, but still taken as the tool to identify duplication of SCs
-  CHECK(detStore()->record(myGMap,"GTowerSCMap"));
+  m_GMap->set(gSCs);  //not properly in use, but still taken as the tool to identify duplication of SCs
+  CHECK(detStore()->record(m_GMap,"GTowerSCMap"));
 
 
   return StatusCode::SUCCESS;
