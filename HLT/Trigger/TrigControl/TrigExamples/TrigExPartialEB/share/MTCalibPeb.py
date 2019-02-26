@@ -45,7 +45,8 @@ ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains = True)
 # Define the "menu" - L1 items do not matter if we set ForceEnableAllChains = True,
 # but they have to be defined in the L1 menu xml
 chainCTPMap = {"HLT_MTCalibPeb1": "L1_RD0_FILLED",
-               "HLT_MTCalibPeb2": "L1_RD0_FILLED"}
+               "HLT_MTCalibPeb2": "L1_RD0_FILLED",
+               "HLT_MTCalibPeb3": "L1_RD0_FILLED"}
 
 # Schedule the L1Decoder algo with the above tools
 from L1Decoder.L1DecoderConf import L1Decoder
@@ -63,18 +64,20 @@ hypo = MTCalibPebHypoAlg()
 hypo.HypoInputDecisions = "HLTChains"
 hypo.HypoOutputDecisions = "MTCalibPebDecisions"
 
+# Chain 1 - high rate, writes PEB info
 hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
 hypoTool1.RandomAcceptRate = 0.75
-hypoTool1.BurnTimePerCycleMillisec = 100
+hypoTool1.BurnTimePerCycleMillisec = 10
 hypoTool1.NumBurnCycles = 3
 hypoTool1.PEBROBList = [0x42002a, 0x42002b] # example LAr EMBC ROBs
 hypoTool1.PEBSubDetList = [0x65, 0x66] # RPC A and C side
 
+# Chain 2 - lower rate, makes ROB requests
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
 hypoTool2.RandomAcceptRate = 0.25
-hypoTool2.BurnTimePerCycleMillisec = 200
+hypoTool2.BurnTimePerCycleMillisec = 20
 hypoTool2.NumBurnCycles = 10
-hypoTool2.TimeBetweenROBReqMillisec = 100
+hypoTool2.TimeBetweenROBReqMillisec = 50
 hypoTool2.ROBAccessDict = {
  "01 :ADD: Preload  ": [ 0x42002a, 0x42002b ],    # robs for 1st preload
  "02 :ADD: Preload  ": [ 0x42002e, 0x42002f ],    # robs for 2nd preload
@@ -87,22 +90,46 @@ hypoTool2.ROBAccessDict = {
  "09 :COL: Ev.Build ": [ 0x0 ]                    # event building
 } # This is just an example with a few ROBs (LAr in this case) for testing the ROBDataProvider
 
-hypo.HypoTools = [hypoTool1, hypoTool2]
+# Chain 3 - medium rate, produces random data, writes PEB info for data scouting
+hypoTool3 = MTCalibPebHypoTool("HLT_MTCalibPeb3")
+hypoTool3.RandomAcceptRate = 0.50
+hypoTool3.BurnTimePerCycleMillisec = 20
+hypoTool3.NumBurnCycles = 5
+hypoTool3.CreateRandomData = {
+  "ExampleCollection1": 5,
+  "ExampleCollection2": 3,
+}
+hypoTool3.PEBROBList = [0x42002e, 0x42002f] # example LAr EMBC ROBs
+hypoTool3.PEBROBList.extend([0x7c0001]) # extra HLT result for data scouting
+
+# Add the hypo tools to the algorithm
+hypo.HypoTools = [hypoTool1, hypoTool2, hypoTool3]
 
 ################################################################################
 # HLT result maker configuration
 ################################################################################
-
-from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMSerialiserTool, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
 
 # Tool serialising EDM objects to fill the HLT result
-serialiser = TriggerEDMSerialiserTool()
-serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPebDecisions",
-                                     "xAOD::TrigCompositeAuxContainer_v1#MTCalibPebDecisionsAux."]
+serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
+serialiser.addCollectionListToMainResult([
+  "xAOD::TrigCompositeContainer_v1#"+hypo.HypoOutputDecisions,
+  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.decisions",
+])
+# Data scouting example
+resultList = [serialiser.fullResultID(), 1]
+serialiser.addCollectionListToResults([
+  "xAOD::TrigCompositeContainer_v1#ExampleCollection1",
+  "xAOD::TrigCompositeAuxContainer_v2#ExampleCollection1Aux.floatVec_1.floatVec_2.floatVec_3.floatVec_4.floatVec_5",
+  "xAOD::TrigCompositeContainer_v1#ExampleCollection2",
+  "xAOD::TrigCompositeAuxContainer_v2#ExampleCollection2Aux.floatVec_1.floatVec_2.floatVec_3",
+], resultList)
 
 # StreamTag definitions
-streamExamplePEB = ['ExamplePEB', 'calibration', "True", "False"]
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
+streamExamplePEB = ['ExamplePEB', 'calibration', "True", "False"]
+streamExampleDataScoutingPEB = ['ExampleDataScoutingPEB', 'physics', "True", "False"]
 
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
@@ -111,6 +138,7 @@ stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions]
 stmaker.ChainToStream = {}
 stmaker.ChainToStream["HLT_MTCalibPeb1"] = streamExamplePEB
 stmaker.ChainToStream["HLT_MTCalibPeb2"] = streamPhysicsMain
+stmaker.ChainToStream["HLT_MTCalibPeb3"] = streamExampleDataScoutingPEB
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()
@@ -118,6 +146,7 @@ bitsmaker.ChainDecisions = "HLTSummary"
 bitsmaker.ChainToBit = {}
 bitsmaker.ChainToBit["HLT_MTCalibPeb1"] = 3
 bitsmaker.ChainToBit["HLT_MTCalibPeb2"] = 50
+bitsmaker.ChainToBit["HLT_MTCalibPeb3"] = 11
 
 # Configure the HLT result maker to use the above tools
 hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
