@@ -22,13 +22,13 @@ std::vector<float> PixelOfflineCalibData::GetConstants() const {
   int n1 = m_clustererrordata->getNumberOfBarrelBins(); 
   int n2 = m_clustererrordata->getNumberOfEndcapBins();
   // get the bins of the cluster on track error data parametrization 
-  const std::vector<float> csx = m_clusterontrackerrordata->getClusterSizeBinsX();
-  const std::vector<float> csy = m_clusterontrackerrordata->getClusterSizeBinsY();
-  const std::vector<float> eta = m_clusterontrackerrordata->getEtaBins();
-  const std::vector<float> alpha = m_clusterontrackerrordata->getIncidenceAngleBins();
+  const std::vector<float> &csx = m_clusterontrackerrordata->getClusterSizeBinsX();
+  const std::vector<float> &csy = m_clusterontrackerrordata->getClusterSizeBinsY();
+  const std::vector<float> &eta = m_clusterontrackerrordata->getEtaBins();
+  const std::vector<float> &alpha = m_clusterontrackerrordata->getIncidenceAngleBins();
   //IBL
-  const std::vector<float> etaibl = m_clusterontrackerrordata->getEtaIBLBins();
-  const std::vector<float> alphaibl = m_clusterontrackerrordata->getIncidenceAngleIBLBins();
+  const std::vector<float> &etaibl = m_clusterontrackerrordata->getEtaIBLBins();
+  const std::vector<float> &alphaibl = m_clusterontrackerrordata->getIncidenceAngleIBLBins();
   //
   // number of bins 
   // Since the upper value is always implicit, numer of bins is the size of the vector
@@ -41,13 +41,13 @@ std::vector<float> PixelOfflineCalibData::GetConstants() const {
   int netaibl = m_clusterontrackerrordata->getIBLetabins();
   int nalphaibl =m_clusterontrackerrordata->getIBLphibins(); 
   // get the bins of the charge interpolation parametrization 
-  const std::vector<float> csx2 = m_chargeinterpolationparameters->getClusterSizeXBins();
-  const std::vector<float> csy2 = m_chargeinterpolationparameters->getClusterSizeYBins();
-  const std::vector<float> eta2 = m_chargeinterpolationparameters->getEtaBins();
-  const std::vector<float> alpha2 = m_chargeinterpolationparameters->getAngleBins();
+  const std::vector<float> &csx2 = m_chargeinterpolationparameters->getClusterSizeXBins();
+  const std::vector<float> &csy2 = m_chargeinterpolationparameters->getClusterSizeYBins();
+  const std::vector<float> &eta2 = m_chargeinterpolationparameters->getEtaBins();
+  const std::vector<float> &alpha2 = m_chargeinterpolationparameters->getAngleBins();
   // IBL
-  const std::vector<float> etaibl2 =  m_chargeinterpolationparameters->getIBLEtaBins() ;
-  const std::vector<float> alphaibl2 = m_chargeinterpolationparameters->getIBLAngleBins() ;
+  const std::vector<float> &etaibl2 =  m_chargeinterpolationparameters->getIBLEtaBins() ;
+  const std::vector<float> &alphaibl2 = m_chargeinterpolationparameters->getIBLAngleBins() ;
   //
   // number of bins
   // The upper limit is not implicit, we must subtract one!
@@ -162,7 +162,7 @@ void PixelOfflineCalibData::Dump(){
   m_chargeinterpolationparameters->Print("PixelChargeInterpolationParametersDump.txt");
 }
 
-void PixelOfflineCalibData::SetConstants(std::vector<float> constants){ 
+void PixelOfflineCalibData::SetConstants(const std::vector<float> &constants){ 
 
   if(constants.at(0) > 0){    // old format
     m_clustererrordata->setVersion(0);
