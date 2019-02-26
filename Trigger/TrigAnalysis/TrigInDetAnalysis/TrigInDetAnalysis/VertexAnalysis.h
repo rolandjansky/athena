@@ -26,11 +26,11 @@ class VertexAnalysis {
 
 public:
 
-  VertexAnalysis( const std::string& n ) : mname(n) { } 
+  VertexAnalysis( const std::string& n ) : m_name(n) { } 
 
   virtual ~VertexAnalysis() { } 
 
-  std::string name() const { return mname; }
+  std::string name() const { return m_name; }
   
   virtual void initialise() = 0;
   
@@ -40,44 +40,26 @@ public:
 
   virtual void finalise() = 0;
 
+  void addHistogram( TH1* h ) {  m_histos.push_back( h ); }
 
-  void addHistogram( TH1* h ) {
-    //    std::string name = h->GetName();
-    //   m_histos.insert( std::map<std::string, TObject*>::value_type( name, h) );
-    m_histos.push_back( h );
-  }
-
-
-  void addHistogram( TProfile* h ) {
-    //    std::string name = h->GetName();
-    //   m_histos.insert( std::map<std::string, TObject*>::value_type( name, h) );
-    m_profs.push_back( h );
-  }
-
-  //  void addHistogram( TProfile* h ) {
-  //    std::string name = h->GetName();
-  //    m_effhistos.insert( std::map<std::string, TProfile*>::value_type( name, h) );
-  //  }
+  void addHistogram( TProfile* h ) {  m_profs.push_back( h ); }
 
   std::vector<TH1*>       objects() { return m_histos; }
   std::vector<TProfile*>  profs()   { return m_profs; }
 
 protected:
 
-  //  std::map<std::string, TObject*>  m_histos;
   std::vector<TH1*>       m_histos;
   std::vector<TProfile*>  m_profs;
-  //  std::map<std::string, TProfile*> m_effhistos;
-
 
 private:
 
-  std::string mname;
+  std::string m_name;
 
 };
 
-inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& _v ) { 
-  return s << _v.name();
+inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& v ) { 
+  return s << v.name();
 }
 
 

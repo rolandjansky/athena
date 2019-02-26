@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -145,6 +145,16 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("HLTEffBinLoEtGeV",   m_hltbinloEt );
   declareProperty("HLTEffBinHiEtGeV",   m_hltbinhiEt );
 
+  // Jet JVT bins
+  declareProperty("JetJVTNBins",       m_jJVTnbins );
+  declareProperty("JetJVTBinLo",       m_jJVTbinlo );
+  declareProperty("JetJVTBinHi",       m_jJVTbinhi );
+
+  // Jet SumPtTrk bins
+  declareProperty("JetSumPtTrk500NBins", m_jSumPtTrk500nbins );
+  declareProperty("JetSumPtTrk500BinLo", m_jSumPtTrk500binlo );
+  declareProperty("JetSumPtTrk500BinHi", m_jSumPtTrk500binhi );
+
   //declareProperty("JetChainsRegex",     m_chainsByRegexp);
 
   declareProperty("EMFractionCut",      m_emfracCut = 0.9);
@@ -277,8 +287,8 @@ HLTJetMonTool::~HLTJetMonTool() {
 StatusCode HLTJetMonTool::init() {
 
   // init message stream
-  m_log->setLevel(msgLevel());
-  m_debuglevel = (m_log->level() <= MSG::DEBUG);
+  // m_log->setLevel(msgLevel());
+  m_debuglevel = (msgLevel() <= MSG::DEBUG);
 
   ATH_MSG_INFO( "in HLTJetMonTool::init()" );
 
@@ -549,6 +559,14 @@ StatusCode HLTJetMonTool::book( ) {
     float thebinSize = m_jhecfracnbins[k] > 0 ? fabs(m_jhecfracbinhi[k]-m_jhecfracbinlo[k]) / m_jhecfracnbins[k] : -1.;
     m_jhecfracperbin.push_back(thebinSize);
   }
+  for(unsigned int k = 0; k < m_jJVTnbins.size(); k++) {
+    float thebinSize = m_jJVTnbins[k] > 0 ? fabs(m_jJVTbinhi[k]-m_jJVTbinlo[k]) / m_jJVTnbins[k] : -1.;
+    m_jJVTperbin.push_back(thebinSize);
+  }
+  for(unsigned int k = 0; k < m_jSumPtTrk500nbins.size(); k++) {
+    float thebinSize = m_jSumPtTrk500nbins[k] > 0 ? fabs(m_jSumPtTrk500binhi[k]-m_jSumPtTrk500binlo[k]) / m_jSumPtTrk500nbins[k] : -1.;
+    m_jSumPtTrk500perbin.push_back(thebinSize);
+  }
   for(unsigned int k = 0; k < m_jDEtnbins.size(); k++) {
     float thebinSize = m_jDEtnbins[k] > 0 ? fabs(m_jDEtbinhi[k]-m_jDEtbinlo[k]) / m_jDEtnbins[k] : -1.;
     m_jDEtperbin.push_back(thebinSize);
@@ -622,7 +640,7 @@ void HLTJetMonTool::bookJetHists() {
   unsigned int k = 0; 
   for(JetSigIter hj= m_HLTJetKeys.begin(); hj != m_HLTJetKeys.end(); ++hj, k++) {
     // book histograms for each HLT jet container 
-    varlist = "n;et;high_et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+    varlist = "n;et;high_et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
     nvar = basicKineVar(varlist,bookvars);
     if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -681,7 +699,7 @@ void HLTJetMonTool::bookJetHists() {
 
   // HLT Chains
   // HLT basic histograms
-  varlist="et;leading_et;high_et;eta;phi;phi_vs_eta;emfrac;hecfrac;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
+  varlist="et;leading_et;high_et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); /*levels.push_back("L1");*/
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
@@ -723,7 +741,7 @@ void HLTJetMonTool::bookJetHists() {
     k = 0; // FIXME
     for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj, k++) {
       // book histograms for each offline jet container 
-      varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+      varlist = "n;et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
       nvar = basicKineVar(varlist,bookvars);
       if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -872,7 +890,7 @@ void HLTJetMonTool::bookDijetHistos(const std::string& trigjet, const std::strin
     TString htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading E_{T}^{jet} [GeV]; Subleading E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
     TString hname = Form("%s_leadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
     
   }else{
     
@@ -880,25 +898,25 @@ void HLTJetMonTool::bookDijetHistos(const std::string& trigjet, const std::strin
     TString htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading Trigger E_{T}^{jet} [GeV]; Leading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
     TString hname = Form("%s_leadEt_vs_%s_leadEt",trigjet.c_str(), ofjet.c_str());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEtOF,binloEtOF,binhiEtOF));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
     
     //L1/HLT lead Et vs. OF sublead Et
     htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading Trigger E_{T}^{jet} [GeV]; Subleading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
     hname = Form("%s_leadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEtOF,binloEtOF,binhiEtOF));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
     
     //L1/HLT sublead Et vs. OF lead Et
     htitle = Form("%s E_{T} w.r.t %s E_{T}; Subleading Trigger E_{T}^{jet} [GeV]; Leading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
     hname = Form("%s_subleadEt_vs_%s_leadEt",trigjet.c_str(), ofjet.c_str());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEtOF,binloEtOF,binhiEtOF));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
     
     //L1/HLT sublead Et vs. OF sublead Et
     htitle = Form("%s E_{T} w.r.t %s E_{T}; Subleading Trigger  E_{T}^{jet} [GeV]; Subleading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
     hname = Form("%s_subleadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEtOF,binloEtOF,binhiEtOF));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
   }
 }//EoF
 
@@ -950,7 +968,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     TString hname = Form("%s_Eff_vs_pt_num",trigName.Data());
 
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
     hname = Form("%s_Eff_vs_pt_den",trigName.Data());
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
@@ -1009,7 +1027,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_unmatched_pt",trigName.Data());
 
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
 
     //Resolution
@@ -1030,7 +1048,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_pt_vs_eta_num",trigName.Data());
 
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
     hname = Form("%s_Eff_vs_pt_vs_eta_den",trigName.Data());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
@@ -1040,7 +1058,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_pt_vs_phi_num",trigName.Data());
 
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
     hname = Form("%s_Eff_vs_pt_vs_phi_den",trigName.Data());
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
@@ -1051,7 +1069,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_pt_vs_OF_pt",trigName.Data());
 
     addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
-    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    ATH_MSG_VERBOSE("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
 
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1168,6 +1186,20 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
         addHistogram(new TH1F(hname, htitle,m_jhecfracnbins[0],m_jhecfracbinlo[0],m_jhecfracbinhi[0]));
       }
       
+      // jet jvt
+      if(*var == "jvt") {
+        htitle = Form("%s jvt; a.u.; entries/%3.1f",title.Data(),m_jJVTperbin[0]);
+        hname = Form("%sJet_JVT",lvl.Data());
+        addHistogram(new TH1F(hname, htitle,m_jJVTnbins[0],m_jJVTbinlo[0],m_jJVTbinhi[0]));
+      }
+
+      // jet sumpttrk500
+      if(*var == "sumpttrk500") {
+        htitle = Form("%s_sumpttrk50;0 a.u.; entries/%3.1f",title.Data(),m_jSumPtTrk500perbin[0]);
+        hname = Form("%sJet_SumPtTrk500",lvl.Data());
+        addHistogram(new TH1F(hname, htitle,m_jSumPtTrk500nbins[0],m_jSumPtTrk500binlo[0],m_jSumPtTrk500binhi[0]));
+      }
+
       // roi descriptor eta
       if(*var == "roidesc_eta") {
         htitle = Form("%s pseudorapidity of center of RoI at origin; #eta; entries/%3.1f",title.Data(),m_jetaperbin[0]);
@@ -1258,8 +1290,6 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
 
 void HLTJetMonTool::setHistProperties(TH1* h) {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
   if(!h) return;
   h->SetFillColor(42);
   h->SetTitleSize(0.037,"X");
@@ -1273,8 +1303,6 @@ void HLTJetMonTool::setHistProperties(TH1* h) {
 
 void HLTJetMonTool::set2DHistProperties(TH2* h) {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
   if(!h) return;
   h->SetOption("CONT0");
 
@@ -1327,7 +1355,9 @@ StatusCode HLTJetMonTool::retrieveContainers() {
     m_OFJetC.push_back(jetcoll);
   } // end for
 
-  return sc;
+  // Override SC failure on retrieve, because we may want to run on files
+  // without every single chain activated!?
+  return StatusCode::SUCCESS;
 
 } // end retrieveContainers
 
@@ -1415,7 +1445,7 @@ StatusCode HLTJetMonTool::fillJetHists() {
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
-  
+
   return StatusCode::SUCCESS;
 
 } // end fillJetHists
@@ -1516,23 +1546,21 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	
       	if(/*m_debuglevel*/1) {
 	  //checks jet variables
-	  ATH_MSG_DEBUG( "REGTEST Looking at jet " << n_HLTJet);
-	  ATH_MSG_DEBUG( "REGTEST    pt: " << thisjet->pt() );
-	  ATH_MSG_DEBUG( "REGTEST    eta: " << thisjet->eta() );
-	  ATH_MSG_DEBUG( "REGTEST    phi: " << thisjet->phi() );
-	  ATH_MSG_DEBUG( "REGTEST    m: " << thisjet->m() );
-	  ATH_MSG_DEBUG( "REGTEST    e: " << thisjet->e() );
-	  // ATH_MSG_DEBUG( "REGTEST    emfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac) ); 
-	  // ATH_MSG_DEBUG( "REGTEST    hecfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac)); 
-	  ATH_MSG_DEBUG( "REGTEST    px: " << thisjet->px() );
-	  ATH_MSG_DEBUG( "REGTEST    py: " << thisjet->py() );
-	  ATH_MSG_DEBUG( "REGTEST    pz: " << thisjet->pz() );
-	  ATH_MSG_DEBUG( "REGTEST    type: " << thisjet->type() );
-	  ATH_MSG_DEBUG( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
-	  ATH_MSG_DEBUG( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
-	  ATH_MSG_DEBUG( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
-	  ATH_MSG_DEBUG( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
-	  ATH_MSG_DEBUG( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
+	  ATH_MSG_VERBOSE( "REGTEST Looking at jet " << n_HLTJet);
+	  ATH_MSG_VERBOSE( "REGTEST    pt: " << thisjet->pt() );
+	  ATH_MSG_VERBOSE( "REGTEST    eta: " << thisjet->eta() );
+	  ATH_MSG_VERBOSE( "REGTEST    phi: " << thisjet->phi() );
+	  ATH_MSG_VERBOSE( "REGTEST    m: " << thisjet->m() );
+	  ATH_MSG_VERBOSE( "REGTEST    e: " << thisjet->e() );
+	  ATH_MSG_VERBOSE( "REGTEST    px: " << thisjet->px() );
+	  ATH_MSG_VERBOSE( "REGTEST    py: " << thisjet->py() );
+	  ATH_MSG_VERBOSE( "REGTEST    pz: " << thisjet->pz() );
+	  ATH_MSG_VERBOSE( "REGTEST    type: " << thisjet->type() );
+	  ATH_MSG_VERBOSE( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
+	  ATH_MSG_VERBOSE( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
+	  ATH_MSG_VERBOSE( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
+	  ATH_MSG_VERBOSE( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
+	  ATH_MSG_VERBOSE( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
 	}
 	
         // for basic hists, don't cut eta/pt
@@ -1550,16 +1578,29 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	if (m_isPP || m_isCosmic || m_isMC){
 	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+	  ATH_MSG_VERBOSE( "REGTEST    emfrac: " << emfrac ); 
+	  ATH_MSG_VERBOSE( "REGTEST    hecfrac: " << hecfrac ); 
+	}
+
+	double  jvt  = -0.1;
+	double  sumpttrk500 = 0;
+	if (thisjet->isAvailable<float>("Jvt")){
+	  jvt = thisjet->getAttribute<float>("Jvt"); 
+ 	  sumpttrk500 = thisjet->getAttribute<std::vector<float> >("SumPtTrkPt500")[0]/CLHEP::GeV;
+	  ATH_MSG_VERBOSE( "REGTEST    JVT: " << jvt ); 
+	  ATH_MSG_VERBOSE( "REGTEST    SumPtTrk500: " << sumpttrk500 ); 
 	}
 
         if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
-	
+
         if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,m_lumi_weight);
 	if((h  = hist(Form("%sJet_HighEt",lvl.c_str()))))       h->Fill(et,m_lumi_weight);
         if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,m_lumi_weight);
         if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,m_lumi_weight);
         if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,m_lumi_weight);
 	if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,m_lumi_weight);
+        if((h  = hist(Form("%sJet_JVT",lvl.c_str()))))          h->Fill(jvt,m_lumi_weight);
+	if((h  = hist(Form("%sJet_SumPtTrk500",lvl.c_str()))))  h->Fill(sumpttrk500,m_lumi_weight);
         if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi,m_lumi_weight);
         if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))    h2->Fill(eta,e,m_lumi_weight);
         if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))    h2->Fill(phi,e,m_lumi_weight);
@@ -1643,6 +1684,13 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
+	    double  jvt  = -0.1;
+	    double  sumpttrk500 = 0;
+	    if (thisjet->isAvailable<float>("Jvt")){
+	      jvt = thisjet->getAttribute<float>("Jvt"); 
+	      sumpttrk500 = thisjet->getAttribute<std::vector<float> >("SumPtTrkPt500")[0]/CLHEP::GeV;
+	    }
+
             if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 
 
@@ -1655,6 +1703,8 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,m_lumi_weight);
             if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,m_lumi_weight);
 	    if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,m_lumi_weight);
+	    if((h  = hist(Form("%sJet_JVT",lvl.c_str()))))          h->Fill(jvt,m_lumi_weight);
+	    if((h  = hist(Form("%sJet_SumPtTrk500",lvl.c_str()))))  h->Fill(sumpttrk500,m_lumi_weight);
             if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi,m_lumi_weight);
             if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))    h2->Fill(eta,e,m_lumi_weight);
             if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))    h2->Fill(phi,e,m_lumi_weight);

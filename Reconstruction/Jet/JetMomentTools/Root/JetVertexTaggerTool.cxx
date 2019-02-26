@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- ////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetVertexTaggerTool.cxx
@@ -21,7 +21,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 : asg::AsgTool(name)
 , m_jvtlikelihoodHistName("")
 , m_jvtfileName("")
-, m_htsel("")
 {
     declareProperty("JVFCorrName", m_jvfCorrName="JVFCorr");
     declareProperty("SumPtTrkName", m_sumPtTrkName="SumPtTrkPt500");
@@ -29,7 +28,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 
     declareProperty("JVTFileName",m_jvtfileName = "JVTlikelihood_20140805.root");
     declareProperty("JVTLikelihoodHistName",m_jvtlikelihoodHistName = "JVTRootCore_kNN100trim_pt20to50_Likelihood");
-    declareProperty("TrackSelector", m_htsel);
     declareProperty("JVTName", m_jvtName ="Jvt");
 }
 
@@ -37,12 +35,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 
 StatusCode JetVertexTaggerTool::initialize() {
   ATH_MSG_INFO("Initializing JetVertexTaggerTool " << name());
-
-  if ( m_htsel.empty() ) {
-    ATH_MSG_INFO("  No track selector.");
-  } else {
-    ATH_MSG_INFO("  Track selector: " << m_htsel->name());
-  }
 
   // Use the Path Resolver to find the jvt file and retrieve the likelihood histogram
   m_fn =  PathResolverFindCalibFile(m_jvtfileName);	
@@ -90,7 +82,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       // Default JVFcorr to -1 when no tracks are associated.
       float jvfcorr = jet->getAttribute<float>(m_jvfCorrName);
       std::vector<float> sumpttrkpt500 = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
-      const float rpt = sumpttrkpt500[HSvertex->index()]/jet->pt();
+      const float rpt = sumpttrkpt500[HSvertex->index() - (*vertices)[0]->index()]/jet->pt();
       float jvt = evaluateJvt(rpt, jvfcorr);
       
       jet->setAttribute(m_jvtName+"Rpt",rpt);

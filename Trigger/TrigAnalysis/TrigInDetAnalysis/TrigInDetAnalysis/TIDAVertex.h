@@ -86,12 +86,12 @@ private:
 
 }
 
-inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& _t ) { 
-  return s <<  "[ x=" << _t.position()[0]  << " +- " << _t.error()[0]
-	   <<  "\ty=" << _t.position()[1]  << " +- " << _t.error()[1]
-	   <<  "\tz=" << _t.position()[2]  << " +- " << _t.error()[2]
-	   << ";\tchi2="   << _t.chi2()    << "/" << _t.ndof()
-	   << "\tNtracks=" << _t.Ntracks() << "\t]"; 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& t ) { 
+  return s <<  "[ x=" << t.position()[0]  << " +- " << t.error()[0]
+	   <<  "\ty=" << t.position()[1]  << " +- " << t.error()[1]
+	   <<  "\tz=" << t.position()[2]  << " +- " << t.error()[2]
+	   << ";\tchi2="   << t.chi2()    << "/" << t.ndof()
+	   << "\tNtracks=" << t.Ntracks() << "\t]"; 
 }
 
 

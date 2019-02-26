@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Provide a  look up tables that connects logical algortihm names to
 factory functions and arguments.
@@ -410,6 +410,30 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
+    #added A. Steinhebel, June 2018
+    def jetattrs_kargs(self, algType, hypo): 
+
+        kargs = {}
+
+        kargs['name'] = '"%s_%s"' % (algType, hypo.jetattrs_string.replace('!', '-'))
+        
+        kargs['E'] = hypo.E
+        kargs['momentstr'] =  '"%s"' % hypo.momentstr 
+        kargs['jetVars'] = hypo.jetVars
+        kargs['has'] = hypo.has
+        kargs['limit_mins'] = hypo.limit_mins
+        kargs['limit_maxs'] = hypo.limit_maxs
+
+        kargs['chain_name'] =  "'%s'" % self.chain_config.chain_name
+
+        return kargs
+
+    def hlthypo2_jetattrs(self, hypo):
+
+        algType = 'TrigHLTJetHypo_JetAttrs'
+        kargs = self.jetattrs_kargs(algType, hypo)
+        return [Alg(algType,(), kargs)]
+    
     def dijet_kargs(self, algType, hypo): 
 
         kargs = {}

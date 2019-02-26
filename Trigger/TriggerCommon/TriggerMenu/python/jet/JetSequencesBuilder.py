@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ This module sets up the algorithm lists for sequences, and supplies
 the list with a name (alias) which will be used later in the construction
@@ -101,7 +101,8 @@ class JetSequencesBuilder(object):
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
-                       'jh_dijet': self.make_jh_dijet,  # TLA hypo
+                       'jh_dijet': self.make_jh_dijet,  # dijet hypo
+                       'jh_jetattrs': self.make_jh_jetattrs, #jet attributes, including moments
                        'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
                        'jh_dimass_deta_dphi': self.make_jh_dimass_deta_dphi, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
@@ -230,9 +231,9 @@ class JetSequencesBuilder(object):
                     seq_order.append(('jh_dimass_deta_dphi', h))
                 elif hypo_type in ('HLThypo2_dijet',):
                     seq_order.append(('jh_dijet', h))
-                
+                elif hypo_type in ('HLThypo2_jetattrs',):
+                    seq_order.append(('jh_jetattrs', h))
                 else:
-                
                     msg = '%s._make_sequence_list: unknown hypo type %s ' % (
                         self.__class__.__name__, str(hypo_type))
                     raise RuntimeError(msg)
@@ -546,6 +547,18 @@ class JetSequencesBuilder(object):
 
         # hypo = menu_data.hypo_params
         # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        return AlgList(f(hypo), alias)
+
+
+    #Added A. Steinhebel, June 2018
+    def make_jh_jetattrs(self, hypo):
+
+        # menu_data = self.chain_config.menu_data
+        # hypo = menu_data.hypo_params
+        f = self.alg_factory.hlthypo2_jetattrs
+
         alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
 
         return AlgList(f(hypo), alias)

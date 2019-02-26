@@ -199,6 +199,25 @@ def addJVFTool(toolname,
             'Added jvf tool "%s" to jtm' % toolname
 
 
+def addJVTTool(toolname,
+                  vcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
+ 
+        # Build the tool :
+        jvtTool = JetVertexTaggerTool(toolname,
+                                      VertexContainer = vcSGkey)
+        
+        jtm += jvtTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvt tool "%s" to jtm' % toolname
+
+
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
                     tvSGkey,
@@ -317,6 +336,11 @@ def _getJetBuildTool(merge_param,
             jvf_ghosttrack.AssociatedTracks = secondary_label
             jvf_ghosttrack.lock()
             mymods.append(jvf_ghosttrack)
+        if not hasattr(jtm, 'jvt_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVT tool configured. Continuing without jvt calculations."
+        else:        
+            jvt_ghosttrack = getattr(jtm, 'jvt_'+trkopt)
+            mymods.append(jvt_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -1196,6 +1220,12 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
                        vcSGkey=primVtxSGkey,
                        )
         addJVFTool(jvftoolname, **jvfoptions)
+
+        # add  a specially configured jvt tool to jtm 
+        jvttoolname = 'jvt_'+trkopt
+        
+        jvtoptions = dict(vcSGkey=primVtxSGkey)
+        addJVTTool(jvttoolname, **jvtoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

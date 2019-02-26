@@ -1256,6 +1256,47 @@ class L2EFChain_mu(L2EFChainDef):
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
 
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        dimuon_name = '0'
+        muon_name = 'mu'
+        mass_low = 0.
+        mass_high = 0.
+        hypocut = '0GeV_0GeV'
+        if '20invm60' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 60.
+          hypocut = '20GeV_60GeV'
+        elif '10invm60' in self.chainPart['addInfo']:
+          mass_low = 10.
+          mass_high = 60.
+          hypocut = '10GeV_60GeV'
+        elif '0invm60' in self.chainPart['addInfo']:
+          mass_low = 0.
+          mass_high = 60.
+          hypocut = '0GeV_60GeV'
+        elif '20invm80' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 80.
+          hypocut = '20GeV_80GeV'
+        if '_mu10_' in self.chainName:
+          muon_name = 'mu10'
+        elif 'mu8noL1' in self.chainName:
+          muon_name = 'mu8noL1' 
+        elif 'mu6noL1' in self.chainName:
+          muon_name = 'mu6noL1' 
+        elif 'mu4noL1' in self.chainName:
+          muon_name = 'mu4noL1' 
+        elif 'mu2noL1' in self.chainName:
+          muon_name = 'mu2noL1'
+        hypocutEF = muon_name + '_DiMuonMass_Zveto'
+        dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DiMuon",dimuon_name)
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = mass_low
+        theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = mass_high
+        self.EFsequenceList += [[['EF_CB_FS'],
+                                  [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
+                                  'EF_CB_FSINVM']]
+
       if 'TagandProbe' in self.chainPart['FSinfo']:
         TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
         self.EFsequenceList += [['EF_CB_FS',
@@ -1291,6 +1332,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
       if 'TagandProbe' in self.chainPart['FSinfo']:
         self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        self.EFsignatureList += [ [['EF_CB_FSINVM']] ]
 
       if run_isolation:
         self.EFsignatureList += [ [['EF_ID_FS']] ]
@@ -1317,7 +1360,22 @@ class L2EFChain_mu(L2EFChainDef):
       self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
       self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
 
+      if 'FTKFS' in self.chainPart['FSinfo']:
+        self.TErenamingDict.update({
+            'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+            'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+            'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
+            'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
+            'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+            'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+            'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+            'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+            'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
+            })
+
       if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        self.TErenamingDict['EF_CB_FSINVM'] = mergeRemovingOverlap('EF_CB_FSINVM_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
 
       if run_isolation:
         self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
@@ -1438,17 +1496,17 @@ class L2EFChain_mu(L2EFChainDef):
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'+hypocut),
-      'EF_trk_ROIbFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'+hypocut),
-      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'+hypocut),
+      'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
       'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
-      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'+hypocut),
-      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_', 'SAFSHypo'+hypocut),
-      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'+hypocut), 
-      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
+      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
       }
+    
 
   #################################################################################################
   #################################################################################################

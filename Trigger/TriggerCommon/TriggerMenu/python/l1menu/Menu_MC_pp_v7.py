@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
@@ -1528,6 +1528,41 @@ def defineMenu():
         'L1_MU20_TAU12IM_FTK'                  : 498,
         'L1_RD3_FTK' : 417,
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
+        'L1_ALFA_ELAST1' : 87,
+        'L1_ALFA_ELAST2' : 162,
+        'L1_ALFA_ELAST11' : 179,
+        'L1_ALFA_ELAST12' : 180,
+        'L1_ALFA_ELAST13' : 209,
+        'L1_ALFA_ELAST14' : 215,
+        'L1_ALFA_ELAST15_Calib' : 217, 
+        'L1_ALFA_ELAST16' : 222,
+        'L1_ALFA_ELAST17' : 239,
+        'L1_ALFA_ELAST18_Calib' : 241, 
+        'L1_ALFA_BGT_BGRP4' : 242,
+        'L1_ALFA_BGT_BGRP10' : 244,
+        'L1_ALFA_SHOWSYST5' : 257,
+        'L1_ALFA_SYST9' : 265,
+        'L1_ALFA_SYST10' : 274,
+        'L1_ALFA_SYST11' : 277,
+        'L1_ALFA_SYST12' : 283,
+        'L1_ALFA_ANY_BGRP10' : 284,
+        'L1_ALFA_B7L1U' : 287,
+        'L1_ALFA_B7L1L' : 289,
+        'L1_ALFA_A7L1U' : 296,
+        'L1_ALFA_A7L1L' : 297,
+        'L1_ALFA_A7R1U' : 298,
+        'L1_ALFA_A7R1L' : 304,
+        'L1_ALFA_B7R1U' : 306,
+        'L1_ALFA_B7R1L' : 307,
+        'L1_ALFA_B7L1U_OD' : 308,
+        'L1_ALFA_B7L1L_OD' : 310,
+        'L1_ALFA_A7L1U_OD' : 311,
+        'L1_ALFA_A7L1L_OD' : 312,
+        'L1_ALFA_A7R1U_OD' : 359,
+        'L1_ALFA_A7R1L_OD' : 360,
+        'L1_ALFA_B7R1U_OD' : 361,
+        'L1_ALFA_B7R1L_OD' : 362,
+        'L1_W-05RO-XEHT-0' : 363,
 }
 
 

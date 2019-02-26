@@ -76,7 +76,7 @@ class CaloDef:
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
         else:
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
-            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=8) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=5) ]
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=12, window=4) ]
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
             
