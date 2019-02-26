@@ -60,7 +60,7 @@ dcuberef_muons_100GeV_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/Incline
 dcuberef_muons_100GeV_digi_pixel=$artdata/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis_muons_100GeV_25x100_2020.root
 dcuberef_muons_100GeV_digi_strip=$artdata/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis_muons_100GeV_25x100_2020.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
-lastref_muons_1GeV_dir=last_results_muons_100GeV
+lastref_muons_100GeV_dir=last_results_muons_100GeV
 
 if [ \( $dosim -ne 0 -a -n "$dcube_sim_muons_100GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_muons_100GeV_lastref" \) ]; then
   run art.py download --user=artprod --dst="$lastref_muons_100GeV_dir" InDetSLHC_Example "$script"
