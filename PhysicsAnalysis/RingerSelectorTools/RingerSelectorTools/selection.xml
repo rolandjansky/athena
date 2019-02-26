@@ -12,8 +12,6 @@
 
   <!-- The multi-tool and some configurables -->
   <class name="Ringer::AsgElectronRingerSelector" />
-  <class pattern="Ringer::ElectronTAccept*" />
-  <class pattern="Ringer::BitdefElectron*" />
   <class name="Ringer::ExtraDescriptionPatterns" />
   <class name="Ringer::RingerConfStruct" />
 
@@ -35,8 +33,7 @@
   <class pattern="std::vector<Ringer::*" />
   <class pattern="std::vector<std::vector<Ringer::*" />
 
-  <!-- Add every enum/fnc within Ringer namespace -->
-  <enum pattern="Ringer::*"/>
+  <!-- Add every fnc within Ringer namespace -->
   <function pattern="Ringer::*"/>
 
   <!--<class name="Ringer::ROOT6_NamespaceAutoloadHook" />

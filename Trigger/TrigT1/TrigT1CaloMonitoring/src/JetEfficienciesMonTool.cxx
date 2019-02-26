@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -1145,12 +1145,12 @@ StatusCode JetEfficienciesMonTool::triggerTowerAnalysis() {
 		// The dead channels folder (only has entries for dead channels - no entry = good channel)
 		CondAttrListCollection::const_iterator itr = m_dbPpmDeadChannels->chanAttrListPair(emCoolId.id());
 		if (itr != m_dbPpmDeadChannels->end()) {
-			const AthenaAttributeList& attrList(itr->second);
+                        const coral::AttributeList& attrList(itr->second);
 			emDisabled = attrList["ErrorCode"].data<unsigned int>();
 		}
 		itr = m_dbPpmDeadChannels->chanAttrListPair(hadCoolId.id());
 		if (itr != m_dbPpmDeadChannels->end()) {
-			const AthenaAttributeList& attrList(itr->second);
+                        const coral::AttributeList& attrList(itr->second);
 			hadDisabled = attrList["ErrorCode"].data<unsigned int>();
 		}
 

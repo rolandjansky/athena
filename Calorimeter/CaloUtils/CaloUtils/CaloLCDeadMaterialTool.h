@@ -27,6 +27,7 @@
 #include "GaudiKernel/ToolHandle.h" 
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <map>
 #include <vector>
@@ -63,8 +64,6 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
     virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
     virtual StatusCode initialize() override;
 
-    virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
-
     CaloLCDeadMaterialTool(const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent);
@@ -93,11 +92,11 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
                                    std::vector<Area>& areas,
                                    std::vector<Cell>& cells,
                                    float* smp_energy,
-                                   float& cls_unweighted_energy) const;
+                                   float& cls_unweighted_energy, const CaloLocalHadCoeff* data) const;
 
     /**
      * @brief name of the key for DM cell weights */
-    std::string m_key;
+    SG::ReadCondHandleKey<CaloLocalHadCoeff>  m_key;
 
     /**
      * @brief Required Reco Status for the clusters in order to be calibrated */
@@ -135,12 +134,6 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
      * a mixture of DM energies for pure EM and pure HAD clusters using p as
      * engDM = p *engDM_EM+(1-p)*endDM_HAD */
     bool  m_useHadProbability;
-
-    /**
-     * @brief data object containing dead material correction coefficiengts
-     *
-     * This object contains the actual data used for calibration. */
-    const DataHandle<CaloLocalHadCoeff> m_data;
 
     /**
      * @brief interpolate correction coefficients */

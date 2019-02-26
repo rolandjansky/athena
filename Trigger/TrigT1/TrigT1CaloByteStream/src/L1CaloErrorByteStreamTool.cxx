@@ -41,9 +41,6 @@ L1CaloErrorByteStreamTool::~L1CaloErrorByteStreamTool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode L1CaloErrorByteStreamTool::initialize()
 {

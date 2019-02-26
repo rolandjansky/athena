@@ -54,7 +54,7 @@ namespace xAOD {
   
   const xAOD::TrackParticle* TrackCaloCluster_v1::trackParticle() const {
     // The accessor:       
-    static SG::AuxElement::Accessor< ElementLink< xAOD::TrackParticleContainer > >  acc( "trackPartcleLink" );
+    static const SG::AuxElement::Accessor< ElementLink< xAOD::TrackParticleContainer > >  acc( "trackPartcleLink" );
     if( !acc.isAvailable( *this ) ) {
       return 0;       
     }
@@ -82,7 +82,7 @@ namespace xAOD {
     static const  Accessor< float > acc4( "m" );     
     acc4( *this ) = m;     
         
-    static Accessor< int > acc( "taste" );     
+    static const Accessor< int > acc( "taste" );     
     acc( *this ) = (int)taste;
     
     setTrackParticleLink(particle);

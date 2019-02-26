@@ -46,7 +46,7 @@ case $ArtProcess in
      unset  ATHENA_NUM_PROC
      unset  ATHENA_PROC_NUMBER
 
-     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_no_pileup.AOD.pool.root $ValOption  --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_no_pileup.AOD.pool.root $ValOption  --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup' --postExec 'r2e:topSequence.BeamBackgroundFiller.Enable = False'
 
      echo  "art-result: $? reco_${ArtProcess}"
      ls -lR

@@ -35,7 +35,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AlgSequence import AthSequencer
 
 job = AlgSequence()
-seq = AthSequencer("AthFilterSeq")
+seq = AthSequencer("AthMasterSeq")
 
 ###############
 # GRL

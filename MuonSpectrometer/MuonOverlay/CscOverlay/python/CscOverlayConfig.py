@@ -7,9 +7,6 @@ def getCscOverlay(name="CscOverlay", **kwargs):
     kwargs.setdefault("DigitizationTool", "Csc_OverlayDigitizationTool")
     kwargs.setdefault("MakeRDOTool2", "CscDigitToCscRDOTool2")
     kwargs.setdefault("MakeRDOTool4", "CscDigitToCscRDOTool4")
-    from Digitization.DigitizationFlags import digitizationFlags
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc.get_Value())
-    digitizationFlags.rndmSeedList.addSeed("CscOverlay", 12261551, 245536301 )
     kwargs.setdefault("MCStore", overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
 

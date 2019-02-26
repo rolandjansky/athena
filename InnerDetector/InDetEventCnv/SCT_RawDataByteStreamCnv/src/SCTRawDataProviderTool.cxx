@@ -47,6 +47,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   
   StatusCode sc{StatusCode::SUCCESS};
 
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   // loop over the ROB fragments
 
   std::set<uint32_t> tmpROBIDSet;
@@ -79,9 +81,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     }
   }
 
-  m_mutex.lock();
   m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
-  m_mutex.unlock();
 
   if (sc == StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");

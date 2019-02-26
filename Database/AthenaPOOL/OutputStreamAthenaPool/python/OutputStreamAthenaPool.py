@@ -23,9 +23,12 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
 
+   ## get a handle on the default top-level algorithm sequence
    from AthenaCommon.AlgSequence import AlgSequence
    topSequence = AlgSequence()
-   
+   from AthenaCommon.AlgSequence import AthSequencer
+   outSequence = AthSequencer("AthOutSeq")
+
    doTag = not noTag
    if doTag:
       outputStream.ItemList += [ "AthenaAttributeList#SimpleTag" ]
@@ -43,10 +46,9 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
 
    # decide where to put outputstream in sequencing
    if asAlg:
-      topSequence += outputStream
+      outSequence += outputStream
    else:
-      theApp.OutStreamType = "AthenaOutputStream"
-      theApp.addOutputStream( outputStream )
+      outSequence += outputStream
 
    if fileName != "":
       outputStream.OutputFile = fileName

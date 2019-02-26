@@ -515,16 +515,20 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        svcMgr += TrigCaloDataAccessSvc()
        samp2 = EgammaReSamp2FexNoTimerConfig(name="ReFaAlgoSamp2FexConfig")
        samp2.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       samp2.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
        ToolSvc+=samp2
        samp1 = EgammaReSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig")
        samp1.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       samp1.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
        ToolSvc+=samp1
        sampe = EgammaReEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig")
        sampe.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       sampe.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
        ToolSvc+=sampe
        samph = EgammaReHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
        # temporary fix for Tile
        samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
+       samph.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
        samph.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
        ToolSvc+=samph
        #ToolSvc+=RingerFexConfig("RingsMaker") 

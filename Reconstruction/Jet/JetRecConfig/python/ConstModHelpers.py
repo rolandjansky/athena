@@ -6,9 +6,14 @@
 # Author: TJ Khoo                                                      #
 #                                                                      #
 ########################################################################
+import cppyy
+try:
+    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+except:
+    pass
+from ROOT import xAODType
+xAODType.ObjectType
 
-from ROOT import xAOD
-xAOD.Type.ObjectType
 
 from AthenaCommon import Logging
 constmodlog = Logging.logging.getLogger('ConstModHelpers')
@@ -44,15 +49,15 @@ def ConstitModCfg(inputtype,sequence,suffix=""):
 
     # May wish to pass an empty sequence for regular PFlow
     modlist = []
-    if inputtype == xAOD.Type.ParticleFlow:
+    if inputtype == xAODType.ParticleFlow:
         weightPFO = PFlowUtilsConf.CP__WeightPFOTool("weightPFO")
         correctPFO = JetRecToolsConf.CorrectPFOTool("correctPFO",
             InputType = inputtype,
             WeightPFOTool = weightPFO
         )
         modlist.append(correctPFO)
-    inputname = {xAOD.Type.CaloCluster:  "TopoCluster",
-                 xAOD.Type.ParticleFlow: "EMPFlow"
+    inputname = {xAODType.CaloCluster:  "TopoCluster",
+                 xAODType.ParticleFlow: "EMPFlow"
                  }[inputtype]
 
     for step in sequence:
@@ -62,7 +67,7 @@ def ConstitModCfg(inputtype,sequence,suffix=""):
 
         toolname = "ConstitMod{0}_{1}{2}".format(inputname,step,suffix)
         tool = ConstModTools[step](toolname,**ConstModConfigs[step])
-        if inputtype == xAOD.Type.ParticleFlow:
+        if inputtype == xAODType.ParticleFlow:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype
@@ -72,13 +77,13 @@ def ConstitModCfg(inputtype,sequence,suffix=""):
     seqname = "ConstitMod{0}_{1}{2}".format(sequenceshort,inputname,suffix)
     inputcontainer = ""
     outputcontainer = ""
-    if inputtype==xAOD.Type.ParticleFlow:
+    if inputtype==xAODType.ParticleFlow:
         inputcontainer = "JetETMiss"
         outputcontainer = sequenceshort if sequenceshort else "CHS"
         chstool = JetRecToolsConf.ChargedHadronSubtractionTool("chsPFO")
         chstool.InputType = inputtype
         modlist.append(chstool)
-    elif inputtype==xAOD.Type.CaloCluster:
+    elif inputtype==xAODType.CaloCluster:
         inputcontainer = "CaloCalTopoClusters"
         outputcontainer = sequenceshort+"TopoClusters"
     else:

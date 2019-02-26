@@ -1058,8 +1058,8 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
     try:
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
-        seq=AthSequencer("AthFilterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthFilterSeq")
+        seq=AthSequencer("AthMasterSeq")
+        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
         seq+=topSequence.RoIBResultToAOD
         seq+=topSequence.TrigBSExtraction
@@ -1080,7 +1080,9 @@ if rec.doWriteESD():
         # mark the RDO DataHeader as the input DataHeader
 
         from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeInputDataHeader
-        topSequence+=MakeInputDataHeader("MakeInputDataHeaderRDO",
+        from AthenaCommon.AlgSequence import AthSequencer
+        outSequence = AthSequencer("AthOutSeq")
+        outSequence+=MakeInputDataHeader("MakeInputDataHeaderRDO",
                                          StreamName="StreamRDO")
         pass
 
@@ -1333,7 +1335,9 @@ if rec.doWriteAOD():
     if rec.doWriteESD():
         # mark the ESD DataHeader as the input DataHeader
         from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeInputDataHeader
-        topSequence+=MakeInputDataHeader("MakeInputDataHeaderESD",
+        from AthenaCommon.AlgSequence import AthSequencer
+        outSequence = AthSequencer("AthOutSeq")
+        outSequence+=MakeInputDataHeader("MakeInputDataHeaderESD",
                                          StreamName="StreamESD")
 
 if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :

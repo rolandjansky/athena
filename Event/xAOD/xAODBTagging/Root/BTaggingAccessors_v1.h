@@ -24,13 +24,13 @@ namespace xAOD {
   /// This function holds on to Accessor objects that can be used by each
   /// BTagging_v1 object at runtime to get/set detail values on themselves.
 
-  SG::AuxElement::Accessor< int >* taggerInfoAccessorV1int(BTagInfo info);
-  SG::AuxElement::Accessor< float >* taggerInfoAccessorV1float(BTagInfo info);
-  SG::AuxElement::Accessor< uint8_t >* taggerInfoAccessorV1uint8_t(BTagInfo info);
-  SG::AuxElement::Accessor< std::string >* taggerInfoAccessorV1string(BTagInfo info);
-  SG::AuxElement::Accessor< std::vector<int> >* taggerInfoAccessorV1vectorOfInts(BTagInfo info);
-  SG::AuxElement::Accessor< std::vector<float> >* taggerInfoAccessorV1vectorOfFloats(BTagInfo info);
-  SG::AuxElement::Accessor< std::vector<bool> >* taggerInfoAccessorV1vectorOfBools(BTagInfo info);
+  const SG::AuxElement::Accessor< int >* taggerInfoAccessorV1int(BTagInfo info);
+  const SG::AuxElement::Accessor< float >* taggerInfoAccessorV1float(BTagInfo info);
+  const SG::AuxElement::Accessor< uint8_t >* taggerInfoAccessorV1uint8_t(BTagInfo info);
+  const SG::AuxElement::Accessor< std::string >* taggerInfoAccessorV1string(BTagInfo info);
+  const SG::AuxElement::Accessor< std::vector<int> >* taggerInfoAccessorV1vectorOfInts(BTagInfo info);
+  const SG::AuxElement::Accessor< std::vector<float> >* taggerInfoAccessorV1vectorOfFloats(BTagInfo info);
+  const SG::AuxElement::Accessor< std::vector<bool> >* taggerInfoAccessorV1vectorOfBools(BTagInfo info);
   
 } // namespace xAOD
 

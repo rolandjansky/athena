@@ -14,7 +14,6 @@
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
 #include "xAODBase/ObjectType.h"
@@ -25,12 +24,10 @@ namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODBASE {
       xAOD::IParticleContainer c1;
       DataLink< xAOD::IParticleContainer > l1;
-      ElementLink< xAOD::IParticleContainer > l2;
-      ElementLinkVector< xAOD::IParticleContainer > l3;
-      std::vector< DataLink< xAOD::IParticleContainer > > l4;
-      std::vector< ElementLink< xAOD::IParticleContainer > > l5;
-      std::vector< ElementLinkVector< xAOD::IParticleContainer > > l6;
-      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > l7;
+      std::vector< DataLink< xAOD::IParticleContainer > > l2;
+      ElementLink< xAOD::IParticleContainer > l3;
+      std::vector< ElementLink< xAOD::IParticleContainer > > l4;
+      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > l5;
    };
 }
 

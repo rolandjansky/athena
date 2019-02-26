@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+
 #*****************************************************************
 #
 # """topOptions file for Tile Laser Reconstruciton and Monitoring in Athena""" 
@@ -325,111 +329,103 @@ if doMonitoring:
     #-------------------------------
     #   Tile raw channel time monitoring
     #-------------------------------
-    toolSvc += CfgMgr.TileTBMonTool ( name                  = 'TileTBMonTool'
-                                      , histoPathBase       = '/Tile/TestBeam'
-                                      # , doOnline            = athenaCommonFlags.isOnline()
-                                      , CellsContainerID  = '' # used to check if the current event is collision
-                                      , MBTSCellContainerID = '' # used to check if the current event is collision
-                                      # Masked format: 'module gain channel,channel' (channels are separated by comma)
-                                      , Masked = ['LBC02 0 46', 'LBC02 1 46', 
-                                                  'LBC04 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47',
-                                                  'LBC04 1 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47']
-                                      , CellContainer       = CellContainerMonitored
-                                      , MaxTotalEnergy      = MaxTotalEnergy)
+    TileTBMonTool = CfgMgr.TileTBMonTool ( name                  = 'TileTBMonTool'
+                                           , histoPathBase       = '/Tile/TestBeam'
+                                           # , doOnline            = athenaCommonFlags.isOnline()
+                                           , CellsContainerID  = '' # used to check if the current event is collision
+                                           , MBTSCellContainerID = '' # used to check if the current event is collision
+                                           # Masked format: 'module gain channel,channel' (channels are separated by comma)
+                                           , Masked = ['LBC02 0 46', 'LBC02 1 46', 
+                                                       'LBC04 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47',
+                                                       'LBC04 1 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47']
+                                           , CellContainer       = CellContainerMonitored
+                                           , MaxTotalEnergy      = MaxTotalEnergy)
 
 
-    topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBMonTool ]
-    print toolSvc.TileTBMonTool
+    topSequence.TileTBMonManager.AthenaMonTools += [ TileTBMonTool ]
     
-    toolSvc += CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
-                                          , histoPathBase       = '/Tile/TestBeam/BeamElements'
-                                          # , doOnline            = athenaCommonFlags.isOnline()
-                                          , CellsContainerID  = '' # used to check if the current event is collision
-                                          , MBTSCellContainerID = '' # used to check if the current event is collision
-                                          , CutEnergyMin = 40
-                                          , CutEnergyMax = 70 
-                                          , CellContainer       = CellContainerMonitored
-                                          );
+    TileTBBeamMonTool = CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
+                                                   , histoPathBase       = '/Tile/TestBeam/BeamElements'
+                                                   # , doOnline            = athenaCommonFlags.isOnline()
+                                                   , CellsContainerID  = '' # used to check if the current event is collision
+                                                   , MBTSCellContainerID = '' # used to check if the current event is collision
+                                                   , CutEnergyMin = 40
+                                                   , CutEnergyMax = 70 
+                                                   , CellContainer       = CellContainerMonitored );
 
 
 
-    topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBBeamMonTool ]
+    topSequence.TileTBMonManager.AthenaMonTools += [ TileTBBeamMonTool ]
     
-    print toolSvc.TileTBBeamMonTool
 
 
     if TileBiGainRun:
-        toolSvc += CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonToolHG'
-                                              , histoPathBase       = '/Tile/TestBeam'
-                                              # , doOnline            = athenaCommonFlags.isOnline()
-                                              , CellsContainerID  = '' # used to check if the current event is collision
-                                              , MBTSCellContainerID = '' # used to check if the current event is collision
-                                              , cellsContainerName       = 'AllCaloHG'
-                                              , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0
-                                              , MaxEnergy = MaxEnergy
-                                              , MaxTotalEnergy = MaxTotalEnergy)
+        TileTBCellMonToolHG = CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonToolHG'
+                                                         , histoPathBase       = '/Tile/TestBeam'
+                                                         # , doOnline            = athenaCommonFlags.isOnline()
+                                                         , CellsContainerID  = '' # used to check if the current event is collision
+                                                         , MBTSCellContainerID = '' # used to check if the current event is collision
+                                                         , cellsContainerName       = 'AllCaloHG'
+                                                         , FillTimeHistograms = True
+                                                         , energyThresholdForTime = 1.0
+                                                         , MaxEnergy = MaxEnergy
+                                                         , MaxTotalEnergy = MaxTotalEnergy)
         
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonToolHG ]
-        print toolSvc.TileTBCellMonToolHG
+        topSequence.TileTBMonManager.AthenaMonTools += [ TileTBCellMonToolHG ]
         
         
-        toolSvc += CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonToolLG'
-                                              , histoPathBase       = '/Tile/TestBeam/LG'
-                                              # , doOnline            = athenaCommonFlags.isOnline()
-                                              , CellsContainerID  = '' # used to check if the current event is collision
-                                              , MBTSCellContainerID = '' # used to check if the current event is collision
-                                              , cellsContainerName       = 'AllCaloLG'
-                                              , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0
-                                              , MaxEnergy = MaxEnergy
-                                              , MaxTotalEnergy = MaxTotalEnergy)
+        TileTBCellMonToolLG = CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonToolLG'
+                                                         , histoPathBase       = '/Tile/TestBeam/LG'
+                                                         # , doOnline            = athenaCommonFlags.isOnline()
+                                                         , CellsContainerID  = '' # used to check if the current event is collision
+                                                         , MBTSCellContainerID = '' # used to check if the current event is collision
+                                                         , cellsContainerName       = 'AllCaloLG'
+                                                         , FillTimeHistograms = True
+                                                         , energyThresholdForTime = 1.0
+                                                         , MaxEnergy = MaxEnergy
+                                                         , MaxTotalEnergy = MaxTotalEnergy)
         
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonToolLG ]
-        print toolSvc.TileTBCellMonToolLG
+        topSequence.TileTBMonManager.AthenaMonTools += [ TileTBCellMonToolLG ]
 
     else:
-        toolSvc += CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonTool'
-                                              , histoPathBase       = '/Tile/TestBeam'
-                                              # , doOnline            = athenaCommonFlags.isOnline()
-                                              , CellsContainerID  = '' # used to check if the current event is collision
-                                              , MBTSCellContainerID = '' # used to check if the current event is collision
-                                              , cellsContainerName       = 'AllCalo'
-                                              , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0
-                                              , MaxEnergy = MaxEnergy
-                                              , MaxTotalEnergy = MaxTotalEnergy)
+        TileTBCellMonTool = CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonTool'
+                                                       , histoPathBase       = '/Tile/TestBeam'
+                                                       # , doOnline            = athenaCommonFlags.isOnline()
+                                                       , CellsContainerID  = '' # used to check if the current event is collision
+                                                       , MBTSCellContainerID = '' # used to check if the current event is collision
+                                                       , cellsContainerName       = 'AllCalo'
+                                                       , FillTimeHistograms = True
+                                                       , energyThresholdForTime = 1.0
+                                                       , MaxEnergy = MaxEnergy
+                                                       , MaxTotalEnergy = MaxTotalEnergy)
 
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonTool ]
-        print toolSvc.TileTBCellMonTool
+        topSequence.TileTBMonManager.AthenaMonTools += [ TileTBCellMonTool ]
 
     
 
     if TileMonoRun or TileCisRun or TilePedRun:
-        toolSvc += CfgMgr.TileRawChannelMonTool ( name              = "TileRawChannelMon"
-                                                  , OutputLevel     = WARNING
-                                                  , histoPathBase   = "/Tile/RawChannel"
-                                                  , book2D          = False
-                                                  , PlotDSP         = False
-                                                  , runType         = 9 if TileMonoRun else TileRunType
-                                                  , TileRawChannelContainer = 'TileRawChannelOpt2' if TilePedRun else 'TileRawChannelFit'
-                                                  , SummaryUpdateFrequency = TileSummaryUpdateFrequency)
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileRawChannelMon ]
-        print toolSvc.TileRawChannelMon
+        TileRawChannelMon = CfgMgr.TileRawChannelMonTool ( name              = "TileRawChannelMon"
+                                                           , OutputLevel     = WARNING
+                                                           , histoPathBase   = "/Tile/RawChannel"
+                                                           , book2D          = False
+                                                           , PlotDSP         = False
+                                                           , runType         = 9 if TileMonoRun else TileRunType
+                                                           , TileRawChannelContainer = 'TileRawChannelOpt2' if TilePedRun else 'TileRawChannelFit'
+                                                           , SummaryUpdateFrequency = TileSummaryUpdateFrequency)
+        topSequence.TileTBMonManager.AthenaMonTools += [ TileRawChannelMon ]
 
 
     if TilePedRun:
-        toolSvc += CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
-                                               , OutputLevel        = WARNING
-                                               , TileDigitsContainer = "TileDigitsCnt"
-                                               , histoPathBase = "/Tile/DigiNoise"
-                                               , FillEmptyFromDB = False
-                                               , FillPedestalDifference = False
-                                               , CheckDCS           = TileUseDCS
-                                               , SummaryUpdateFrequency = TileSummaryUpdateFrequency );
+        TileDigiNoiseMon = CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
+                                                       , OutputLevel        = WARNING
+                                                       , TileDigitsContainer = "TileDigitsCnt"
+                                                       , histoPathBase = "/Tile/DigiNoise"
+                                                       , FillEmptyFromDB = False
+                                                       , FillPedestalDifference = False
+                                                       , CheckDCS           = TileUseDCS
+                                                       , SummaryUpdateFrequency = TileSummaryUpdateFrequency );
         
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];
-        print toolSvc.TileDigiNoiseMon;
+        topSequence.TileTBMonManager.AthenaMonTools += [ TileDigiNoiseMon ];
 
     print topSequence.TileTBMonManager
 
@@ -492,10 +488,11 @@ if TileFELIX:
     ServiceMgr.TileInfoLoader.NSamples = 16
     ServiceMgr.TileInfoLoader.TrigSample = 3
     topSequence.TileRChMaker.TileDigitsContainer = 'TileDigitsFiltered'
-    toolSvc.TileRawChannelBuilderFitFilter.ExtraSamplesRight = 0
-    toolSvc.TileRawChannelBuilderFitFilter.ExtraSamplesLeft = 0
-    toolSvc.TileRawChannelBuilderFitFilter.MaxIterate = 9
-    toolSvc.TileRawChannelBuilderFitFilter.SaturatedSample = 4095
-    #toolSvc.TileRawChannelBuilderFitFilter.OutputLevel = DEBUG
+    TileRawChannelBuilderFitFilter = topSequence.TileRChMaker.TileRawChannelBuilder['TileRawChannelBuilderFitFilter']
+    TileRawChannelBuilderFitFilter.ExtraSamplesRight = 0
+    TileRawChannelBuilderFitFilter.ExtraSamplesLeft = 0
+    TileRawChannelBuilderFitFilter.MaxIterate = 9
+    TileRawChannelBuilderFitFilter.SaturatedSample = 4095
+    #TileRawChannelBuilderFitFilter.OutputLevel = DEBUG
 
 #toolSvc += CfgMgr.TileROD_Decoder(OutputLevel = VERBOSE)

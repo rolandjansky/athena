@@ -16,8 +16,7 @@
 
 // Core include(s):
 #include "AthContainers/AuxElement.h"
-
-
+#include "CxxUtils/checker_macros.h"
 namespace xAOD {
 
   /// Description of the class that is used to keep track of event counts.
@@ -139,7 +138,7 @@ namespace xAOD {
     /// Add the name of an output-file stream object for this CutBookkeeper
     void addOutputStream( const std::string& outputstream );
     /// Add the name of an output-file stream object for this CutBookkeeper
-    void addOutputStreamForAllUsed( const std::string& outputstream );
+    void addOutputStreamForAllUsed ATLAS_NOT_THREAD_SAFE ( const std::string& outputstream );
     /// Set the names of the output-file stream objects for this CutBookkeeper
     void setOutputStreams( const std::vector<std::string>& outputstreams );
 

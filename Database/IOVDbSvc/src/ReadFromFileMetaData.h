@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //@file ReadFromFileMetaData.h
@@ -18,7 +18,6 @@
 
 //fwd declarations
 class IOVMetaDataContainer;
-//class IOVPayloadContainer;
 class CondAttrListCollection;
 class AthenaAttributeList;
 
@@ -48,7 +47,6 @@ namespace IOVDbNamespace{
     const IOVMetaDataContainer* m_metaContainer{};
     IOVTime m_referenceTime{};
     const IOVPayloadContainer* m_payload{};
-    bool m_isEpochTime{};
     CondAttrListCollection * m_pptr{};
     AthenaAttributeList * m_attrList{};
     CondAttrListCollection * m_attrListColl{};

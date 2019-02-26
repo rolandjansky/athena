@@ -200,7 +200,7 @@ private:
   AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
   AthenaEventLoopMgr& operator= (const AthenaEventLoopMgr&); ///< no implementation
 
-  StatusCode installEventContext (const EventInfo* pEvent,
+  StatusCode installEventContext (const EventID& pEvent,
                                   unsigned int conditionsRun);
 
   int m_nevt;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -762,7 +762,7 @@ StatusCode PixelFastDigitizationTool::digitize()
           std::vector<Identifier> currentRdoList = currentCluster->rdoList();
           bool areNb = false;
           for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
-            areNb = this->areNeighbours(currentRdoList, *rdoIter, const_cast<InDetDD::SiDetectorElement*>(hitSiDetElement),*m_pixel_ID);
+            areNb = this->areNeighbours(currentRdoList, *rdoIter, hitSiDetElement,*m_pixel_ID);
             if (areNb) { break; }
           }
           if (areNb) {
@@ -926,7 +926,7 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
 
     for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
 
-      InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
+      InDet::PixelCluster* pixelCluster = (*iter).second;
       pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
       clusterCollection->push_back(pixelCluster);
 
@@ -956,7 +956,7 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
 bool PixelFastDigitizationTool::areNeighbours
 (const std::vector<Identifier>& group,
  const Identifier& rdoID,
- InDetDD::SiDetectorElement* /*element*/,
+ const InDetDD::SiDetectorElement* /*element*/,
  const PixelID& pixelID) const
 {
   // note: in the PixelClusteringToolBase, m_splitClusters is a variable; here

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_L1TOPOBYTESTREAMXAODCNV_H
@@ -23,8 +23,6 @@ class StatusCode;
 template <typename>
 class CnvFactory;
 class StoreGateSvc;
-// Externals
-extern long ByteStream_StorageType;
 
 namespace LVL1BS {
 /** ByteStream converter for CmxTob.
@@ -47,8 +45,8 @@ public:
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return ByteStream_StorageType; }
-  static long storageType() { return ByteStream_StorageType; }
+  virtual long repSvcType() const { return i_repSvcType(); }
+  static long storageType();
 
   static const CLID& classID();
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCoolMultChanCnv.icc
@@ -268,7 +268,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::attrListCollToObject(CondAt
     for (; it != last; ++it, ++itIOV) {
 	try {
 	    // pool token/ref
-	    const AthenaAttributeList& attrList = (*it).second;
+            const coral::AttributeList& attrList = (*it).second;
             token=attrList["PoolRef"].data<std::string>();
 	}
         // FIXME exception

@@ -515,6 +515,7 @@ namespace Muon {
                     << " " << Muon::MuonStationIndex::layerName(layer)
                     << " maximum " << seed.max << " position " << seed.pos << " angle " << seed.theta << " ptr " << &seed );
 
+      bool isNSW=m_idHelper->issTgc(seed.hits[0]->prd->identify()) || m_idHelper->isMM(seed.hits[0]->prd->identify());
       // extend seed within the current sector
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
       extendSeed( road, m_houghDataPerSectorVec[sector-1] );
@@ -528,7 +529,7 @@ namespace Muon {
       // associate the road with phi maxima
       associatePhiMaxima( road, m_houghDataPerSectorVec[sector-1].phiMaxVec[region] );
       //
-      if(m_addSectors) {
+      if(m_addSectors && isNSW) {
         extendSeed( road, m_houghDataPerSectorVec[sectorN-1] );
         associatePhiMaxima( road, m_houghDataPerSectorVec[sectorN-1].phiMaxVec[region] );
         extendSeed( road, m_houghDataPerSectorVec[sectorP-1] );

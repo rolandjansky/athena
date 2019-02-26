@@ -37,9 +37,9 @@ class ITRT_DriftFunctionTool : virtual public IAlgTool {
 
   virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const = 0;  
 
-  virtual double driftTimeToTCorrection(double tot, Identifier id) = 0;
+  virtual double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false) = 0;
 
-  virtual double driftTimeHTCorrection(Identifier id) = 0;
+  virtual double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false) = 0;
 
 
 };

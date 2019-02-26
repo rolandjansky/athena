@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ============================================================================
@@ -51,7 +51,7 @@
 
 namespace LVL1BS {
 L1TopoByteStreamAuxCnv::L1TopoByteStreamAuxCnv(ISvcLocator* svcloc)
-    : Converter(ByteStream_StorageType, classID(), svcloc),
+    : Converter(storageType(), classID(), svcloc),
       AthMessaging(svcloc != 0 ? msgSvc() : 0, "L1TopoByteStreamAuxCnv"),
       m_name("L1TopoByteStreamAuxCnv"),
       m_readTool("L1TopoByteStreamTool/L1TopoByteStreamTool") {}
@@ -60,11 +60,12 @@ const CLID& L1TopoByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::L1TopoRawDataAuxContainer>::ID();
 }
 
+long L1TopoByteStreamAuxCnv::storageType() {
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 StatusCode L1TopoByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG("Initializing " << m_name << " - package version "
                                 << PACKAGE_VERSION);

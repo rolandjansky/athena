@@ -69,13 +69,13 @@ namespace xAOD {
 
 
   void Particle_v1::setP4( const FourMom_t& vec ) {
-    static Accessor< float > acc1( "px" );
+    static const Accessor< float > acc1( "px" );
     acc1( *this ) = (float)(vec.Px());
-    static Accessor< float > acc2( "py" );
+    static const Accessor< float > acc2( "py" );
     acc2( *this ) = (float)(vec.Py());
-    static Accessor< float > acc3( "pz" );
+    static const Accessor< float > acc3( "pz" );
     acc3( *this ) = (float)(vec.Pz());
-    static Accessor< float > acc4( "e" );
+    static const Accessor< float > acc4( "e" );
     acc4( *this ) = (float)(vec.E());
   }
 
@@ -84,13 +84,13 @@ namespace xAOD {
                                          double py,
                                          double pz,
                                          double e ) {
-    static Accessor< float > acc1( "px" );
+    static const Accessor< float > acc1( "px" );
     acc1( *this ) = (float)px;
-    static Accessor< float > acc2( "py" );
+    static const Accessor< float > acc2( "py" );
     acc2( *this ) = (float)py;
-    static Accessor< float > acc3( "pz" );
+    static const Accessor< float > acc3( "pz" );
     acc3( *this ) = (float)pz;
-    static Accessor< float > acc4( "e" );
+    static const Accessor< float > acc4( "e" );
     acc4( *this ) = (float)e;
   }
 
@@ -118,7 +118,7 @@ namespace xAOD {
   //
 
   bool Particle_v1::hasCharge() const {
-    static SG::AuxElement::Accessor< float > chargeAcc( "charge" );
+    static const SG::AuxElement::Accessor< float > chargeAcc( "charge" );
     return chargeAcc.isAvailable( *this );
   }
 
@@ -127,7 +127,7 @@ namespace xAOD {
 
 
   bool Particle_v1::hasPdgId() const {
-    static SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
+    static const SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
     return pdgAcc.isAvailable( *this );
   }
 

@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
                           MuonSpectrometer/MuonSimEvent

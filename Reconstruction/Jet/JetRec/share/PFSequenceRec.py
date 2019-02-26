@@ -76,9 +76,14 @@ jtm += PseudoJetGetter(
   OutputContainer = "PFPseudoJet",
   SkipNegativeEnergy = True,
   )
+import cppyy
+try:
+    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+except:
+    pass
+from ROOT import xAODType
+xAODType.ObjectType
 
-from ROOT import xAOD
-xAOD.Type.ObjectType
 
 #this tool does much of the PFO manipulations in PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import CorrectPFOTool
@@ -89,13 +94,13 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
                                 UseChargedWeights = True,
                                 UseVertices = True,
                                 UseTrackToVertexTool = False,
-                                InputType = xAOD.Type.ParticleFlow
+                                InputType = xAODType.ParticleFlow
                                 )
 ToolSvc += correctPFOTool
 
 #This tool removes charged hadrons not matched to the primary vertex
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
-CHSTool = ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow)
+CHSTool = ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFlow)
 ToolSvc += CHSTool
 
 #run the above tools to modify PFO
@@ -103,7 +108,7 @@ from JetRecTools.JetRecToolsConf import JetConstituentModSequence
 PFSequence = JetConstituentModSequence("PFSequence",
                                        InputContainer = "JetETMiss",
                                        OutputContainer = "My",   #"ParticleFlowObjects" will be appended later
-                                       InputType = xAOD.Type.ParticleFlow,
+                                       InputType = xAODType.ParticleFlow,
                                        Modifiers = [correctPFOTool,CHSTool],
                                        SaveAsShallow = False,
                                        )

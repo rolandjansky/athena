@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCM_DIGITIZATION_BCM_DIGITIZATIONTOOL_H
@@ -11,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "InDetSimData/InDetSimData.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHit.h"
 
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
@@ -22,7 +23,6 @@
 
 // Data member classes
 class PileUpMergeSvc;
-class InDetSimDataCollection;
 
 namespace CLHEP
 {
@@ -85,6 +85,10 @@ class BCM_DigitizationTool : public PileUpToolBase {
   float m_effPrmDistance;         //!< Distance parameter in charge collection efficiency function
   float m_effPrmSharpness;        //!< Sharpness parameter in charge collection efficiency function
   float m_timeDelay;              //!< Time delay
+
+  // Write handle keys
+  SG::WriteHandleKey<BCM_RDO_Container> m_outputKey{this, "OutputRDOKey", "BCM_RDOs", ""};
+  SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOKey{this, "OutputSDOKey", "BCM_SDO_Map", ""};
 
   // Output objects
   BCM_RDO_Container* m_rdoContainer; //!< Output RDO container

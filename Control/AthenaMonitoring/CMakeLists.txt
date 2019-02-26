@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGMon/SGAudCore
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODEventInfo
+                          Event/EventInfo
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
 			  AtlasTest/TestTools)

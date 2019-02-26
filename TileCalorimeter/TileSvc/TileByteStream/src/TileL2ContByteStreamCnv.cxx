@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -60,7 +60,7 @@ void TileRecyclableL2Container::recycle()
 
 
 TileL2ContByteStreamCnv::TileL2ContByteStreamCnv(ISvcLocator* svcloc)
-  : Converter(ByteStream_StorageType, classID(), svcloc)
+  : Converter(storageType(), classID(), svcloc)
   , ::AthMessaging(msgSvc(), "TileL2ContByteStreamCnv")
   , m_name("TileL2ContByteStreamCnv")
   , m_tool("TileL2ContByteStreamTool")
@@ -74,6 +74,7 @@ TileL2ContByteStreamCnv::TileL2ContByteStreamCnv(ISvcLocator* svcloc)
 
 const CLID& TileL2ContByteStreamCnv::classID(){ return ClassID_traits<TileL2Container>::ID(); }
 
+long TileL2ContByteStreamCnv::storageType() { return ByteStreamAddress::storageType(); }
 
 StatusCode TileL2ContByteStreamCnv::initialize() {
 

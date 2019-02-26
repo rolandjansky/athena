@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CMXJetHits_v1.h 687949 2015-08-06 15:48:49Z amazurov $
@@ -14,6 +14,7 @@
 
 // STL include(s):
 #include <vector>
+#include <ostream>
 // System include(s):
 #include <stdint.h>
 
@@ -115,6 +116,9 @@ namespace xAOD{
       uint32_t error1() const;
 
   }; // class CMXJetHits_v1
+
+  std::ostream &operator<<(std::ostream &os, const xAOD::CMXJetHits_v1 &el);
+
 } // namespace xAOD
 #endif
 

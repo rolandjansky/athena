@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
@@ -164,7 +164,7 @@ void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, Con
 	// There should be only one channel (channel#1) in the Default folder
 	// we just retrieve that one, waiting for a better method to retrieve that information.
 	const int defaultChannel = 1;
-	const AthenaAttributeList& chanDefaultAttrList(chanDefaultsAttrListCollection->attributeList(defaultChannel));
+	const coral::AttributeList& chanDefaultAttrList(chanDefaultsAttrListCollection->attributeList(defaultChannel));
 
         m_bcidDecision1 = chanDefaultAttrList[ this->specificationName(eBcidDecision1) ].data<unsigned int>();
 	m_satOverride1 = chanDefaultAttrList[ this->specificationName(eSatOverride1) ].data<unsigned int>();
@@ -180,7 +180,7 @@ void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, Con
 	for(;it_AttrListColl!=chanCalibAttrListCollection->end();++it_AttrListColl) {
 
 		CondAttrListCollection::ChanNum chanNum(it_AttrListColl->first);
-		const AthenaAttributeList& chanCalibAttrList(it_AttrListColl->second);
+		const coral::AttributeList& chanCalibAttrList(it_AttrListColl->second);
 
 		unsigned short extBcidThreshold = chanCalibAttrList[ this->specificationName(eExtBcidThreshold) ].data<unsigned short>();
 		unsigned short satBcidThreshLow = chanCalibAttrList[ this->specificationName(eSatBcidThreshLow) ].data<unsigned short>();

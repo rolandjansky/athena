@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_L1TopoSimulation
@@ -10,8 +10,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -19,6 +17,8 @@
 #include <memory>
 
 #include "TrigT1Interfaces/FrontPanelCTP.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 class TH1;
 class IMonitorToolBase;
@@ -85,7 +85,6 @@ namespace LVL1 {
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
-//      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
       int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms

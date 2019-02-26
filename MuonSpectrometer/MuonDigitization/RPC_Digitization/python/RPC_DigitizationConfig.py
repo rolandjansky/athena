@@ -23,10 +23,6 @@ def getRpcRange(name="RpcRange", **kwargs):
 
 
 def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    rpcRndm = kwargs.setdefault("RndmEngine", "RPC_Digitization")
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(rpcRndm, 49261510, 105132394) 
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 
@@ -158,5 +154,5 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     return RpcDigitizationTool(name, **kwargs)
 
 def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("RPC_DigitizationTool","Rpc_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Rpc_OverlayDigitizationTool")
     return CfgMgr.RPC_Digitizer(name,**kwargs)

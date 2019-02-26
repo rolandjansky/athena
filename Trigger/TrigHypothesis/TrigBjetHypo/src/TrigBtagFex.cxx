@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -226,10 +226,10 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Prepare jet tagging - create temporary jet copy 
   auto jetitr=jets->begin();
-  xAOD::Jet jet;
+  auto jet= new xAOD::Jet();
 
   if ( m_jetKey != "GSCJet" ) {
-    jet.makePrivateStore(**jetitr);
+    jet->makePrivateStore(**jetitr);
   } else {
     const xAOD::JetContainer* Splitjets = nullptr;
     if (getFeature(inputTE, Splitjets, "SplitJet") != HLT::OK || Splitjets == nullptr) {
@@ -238,7 +238,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     }
 
     auto splitjetitr=Splitjets->begin();
-    jet.makePrivateStore(**splitjetitr);
+    jet->makePrivateStore(**splitjetitr);
   }
 
   // Prepare jet tagging - create SV output 
@@ -269,10 +269,10 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       // Link the BTagging object to the jet for track association
       ElementLink< xAOD::BTaggingContainer> linkBTagger;
       linkBTagger.toContainedElement(*trigBTaggingContainer, trigBTagging);
-      jet.setBTaggingLink(linkBTagger);
+      jet->setBTaggingLink(linkBTagger);
 
       std::vector<xAOD::Jet*> jetsList;
-      jetsList.push_back(&jet);
+      jetsList.push_back(jet);
       ATH_MSG_VERBOSE( "#BTAG# Track association tool is not empty" );
       // We must pass the tracks explicitly to the track associator
       jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
@@ -287,13 +287,14 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     }
 
     // Execute secondary vertexing 
-    StatusCode sc = m_bTagSecVtxTool->BTagSecVtx_exec(jet, trigBTagging, trigVertexContainer, trigBTagVertexContainer, primaryVertex);
+    StatusCode sc = m_bTagSecVtxTool->BTagSecVtx_exec(*jet, trigBTagging, trigVertexContainer, trigBTagVertexContainer, primaryVertex);
     if(sc.isFailure()) {
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed to reconstruct sec vtx" << endmsg;
     }
 
     // Tag jet 
-    sc = m_bTagTool->tagJet(jet, trigBTagging, primaryVertex);
+    const xAOD::Jet*  const_jet = jet;
+    sc = m_bTagTool->tagJet(const_jet, trigBTagging, primaryVertex);
     if(sc.isFailure()) {
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }
@@ -406,8 +407,8 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   if( trigBTagging->IP3D_pu() != 0 && trigBTagging->IP3D_pc() != 0 ) m_mon_tag_IP3_cu  = log(( trigBTagging->IP3D_pc() )/( trigBTagging->IP3D_pu() ));
   else m_mon_tag_IP3_cu  = -999.;
 
-  m_mon_jet_pt  =  jet.pt()  ;
-  m_mon_jet_eta =  jet.eta() ;
+  m_mon_jet_pt  =  jet->pt()  ;
+  m_mon_jet_eta =  jet->eta() ;
 
 
   // Dump results 
@@ -450,6 +451,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
+  delete jet;
 
   return HLT::OK;
 }

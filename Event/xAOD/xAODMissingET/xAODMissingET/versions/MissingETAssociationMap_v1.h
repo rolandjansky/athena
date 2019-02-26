@@ -174,9 +174,6 @@ namespace xAOD
     iterator f_find(const Jet* pJet);
     /*!@}*/
 
-  private:
-
-    static size_t m_jetConstLinkReserve;
 
   }; // class xAOD::MissingETAssociationMap_v1
 } // namespace xAOD

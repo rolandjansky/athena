@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
                            MultiSVTag.cxx
 ***************************************************************************/
 #include "JetTagTools/MultiSVTag.h"
-//#include "JetEvent/Jet.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "Navigation/NavigationToken.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -84,7 +83,7 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){
+  StatusCode MultiSVTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag){
 
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
@@ -157,12 +156,12 @@ namespace Analysis
     m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
     //the jet
-    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
+    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
     m_jetpt = jetpt;
     ATH_MSG_DEBUG("#BTAG# Jet properties : eta = " << jeteta
                   << " phi = " << jetphi << " pT  = " <<jetpt/GeV);
 
-    TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());
+    TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag->pt(), jetToTag->eta(), jetToTag->phi(), jetToTag->m());
 
     int msv_n = 0;
     int all_trks = 0;

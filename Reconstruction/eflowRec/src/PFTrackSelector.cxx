@@ -76,27 +76,8 @@ StatusCode PFTrackSelector::execute(){
 StatusCode PFTrackSelector::finalize(){return StatusCode::SUCCESS;}
 
 bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
-  if (track.pt()*0.001 < m_upperTrackPtCut) 
-  {
-    const xAOD::Vertex* foundVertex { nullptr };
-    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-    if (vertices.isValid())
-    {
-      for ( const auto& vx : *vertices )
-      {
-	for ( const auto& tpLink : vx->trackParticleLinks() )
-	{
-	  if ( *tpLink == &track )
-	  {
-	    foundVertex = vx;
-	    break;
-	  }
-	}
-	if (foundVertex) break;
-      }
-    }
-    return static_cast<bool>(m_trackSelectorTool->accept(track, foundVertex));
-  }
+  //We pass a null xAOD::Vertex pointer to accept here, the vertex is only needed if z0 cuts are applied (which they are not)
+  if (track.pt()*0.001 < m_upperTrackPtCut) return static_cast<bool>(m_trackSelectorTool->accept(track, nullptr));
   else return false;
 }
 

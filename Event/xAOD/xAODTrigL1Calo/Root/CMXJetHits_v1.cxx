@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CMXJetHits_v1.cxx 687949 2015-08-06 15:48:49Z amazurov $
@@ -9,6 +9,41 @@
 
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CMXJetHits_v1.h"
+
+
+namespace {
+
+
+std::string hitsSourceComponent(uint8_t source)
+{
+    switch (source)
+    {
+    case xAOD::CMXJetHits_v1::Sources::REMOTE_MAIN:
+      return "REMOTE_MAIN";
+    case xAOD::CMXJetHits_v1::Sources::LOCAL_MAIN:
+      return "LOCAL_MAIN";
+    case xAOD::CMXJetHits_v1::Sources::TOTAL_MAIN:
+      return "TOTAL_MAIN";
+    case xAOD::CMXJetHits_v1::Sources::REMOTE_FORWARD:
+      return "REMOTE_FORWARD";
+    case xAOD::CMXJetHits_v1::Sources::LOCAL_FORWARD:
+      return "LOCAL_FORWARD";
+    case xAOD::CMXJetHits_v1::Sources::TOTAL_FORWARD:
+      return "TOTAL_FORWARD";
+    case xAOD::CMXJetHits_v1::Sources::TOPO_CHECKSUM:
+      return "TOPO_CHECKSUM";
+    case xAOD::CMXJetHits_v1::Sources::TOPO_OCCUPANCY_MAP:
+      return "TOPO_OCCUPANCY_MAP";
+    case xAOD::CMXJetHits_v1::Sources::TOPO_OCCUPANCY_COUNTS:
+      return "TOPO_OCCUPANCY_COUNTS";
+    default:
+      return std::to_string(source);
+    }
+}
+
+
+} // anonymous namespace
+
 
 namespace xAOD{
 
@@ -88,6 +123,18 @@ namespace xAOD{
   uint32_t CMXJetHits_v1::error1() const
   {
     return errorVec1()[ peak() ];
+  }
+
+  std::ostream &operator<<(std::ostream &os, const xAOD::CMXJetHits_v1 &el)
+  {
+    os << "xAOD::CMXJetHits crate=" << int(el.crate())
+       << " sourceComponent=" << hitsSourceComponent(el.sourceComponent())
+       << " peak=" << int(el.peak()) << " hits0=0x" << std::hex << el.hits0() << std::dec
+       << " hits1=0x" << std::hex << el.hits1() << std::dec << " hits0Vec=[";
+    
+    std::for_each(el.hitsVec0().begin(), el.hitsVec0().end(), [&](uint32_t n) { os << " 0x" << std::hex << int(n) << std::dec; });
+    os << "]";
+    return os;
   }
 
 } // namespace xAOD

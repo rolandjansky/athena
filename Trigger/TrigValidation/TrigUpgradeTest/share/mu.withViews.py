@@ -259,7 +259,7 @@ if TriggerFlags.doMuon:
 
     ### get EF reco sequence ###
     from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
-    muEFMSRecoSequence, muEFSASequenceOut = muEFSARecoSequence( efMuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFMSRecoSequence, muEFSASequenceOut = muEFSARecoSequence( efMuViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efMuViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
 

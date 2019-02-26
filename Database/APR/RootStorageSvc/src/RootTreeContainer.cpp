@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -621,6 +621,13 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                    }
                    dsc = BranchDesc(cl, pBranch, leaf, cl->New(), c);
                    dsc.aux_reader = RootAuxDynIO::getReaderForBranch(pBranch);
+                   if (dsc.aux_reader) {
+                     // If we set up a reader, then disable aging
+                     // for this file.  That will prevent POOL from
+                     // deleting the file while we still have
+                     // references to its branches.
+                     dbH.setAge (-10);
+                   }
                    break;
                 case DbColumn::CHAR:
                 case DbColumn::UCHAR:

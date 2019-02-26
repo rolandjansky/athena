@@ -57,6 +57,12 @@ def _createCfgFlags():
         return createDetectorConfigFlags()
     acf.addFlagsCategory( "Detector", __detector )
 
+#Simulation Flags:
+    def __simulation():
+        from G4AtlasApps.SimConfigFlags import createSimConfigFlags
+        return createSimConfigFlags()
+    acf.addFlagsCategory( "Sim", __simulation )
+
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
@@ -117,6 +123,7 @@ if __name__=="__main__":
     else:
         ConfigFlags.Input.Files = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1",]
     
+    ConfigFlags.loadAllDynamicFlags()
     ConfigFlags.initAll()
     ConfigFlags.dump()
     

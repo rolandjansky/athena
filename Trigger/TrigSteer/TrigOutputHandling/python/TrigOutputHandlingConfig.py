@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 def HLTResultMTMakerCfg():
    from TrigOutputHandlingConf import HLTResultMTMaker
@@ -15,3 +15,34 @@ def HLTResultMTMakerCfg():
                             defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
                                              xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
    return m
+
+def TriggerEDMSerialiserToolCfg(name):
+   # Configuration helper methods
+   def fullResultID(self):
+      return 0
+
+   def addCollection(self, typeNameAux, moduleIds):
+      self.CollectionsToSerialize[typeNameAux] = moduleIds
+
+   def addCollectionToMainResult(self, typeNameAux):
+      self.addCollection(typeNameAux,moduleIds=[self.fullResultID()])
+
+   def addCollectionListToResults(self, typeNameAuxList, moduleIds):
+      for typeNameAux in typeNameAuxList:
+         self.addCollection(typeNameAux, moduleIds)
+
+   def addCollectionListToMainResult(self, typeNameAuxList):
+      self.addCollectionListToResults(typeNameAuxList,moduleIds=[self.fullResultID()])
+
+   # Add the helper methods to the TriggerEDMSerialiserTool python class
+   from TrigOutputHandlingConf import TriggerEDMSerialiserTool
+   TriggerEDMSerialiserTool.fullResultID = fullResultID
+   TriggerEDMSerialiserTool.addCollection = addCollection
+   TriggerEDMSerialiserTool.addCollectionToMainResult = addCollectionToMainResult
+   TriggerEDMSerialiserTool.addCollectionListToResults = addCollectionListToResults
+   TriggerEDMSerialiserTool.addCollectionListToMainResult = addCollectionListToMainResult
+
+   # Create and return a serialiser tool object
+   serialiser = TriggerEDMSerialiserTool(name)
+   serialiser.CollectionsToSerialize = {}
+   return serialiser

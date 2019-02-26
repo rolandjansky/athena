@@ -1,7 +1,5 @@
-
-
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
@@ -335,7 +333,7 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, HLTResultMTMaker, StreamTagMakerTool, TriggerBitsMakerTool, TriggerEDMSerialiserTool
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, HLTResultMTMaker, StreamTagMakerTool, TriggerBitsMakerTool
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
@@ -345,15 +343,18 @@ print summMaker
 ################################################################################
 # test online HLT Result maker
 
-serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
+from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
 
-serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.",
-                                      "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
-                                      "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
-                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
-                                      #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
+serialiser.OutputLevel=VERBOSE
+serialiser.addCollectionListToMainResult([
+   "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
+   "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.decisions",
+   "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
+   "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+   "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+   "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
+])
 
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
@@ -442,6 +443,7 @@ from AthenaCommon.ConcurrencyFlags import jobproperties as jps
 trigCostService = TrigCostMTSvc()
 trigCostService.MonitorAll = True # During testing only
 trigCostService.PrintTimes = True # During testing only
+trigCostService.SaveHashes = True # During testing only
 trigCostService.EventSlots = jps.ConcurrencyFlags.NumConcurrentEvents()
 ServiceMgr += trigCostService
 print("NumConcurrentEvents = " + str(jps.ConcurrencyFlags.NumConcurrentEvents()))

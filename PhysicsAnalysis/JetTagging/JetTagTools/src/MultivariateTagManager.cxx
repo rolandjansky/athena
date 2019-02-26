@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ namespace Analysis {
   // _______________________________________________________________________
   // MultivariateTagManager functions
 
-  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MultivariateTagManager::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag); // determine the jet's channel
     ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
@@ -108,8 +108,8 @@ namespace Analysis {
           " No likelihood value given back. ");
     }
 
-    double jetpT  = jetToTag.pt();
-    double jeteta = jetToTag.eta();
+    double jetpT  = jetToTag->pt();
+    double jeteta = jetToTag->eta();
 
     // Fill Input Information
     var_map inputs;                  // map of input information
@@ -617,7 +617,7 @@ namespace Analysis {
   float tmpL3D = fittedPosition[jfv + 5];
 
 
-  if (tmpL3D > 0 && (closestVtx_L3D > tmpL3D || std::isnan(closestVtx_L3D)) ){
+  if (tmpL3D > 0 && (std::isnan(closestVtx_L3D) || closestVtx_L3D > tmpL3D) ){
 
     closestVtx_L3D = tmpL3D;
     secondary_vertex_index = jfv;

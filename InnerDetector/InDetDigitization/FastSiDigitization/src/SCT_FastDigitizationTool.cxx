@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
@@ -988,7 +988,7 @@ StatusCode SCT_FastDigitizationTool::createAndStoreRIOs()
           clusterCollection->setIdentifier(detElement->identify());
           for ( SCT_detElement_RIO_map::iterator localClusterIter = range.first; localClusterIter != range.second; ++localClusterIter)
             {
-              InDet::SCT_Cluster *sctCluster = const_cast<InDet::SCT_Cluster*>(localClusterIter->second);
+              InDet::SCT_Cluster *sctCluster = localClusterIter->second;
               sctCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
               clusterCollection->push_back(sctCluster);
             }

@@ -186,11 +186,11 @@ GoodRunsListSelectorTool.PassThrough = False
 ## here, the (default) top sequence is used:
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 #job = AlgSequence()
-seq = AthSequencer("AthFilterSeq")
-## AthFilterSeq is always executed before the top sequence, and is configured such that
+seq = AthSequencer("AthMasterSeq")
+## AthMasterSeq is always executed before the top sequence, and is configured such that
 ## any follow-up sequence (eg. top sequence) is not executed in case GRLTriggerAlg1 does
 ## not pass the event
-## In short, the sequence AthFilterSeq makes sure that all algs in the job sequence
+## In short, the sequence AthMasterSeq makes sure that all algs in the job sequence
 ## are skipped when an event gets rejects
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')

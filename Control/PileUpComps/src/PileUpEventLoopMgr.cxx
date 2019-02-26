@@ -16,7 +16,6 @@
 #include "EventInfo/EventID.h"         // OLD EDM
 #include "EventInfo/EventType.h"       // OLD EDM
 #include "EventInfo/EventInfo.h"       // OLD EDM
-#include "EventInfo/EventIncident.h"   // OLD EDM
 
 #include "PileUpTools/IBeamIntensity.h"
 #include "PileUpTools/IBeamLuminosity.h"
@@ -733,12 +732,12 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
       ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
 
       // Fire BeginRun "Incident"
-      m_incidentSvc->fireIncident(EventIncident(this->name(),IncidentType::BeginRun,*m_eventContext));
+      m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::BeginRun,*m_eventContext));
       CHECK(this->beginRunAlgorithms());
     }
 
   // Fire BeginEvent "Incident"
-  //m_incidentSvc->fireIncident(EventIncident(ei, this->name(),IncidentType::BeginEvent));
+  //m_incidentSvc->fireIncident(Incident(ei, this->name(),IncidentType::BeginEvent));
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
@@ -790,7 +789,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
 
   // Fire EndEvent "Incident"
-  //m_incidentSvc->fireIncident( EventIncident(ei, this->name(), IncidentType::EndEvent) );
+  //m_incidentSvc->fireIncident( Incident(ei, this->name(), IncidentType::EndEvent) );
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event

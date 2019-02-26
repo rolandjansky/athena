@@ -1,14 +1,18 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def TrigTauHypoProvider( name, conf ):
+def TrigL2TauHypoToolFromDict( chainDict ):
+
+    name = chainDict['chainName']
+    chainPart = chainDict['chainParts'][0]
+
     part='calo'
-    threshold='25'
-    criteria='medium1'
-    strategy='tracktwo'
-
+    threshold='25' # chainPart['threshold'] else not quite testing anything, leaving to experts
+    criteria= 'medium1' # likely chainPart['selection']
+    strategy='tracktwo' # do not know which chain property maps here, experts need to look
     print "TrigL2TauHypoTool: name = ", name
 
     # Simple implementation of 2015 pre-selection
-    currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
+    #currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
 
     # Re-define the calo part using the generic hypo
     if part == 'calo':
@@ -31,3 +35,16 @@ def TrigTauHypoProvider( name, conf ):
        currentHypo.Formulas = theFormulas
 
     return currentHypo
+
+
+def TrigTauHypoProvider( name, conf ):
+    from AthenaCommon.Constants import DEBUG
+    """ Configure a b-jet hypo tool from chain name. """
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+
+    decoder = DictFromChainName()
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
+    decodedDict['chainName'] = name # override
+
+    return TrigL2TauHypoToolFromDict( decodedDict )

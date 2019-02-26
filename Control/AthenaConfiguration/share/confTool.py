@@ -61,19 +61,28 @@ def __diff():
 
     confs = [ __merge( __loadSingleFile( f )) for f in args.file ] 
     
-    allkeys = set( confs[0].keys() + confs[0].keys())
+    allkeys = set( confs[0].keys() + confs[1].keys())
 
     for comp in allkeys:
         if comp not in confs[0]:
-            print "... component %-54s" % comp, "absent in 1st file"
+            print "... component %-54s" % comp, "absent in", args.file[0]
         elif comp not in confs[1]:
-            print "... component %-54s" % comp, "absent in 2nd file"
+            print "... component %-54s" % comp, "absent in", args.file[1]
         elif confs[0][comp] != confs[1][comp]:
-            print "... component %-54s" % comp, "present in both files but with different settings"
-            print "... in file: ", args.file[0]
-            pprint.pprint( confs[0][comp])
-            print "... in file: ", args.file[1]
-            pprint.pprint( confs[1][comp])
+            same = False
+            if comp == "JobOptionsSvc":
+                same = True
+                for conf in confs[0][comp]:
+                    if conf == "SEARCHPATH":#SEARCHPATH depends on nightly, ignore it
+                        continue
+                    if confs[0][comp][conf] != confs[1][comp][conf]:
+                        break
+            if not same:
+                print "... component %-54s" % comp, "present in both files but with different settings"
+                print "... in file: ", args.file[0]
+                pprint.pprint( confs[0][comp])
+                print "... in file: ", args.file[1]
+                pprint.pprint( confs[1][comp])
         else:
             print "... component %-54s" % comp, "identical"
 

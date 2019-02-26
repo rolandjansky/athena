@@ -91,9 +91,14 @@ public:
     //@{
     /// For a single crystal
     Identifier  module_id ( int barrel_ec, 
-                           int layer_disk, 
-                           int phi_module, 
-                           int eta_module ) const;
+                            int layer_disk, 
+                            int phi_module, 
+                            int eta_module ) const;
+    Identifier  module_id ( int barrel_ec, 
+                            int layer_disk, 
+                            int phi_module, 
+                            int eta_module,
+                            bool checks) const;
 
     /// For a module from a wafer id
     Identifier  module_id ( const Identifier& wafer_id ) const;
@@ -104,6 +109,12 @@ public:
                            int phi_module, 
                            int eta_module,   
                            int side ) const;
+    Identifier  wafer_id ( int barrel_ec, 
+                           int layer_disk, 
+                           int phi_module, 
+                           int eta_module,   
+                           int side,
+                           bool checks) const;
 
     /// For a single crystal from a strip id
     Identifier  wafer_id ( const Identifier& strip_id ) const;
@@ -118,6 +129,13 @@ public:
                            int eta_module,   
                            int side,      
                            int strip) const;
+    Identifier  strip_id ( int barrel_ec, 
+                           int layer_disk, 
+                           int phi_module, 
+                           int eta_module,   
+                           int side,      
+                           int strip,
+                           bool check) const;
 
     Identifier  strip_id ( int barrel_ec,
 			   int layer_disk,
@@ -126,6 +144,14 @@ public:
 			   int side,
 			   int row,
 			   int strip) const;
+    Identifier  strip_id ( int barrel_ec,
+			   int layer_disk,
+			   int phi_module,
+			   int eta_module,
+			   int side,
+			   int row,
+			   int strip,
+                           bool checks) const;
 
 
 
@@ -345,7 +371,8 @@ inline Identifier
 SCT_ID::module_id ( int barrel_ec, 
                     int layer_disk, 
                     int phi_module, 
-                    int eta_module ) const
+                    int eta_module,
+                    bool checks) const
 {
     
     // Build identifier
@@ -360,11 +387,20 @@ SCT_ID::module_id ( int barrel_ec,
     m_eta_mod_impl.pack  (eta_module,          result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
         wafer_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, 0 );
     }
 
     return result;
+}
+
+inline Identifier  
+SCT_ID::module_id ( int barrel_ec, 
+                    int layer_disk, 
+                    int phi_module, 
+                    int eta_module ) const
+{
+  return module_id (barrel_ec, layer_disk, phi_module, eta_module, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -384,7 +420,8 @@ SCT_ID::wafer_id ( int barrel_ec,
                    int layer_disk, 
                    int phi_module, 
                    int eta_module, 
-                   int side ) const
+                   int side,
+                   bool checks) const
 {
 
     // Build identifier
@@ -400,11 +437,22 @@ SCT_ID::wafer_id ( int barrel_ec,
     m_side_impl.pack     (side,                result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
         wafer_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side );
     }
 
     return result;
+}
+
+inline Identifier
+SCT_ID::wafer_id ( int barrel_ec,  
+                   int layer_disk, 
+                   int phi_module, 
+                   int eta_module, 
+                   int side ) const
+{
+  return wafer_id (barrel_ec, layer_disk, phi_module, eta_module, side,
+                   do_checks());
 }
 
 
@@ -446,7 +494,8 @@ SCT_ID::strip_id ( int barrel_ec,
                    int phi_module, 
                    int eta_module, 
                    int side,        
-                   int strip) const
+                   int strip,
+                   bool checks) const
 {
     // Build identifier
     Identifier result((Identifier::value_type)0);
@@ -462,11 +511,24 @@ SCT_ID::strip_id ( int barrel_ec,
     m_strip_impl.pack    (strip,               result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
         strip_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side, strip );
     }
     return result;
 }
+
+inline Identifier
+SCT_ID::strip_id ( int barrel_ec,  
+                   int layer_disk, 
+                   int phi_module, 
+                   int eta_module, 
+                   int side,        
+                   int strip) const
+{
+  return strip_id (barrel_ec, layer_disk, phi_module, eta_module, side, strip,
+                   do_checks());
+}
+
 
 
 //----------------------------------------------------------------------------
@@ -478,7 +540,8 @@ SCT_ID::strip_id ( 	int barrel_ec,
 			int eta_module,
 			int side,
 			int row,
-			int strip) const
+			int strip,
+                        bool checks) const
 {
       
 	// Build identifier
@@ -500,7 +563,7 @@ SCT_ID::strip_id ( 	int barrel_ec,
       
       
 	// Do checks
-      		if(m_do_checks) {
+      		if(checks) {
 		  	if ( m_hasRows ) strip_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side, row, strip );
 			else		 strip_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side, strip );
 		}
@@ -508,7 +571,21 @@ SCT_ID::strip_id ( 	int barrel_ec,
 		return result;
    
 }
-      
+
+inline Identifier
+SCT_ID::strip_id ( 	int barrel_ec,
+               		int layer_disk,
+			int phi_module,
+			int eta_module,
+			int side,
+			int row,
+			int strip) const
+{
+  return strip_id (barrel_ec, layer_disk, phi_module, eta_module,
+                   side, row, strip, do_checks());
+}
+
+
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefsContainer.h"
@@ -98,7 +98,7 @@ void L1CaloPpmFineTimeRefsContainer::makeTransient(const std::map<std::string, C
 		CondAttrListCollection::const_iterator it = attrListCollection->begin();
 		for(;it!=attrListCollection->end();++it) {
 
-			AthenaAttributeList attrList = it->second;
+                        const coral::AttributeList& attrList = it->second;
 
 			// Get value of each row for the current channel
 			CondAttrListCollection::ChanNum chanNum = it->first;

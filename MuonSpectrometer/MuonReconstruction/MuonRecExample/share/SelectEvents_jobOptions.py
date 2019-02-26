@@ -15,9 +15,9 @@
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AlgSequence import AthSequencer
-filterSequence = AthSequencer('AthFilterSeq')
+masterSequence = AthSequencer('AthMasterSeq')
 from GaudiSequencer.PyComps import PyEvtFilter
-filterSequence += PyEvtFilter ('EventNumberFilterAlg')
+masterSequence += PyEvtFilter ('EventNumberFilterAlg')
 
 def eventNumber_filter_fct(fname):
     """generate a filter fonction from a file containing lines
@@ -40,7 +40,7 @@ def eventNumber_filter_fct(fname):
 ##     return file_based_event_filter_fct
 
 
-eventFilterAlg = filterSequence.EventNumberFilterAlg
+eventFilterAlg = masterSequence.EventNumberFilterAlg
 if type(EventList) in (list,tuple):
     eventFilterAlg.evt_list = EventList
 elif type(EventList) == str:

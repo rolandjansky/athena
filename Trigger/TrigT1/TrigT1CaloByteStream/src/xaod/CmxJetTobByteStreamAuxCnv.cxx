@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 CmxJetTobByteStreamAuxCnv::CmxJetTobByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxJetTobByteStreamAuxCnv"),
   m_name("CmxJetTobByteStreamAuxCnv"),
   m_readTool("LVL1BS::JepByteStreamV2Tool/JepByteStreamV2Tool")
@@ -63,11 +63,13 @@ const CLID& CmxJetTobByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::CMXJetTobAuxContainer>::ID();
 }
 
+long CmxJetTobByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 StatusCode CmxJetTobByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG(
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);

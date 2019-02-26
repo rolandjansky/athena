@@ -117,10 +117,3 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    if ( muonRecFlags.writeRDOs() or muonRecFlags.writeRpcRDOs() ):
       import MuonCnvExample.MuonCablingConfig
       MuonESDList += [ "RpcPadContainer#RPCPAD" ] 
-
-# Muon Clusters
-#try:
-#   topSequence.StreamESD.ItemList += MuonESDList
-#except AttributeError:
-#   pass # not writing ESD
-

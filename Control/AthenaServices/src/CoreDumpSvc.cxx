@@ -41,7 +41,6 @@
 
 // Athena includes
 #include "AthenaKernel/IAthenaSummarySvc.h"
-#include "EventInfo/EventIncident.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/SealCommon.h"
 #include "CxxUtils/SealSignal.h"
@@ -414,13 +413,9 @@ void CoreDumpSvc::handle(const Incident& incident)
 
   currRec.LastInc = incident.source() + ":" + incident.type();
 
-  const EventIncident* eventInc(nullptr);
-  if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
-    const EventIDBase& eventID = incident.context().eventID();
-    std::ostringstream oss;
-    oss << eventID;
-    currRec.EvId = oss.str();
-  }
+  std::ostringstream oss;
+  oss << incident.context().eventID();
+  currRec.EvId = oss.str();
 
   if (incident.type()==IncidentType::BeginEvent) {
     ++m_eventCounter;

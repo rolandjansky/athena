@@ -89,9 +89,6 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
 // ===========================================================================
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode PpmByteStreamReadV1V2Tool::initialize() {
   ATH_MSG_INFO(

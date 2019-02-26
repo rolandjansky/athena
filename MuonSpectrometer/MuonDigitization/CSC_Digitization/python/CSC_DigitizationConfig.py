@@ -27,11 +27,6 @@ def getCscRange(name="CscRange", **kwargs):
 
 
 def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    cscRndm = kwargs.setdefault("RndmEngine", "CSC_Digitization")
-    
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(cscRndm, 49261510, 105132394)
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the CSC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 

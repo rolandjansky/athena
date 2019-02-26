@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETSUBSTRUCTUREMOMENTTOOLS_JETSUBSTRUCTUREMOMENTTOOLSDICT_H
@@ -12,6 +12,7 @@
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
@@ -19,6 +20,7 @@
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"

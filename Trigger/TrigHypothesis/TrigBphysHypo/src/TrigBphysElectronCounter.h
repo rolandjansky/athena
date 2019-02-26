@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -77,8 +77,6 @@ class TrigBphysElectronCounter: public HLT::AllTEAlgo  {
   
   //Counters
   uint32_t m_countTotalEvents;
-  uint32_t m_countPassedPt;
-  uint32_t m_countPassedIsEM;
   uint32_t m_countPassedEvents;
 
     

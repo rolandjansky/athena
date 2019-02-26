@@ -1,47 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
 #include "RPC_Digitization/RPC_Digitizer.h"
+#include "PileUpTools/IPileUpTool.h"
 
-RPC_Digitizer::RPC_Digitizer(const std::string& name, 
-				 ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_digTool("RpcDigitizationTool", this )
+
+RPC_Digitizer::RPC_Digitizer(const std::string& name,
+                           ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {
-   declareProperty("RPC_DigitizationTool", m_digTool);
-}
-
-RPC_Digitizer::~RPC_Digitizer()  {
-
 }
 
 StatusCode RPC_Digitizer::initialize() {
-
-  if (m_digTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve RPC Digitization Tool!" );
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG ( "Retrieved RPC Digitization Tool." );
+  ATH_CHECK(m_digTool.retrieve());
+  ATH_MSG_DEBUG("Retrieved RpcDigitizationTool (" << m_digTool->name() << ").");
 
   return StatusCode::SUCCESS;
-    
 }
 
 StatusCode RPC_Digitizer::execute() {
-
-  ATH_MSG_DEBUG ( "in execute()" );
-
-  return m_digTool->digitize();
+  ATH_MSG_DEBUG("in execute()");
+  return m_digTool->processAllSubEvents();
 }
-
-StatusCode RPC_Digitizer::finalize() {
-    
-   ATH_MSG_DEBUG ( "finalize." );
-
-   return StatusCode::SUCCESS;
-}
-
-

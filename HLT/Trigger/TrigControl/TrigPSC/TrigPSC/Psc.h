@@ -98,7 +98,7 @@ namespace psc {
     /**
      * Starts the HLT event loop. The HLT framework will start requesting and processing events.
      */
-    virtual void doEventLoop ();
+    virtual bool doEventLoop ();
 
     /**
      * Method which can be called for a worker to perform the necessary steps to set
