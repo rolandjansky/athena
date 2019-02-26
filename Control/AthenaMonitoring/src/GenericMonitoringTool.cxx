@@ -4,6 +4,7 @@
 
 #include <map>
 #include <mutex>
+#include <algorithm>
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
@@ -35,8 +36,11 @@ StatusCode GenericMonitoringTool::book() {
   if (m_histoPath.empty()) {
     auto named = dynamic_cast<const INamedInterface*>(parent());
     m_histoPath = named ? named->name() : name();
-  } 
-  
+  }
+
+  // Replace dot (e.g. MyAlg.MyTool) with slash to create sub-directory
+  std::replace( m_histoPath.begin(), m_histoPath.end(), '.', '/' );
+
   ATH_MSG_DEBUG("Booking histograms in path: " << m_histoPath.value());
 
   HistogramFillerFactory factory(m_histSvc, m_histoPath);
