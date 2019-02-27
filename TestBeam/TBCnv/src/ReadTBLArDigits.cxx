@@ -6,7 +6,7 @@
 #include "LArRawEvent/LArDigit.h"
 #include <vector>
 #include "GaudiKernel/IToolSvc.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 ReadTBLArDigits::SortDigits::SortDigits(const LArOnlineID* onlineHelper)
 {
@@ -37,28 +37,16 @@ ReadTBLArDigits::~ReadTBLArDigits()
 StatusCode ReadTBLArDigits::initialize()
 { MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initialize" << endmsg;
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
-  IToolSvc* toolSvc;
-  StatusCode sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
 
-  sc=toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-      return StatusCode::FAILURE;
-    }
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
+  m_hecId=idHelper->hec_idHelper();
 
-  sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingLegacyService",m_larCablingSvc) );
 
   if (m_dumpFile.size()>0)
     m_outfile.open(m_dumpFile.c_str(),std::ios::out);
@@ -79,80 +67,18 @@ StatusCode ReadTBLArDigits::initialize()
      return StatusCode::FAILURE;
     }
 
-  sc=nt->addItem("icell",m_cellIndex,0,3600);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  //sc=nt->addItem("layer",m_layer,0,4);
-  sc=nt->addItem("layer",m_cellIndex,m_layer);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Layer' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  //sc=nt->addItem("ieta",m_eta,0,510);
-  sc=nt->addItem("ieta",m_cellIndex,m_eta);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Eta' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("iphi",m_cellIndex,m_phi);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Phi' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("barrel_ec",m_cellIndex,m_barrel_ec);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("pos_neg",m_cellIndex,m_pos_neg);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("FT",m_cellIndex,m_FT);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'FT' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("slot",m_cellIndex,m_slot);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'slot' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("channel",m_cellIndex,m_channel);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'channel' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("gain",m_cellIndex,m_gain);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Gain' failed" << endmsg;
-     return StatusCode::FAILURE;
-    }  
-  
-  sc=nt->addItem("NSamples",m_Nsamples,0,32);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem 'sampleIndex' failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  sc=nt->addItem("Samples",m_cellIndex,m_samples,32);
-  //sc=nt->addItem("Samples",m_cellIndex,m_samples,m_Nsamples);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( nt->addItem("icell",m_cellIndex,0,3600) );
+  ATH_CHECK( nt->addItem("layer",m_cellIndex,m_layer) );
+  ATH_CHECK( nt->addItem("ieta",m_cellIndex,m_eta) );
+  ATH_CHECK( nt->addItem("iphi",m_cellIndex,m_phi) );
+  ATH_CHECK( nt->addItem("barrel_ec",m_cellIndex,m_barrel_ec) );
+  ATH_CHECK( nt->addItem("pos_neg",m_cellIndex,m_pos_neg) );
+  ATH_CHECK( nt->addItem("FT",m_cellIndex,m_FT) );
+  ATH_CHECK( nt->addItem("slot",m_cellIndex,m_slot) );
+  ATH_CHECK( nt->addItem("channel",m_cellIndex,m_channel) );
+  ATH_CHECK( nt->addItem("gain",m_cellIndex,m_gain) );
+  ATH_CHECK( nt->addItem("NSamples",m_Nsamples,0,32) );
+  ATH_CHECK( nt->addItem("Samples",m_cellIndex,m_samples,32) );
   
   m_ntuplePtr=nt;
   m_count=0;
