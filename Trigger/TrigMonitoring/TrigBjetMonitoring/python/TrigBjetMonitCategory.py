@@ -19,12 +19,15 @@ monitoring_bjet_FTK = ["S_HLT_j35_boffperf_split_FTK_L1J15_FTK", "E_HLT_j35_boff
 # v7 chains (added the L1 seed) + v8 chain
 monitoring_bjet      = ["E_HLT_j35_boffperf_split_L1J15", "E_HLT_j55_boffperf_split_L1J20", "S_HLT_j85_gsc110_boffperf_split_L1J20", 
                         "S_HLT_j45_gsc55_boffperf_split_L1J15", "E_HLT_j225_gsc300_boffperf_split_L1J100",
-                        "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100"]
+                        "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100",
+                        "E_HLT_j35_boffperf_split", "E_HLT_j55_boffperf_split", "S_HLT_j85_gsc110_boffperf_split",
+                        "S_HLT_j45_gsc55_boffperf_split", "E_HLT_j225_gsc300_boffperf_split"]
 #if TriggerFlags.doFTK():
 monitoring_bjet += monitoring_bjet_FTK
 # v7 chains (added the L1 seed)
 monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02_L1MU4", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20", 
-                        "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20"]
+                        "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20",
+                        "S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
 
 ##############################
 
@@ -33,12 +36,15 @@ monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02_L1MU4", "E
 # v7 chains (added the L1 seed) + v8 chain
 monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split_L1J15", "E_HLT_j55_boffperf_split_L1J20", "S_HLT_j85_gsc110_boffperf_split_L1J20",
                            "S_HLT_j45_gsc55_boffperf_split_L1J15", "E_HLT_j225_gsc300_boffperf_split_L1J100",
-                           "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100"]
+                           "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100",
+                           "E_HLT_j35_boffperf_split", "E_HLT_j55_boffperf_split", "S_HLT_j85_gsc110_boffperf_split",
+                           "S_HLT_j45_gsc55_boffperf_split", "E_HLT_j225_gsc300_boffperf_split"]
 #if TriggerFlags.doFTK():
 monitoring_bjet_pp += monitoring_bjet_FTK
 # v7 chains (added the L1 seed)
 monitoring_mujet_pp     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02_L1MU4", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20", 
-                           "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20"]
+                           "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20",
+                           "S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
 
 ################################
 
@@ -64,11 +70,14 @@ monitoring_mujet_hi    = ["E_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S
 # v7 chains (added the L1 seed) + v8 chain
 monitoring_bjet_validation      = ["E_HLT_j35_boffperf_split_L1J15", "E_HLT_j55_boffperf_split_L1J20", "S_HLT_j85_gsc110_boffperf_split_L1J20", 
                                    "S_HLT_j45_gsc55_boffperf_split_L1J15", "E_HLT_j225_gsc300_boffperf_split_L1J100",
-                                   "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100"]
+                                   "E_HLT_j150_boffperf_split_j50_boffperf_split_L1J100",
+                                   "E_HLT_j35_boffperf_split", "E_HLT_j55_boffperf_split", "S_HLT_j85_gsc110_boffperf_split",
+                                   "S_HLT_j45_gsc55_boffperf_split", "E_HLT_j225_gsc300_boffperf_split"]
 #if TriggerFlags.doFTK():
 monitoring_bjet_validation += monitoring_bjet_FTK
 # v7 chains (added the L1 seed)
 monitoring_mujet_validation     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02_L1MU4", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20", 
-                                   "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20"]
+                                   "E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02_L1MU6_J40", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1MU6_J20",
+                                   "S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02", "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
 
 ###################################
