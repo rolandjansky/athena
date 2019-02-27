@@ -37,7 +37,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   virtual StatusCode  initialize() override;
 
  private: 
-  Gaudi::Property<std::map<std::string,std::vector<uint16_t>>> m_collectionsToSerialize {
+  Gaudi::Property<std::map< std::string,std::vector<uint16_t> > > m_collectionsToSerialize {
     this, "CollectionsToSerialize", {},
     "EDM streaming map {collectionKey, moduleIdVec} where collectionKey is a string formatted like for "
     "AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. The type has to be an exact type, i.e. with _vN not the alias "

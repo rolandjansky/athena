@@ -176,10 +176,8 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
     if ( mem ) delete [] static_cast<const char*>( mem );
     
-    ATH_MSG_DEBUG("Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes" );    
     buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
     ++nDynWritten;
-
   }
   return StatusCode::SUCCESS;
 }
@@ -205,7 +203,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Addre
     if ( mem ) delete [] static_cast<const char*>( mem );
     
 
-    ATH_MSG_DEBUG("Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes");
+    ATH_MSG_DEBUG( address.transType << "#" << address.key << " Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes");
     fragment[0] = fragment.size();    
     buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
     
