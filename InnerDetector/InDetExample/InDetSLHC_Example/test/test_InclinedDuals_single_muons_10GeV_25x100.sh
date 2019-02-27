@@ -25,8 +25,8 @@ dcube_digi_strip_muons_10GeV_lastref="dcube_digi_strip_muons_10GeV_last"
 dcube_rec_muons_10GeV_fixref="dcube_muons_10GeV"
 dcube_rec_muons_10GeV_lastref="dcube_muons_10GeV_last"
 
-#artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
-artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
+artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
+#artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="InclinedDuals"
 script="`basename \"$0\"`"
