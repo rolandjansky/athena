@@ -236,11 +236,33 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
         }
       } 
       else if(channelType==1) {
-        sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        //
+        // check if the same strip is already present, with a smaller time
+        //
+        bool addStrip = true;
+        for ( auto it : sTgcStripPrds ) {
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addStrip = false;
+          }
+        } 
+        if ( addStrip ) {  
+          sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
       } 
       else if (channelType==2) { 
+        //
+        // check if the same strip is already present, with a smaller time
+        //
+        bool addWire = true;
+        for ( auto it : sTgcWirePrds ) {
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addWire = false;
+          }
+        } 
         // wires
-        sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        if ( addWire ) { 
+          sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
       } 
       else {
         ATH_MSG_ERROR("Unknown sTGC channel type");
@@ -258,15 +280,23 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     // merge the eta and phi prds that fire closeby strips or wires
     vector<Muon::sTgcPrepData*> sTgcStripClusters;
     vector<Muon::sTgcPrepData*> sTgcWireClusters;
-    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcStripPrds,sTgcStripClusters));
- //   ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
     //
-    // Add the clusters to the event store
+    // Clusterize strips
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcStripPrds,sTgcStripClusters));
+    //
+    // Clusterize wires
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcWirePrds,sTgcWireClusters));
+    //
+    // Add the clusters to the event store ( do not clusterize wires for now )
     //
     for ( auto it : sTgcStripClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(it);
     } 
     for ( auto it : sTgcWireClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(it);
     } 
   }

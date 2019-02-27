@@ -53,6 +53,18 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
 
   ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
 
+  double resolution=0.;
+  bool isWire = false;
+  if ( stripsVect.size()>0 ) {
+    resolution = stripsVect.at(0).localCovariance()(0,0);
+    Identifier chanId = stripsVect.at(0).identify();
+    if ( m_stgcIdHelper->channelType(chanId)==2 ) isWire = true;
+    ATH_MSG_DEBUG("isWire: " << isWire << "Single channel resolution: " << resolution);
+  }
+  else {
+    ATH_MSG_DEBUG("Size of the channel vectors is zero");
+    return StatusCode::SUCCESS;
+  } 
   // clear the clusters vector
   for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
     for ( unsigned int gasGap=0 ; gasGap<5 ; ++gasGap ) {
@@ -62,14 +74,13 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
   }
 
   for ( auto& it : stripsVect ) {
-    
     if ( !addStrip(it) ) {
       ATH_MSG_ERROR("Could not add a strip to the sTGC clusters");
       return StatusCode::FAILURE;
     }
   } 
 
-  /// now add the clusters to the PRD container
+  // now add the clusters to the PRD container
   //
   clustersVect.clear();
 
@@ -93,13 +104,19 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
         double totalCharge  = 0.0;
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
-          weightedPosX += it.localPosition().x()*it.charge();
-          totalCharge += it.charge();
+          double weight = 0.0;
+          isWire ? weight = 1.0 : weight = it.charge(); 
+          ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
+          weightedPosX += it.localPosition().x()*weight;
+          totalCharge += weight;
           ATH_MSG_DEBUG("Channel local position and charge: " << it.localPosition().x() << " " << it.charge() );
           //
           // Set the cluster identifier to the max charge strip
           //
-          if ( it.charge()>maxCharge ) {
+          if ( isWire ) {
+            clusterId = it.identify();
+          }
+          if ( !isWire && it.charge()>maxCharge ) {
             maxCharge = it.charge();
             clusterId = it.identify();
           } 
@@ -112,17 +129,22 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
         double sigmaSq = 0.0;
         ATH_MSG_DEBUG("Cluster size: " << cluster.size());
         if ( cluster.size() > 1 ) {
+          double weight = 0.0;
           for ( auto it : cluster ) {
-            sigmaSq += it.charge()*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
+            isWire ? weight = 1.0 : weight = it.charge(); 
+            ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
+            //sigmaSq += weight*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
+            sigmaSq += weight*weight*resolution;
+            ATH_MSG_DEBUG(">>>> posX: " << it.localPosition().x() << " weightedPosX: " << weightedPosX); 
           } 
         }
         else {
-          sigmaSq = 5.;
+          sigmaSq = resolution;
         }
-        double sigma = sqrt(sigmaSq/totalCharge);
-        ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sigma);         
+        sigmaSq = sigmaSq/(totalCharge*totalCharge);
+        ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
         Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-        (*covN)(0,0) = sigma;
+        (*covN)(0,0) = sigmaSq;
 
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
@@ -143,12 +165,14 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
 {
 
   Identifier prd_id = strip.identify();
+  int channelType = m_stgcIdHelper->channelType(prd_id);
   int multilayer = m_stgcIdHelper->multilayer(prd_id);
   int gasGap = m_stgcIdHelper->gasGap(prd_id);
   unsigned int stripNum = m_stgcIdHelper->channel(prd_id);
 
-  ATH_MSG_DEBUG(">>>>>>>>>>>>>> In addStrip, multilayer, gasGap, stripNum: " << multilayer << " " 
-    << gasGap << " " << stripNum);
+  ATH_MSG_DEBUG(">>>>>>>>>>>>>> In addStrip: channelType, multilayer, gasGap, stripNum: " << channelType 
+      << " " << multilayer << " " 
+      << gasGap << " " << stripNum);
   
   // if no cluster is present start creating a new one
   if ( m_clustersStripNum[multilayer][gasGap].size()==0 ) {

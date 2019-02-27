@@ -5,7 +5,7 @@
 #define ISTgcClusterBuilderTool_h
 
 //
-// Interface class for MM clustering
+// Interface class for STgc clustering
 //
 #include <vector>
 #include "GaudiKernel/IAlgTool.h"
@@ -27,7 +27,12 @@ namespace Muon {
   
   public:    // interface methods
     
-    virtual StatusCode getClusters(const IdentifierHash hash, std::vector<Muon::sTgcPrepData>& stripsVect, 
+    //
+    // build clusters having as input the hashId of the collection, the
+    // resolution of the single channel, and the vector of firing strips
+    //
+    virtual StatusCode getClusters(const IdentifierHash hash,  
+                                   std::vector<Muon::sTgcPrepData>& stripsVect, 
 				   std::vector<Muon::sTgcPrepData*>& clustersVect)=0;
     
   };
