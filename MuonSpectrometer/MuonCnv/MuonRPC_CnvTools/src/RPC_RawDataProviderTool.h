@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/RpcPad_Cache.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
 class StoreGateSvc;
@@ -54,7 +55,7 @@ private:
     //    ServiceHandle<StoreGateSvc>         m_eventStore;
     ToolHandle<IRpcROD_Decoder>         m_decoder;
 //    std::string                         m_rdoContainerKey;
-    SG::WriteHandleKey<RpcPadContainer>            m_RpcPadC {
+    SG::WriteHandleKey<RpcPadContainer>            m_containerKey {
 	this, "RdoLocation", "RPCPAD", "Name of the RPCPAD produced by RawDataProvider"};
     SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec{
 	this, "RPCSec", "RPC_SECTORLOGIC", "Name of the RPC_SECTORLOGIC produced by RawDataProvider"};
@@ -68,6 +69,10 @@ private:
     const IRPCcablingSvc *m_rpcCabling;
     // Rob Data Provider handle 
     ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+
+    /// RPC container cache key
+    SG::UpdateHandleKey<RpcPad_Cache> m_rdoContainerCacheKey ;
+
     
 };
 

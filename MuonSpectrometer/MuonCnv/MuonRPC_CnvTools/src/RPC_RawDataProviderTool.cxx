@@ -37,6 +37,7 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
 {
     declareInterface<IMuonRawDataProviderTool>(this);
     declareProperty("Decoder",     m_decoder);
+    declareProperty ("RpcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the RPC container");
 }
 
 
@@ -50,11 +51,13 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     StatusCode sc = AlgTool::initialize();
     if (sc.isFailure()) return sc;
 
-   sc = service("ActiveStoreSvc", m_activeStore);
-   if ( !sc.isSuccess() ) {
-      ATH_MSG_FATAL(  "Could not get active store service" );
-      return sc;
-   }
+    sc = service("ActiveStoreSvc", m_activeStore);
+    if ( !sc.isSuccess() ) {
+       ATH_MSG_FATAL(  "Could not get active store service" );
+       return sc;
+    }
+
+    ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
     if (m_decoder.retrieve().isFailure())
     {
@@ -160,7 +163,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     
     // register the container only when the imput from ByteStream is set up     
     m_activeStore->setStore( &*evtStore() ); 
-    if( has_bytestream || m_RpcPadC.key() != "RPCPAD" )
+    if( has_bytestream || m_containerKey.key() != "RPCPAD" )
     {
         m_AllowCreation= true;
     }
@@ -171,7 +174,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     
     ATH_MSG_INFO( "initialize() successful in " << name());
 
-    ATH_CHECK( m_RpcPadC.initialize() );
+    ATH_CHECK( m_containerKey.initialize() );
     ATH_CHECK( m_sec.initialize() );
     
     return StatusCode::SUCCESS;
@@ -248,10 +251,25 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
                                     // on the user experience
     }
 
-    SG::WriteHandle<RpcPadContainer>  padHandle(m_RpcPadC);
-    if (padHandle.isPresent())
+    SG::WriteHandle<RpcPadContainer> rdoContainerHandle(m_containerKey);
+    if (rdoContainerHandle.isPresent())
       return StatusCode::SUCCESS;
-    auto pad = std::make_unique<RpcPadContainer> (padMaxIndex);
+
+
+    // Split the methods to have one where we use the cache and one where we just setup the container
+    const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+    if(!externalCacheRDO){
+      ATH_CHECK( rdoContainerHandle.record(std::make_unique<RpcPadContainer> (padMaxIndex) ) );
+      ATH_MSG_DEBUG( "Created RpcPadContainer" );
+    }
+    else{
+      SG::UpdateHandle<RpcPad_Cache> update(m_rdoContainerCacheKey);
+      ATH_CHECK(update.isValid());
+      ATH_CHECK(rdoContainerHandle.record (std::make_unique<RpcPadContainer>( update.ptr() )));
+      ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+    }
+  
+    RpcPadContainer* pad = rdoContainerHandle.ptr();
  
     SG::WriteHandle<RpcSectorLogicContainer>    logicHandle(m_sec);
     auto logic = std::make_unique<RpcSectorLogicContainer>();
@@ -281,7 +299,8 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
             // store the error condition into the StatusCode and continue
         }
     }
-    ATH_CHECK( padHandle.record (std::move (pad)) );
+    // Unsure about this at the moment
+    //ATH_CHECK( rdoContainerHandle.record (std::move (pad)) );
     ATH_CHECK( logicHandle.record (std::move (logic)) );
     //in presence of errors return FAILURE
 //CALLGRIND_STOP_INSTRUMENTATION
