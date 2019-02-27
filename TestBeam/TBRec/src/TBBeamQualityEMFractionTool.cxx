@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -25,7 +25,6 @@ TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& name
   : TBBeamQualityTool(name,type,parent),
     m_StoreGate(nullptr),
     m_detStore(nullptr),
-    m_caloMgr(nullptr),
     m_emecID_help(nullptr),
     m_hecID_help(nullptr),
     m_fcalID_help(nullptr),
@@ -99,26 +98,22 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   
   
   // retrieve detector description manager for LAr subsystem
-  const DataHandle<CaloIdManager> m_caloMgr;
-  sc = m_detStore->retrieve(m_caloMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "unable to retrieve CaloIdManager from detector store"<< endmsg;
-    return sc;
-  }
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
   
   //obtainine Identifier helpers
-  m_hecID_help = m_caloMgr->getHEC_ID();
+  m_hecID_help = idHelper->hec_idHelper();
   if (!m_hecID_help) {
     log << MSG::ERROR << "unable to obtain hec id " << endmsg;
     return StatusCode::FAILURE;
   }
-  m_emecID_help = m_caloMgr->getEM_ID();
+  m_emecID_help = idHelper->em_idHelper();
   if (!m_emecID_help) {
     log << MSG::ERROR << "unable to obtain emec id " << endmsg;
     return StatusCode::FAILURE;
   }
   
-  m_fcalID_help = m_caloMgr->getFCAL_ID();
+  m_fcalID_help = idHelper->fcal_idHelper();
   if (!m_fcalID_help) {
     log << MSG::ERROR << "unable to obtain fcal id " << endmsg;
     return StatusCode::FAILURE;

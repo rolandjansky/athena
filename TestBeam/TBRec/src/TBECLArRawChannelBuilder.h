@@ -20,7 +20,7 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
