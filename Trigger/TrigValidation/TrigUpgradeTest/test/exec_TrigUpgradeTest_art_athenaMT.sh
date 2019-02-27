@@ -36,6 +36,12 @@ if [ -z ${SLOTS} ]; then
   export SLOTS="1"
 fi
 
+if [ -z ${STDCMATH} ] || [ ${STDCMATH} -eq 0 ]; then
+  export MATHLIBOPT="--imf"
+else
+  export MATHLIBOPT="--stdcmath"
+fi
+
 ###
 
 if [[ $INPUT == "run2data" ]]; then
@@ -55,9 +61,11 @@ trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
 if [[ ${FROMPICKLE} == "1" ]]; then
   echo "Running athena from pickle file ${JOBOPTION}"
   athena.py \
+  ${MATHLIBOPT} \
   ${JOBOPTION} &> ${JOB_LOG}
 else
   athena.py \
+  ${MATHLIBOPT} \
   --threads ${THREADS} \
   --concurrent-events ${SLOTS} \
   --filesInput ${DS} \
