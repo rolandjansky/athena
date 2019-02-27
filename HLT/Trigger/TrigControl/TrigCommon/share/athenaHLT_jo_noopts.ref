@@ -1,25 +1,24 @@
 <Configuration>
   <HLTMPPUApplication>
+    <childLogName>athenaHLT:</childLogName>
     <numForks>1</numForks>
-    <childLogRoot>/scratch/fwinkl/athenaHLT/HLT/Trigger/TrigControl/TrigCommon/unitTestRun</childLogRoot>
     <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
     <softTimeoutFraction>0.9</softTimeoutFraction>
     <HLTImplementationLibraries>
-      <library>TrigServices</library>
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
     <UID>HLTMPPy</UID>
     <HardTimeout>36000</HardTimeout>
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>1</numberOfEventSlots>
-    <DataSourceLibrary>DFFileBackend</DataSourceLibrary>
+    <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
     <numberOfAthenaMTThreads>1</numberOfAthenaMTThreads>
     <DataSource>
       <HLTDFFileBackend>
         <preload>False</preload>
         <numEvents>-1</numEvents>
         <start_id>1</start_id>
-        <library>DFFileBackend</library>
+        <library>DFDcmEmuBackend</library>
         <fileOffset>-1</fileOffset>
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
@@ -29,7 +28,7 @@
         <fileList>
           <file>dummy.data</file>
         </fileList>
-        <extraL1Robs/>
+        <extraL1Robs />
       </HLTDFFileBackend>
     </DataSource>
     <InfoService>
@@ -41,7 +40,7 @@
             <UID>HltpuConfigurationRuleBundle</UID>
             <Rules>
               <ConfigurationRule>
-                <ExcludeFilter></ExcludeFilter>
+                <ExcludeFilter />
                 <Name>Dumm</Name>
                 <UID>HltpuOHRule</UID>
                 <Parameters>
@@ -56,7 +55,7 @@
                 <IncludeFilter>.*</IncludeFilter>
               </ConfigurationRule>
               <ConfigurationRule>
-                <ExcludeFilter></ExcludeFilter>
+                <ExcludeFilter />
                 <Name>DummDumm</Name>
                 <UID>HltpuISRule</UID>
                 <Parameters>
@@ -77,7 +76,6 @@
   </HLTMPPUApplication>
   <Partition>
     <UID>athenaHLT</UID>
-    <LogRoot>/scratch/fwinkl/athenaHLT/HLT/Trigger/TrigControl/TrigCommon/unitTestRun</LogRoot>
     <TriggerConfiguration>
       <TriggerConfiguration>
         <L1TriggerConfiguration>
@@ -96,15 +94,12 @@
             </libraries>
             <preCommands>
               <preCommand>_run_number=327265</preCommand>
-              <preCommand>include('TrigServices/OfflineTHistSvc.py')</preCommand>
             </preCommands>
-            <postCommands/>
+            <showInclude>false</showInclude>
+            <postCommands />
             <UID>HLTImplementationJobOptions-1</UID>
-            <evtSel>NONE</evtSel>
             <HLTCommonParameters>
               <HLTCommonParameters>
-                <factoryName></factoryName>
-                <dllName></dllName>
                 <messageSvcType>TrigMessageSvc</messageSvcType>
                 <jobOptionsSvcType>JobOptionsSvc</jobOptionsSvcType>
               </HLTCommonParameters>
@@ -123,8 +118,8 @@
             <Name>dummy</Name>
             <Server>TRIGGERDB</Server>
             <Alias>TRIGGERDB</Alias>
-            <User></User>
-            <Password></Password>
+            <User />
+            <Password />
             <Type>Coral</Type>
             <SuperMasterKey>0</SuperMasterKey>
           </TriggerDBConnection>
@@ -132,7 +127,7 @@
       </TriggerConfiguration>
     </TriggerConfiguration>
   </Partition>
-  <ROS2ROBS/>
+  <ROS2ROBS />
 </Configuration>
 <RunParams>
   <totalTime>0</totalTime>
@@ -140,12 +135,12 @@
   <timeEOR>1/1/70 01:00:00</timeEOR>
   <det_mask>00000000000000000001fffffffffff7</det_mask>
   <beam_type>0</beam_type>
-  <filename_tag></filename_tag>
+  <filename_tag />
   <max_events>0</max_events>
   <run_number>327265</run_number>
   <timeSOR>22/11/18 11:02:32.703856</timeSOR>
   <trigger_type>0</trigger_type>
-  <T0_project_tag></T0_project_tag>
+  <T0_project_tag />
   <beam_energy>0</beam_energy>
   <recording_enabled>0</recording_enabled>
 </RunParams>
