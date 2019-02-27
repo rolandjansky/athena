@@ -223,18 +223,22 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
     // basic info - DK calibration
     if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
+      ATH_MSG_WARNING( "skip muon or Had Topo granular or EM Topo correction for all quantities" );
       setMET(met, metHelper, i);
     }
 
     if(save9comp && i == 24) { // Save summed HAD MET
+      ATH_MSG_WARNING( "Save summed HAD MET" );
       setMET(met, metHelper, i);
     }
 
     if( (save2comp || save6comp) && i == 34) { // Save JET MET
+      ATH_MSG_WARNING( "Save JET MET" );
       setMET(met, metHelper, i);
     }
 
     if(save3comp && i == 39) { // Save PUC MET
+      ATH_MSG_WARNING( "Save PUC MET" );
       setMET(met, metHelper, i);
     }
 
@@ -242,69 +246,90 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
     // auxiliary info - uncorrected
     if (comp == unsigned(elem-17) && i < 24) { // finest granularity
+      ATH_MSG_WARNING( "finest granularity");
       setMETComp(met, metHelper, i);
     } else if(comp == unsigned(elem-17) && i == 41) { // save muons
+      ATH_MSG_WARNING( "save muons");
       setMETComp(met, metHelper, i-17);
     } else if (save6comp) {
       if (i>=34 && i < 39) { // Central and Forward Jets
+        ATH_MSG_WARNING( "Central and Forward Jets");
         setMETComp(met, metHelper, i-34);
       }
       if (i==41) { // Muons
+        ATH_MSG_WARNING( "Muons");
         setMETComp(met, metHelper, 5);
       }
 
     } else if (save9comp) {
       if (i > 24 && i < 29 ) { // HAD scale quantities
-      setMETComp(met, metHelper, i-25);
+        ATH_MSG_WARNING( "HAD scale quantities" );
+        setMETComp(met, metHelper, i-25);
       } else if( i > 29 && i < 34) {     // EM scale quantities
-      setMETComp(met, metHelper, i-25-1);
+        ATH_MSG_WARNING( "EM scale quantities" );
+        setMETComp(met, metHelper, i-25-1);
       } else if( i == 41) {    // Muon
-      setMETComp(met, metHelper, i-25-8);
+        ATH_MSG_WARNING( "Muon" );
+        setMETComp(met, metHelper, i-25-8);
       }
     } else if (save5comp) {
       switch (i) {
         case 0: case 1: case 2: case 3: // LAr, barrel
+          ATH_MSG_WARNING("LAr, barrel");
           setMETComp(met, metHelper, 0, 1);
           break;
         case 4: case 5: case 6: case 7: // LAr, end-cap
+          ATH_MSG_WARNING("LAr, end-cap");
         case 21:                        // + FCalEM
+          ATH_MSG_WARNING("+ FCalEM");
           setMETComp(met, metHelper, 1, 2);
           break;
         case 12: case 13: case 14: // Tile, barrel +
+          ATH_MSG_WARNING("Tile, barrel +");
         case 18: case 19: case 20: // Tile, extended barrel
+          ATH_MSG_WARNING("Tile, extended barrel");
           setMETComp(met, metHelper, 2, 3);
           break;
         case 24: case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32: case 33:
         case 34: case 35: case 36: case 37: case 38:
         case 39: case 40 :             // Topo. cluster elements or jets - do nothing.
+          ATH_MSG_WARNING("Topo. cluster elements or jets - do nothing.");
           break;
         case 41: // muons
+          ATH_MSG_WARNING("muons");
           setMETComp(met, metHelper, 4);
           break;
         default: // Hadr. end-cap + Tile gap + FCalHad
+          ATH_MSG_WARNING("Hadr. end-cap + Tile gap + FCalHad");
           setMETComp(met, metHelper, 3, 4);
       }
     } else if (save3comp) {
       switch (i) {
         case 39: // Corrected MET
+          ATH_MSG_WARNING( "Corrected MET" );
           setMETComp(met, metHelper, 0);
           break;
         case 40: // Original MET
+          ATH_MSG_WARNING( "Original MET" );
           setMETComp(met, metHelper, 1);
           break;
         case 41: // Muons
+          ATH_MSG_WARNING( "Muons" );
           setMETComp(met, metHelper, 2);
       }
     } else if (save2comp) { // Jets + muons only
       if (i==34) { // Jets
+        ATH_MSG_WARNING( "Jets+Mu only: Jets");
         setMETComp(met, metHelper, 0);
       }
       if (i==41) { // Muons
+        ATH_MSG_WARNING( "Jets+Mu only: Muons");
         setMETComp(met, metHelper, 1);
       }
     } else if (save1comp) { // muons only
       if (i==41) { // REPLACE WITH A TEST OVER COMP. NAME
+        ATH_MSG_WARNING("Muons only");
         setMETComp(met, metHelper, 0);
       }
     }
@@ -344,35 +369,35 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   unsigned int Nc = met->getNumberOfComponents();
 
-  if (Nc > 0) {
-    if(msgLvl(MSG::DEBUG)){
+  // if (Nc > 0) {
+  //   if(msgLvl(MSG::DEBUG)){
         s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
 			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        ATH_MSG_DEBUG( s );
-     }
-   }
+        ATH_MSG_WARNING( s );
+   //   }
+   // }
 
    for(uint j = 0; j < Nc; j++) {
 
-	const char* name =               met->nameOfComponent(j).c_str();
-	const short status =             met->statusComponent(j);
-	const unsigned short usedChan =  met->usedChannelsComponent(j);
-	const short sumOfSigns =         met->sumOfSignsComponent(j);
-	const float calib0 =             met->calib0Component(j);
-	const float calib1 =             met->calib1Component(j);
-	const float ex =                 met->exComponent(j);
-	const float ey =                 met->eyComponent(j);
-	const float ez =                 met->ezComponent(j);
-	const float sumE =               met->sumEComponent(j);
-	const float sumEt =              met->sumEtComponent(j);
+  	const char* name =               met->nameOfComponent(j).c_str();
+  	const short status =             met->statusComponent(j);
+  	const unsigned short usedChan =  met->usedChannelsComponent(j);
+  	const short sumOfSigns =         met->sumOfSignsComponent(j);
+  	const float calib0 =             met->calib0Component(j);
+  	const float calib1 =             met->calib1Component(j);
+  	const float ex =                 met->exComponent(j);
+  	const float ey =                 met->eyComponent(j);
+  	const float ez =                 met->ezComponent(j);
+  	const float sumE =               met->sumEComponent(j);
+  	const float sumEt =              met->sumEtComponent(j);
 
-     if(msgLvl(MSG::DEBUG)){
-        message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
-        ATH_MSG_DEBUG( message );
-      }
+    // if(msgLvl(MSG::DEBUG)){
+      message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+       name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
+      ATH_MSG_WARNING( message );
+    // }
 
-    }
+  }
 
 
 
