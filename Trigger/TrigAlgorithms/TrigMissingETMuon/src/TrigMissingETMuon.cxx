@@ -130,6 +130,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   switch (tes_in_size) {
 
   case 1: // unseeded mode with TrigMissingET.
+      msg() << MSG::WARNING << "Running in unseeded mode" << endmsg;
 
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Running in unseeded mode" << endmsg;
@@ -167,6 +168,8 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
       return status;
     }
   case 2:			// Seeded mode
+      msg() << MSG::WARNING << "Running seeded mode" << endmsg;
+
     muonIndex=1;
 
     tes_in0_size=tes_in[0].size();
@@ -228,6 +231,14 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   // Check if EDM is there
   if(vectorOfMET.size() == 0) 
     return HLT::NAV_ERROR;
+
+  msg() << MSG::WARNING << "vectorOfMET.size()=" << vectorOfMET.size() << endmsg;
+  msg() << MSG::WARNING << "i\t vectorOfMET[i][component] \t vectorOfMET[i][component][componentName] " << endmsg;
+  for(uint i=0; i<vectorOfMET.size(); i++){
+    msg() << MSG::WARNING << i << endmsg;
+    for(uint comp=0; comp<vectorOfMET[i]->getNumberOfComponents(); comp++)
+      msg() << MSG::WARNING << '\t' << comp << '\t' << vectorOfMET[i]->nameOfComponent(comp) << endmsg;
+  }
 
   // ++++++++++++++++++++++++++++++++++++++++++
   const xAOD::TrigMissingET *met_temp=vectorOfMET[0];

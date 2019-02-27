@@ -162,7 +162,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
                                         const xAOD::VertexContainer * /*vertexContainer*/,
                                         const xAOD::MuonContainer * /*muonContainer*/ )
 {
-  ATH_MSG_DEBUG( "EFMissingETFromHelper::execute() called" );
+  ATH_MSG_WARNING( "EFMissingETFromHelper::execute() called" );
 
   if (met==0 || metHelper==0) {
     ATH_MSG_ERROR( "ERROR: null pointers as input!" );
@@ -180,7 +180,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
   if (elem!=42) {
     ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
-  }
+  } else ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class" );
 
   bool skipAuxInfo=false;
   bool save9comp=false;
@@ -214,6 +214,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
       skipAuxInfo=true;
   }
+      ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET." );
 
   // Initialize EDM by setting all components to zero
   met->setEx(0.); met->setEy(0.); met->setEz(0.);
