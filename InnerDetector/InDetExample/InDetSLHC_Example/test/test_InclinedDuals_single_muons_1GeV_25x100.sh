@@ -25,8 +25,8 @@ dcube_digi_strip_muons_1GeV_lastref="dcube_digi_strip_muons_1GeV_last"
 dcube_rec_muons_1GeV_fixref="dcube_muons_1GeV"
 dcube_rec_muons_1GeV_lastref="dcube_muons_1GeV_last"
 
-artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
-#artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
+#artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
+artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="InclinedDuals"
 script="`basename \"$0\"`"
@@ -41,8 +41,10 @@ else
 fi
 if [ $dorec -ne 0 ]; then
   esd_muons_1GeV=physval_muons_1GeV.ESD.root
+  daod_muons_1GeV=physval_muons_1GeV.DAOD_IDTRKVALID.root
 else
-  esd_muons_1GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_1GeV.root
+  esd_muons_1GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV_25x100_2020.ESD.root
+  daod_muons_1GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV_25x100_2020.DAOD_IDTRKVALID.root
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_muons_1GeV_sim=SiHitValid_muons_1GeV.root
@@ -137,13 +139,14 @@ if [ $dorec -ne 0 ]; then
     --inputHITSFile    "$hits_muons_1GeV" \
     --outputRDOFile    physval_muons_1GeV.RDO.root \
     --outputESDFile    "$esd_muons_1GeV" \
-    --outputAODFile    physval_muons_1GeV.AOD.root \
-    --outputDAOD_IDTRKVALIDFile physval_muons_1GeV.DAOD_IDTRKVALID.root \
+    --outputAODFile    physval_muons_10GeV.AOD.root \
+    --outputDAOD_IDTRKVALIDFile "$daod_muons_1GeV" \
     --maxEvents        -1 \
     --digiSteeringConf StandardInTimeOnlyTruth \
     --geometryVersion  ATLAS-P2-ITK-20-00-00 \
     --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
     --DataRunNumber    242000 \
+    --steering doRAWtoALL \
     --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4_25x100.py' \
                   HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
                   RAWtoALL:'InDetSLHC_Example/postInclude.DigitalClustering.py' \
@@ -194,7 +197,7 @@ if [ $dophy -ne 0 ]; then
   # Run InDetPhysValMonitoring on ESD.
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
-    inputESDFile="$esd_muons_1GeV" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
+    inputDAOD_IDTRKVALIDFile="$daod_muons_1GeV" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
   )
   echo "art-result: $? physval"
   
