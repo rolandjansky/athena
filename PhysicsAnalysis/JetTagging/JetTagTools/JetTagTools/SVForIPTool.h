@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JetTagTools_SVForIPTool_H
@@ -17,22 +17,12 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "xAODJet/Jet.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODBTagging/BTagging.h"
-//#include "TrkTrack/Track.h"
 
 #include <vector>
 #include <string>
-
-// namespace Trk
-// {
-//   class RecVertex;
-// }
-
-//class Jet;
-
 
 namespace Analysis {
 
@@ -55,7 +45,6 @@ namespace Analysis {
       /**Method to get the B flight direction from the secondary vertex info */
     void getDirectionFromSecondaryVertexInfo(Amg::Vector3D & SvxDirection,
                                              bool & canUseSvxDirection,
-                                             const xAOD::Jet & jetToTag,
                                              xAOD::BTagging * BTag,
                                              const std::string & secVxFinderName,
                                              const xAOD::Vertex & priVtx);
@@ -64,7 +53,6 @@ namespace Analysis {
 
     /**Method to get the tracks from V0 from the secondary vertex info */
     void getTrkFromV0FromSecondaryVertexInfo(std::vector<const xAOD::TrackParticle*> & TrkFromV0,
-                                             const xAOD::Jet & jetToTag,
                                              xAOD::BTagging * BTag,
                                              const std::string & secVxFinderName);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_SOFTMUONTAG_H
@@ -31,7 +31,6 @@
 namespace Trk  { class VxCandidate; }
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
-//class Jet;
 namespace Analysis { class MuonContainer; }
 class AnalysisTools;
 
@@ -60,7 +59,7 @@ namespace Analysis
 	ElementLink and persistency has to be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
       
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);  
+    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);  
       
     void finalizeHistos();
       

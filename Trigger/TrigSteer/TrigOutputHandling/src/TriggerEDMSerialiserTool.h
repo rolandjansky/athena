@@ -1,9 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
-#define TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
-
+#ifndef TRIGOUTPUTHANDLING_TRIGGEREDMSERIALISERTOOL_H
+#define TRIGOUTPUTHANDLING_TRIGGEREDMSERIALISERTOOL_H
 
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -21,7 +20,7 @@
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
  **/
 
-class DataObject;
+class DataObject; //!< Forward declaration
 
 class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 {
@@ -46,8 +45,10 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     "the main result, other IDs are used for data scouting."
   };
   
+  /// @class Address
+  /// Internal structure to keep configuration organised conveniently
+  ///
 
-  // internal structure to keep configuration organised conveniently
   struct Address {
     enum Catrgory { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
     Address( const std::string& transType_,
@@ -70,17 +71,22 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     CLID clid;
     std::string key;
     std::vector<uint16_t> moduleIdVec;
+
     Catrgory category;
-    xAOD::AuxSelection sel = {}; // xAOD dynamic varaibles selection, relevant only for xAODAux category
+    xAOD::AuxSelection sel = {}; //!< xAOD dynamic varaibles selection, relevant only for xAODAux category
 
   };
 
   std::vector< Address > m_toSerialise; // postprocessed configuration info
 
-  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate class name to CLID" };
-  ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", "Service that translates transient to persistent respresenation" };
+  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", 
+      "Service to translate class name to CLID" };
+  ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", 
+      "Service that translates transient to persistent respresenation" };
 
-  ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", "Tool to do Transient/Persistent conversion (Old EDM)"};
+  ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", 
+      "Tool to do Transient/Persistent conversion (Old EDM)"};
+
 
 
   /**
@@ -94,6 +100,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * and we will need also readPayload function
    */
   StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const;
+
 
   /**
    * Place inside the buffer the serialised container (can be either TP, xAOD)
@@ -117,8 +124,8 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   /**
    * Adds dynamic variables to the payload
    */
-  StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer ) const;
+  StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const;
 };
 
 
-#endif //> !TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
+#endif //> !TRIGOUTPUTHANDLING_TRIGGEREDMSERIALISERTOOL_H

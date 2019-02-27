@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsSummaryToolSetup:
   "Class to simplify setup of PixelConditionsSummaryTool and required conditions algorithms"
@@ -57,11 +57,15 @@ class PixelConditionsSummaryToolSetup:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if not hasattr(ToolSvc, "PixelDCSConditionsTool"):
-      from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-      pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-      pixelDCSConditionsToolSetup.setUseConditions(self.useConditions)
-      pixelDCSConditionsToolSetup.setup()
+    if (self.useDCSState):
+      if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+      if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+
+      if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
 
     if (self.useTDAQ):
       PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
@@ -93,7 +97,6 @@ class PixelConditionsSummaryToolSetup:
     if not hasattr(ToolSvc, self.toolName):
       from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
       ToolSvc += PixelConditionsSummaryTool(name=self.toolName, 
-                                            PixelDCSConditionsTool=ToolSvc.PixelDCSConditionsTool, 
                                             UseDCSState=self.useDCSState, 
                                             UseByteStream=self.useByteStream, 
                                             UseTDAQ=self.useTDAQ, 

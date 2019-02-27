@@ -364,6 +364,7 @@ def getKernel_G4FastCalo(name="ISF_Kernel_G4FastCalo", **kwargs):
     simFlags.SimulationFlavour = "G4FastCalo"
     return getKernel_GenericSimulator(name, **kwargs)
 
+
 ############## Simulator: G4FastCaloDNN ###############
 # like G4FastCalo, replacing FastCaloSimV2 by DNNCaloSim
 def getKernel_G4FastCaloDNN(name="ISF_Kernel_G4FastCaloDNN", **kwargs):
@@ -379,6 +380,16 @@ def getKernel_G4FastCaloDNN(name="ISF_Kernel_G4FastCaloDNN", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "G4FastCalo"
     return getKernel_GenericSimulator(name, **kwargs)
+############## Simulator: G4FastCaloMT ###############
+def getKernel_G4FastCaloMT(name="ISF_Kernel_G4FastCaloMT", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
+                                          "ISF_LegacyAFIIFastCaloTool",
+                                          "ISF_AFIIGeant4Tool"])
+
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo"
+    return getKernel_GenericSimulatorMT(name, **kwargs)
+
 
 ############## Simulator: ATLFASTII ###############
 def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
@@ -398,7 +409,7 @@ def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
 
 ############## Simulator: ATLFASTIIMT ###############
 def getKernel_ATLFASTIIMT(name="ISF_Kernel_ATLFASTIIMT", **kwargs):
-    kwargs.setdefault("SimulationTools", ["ISF_FastParticleKillerTool",
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
                                           "ISF_LegacyAFIIFastCaloTool",
                                           "ISF_AFIIGeant4Tool"])
     # set the simFlags accordingly (TODO: is this even needed?)
@@ -422,7 +433,7 @@ def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
 
 ############## Simulator: ATLFASTIIFMT ###############
 def getKernel_ATLFASTIIFMT(name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
-    kwargs.setdefault("SimulationTools", ["ISF_FastParticleKillerTool",
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
                                           "ISF_FastCaloTool",
                                           "ISF_FatrasTool"])
     # set the simFlags accordingly (TODO: is this even needed?)

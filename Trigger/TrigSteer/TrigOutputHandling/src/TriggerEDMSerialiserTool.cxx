@@ -47,7 +47,6 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
       ATH_MSG_ERROR( "The type " << persistentType <<  " is not known to ROOT serialiser" );
       return StatusCode::FAILURE;
     }
-
     if (moduleIdVec.empty()) {
       ATH_MSG_ERROR( "No HLT result module IDs given for " << typeKeyAux );
       return StatusCode::FAILURE;
@@ -62,48 +61,24 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
       if ( typeKeyAux.find('.') != std::string::npos ) { // Aux, possibly with selection of varaibles
     	ATH_MSG_DEBUG( "with aux content: "  );
     	std::string allVars = typeKeyAux.substr( typeKeyAux.find('.')+1 );
-    	std::set<std::string> variableNames;
-    	boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
-    	for ( auto el: variableNames ) 
-    	  ATH_MSG_DEBUG( " " << el  );
-    	sel.selectAux( variableNames );
-    	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
+	if (allVars != "") {
+	  std::set<std::string> variableNames;
+	  boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
+	  for ( auto el: variableNames ) {
+	    ATH_MSG_DEBUG( " \"" << el << "\""  );		    
+	  }
+	  sel.selectAux( variableNames );
+	}
+	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
       } else {
     	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );      
       }
     } else { // an old T/P type
       m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::OldTP, xAOD::AuxSelection() );      
-    }
-
-
-
-    // xAOD::AuxSelection sel;
-    // if ( typeKeyAux.find('.') != std::string::npos ) {
-    //   ATH_MSG_DEBUG( "with aux content: "  );
-    //   std::string allVars = typeKeyAux.substr( typeKeyAux.find('.')+1 );
-    //   std::set<std::string> variableNames;
-    //   boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
-    //   for ( auto el: variableNames ) 
-    //     ATH_MSG_DEBUG( " " << el  );
-    //   sel.selectAux( variableNames );
-    // }
-
-    // const bool isAux = key.find("Aux") != std::string::npos;
-
-    // if (msgLevel(MSG::DEBUG)) {
-    //   std::ostringstream ss;
-    //   std::copy(moduleIdVec.begin(), moduleIdVec.end()-1, std::ostream_iterator<uint16_t>(ss, ", "));
-    //   ss << moduleIdVec.back();
-    //   ATH_MSG_DEBUG( typeKeyAux << " will be written to " << moduleIdVec.size() << " result ROBFragments with IDs: ["
-    //                  << ss.str() << "]" );
-    // }
-    
-      //    m_toSerialise.push_back( Address{ transientType, persistentType, clid, key, moduleIdVec, isAux, sel } );
-    
+    }    
   }
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
   buffer.push_back(0); // fragment size placeholder
@@ -135,7 +110,8 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, s
 }
 
 
-StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Address& address, std::vector<uint32_t>& buffer ) const {
+
+StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const {
   ATH_MSG_DEBUG( "" );
   ATH_MSG_DEBUG( "About to start streaming aux data of " << address.key );
   DataBucketBase* dObjAux = dynamic_cast<DataBucketBase*>(dObj);
@@ -161,11 +137,11 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     const std::string decorationName = SG::AuxTypeRegistry::instance().getName(auxVarID);
     const std::type_info* tinfo = auxStoreIO->getIOType (auxVarID);
 
+
     ATH_CHECK( tinfo != nullptr );
     TClass* cls = TClass::GetClass (*tinfo);
     ATH_CHECK( cls != nullptr );
     ATH_MSG_DEBUG( "" );
-
     ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
 
     CLID clid;
@@ -200,45 +176,16 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
     if ( mem ) delete [] static_cast<const char*>( mem );
     
-    ATH_MSG_DEBUG("Fragment size " << fragment.size() );
-    
-    buffer.insert( buffer.end(), fragment.begin(), fragment.end() );            
+    ATH_MSG_DEBUG("Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes" );    
+    buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
+    ++nDynWritten;
+
   }
   return StatusCode::SUCCESS;
 }
 
 
-
 StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const {
-// =======
-// StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
-  
-//   // Leave this check until there is a justified case for appending data to an existing result
-//   if (not resultToFill.getSerialisedData().empty()) {
-//     ATH_MSG_ERROR("Trying to fill a result which is not empty! Likely misconfiguration, returning a FAILURE");
-//     return StatusCode::FAILURE;
-//   }
-
-//   // Loop over collections to serialise
-//   for ( const Address& address: m_toSerialize ) {
-//     ATH_MSG_DEBUG( "Streaming " << address.typeKey  );
-//     // obtain object
-//     DataObject* dObj = evtStore()->accessData( address.clid, address.key );
-//     if ( dObj == nullptr ) {
-//       ATH_MSG_DEBUG("Data Object with the CLID " << address.clid <<" and the key " << address.key << " is missing");
-//       continue;
-//     }
-
-
-//     const void* rawptr = SG::fromStorable( dObj, address.clid, nullptr, msgLvl(MSG::DEBUG) );
-//     if ( rawptr == nullptr ) {
-//       ATH_MSG_DEBUG( "Data Object with key " << address.key <<
-// 		     " can not be converted to void* for streaming" );
-//       continue;      
-//     }
-//     ATH_MSG_DEBUG("Obtained raw pointer " << rawptr );
-
-// >>>>>>> upstream/master
 
     RootType classDesc = RootType::ByName( address.persType );    
     size_t sz=0;    
@@ -255,14 +202,10 @@ StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Addre
     std::vector<uint32_t> fragment;
     ATH_CHECK( makeHeader( address, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
-// <<<<<<< HEAD
-    
-// =======
-
-// >>>>>>> upstream/master
     if ( mem ) delete [] static_cast<const char*>( mem );
     
-    ATH_MSG_DEBUG("Fragment size " << fragment.size() );
+
+    ATH_MSG_DEBUG("Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes");
     fragment[0] = fragment.size();    
     buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
     
@@ -271,10 +214,16 @@ StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Addre
 
 StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const { 
   ATH_MSG_DEBUG("xAOD Aux Contianer");
-  ATH_CHECK( serialiseContainer( data, address, buffer ) );
+  ATH_CHECK( serialiseContainer( data, address, buffer ) );    
+  size_t baseSize = buffer.size();
   DataObject* dObj = evtStore()->accessData( address.clid, address.key );
   ATH_CHECK( dObj != nullptr );
-  ATH_CHECK( serialiseDynAux( dObj, address, buffer ) );
+  size_t nDynWritten = 0;
+  ATH_CHECK( serialiseDynAux( dObj, address, buffer, nDynWritten ) );
+  if ( nDynWritten > 0 ) {
+    ATH_MSG_DEBUG( "   Fragment size including " <<  (buffer.size() - baseSize)*sizeof(uint32_t)  << " bytes from "
+		   << nDynWritten << "x DynAux : " << buffer.size()*sizeof(uint32_t) );
+  }
   return StatusCode::SUCCESS;    
 }
 

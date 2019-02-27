@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCBYTESTREAMCNV_H
@@ -42,8 +42,6 @@ class ZdcByteStreamReadV1V2Tool;
 // Abstract factory to create the converter
 template <typename > class CnvFactory;
 
-extern long ByteStream_StorageType;
-
 /**
  * The converter class has the methods to create the collection objects from a file
  * (RDO to ByteStream) and ByteStream from RDO.
@@ -55,19 +53,14 @@ public:
 
 	virtual ~ZdcByteStreamCnv();
 
-	virtual StatusCode initialize();
-	virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
-	//virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+	virtual StatusCode initialize() override;
+	virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
+	//virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
 	/// Storage type and class ID
-	virtual long repSvcType() const
-	{
-		return ByteStream_StorageType;
-	}
-	static long storageType()
-	{
-		return ByteStream_StorageType;
-	}
+    virtual long repSvcType() const override { return i_repSvcType(); }
+
+    static long storageType();
 	static const CLID& classID();
 
 private:

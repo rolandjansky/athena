@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_TGCRDOCONTRAWEVENTCNV_H
@@ -23,9 +23,6 @@ namespace Muon {
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
 
-// Externals
-extern long ByteStream_StorageType;
-
 /*
   ByteStream Converter between TGC bareRDO and BS
 
@@ -38,17 +35,17 @@ class TgcRdoContByteStreamCnv: public Converter
 public:
   TgcRdoContByteStreamCnv(ISvcLocator* svcloc);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode createObj(IOpaqueAddress* /**pAddr*/, DataObject*& /**pObj*/){
+  virtual StatusCode createObj(IOpaqueAddress* /**pAddr*/, DataObject*& /**pObj*/) override {
     return StatusCode::FAILURE;
   }
 
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
   /// Storage type and class ID
-  virtual long repSvcType() const { return ByteStream_StorageType;}
-  static long storageType() {return ByteStream_StorageType;}
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static long storageType();
   static const CLID& classID();
 
 private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_RNNIPTAG_H
@@ -68,12 +68,7 @@ namespace Analysis {
   be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
 
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);
-
-    /** calculate individual track contribution to the three likelihoods: */
-    // void trackWeight(std::string jetAuthor, TrackGrade grade,
-    //                  double sa0, double sz0, double & twb, double &
-    //                  twu, double & twc);
+    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);
 
     void finalizeHistos() {};
 

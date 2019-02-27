@@ -60,6 +60,22 @@ class ConfiguredInDetPreProcessingTRT:
          if usePhase and jobproperties.Beam.beamType()=='cosmics' and globalflags.DataSource == "geant4":
             InDetTRT_DriftFunctionTool.AllowDigiVersionOverride = True
             InDetTRT_DriftFunctionTool.ForcedDigiVersion        = 9
+            
+         # --- set HT corrections
+         InDetTRT_DriftFunctionTool.HTCorrectionBarrelXe = 1.5205
+         InDetTRT_DriftFunctionTool.HTCorrectionEndcapXe = 1.2712
+         InDetTRT_DriftFunctionTool.HTCorrectionBarrelAr = 1.5205
+         InDetTRT_DriftFunctionTool.HTCorrectionEndcapAr = 1.2712
+         
+         # --- set ToT corrections
+         InDetTRT_DriftFunctionTool.ToTCorrectionsBarrelXe = [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
+                                                              -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958]
+         InDetTRT_DriftFunctionTool.ToTCorrectionsEndcapXe = [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+                                                              -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805]
+         InDetTRT_DriftFunctionTool.ToTCorrectionsBarrelAr = [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
+                                                              -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958]
+         InDetTRT_DriftFunctionTool.ToTCorrectionsEndcapAr = [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+                                                              -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805]
 
          ToolSvc += InDetTRT_DriftFunctionTool
          if (InDetFlags.doPrintConfigurables()):

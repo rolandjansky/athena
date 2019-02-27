@@ -60,10 +60,6 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Pixel
 #
 # Load DCS service
-from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-pixelDCSConditionsToolSetup.setup()
-pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
 from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
 pixelSiPropertiesToolSetup.setup()

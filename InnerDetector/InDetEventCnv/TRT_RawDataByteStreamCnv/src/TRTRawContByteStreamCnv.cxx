@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTRawContByteStreamCnv.h"
 
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
-#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/MsgStream.h"
@@ -14,7 +13,7 @@
 // constructor
 
 TRTRawContByteStreamCnv::TRTRawContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc),
+    Converter(storageType(), classID(),svcloc),
     m_tool                 ("TRTRawContByteStreamTool"),                  // init tool handles
     m_byteStreamEventAccess("ByteStreamCnvSvc","TRTRawContByteStreamCnv") // init service handle
 {}
