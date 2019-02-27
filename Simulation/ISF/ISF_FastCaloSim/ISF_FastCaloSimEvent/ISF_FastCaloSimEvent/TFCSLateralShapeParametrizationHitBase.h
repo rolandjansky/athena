@@ -44,6 +44,10 @@ public:
       m_z=0.;
       m_E=0.;
       m_useXYZ=false;
+      m_center_r=0;
+      m_center_z=0;
+      m_center_eta=0;
+      m_center_phi=0;
     }
 
     inline float& eta() {return m_eta_x;};
