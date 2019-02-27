@@ -26,14 +26,11 @@
 #include "MdtCalibData/CalibFunc.h"
 
 MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string &n,ISvcLocator *sl)
-  : AthService(n,sl), m_rtData(0), m_tubeData(0), m_corData(0), 
+  : AthService(n,sl),
     m_regionSvc("MdtCalibrationRegionSvc", name()),
     m_mdtIdHelper(0),
     m_dbTool("MuonCalib::MdtCalibDbAsciiTool"),
     m_detStore("StoreGateSvc/DetectorStore", name()),
-    m_tubeDataLocation("TubeKey"),
-    m_rtDataLocation("RtKey"),
-    m_corDataLocation("CorKey"),
     m_readKeyRt("MdtRtRelationCollection"),
     m_readKeyTube("MdtTubeCalibContainerCollection"),
     m_readKeyCor("MdtCorFuncSetCollection")
@@ -90,25 +87,6 @@ StatusCode MdtCalibrationDbSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // register call backs requiring to be called after the Tool 
-  // will work for Ascii Tool only
-  // for real DB access the callback is registered with 2 functions 
-  // within the Tool
-  if(m_dbTool.type()=="MuonCalib::MdtCalibDbAsciiTool"){
-    const DataHandle<MdtTubeCalibContainerCollection> tubeData;
-    if(m_detStore->regFcn(&MdtCalibrationDbSvc::LoadCalibration,dynamic_cast<MdtCalibrationDbSvc*>(this),tubeData,m_tubeDataLocation).isFailure()){
-      ATH_MSG_ERROR("Failed to register call-back on tube data");
-      return StatusCode::FAILURE;
-    }
-    const DataHandle<MdtRtRelationCollection> rtData;
-    if(m_detStore->regFcn(&MdtCalibrationDbSvc::LoadCalibration,
-			  dynamic_cast<MdtCalibrationDbSvc*>(this),
-			  rtData,m_rtDataLocation).isFailure() ){
-      ATH_MSG_ERROR("Failed to register call-back on rt data");
-      return StatusCode::FAILURE;
-    }
-  }
-
   ATH_CHECK(m_readKeyRt.initialize());
   ATH_CHECK(m_readKeyTube.initialize());
   ATH_CHECK(m_readKeyCor.initialize());
@@ -116,63 +94,7 @@ StatusCode MdtCalibrationDbSvc::initialize() {
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbSvc::initialize
 
-StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
-  std::list<std::string>::const_iterator itr;
-  if( msgLvl(MSG::DEBUG) ) {
-    ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );
-    for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-      msg(MSG::DEBUG) << *itr << " I="<<I<<" ";
-    }
-    msg(MSG::DEBUG) << endmsg;
-  }
-  for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    msg(MSG::INFO) << *itr << " I="<<I<<" ";
-  }
-  msg(MSG::INFO) << endmsg;
-
-  for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    if(*itr==m_tubeDataLocation) {
-      if(loadTube(I,keys).isFailure()) return StatusCode::FAILURE;
-    }
-    if(*itr==m_rtDataLocation) {
-      if(loadRt(I,keys).isFailure()) return StatusCode::FAILURE;
-    }
-  }
-  return StatusCode::SUCCESS;
-}  //end MdtCalibrationDbSvc::LoadCalibration
-
-StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) { 
-  ATH_MSG_DEBUG( "In loadTube " );  
-  return m_detStore->retrieve(m_tubeData, m_tubeDataLocation);
-}
-
-StatusCode MdtCalibrationDbSvc::loadRt(IOVSVC_CALLBACK_ARGS) {
-  ATH_MSG_DEBUG( "In loadRt " );  
-
-  // Retrieve RT functions from StoreGate
-  if( m_detStore->retrieve(m_rtData, m_rtDataLocation).isFailure() ) return StatusCode::FAILURE;
-
-  // Check if doing corrections; return if not  
-  if( !m_createSlewingFunction && !m_createWireSagFunction && !m_create_b_field_function ) return StatusCode::SUCCESS;
-
-  //Delete old correction functions and create new ones
-  //The correction functions are made with the same regions as are used for RTs.
-  if( m_corData ) delete m_corData;
-  m_corData = new MdtCorFuncSetCollection();
-  m_corData->resize(m_rtData->size());
-  ATH_MSG_DEBUG( "Initializing " << m_corData->size() << " b-field functions" );
-  for (unsigned int i=0; i < m_corData->size(); i++) {
-    (*m_corData)[i] = new MuonCalib::MdtCorFuncSet();
-    if(m_create_b_field_function) initialize_B_correction((*m_corData)[i], (*m_rtData)[i]);
-    if(m_createWireSagFunction)   initializeSagCorrection((*m_corData)[i]);
-    if(m_createSlewingFunction)   (*m_corData)[i]->setSlewing(new MuonCalib::MdtSlewCorFuncHardcoded(MuonCalib::CalibFunc::ParVec()));
-  }
-
-  return StatusCode::SUCCESS;
-}  //end MdtCalibrationDbSvc::loadRt
-
 StatusCode MdtCalibrationDbSvc::finalize()  {
-  if( m_corData ) delete m_corData;
   return AthService::finalize();
 }
 

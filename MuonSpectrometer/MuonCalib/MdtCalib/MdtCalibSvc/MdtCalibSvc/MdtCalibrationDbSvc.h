@@ -58,15 +58,7 @@ public:
   virtual StatusCode initialize(void);
   /** finalization */
   virtual StatusCode finalize(void);  
-    
-  /** to be called back to update the Collections : retrieve from database */
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
-  /** to be called back to update the Collections : retrieve RTs from database*/
-  virtual StatusCode loadRt(IOVSVC_CALLBACK_ARGS);
-  /** to be called back to update the Collections : 
-   * retrieve Tube inforsmation  from database */
-  virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
-    
+
   /** Access to calibration constants per calibration region/chamber */
   MuonCalib::MdtFullCalibData getCalibration( const Identifier &id ) const; 
     
@@ -95,15 +87,6 @@ public:
   const MuonCalib::MdtCorFuncSet* getCorFunctions( const IdentifierHash &detElHash ) const;
     
 private:
-  /** Indexed with MdtRegionHash for rt relations*/
-  mutable MdtRtRelationCollection *m_rtData;
-    
-  /** Indexed with MdtChamberHash */
-  mutable MdtTubeCalibContainerCollection *m_tubeData;
-    
-  /** Indexed with MdtRegionHash for correction function regions */
-  mutable MdtCorFuncSetCollection *m_corData;
-
   /** handle to region service */
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
     
@@ -120,9 +103,6 @@ private:
   ServiceHandle<StoreGateSvc> m_detStore;
 
   /** Properties: */
-  std::string m_tubeDataLocation;
-  std::string m_rtDataLocation;
-  std::string m_corDataLocation;
   bool m_create_b_field_function; //<! flag to switch on loading of B field correction
   bool m_createWireSagFunction;   //<! flag to switch on loading of wire sag correction
   bool m_createSlewingFunction;   //<! flag to switch on loading of slewing correction
