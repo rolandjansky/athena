@@ -22,7 +22,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 // #include "CaloUtils/CaloSamplingHelper.h"
 
