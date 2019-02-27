@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: tabstop=2:shiftwidth=2:expandtab
@@ -2387,7 +2387,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
     ATH_MSG_DEBUG("Try to build B+ -> mu mu K+ with track " << *eltrack1 );
     float massKMuMu = KMuMuMass(*elmu1,*elmu2,*eltrack1);
     
-    static std::vector<double> masses = {KPLUSMASS,MUMASS,MUMASS};
+    static const std::vector<double> masses = {KPLUSMASS,MUMASS,MUMASS};
     
     if( !(massKMuMu > m_lowerKMuMuMassCut && massKMuMu < m_upperKMuMuMassCut) ) {
         ATH_MSG_DEBUG(" B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu );
