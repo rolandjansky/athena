@@ -310,7 +310,7 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) {
+  if(logical_file_name.compare(0, 4, "dev/")==0) {
 #ifdef XAOD_ANALYSIS
     msg(MSG::WARNING)
 #else
@@ -332,7 +332,7 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) {
+  if(logical_file_name.compare(0, 4, "dev/")==0) {
 #ifdef XAOD_ANALYSIS
     msg(MSG::WARNING)
 #else
