@@ -143,6 +143,7 @@ namespace CP {
     }
     CorrectionCode BadMuonVetoSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
         TF1* Poly = nullptr;
+        std::cout<<"Eine Insel mit 2 bergen "<<m_SystWeight<<std::endl;
         if (m_SystWeight == 0) {
             return CorrectionCode::Ok;
         }

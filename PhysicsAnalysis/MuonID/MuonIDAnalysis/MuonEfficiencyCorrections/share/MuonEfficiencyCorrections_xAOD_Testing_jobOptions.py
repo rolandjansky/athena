@@ -31,21 +31,21 @@ WPs = [
          # track-to-vertex-association WPs
    #      "TTVA",
          # BadMuon veto SFs
-        # "BadMuonVeto_HighPt",
+        "BadMuonVeto_HighPt",
          # isolation WPs
       #  "FixedCutPflowTightIso",
-        "FixedCutPflowLooseIso",
-        "FixedCutHighPtTrackOnlyIso",
-        "FCTight_FixedRadIso",
-        "FCTightTrackOnly_FixedRadIso",
-        "FCTightTrackOnlyIso",
-        "FCTightIso",
-        "FCLoose_FixedRadIso",
+    #    "FixedCutPflowLooseIso",
+    #    "FixedCutHighPtTrackOnlyIso",
+    #    "FCTight_FixedRadIso",
+    #    "FCTightTrackOnly_FixedRadIso",
+    #    "FCTightTrackOnlyIso",
+    #    "FCTightIso",
+    #    "FCLoose_FixedRadIso",
         ]
 
 for WP in WPs: 
   #  alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190220_Winter_r21")]#, CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
 
 theJob += alg
 
