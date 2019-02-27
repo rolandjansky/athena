@@ -68,12 +68,11 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
 
 
   /**
-   * @brief map to indices inside the data for individual samplings
+   * @brief vector of names of individual samplings
    *
-   * Since not all samplings might have weighting coefficients this map
-   * holds the index (for valid) or -1 (for invalid) for each sampling. */
+   * needed to not call many times CaloSamplingHelper::getSamplingName */
 
-  std::vector<int> m_isampmap;
+  std::vector<std::string> m_sampnames;
 
   /**
    * @brief interpolate correction coefficients */
