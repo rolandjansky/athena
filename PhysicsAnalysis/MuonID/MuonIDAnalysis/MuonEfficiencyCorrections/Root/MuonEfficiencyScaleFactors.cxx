@@ -151,17 +151,6 @@ namespace CP {
         // m_init has to be true for affectingSystematics()
         m_init = true;
         m_affectingSys = affectingSystematics();
-        // Fill the affecting syst configurations
-        for (const SystematicVariation& variation : m_affectingSys){
-            std::vector< std::unique_ptr<EffiCollection>>::const_iterator itr = std::find_if(m_sf_sets.begin(),m_sf_sets.end(), 
-                                                                    [variation] (const std::unique_ptr<EffiCollection> & c){return c->isAffectedBySystematic(variation);});
-            if (itr == m_sf_sets.end()){
-                ATH_MSG_FATAL("Could not find any valid systematic map for variation "<<variation.name()<<" although it should be in place.");
-                return StatusCode::FAILURE;
-            }
-            m_filtered_sys_sets.insert(std::pair<SystematicVariation,EffiCollection*>(variation, itr->get()));
-            ATH_MSG_DEBUG("Inserted new variation "<<variation.name());
-        }
         // set up for default running without systematics
         if (!applySystematicVariation(SystematicSet())) {
             ATH_MSG_ERROR("loading the central value systematic set failed");
@@ -500,31 +489,45 @@ namespace CP {
             ATH_MSG_ERROR("Initialize first the tool!");
             return SystematicCode::Unsupported;
         }
-        /// Nominal has been given. It's the first systematic
-        /// inserted in this vector. 
-        if (systConfig.name().empty()){
-            m_current_sf = m_sf_sets.begin()->get();
-            return SystematicCode::Ok;
+        
+        //check if systematics is cached
+        std::unordered_map<CP::SystematicSet, EffiCollection*>::const_iterator itr  = m_filtered_sys_sets.find (systConfig);
+        
+        SystematicSet mySysConf(systConfig);
+        
+        if (itr == m_filtered_sys_sets.end()) {
+             if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, mySysConf)) {
+                ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
+                return SystematicCode::Unsupported;
+            }
+            itr = m_filtered_sys_sets.find(mySysConf);
         }
-        for (std::set<SystematicVariation>::const_iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
-            std::map<SystematicVariation, EffiCollection*>::const_iterator sf_set = m_filtered_sys_sets.find(*t);
-            if (sf_set != m_filtered_sys_sets.end()){
-                if (m_seperateSystBins && (*t).isToyVariation()) {
+        
+        // No cache is available 
+        if (itr == m_filtered_sys_sets.end()){
+            std::vector<std::unique_ptr<EffiCollection>>::const_iterator coll_itr = std::find_if(m_sf_sets.begin(), m_sf_sets.end(),[&mySysConf](const std::unique_ptr<EffiCollection>& a){return a->isAffectedBySystematic(mySysConf);});
+            if (coll_itr == m_sf_sets.end()){
+                ATH_MSG_WARNING("Invalid systematic given.");
+                return SystematicCode::Unsupported;
+            }
+            m_filtered_sys_sets.insert(std::pair<SystematicSet, EffiCollection*>(systConfig, coll_itr->get()));
+            itr = m_filtered_sys_sets.find(systConfig);
+        }
+        m_current_sf = itr->second;
+        
+        if (m_seperateSystBins && !itr->first.name().empty()){
+            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+                if ((*t).isToyVariation()) {
+                    // First entry corresponds to the bin number and
+                    // the second entry to the position in which the map is ordered
+                    // into the m_sf_sets container
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
-                    unsigned int currentBinNumber = pair.first;
-                    unsigned int pos = pair.second;
-                    if (pos < m_sf_sets.size()) {
-                        m_current_sf = m_sf_sets[pos].get();
-                        if (currentBinNumber != 0 && !m_current_sf->SetSystematicBin(currentBinNumber)){
-                            ATH_MSG_WARNING("Could not apply systematic " << (*t).name() << " for bin " << currentBinNumber);
+                    if (pair.first != 0 && !m_current_sf->SetSystematicBin(pair.first)){
+                        ATH_MSG_WARNING("Could not apply systematic " << (*t).name() << " for bin " << pair.first);
                             return SystematicCode::Unsupported;
-                            }
-                        return SystematicCode::Ok;                            
-                        } 
-                } else {
-                    m_current_sf = sf_set->second;
-                    return SystematicCode::Ok;
-                }   
+                    }
+                    return SystematicCode::Ok; 
+                }
             }
         }
         return SystematicCode::Ok;
