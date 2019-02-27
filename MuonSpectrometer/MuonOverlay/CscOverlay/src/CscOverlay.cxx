@@ -54,26 +54,23 @@ StatusCode CscOverlay::initialize()
 StatusCode CscOverlay::execute() {
   ATH_MSG_DEBUG("CscOverlay::execute() begin");
   //----------------------------------------------------------------
-  SG::ReadHandle<CscRawDataContainer> inputBkgRDO(m_bkgInputKey);
-  if(!inputBkgRDO.isValid()) {
-    ATH_MSG_WARNING("Could not get background CscRawDataContainer  \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey);
+  if(!bkgContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal CSC container " << bkgContainer.name() << " from store " << bkgContainer.store());
+    return StatusCode::FAILURE;
   }
-  ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
-  if ((inputBkgRDO->begin()==inputBkgRDO->end()) || !*(inputBkgRDO->begin())){
-    ATH_MSG_WARNING("Could not get nsamples, inputBkgRDO empty?");
-  }
+  ATH_MSG_DEBUG("Found background CscRawDataContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
 
   ATH_MSG_DEBUG("Retrieving signal input CSC container");
-  SG::ReadHandle<CscRawDataContainer> inputSignalRDO(m_signalInputKey);
-  if(!inputSignalRDO.isValid()) {
-    ATH_MSG_WARNING("Could not get signal CscRawDataContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey);
+  if(!signalContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal CSC container " << signalContainer.name() << " from store " << signalContainer.store());
+    return StatusCode::FAILURE;
   }
-  ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
+  ATH_MSG_DEBUG("Found signal CscRawOverlayContainer called " << signalContainer.name() << " in store " << signalContainer.store());
 
   /* now do the overlay */
-  this->overlayContainer(inputBkgRDO.cptr(), inputSignalRDO.cptr());
+  ATH_CHECK(this->overlayContainer(bkgContainer.cptr(), signalContainer.cptr()));
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("CscOverlay::execute() end");
@@ -81,14 +78,15 @@ StatusCode CscOverlay::execute() {
 }
 
 //================================================================
-void CscOverlay::overlayContainer(const CscRawDataContainer *main,
+StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *main,
                                   const CscRawDataContainer *overlay)
 {
   ATH_MSG_DEBUG("overlayContainer<>() begin");
 
   SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
   if (outputContainer.record(std::make_unique<CscRawDataContainer>()).isFailure()) {
-    ATH_MSG_ERROR("Failed to record " << m_outputKey);
+    ATH_MSG_ERROR("Could not record output CscRawDataContainer called " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
   }
 
   /** Add data from the main container to the output one */
@@ -219,11 +217,13 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
       }
 
       /** The new collection goes to m_storeGateOutput */
-      if(outputContainer->addCollection(out_coll.release(), out_coll->identify()).isFailure()) {
-        ATH_MSG_WARNING("overlayContainer(): Problem in outputContainer->addCollection(Identifier)");
+      if(outputContainer->addCollection(out_coll.get(), out_coll->identify()).isFailure()) {
+        ATH_MSG_ERROR("overlayContainer(): Problem in outputContainer->addCollection(Identifier)");
+        return StatusCode::FAILURE;
       }
       else {
         ATH_MSG_DEBUG("overlayContainer() added new RDO");
+        out_coll.release(); // now owned by outputContainer
       }
     }
 
@@ -231,6 +231,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
   }
 
   ATH_MSG_DEBUG("overlayContainer<>() end");
+  return StatusCode::SUCCESS;
 }
 
 // Copying CscRawDataCollection properties

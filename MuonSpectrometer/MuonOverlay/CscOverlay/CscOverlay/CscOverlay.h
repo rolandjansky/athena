@@ -28,8 +28,6 @@
 
 class CscIdHelper;
 
-namespace std { template<typename _Tp> class auto_ptr; }
-
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -43,19 +41,16 @@ public:
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
 
+private:
+
   /** given 2 container of data - zero bias real data and the simulation,
       do the merging */
-  void overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
-  void overlayContainer(std::auto_ptr<CscRawDataContainer>& data, const CscRawDataContainer* mc) {
-    this->overlayContainer(data.get(), mc);
-  }
+  StatusCode overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
 
   /** if the 2 container do overlay,
       loop over the container and do the overlap collection by collection */
   void mergeCollections(CscRawDataCollection *out_coll, const CscRawDataCollection *orig_coll,
                         const CscRawDataCollection *ovl_coll, CLHEP::HepRandomEngine* rndmEngine);
-
-private:
 
   /** get the data in one SPU of a chamber */
   void spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data);
