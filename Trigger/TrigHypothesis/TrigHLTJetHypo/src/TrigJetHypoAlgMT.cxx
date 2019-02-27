@@ -42,8 +42,11 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
   // The container should have only one such Decision (for L1) as deding
   // on jets is a one step process.
   auto h_prevDecisions = SG::makeHandle(decisionInput(), context );
-  ATH_CHECK(h_prevDecisions.isValid());
-  
+
+  if( not h_prevDecisions.isValid() ) {//implicit
+    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
+    return StatusCode::SUCCESS;      
+  }
 
   if(h_prevDecisions->size() != 1){
     ATH_MSG_ERROR(" Expected one previous decisions (L1 RoIs not used), found "
