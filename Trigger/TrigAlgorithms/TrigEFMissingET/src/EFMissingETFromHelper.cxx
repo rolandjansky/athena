@@ -128,7 +128,8 @@ void EFMissingETFromHelper::setMETComp(xAOD::TrigMissingET *const met, TrigEFMis
     Ntot       += met->usedChannelsComponent(add_i);
   }
 
-  if (!strcmp(comp_name, "") && !addComponent) 
+  if (strcmp(comp_name, "") // If the new component name is not ""
+      && !addComponent)     // and if we are not adding a component
     met->setNameOfComponent(        comp_i, comp_name );
   met->setExComponent(              comp_i, ex );
   met->setEyComponent(              comp_i, ey );

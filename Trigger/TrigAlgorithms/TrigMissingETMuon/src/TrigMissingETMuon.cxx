@@ -355,6 +355,13 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     msg() << MSG::DEBUG << "Muon correction calculated." << endmsg;
   }
 
+  msg() << MSG::WARNING << "Before we go into the inevitable crash, let's take a look at what the MET components are: "  << endmsg;
+  msg() << MSG::WARNING << "m_met i" << '\t' << "m_met->nameOfComponent(i)" << endmsg;
+  for (uint i=0; i < m_met->getNumberOfComponents(); i++)
+  {
+    msg() << MSG::WARNING << i << '\t' << m_met->nameOfComponent(i) << endmsg;
+  }
+
   if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Setting energies and flag" << endmsg;
   unsigned int muonComp = m_met->getNumberOfComponents() - 1;
   // Suggested by Diego: Checking the component name of the input
