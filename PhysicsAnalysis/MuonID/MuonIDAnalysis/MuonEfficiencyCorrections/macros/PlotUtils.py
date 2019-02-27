@@ -3,6 +3,79 @@
 #!/usr/bin/env python
 import ROOT, math
 
+class DiagnosticHisto(object):
+    def __init__(self, name = "",
+                       axis_title = "",
+                       bins = -1,
+                       bmin = 0.,
+                       bmax = -1.e9,
+                       bin_width = -1,
+                       bdir = None):
+        self.__name = name
+        self.__xTitle = axis_title
+        self.__min = bmin
+        self.__width = bin_width
+        self.__entries = 0
+        self.__content = {}
+        self.__error = {}
+        self.__TH1 = None
+        self.__TDir = bdir
+        
+        if bins > 0:
+            self.__width = (bmax-bmin)/ bins 
+            self.__TH1 = ROOT.TH1D(name, "Diagnostic histogram", bins, bmin, bmax)
+            self.__TH1.SetDirectory(bdir) 
+                
+    def name(self): return self.__name
+    def TH1(self): return self.__TH1
+    def fill(self, value, weight=1.):
+        self.__entries +=1
+        if self.__TH1: self.__TH1.Fill(value, weight)  
+        else:
+            rng = self.__getInterval(value)
+            try: self.__content[rng] += weight
+            except: self.__content[rng] = weight            
+            try: self.__error[rng] += weight**2
+            except: self.__error[rng] = weight**2
+    def __getInterval(self,value):
+        i =  math.ceil( (value - self.__min) / self.__width)
+        return (self.__min +self.__width*(i-1), self.__min+ self.__width*i)
+    def write(self):
+        self.fixHisto()
+        if not self.__TH1: return            
+        self.__TH1.GetXaxis().SetTitle(self.__xTitle)
+        ### Pull back the overflow
+        self.TH1().SetBinContent(self.TH1().GetNbinsX(),self.TH1().GetBinContent(self.TH1().GetNbinsX()+1) + self.TH1().GetBinContent(self.TH1().GetNbinsX()))
+        self.TH1().SetBinError(self.TH1().GetNbinsX(), math.sqrt( (self.TH1().GetBinError(self.TH1().GetNbinsX()+1) + self.TH1().GetBinError(self.TH1().GetNbinsX()))**2))
+        ### Pull back the underflow
+        self.TH1().SetBinContent(1,self.TH1().GetBinContent(0) + self.TH1().GetBinContent(1))
+        self.TH1().SetBinError(1, math.sqrt( (self.TH1().GetBinError(0) + self.TH1().GetBinError(1))**2))
+        
+        self.__TH1.SetEntries(self.__entries)
+        if self.__TDir: self.__TDir.WriteObject(self.__TH1, self.__name)
+    def max(self):
+        try: return sorted(self.__content.iterkeys(), key=lambda Rng: Rng[1])[-1][1]
+        except: return float('nan')
+    def min(self):
+        try: return sorted(self.__content.iterkeys(), key=lambda Rng: Rng[0])[0][1]
+        except: return float('nan')
+    def setMinimum(self, minimum): self.__min = minimum
+    def setMaximum(self, maximum): self.__max = maximum
+    def fixHisto(self):
+        if self.__TH1: return
+        bins = min (int((self.__max - self.__min) / self.__width), 10000)
+        print self.name(), bins, self.__max, self.__min
+        self.__TH1 = ROOT.TH1D(self.name(), "Diagnostic histogram", bins, self.__min, self.__max)
+        self.__TH1.SetDirectory(self.__TDir) 
+        
+        for rng in self.__content.iterkeys():
+            bin = self.__TH1.FindBin((rng[1] + rng[0])/2.)
+            self.__TH1.SetBinContent(bin, self.__content[rng])
+            self.__TH1.SetBinError(bin, math.sqrt(self.__error[rng]))
+        
+
+
+
 class Probes:
     ID = "IDProbes"
     Calo = "CaloProbes"

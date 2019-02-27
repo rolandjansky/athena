@@ -20,6 +20,9 @@ alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
 alg.DefaultRelease="cSummer2018"
 alg.ValidationRelease="cMoriond2019"
+## Select 30 GeV muons for the high-pt WP only
+alg.MinPt = 30000
+alg.MaxEta = 2.5
 
 WPs = [
          # reconstruction WPs
@@ -27,7 +30,7 @@ WPs = [
      #   "Loose", 
      #   "Medium", 
      #   "Tight", 
-     #   "HighPt",
+        "HighPt",
          # track-to-vertex-association WPs
    #      "TTVA",
          # BadMuon veto SFs
