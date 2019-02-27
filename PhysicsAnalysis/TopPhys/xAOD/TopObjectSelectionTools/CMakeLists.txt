@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODMuon
                           xAODTau
                           xAODTracking
+			  FourMomUtils
                           ElectronPhotonSelectorTools
                           TopEvent
                           TopSystematicObjectMaker
@@ -54,6 +55,7 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   xAODMuon
                                   xAODTau
                                   xAODTracking
+				  FourMomUtils
                                   ElectronPhotonSelectorToolsLib
                                   TopEvent
                                   TopSystematicObjectMaker
