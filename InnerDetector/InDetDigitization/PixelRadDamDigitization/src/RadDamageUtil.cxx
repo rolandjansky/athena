@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,21 +37,26 @@
 #include "TLorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "EfieldInterpolator.h"
+
 using namespace std;
 
 // Constructor with parameters:
 RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
-  betaElectrons(4.5e-16),
-  betaHoles(6.0e-16),
+  m_betaElectrons(4.5e-16),
+  m_betaHoles(6.0e-16),
   m_defaultRamo( 1 ),
   m_defaultEField( 1 ),
+  m_EfieldInterpolator(nullptr),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0)
+  m_rndmEngine(0),
+  m_saveDebugMaps(false)
 { 
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in RadDamageUtil");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
+  declareProperty("EfieldInterpolator", m_EfieldInterpolator, "Create an Efield for fluence and bias volatge of interest based on TCAD samples");
 }
 
 // Destructor:
@@ -63,6 +68,7 @@ RadDam::RadDamageUtil::~RadDamageUtil(){}
 StatusCode RadDam::RadDamageUtil::initialize() {
   
   CHECK(AthAlgTool::initialize());
+  CHECK(m_EfieldInterpolator.retrieve());
   CHECK(m_rndmSvc.retrieve());
   ATH_MSG_INFO("You are using RadDamageUtil for solid-state silicon detectors.");
   
@@ -236,13 +242,26 @@ double RadDam::RadDamageUtil::weighting2D(double x, double z, double Lx, double 
 const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDetDD::PixelModuleDesign* module  ){
 
     //TODO: from DB
-    double biasVoltage = 600.;
-    double depletionVoltage = 80.;
-    double depletionLength = 0.2;
-    double sensorThickness = module->thickness(); //default should be 0.2?
-
+    double biasVoltage          = 600.;
+    double depletionVoltage     = 80.;
+    double depletionLength      = 0.2;
+    double sensorThickness      = module->thickness(); //default should be 0.2?
+    double fluence              = 8.;//*e14 neq/cm^2 
     eFieldMap = new TH1F("hefieldz","hefieldz",200,0,sensorThickness*1e3);
     
+    std::string TCAD_list = PathResolver::find_file("ibl_TCAD_EfieldProfiles.txt", "DATAPATH"); //IBL layer 
+    if(sensorThickness > 0.2){
+        //is blayer
+        TCAD_list = PathResolver::find_file("blayer_TCAD_EfieldProfiles.txt", "DATAPATH"); //B layer 
+        if(sensorThickness > 0.25){
+            ATH_MSG_WARNING("Sensor thickness ("<< sensorThickness << "mm) does not match geometry provided in samples");
+            return StatusCode::FAILURE;
+        }
+    }
+
+    m_EfieldInterpolator->loadTCADlist(TCAD_list);
+    eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
+   /* 
     //Set depletion width
     double electricField=0; //V/mm
     double depletionWidth = sensorThickness; //in mm
@@ -268,9 +287,47 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
 	    if (m_defaultEField==0) 
 		    eFieldMap->SetBinContent(i,10*biasVoltage/(sensorThickness)); //in V/cm
     }
+    */
   return StatusCode::SUCCESS;
 }
 
+StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence,  double biasVoltage, int layer, std::string TCAD_list, bool interpolate ){
+
+    TString id;
+    //TODO adapt saving location for documentation of E field interpolation
+    TString predirname ="";
+    if(interpolate){
+        id = "Interpolation";
+    }else{
+        id = "TCAD";
+    }
+    if(interpolate){
+        CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
+        eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
+    }else{
+        //retrieve E field directly from file (needs to be .dat file with table)
+        CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
+        ATH_MSG_INFO("Load Efield map from " << TCAD_list );
+    }
+    if(!eFieldMap){
+        ATH_MSG_ERROR("E field has not been created!");
+        return StatusCode::FAILURE;
+    } 
+    //For debugging save map
+    //TCAD_list.ReplaceAll(".txt","_map.root");
+    TString dirname = "layer";
+    dirname+=layer;
+    dirname+="_fl";
+    dirname+=TString::Format("%.1f",fluence/(float)(1e14));
+    dirname+="e14_U";
+    dirname+=TString::Format("%.0f",biasVoltage);
+    dirname+=id;
+    dirname.ReplaceAll(".","-");
+    dirname = predirname + dirname;
+    dirname+=(".root");
+    eFieldMap->SaveAs(dirname.Data());
+    return StatusCode::SUCCESS;
+}
 
 //==================================================
 // G E N E R A T E   DISTANCE / TIME / LORENTZ  MAP
@@ -279,23 +336,34 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
 //It IS possible to split them up but riht now that means lots of repeated code.
 //Might be worth coming back in the future if it needs to be optimised or
 //if 
-const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* distanceMap_e, TH2F* distanceMap_h, TH1F* timeMap_e, TH1F* timeMap_h, TH2F* lorentzMap_e, TH2F* lorentzMap_h, TH1F* eFieldMap, InDetDD::PixelModuleDesign* module ){
-
+const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* &distanceMap_e, TH2F* &distanceMap_h, TH1F* &timeMap_e, TH1F* &timeMap_h, TH2F* &lorentzMap_e, TH2F* &lorentzMap_h, TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module ){
+    // Implementation for precomputed maps
+    //https://gitlab.cern.ch/radiationDamageDigitization/radDamage_athena_rel22/blob/rel22_radDamageDev_master/scripts/SaveMapsForAthena.C
     //TODO: From DB call each time
     double temperature = 300;
     double bField = 2;//Tesla
     //From PixelModuleDesign: TODO
-    double sensorThickness = module->thickness() * 1000.0;//default is 200;
-
+    //FIXME workaround, if PixelModuleDesign not available: retrieve sensor thickness from E field
+    //double sensorThickness = module->thickness() * 1000.0;//default is 200;
+    double sensorThickness = 0.2; //mm
+    //Check if x axis (sensor depth) of E field larger than IBL sensors
+    if(eFieldMap->GetXaxis()->GetXmax() > 210 ){ //Efield in um
+        sensorThickness = 0.250; 
+    }
+    if(module){
+        sensorThickness = module->thickness() * 1000.0;//default is 200;
+    }
+    
     //Y-axis is time charge carrier travelled for,
     //X-axis is initial position of charge carrier,
     //Z-axis is final position of charge carrier
-    distanceMap_e = new TH2F("edistance","Electron Distance Map",100,0,sensorThickness,20,0,10); //mm by ns
-    distanceMap_h = new TH2F("hdistance","Holes Distance Map",100,0,sensorThickness,20,0,10);
-    
+    distanceMap_e = new TH2F("edistance","Electron Distance Map",100,0,sensorThickness,1000,0,1000); //mm by ns
+    distanceMap_h = new TH2F("hdistance","Holes Distance Map",100,0,sensorThickness,1000,0,1000);
+    //Initalize distance maps 
     for (int i=1; i<= distanceMap_e->GetNbinsX(); i++){
       for (int j=1; j<= distanceMap_e->GetNbinsY(); j++){
 	distanceMap_h->SetBinContent(i,j,sensorThickness); //if you travel long enough, you will reach the electrode.
+        distanceMap_e->SetBinContent(i,j,0.);              //if you travel long enough, you will reach the electrode.
       }
     }
 
@@ -320,37 +388,54 @@ const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* distanceM
 	    double drift_h = 0.; //mm
 
 	    for (int j=i; j >= 1; j--){ //Lower triangle 
+		double dz = distanceMap_e->GetXaxis()->GetBinWidth(j); //mm
+		double z_j = distanceMap_e->GetXaxis()->GetBinCenter(j); //mm
+                //printf("\n \n distance map bin center i/j: %f/%f width %f (mm) \n sensor thickness: %f \n E field value: %f in bin %f \n ", z_i, z_j, dz, sensorThickness, Ez, z_i*1000);
+                //
+	        double Ez = eFieldMap->GetBinContent(eFieldMap->GetXaxis()->FindBin(z_j*1000))/1e7; // in MV/mm;  
+	        std::pair<double, double> mu = getMobility(Ez, temperature); //mm^2/MV*ns
+		if (Ez > 0){
+		        
+		        //Electrons
+		        //double tanLorentzAngle = mu.first*bField*(1.0E-3); //rad, unit conversion; pixelPitch_eta-Field is in T = V*s/m^2
+                        double tanLorentzAngle = getTanLorentzAngle(Ez, temperature, bField,  false);
+		        time_e += dz/(mu.first*Ez); //mm * 1/(mm/ns) = ns
 
-		    double dz = distanceMap_e->GetXaxis()->GetBinWidth(j); //mm
-		    double Ez = eFieldMap->GetBinContent(eFieldMap->GetXaxis()->FindBin(z_i*1000))/1e7; // in MV/mm;  
-		    double z_j = distanceMap_e->GetXaxis()->GetBinCenter(j); //mm
-		    
-		    if (Ez > 0){
-			    
-			    //Electrons
-			    std::pair<double, double> mu = getMobility(Ez, temperature); //mm^2/MV*ns
-			    double tanLorentzAngle = mu.first*bField*(1.0E-3); //rad, unit conversion; pixelPitch_eta-Field is in T = V*s/m^2
-			    time_e += dz/(mu.first*Ez); //mm * 1/(mm/ns) = ns
+		        //Fill: time charge carrier travelled for, given staring position (i) and final position (z_j)
+		        distanceMap_e->SetBinContent(i,distanceMap_e->GetYaxis()->FindBin(time_e),z_j);
+		        
+		        drift_e += dz*tanLorentzAngle; //Increment the total drift parallel to plane of sensor
+		        distanceTravelled_e += dz; //mm (travelled in z)
+		        lorentzMap_e->SetBinContent(i,j,drift_e/distanceTravelled_e); 
 
-			    //Fill: time charge carrier travelled for, given staring position (i) and final position (z_j)
-			    distanceMap_e->SetBinContent(i,distanceMap_e->GetYaxis()->FindBin(time_e),z_j);
-			    
-			    drift_e += dz*tanLorentzAngle; //Increment the total drift parallel to plane of sensor
-			    distanceTravelled_e += dz; //mm (travelled in z)
-			    lorentzMap_e->SetBinContent(i,j,drift_e/distanceTravelled_e); 
-
-			    //Holes
-			    tanLorentzAngle = mu.second*bField*(1.0E-3); //rad 
-			    time_h+=dz/(mu.second*Ez); //mm * 1/(mm/ns) = ns  
-			    distanceMap_h->SetBinContent(i,distanceMap_h->GetYaxis()->FindBin(time_h),z_j);
-			    
-			    drift_h+=dz*tanLorentzAngle;
-			    distanceTravelled_h += dz; //mm 
 			    lorentzMap_h->SetBinContent(i,j,drift_h/distanceTravelled_h);
 		    }
 	    }
-	    timeMap_e->SetBinContent(i,time_e);
-	    timeMap_h->SetBinContent(i,time_h);
+            //Mainly copied from l416 ff changed naming k=>j
+            //https://gitlab.cern.ch/radiationDamageDigitization/radDamage_athena_rel22/blob/rel22_radDamageDev_master/scripts/SaveMapsForAthena.C
+            for (int j=i; j <= distanceMap_e->GetNbinsX(); j++){ //holes go the opposite direction as electrons.
+
+                double dz = distanceMap_e->GetXaxis()->GetBinWidth(j); //similar to _h
+		//double Ez = eFieldMap->GetBinContent(eFieldMap->GetXaxis()->FindBin(z_i*1000))/1e7; // in MV/mm;  
+		double z_j= distanceMap_e->GetXaxis()->GetBinCenter(j); //mm //similar to _h
+	        double Ez = eFieldMap->GetBinContent(eFieldMap->GetXaxis()->FindBin(z_j*1000))/1e7; // in MV/mm;  
+	        std::pair<double, double> mu = getMobility(Ez, temperature); //mm^2/MV*ns
+                if (Ez > 0){
+                    //Holes
+			    //std::pair<double, double> mu = getMobility(Ez, temperature); //mm^2/MV*ns
+                    //double tanLorentzAngle = mu.second*bField*(1.0E-3); //rad 
+                    double tanLorentzAngle = getTanLorentzAngle(Ez, temperature,bField, true);
+                    time_h+=dz/(mu.second*Ez); //mm * 1/(mm/ns) = ns  
+                    distanceMap_h->SetBinContent(i,distanceMap_h->GetYaxis()->FindBin(time_h),z_j);
+                    
+                    drift_h+=dz*tanLorentzAngle;
+                    distanceTravelled_h += dz; //mm 
+                    lorentzMap_h->SetBinContent(i,j,drift_h/distanceTravelled_h);
+                }
+	        timeMap_h->SetBinContent(i,time_h);
+            }
+
+
     }
 
   return StatusCode::SUCCESS;
@@ -388,6 +473,21 @@ const std::pair<double,double> RadDam::RadDamageUtil::getMobility(double electri
 }
 
 //=======================================
+// G E T   L O R E N T Z  A N G L E
+//=======================================
+//Taken from https://gitlab.cern.ch/radiationDamageDigitization/radDamage_athena_rel22/blob/rel22_radDamageDev_master/scripts/SaveMapsForAthena.C
+double RadDam::RadDamageUtil::getTanLorentzAngle(double electricField, double temperature, double bField,  bool isHole){
+    double hallEffect = 1.;//already in mobility//= 1.13 + 0.0008*(temperature - 273.0); //Hall Scattering Factor - taken from https://cds.cern.ch/record/684187/files/indet-2001-004.pdf
+    if (isHole) hallEffect = 0.72 - 0.0005*(temperature - 273.0);
+    std::pair<double,double> mobility = getMobility(electricField, temperature);
+    double mobility_object = mobility.first;
+    if(isHole) mobility_object = mobility.second;
+    double tanLorentz = hallEffect*mobility_object*bField*(1.0E-3);  //unit conversion
+    return tanLorentz;
+}
+
+
+//=======================================
 // G E T   T R A P P I N G   T I M E
 //=======================================
 const std::pair<double,double> RadDam::RadDamageUtil::getTrappingTimes( double fluence) const{
@@ -395,8 +495,8 @@ const std::pair<double,double> RadDam::RadDamageUtil::getTrappingTimes( double f
   double trappingTimeElectrons(0.), trappingTimeHoles(0.);
 
   if(fluence!=0.0){
-    trappingTimeElectrons = 1.0/(betaElectrons*fluence); //Make memberVar
-    trappingTimeHoles = 1.0/(betaHoles*fluence); //ns
+    trappingTimeElectrons = 1.0/(m_betaElectrons*fluence); //Make memberVar
+    trappingTimeHoles = 1.0/(m_betaHoles*fluence); //ns
   }
   else{//fluence = 0 so do not trap!
     trappingTimeElectrons = 1000; //~infinity
