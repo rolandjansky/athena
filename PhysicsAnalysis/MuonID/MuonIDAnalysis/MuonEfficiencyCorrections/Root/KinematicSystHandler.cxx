@@ -37,21 +37,30 @@ namespace CP {
    
     CorrectionCode PtKinematicSystHandler::GetKineDependent(const xAOD::Muon& mu, float& eff) const {
         int bin_flat(-1), bin_loss(-1);
-        
-        CorrectionCode cc = m_flatness->FindBin(mu, bin_flat);
-        if (cc != CorrectionCode::Ok) return cc;
-        
-        if (mu.pt() > 200.e3) {
-            cc = m_loss->FindBin(mu, bin_loss);
-            if (cc != CorrectionCode::Ok) return cc;
-        }
-        
+        float syst = 0;
+        CorrectionCode cc_flat = m_flatness->FindBin(mu, bin_flat);
+        CorrectionCode cc_eloss = mu.pt() > 200.e3 ? m_loss->FindBin(mu, bin_loss) : cc_flat;
+      
         float eloss_syst = bin_loss < 1 ? 1.e6 : std::fabs( m_loss->GetBinContent(bin_loss) * mu.pt()/1.0e6);
-        float syst = std::fabs( m_flatness->GetBinError(bin_flat) ) < eloss_syst ? m_flatness->GetBinContent(bin_flat) : eloss_syst;
+        /// We exceed the limits of the histogram
+        if (cc_flat != CorrectionCode::Ok){
+            /// The eloss is going to take over now
+            if (cc_eloss == CorrectionCode::Ok){
+                syst = eloss_syst;
+             } else return cc_flat; 
+        } else {        
+            // The eloss -systematic is valid and smaller than the error from the flatness        
+            float abs_error = std::fabs( m_flatness->GetBinError(bin_flat));
+            if (cc_eloss == CorrectionCode::Ok && (eloss_syst < abs_error || abs_error == 0)){
+                syst = eloss_syst;
+            // The flatness of the scale-factor is still more precise than the eloss. Assign this as an extra syst
+            } else {            
+                syst = m_flatness->GetBinContent(bin_flat); 
+            }
+        }       
         
-        eff *= (1 + m_SystWeight * std::fabs(syst));
-        
-        return cc;
+        eff *= std::fabs(1 + m_SystWeight * std::fabs(syst));
+        return cc_flat;
     }
             
     void PtKinematicSystHandler::SetSystematicWeight(float syst_weight) {
