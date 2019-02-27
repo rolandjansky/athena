@@ -50,13 +50,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   ///
 
   struct Address {
-    enum Catrgory { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
+    enum Category { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
     Address( const std::string& transType_,
 	     const std::string& persType_,
 	     const CLID clid_,
 	     const std::string& key_,
 	     const std::vector<uint16_t> module_={},
-	     const Catrgory category_ = None,
+	     const Category category_ = None,
 	     const xAOD::AuxSelection& sel_ = {} )
     : transType(transType_),
       persType(persType_),
@@ -72,7 +72,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     std::string key;
     std::vector<uint16_t> moduleIdVec;
 
-    Catrgory category;
+    Category category;
     xAOD::AuxSelection sel = {}; //!< xAOD dynamic varaibles selection, relevant only for xAODAux category
 
   };

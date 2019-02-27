@@ -16,15 +16,14 @@
 #include "TriggerEDMSerialiserTool.h"
 
 TriggerEDMSerialiserTool::TriggerEDMSerialiserTool( const std::string& type, 
-		      const std::string& name, 
-		      const IInterface* parent ) : 
-  base_class( type, name, parent ) {
-}
+						    const std::string& name, 
+						    const IInterface* parent ) 
+    : base_class( type, name, parent ) {}
 
 TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
 
 StatusCode TriggerEDMSerialiserTool::initialize() {
-  
+
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
   for ( const auto& [typeKeyAux, moduleIdVec] : m_collectionsToSerialize ) {
