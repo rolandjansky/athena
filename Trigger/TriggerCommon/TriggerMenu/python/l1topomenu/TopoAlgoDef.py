@@ -1249,10 +1249,8 @@ class TopoAlgoDef:
         if usev8:
             xemap = []
         else:    
-            xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
-        for x in [ 
-            xemap,
-            ]:
+            xemap = [{"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}]
+        for x in xemap:
                 
             for k in x:
                 exec("%s = x[k]" % k)
@@ -1683,12 +1681,15 @@ class TopoAlgoDef:
 
 
         # VBF items INVM_NFF + DPHI
-        algolist = [
-            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-            ]
+        if usev8:
+            algolist = [
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                ]
+        else: 
+            algolist = []
 
         for x in algolist:
             

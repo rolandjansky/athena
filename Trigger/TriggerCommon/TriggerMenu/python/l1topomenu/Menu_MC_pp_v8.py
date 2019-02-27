@@ -12,50 +12,6 @@ def defineMenu():
     from TriggerMenu.l1topo.TopoOutput import TopoOutput
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-    # if this flag is True for mc v8: produce xml with full v8 menu
-    # if this flag is False for physics v8: produce xml with v8 new items removed, so to match with FW 
-    mcv8_flag = True
-
-    if 'Physics_pp_v8' in TriggerFlags.triggerMenuSetup() or 'Physics_pp_v7' in TriggerFlags.triggerMenuSetup()  or 'Physics_pp_v6' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-        mcv8_flag = False
-
-    newalgos_onlyinv6 = [
-#          TopoOutput( algoname='15MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=1, firstbit=14 ),#v6n        
-#          TopoOutput( algoname='15MINDPHI-EM15s6-XE0',                        module=0, fpga=0, clock=1, firstbit=15 ),#v6n
-#          TopoOutput( algoname='35MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=13 ),#v6n
-#          TopoOutput( algoname='DISAMB-0DR28-EM15his2-TAU12abi',              module=0, fpga=1, clock=0, firstbit=15 ),#v6n
-#          TopoOutput( algoname='LATE-MU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
-#          TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=1, clock=0, firstbit=11 ),#v6n
-#          TopoOutput( algoname='SC85-CJ15ab.ETA26',                           module=1, fpga=1, clock=0, firstbit=12 ),#v6n
-#          TopoOutput( algoname='10MINDPHI-AJ20s2-XE50',                       module=1, fpga=0, clock=1, firstbit=9 ),#v6n
-
-#          TopoOutput( algoname='0DR22-2MU6ab',                                module=1, fpga=0, clock=0, firstbit=10 ),#v6diff
-#          TopoOutput( algoname='7INVM15-2MU4ab',                              module=0, fpga=1, clock=0, firstbit=5 ),#v6diff 
-#          TopoOutput( algoname='0DR22-MU6ab-MU4ab',                           module=1, fpga=1, clock=1, firstbit=10 ), #v6diff
- #         TopoOutput( algoname='0DR15-2MU4ab',                                module=1, fpga=0, clock=1, firstbit=0 ), #v6diff
-  #        TopoOutput( algoname='0DR24-2MU4ab',                                module=1, fpga=0, clock=1, firstbit=2 ),#v6diff
-#          TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
-#          TopoOutput( algoname='100RATIO-0MATCH-TAU30si2-EMall',              module=0, fpga=0, clock=1, firstbit=7 ),
-
-#          TopoOutput( algoname='2INVM9-2MU4ab',                               module=0, fpga=1, clock=1, firstbit=2 ),  #v6 new
-#          TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=3 ),  #v6 new
-#          TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=0, fpga=1, clock=0, firstbit=14 ), #v6 new
-#          TopoOutput( algoname='1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=8 ), #v6 new 
-#          TopoOutput( algoname='0DR15-2MU6ab',                                module=1, fpga=0, clock=1, firstbit=11 ), #v6 new
-#          TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=1, fpga=0, clock=1, firstbit=12 ),  #v6 new
-#          TopoOutput( algoname='DISAMB-30INVM-EM20his2-TAU12ab',              module=0, fpga=1, clock=1, firstbit=0 ),  #v6 new
-#          TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=0, fpga=1, clock=1, firstbit=1 ),  #v6 new
-        ]
-
-    newalgos_onlyinv5 = [
-#        TopoOutput( algoname='2DR15-CMU6ab-CMU4ab',                         module=1, fpga=0, clock=0, firstbit=10 ),#v6diff
-#        TopoOutput( algoname='4INVM8-ONEBARREL-MU6ab-MU4ab',                module=0, fpga=1, clock=0, firstbit=5 ),#v6diff 
-#        TopoOutput( algoname='2DR15-ONEBARREL-MU6ab-MU4ab',                 module=1, fpga=1, clock=1, firstbit=10 ), #v6diff
-#        TopoOutput( algoname='2INVM999-CMU6ab-CMU4ab',                      module=1, fpga=0, clock=1, firstbit=0 ), #v6diff
-#        TopoOutput( algoname='4INVM8-CMU6ab-CMU4ab',                        module=1, fpga=0, clock=1, firstbit=2 ),#v6diff
-#        TopoOutput( algoname='INVM_EMall',                                  module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
-#        TopoOutput( algoname='210RATIO-0MATCH-TAU30si2-EMall',              module=0, fpga=0, clock=1, firstbit=7 ),
-    ]
     
     L1TopoFlags.algos = [
         
@@ -123,10 +79,10 @@ def defineMenu():
         TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=11 ),  #v6 new       
         TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
 
-        TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # check module, fpga etc
-        TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # check module, fpga etc
-        TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # check module, fpga etc
-        TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # check module, fpga etc
+        TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # v8 new
+        TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # v8 new
+        TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # v8 new
+        TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # v8 new
 
         # module: 1, FPGA: 0        
         TopoOutput( algoname='05MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),#v6
@@ -214,8 +170,3 @@ def defineMenu():
 
         ]
 
-
-    if mcv8_flag:
-        L1TopoFlags.algos +=  newalgos_onlyinv6
-    else:
-        L1TopoFlags.algos +=  newalgos_onlyinv5 
