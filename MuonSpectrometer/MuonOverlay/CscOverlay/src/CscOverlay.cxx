@@ -54,7 +54,6 @@ StatusCode CscOverlay::initialize()
 StatusCode CscOverlay::execute() {
   ATH_MSG_DEBUG("CscOverlay::execute() begin");
   //----------------------------------------------------------------
-  unsigned int numsamples=0;//to be determined from the data
   SG::ReadHandle<CscRawDataContainer> inputBkgRDO(m_bkgInputKey);
   if(!inputBkgRDO.isValid()) {
     ATH_MSG_WARNING("Could not get background CscRawDataContainer  \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
@@ -62,24 +61,19 @@ StatusCode CscOverlay::execute() {
   }
   ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
   if ((inputBkgRDO->begin()==inputBkgRDO->end()) || !*(inputBkgRDO->begin())){
-        ATH_MSG_WARNING("Could not get nsamples, inputBkgRDO empty?");
-  }
-  else{
-    numsamples=inputBkgRDO->begin()->numSamples();
+    ATH_MSG_WARNING("Could not get nsamples, inputBkgRDO empty?");
   }
 
-  if (numsamples>0) {
-    ATH_MSG_DEBUG("Retrieving signal input CSC container");
-    SG::ReadHandle<CscRawDataContainer> inputSignalRDO(m_signalInputKey);
-    if(!inputSignalRDO.isValid()) {
-      ATH_MSG_WARNING("Could not get signal CscRawDataContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
-
-    /* now do the overlay */
-    this->overlayContainer(inputBkgRDO.cptr(), inputSignalRDO.cptr());
+  ATH_MSG_DEBUG("Retrieving signal input CSC container");
+  SG::ReadHandle<CscRawDataContainer> inputSignalRDO(m_signalInputKey);
+  if(!inputSignalRDO.isValid()) {
+    ATH_MSG_WARNING("Could not get signal CscRawDataContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
+    return StatusCode::SUCCESS;
   }
+  ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
+
+  /* now do the overlay */
+  this->overlayContainer(inputBkgRDO.cptr(), inputSignalRDO.cptr());
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("CscOverlay::execute() end");
