@@ -34,6 +34,8 @@ namespace MuonCalib{
   struct MdtFullCalibData;
 }
 
+#include "StoreGate/ReadCondHandleKey.h"
+
 /** handles the retreival of constants from the DB: it uses a Tool 
  * derived from MuonCalib::IMdtCalibDBTool to access different types of DB
  * (currently implemented ASCII files and COOL CLOBS)*/
@@ -127,6 +129,10 @@ private:
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
   bool m_getCorrections;   //<! flag to switch off loading of correction function constants
+
+  SG::ReadCondHandleKey<MdtRtRelationCollection> m_readKeyRt;
+  SG::ReadCondHandleKey<MdtTubeCalibContainerCollection> m_readKeyTube;
+  SG::ReadCondHandleKey<MdtCorFuncSetCollection> m_readKeyCor;
     
 };
 

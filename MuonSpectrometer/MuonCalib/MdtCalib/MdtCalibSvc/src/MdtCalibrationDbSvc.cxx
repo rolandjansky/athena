@@ -33,7 +33,10 @@ MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string &n,ISvcLocator *sl)
     m_detStore("StoreGateSvc/DetectorStore", name()),
     m_tubeDataLocation("TubeKey"),
     m_rtDataLocation("RtKey"),
-    m_corDataLocation("CorKey")
+    m_corDataLocation("CorKey"),
+    m_readKeyRt("MdtRtRelationCollection"),
+    m_readKeyTube("MdtTubeCalibContainerCollection"),
+    m_readKeyCor("MdtCorFuncSetCollection")
 {
   declareProperty("DBTool", m_dbTool,
 		  "the Tool to be used to retrieve the constants");
@@ -105,7 +108,11 @@ StatusCode MdtCalibrationDbSvc::initialize() {
       return StatusCode::FAILURE;
     }
   }
-    
+
+  ATH_CHECK(m_readKeyRt.initialize());
+  ATH_CHECK(m_readKeyTube.initialize());
+  ATH_CHECK(m_readKeyCor.initialize());
+
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbSvc::initialize
 
@@ -234,11 +241,15 @@ const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContain
 }
 
 const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const IdentifierHash &hash ) const {
-  if( !m_tubeData ) return 0;
 
-  // single tube calibrations are accessed per chamber 
-  if ( hash.is_valid() && hash < m_tubeData->size() ) { 
-    return (*m_tubeData)[ hash ]; 
+  SG::ReadCondHandle<MdtTubeCalibContainerCollection> readHandleTube{ m_readKeyTube };
+  const MdtTubeCalibContainerCollection* readCdoTube{*readHandleTube};
+  if ( readCdoTube==nullptr ) {
+    ATH_MSG_ERROR("readCdoTube==nullptr");
+    return 0;
+  }
+  if ( hash.is_valid() && hash < readCdoTube->size() ) {
+    return (*readCdoTube)[ hash ];
   }
   return 0;
 }
@@ -258,22 +269,22 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Ide
 }
 
 const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const IdentifierHash &hash ) const {
-  // check whether there are cached rt's
-  if( !m_rtData ) {
-    ATH_MSG_WARNING( "No rt-calibrations loaded"  );
-    return 0;
-  }
   // check if hash is ok
   if ( !hash.is_valid() ) {
-    ATH_MSG_WARNING( "cannot get rt, invalid hash"  ); 
+    ATH_MSG_WARNING( "cannot get rt, invalid hash"  );
     return 0;
   }
-
-  // Get the RT using the hash as an index
-  if( hash < m_rtData->size() ) { 
-    return (*m_rtData)[ hash ]; 
+  SG::ReadCondHandle<MdtRtRelationCollection> readHandleRt{ m_readKeyRt };
+  const MdtRtRelationCollection* readCdoRt{*readHandleRt};
+  if ( readCdoRt==nullptr ) {
+    ATH_MSG_ERROR("readCdoRt==nullptr");
+    return 0;
   }
-  ATH_MSG_WARNING( "cannot get RT, region hash out of range"  ); 
+  // Get the RT using the hash as an index
+  if( hash < readCdoRt->size() ) {
+    return (*readCdoRt)[ hash ];
+  }
+  ATH_MSG_WARNING( "cannot get RT, region hash out of range"  );
   return 0;
 }
 
@@ -292,17 +303,22 @@ const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Iden
 }
 
 const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const IdentifierHash &hash ) const {
-  // check whether there are cached correction functions
-  if( !m_corData ) return 0;
-
-  // check if hash is ok
-  if ( !hash.is_valid() ) return 0;
-
-  // Get the correction functions using the hash as an index
-  if( hash < m_corData->size() ) { 
-    return (*m_corData)[ hash ]; 
+  if ( !hash.is_valid() ){
+    return 0;
   }
-
+  //the loadRt was intended to keep m_corData nullptr and return 0 here so
+  if( !m_createSlewingFunction && !m_createWireSagFunction && !m_create_b_field_function ){
+    return 0;
+  }
+  SG::ReadCondHandle<MdtCorFuncSetCollection> readHandleCor{ m_readKeyCor };
+  const MdtCorFuncSetCollection* readCdoCor{*readHandleCor};
+  if ( readCdoCor==nullptr ) {
+    ATH_MSG_ERROR("readCdoCor==nullptr");
+    return 0;
+  }
+  if( hash < readCdoCor->size() ) {
+    return (*readCdoCor)[ hash ];
+  }
   return 0;
 }
 
