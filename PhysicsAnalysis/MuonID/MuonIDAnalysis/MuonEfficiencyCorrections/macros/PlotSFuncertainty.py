@@ -14,7 +14,7 @@ class SystDependency(object):
                  var_name = "", axis_title ="",
                  bins = -1, bmin = 0., bmax = 0.,
                  bdir = None,                 
-                 rel_name = "",
+               
                  wp = "",
                  sys = "SYS",
                  test_tree = None,
@@ -22,16 +22,10 @@ class SystDependency(object):
         ### Direct access to the branch which are going to be compared
         self.__muon_var  = test_tree.GetLeaf("Muon_%s"%(var_name))
         
-        self.__var_name  = "%s_%s_%s_%s"%(rel,wp,var_name, sys)
+        self.__var_name  = "%s_%s_%s"%(wp,var_name, sys)
         self.__nom_sf = test_tree.GetLeaf("%s_SF"%(wp))
-        self.__1up_sf = test_tree.GetLeaf("%s_SF_MUON_EFF_%s_%s__1up"%(wp,KnownWPs[wp],sys))
-        self.__1dn_sf = test_tree.GetLeaf("%s_SF_MUON_EFF_%s_%s__1down"%(wp,KnownWPs[wp],sys))
-        print   self.__var_name
-        print   self.__nom_sf 
-        print    self.__1up_sf
-        print    self.__1dn_sf
-        
-        self.__var_name = var_name
+        self.__1up_sf = test_tree.GetLeaf("%s_SF__MUON_EFF_%s_%s__1up"%(wp,KnownWPs[wp],sys))
+        self.__1dn_sf = test_tree.GetLeaf("%s_SF__MUON_EFF_%s_%s__1down"%(wp,KnownWPs[wp],sys))
         self.__nom_histo = DiagnosticHisto(
                                     name = "%s"%(self.__var_name),
                                     axis_title = axis_title,
@@ -93,7 +87,7 @@ if __name__ == "__main__":
     allWPs = []
     for wp in KnownWPs.iterkeys():
         if not wp in allWPs: allWPs.append(wp)
-    WPs = set([i[ : i.find("_")] for i in branchesInFile if not i.startswith("Muon") ])
+    WPs = set([i[ : i.find("_SF")] for i in branchesInFile if not i.startswith("Muon") and i.find("SF") != -1 ])
     
     print "INFO: Found the following working points: %s"%(",".join(WPs))
    
@@ -114,34 +108,32 @@ if __name__ == "__main__":
 
     Histos = []
     
-    rel = "WinterRecom"
+    
     for wp in WPs:
         for sys in ["SYS", "STAT"]:
             Histos +=[
             SystDependency(
                  var_name = "pt", 
                  axis_title ="p_{T} #mu(%s) [MeV]"%(wp),
-                 bins =100 , bmin = 0., bmax = 2.e6,
-                 rel_name = rel, wp =wp, sys = sys,
-                 test_tree = tree),
+                 bins =500 , bmin = 0., bmax = 10.e6,
+                 wp =wp, sys = sys, test_tree = tree),
            SystDependency(
                 var_name = "eta", 
                 axis_title ="#eta #mu(%s)"%(wp),
                 bins =25 , bmin = -2.5, bmax = 2.5,
-                rel_name = rel, wp =wp, sys = sys,
-                test_tree = tree),
+                wp =wp, sys = sys, test_tree = tree),
            SystDependency(
                 var_name = "phi", 
                 axis_title ="#phi (%s)"%(wp),
                 bins =20 , bmin = -3.1415, bmax = 3.1415,
-                rel_name = rel, wp =wp, sys = sys,
-                test_tree = tree) ]
+                wp =wp, sys = sys, test_tree = tree) ]
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
         if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
         if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
-        for H in Histos:  H.fill()
+        for H in Histos:  
+             if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
         
     print "INFO: Histograms filled"
     pu = PlotUtils()
@@ -150,38 +142,39 @@ if __name__ == "__main__":
     dummy = ROOT.TCanvas("dummy", "dummy", 800, 600)
     dummy.SaveAs("%s/AllSystDep%s.pdf[" % (Options.outDir, bonusname))
     for H in Histos:
-        can = ROOT.TCanvas("sf_dep_%s"%(bonusname),"SFCheck",1000,600)
-        can.SetLogy()
-        for H in Histos:
-            H.finalize()
-            nominal = H.get_nom_H1().TH1()
-            up = H.get_1up_H1().TH1()
-            dn = H.get_1up_H1().TH1()
-            
-            up.SetLineColor(ROOT.kRed)
-            dn.SetLineColor(ROOT.kBlue)
-                        
-            up.Divide(nom)
-            dn.Divide(nom)
-            
-                        
-            up.Draw("HIST")
-            dn.Draw("HISTSAME")
-            up.SetTitle("1UP")
-            dn.SetTitle("1DOWN")
-            
-            up.SetMinimum(0.01)
-            up.SetMaximum(max(up.GetMaximum(), dn.GetMaximum()) *1.5)
-            up.GetYaxis().SetTitle("Ratio to nominal")
-           
-            pu.DrawLegend([(up,'L'),(dn,'L')], 0.3, 0.75, 0.9, 0.9)          
-          #  pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
-           # pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
-           # pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
-            can.SaveAs("%s/SysCheck%s%s.pdf"%(Options.outDir, H.name(),bonusname))
-            can.SaveAs("%s/AllSystDep%s.pdf" % (Options.outDir, bonusname))
+        can = ROOT.TCanvas("sf_dep_%s"%(H.name()),"SFCheck",1000,600)
+       # can.SetLogx()
+      #  H.finalize()
+        nom = H.get_nom_H1().TH1()
+        up = H.get_1dn_H1().TH1()
+        dn = H.get_1up_H1().TH1()
+        
+        up.SetLineColor(ROOT.kRed)
+        dn.SetLineColor(ROOT.kBlue)
+                    
+        up.Divide(nom)
+        dn.Divide(nom)
+        
+                    
+        up.Draw("HIST")
+        dn.Draw("HISTSAME")
+        up.SetTitle("1UP")
+        dn.SetTitle("1DOWN")
+        
+        up.SetMinimum(0.01)
+        up.SetMaximum(max(up.GetMaximum(), dn.GetMaximum()) *1.5)
+        up.SetMaximum(2)
+     
+        up.GetYaxis().SetTitle("Ratio to nominal")
+       
+        pu.DrawLegend([(up,'L'),(dn,'L')], 0.3, 0.75, 0.9, 0.9)          
+      #  pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
+       # pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
+       # pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
+        can.SaveAs("%s/SysCheck%s%s.pdf"%(Options.outDir, H.name(),bonusname))
+        can.SaveAs("%s/AllSystDep%s.pdf" % (Options.outDir, bonusname))
 
-        dummy.SaveAs("%s/AllSystDep%s.pdf]" % (Options.outDir, bonusname))
+    dummy.SaveAs("%s/AllSystDep%s.pdf]" % (Options.outDir, bonusname))
         
    
        

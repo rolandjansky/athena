@@ -64,7 +64,6 @@ class DiagnosticHisto(object):
     def fixHisto(self):
         if self.__TH1: return
         bins = min (int((self.__max - self.__min) / self.__width), 10000)
-        print self.name(), bins, self.__max, self.__min
         self.__TH1 = ROOT.TH1D(self.name(), "Diagnostic histogram", bins, self.__min, self.__max)
         self.__TH1.SetDirectory(self.__TDir) 
         

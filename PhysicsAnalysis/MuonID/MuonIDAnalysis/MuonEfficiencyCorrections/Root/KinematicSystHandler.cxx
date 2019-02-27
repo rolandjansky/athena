@@ -50,7 +50,7 @@ namespace CP {
              } else return cc_flat; 
         } else {        
             // The eloss -systematic is valid and smaller than the error from the flatness        
-            float abs_error = std::fabs( m_flatness->GetBinError(bin_flat));
+            float abs_error = std::fabs( m_flatness->GetBinContent(bin_flat));
             if (cc_eloss == CorrectionCode::Ok && (eloss_syst < abs_error || abs_error == 0)){
                 syst = eloss_syst;
             // The flatness of the scale-factor is still more precise than the eloss. Assign this as an extra syst
