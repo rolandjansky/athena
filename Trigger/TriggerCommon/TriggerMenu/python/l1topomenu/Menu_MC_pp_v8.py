@@ -122,7 +122,12 @@ def defineMenu():
         TopoOutput( algoname='2INVM9-2MU4ab',                               module=0, fpga=1, clock=1, firstbit=10 ),  #v6 new
         TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=11 ),  #v6 new       
         TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
- 
+
+        TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # check module, fpga etc
+        TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # check module, fpga etc
+        TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # check module, fpga etc
+        TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # check module, fpga etc
+
         # module: 1, FPGA: 0        
         TopoOutput( algoname='05MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),#v6
         TopoOutput( algoname='10MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=1 ),#v6
@@ -168,7 +173,7 @@ def defineMenu():
 
 
         # module: 1, FPGA: 1        
-        TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=1, clock=0, firstbit=0 ), # 6 bits        
+#        TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=1, clock=0, firstbit=0 ), # 6 bits        
         TopoOutput( algoname='0MATCH-4AJ20.ETA31-4AJj15.ETA31',             module=1, fpga=1, clock=0, firstbit=6 ),
         TopoOutput( algoname='HT190-AJ15all.ETA21',                         module=1, fpga=1, clock=0, firstbit=7 ),
         TopoOutput( algoname='HT150-AJ20all.ETA31',                         module=1, fpga=1, clock=0, firstbit=8 ),

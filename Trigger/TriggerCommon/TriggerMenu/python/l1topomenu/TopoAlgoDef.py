@@ -22,7 +22,10 @@ class TopoAlgoDef:
         _etamax = 49
         _minet = 0
         usev7 = False
+        usev8 = False
 
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            usev8 = True
         if '_v8' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
             usev7 = True
         if '_PhaseII' in TriggerFlags.triggerMenuSetup():
@@ -1242,7 +1245,11 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
 
-        xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
+
+        if usev8:
+            xemap = []
+        else:    
+            xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
         for x in [ 
             xemap,
             ]:
@@ -1672,5 +1679,44 @@ class TopoAlgoDef:
             alg.addvariable('MinET2', ocut2 if ocut2 > 0 else 3, 0) # noqa: F821  
             alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
             alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
+            tm.registerAlgo(alg)
+
+
+        # VBF items INVM_NFF + DPHI
+        algolist = [
+            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+            {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+            ]
+
+        for x in algolist:
+            
+            for k in x:
+                exec("%s = x[k]" % k)
+		
+            inputList = [otype1 + olist1, otype2 + olist1]      # noqa: F821       
+
+            toponame = "%iINVM%i-%iDPHI%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
+                                                                 otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
+                                                                 otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else "")     # noqa: F821 
+
+            log.info("Define %s" % toponame)
+                
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
+
+
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2)# noqa: F821
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET1', ocut1, 0)# noqa: F821
+            alg.addvariable('MinET2', ocut2, 0)# noqa: F821
+            alg.addvariable('MinMSqr', minInvm*minInvm , 0)        # noqa: F821         
+            alg.addvariable('MaxMSqr', maxInvm *maxInvm , 0)        # noqa: F821
+            alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
+            alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
+
             tm.registerAlgo(alg)
             
