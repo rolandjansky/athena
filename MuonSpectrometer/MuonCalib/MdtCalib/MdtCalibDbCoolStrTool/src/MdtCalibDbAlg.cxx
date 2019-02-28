@@ -162,7 +162,9 @@ StatusCode MdtCalibDbAlg::initialize(){
                     << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift );
       
     // getting our random numbers stream
-    p_engine = m_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
+    p_engine = m_AtRndmGenSvc->GetEngine("MDTCALIBDBALG");
+    //p_engine = m_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
+    //if we need to reproduce something
   }
 
   if ( m_rtShift != 0. || m_rtScale != 1. || m_t0Shift != 0. || m_t0Spread != 0.) {
