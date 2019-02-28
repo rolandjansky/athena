@@ -200,10 +200,10 @@ namespace FlavorTagDiscriminants {
       if(default_flag.size() == 0 || name==default_flag)
       {
         switch (type) {
-        case EDMType::INT: return BVarGetter<int, true>(name, default_flag);
-        case EDMType::FLOAT: return BVarGetter<float, true>(name, default_flag);
-        case EDMType::DOUBLE: return BVarGetter<double, true>(name, default_flag);
-        case EDMType::UCHAR: return BVarGetter<char, true>(name, default_flag);
+        case EDMType::INT: return BVarGetterNoDefault<int>(name);
+        case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
+        case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
+        case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
         case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
         default: {
           throw std::logic_error("Unknown EDM type");
@@ -215,8 +215,8 @@ namespace FlavorTagDiscriminants {
         case EDMType::INT: return BVarGetter<int>(name, default_flag);
         case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
         case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
-        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
         case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
+        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
         default: {
           throw std::logic_error("Unknown EDM type");
       }
