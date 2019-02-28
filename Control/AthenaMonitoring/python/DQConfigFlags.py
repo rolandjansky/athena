@@ -13,9 +13,11 @@ def createDQConfigFlags():
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
     return acf
 
-def createComplexDQConfigFlags( acf ):
+def createComplexDQConfigFlags():
+    acf=AthConfigFlags()
     acf.addFlag('DQ.Environment', getEnvironment )
     acf.addFlag('DQ.DataType', getDataType )
+    return acf
 
 def getDataType(flags):
     if flags.Input.isMC:
