@@ -6,7 +6,7 @@ topSequence = AlgSequence()
 #Jet/MET algorithms - EM input and LC output
 
 #Same as for Run2 so can use EM version
-from eflowRec.eflowPreparationGetter import eflowPreparationGetter_HLLHC
+from eflowRec.eflowPreparationGetter_HLLHC import eflowPreparationGetter_HLLHC
 CaloObjectBuilderGetter = eflowPreparationGetter_HLLHC()
 
 #Need HLLHC specific items, so use HLLHC version
