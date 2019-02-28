@@ -55,6 +55,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
                                                                Decoder = RPCRodDecoder )
+    MuonRpcRawDataProviderTool.OutputLevel = VERBOSE
     acc.addPublicTool( MuonRpcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm

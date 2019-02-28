@@ -67,7 +67,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     else
         ATH_MSG_INFO( "Retrieved tool " << m_decoder );
 
-
     //m_hashfunc = new RpcPadIdHash();
 
     // get cabling svc

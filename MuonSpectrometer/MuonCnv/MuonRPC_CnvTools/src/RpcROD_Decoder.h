@@ -388,6 +388,7 @@ namespace Muon
                                   RpcPadContainer& rdoIdc,
                                   const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer* RPC_SECTORLOGIC) const
   {
+
     try 
     {
       robFrag.check ();
@@ -395,7 +396,7 @@ namespace Muon
     catch (eformat::Issue &ex)
     {
       
-      if(msgLvl(MSG::VERBOSE)) msg() << ex.what () << endmsg;
+      ATH_MSG_VERBOSE(ex.what());
       return StatusCode::FAILURE;  // error in fragment
     }
     
@@ -411,13 +412,11 @@ namespace Muon
     uint32_t rod_sourceId= robFrag.rod_source_id();
     uint16_t subDetector=(sourceId & 0xff0000)>>16;
     
-    
-    if(msgLvl(MSG::VERBOSE)) msg() << "ROD version: "   << MSG::hex << version 
+    ATH_MSG_VERBOSE("ROD version: "   << MSG::hex << version 
       << MSG::dec << "  ROB source ID: " << MSG::hex << sourceId 
       << MSG::dec << "  ROD source ID: " << MSG::hex << rod_sourceId 
       << MSG::dec << "  Subdetector: "   << MSG::hex << subDetector 
-      << MSG::dec << endmsg;
-    
+      << MSG::dec);
     
     
     // chose the right decoding routine
@@ -456,7 +455,7 @@ namespace Muon
     
     
     StatusCode cnv_sc;
-    
+
     /*
     // unpack the 32 bits words into 16 bits 
     // no ROD header and footer 
@@ -505,55 +504,69 @@ namespace Muon
 
     // here optimize decoding of ROB fragment (for data only type==3)
     if (type==3)
+    {
+      std::map<Identifier,RpcPad*> mapOfCollections; 
+      std::vector<IdentifierHash>::const_iterator it = collections.begin();
+      for( ; it!=collections.end(); ++it)
       {
-	std::map<Identifier,RpcPad*> mapOfCollections; 
-	std::vector<IdentifierHash>::const_iterator it = collections.begin();
-	for( ; it!=collections.end(); ++it)
-	  {
-	    RpcPadContainer::const_iterator itColl = rdoIdc.indexFind(*it);
-	    if (itColl == rdoIdc.end())
-	      {
-		if(msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Created new Pad Collection Hash ID = " 
-							    << static_cast<unsigned int>(*it) << endmsg;
-        
-		// create new collection
-		RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
-		mapOfCollections[coll->identify()]=coll;
-	      }// endif collection not found in the container 
-	  }//end loop over vector of hash id 
 
-  if (mapOfCollections.empty()) {
-    ATH_MSG_VERBOSE("mapOfCollections is empty; fillCollectionsFromRob_v302 will not be called");
-    cnv_sc = StatusCode::SUCCESS;
-    return cnv_sc;
-  }
-  
-	cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId, RPC_SECTORLOGIC);
-	if (cnv_sc!=StatusCode::SUCCESS)
-	  {
+        // Using RpcPadCache
+        RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( (*it) );
+
+        if(lock.alreadyPresent() ){
+          ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
+        }
+        else{
+          ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+
+		      // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
+          RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
+          mapOfCollections[coll->identify()]=coll;
+	      }// endif collection not found in the container 
+	    }//end loop over vector of hash id 
+
+      if (mapOfCollections.empty()) {
+        ATH_MSG_VERBOSE("mapOfCollections is empty; fillCollectionsFromRob_v302 will not be called");
+        cnv_sc = StatusCode::SUCCESS;
+        return cnv_sc;
+      }
+
+      // RpcPadCollections not decoded and in container are identified and passed explicitly to decoder
+      cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId, RPC_SECTORLOGIC);
+      if (cnv_sc!=StatusCode::SUCCESS)
+      {
 	    if (cnv_sc==StatusCode::RECOVERABLE) 
 	      {
-		if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoding errors found "<<endmsg;
+		      ATH_MSG_DEBUG("Decoding errors found ");
 	      }
-	    else return cnv_sc; // exit if failure 
-	  }
-	for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
-	  {
-	    // add collection into IDC
-	    RpcPadContainer::const_iterator itColl = rdoIdc.indexFind(((*it).second)->identifyHash());
-	    if (itColl == rdoIdc.end())
+	    else 
+        return cnv_sc; // exit if failure 
+	    }
+
+      // All un-decoded collections were decoded successfully, so they are passed back to the IDC
+	    //for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
+      for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
+	    {
+	      // add collection into IDC using RpcPadCache functions
+        
+        RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( ((*it).second)->identifyHash() );
+
+	      if ( !lock.alreadyPresent() )
 	      {
-		if (rdoIdc.addCollection((*it).second, ((*it).second)->identifyHash()).isFailure())
-		  {
-		    msg(MSG::ERROR) << "Failed to add RPC PAD collection to container" 
-				    << endmsg;
-		    //report the error condition
-		  }
-		else ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
-	      }
-	  }
-	return cnv_sc;
-      }//endif (type==3)
+          // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
+          StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>( (*it).second ) );
+
+		      if(status_lock != StatusCode::SUCCESS)
+		      {
+		        ATH_MSG_ERROR("Failed to add RPC PAD collection to container" );
+		        //report the error condition
+		      }
+          else 
+            ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
+        }
+      }
+      return cnv_sc;
+    }//endif (type==3)
     
     std::vector<IdentifierHash>::const_iterator it = collections.begin();
     for( ; it!=collections.end(); ++it)
@@ -561,21 +574,20 @@ namespace Muon
       RpcPadContainer::const_iterator itColl = rdoIdc.indexFind(*it);
       if (itColl == rdoIdc.end())
       {
-        if(msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Created new Pad Collection Hash ID = " 
-          << static_cast<unsigned int>(*it) << endmsg;
+        msg(MSG::VERBOSE) << " Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) << endmsg;
         
         // create new collection
         RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
         
-        //convert collection
+        //convert collection - note case3 will never be used due to statement above
         switch(type)
         {
           case 0: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
           case 1: cnv_sc = fillCollection_v300(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC); break;
           case 2: cnv_sc = fillCollection_v301(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC ); break;
-	  case 3: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
-	    //case 3: cnv_sc = fillCollection_v302new(data,robFrag.rod_ndata(),*coll,sourceId); break;
-            
+          case 3: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
+	        //case 3: cnv_sc = fillCollection_v302new(data,robFrag.rod_ndata(),*coll,sourceId); break;
+
           default: fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
         }
         
@@ -587,17 +599,15 @@ namespace Muon
         // add collection into IDC
         if (rdoIdc.addCollection(coll, *it).isFailure())
         {
-          msg(MSG::ERROR) << "Failed to add RPC PAD collection to container" 
-          << endmsg;
+          msg(MSG::ERROR) << "Failed to add RPC PAD collection to container" << endmsg;
           //report the error condition
         }
-	else  ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(*it)<<" to the RpcPad Container | size = "<<coll->size());
-
+        else
+          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(*it)<<" to the RpcPad Container | size = "<<coll->size());
       }
     }
-    
     return cnv_sc;
-  }
+  } // end fillCollections
   
   
   // ----  Implement the template method: 
@@ -1736,11 +1746,11 @@ namespace Muon
     if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE) << "**********Decoder dumping the words******** " << endmsg;
       if (data_size > 0 ) {
-	msg(MSG::VERBOSE) << "The size of this ROD-read is " << data_size << endmsg;
-	for (unsigned int i=0; i < data_size; i++)
-	  msg(MSG::VERBOSE) << "word " << i << " = " << MSG::hex << data[i] << MSG::dec << endmsg;
-      }
-    }
+       msg(MSG::VERBOSE) << "The size of this ROD-read is " << data_size << endmsg;
+       for (unsigned int i=0; i < data_size; i++)
+         msg(MSG::VERBOSE) << "word " << i << " = " << MSG::hex << data[i] << MSG::dec << endmsg;
+     }
+   }
     //#endif
     
     uint16_t side  = (subDetector == eformat::MUON_RPC_BARREL_A_SIDE) ? 1:0;    
