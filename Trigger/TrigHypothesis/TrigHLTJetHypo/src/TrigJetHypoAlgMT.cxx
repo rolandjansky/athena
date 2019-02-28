@@ -43,7 +43,7 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
   // on jets is a one step process.
   auto h_prevDecisions = SG::makeHandle(decisionInput(), context );
 
-  if( not h_prevDecisions.isValid() ) {//implicit
+  if( not h_prevDecisions.isValid() || h_prevDecisions->size() ==0) {//implicit
     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
     return StatusCode::SUCCESS;      
   }

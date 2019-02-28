@@ -33,9 +33,9 @@ data['msmu']  = [';',
 
 #data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_e5v22 HLT_g5',
 data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
-                'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5 HLT_e5v22',
-                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
-                'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
+                'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5 HLT_e5_v3',
+                'HLT_mu8 HLT_mu8_1step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
+                'HLT_mu20 HLT_mu8 HLT_mu8_1step HLT_2mu8 HLT_e8' ]
 
 
 data['l1emroi'] = [ ';',
@@ -81,9 +81,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 
-doMuon=False
+doMuon=True
 doElectron=True
-doCombo=False
+doCombo=True
 
 HLTChains = []
 EnabledElChains = []
@@ -118,16 +118,16 @@ if doElectron:
     elStep1 = elStep1MenuSequence("v1")
     elStep2 = elStep2MenuSequence("v1","v1")
     elStep2v2 = elStep2MenuSequence("v2","v2")
-    elStep2v22 = elStep2MenuSequence("v2","v22")
+    elStep2v3 = elStep2MenuSequence("v2","v3")
     # gamma
     gammStep1 = gammStep1MenuSequence("v1")
     
     ElChains  = [
-        Chain(name='HLT_e5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_e5v2' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v2_em",  [elStep2v2]) ] ),
-        Chain(name='HLT_e5v22', Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v22_em",  [elStep2v22]) ] ),
-        Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_g5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
+        Chain(name='HLT_e5'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_e5_v2', Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v2_em",  [elStep2v2]) ] ),
+        Chain(name='HLT_e5_v3', Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v3_em",  [elStep2v3]) ] ),
+        Chain(name='HLT_e8'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_g5'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
         ]
 
     HLTChains += ElChains
