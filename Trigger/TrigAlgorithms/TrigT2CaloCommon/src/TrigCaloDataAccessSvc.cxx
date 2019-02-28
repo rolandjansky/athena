@@ -36,8 +36,9 @@ StatusCode TrigCaloDataAccessSvc::finalize() {
       EventContext ec;
       ec.setSlot( slot );
       HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
-      cache->larContainer->finalize();
+      CHECK( cache->larContainer->finalize() );
       delete cache->larContainer;
+      CHECK( cache->tileContainer->finalize() );
       delete cache->tileContainer;
       cache->lastFSEvent = 0xFFFFFFFF;
       delete cache->fullcont;
