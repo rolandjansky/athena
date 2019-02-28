@@ -5,7 +5,7 @@
 #include "TrigL2MuonSA/BarrelRoadData.h"
 #include <iostream>
 
-float MuonRoads[2][12][8] = {{ // LOW PT threshold
+const float MuonRoads[2][12][8] = {{ // LOW PT threshold
 /*  HP data ... 96 % cut */
   { 11.23, 11.22, 10.80, 10.83,  9.73,  9.62,  9.43,  9.24}, // Large Inner  st.
   {  6.00,  5.72,  5.98,  5.18,  5.30,  5.38,  0.00,  0.00}, // Large Middle st.
