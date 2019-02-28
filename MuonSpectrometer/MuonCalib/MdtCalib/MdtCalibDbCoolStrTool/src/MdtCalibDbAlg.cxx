@@ -262,7 +262,7 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
   // Loop over all RTs in the file (but the default file only has 1 RT)
   // Use the first valid RT found in the file as the default for all chambers.
   for(unsigned int n=0;n<rts.nRts();++n) {
-    MuonCalib::RtDataFromFile::RtRelation *rt = rts.getRt( n );
+    std::unique_ptr<MuonCalib::RtDataFromFile::RtRelation> rt(rts.getRt(n));
 
     const MuonCalib::RtDataFromFile::RtRelation::DataVec &times = rt->times();
     const MuonCalib::RtDataFromFile::RtRelation::DataVec &radii = rt->radii();
@@ -273,13 +273,11 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
       ATH_MSG_ERROR( " defaultRt rt table has too few entries" );
       continue;
     }
-
     // check if all tables have same size
     if( times.size() != radii.size() || times.size() != reso.size() ) {
       ATH_MSG_ERROR( "defaultRt rt table size mismatch " );
       continue;
     }
-
     // check for negative time bins, i.e. decreasing time value with radius
     double t_min    = times[0];
     double bin_size = times[1]-t_min;
@@ -321,7 +319,6 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
     if( !resoRel || !rtRel ) {
       if(resoRel) delete resoRel;
       if(rtRel) delete rtRel;
-      delete rt;
       continue;
     }
 
@@ -349,9 +346,8 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
 	ATH_MSG_VERBOSE(" "<<ipt<<" "<<t<<" "<< rtRel->radius(t)<<" "<< resoRel->resolution(t));
       }
     }
-    delete rt;
-    break;            //only need the first good RT from the text file
-  }  //end loop over RTs in file
+    break; //only need the first good RT from the text file
+  } //end loop over RTs in file
 
   return StatusCode::SUCCESS;
 }
