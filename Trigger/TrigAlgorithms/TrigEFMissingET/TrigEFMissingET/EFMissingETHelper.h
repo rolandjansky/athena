@@ -52,92 +52,12 @@ class TrigEFMissingEtComponent {
     };
 
 
-    static std::string ComponentToName(const Component c)
+    static std::string ComponentToName(const Component c);
+
+    static std::string ComponentToName(const int c)
     {
-        std::string name;
-        switch(c)
-        {
-            // LAr barrel
-            case PreSamplB:  name="PreSamplB";    break;
-            case EMB1:       name="EMB1";         break;
-            case EMB2:       name="EMB2";         break;
-            case EMB3:       name="EMB3";         break;
-      
-            // LAr EM endcap 
-            case PreSamplE:  name="PreSamplE";    break;
-            case EME1:       name="EME1";         break;
-            case EME2:       name="EME2";         break;
-            case EME3:       name="EME3";         break;
-      
-            // Hadronic end cap cal.
-            case HEC0:       name="HEC0";         break;
-            case HEC1:       name="HEC1";         break;
-            case HEC2:       name="HEC2";         break;
-            case HEC3:       name="HEC3";         break;
-
-            // Tile barrel
-            case TileBar0:   name="TileBar0";     break;
-            case TileBar1:   name="TileBar1";     break;
-            case TileBar2:   name="TileBar2";     break;
-
-            // Tile gap (ITC & scint)  
-            case TileGap1:   name="TileGap1";     break;
-            case TileGap2:   name="TileGap2";     break;
-            case TileGap3:   name="TileGap3";     break;
-
-            // Tile extended barrel 
-            case TileExt0:   name="TileExt0";     break;
-            case TileExt1:   name="TileExt1";     break;
-            case TileExt2:   name="TileExt2";     break;
-
-            // Forward cal endcap  
-            case FCalEM:     name="FCalEM";       break;
-            case FCalHad1:   name="FCalHad1";     break;
-            case FCalHad2:   name="FCalHad2";     break;
-
-            // Topo. clusters Had  
-            case TCLCW:      name="TCLCW";        break;
-
-            // pos. and neg. eta barrel                         
-            case TCLCWB1:    name="TCLCWB1";      break;
-            case TCLCWB2:    name="TCLCWB2";      break;
-
-            // pos. and neg. eta endcap             
-            case TCLCWE1:    name="TCLCWE1";      break;
-            case TCLCWE2:    name="TCLCWE2";      break;
-
-            // Topo. clusters EM             
-            case TCEM:       name="TCEM";         break;
-
-            // pos. and neg. eta barrel                         
-            case TCEMB1:     name="TCEMB1";       break;
-            case TCEMB2:     name="TCEMB2";       break;
-
-            // pos. and neg. eta endcap              
-            case TCEME1:     name="TCEME1";       break;
-            case TCEME2:     name="TCEME2";       break;
-
-            // Jet              
-            case JET:        name="JET";          break;
-            case JETB1:      name="JETB1";        break;
-            case JETB2:      name="JETB2";        break;
-            case JETE1:      name="JETE1";        break;
-            case JETE2:      name="JETE2";        break;
-
-            // Topo. cluster Fit              
-            case TCPUC:      name="TCPUC";        break;
-
-            // Topo. cluster Fit -- uncorrected                         
-            case TCPUCUnc:   name="TCPUCUnc";     break;
-
-            // Muons                         
-            case Muons:      name="Muons";        break;
-
-            default:         name="Unknown";
-        }
-        return name;
-                                         
-    }
+        return ComponentToName((Component) c);
+    };
 
 
     unsigned short m_usedChannels; //<! counter for channels
