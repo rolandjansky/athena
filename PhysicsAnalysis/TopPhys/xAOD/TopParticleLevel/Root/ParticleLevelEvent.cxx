@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
 std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEvent) {
