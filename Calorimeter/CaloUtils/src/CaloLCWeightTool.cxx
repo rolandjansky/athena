@@ -99,7 +99,7 @@ StatusCode CaloLCWeightTool::initialize()
     ATH_MSG_INFO(  "Noise Tool retrieved"  );
   } 
  
-  m_sampnames.resize(CaloSampling::Unknown);
+  m_sampnames.reserve(CaloSampling::Unknown);
   for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
      m_sampnames[iSamp] = CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp);
   }
