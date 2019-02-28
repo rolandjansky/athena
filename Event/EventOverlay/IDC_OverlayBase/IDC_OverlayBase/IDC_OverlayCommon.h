@@ -40,9 +40,6 @@ namespace Overlay {
 
   template<class IDC_Container, class OvlAlg> void overlayContainerNew(const IDC_Container* dataContainer, const IDC_Container* mcContainer, IDC_Container* outputContainer, OvlAlg *parent);
 
-  /** Diagnostic output */
-  template<class IDC_Container> std::string shortPrint(const IDC_Container *container, unsigned numprint = 25);
-
 }
 
 #include "IDC_OverlayBase/IDC_OverlayCommon.icc"
