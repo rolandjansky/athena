@@ -26,22 +26,26 @@ class JGTowerMaker: public ::AthAlgorithm {
   JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerMaker(); 
 
+
+ private: 
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT,  xAOD::JGTowerContainer*towerContainer);   
+  virtual StatusCode  FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT,  xAOD::JGTowerContainer*towerContainer);
   virtual StatusCode  beginInputFile();
   virtual StatusCode  SCTowerMapping();
   virtual StatusCode  ForwardMapping();
-  virtual StatusCode  TileMapping(); 
+  virtual StatusCode  TileMapping();
 
   std::vector<std::shared_ptr<JGTower>> m_jT;
   std::vector<std::shared_ptr<JGTower>> m_gT;
 
   GTowerSCMap *m_GMap = new GTowerSCMap();
   JTowerSCMap *m_JMap = new JTowerSCMap();
- private: 
+
+
   const DataHandle<CaloSuperCellDetDescrManager> m_sem_mgr;
+
 //  const DataHandle<CaloTTDescrManager> m_tt_mgr; //kept temporarily to use trigger tower id for for ID mapping in the futher
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;
