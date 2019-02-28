@@ -82,6 +82,12 @@ private:
     this, "PEBSubDetList", {},
     "The list of SubDets to add for partial event building in each passed event"
   };
+  Gaudi::Property<std::map<std::string,unsigned int> > m_createRandomData {
+    this, "CreateRandomData", {},
+    "Create random data which can be serialised and saved to output. The property value should be a dictionary in the "
+    "form {name: number} where name is the collection name and number is the maximum number of elements and "
+    "their decorations"
+  };
 
   // ------------------------- Service or tool handles -------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
@@ -89,6 +95,8 @@ private:
   // ------------------------- Other private members ---------------------------
   /// The decision id of the tool instance
   HLT::Identifier m_decisionId;
+  /// WriteHandleKey array for collections specified in the CreateRandomData property
+  SG::WriteHandleKeyArray<xAOD::TrigCompositeContainer> m_randomDataWHK;
 };
 
 #endif // TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H

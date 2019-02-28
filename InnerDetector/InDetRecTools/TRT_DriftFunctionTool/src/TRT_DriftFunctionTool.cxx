@@ -40,10 +40,6 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_TRTCalDbSvc("TRT_CalDbSvc",name),
     m_TRTCalDbSvc2("",name),
-    m_setupToT(true),
-    m_setupHT(true),
-    m_ToTkey("/TRT/Calib/ToTCalib"),
-    m_HTkey("/TRT/Calib/HTCalib"),
     m_drifttimeperbin(3.125 * CLHEP::ns),
     m_error(0.17),
     m_drifttimeperhalfbin(0.), // set later
@@ -62,8 +58,15 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
     m_uni_error(0.136),
     m_inputfile(""),
     m_key(""),
-    m_trt_mgr_location("TRT")
-
+    m_trt_mgr_location("TRT"),
+    m_ht_correction_barrel_Xe(0.0), // initialised from python
+    m_ht_correction_endcap_Xe(0.0), // initialised from python
+    m_ht_correction_barrel_Ar(0.0), // initialised from python
+    m_ht_correction_endcap_Ar(0.0), // initialised from python
+    m_tot_corrections_barrel_Xe(20, 0.), // initialised from python
+    m_tot_corrections_endcap_Xe(20, 0.), // initialised from python
+    m_tot_corrections_barrel_Ar(20, 0.), // initialised from python
+    m_tot_corrections_endcap_Ar(20, 0.) // initialised from python
 {
   declareInterface<ITRT_DriftFunctionTool>(this);
   m_drifttimeperhalfbin = m_drifttimeperbin/2.;
@@ -82,6 +85,14 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   declareProperty("TRTCalDbTool2", m_TRTCalDbSvc2);
   declareProperty("DriftFunctionFile", m_inputfile);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
+  declareProperty("ToTCorrectionsBarrelXe",m_tot_corrections_barrel_Xe);
+  declareProperty("ToTCorrectionsEndcapXe",m_tot_corrections_endcap_Xe);
+  declareProperty("ToTCorrectionsBarrelAr",m_tot_corrections_barrel_Xe);
+  declareProperty("ToTCorrectionsEndcapAr",m_tot_corrections_endcap_Xe);
+  declareProperty("HTCorrectionBarrelXe",m_ht_correction_barrel_Xe);
+  declareProperty("HTCorrectionEndcapXe",m_ht_correction_endcap_Xe);
+  declareProperty("HTCorrectionBarrelAr",m_ht_correction_barrel_Ar);
+  declareProperty("HTCorrectionEndcapAr",m_ht_correction_endcap_Ar);
 
   // make sure all arrays are initialized - use DC3version2 as default
   for (int i=0; i<3; i++) m_t0_barrel[i] = 15.625;
@@ -111,32 +122,6 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   m_radius[17] = 1.950;  m_errors[17] = 0.20;
   m_radius[18] = 1.955;  m_errors[18] = 0.20;
 
-  //ToT drift time corrections  --  Barrel (0) --  Endcap(1)
-  m_tot_corrections[0][0] = 0.;           m_tot_corrections[1][0] = 0.;
-  m_tot_corrections[0][1] = 4.358121;     m_tot_corrections[1][1] = 5.514777;
-  m_tot_corrections[0][2] = 3.032195;     m_tot_corrections[1][2] = 3.342712;
-  m_tot_corrections[0][3] = 1.631892;     m_tot_corrections[1][3] = 2.056626;
-  m_tot_corrections[0][4] = 0.7408397;    m_tot_corrections[1][4] = 1.08293693;
-  m_tot_corrections[0][5] = -0.004113;    m_tot_corrections[1][5] = 0.3907979;
-  m_tot_corrections[0][6] = -0.613288;    m_tot_corrections[1][6] = -0.082819;
-  m_tot_corrections[0][7] = -0.73758;     m_tot_corrections[1][7] = -0.457485;
-  m_tot_corrections[0][8] = -0.623346;    m_tot_corrections[1][8] = -0.599706; 
-  m_tot_corrections[0][9] = -0.561229;    m_tot_corrections[1][9] = -0.427493;
-  m_tot_corrections[0][10] = -0.29828;    m_tot_corrections[1][10] = -0.328962;
-  m_tot_corrections[0][11] = -0.21344;    m_tot_corrections[1][11] = -0.403399;
-  m_tot_corrections[0][12] = -0.322892;   m_tot_corrections[1][12] = -0.663656;
-  m_tot_corrections[0][13] = -0.386718;   m_tot_corrections[1][13] = -1.029428;
-  m_tot_corrections[0][14] = -0.534751;   m_tot_corrections[1][14] = -1.46008;
-  m_tot_corrections[0][15] = -0.874178;   m_tot_corrections[1][15] = -1.919092;
-  m_tot_corrections[0][16] = -1.231799;   m_tot_corrections[1][16] = -2.151582;
-  m_tot_corrections[0][17] = -1.503689;   m_tot_corrections[1][17] = -2.285481;
-  m_tot_corrections[0][18] = -1.896464;   m_tot_corrections[1][18] = -2.036822;
-  m_tot_corrections[0][19] = -2.385958;   m_tot_corrections[1][19] = -2.15805;
-  
-  //HT drift time correction
-  m_ht_corrections[0] = 1.5205;  //barrel
-  m_ht_corrections[1] = 1.2712;  //endcap
-  
 }
 
 //
@@ -179,6 +164,24 @@ StatusCode TRT_DriftFunctionTool::initialize()
     return sc;
   }
 
+  // Check that ToT corrections have the correct length
+  if (m_tot_corrections_barrel_Xe.size() != 20) {
+    ATH_MSG_FATAL( "Length of ToTCorrectionsBarrelXe is not 20." );
+    return sc;
+  }
+  if (m_tot_corrections_endcap_Xe.size() != 20) {
+    ATH_MSG_FATAL( "Length of ToTCorrectionsEndcapXe is not 20." );
+    return sc;
+  }
+  if (m_tot_corrections_barrel_Ar.size() != 20) {
+    ATH_MSG_FATAL( "Length of ToTCorrectionsBarrelAr is not 20." );
+    return sc;
+  }
+  if (m_tot_corrections_endcap_Ar.size() != 20) {
+    ATH_MSG_FATAL( "Length of ToTCorrectionsEndcapAr is not 20." );
+    return sc;
+  }
+
   if(m_allow_data_mc_override)
     {
       ATH_MSG_DEBUG(" Constants from conddb, code or file allowed "); 
@@ -195,9 +198,6 @@ StatusCode TRT_DriftFunctionTool::initialize()
 
   DecodeVersionKey versionKey(geomodel,"TRT");
   m_key=versionKey.tag();
-
-  ATH_CHECK( m_ToTkey.initialize() );
-  ATH_CHECK( m_HTkey.initialize() );
 
   int numB = m_manager->getNumerology()->getNBarrelPhi();
   ATH_MSG_DEBUG(" Number of Barrel elements "<< numB);      
@@ -426,84 +426,29 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
 
 //
 // returns the time over threshold correction in ns
-double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id)
+double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw)
 {
-
-  if(m_setupToT) {
-    std::lock_guard<std::mutex> lock(m_cacheMutex);
-    const CondAttrListCollection* atrlistcol;
-    SG::ReadCondHandle<CondAttrListCollection> rch(m_ToTkey);
-    atrlistcol=*rch;
-    if(!atrlistcol) {
-      ATH_MSG_ERROR ("Problem reading condDB ToT correction constants.");
-    } else {
-      int channel;
-      std::ostringstream var_name;
-      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-            citr!=atrlistcol->end();++citr) {
-
-        //get Barrel (1) or Endcap (2)
-        channel = citr->first;
-
-        if ((channel == 1) || (channel == 2)) {
-          const coral::AttributeList& atrlist = citr->second;
-
-          for (int i = 0; i < 20; ++i ) {
-            var_name << "TRT_ToT_" << std::dec << i;
-            m_tot_corrections[channel-1][i] = atrlist[var_name.str()].data<float>();
-            var_name.str("");
-          }
-        }
-      }
-    }
-    m_setupToT=false;
-  }
-
-
-  int tot_index = tot/3.125;
+  int tot_index = tot/m_drifttimeperbin;
   if (tot_index < 0) tot_index = 0;
   if (tot_index > 19) tot_index = 19;
 
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
 
-  return m_tot_corrections[bec_index][tot_index];
+  if (isArgonStraw) {
+    return (bec_index) ? m_tot_corrections_endcap_Ar[tot_index] : m_tot_corrections_barrel_Ar[tot_index];
+  }
+  return (bec_index) ? m_tot_corrections_endcap_Xe[tot_index] : m_tot_corrections_barrel_Xe[tot_index];
 }
 
 // Returns high threshold correction to the drift time (ns)
-double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id)
+double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id, bool isArgonStraw)
 {
-
-if(m_setupHT) {
-    std::lock_guard<std::mutex> lock(m_cacheMutex);
-    const CondAttrListCollection* atrlistcol;
-    SG::ReadCondHandle<CondAttrListCollection> rch(m_HTkey);
-    atrlistcol=*rch;
-    if (!atrlistcol) {
-      ATH_MSG_ERROR ("Problem reading condDB HT correction constants.");
-    } else {
-      int channel;
-      std::ostringstream var_name;
-      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-           citr!=atrlistcol->end();++citr) {
-
-        channel = citr->first;
-        if (channel == 1) {
-          const coral::AttributeList& atrlist = citr->second;
-
-          for (int i = 0; i < 2; ++i ) {
-            var_name << "TRT_HT_" << std::dec << i;
-            m_ht_corrections[i] = atrlist[var_name.str()].data<float>();
-            var_name.str("");
-          }
-        }
-      }
-    }
-    m_setupHT=false;
-  }
-
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
 
-  return m_ht_corrections[bec_index];
+  if (isArgonStraw) {
+    return (bec_index) ? m_ht_correction_endcap_Ar : m_ht_correction_barrel_Ar;
+  }
+  return (bec_index) ? m_ht_correction_endcap_Xe : m_ht_correction_barrel_Xe;
 }
 
 //

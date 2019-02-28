@@ -101,7 +101,6 @@ class ConfigurationJar( object ):
 
       from . import AlgSequence as _as
       self.athMasterSeq = _as.AthSequencer ("AthMasterSeq")
-      self.athFilterSeq = _as.AthSequencer ("AthFilterSeq")
       self.TopSequence  = _as.AlgSequence  ("TopAlg")
       self.athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
       self.athOutSeq    = _as.AthSequencer ("AthOutSeq")
@@ -123,7 +122,6 @@ class ConfigurationJar( object ):
       d[ 'name' ] = self.name
 
       d[ 'AthMasterSeq' ]  = self.athMasterSeq
-      d[ 'AthFilterSeq' ]  = self.athFilterSeq
       d[ 'AthAlgSeq' ]     = self.athAlgSeq
       d[ 'TopSequence' ]   = self.TopSequence
       d[ 'AthOutSeq' ]     = self.athOutSeq

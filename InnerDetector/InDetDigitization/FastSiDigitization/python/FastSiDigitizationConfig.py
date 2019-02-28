@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
@@ -64,11 +64,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
 
 def commonPixelFastDigitizationConfig(name,**kwargs):
-
-    # Setup the DCS folders and tool used in the sctSiliconConditionsTool
-    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-    pixelDCSConditionsToolSetup.setup()
 
     kwargs.setdefault("ClusterMaker", "FastClusterMakerTool")
 

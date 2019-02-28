@@ -25,7 +25,7 @@ namespace Trk
 RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 					      const std::string&	name, 
 					      const IInterface*		parent)
-    :	AthAlgTool		(type, name, parent),
+    :	base_class		(type, name, parent),
 	m_magFieldSvc		("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
 	m_productionMode	(true),
 	m_caloR0		(1900.*Gaudi::Units::mm),	// r min for calo high field gradient region
@@ -76,14 +76,10 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 	m_countStep		(0),
 	m_countStepReduction	(0)
 {
-    declareInterface<Trk::IIntersector>(this);
     declareProperty("MagFieldSvc",		m_magFieldSvc ); 
     declareProperty("ProductionMode",		m_productionMode);
 }
 
-RungeKuttaIntersector::~RungeKuttaIntersector (void)
-{}
- 
 StatusCode
 RungeKuttaIntersector::initialize(){
     // print name and package version
@@ -137,7 +133,7 @@ RungeKuttaIntersector::finalize()
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectSurface(const Surface&		surface,
 					const TrackSurfaceIntersection*	trackIntersection,
-					const double      	qOverP)
+					const double      	qOverP) const
 {
     // trap low momentum
     if (std::abs(qOverP) > m_momentumThreshold)
@@ -168,7 +164,7 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
 					      const TrackSurfaceIntersection*	trackIntersection,
-					      const double			qOverP)
+					      const double			qOverP) const
 {
     ++m_countExtrapolations;
     auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
@@ -208,7 +204,7 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		surface,
 						   const TrackSurfaceIntersection*	trackIntersection,
-						   const double      			qOverP)
+						   const double      			qOverP) const
 {
     ++m_countExtrapolations;
     auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
@@ -248,7 +244,7 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		s
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surface,
 						 const TrackSurfaceIntersection*	trackIntersection,
-						 const double				qOverP)
+						 const double				qOverP) const
 {
     ++m_countExtrapolations;
     auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
@@ -318,7 +314,7 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surfac
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double			qOverP)
+					     const double			qOverP) const
 {
     ++m_countExtrapolations;
     auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
@@ -357,7 +353,7 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&		surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double			qOverP)
+					     const double			qOverP) const
 {
     ++m_countExtrapolations;
     auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);

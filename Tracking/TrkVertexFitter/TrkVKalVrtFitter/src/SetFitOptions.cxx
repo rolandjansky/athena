@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -274,7 +274,7 @@ namespace Trk{
      m_CovVrtForConstraint.push_back(ZZ);
   }			  
 
-  void TrkVKalVrtFitter::setMassInputParticles( std::vector<double>& mass)
+  void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass)
   { m_MassInputParticles.clear();
     for(int i=0; i<(int)mass.size(); i++) m_MassInputParticles.push_back(fabs(mass[i]));
   }

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -9,7 +9,7 @@
  * @file CaloEvent/CaloConstCellContainer.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2014
- * @brief @c CaloCellContainer that can accept const cell points.
+ * @brief @c CaloCellContainer that can accept const cell pointers.
  */
 
 
@@ -152,6 +152,10 @@ public:
 
   /** @brief reimplementation of push_back to gain speed in readin */
   void push_back_fast (const CaloCell* cell);
+
+
+  /** @brief reset look up table */
+  void resetLookUpTable();
 
 
 private:

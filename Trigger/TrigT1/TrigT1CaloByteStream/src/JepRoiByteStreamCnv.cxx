@@ -30,7 +30,7 @@
 namespace LVL1BS {
 
 JepRoiByteStreamCnv::JepRoiByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("JepRoiByteStreamCnv"),
       m_tool("LVL1BS::JepRoiByteStreamTool/JepRoiByteStreamTool"),
       m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
@@ -49,11 +49,13 @@ const CLID& JepRoiByteStreamCnv::classID()
   return ClassID_traits<LVL1::JEPRoIBSCollection>::ID();
 }
 
+long JepRoiByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode JepRoiByteStreamCnv::initialize()
 {

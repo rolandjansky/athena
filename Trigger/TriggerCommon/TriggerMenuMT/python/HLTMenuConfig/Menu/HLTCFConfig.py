@@ -25,27 +25,6 @@ def makeSummary(name, flatDecisions):
     return summary
 
 
-def makeStreamESD(name, flatDecisions):
-    """ Creates output stream for given decisions """
-    import AthenaPoolCnvSvc.WriteAthenaPool
-    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-    StreamESD = createOutputStream(name,"myESD.pool.root",True)
-    StreamESD.OutputLevel=3
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.remove( StreamESD )
-    def addTC(name):   
-        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-    for tc in flatDecisions:
-        addTC( tc )
-
-    addTC("HLTSummary")
-    log.debug("ESD file content: ")
-    log.debug( StreamESD.ItemList  )
-    return StreamESD
-
-
 def createStepRecoNode(name, seq_list, dump=False):
     """ elementary HLT reco step, contianing all sequences of the step """
 
@@ -166,10 +145,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()    
-    #edmCreator.TrigCompositeContainer = flatDecisions
-    #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
     # add signature monitor
@@ -182,7 +157,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
     monAcc.appendToGlobals()    
     hltTop += monAlg
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)
     
     topSequence += hltTop
 

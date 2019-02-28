@@ -10,6 +10,7 @@
 
 #include "MuonIdHelpers/CscIdHelper.h"
 
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -20,15 +21,14 @@ constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonOverlayBase(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("RndmEngine",      m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
 }
 
 //================================================================
-StatusCode CscOverlay::overlayInitialize()
+StatusCode CscOverlay::initialize()
 {
-  ATH_MSG_INFO("CscOverlay initialized");
+  ATH_MSG_DEBUG("CscOverlay initialized");
 
   /** access to the CSC Identifier helper */
   ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
@@ -40,96 +40,45 @@ StatusCode CscOverlay::overlayInitialize()
   // get cscRdoDecoderTool
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
-  ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digitization Tool.");
-
-  ATH_CHECK(m_rdoTool2.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 2.");
-
-  ATH_CHECK(m_rdoTool4.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 4.");
-
   //random number initialization
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  // getting our random numbers stream
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-
-  ATH_CHECK( m_inputDataRDOKey.initialize() );
-  ATH_CHECK( m_inputOverlayRDOKey.initialize() );
-  ATH_CHECK( m_outputContainerKey.initialize() );
+  ATH_CHECK( m_bkgInputKey.initialize() );
+  ATH_CHECK( m_signalInputKey.initialize() );
+  ATH_CHECK( m_outputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode CscOverlay::overlayFinalize()
-{
-  ATH_MSG_INFO("CscOverlay finalized");
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode CscOverlay::overlayExecute() {
+StatusCode CscOverlay::execute() {
   ATH_MSG_DEBUG("CscOverlay::execute() begin");
   //----------------------------------------------------------------
   unsigned int numsamples=0;//to be determined from the data
-  SG::ReadHandle<CscRawDataContainer> inputDataRDO(m_inputDataRDOKey);
-  if(!inputDataRDO.isValid()) {
-    ATH_MSG_WARNING("Could not get data CscRawDataContainer  \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
+  SG::ReadHandle<CscRawDataContainer> inputBkgRDO(m_bkgInputKey);
+  if(!inputBkgRDO.isValid()) {
+    ATH_MSG_WARNING("Could not get background CscRawDataContainer  \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
-  if ((inputDataRDO->begin()==inputDataRDO->end()) || !*(inputDataRDO->begin())){
-        ATH_MSG_WARNING("Could not get nsamples, inputDataRDO empty?");
+  ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputBkgRDO.name() << "\" in " << inputBkgRDO.store());
+  if ((inputBkgRDO->begin()==inputBkgRDO->end()) || !*(inputBkgRDO->begin())){
+        ATH_MSG_WARNING("Could not get nsamples, inputBkgRDO empty?");
   }
   else{
-    numsamples=inputDataRDO->begin()->numSamples();
-  }
-
-  /** in the simulation stream, run digitization of the fly
-      and make RDO - this will be used as input to the overlay job */
-  if ( m_digTool->processAllSubEvents().isFailure() ) {
-     ATH_MSG_WARNING("On the fly CSC digitization failed ");
-     return StatusCode::SUCCESS;
-  }
-
-  if (numsamples==2) {
-    if ( m_rdoTool2->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 2 failed ");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Digitizing with 2 samples");
-  }
-  else if (numsamples==4) {
-    if ( m_rdoTool4->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 4 failed ");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Digitizing with 4 samples");
-  }
-  else{
-    ATH_MSG_WARNING("On the fly CSC Digit -> RDO failed - not 2 or 4 samples!");
-    //return StatusCode::SUCCESS;
+    numsamples=inputBkgRDO->begin()->numSamples();
   }
 
   if (numsamples>0) {
-    ATH_MSG_DEBUG("Retrieving MC input CSC container");
-    SG::ReadHandle<CscRawDataContainer> inputOverlayRDO(m_inputOverlayRDOKey);
-    if(!inputOverlayRDO.isValid()) {
-      ATH_MSG_WARNING("Could not get overlay CscRawDataContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
+    ATH_MSG_DEBUG("Retrieving signal input CSC container");
+    SG::ReadHandle<CscRawDataContainer> inputSignalRDO(m_signalInputKey);
+    if(!inputSignalRDO.isValid()) {
+      ATH_MSG_WARNING("Could not get signal CscRawDataContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
+    ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputSignalRDO.name() << "\" in " << inputSignalRDO.store());
 
-    /* now do the overlay - reading real data from the data stream
-       and reading simulated RDO produced in the previous steps
-       from the simulation stream */
-    this->overlayContainer(inputDataRDO.cptr(), inputOverlayRDO.cptr());
+    /* now do the overlay */
+    this->overlayContainer(inputBkgRDO.cptr(), inputSignalRDO.cptr());
   }
 
   //----------------------------------------------------------------
@@ -143,9 +92,9 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
 {
   ATH_MSG_DEBUG("overlayContainer<>() begin");
 
-  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputContainerKey);
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
   if (outputContainer.record(std::make_unique<CscRawDataContainer>()).isFailure()) {
-    ATH_MSG_ERROR("Failed to record " << m_outputContainerKey);
+    ATH_MSG_ERROR("Failed to record " << m_outputKey);
   }
 
   /** Add data from the main container to the output one */
@@ -170,6 +119,10 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
     ++p_main;
   }
 
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
+
   /** Add data from the ovl container to the output one */
   CscRawDataContainer::const_iterator p_ovl = overlay->begin();
   CscRawDataContainer::const_iterator p_ovl_end = overlay->end();
@@ -191,7 +144,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
 
       const CscRawDataCollection *coll_data = *q;
       this->copyCscRawDataCollectionProperties(*coll_data, *out_coll);
-      this->mergeCollections(out_coll.get(), coll_data, coll_ovl);
+      this->mergeCollections(out_coll.get(), coll_data, coll_ovl, rndmEngine);
 
       /** Here the new collection is created, but not yet registered.
           Put it in IDC in place of the original collection.
@@ -240,7 +193,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
             }
             else {
               for (unsigned int k=0; k<samples.size(); ++k) {
-                double theNoise = CLHEP::RandGauss::shoot(m_rndmEngine, 0.0, noise);
+                double theNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, noise);
                 float adcCount = samples[k] + theNoise;
                 if ( adcCount > MAX_AMPL ) {
                   ATH_MSG_DEBUG("value out of range (copying over signal): " << adcCount << " "
@@ -326,7 +279,8 @@ bool CscOverlay::needtoflip(const int address) const {
 //================================================================
 void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
                                   const CscRawDataCollection *data_coll,
-                                  const CscRawDataCollection *ovl_coll)
+                                  const CscRawDataCollection *ovl_coll,
+                                  CLHEP::HepRandomEngine* rndmEngine)
 {
   ATH_MSG_DEBUG("mergeCollection<>() begin");
 
@@ -411,7 +365,7 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        for (std::map< int,std::vector<uint16_t> >::const_iterator s=sigSamples.begin(); s!=sigSamples.end(); ++s){readstrips.insert(s->first);}
        for (std::map< int,std::vector<uint16_t> >::const_iterator si=ovlSamples.begin(); si!=ovlSamples.end(); ++si){readstrips.insert(si->first);}
 
-       std::vector<CscRawData*> datums = this->overlay(sigSamples, ovlSamples,address, spuID, out_coll->identify(), hash );
+       std::vector<CscRawData*> datums = this->overlay(sigSamples, ovlSamples,address, spuID, out_coll->identify(), hash, rndmEngine);
        if ( datums.size()==0 ) {         ATH_MSG_WARNING("datums is size 0!");       }
        for (unsigned int di=0; di<datums.size(); ++di){
          CscRawData* datum=datums[di];
@@ -583,11 +537,12 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
 }
 
 std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<uint16_t> >& sigSamples,
-                                  const std::map< int,std::vector<uint16_t> >& ovlSamples,
-                                  const uint32_t address,
-                                  const uint16_t spuID,
-                                  const uint16_t collId,
-                                  const uint32_t hash )
+                                              const std::map< int,std::vector<uint16_t> >& ovlSamples,
+                                              const uint32_t address,
+                                              const uint16_t spuID,
+                                              const uint16_t collId,
+                                              const uint32_t hash,
+                                              CLHEP::HepRandomEngine *rndmEngine)
 {
   ATH_MSG_DEBUG("overlay<>() begin: hash="<<hash<<" address="<<address);
   std::vector<CscRawData*> datas;
@@ -619,7 +574,7 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
       int myhashw=myhash+width; if (needtoflip(myaddress)) {myhashw=myhash-width;}
       double noise = m_cscCalibTool->stripNoise( (myhashw), false );//in ADC counts
        for ( unsigned int j=0; j<(*ovl).second.size(); ++j ) {
-          double theNoise = CLHEP::RandGauss::shoot(m_rndmEngine, 0.0, noise);
+          double theNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, noise);
           float adcCount = (*ovl).second.at(j) + theNoise ;//add noise
           if ( adcCount > MAX_AMPL ) {
             ATH_MSG_DEBUG("value out of range (adding noise): " << adcCount << " "

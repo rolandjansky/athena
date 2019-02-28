@@ -10,10 +10,10 @@ import AthenaCommon.CfgMgr as CfgMgr
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
+InDetFlags.InDet25nsec = True
+InDetFlags.doPrimaryVertex3DFinding = False
 InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
+InDetFlags.doResolveBackTracks = True
 InDetFlags.doSiSPSeededTrackFinder = True
 InDetFlags.doTRTPhaseCalculation = True
 InDetFlags.doTRTSeededTrackFinder = True
@@ -24,7 +24,7 @@ InDetFlags.init()
 #include("InDetRecExample/InDetRecConditionsAccess.py")
 from InDetRecExample.InDetKeys import InDetKeys
 
-# menu components   
+# menu components
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 # ===============================================================================================
@@ -38,7 +38,7 @@ cellMaker.OutputLevel=DEBUG
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
 clusMaker = TrigCaloClusterMakerMT_topo("CaloClusMakerTopo")
 clusMaker.OutputLevel=VERBOSE
- 
+
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
@@ -74,10 +74,10 @@ from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlgMT
 fastCaloHypo = TrigTauCaloHypoAlgMT("TauGenericHypoMT")
 fastCaloHypo.OutputLevel = DEBUG
 
-from TrigTauHypo.TrigL2TauHypoTool import TrigTauHypoProvider
+from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromDict
 
 def tauCaloSequence():
     return  MenuSequence( Sequence    = fastCaloAthSequence,
                           Maker       = fastCaloViewsMaker,
                           Hypo        = fastCaloHypo,
-                          HypoToolGen = TrigTauHypoProvider )
+                          HypoToolGen = TrigL2TauHypoToolFromDict )

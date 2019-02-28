@@ -653,15 +653,8 @@ if globalflags.InputFormat.is_bytestream():
         pass
     pass
 
-### write mu values into EventInfo
-if rec.doESD() and rec.readRDO() and not (globalflags.DataSource()=='geant4') and jobproperties.Beam.beamType()=="collisions" and not athenaCommonFlags.isOnline():
-    try:
-        include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
-    except Exception:
-        treatException("Could not load LumiBlockMuWriter_jobOptions.py")
-        pass
-#    muWriter.OutputLevel=DEBUG
-    pass
+### Writing of mu values to xAOD::EventInfo is done in the converter step;
+### It's no longer necessary to write it in the old EventInfo
 
 if rec.doMonitoring():
     try:
@@ -1058,8 +1051,8 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
     try:
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
-        seq=AthSequencer("AthFilterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthFilterSeq")
+        seq=AthSequencer("AthMasterSeq")
+        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
         seq+=topSequence.RoIBResultToAOD
         seq+=topSequence.TrigBSExtraction

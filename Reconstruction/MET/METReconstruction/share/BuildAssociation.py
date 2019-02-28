@@ -82,14 +82,14 @@ assocAlg = CfgMgr.met__METAssocAlg('METAssocAlg',PFOTool=pfotool, TrackSelectorT
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from GaudiSequencer.PyComps import PyEvtFilter
-filterseq = CfgMgr.AthSequencer('AthFilterSeq')
+masterSeq = CfgMgr.AthSequencer('AthMasterSeq')
 #the following lines are examples, pick one...
-#filterseq += PyEvtFilter(evt_list=[1980130,287866,1706011,2226793,146377,146604,1904442,1297008,1298451,1072953]) #will execute main sequence only for these eventnumbers
-#filterseq += PyEvtFilter(evt_list=[1108077])
-filterseq += metAlg
-filterseq += assocAlg
-filterseq += utilAlg
-filterseq += makerAlg
+#masterSeq += PyEvtFilter(evt_list=[1980130,287866,1706011,2226793,146377,146604,1904442,1297008,1298451,1072953]) #will execute main sequence only for these eventnumbers
+#masterSeq += PyEvtFilter(evt_list=[1108077])
+masterSeq += metAlg
+masterSeq += assocAlg
+masterSeq += utilAlg
+masterSeq += makerAlg
 
 if verbose:
     metAlg.OutputLevel=VERBOSE

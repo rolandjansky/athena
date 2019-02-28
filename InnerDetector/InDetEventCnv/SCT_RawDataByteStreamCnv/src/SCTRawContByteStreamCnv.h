@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
 
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
 #include "GaudiKernel/Converter.h"
@@ -15,9 +16,7 @@ class DataObject;
 class ISCTRawContByteStreamTool;
 class MsgStream;
 
-extern long ByteStream_StorageType;
-
-/** 
+/**
  * @class SCTRawContByteStreamCnv
  *
  * @brief Converter for writing ByteStream from SCT Raw Data
@@ -41,8 +40,8 @@ class SCTRawContByteStreamCnv : public Converter
   virtual StatusCode initialize() override;
   
   /** Storage type and class ID */
-  virtual long repSvcType() const override { return ByteStream_StorageType; }
-  static long storageType() { return ByteStream_StorageType; } 
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static long storageType() { return ByteStreamAddress::storageType(); }
   static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
   
   /** createObj method (not used!) */

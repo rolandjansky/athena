@@ -62,7 +62,7 @@ GoodRunsListSelectorTool.PassThrough = False
 ## This Athena job consists of algorithms that loop over events;
 ## here, the (default) top sequence is used:
 #job = AlgSequence()
-seq = AthSequencer("AthFilterSeq")
+seq = AthSequencer("AthMasterSeq")
 topSequence += seq
 
 from GoodRunsListsUser.GoodRunsListsUserConf import *

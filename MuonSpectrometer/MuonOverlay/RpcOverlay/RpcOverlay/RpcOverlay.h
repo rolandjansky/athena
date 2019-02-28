@@ -7,9 +7,7 @@
 // Overlaying RpcDigits from two different events for RPC subdetectors.
 //
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
-
 // Ketevi A. Assamagan <ketevi@bnl.gov>, March 2008 
-
 // Piyali Banerjee <Piyali.Banerjee@cern.ch>, March 2011
 
 #ifndef RPCOVERLAY_H
@@ -17,32 +15,23 @@
 
 #include <string>
 
-#include "MuonOverlayBase/IDC_MultiHitOverlayBase.h"
-#include "MuonDigitContainer/RpcDigitContainer.h"
+#include <MuonDigitContainer/RpcDigitContainer.h>
+#include <MuonOverlayBase/IDC_MuonOverlayBase.h>
 
-class RpcIdHelper;
 
-class RpcOverlay : public IDC_MultiHitOverlayBase  {
+class RpcOverlay : public IDC_MuonOverlayBase
+{
 public:
 
-  RpcOverlay(const std::string &name,ISvcLocator *pSvcLocator);
+  RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */
-  virtual StatusCode overlayInitialize();
-  virtual StatusCode overlayExecute();
-  virtual StatusCode overlayFinalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
 private:
-  // ----------------------------------------------------------------
-
-  // jO controllable properties.
-  // "Main" containers are read, have data from "overlay" containers added,
-  // and written out with the original SG keys.
-  SG::ReadHandleKey<RpcDigitContainer> m_mainInputDigitKey{this,"MainInputDigitKey","OriginalEvent_SG+RPC_DIGITS","ReadHandleKey for Main Input RpcDigitContainer"};
-  SG::ReadHandleKey<RpcDigitContainer> m_overlayInputDigitKey{this,"OverlayInputDigitKey","BkgEvent_0_SG+RPC_DIGITS","ReadHandleKey for Overlay Input RpcDigitContainer"};
-  SG::WriteHandleKey<RpcDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"};
-
-  const RpcIdHelper   * m_rpcHelper{nullptr};
+  SG::ReadHandleKey<RpcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+RPC_DIGITS", "ReadHandleKey for Background Input RpcDigitContainer" };
+  SG::ReadHandleKey<RpcDigitContainer> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+RPC_DIGITS", "ReadHandleKey for Signal Input RpcDigitContainer" };
+  SG::WriteHandleKey<RpcDigitContainer> m_outputKey{ this, "OutputKey","StoreGateSvc+RPC_DIGITS", "WriteHandleKey for Output RpcDigitContainer" };
 
 };
 

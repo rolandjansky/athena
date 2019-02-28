@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprPhos4ShapeMaker.h"
@@ -516,8 +516,6 @@ StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
    else
    	ATH_MSG_INFO( "TTOnlineId retrieved successfully." );
 	
-   m_ttOnlineIdHelper->set_do_checks(true);
-   
    m_lvl1Helper = m_caloMgr->getLVL1_ID();
    if (!m_lvl1Helper) {
       ATH_MSG_ERROR( "Could not access CaloLVL1_ID helper" );

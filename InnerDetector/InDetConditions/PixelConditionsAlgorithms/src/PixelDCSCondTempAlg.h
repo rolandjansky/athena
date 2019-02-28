@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef PIXELDCSCONDTEMPALG
@@ -11,7 +11,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
+
+#include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -26,8 +28,13 @@ class PixelDCSCondTempAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
+    const PixelID* m_pixelID;
+
+    bool m_useConditions;
+    float m_defaultTemperature;
+
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/DCS/TEMPERATURE", "Key of input (raw) temperature conditions folder"};
-    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKey{this, "WriteKey", "PixelDCSTempCondData", "Key of output (derived) temperature conditions folder"};
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelDCSTempCondData", "Key of output (derived) temperature conditions folder"};
 
     ServiceHandle<ICondSvc> m_condSvc;
 };

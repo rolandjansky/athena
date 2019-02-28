@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -23,18 +23,14 @@
 // Framework include files
 #include "GaudiKernel/GenericAddress.h"
 
-// Externals
-extern long ByteStream_StorageType;
-
-
 /// Standard Constructor
 ByteStreamAddress::ByteStreamAddress(const CLID& clid,
 		const std::string& fname , const std::string& cname, int p1, int p2)
-	: GenericAddress(ByteStream_StorageType, clid, fname, cname, p1, p2), m_eid(0,0) {
+    : GenericAddress(storageType(), clid, fname, cname, p1, p2), m_eid(0,0) {
 }
 
 ByteStreamAddress::ByteStreamAddress(const CLID& clid)
-	: GenericAddress(ByteStream_StorageType, clid, "", "") {
+    : GenericAddress(storageType(), clid, "", "") {
 }
 
 /** Add ROBID

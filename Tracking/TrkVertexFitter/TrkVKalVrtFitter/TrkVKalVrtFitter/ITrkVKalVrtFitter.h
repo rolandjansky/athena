@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrkVKalVrtFitter.h  - old VKalVrtInterface
@@ -114,7 +114,7 @@ namespace Trk{
       virtual void setVertexForConstraint(double,double,double)=0;
       virtual void setCovVrtForConstraint(double,double,double,
                                           double,double,double)=0;
-      virtual void setMassInputParticles( std::vector<double>& )=0;
+      virtual void setMassInputParticles( const std::vector<double>& )=0;
       virtual void setDefault() =0;
       virtual void setZeroCharge(int)=0;
 //

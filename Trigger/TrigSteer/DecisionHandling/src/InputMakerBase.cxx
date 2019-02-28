@@ -122,7 +122,13 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
     ATH_MSG_DEBUG(" " << inputKey.key() << " " << (inputHandle.isValid()? "valid": "not valid" ) );
-    if (inputHandle.isValid()) validInput++;
+    if (inputHandle.isValid()) {
+      if (inputHandle->size() > 0) {
+        validInput++;
+      } else {
+        ATH_MSG_DEBUG("   " << inputKey.key() << " actually NOT valid due to size() == 0");
+      }
+    }
   }
   size_t validOutput=0;
   ATH_MSG_DEBUG( "number of implicit ReadHandles for input decisions is " << decisionInputs().size() << ", " << validInput << " are valid" );

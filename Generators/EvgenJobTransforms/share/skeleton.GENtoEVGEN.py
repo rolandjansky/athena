@@ -17,12 +17,12 @@ acam.athMasterSeq += acas.AlgSequence("EvgenFixSeq")
 fixSeq = acam.athMasterSeq.EvgenFixSeq
 acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
 prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
-acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
-testSeq = acam.athFilterSeq.EvgenTestSeq
+acam.athMasterSeq += acas.AlgSequence("EvgenTestSeq")
+testSeq = acam.athMasterSeq.EvgenTestSeq
 ## NOTE: LogicalExpressionFilter is an algorithm, not a sequence
 from EvgenProdTools.LogicalExpressionFilter import LogicalExpressionFilter
-acam.athFilterSeq += LogicalExpressionFilter("EvgenFilterSeq")
-filtSeq = acam.athFilterSeq.EvgenFilterSeq
+acam.athMasterSeq += LogicalExpressionFilter("EvgenFilterSeq")
+filtSeq = acam.athMasterSeq.EvgenFilterSeq
 topSeq = acas.AlgSequence()
 anaSeq = topSeq
 topSeq += acas.AlgSequence("EvgenPostSeq")

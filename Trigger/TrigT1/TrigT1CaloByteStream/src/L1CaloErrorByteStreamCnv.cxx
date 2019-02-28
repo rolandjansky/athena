@@ -23,7 +23,7 @@
 namespace LVL1BS {
 
 L1CaloErrorByteStreamCnv::L1CaloErrorByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("L1CaloErrorByteStreamCnv"),
       m_tool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
       m_log(msgSvc(), m_name), m_debug(false)
@@ -41,11 +41,13 @@ const CLID& L1CaloErrorByteStreamCnv::classID()
   return ClassID_traits<std::vector<unsigned int> >::ID();
 }
 
+long L1CaloErrorByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode L1CaloErrorByteStreamCnv::initialize()
 {

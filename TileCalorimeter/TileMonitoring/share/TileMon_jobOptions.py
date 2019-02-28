@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+
 #**************************************************************
 #
 # jopOptions file for Tile Monitoring in Athena 
@@ -62,7 +66,6 @@ if tileESDMon:
         TileCellMon.FillTimeHistograms = True
         TileCellMon.energyThresholdForTime = 150.0
         
-    #ToolSvc += TileCellMon;    
     ManagedAthenaTileMon.AthenaMonTools += [ TileCellMon ];
 
 
@@ -200,7 +203,6 @@ if  tileRawMon:
     if globalflags.InputFormat() == 'pool':
         TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
 
-    #ToolSvc += TileMBTSMon;
     ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ]
 
     from TileRecUtils.TileRecFlags import jobproperties

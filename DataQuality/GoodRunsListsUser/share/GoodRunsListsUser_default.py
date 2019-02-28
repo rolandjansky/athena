@@ -34,10 +34,10 @@ job = AlgSequence()
 ##   after GRLTriggerAlg1, it is not executed in case GRLTriggerAlg1 rejects an event.
 ###########################################################################################
 
-## AthFilterSeq is always executed before the top sequence, and is configured such that
+## AthMasterSeq is always executed before the top sequence, and is configured such that
 ## any follow-up sequence (eg. top sequence) is not executed in case GRLTriggerAlg1 does
 ## not pass the event
-seq = AthSequencer("AthFilterSeq")
+seq = AthSequencer("AthMasterSeq")
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 seq.GRLTriggerAlg1.GoodRunsListArray  = ['grl_topmix_mu']
 seq.GRLTriggerAlg1.BlackRunsListArray = ['blacklist']

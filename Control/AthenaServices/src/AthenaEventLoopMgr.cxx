@@ -674,10 +674,17 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 	  eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
 	if (xAODEvent==nullptr) {
 	  error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
-	  //std::cout << eventStore()->dump();
 	  return StatusCode::FAILURE;
 	}
-	eventID=eventIDFromxAOD(xAODEvent);
+	// Record the old-style object for those clients that still need it
+	pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+	pEvent = pEventPtr.get();
+	eventID=*(pEvent->event_ID());
+	StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
+	if( !sc.isSuccess() )  {
+	  error() << "Error declaring event data object" << endmsg;
+	  return StatusCode::FAILURE;
+	}
       }
     }
   }
@@ -687,8 +694,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     pEventPtr = CxxUtils::make_unique<EventInfo>
       (new EventID(1,m_nevt), new EventType());
     pEvent = pEventPtr.get();
-    eventID=*(pEvent->event_ID());
     pEventPtr->event_ID()->set_lumi_block( m_nevt );
+    eventID=*(pEvent->event_ID());
     StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
     if( !sc.isSuccess() )  {
       error() 
@@ -1088,7 +1095,6 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
     if (xAODEvent==nullptr) {
       error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
-      std::cout << eventStore()->dump();
       return; 
     }
     eventID=eventIDFromxAOD(xAODEvent);

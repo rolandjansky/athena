@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -71,36 +71,61 @@ public:
 
     /** build identifier for any Tilecal section */
     Identifier          tile_det                ( int section)                  const;
+    Identifier          tile_det                ( int section, bool checks)     const;
 
     /** build single region, module, tower, cell, pmt, adc identifiers */
     Identifier          region_id               ( int index)                    const;
     Identifier          region_id               ( int section, int side)        const;
+    Identifier          region_id               ( int section, int side, bool checks) const;
     Identifier          region_id               ( const Identifier& any_id)     const;
 
     Identifier          module_id               ( int section, int side,
                                                   int module)                   const;
+    Identifier          module_id               ( int section, int side,
+                                                  int module, bool checks)      const;
     Identifier          module_id               ( const Identifier& any_id)     const;
     Identifier          tower_id                ( int section,  int side,
                                                   int module,   int tower)      const;
-    Identifier          tower_id               ( const Identifier& any_id)     const;
+    Identifier          tower_id                ( int section,  int side,
+                                                  int module,   int tower,
+                                                  bool checks)                  const;
+    Identifier          tower_id               ( const Identifier& any_id)      const;
     Identifier          cell_id                 ( const Identifier & any_id )   const;
     Identifier          cell_id                 ( int section,  int side,
                                                   int module,   int tower,
                                                   int sample )                  const;
+    Identifier          cell_id                 ( int section,  int side,
+                                                  int module,   int tower,
+                                                  int sample, bool checks )     const;
     Identifier          pmt_id                  ( const Identifier & any_id )   const;
     Identifier          pmt_id                  ( const Identifier & cell_id,
                                                   int pmt )                     const;
+    Identifier          pmt_id                  ( const Identifier & cell_id,
+                                                  int pmt, bool checks )        const;
     Identifier          pmt_id                  ( int section,  int side,
                                                   int module,   int tower,
                                                   int sample,   int pmt )       const;
+    Identifier          pmt_id                  ( int section,  int side,
+                                                  int module,   int tower,
+                                                  int sample,   int pmt,
+                                                  bool checks)                  const;
     Identifier          adc_id                  ( const Identifier & cell_id,
                                                   int pmt, int adc )            const;
+    Identifier          adc_id                  ( const Identifier & cell_id,
+                                                  int pmt, int adc,
+                                                  bool checks )                 const;
     Identifier          adc_id                  ( const Identifier & pmt_id,
                                                   int adc )                     const;
+    Identifier          adc_id                  ( const Identifier & pmt_id,
+                                                  int adc, bool checks )        const;
     Identifier          adc_id                  ( int section,  int side,
                                                   int module,   int tower,
                                                   int sample,   int pmt,
                                                   int adc ) const;
+    Identifier          adc_id                  ( int section,  int side,
+                                                  int module,   int tower,
+                                                  int sample,   int pmt,
+                                                  int adc, bool checks ) const;
 
     /** fast conversion from hash to ID for cells */
     Identifier          cell_id                 (const IdentifierHash& hash_id) const;
