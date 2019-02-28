@@ -1,3 +1,4 @@
+#Based on MuonRecExample/MuonRec_myTopOptions.py
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -11,8 +12,6 @@ EvtMax = 10
 # Input
 #--------------------------------------------------------------------------------
 athenaCommonFlags.FilesInput = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-## flag for running in mig5
-doMig5 = False
 
 # in Standalone mode, don't allow any configuration errors
 athenaCommonFlags.AllowIgnoreConfigError = False
@@ -58,12 +57,6 @@ muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
 muonRecFlags.doNSWNewThirdChain    = True
-
-# flags to tweak standalone muon reconstruction
-if doMig5:
-    muonStandaloneFlags.doSegmentsOnly       = False
-    muonStandaloneFlags.patternsOnly         = False
-    muonStandaloneFlags.createTrackParticles = False
 
 muonStandaloneFlags.printSummary         = True
 muonCombinedRecFlags.doTrackPerformance  = True
