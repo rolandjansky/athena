@@ -117,6 +117,7 @@ PP="$PP"'|Service factory for type [^ ]+ already declared'
 PP="$PP"'|Converter for class:[^ ]+ already exists'
 # Number of configurables read can vary from build to build.
 PP="$PP"'|INFO Read module info for|confDb modules in'
+PP="$PP"'|INFO Read module info for|configurables from'
 # ignore ApplicationMgr header.
 PP="$PP"'|^ApplicationMgr *SUCCESS *$'
 PP="$PP"'|^=+$'
@@ -161,6 +162,8 @@ PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'
 PP="$PP"'|servers found for host'
 PP="$PP"'|^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) '
+PP="$PP"'|INFO Database being retired|^Domain.*INFO'
+PP="$PP"'|SZ='
 
 # Outputs dependent on whether or not a file catalog already exists.
 PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'
