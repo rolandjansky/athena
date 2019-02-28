@@ -35,7 +35,7 @@ namespace Analysis {
       /** Implementation of ITagTool methods */
       virtual void setOrigin(const xAOD::Vertex* priVtx);
       /** called by BJetBuilder */
-      StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);     
+      StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string jetName);
 
     private:      
 

@@ -73,7 +73,7 @@ namespace Analysis
 
       /** Main routines specific to an ATHENA algorithm */
       StatusCode initialize();
-      StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
+      StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const std::string jetName = "", const xAOD::Vertex* vtx = 0);
       StatusCode finalize();
       void finalizeHistos();
 

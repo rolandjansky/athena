@@ -68,7 +68,7 @@ namespace Analysis {
   be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
 
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);
+    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string jetName);
 
     /** calculate individual track contribution to the three likelihoods: */
     // void trackWeight(std::string jetAuthor, TrackGrade grade,

@@ -41,6 +41,7 @@ class  JetBTaggerTool:
 
  private:
   
+  std::string m_JetName;
   std::string m_BTagName;
   std::string m_BTagSVName; 
   std::string m_BTagJFVtxName; 

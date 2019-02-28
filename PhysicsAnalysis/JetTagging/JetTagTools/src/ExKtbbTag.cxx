@@ -132,12 +132,12 @@ StatusCode ExKtbbTag::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ExKtbbTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+StatusCode ExKtbbTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
   // get jet author information //
 
   if(m_ForceCalibChannel.empty()){
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     std::string alias = m_calibrationTool->channelAlias(author);
 
     m_ForceCalibChannel = alias;

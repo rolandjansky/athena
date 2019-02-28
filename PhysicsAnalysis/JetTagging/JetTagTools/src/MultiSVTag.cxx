@@ -117,10 +117,10 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){
+  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string jetName){
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....

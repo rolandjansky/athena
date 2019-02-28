@@ -94,7 +94,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const xAOD::Vertex* vtx) {
+  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName, const xAOD::Vertex* vtx) {
 
     ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
 		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
@@ -162,7 +162,7 @@ namespace Analysis {
     ToolHandleArray< ITagTool >::iterator itTagToolsEnd = m_bTagToolHandleArray.end();
     for (  ; itTagTools != itTagToolsEnd; ++itTagTools ) {
       (*itTagTools)->setOrigin(primaryVertex);
-      sc = (*itTagTools)->tagJet(jetToTag, BTag);
+      sc = (*itTagTools)->tagJet(jetToTag, BTag, jetName);
       if (sc.isFailure()) {
         ATH_MSG_WARNING("#BTAG# failed tagger: " << (*itTagTools).typeAndName() );
       }

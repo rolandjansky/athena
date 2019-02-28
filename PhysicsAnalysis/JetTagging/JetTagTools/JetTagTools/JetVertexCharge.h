@@ -57,7 +57,7 @@ namespace Analysis {
     void finalizeHistos(); 
     
 
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag); 
+    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName);
 
 
   private:

@@ -56,7 +56,7 @@ namespace Analysis {
   	ElementLink and persistency has to be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
       
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);
+    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName);
 
     void finalizeHistos() {};
 

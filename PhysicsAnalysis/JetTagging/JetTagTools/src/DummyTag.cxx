@@ -42,7 +42,7 @@ namespace Analysis {
   }
 
 
-  StatusCode DummyTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * bTag) {
+  StatusCode DummyTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * bTag, const std::string jetName) {
     
     /** author to know which jet algorithm: */
 

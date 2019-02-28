@@ -93,9 +93,9 @@ namespace Analysis {
   // _______________________________________________________________________
   // MultivariateTagManager functions
 
-  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
-    std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag); // determine the jet's channel
+    std::string jetauthor = jetName; // determine the jet's channel
     ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
 
     if ( jetauthor.empty() ) {

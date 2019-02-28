@@ -72,7 +72,7 @@ namespace Analysis {
     */
     void setOrigin(const xAOD::Vertex*);
       
-    virtual StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);   
+    virtual StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName);
     
   private:      
 

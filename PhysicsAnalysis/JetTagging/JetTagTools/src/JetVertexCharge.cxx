@@ -193,13 +193,13 @@ namespace Analysis {
 
 
 //////////////////////////////////////////////////////////////////
-StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
 
 
 
    /** author to know which jet algorithm: */
-   std::string author = JetTagUtils::getJetAuthor(jetToTag);
+   std::string author = jetName;
    if (m_doForcedCalib) author = m_ForcedCalibName;
    std::string alias = m_calibrationTool->channelAlias(author);
 

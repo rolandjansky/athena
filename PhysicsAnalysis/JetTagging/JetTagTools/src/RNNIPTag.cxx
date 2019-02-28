@@ -307,10 +307,10 @@ namespace Analysis {
   }
 
 
-  StatusCode RNNIPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode RNNIPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     if (m_ForcedCalibName.size() > 0) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations");
 

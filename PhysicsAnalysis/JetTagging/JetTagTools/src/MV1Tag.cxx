@@ -80,10 +80,10 @@ namespace Analysis {
   }
 
 
-  StatusCode MV1Tag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MV1Tag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
     /* jet author: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     std::string alias = m_calibrationTool->channelAlias(author);
 
     ATH_MSG_DEBUG("#BTAG# Jet author: " << author << ", alias: " << alias );

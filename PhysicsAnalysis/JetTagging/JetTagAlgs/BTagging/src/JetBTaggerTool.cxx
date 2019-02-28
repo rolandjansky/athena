@@ -29,6 +29,7 @@ namespace Analysis {
 
 JetBTaggerTool::JetBTaggerTool(const std::string& n) : 
   asg::AsgTool(n),
+  m_JetName(""),
   m_BTagName(""),
   m_BTagSVName(""),
   m_BTagJFVtxName(""),
@@ -39,7 +40,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_PtRescale(false),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
-
+  declareProperty( "JetCollectionName", m_JetName);
   declareProperty( "BTagTool", m_bTagTool);
   declareProperty( "BTagName", m_BTagName );
   declareProperty( "BTagTrackAssocTool", m_BTagTrackAssocTool);
@@ -125,6 +126,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   //modify can be called twice by standalone btagging algorithm for PFlow jets, the first one is tagged with EMTopo calibration (keeping same name as before)
   //the second one is tagged with PFlow calibration ("_PFlowTune" added to the names of all containers)
   bool pflow = false;
+  std::string jetName = m_JetName;
   if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) {
     if (jets.size() > 0) {
       xAOD::JetContainer::iterator itB = jets.begin();
@@ -134,6 +136,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
         //already one AntiKt4EMPFlow tagged, the second one is the self tune one's
         ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " in store, pflow tune scenario");
         bTaggingContName += "_PFlowTune";
+        jetName += "_PFlowTune";
         pflow = true;
       }
     }
@@ -351,9 +354,9 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
       }
     }
-    StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag );
+    StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag, jetName);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+      ATH_MSG_WARNING("#BTAG# Failed in taggers call for "<< jetName);
     }
   }
 

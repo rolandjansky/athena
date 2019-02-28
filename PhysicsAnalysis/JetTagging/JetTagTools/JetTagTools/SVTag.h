@@ -39,7 +39,7 @@ namespace Analysis
       StatusCode initialize();
       StatusCode finalize();
       
-      StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);    
+      StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string jetName);
       void setOrigin(const xAOD::Vertex* priVtx);
       void finalizeHistos();
       

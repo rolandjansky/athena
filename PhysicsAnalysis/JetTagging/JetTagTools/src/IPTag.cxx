@@ -407,11 +407,11 @@ namespace Analysis {
   }
 
 
-  StatusCode IPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode IPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
 
     ATH_MSG_VERBOSE("#BTAG# m_impactParameterView = " << m_impactParameterView );
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
