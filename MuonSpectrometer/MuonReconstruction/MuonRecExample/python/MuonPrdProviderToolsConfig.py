@@ -62,13 +62,6 @@ def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig
 
-  # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
-  kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.CSC_on() and recAlgs.doTrigger())
-  #kwargs.setdefault("RawDataProviderTool", "CscRawDataProviderTool")
-### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
-##  if not kwargs["useBStoRdoTool"]:
-##    kwargs["RawDataProviderTool"] = None # empty tool
-
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
   return Muon__CscRdoToCscPrepDataTool(name, **kwargs)
 

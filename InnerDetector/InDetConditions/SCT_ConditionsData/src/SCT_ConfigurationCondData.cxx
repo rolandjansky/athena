@@ -102,8 +102,12 @@ bool SCT_ConfigurationCondData::isBadModuleId(const Identifier& moduleId) const 
 void SCT_ConfigurationCondData::setBadLinks(const IdentifierHash& hash, const bool isBadLink0, const bool isBadLink1) {
   unsigned int iHash{hash};
   iHash = (iHash/2)*2; // Make iHash even
-  m_badLinks[iHash].first  &= isBadLink0;
-  m_badLinks[iHash].second &= isBadLink1;
+  if (m_badLinks.count(iHash)==0) {
+    m_badLinks.insert(std::pair<IdentifierHash, std::pair<bool, bool>>(iHash, std::pair<bool, bool>(isBadLink0, isBadLink1)));
+  } else {
+    m_badLinks[iHash].first  &= isBadLink0;
+    m_badLinks[iHash].second &= isBadLink1;
+  }
   m_badLinksArray[iHash/2].first  &= isBadLink0;
   m_badLinksArray[iHash/2].second &= isBadLink1;
 }

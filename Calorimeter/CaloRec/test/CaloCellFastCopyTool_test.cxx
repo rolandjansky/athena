@@ -197,7 +197,7 @@ public:
     assert( destCont->size() == m_tileGap3Hashes.size() );
 
     // Test that the pointers in both container is same.
-    // because destination container has VIWE_ELEMENT own policy.
+    // because destination container has VIEW_ELEMENT own policy.
     CaloCellContainer::CellVector srcCv;
     srcCont->findCellVector(m_tileGap3Hashes, srcCv);
     CaloCellContainer::CellVector destCv;

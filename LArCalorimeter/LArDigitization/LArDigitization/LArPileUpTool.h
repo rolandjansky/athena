@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -18,7 +18,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 #include "LArDigitization/ILArPileUpTool.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -100,10 +100,10 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
 
   StatusCode MakeDigit(const Identifier & cellId,
-                   HWIdentifier & ch_id,
-                   const std::vector<std::pair<float,float> >  *TimeE,
-                   //const LArDigit * rndm_digit);
-                   const LArDigit * rndm_digit, const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
+		       HWIdentifier & ch_id,
+		       const std::vector<std::pair<float,float> >  *TimeE,
+		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
+		       const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
 
 
   StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
@@ -182,7 +182,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   int    m_NSamples;               // number of samples in Digit
   unsigned int m_firstSample;      // first sample to use for pulse shape for in time energy deposit
   bool   m_usePhase;               // use tbin phase to get shape (default = false for Atlas)
-  std::string  m_rndmSvc;          // random service name
   bool m_rndmEvtRun;               // use run,event number for random number seeding
   bool m_useTriggerTime;
   bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
@@ -226,8 +225,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   bool m_skipNoHit;
 
-  IAtRndmGenSvc* m_AtRndmGenSvc;
-  CLHEP::HepRandomEngine* m_engine;
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
 
   bool m_doDigiTruth;
 

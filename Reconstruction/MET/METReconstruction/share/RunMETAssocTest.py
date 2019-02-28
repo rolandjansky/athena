@@ -15,9 +15,9 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from GaudiSequencer.PyComps import PyEvtFilter
-filterseq = CfgMgr.AthSequencer("AthFilterSeq")
+masterSeq = CfgMgr.AthSequencer("AthMasterSeq")
 #the following lines are examples, pick one...
-filterseq += PyEvtFilter("PVSoftTrkTail", evt_list=[
+masterSeq += PyEvtFilter("PVSoftTrkTail", evt_list=[
         106239409,
         103677144,
         210091212,
@@ -35,12 +35,12 @@ filterseq += PyEvtFilter("PVSoftTrkTail", evt_list=[
         7747623,
         9713934,
         ])
-topSequence += filterseq
+topSequence += masterSeq
 
-filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
+masterSeq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
                                          OutputLevel=VERBOSE,
                                          FailOnInconsistency=True)
-filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMPFlow",
+masterSeq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMPFlow",
                                          OutputLevel=VERBOSE,
                                          FailOnInconsistency=True,
                                          METMapSuffix="AntiKt4EMPFlow")

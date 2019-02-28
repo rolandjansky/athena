@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF
@@ -45,9 +45,13 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4HS_FastPileup",     "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDOnly",   "ISF_Kernel_ATLFASTIIF_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDCalo",   "ISF_Kernel_ATLFASTIIF_IDCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo",          "ISF_Kernel_G4FastCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloDNN",          "ISF_Kernel_G4FastCaloDNN")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo", "ISF_Kernel_G4FastCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloMT",         "ISF_Kernel_G4FastCaloMT")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation","ISF_Kernel_Fatras_newExtrapolation")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation_IDOnly","ISF_Kernel_Fatras_newExtrapolation_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FastOnly",            "ISF_Kernel_FastOnly")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_DNNOnly",            "ISF_Kernel_DNNOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MultiSimTest",        "ISF_Kernel_MultiSimTest")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4GammaCones"                , "ISF_Kernel_G4GammaCones"                 )
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4GammaCones_FastCalo"       , "ISF_Kernel_G4GammaCones_FastCalo"        )

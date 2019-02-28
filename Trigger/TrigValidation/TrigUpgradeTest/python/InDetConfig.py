@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -144,10 +144,6 @@ def TrigInDetCondConfig( flags ):
   PixelTDAQInstance = "TDAQ_ONL"
   acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
 
-  from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-  TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
-  acc.addPublicTool(TrigPixelDCSConditionsTool)
-
   PixelHVFolder = "/PIXEL/DCS/HV"
   PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
   PixelDBInstance = "DCS_OFL"
@@ -161,17 +157,20 @@ def TrigInDetCondConfig( flags ):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
   acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
 
-
-  from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-  TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
-
-  acc.addPublicTool(TrigPixelDCSConditionsTool)
-
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
   acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
 
+  PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
+  PixelDeadMapInstance = "PIXEL_OFL"
+
+  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
+
   from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
-  acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool))
+  acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
 
   from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
   TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
@@ -180,7 +179,6 @@ def TrigInDetCondConfig( flags ):
 
   from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
   acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
-                                          PixelDCSConditionsTool=TrigPixelDCSConditionsTool,
                                           SiPropertiesTool=TrigSiPropertiesTool,
                                           UseMagFieldSvc = True,
                                           UseMagFieldDcs = False))

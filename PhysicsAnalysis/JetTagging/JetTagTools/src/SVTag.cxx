@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -164,7 +164,7 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode SVTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     /** author to know which jet algorithm: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);
@@ -172,7 +172,7 @@ namespace Analysis
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */
-    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
+    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
     ATH_MSG_VERBOSE("#BTAG# Jet properties : eta = " << jeteta
 		    << " phi = " << jetphi << " pT  = " <<jetpt/m_c_mom);
 
@@ -215,7 +215,7 @@ namespace Analysis
 	const xAOD::Vertex* firstVertex = *(myVertices[0]);
 	
 	//FIXME ugly hack to get a Amg::Vector3D out of a CLHEP::HepLorentzVector
-	Amg::Vector3D jetDir(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz());
+	Amg::Vector3D jetDir(jetToTag->p4().Px(),jetToTag->p4().Py(),jetToTag->p4().Pz());
 	const Amg::Vector3D PVposition = m_priVtx->position();
 	const Amg::Vector3D position = firstVertex->position();
 	Amg::Vector3D PvSvDir( position.x() - PVposition.x(),
@@ -249,7 +249,7 @@ namespace Analysis
 	const xAOD::Vertex* myVert  = *myVertices[0];
 	if (m_priVtx) {
 	  distnrm=get3DSignificance(m_priVtx, vecVertices,
-				    Amg::Vector3D(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz()));
+				    Amg::Vector3D(jetToTag->p4().Px(),jetToTag->p4().Py(),jetToTag->p4().Pz()));
 	} else {
 	  ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
 	  distnrm=0.;
@@ -316,17 +316,17 @@ namespace Analysis
     if (m_SVmode != "SV0" ) {
       float ambtotp = ambtot > 0. ? ambtot/(1.+ambtot): 0.;
       float xratiop = xratio > 0. ? (float)pow(xratio,m_expos) : 0.;
-      float trfJetPt=log(jetToTag.pt()/20000.); if(trfJetPt<0.)trfJetPt=0.01; if(trfJetPt>4.8)trfJetPt=4.79;
+      float trfJetPt=log(jetToTag->pt()/20000.); if(trfJetPt<0.)trfJetPt=0.01; if(trfJetPt>4.8)trfJetPt=4.79;
       std::string pref = "";
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
-	  int label = xAOD::jetFlavourLabel(&jetToTag);
+	  int label = xAOD::jetFlavourLabel(jetToTag);
 	  double deltaRtoClosestB = 999.;//, deltaRtoClosestC = 999.;
-	  if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+	  if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	    ATH_MSG_VERBOSE("#BTAG# label found : " << label);
 	    // for purification: require no b or c quark closer than dR=m_purificationDeltaR
 	    double deltaRtoClosestC;
-	    jetToTag.getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
+	    jetToTag->getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
 	    double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
 
 	    if ( (    "B"==m_refType &&   5==label ) ||  // b-jets    

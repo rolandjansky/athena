@@ -1,49 +1,59 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
+  m_biasVoltage(),
+  m_temperature(),
   m_moduleStatus(),
-  m_chipStatus(),
-  m_tdaqStatus()
+  m_chipStatus()
 {
 }
 
 PixelModuleData::~PixelModuleData() { }
 
+void PixelModuleData::setBiasVoltage(const int chanNum, const float value) {
+  m_biasVoltage[chanNum] = value;
+}
+
+float PixelModuleData::getBiasVoltage(const int chanNum) const {
+  auto itr = m_biasVoltage.find(chanNum);
+  if (itr!=m_biasVoltage.end()) { return itr->second; }
+  return 0;
+}
+
+void PixelModuleData::setTemperature(const int chanNum, const float value) {
+  m_temperature[chanNum] = value;
+}
+
+float PixelModuleData::getTemperature(const int chanNum) const {
+  auto itr = m_temperature.find(chanNum);
+  if (itr!=m_temperature.end()) { return itr->second; }
+  return -7.0; // this is temporaly fix
+}
+
 // Module status
-void PixelModuleData::setModuleStatus(const CondAttrListCollection::ChanNum& chanNum, const int value) {
+void PixelModuleData::setModuleStatus(const int chanNum, const int value) {
   m_moduleStatus[chanNum] = value;
 }
 
-int PixelModuleData::getModuleStatus(const CondAttrListCollection::ChanNum& chanNum) const {
+int PixelModuleData::getModuleStatus(const int chanNum) const {
   auto itr = m_moduleStatus.find(chanNum);
   if (itr!=m_moduleStatus.end()) { return itr->second; }
   return 0;
 }
 
 // Chip (FE) status
-void PixelModuleData::setChipStatus(const CondAttrListCollection::ChanNum& chanNum, const int value) {
+void PixelModuleData::setChipStatus(const int chanNum, const int value) {
   m_chipStatus[chanNum] = value;
 }
 
-int PixelModuleData::getChipStatus(const CondAttrListCollection::ChanNum& chanNum) const {
+int PixelModuleData::getChipStatus(const int chanNum) const {
   auto itr = m_chipStatus.find(chanNum);
   if (itr!=m_chipStatus.end()) { return itr->second; }
   return 0;
-}
-
-// TDAQ module status
-void PixelModuleData::setTDAQModuleStatus(const CondAttrListCollection::ChanNum& chanNum, const int value) {
-  m_tdaqStatus[chanNum] = value;
-}
-
-int PixelModuleData::getTDAQModuleStatus(const CondAttrListCollection::ChanNum& chanNum) const {
-  auto itr = m_tdaqStatus.find(chanNum);
-  if (itr!=m_tdaqStatus.end()) { return itr->second; }
-  return 1;
 }
 
 void PixelModuleData::setBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold) { m_BarrelAnalogThreshold = BarrelAnalogThreshold; }
@@ -140,8 +150,9 @@ int PixelModuleData::getIBLOverflowToT() const {
 }
 
 void PixelModuleData::clear() {
+  m_biasVoltage.clear();
+  m_temperature.clear();
   m_moduleStatus.clear();
   m_chipStatus.clear();
-  m_tdaqStatus.clear();
 }
 

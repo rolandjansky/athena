@@ -233,7 +233,7 @@ if goodRunList!='' and 'goodRunListArray' in dir() and goodRunListArray!='':
     # here, the (default) top sequence is used:
     from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
     job = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
+    seq = AthSequencer("AthMasterSeq")
 
     from GoodRunsListsUser.GoodRunsListsUserConf import *
     seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')

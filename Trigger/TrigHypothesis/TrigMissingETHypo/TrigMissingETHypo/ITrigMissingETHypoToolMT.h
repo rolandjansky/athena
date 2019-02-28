@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMISSINGET_ITRIGMISSINGETHYPOTOOLMT_H
@@ -9,9 +9,6 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
-
-
-using TrigCompositeUtils::DecisionID;
 
 
 class ITrigMissingETHypoToolMT : virtual public::IAlgTool {

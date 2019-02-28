@@ -14,12 +14,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 
-#include <string>
+#include "xAODEventInfo/EventInfo.h"
 
+#include <string>
 
 // Usually this will be called to retrieve the mu value directly from EventInfo
 // For data which doesn't have this (or to write it there in the first place)
@@ -47,6 +49,8 @@ class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
 
  private:
   ToolHandle<ILuminosityTool> m_lumiTool;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+
 
   // Take MC mu from lumi block number instead of EventInfo?
   bool m_MCLumiBlockHack;  // Default is FALSE

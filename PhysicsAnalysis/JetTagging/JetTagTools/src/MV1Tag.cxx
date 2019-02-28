@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/MV1Tag.h"
@@ -80,7 +80,7 @@ namespace Analysis {
   }
 
 
-  StatusCode MV1Tag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MV1Tag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     /* jet author: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);
@@ -153,8 +153,8 @@ namespace Analysis {
     }
 
     /* retrieveing weights: */
-    double jpt = jetToTag.pt();
-    double eta = jetToTag.eta();
+    double jpt = jetToTag->pt();
+    double eta = jetToTag->eta();
     double ip3=-9999, sv1=-9999, jfc=-9999;
     if( !BTag->loglikelihoodratio(m_inputIP3DWeightName, ip3) ){
         ATH_MSG_WARNING("#BTAG# tagger weight not found for  " << m_inputIP3DWeightName);

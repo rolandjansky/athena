@@ -82,8 +82,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_calibDbSvc("MdtCalibrationDbSvc", name) 
   , m_pSummarySvc("MDTCondSummarySvc", name)
 {
-  declareInterface<IMuonDigitizationTool>(this);
-
   declareProperty("DigitizationTool",    m_digiTool,                          "Tool which handle the digitization process");
   //Conditions Database
   declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
@@ -416,11 +414,6 @@ StatusCode MdtDigitizationTool::mergeEvent() {
   m_MDTHitCollList.clear();
   
   return status;
-}
-
-
-StatusCode MdtDigitizationTool::digitize() {
-  return this->processAllSubEvents();
 }
 
 

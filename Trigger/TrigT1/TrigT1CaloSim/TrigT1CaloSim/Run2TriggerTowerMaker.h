@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -40,7 +40,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //Calorimeter tower includes
@@ -267,7 +266,6 @@ private:
   // --------------------------------------------------------------------------
   // Read and Write Handlers
   // --------------------------------------------------------------------------
-  SG::ReadHandleKey<EventInfo> m_evtKey;
   SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey;
   //  location of input TriggerTowers (for reprocessing)
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_inputTTLocation;

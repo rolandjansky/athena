@@ -35,8 +35,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaKernel
    Control/CxxUtils
-   Event/EventInfo
-   Event/EventInfoUtils
    Event/xAOD/xAODEventInfo
    LumiBlock/LumiBlockComps
    Tools/PathResolver
@@ -57,8 +55,8 @@ atlas_add_library( TrigT1CaloSimLib
    TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils EventInfo
-   xAODEventInfo EventInfoUtils
+   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils 
+   xAODEventInfo
    PathResolver TrigT1CaloCondSvcLib )
 
 atlas_add_component( TrigT1CaloSim

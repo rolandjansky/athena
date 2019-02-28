@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/MdtCsmContByteStreamCnv.h"
@@ -29,7 +29,7 @@
 #include <map> 
 
 MdtCsmContByteStreamCnv::MdtCsmContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc),
+    Converter(storageType(), classID(),svcloc),
     m_tool("Muon::MdtCsmContByteStreamTool"),
     m_byteStreamEventAccess("ByteStreamCnvSvc", "MdtCsmContByteStreamCnv"),
     m_storeGate("StoreGateSvc", "MdtCsmContByteStreamCnv")
@@ -40,6 +40,9 @@ const CLID& MdtCsmContByteStreamCnv::classID(){
 return ClassID_traits<MdtCsmContainer>::ID() ;
 }
 
+long MdtCsmContByteStreamCnv::storageType(){
+  return ByteStreamAddress::storageType();
+}
 
 StatusCode MdtCsmContByteStreamCnv::initialize() {
    MsgStream log(msgSvc(), "MdtCsmContByteStreamCnv");

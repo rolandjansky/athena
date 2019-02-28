@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -399,14 +399,6 @@ void LArHEC_Base_ID::region_id_checks   ( int pos_neg, int sampling, int region 
   ExpandedIdentifier expId(lar_hec_exp());
   expId << pos_neg << sampling << region ;
       
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in LArHEC_Base_ID::region_id, " +
-      strformat ("pos_neg: %d , sampling: %d, region: %d ",
-                 pos_neg , sampling , region);
-    throw LArID_Exception(errorMessage , 7);
-  }
-
   if (!m_full_region_range.match(expId)) { 
     std::string errorMessage = "LArHEC_Base_ID::region_id() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_region_range;
@@ -423,14 +415,6 @@ void LArHEC_Base_ID::channel_id_checks   ( int pos_neg, int sampling, int region
   // Fill expanded id
   ExpandedIdentifier expId(lar_hec_exp());
   expId << pos_neg << sampling << region << eta << phi << m_slar ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage = 
-      "Error in LArHEC_Base_ID::channel_id(field values), " +
-      strformat ("pos_neg: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
-                 pos_neg , sampling , region, eta, phi);
-    throw LArID_Exception(errorMessage , 8);
-  }
 
   if (!m_full_channel_range.match(expId)) { 
     std::string errorMessage = "LArHEC_Base_ID::channel_id() result is not OK: ID, range = "
@@ -455,16 +439,6 @@ void LArHEC_Base_ID::channel_id_checks   ( const Identifier regionId,
   }
 
   expId << eta << phi << m_slar;
-      
-  if ( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage = 
-      "Error in LArHEC_Base_ID::channel_id(region id , field values), " +
-      strformat ("pos_neg: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
-                 this->pos_neg(regionId) , 
-                 this->sampling(regionId), 
-                 this->region(regionId), eta, phi);
-    throw LArID_Exception(errorMessage , 8);
-  }
       
   if (!m_full_channel_range.match(expId)) { 
     std::string errorMessage = "LArHEC_Base_ID::channel_id(regId) result is not OK: ID, range = "

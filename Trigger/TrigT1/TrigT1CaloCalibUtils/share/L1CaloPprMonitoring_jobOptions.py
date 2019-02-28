@@ -61,7 +61,7 @@ if useGRL == False:
         #                                      '../grl/PeriodI.GRL.xml']
   GoodRunsListSelectorTool.GoodRunsListVec = ['grl/data11_7TeV.periodAllYear_DetStatus-v36-pro10_CoolRunQuery-00-04-08_All_Good.xml','grl/data12_8TeV.periodAllYear_HEAD_All_Good.xml']
   GoodRunsListSelectorTool.PassThrough = False
-  seq = AthSequencer("AthFilterSeq")
+  seq = AthSequencer("AthMasterSeq")
   seq += GRLTriggerSelectorAlg('MyLBCollection')
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -155,7 +155,7 @@ namespace Analysis {
 
 
 //////////////////////////////////////////////////////////////////  
-StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* BTag) {
 
 
     //Retrieval of Calibration Condition Data objects
@@ -171,7 +171,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
     ClearVars();
 
-    m_jet_uPt = jetToTag.pt();
+    m_jet_uPt = jetToTag->pt();
 
     //          computing the JetCharge (JC) 
     //==============================================================
@@ -206,8 +206,8 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
       if(denom != 0) m_jc = charge / denom;
       if(denom_all != 0) m_jc_all= charge_all / denom_all;
-      m_jc_jetPt = charge/jetToTag.pt();
-      m_jc_all_jetPt = charge_all/jetToTag.pt();
+      m_jc_jetPt = charge/jetToTag->pt();
+      m_jc_all_jetPt = charge_all/jetToTag->pt();
 
 
     }
@@ -313,7 +313,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
          denom += pow( tp->pt(), m_kappa_SV);
       }
       if(denom != 0)  m_svc = charge/denom;
-      m_svc_jetPt = charge/jetToTag.pt();
+      m_svc_jetPt = charge/jetToTag->pt();
 
       m_sv_dist =  svx.pos;
       m_sv_err =  svx.err;
@@ -349,7 +349,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      if(denom != 0) m_tvc = charge/denom;
      m_tv_dist =  tvx.pos;
      m_tv_err =  tvx.err;
-     m_tvc_jetPt = charge/jetToTag.pt();
+     m_tvc_jetPt = charge/jetToTag->pt();
 
 
 
@@ -405,7 +405,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
          if( p_corrMu->eta() > 2.7 ) continue;
  
          TLorentzVector muon = p_corrMu->p4();      
-         TLorentzVector jet = jetToTag.p4();      
+         TLorentzVector jet = jetToTag->p4();      
          if( muon.DeltaR( jet ) > 0.3 ) continue;
 
          float chi2=-1; 
@@ -432,7 +432,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      if( myMuon->isolation( iso_save,  xAOD::Iso::IsolationType::ptvarcone40 )) m_mu_iso = iso_save;
 
      TLorentzVector muon = myMuon->p4();      
-     TLorentzVector jet = jetToTag.p4();      
+     TLorentzVector jet = jetToTag->p4();      
      m_mu_ptRel =  muon.P()*sin( muon.Angle(jet.Vect() + muon.Vect()))/1000.; 
      m_mu_ptLong = muon.P()*cos( muon.Angle( jet.Vect() + muon.Vect() ) )/1000.;
      m_mu_jet_dR  = muon.DeltaR( jet );

@@ -77,6 +77,16 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
+import sys
+try:
+    os.unlink ('Catalog1.xml')
+except OSError:
+    pass
+try:
+    os.unlink ('Catalog2.xml')
+except OSError:
+    pass
+
 #Explicitly specify the output file catalog
 from PoolSvc.PoolSvcConf import PoolSvc
 svcMgr += PoolSvc()

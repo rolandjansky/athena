@@ -182,7 +182,7 @@ def generateElectronsCfg( flags ):
     acc = ComponentAccumulator()
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     l2CaloHypo                     = TrigL2CaloHypoAlgMT( 'L2ElectronCaloHypo' )
     l2CaloHypo.CaloClusters        = 'L2CaloEMClusters'
@@ -193,7 +193,7 @@ def generateElectronsCfg( flags ):
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromName )
+                                     HypoToolGen = TrigL2CaloHypoToolFromDict )
 
     fastCaloStep = ChainStep("Electron_step1", [fastCaloSequence])
 

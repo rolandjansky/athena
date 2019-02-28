@@ -12,19 +12,19 @@ Splitter3           DEBUG input handles: 0
 Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
 Triggered            INFO in initialize()
-DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
-Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
-Stream1              INFO Data output: AthenaPoolMultiTest_Split1.root
-Stream1              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
 Stream2              INFO Data output: AthenaPoolMultiTest_Split2.root
 Stream2              INFO I/O reinitialization...
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
+Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
+Stream1              INFO Data output: AthenaPoolMultiTest_Split1.root
+Stream1              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
@@ -284,8 +284,8 @@ Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-Stream1              INFO Records written: 8
 Stream2              INFO Records written: 8
+Stream1              INFO Records written: 8
 Stream3              INFO Records written: 6
 Others               INFO Records written: 2
 Bad                  INFO Records written: 1

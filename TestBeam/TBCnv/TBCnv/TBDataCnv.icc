@@ -1,16 +1,17 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
 #include <string>
 
 template< class DATATYPE >
 TBDataCnv<DATATYPE>::TBDataCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),
+  Converter(storageType(), classID(),svcloc),
   m_tool(nullptr)
 {
 }
@@ -18,6 +19,11 @@ TBDataCnv<DATATYPE>::TBDataCnv(ISvcLocator* svcloc) :
 template< class DATATYPE >
 const CLID& TBDataCnv<DATATYPE>::classID(){
   return ClassID_traits<DATATYPE>::ID() ;
+}
+
+template< class DATATYPE >
+long TBDataCnv<DATATYPE>::storageType(){
+  return ByteStreamAddress::storageType() ;
 }
 
 template< class DATATYPE >

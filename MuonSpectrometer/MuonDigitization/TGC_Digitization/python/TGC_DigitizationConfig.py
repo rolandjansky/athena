@@ -37,5 +37,5 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     return TgcDigitizationTool(name,**kwargs)
 
 def getTGC_OverlayDigitizer(name="TGC_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("TGC_DigitizationTool","Tgc_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Tgc_OverlayDigitizationTool")
     return CfgMgr.TGCDigitizer(name,**kwargs)

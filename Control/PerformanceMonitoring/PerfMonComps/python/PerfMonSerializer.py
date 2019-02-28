@@ -637,7 +637,6 @@ def create_cachegrind_files(fname='ntuple.pmon.gz', domainsdb=None):
     if domainsdb is None:
         domainsdb = extract_pmon_infos(fname)['domains_a2d']
     for n in ('PerfMonSlice', 'AthMasterSeq',
-              'AthFilterSeq',
               'AthAlgSeq',
               'AthOutSeq',
               'AthRegSeq',):

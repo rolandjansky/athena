@@ -81,9 +81,6 @@ CpmRoiByteStreamV1Tool::~CpmRoiByteStreamV1Tool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode CpmRoiByteStreamV1Tool::initialize()
 {

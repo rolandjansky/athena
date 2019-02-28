@@ -81,7 +81,7 @@ from RecExConfig.ObjKeyStore import ObjKeyStore, objKeyStore
 oks = ObjKeyStore()
 oks.addStreamESD('CaloCellContainer', ['AllCalo'] )
 
-from AthenaCommon.AppMgr import athFilterSeq
+from AthenaCommon.AppMgr import athMasterSeq
 
 # splitting DM container into two parts to get rid from DM outside of our quadrant
 from TBRec.TBRecConf import TBDMContainerSplitter
@@ -89,7 +89,7 @@ DMContSplit = TBDMContainerSplitter()
 DMContSplit.InputDMContainer = "LArCalibrationHitDeadMaterial"
 DMContSplit.OutputDM_Calo = "LArCalibrationHitDeadMaterial_Calo"
 DMContSplit.OutputDM_Leak = "LArCalibrationHitDeadMaterial_Leakage"
-athFilterSeq += DMContSplit
+athMasterSeq += DMContSplit
 
 
 # ----------------- new topo clustering --------------
@@ -208,7 +208,7 @@ if doBeamQuality:
   #TBBeamQuality.CheckClusters = True
   #TBBeamQuality.CheckTrackReco = False
 
-  athFilterSeq  += TBBeamQuality
+  athMasterSeq  += TBBeamQuality
 
 # =============================================================================
 #

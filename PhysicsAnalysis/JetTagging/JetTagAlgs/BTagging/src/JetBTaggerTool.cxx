@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "BTagging/JetBTaggerTool.h"
@@ -34,7 +34,6 @@ namespace Analysis {
     m_BTagTrackAssocTool("Analysis::BTagTrackAssociation", this),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing", this),
     m_augment(false),
-    m_PtRescale(false),
     m_magFieldSvc("AtlasFieldSvc",n)
   {
 
@@ -42,7 +41,6 @@ namespace Analysis {
     declareProperty( "BTagTrackAssocTool", m_BTagTrackAssocTool);
     declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
     declareProperty( "BTagAugmentation", m_augment, "switch to decide whether to merely extend the BTagging information as opposed to re-tagging from scratch");
-    declareProperty( "BTagJetPtRescale", m_PtRescale, "switch to decide whether to carry out jet pt rescaling (to use calorimeter jet tunings for track jets)");
     declareProperty("MagFieldSvc",    m_magFieldSvc );
   }
 

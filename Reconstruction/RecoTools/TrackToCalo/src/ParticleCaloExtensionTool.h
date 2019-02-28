@@ -1,11 +1,11 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /*
  * ParticleCaloExtensionTool.h  - implements the IParticleCaloExtenions Interface
  * begin : Summer 2014
- * updated : 2018 for AthenaMT
+ * updated : 2018-2019 for AthenaMT
  * authors : Niels van Eldik (CERN PH-ATC),Christos Anastopoulos
  */
 
@@ -14,10 +14,19 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+/*interface */
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+
+/* interfce for the extrapolator tool*/
+
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "xAODTracking/TrackParticle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
+
+/* 
+ * xAOD includes
+ */
+#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
@@ -59,17 +68,17 @@ public:
 
 private:
 
-  const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TruthParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
 
   PublicToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
-  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, nonInteracting"};
+  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, electron,nonInteracting"};
   Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
-
   const AtlasDetectorID* m_detID;
   ParticleHypothesis  m_particleType ;
+
+
 };
 }
 

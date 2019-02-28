@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
@@ -21,16 +21,16 @@ namespace Genfun {
     AtlasBComponent(unsigned int index);
    
     // Destructor:
-    ~AtlasBComponent();
+    virtual ~AtlasBComponent();
     
     // Copy Constructor:
     AtlasBComponent(const AtlasBComponent &right);
 
     // Dimensionality:
-    virtual unsigned int dimensionality() const;
+    virtual unsigned int dimensionality() const override;
     
-    virtual double operator () (double argument) const;   
-    virtual double operator () (const Argument & a) const;
+    virtual double operator () (double argument) const override;
+    virtual double operator () (const Argument & a) const override;
     
   private:
     

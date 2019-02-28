@@ -17,14 +17,14 @@
 
 ########################################################################
 # Typical jet constituents
-from JetDefinition import xAOD, JetConstit
+from JetDefinition import xAODType, JetConstit
 from copy import deepcopy
 
 # Topoclusters with origin correction.
 # We don't currently use raw TopoClusters, though some handling
 # could be added to support this.
-EMTopoOrigin = JetConstit(xAOD.Type.CaloCluster, ["EM","Origin"])
-LCTopoOrigin = JetConstit(xAOD.Type.CaloCluster, ["LC","Origin"])
+EMTopoOrigin = JetConstit(xAODType.CaloCluster, ["EM","Origin"])
+LCTopoOrigin = JetConstit(xAODType.CaloCluster, ["LC","Origin"])
 # LC clusters with Constituent Subtraction + SoftKiller
 LCTopoCSSK = deepcopy(LCTopoOrigin)
 LCTopoCSSK.modifiers += ["CS","SK"]
@@ -32,22 +32,22 @@ LCTopoCSSK.modifiers += ["CS","SK"]
 # EM-scale particle flow objects with charged hadron subtraction
 # For now we don't specify a scale, as only one works well, but
 # this could be incorporated into the naming scheme and config
-CHSPFlow = JetConstit(xAOD.Type.ParticleFlow)
+CHSPFlow = JetConstit(xAODType.ParticleFlow)
 # Particle Flow Objects with Constituent Subtraction + SoftKiller
 CSSKPFlow = deepcopy(CHSPFlow)
 CSSKPFlow.modifiers += ["CS","SK"]
 
 # Track particles from the primary vertex
-PV0Track = JetConstit(xAOD.Type.TrackParticle,["PV0"])
+PV0Track = JetConstit(xAODType.TrackParticle,["PV0"])
 
 # Truth particles from the hard scatter vertex prior to Geant4 simulation.
 # Neutrinos and muons are omitted; all other stable particles are included.
-Truth = JetConstit(xAOD.Type.TruthParticle)
+Truth = JetConstit(xAODType.TruthParticle)
 
 # Truth particles from the hard scatter vertex prior to Geant4 simulation.
 # Prompt electrons, muons and neutrinos are excluded, all other stable particles
 # are included, in particular leptons and neutrinos from hadron decays.
-TruthWZ = JetConstit(xAOD.Type.TruthParticle,["NoWZ"])
+TruthWZ = JetConstit(xAODType.TruthParticle,["NoWZ"])
 
 ########################################################################
 # Typical jet algorithm definitions

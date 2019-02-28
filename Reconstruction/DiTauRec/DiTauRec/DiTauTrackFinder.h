@@ -37,7 +37,7 @@ public:
  virtual StatusCode execute(DiTauCandidateData * data,
                             const EventContext& ctx) const override;
 
- virtual void cleanup(DiTauCandidateData *) { }
+ virtual void cleanup(DiTauCandidateData *) override { }
  
  // ------------------------------------------------------------
  // Definition of track types

@@ -162,7 +162,7 @@ namespace xAOD {
    const TrigEMCluster* TrigElectron_v1::emCluster() const {
 
       // The link accessor:
-      static Accessor< EMClusterLink_t > acc( "emClusterLink" );
+      static const Accessor< EMClusterLink_t > acc( "emClusterLink" );
 
       // Check if the link is available:
       if( ! acc.isAvailable( *this ) ) {
@@ -195,7 +195,7 @@ namespace xAOD {
    const TrackParticle* TrigElectron_v1::trackParticle() const {
 
       // The link accessor:
-      static Accessor< TrackParticleLink_t > acc( "trackParticleLink" );
+      static const Accessor< TrackParticleLink_t > acc( "trackParticleLink" );
 
       // Check if the link is available:
       if( ! acc.isAvailable( *this ) ) {

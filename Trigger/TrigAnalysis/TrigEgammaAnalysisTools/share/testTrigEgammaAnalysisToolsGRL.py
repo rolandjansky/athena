@@ -125,7 +125,7 @@ basePath = '/HLT/Egamma/'
 if 'DOTIER0' in dir():
     from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
     topSequence = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
+    seq = AthSequencer("AthMasterSeq")
     from GoodRunsListsUser.GoodRunsListsUserConf import *
     seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
     seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!
@@ -154,7 +154,7 @@ if 'DOTIER0' in dir():
 elif 'DO50ns' in dir():
     from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
     topSequence = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
+    seq = AthSequencer("AthMasterSeq")
     from GoodRunsListsUser.GoodRunsListsUserConf import *
     seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
     seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!

@@ -18,7 +18,6 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 
 __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athMasterSeq',
-            'athFilterSeq',
             'athCondSeq',
             'athAlgSeq',    'topSequence',
             'athOutSeq',
@@ -251,7 +250,7 @@ class AthAppMgr( AppMgr ):
 
    def __build_master_sequence (self):
       """helper method to build the top-level AthSequencer from all bits and
-         pieces : AthMasterSeq, AthFilterSeq, AthAlgSeq, AthOutSeq, AthRegSeq
+         pieces : AthMasterSeq, AthAlgSeq, AthOutSeq, AthRegSeq
       """
       from . import AlgSequence as _as
       from AthenaServices.AthenaServicesConf import AthIncFirerAlg as IFA
@@ -259,11 +258,10 @@ class AthAppMgr( AppMgr ):
 
       def _build():
          Logging.log.debug ("building master sequence...")
-         athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True, StopOverride=True)
-         athFilterSeq = _as.AthSequencer ("AthFilterSeq")
+         athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True)
          athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
          athCondSeq   = _as.AthSequencer ("AthCondSeq")
-         athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
+         athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True)
          athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
@@ -304,8 +302,6 @@ class AthAppMgr( AppMgr ):
          ipa2=IPA("IncidentProcAlg2")
          athEndSeq += ipa2
 
-         athMasterSeq += athFilterSeq
-
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
 
@@ -326,7 +322,7 @@ class AthAppMgr( AppMgr ):
          athAlgEvtSeq += athAllAlgSeq
          athAlgEvtSeq += athEndSeq
 
-         athFilterSeq += athAlgEvtSeq
+         athMasterSeq += athAlgEvtSeq
          athMasterSeq += athOutSeq
          athMasterSeq += athRegSeq
          
@@ -972,25 +968,22 @@ def AuditorSvc():             # backwards compatibility
 ### create default sequences:
 #      athMasterSeq
 #         |
-#         +-- athFilterSeq
-#                |
-#                +--- athAlgEvtSeq
-#                        |
-#                        +--- athBeginSeq
-#                        |
-#                        +--- athAllAlgSeq
-#                                |
-#                                +--- athCondSeq
-#                                |
-#                                +--- athAlgSeq == TopAlg
-#                        |
-#                        +--- athEndSeq
+#         +--- athAlgEvtSeq
+#                 |
+#                 +--- athBeginSeq
+#                 |
+#                 +--- athAllAlgSeq
+#                         |
+#                         +--- athCondSeq (after athAlgSeq in MT)
+#                         |
+#                         +--- athAlgSeq == TopAlg
+#                 |
+#                 +--- athEndSeq
 #         |
 #         +--- athOutSeq
 #         |
 #         +--- athRegSeq
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
-athFilterSeq = AlgSequence.AthSequencer( "AthFilterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
 athAlgSeq    = AlgSequence.AthSequencer( "AthAlgSeq" )
 athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )

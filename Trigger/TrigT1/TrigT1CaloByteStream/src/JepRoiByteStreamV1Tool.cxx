@@ -89,9 +89,6 @@ JepRoiByteStreamV1Tool::~JepRoiByteStreamV1Tool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode JepRoiByteStreamV1Tool::initialize()
 {

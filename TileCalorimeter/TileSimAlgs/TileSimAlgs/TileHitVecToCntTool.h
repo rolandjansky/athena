@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //**************************************************************************
@@ -138,9 +138,6 @@ class TileHitVecToCntTool: public PileUpToolBase {
     std::vector<TileHit*> m_allHits_DigiHSTruth;           //!< vector for all TileHits
     TileHitNonConstContainer* m_hits;          //!< pointer to hits container
     TileHitNonConstContainer* m_hits_DigiHSTruth;   //!< pointer to hits container
-
-    bool m_doChecks;                             //!< initial value of do_checks flag in TileID helper
-    bool m_doChecksTB;                          //!< initial value of do_checks flag in TileTBID helper
 
     int m_mbtsOffset;                           //<! index of first MBTS hit in m_allHits vector
     static const int N_SIDE = 2;

@@ -72,17 +72,6 @@ Stream1 = createOutputStream( "Stream1", asAlg = True, noTag = True )
 Stream1.OutputFile =   "auxdata2.root"
 Stream1.ItemList   += fullItemList # List of DO's to write out
 
-topSequence += DMTest__AuxDataTestClearDecor ('AuxDataTestClearDecor')
-
-topSequence += DMTest__AuxDataTestDecor ('AuxDataTestDecor2',
-                                         DecorName = 'dInt2',
-                                         Offset = 200)
-
-# Stream's output file
-Stream2 = createOutputStream( "Stream2", asAlg = True, noTag = True )
-Stream2.OutputFile =   "auxdata2b.root"
-Stream2.ItemList   += fullItemList # List of DO's to write out
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------

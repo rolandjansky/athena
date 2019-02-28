@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -141,17 +141,6 @@ TileHWID::ros_id       ( int ros )      const
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileHWID::TILE_ONLINE << ros;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::ros_id , values ok but did not build, ";
-	    sprintf(l_str,"online: %d, ros: %d ",
-                    TileHWID::TILE_ONLINE, ros);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 2);
-	    throw except ;
-	}
-
 	if (!m_full_ros_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::ros_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_ros_range;
@@ -180,17 +169,6 @@ TileHWID::drawer_id       ( int ros, int drawer )       const
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileHWID::TILE_ONLINE << ros << drawer;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::drawer_id , values ok but did not build, ";
-	    sprintf(l_str,"online: %d, ros: %d, drawer: %d ",
-                    TileHWID::TILE_ONLINE, ros, drawer);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
 
 	if (!m_full_drawer_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::drawer_id() result is not OK: ID, range = "
@@ -234,17 +212,6 @@ TileHWID::channel_id ( int ros, int drawer, int channel ) const
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileHWID::TILE_ONLINE << ros << drawer << channel;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::channel_id , values ok but did not build, ";
-	    sprintf(l_str,"online: %d, ros: %d, drawer: %d, channel: %d ",
-                    TileHWID::TILE_ONLINE, ros, drawer, channel);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
-
 	if (!m_full_channel_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::channel_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_ros_range;
@@ -275,17 +242,6 @@ TileHWID::adc_id ( int ros, int drawer, int channel, int adc ) const
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << TileHWID::TILE_ONLINE << ros << drawer << channel << adc;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::adc_id , values ok but did not build, ";
-	    sprintf(l_str,"online: %d, ros: %d, drawer: %d, channel: %d, adc: %d ",
-                    TileHWID::TILE_ONLINE, ros, drawer, channel, adc);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
 
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::adc_id() result is not OK: ID, range = "
@@ -345,17 +301,6 @@ TileHWID::channel_id    ( const HWIdentifier & drawer_id,
 
 	expId << channel;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::channel_id , values ok but did not build, ";
-	    sprintf(l_str,"channel: %d ",
-                    channel);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
-
 	if (!m_full_channel_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::channel_id() result is not OK: ID, range = "
 		+ (std::string)expId + " , " + (std::string)m_full_ros_range;
@@ -395,17 +340,6 @@ TileHWID::adc_id        ( const HWIdentifier & channel_id,
 	}
 
 	expId << adc;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::adc_id , values ok but did not build, ";
-	    sprintf(l_str,"adc: %d ",
-                    adc);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
 
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::adc_id() result is not OK: ID, range = "
@@ -447,17 +381,6 @@ TileHWID::adc_id        ( const HWIdentifier & drawer_id,
 	}
 
 	expId << channel << adc;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    char * l_str = new char[200];
-	    std::string errorMessage = "Error in TileHWID::adc_id , values ok but did not build, ";
-	    sprintf(l_str,"adc: %d ",
-                    adc);
-	    errorMessage += std::string(l_str);
-	    delete[] l_str ;
-	    TileID_Exception except(errorMessage , 1);
-	    throw except ;
-	}
 
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "TileHWID::adc_id() result is not OK: ID, range = "

@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonDigitization/MDT_Response
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
                           MuonSpectrometer/MuonSimEvent

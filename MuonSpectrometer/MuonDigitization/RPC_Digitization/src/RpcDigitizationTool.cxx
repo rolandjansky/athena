@@ -82,8 +82,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_tagInfoMgr(0)
 {
 
-  declareInterface<IMuonDigitizationTool>(this);
-
   declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
   declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
   declareProperty("WindowLowerOffset"    ,  m_timeWindowLowerOffset = -100.       , "digitization window lower limit");
@@ -520,11 +518,6 @@ StatusCode RpcDigitizationTool::mergeEvent() {
   m_RPCHitCollList.clear();
 
   return status;
-}
-
-//--------------------------------------------
-StatusCode RpcDigitizationTool::digitize() {
-  return this->processAllSubEvents();
 }
 
 //--------------------------------------------

@@ -38,6 +38,12 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 
+#include "xAODEventInfo/EventInfo.h"             
+#include "xAODEventInfo/EventAuxInfo.h"          
+#include "xAODEventInfo/EventInfoContainer.h"    
+#include "xAODEventInfo/EventInfoAuxContainer.h" 
+#include "EventInfoUtils/EventInfoFromxAOD.h"
+
 #include "ClearStorePolicy.h"
 
 #include "AthenaEventLoopMgr.h"
@@ -620,6 +626,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
   unsigned int conditionsRun = EventIDBase::UNDEFNUM;
+  EventID eventID;
   if ( m_evtSelCtxt )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
@@ -641,6 +648,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         else
           conditionsRun = runNumber;
         
+	eventID=*(pEvent->event_ID());
       } catch (...) {
       }
 /* FIXME: PvG, not currently written
@@ -656,12 +664,20 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
       }
 */
     }
-    if ( pEvent == nullptr ) {
-      StatusCode sc = eventStore()->retrieve(pEvent);
-      if( !sc.isSuccess() ) {
-        error() 
-	      << "Unable to retrieve Event root object" << endmsg;
-        return (StatusCode::FAILURE);
+    if ( pEvent == nullptr ) { //Try getting EventInfo from old-style object
+      pEvent=eventStore()->tryConstRetrieve<EventInfo>();
+      if (pEvent) {
+	eventID=(*pEvent->event_ID());
+      }
+      else { //Try getting xAOD::EventInfo object
+	const xAOD::EventInfo* xAODEvent=
+	  eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
+	if (xAODEvent==nullptr) {
+	  error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
+	  //std::cout << eventStore()->dump();
+	  return StatusCode::FAILURE;
+	}
+	eventID=eventIDFromxAOD(xAODEvent);
       }
     }
   }
@@ -672,6 +688,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
       (new EventID(1,m_nevt), new EventType());
     pEvent = pEventPtr.get();
     pEventPtr->event_ID()->set_lumi_block( m_nevt );
+    eventID=*(pEvent->event_ID());
     StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
     if( !sc.isSuccess() )  {
       error() 
@@ -679,9 +696,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
       return (StatusCode::FAILURE);
     } 
   }
-  assert(pEvent);
 
-  if (installEventContext (pEvent, conditionsRun).isFailure())
+  if (installEventContext (eventID, conditionsRun).isFailure())
   {
     error() 
           << "Error installing event context object" << endmsg;
@@ -689,13 +705,13 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
+  if (m_firstRun || (m_currentRun != eventID.run_number()) ) {
     // Fire EndRun incident unless this is the first run
     if (!m_firstRun) {
       if (!(this->endRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
     }
     m_firstRun=false;
-    m_currentRun = pEvent->event_ID()->run_number();
+    m_currentRun = eventID.run_number();
 
     info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
            << endmsg;
@@ -708,11 +724,16 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   // Call any attached tools to reject events early
   unsigned int toolCtr=0;
   if(m_useTools) {
+    if (pEvent == nullptr) {
+      error() << "Tools for event selection work only with old-style EventInfo!"  << endmsg;
+      return StatusCode::FAILURE;
+    }
+
     tool_store::iterator theTool = m_tools.begin();
     tool_store::iterator lastTool  = m_tools.end();
     while(toolsPassed && theTool!=lastTool ) 
       {
-        toolsPassed = (*theTool)->passEvent(pEvent);
+        toolsPassed = (*theTool)->passEvent(pEvent); //FIXME, pEvent might be NULL
 	m_toolInvoke[toolCtr]++;
         {toolsPassed ? m_toolAccept[toolCtr]++ : m_toolReject[toolCtr]++;}
         toolCtr++;
@@ -721,7 +742,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
 
-  uint64_t evtNumber = pEvent->event_ID()->event_number();
+  uint64_t evtNumber = eventID.event_number();
   bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
                       0 == (m_nev % m_eventPrintoutInterval.value()));
   if (doEvtHeartbeat)  {
@@ -824,7 +845,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   // Check if there was an error processing current event
   //------------------------------------------------------------------------
   return eventFailed?StatusCode::FAILURE:StatusCode::SUCCESS;
-
+  
 }
 
 //=========================================================================
@@ -1058,7 +1079,22 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   }
 
   // Construct EventInfo
-  const EventInfo* pEvent(nullptr);
+  EventID eventID;
+  const EventInfo* pEvent=eventStore()->tryConstRetrieve<EventInfo>(); //Try getting EventInfo from old-style object
+  if (pEvent) {
+    eventID=*(pEvent->event_ID());
+  }
+  else { //Try getting xAOD::EventInfo object
+    const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
+    if (xAODEvent==nullptr) {
+      error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
+      std::cout << eventStore()->dump();
+      return; 
+    }
+    eventID=eventIDFromxAOD(xAODEvent);
+  }
+
+
   IOpaqueAddress* addr = nullptr;
   sc = m_evtSelector->next(*m_evtSelCtxt);
   if(!sc.isSuccess()) {
@@ -1084,16 +1120,9 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
   }
 
-  // Retrieve the Event object
-  sc = eventStore()->retrieve(pEvent);
-  if(!sc.isSuccess()) {
-    error() << "Unable to retrieve Event root object" << endmsg;
-    return;
-  }
-
   // Need to make sure we have a valid EventContext in place before
   // doing anything that could fire incidents.
-  unsigned int conditionsRun = pEvent->event_ID()->run_number();
+  unsigned int conditionsRun = eventID.run_number();
   {
     const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
     if ( pAttrList != nullptr ) {
@@ -1101,7 +1130,7 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
         conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
     }
   }
-  if (installEventContext (pEvent, conditionsRun).isFailure()) {
+  if (installEventContext (eventID, conditionsRun).isFailure()) {
     error() << "Unable to install EventContext object" << endmsg;
     return;
   }
@@ -1113,7 +1142,7 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   } 
 
   m_firstRun=false;
-  m_currentRun = pEvent->event_ID()->run_number();
+  m_currentRun = eventID.run_number();
 
   // Clear Store
   const ClearStorePolicy::Type s_clearStore = clearStorePolicy( m_clearStorePolicy.value(), msgStream() );
@@ -1153,10 +1182,10 @@ AthenaEventLoopMgr::eventStore() const {
 
 
 // Fill in our EventContext object and make it current.
-StatusCode AthenaEventLoopMgr::installEventContext (const EventInfo* pEvent,
+StatusCode AthenaEventLoopMgr::installEventContext (const EventID& pEvent,
                                                     unsigned int conditionsRun)
 {
-  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext.setEventID(pEvent);
   m_eventContext.set(m_nev,0);
 
   m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
