@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -482,8 +482,8 @@ if __name__ == "__main__":
     acc.merge(TrigBSReadCfg(ConfigFlags))
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
-    from RegionSelector.RegSelConfig import RegSelConfig
-    rsc, regSel = RegSelConfig( ConfigFlags )
+    from RegionSelector.RegSelConfig import regSelCfg
+    rsc, regSel = regSelCfg( ConfigFlags )
     regSel.enableCalo = False # turn off calo, certainly a better way to do this...
     acc.merge( rsc )
     acc.addService(regSel)

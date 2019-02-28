@@ -41,9 +41,6 @@ def regSelCfg( flags ):
         from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
         tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
         acc.addPublicTool( tileTable )
-        # ??? that is puzzle, the RegSelSvc seems not to have such a property
-        # while it is set in:RegSelSvcDefault.py
-        # regSel.TileRegionSelectorTable     = tileTable
 
     if flags.Detector.GeometryPixel:
         regSel.enableID = True
@@ -108,13 +105,6 @@ def regSelCfg( flags ):
         from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
         cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
         acc.addPublicTool( cscTable )
-
-    # ??? that is same puzzle of Calo, the RegSelSvc seems not to have such a property
-    # while it is set in:RegSelSvcDefault.py 
-    # regSel.RPC_RegionLUT_CreatorTool   = rpcTable
-    # regSel.MDT_RegionLUT_CreatorTool   = mdtTable
-    # regSel.TGC_RegionLUT_CreatorTool   = tgcTable
-    # regSel.CSC_RegionLUT_CreatorTool   = cscTable
 
 
     if flags.Detector.GeometryMM:
