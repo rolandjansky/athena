@@ -26,6 +26,9 @@
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 class RoIFCalHadCellContMaker : public IAlgToolEFCalo {
 	 public:
            // Constructor
