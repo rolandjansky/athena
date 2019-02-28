@@ -43,7 +43,8 @@ namespace FlavorTagDiscriminants {
     } else if (graph_config.inputs.size() == 1){
       m_input_node_name = graph_config.inputs.at(0).name;
       m_variable_cleaner.reset(new lwt::NanReplacer(
-                                 graph_config.inputs.at(0).defaults));
+                                 graph_config.inputs.at(0).defaults,
+                                 lwt::rep::all));
     }
     for (const auto& input: inputs) {
       auto filler = get_filler(input.name, input.type, input.default_flag);
@@ -198,7 +199,6 @@ namespace FlavorTagDiscriminants {
                       std::string default_flag) {
       if(default_flag.size() == 0 || name==default_flag)
       {
-        std::cout<<"HasDefault "<<name <<" "<<default_flag<<std::endl;
         switch (type) {
         case EDMType::INT: return BVarGetter<int, true>(name, default_flag);
         case EDMType::FLOAT: return BVarGetter<float, true>(name, default_flag);
