@@ -7,7 +7,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "TBEvent/TBPhase.h"
@@ -36,11 +36,11 @@ FindDuplicatedLArDigits::~FindDuplicatedLArDigits()
 
 StatusCode FindDuplicatedLArDigits::initialize()
 {
-  //Use CaloIdManager to access detector info
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
+  m_hecId=idHelper->hec_idHelper();
 
   if (!m_emId) {
     ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
