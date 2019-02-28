@@ -162,7 +162,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
                                         const xAOD::VertexContainer * /*vertexContainer*/,
                                         const xAOD::MuonContainer * /*muonContainer*/ )
 {
-  ATH_MSG_WARNING( "EFMissingETFromHelper::execute() called" );
+  ATH_MSG_DEBUG( "EFMissingETFromHelper::execute() called" );
 
   if (met==0 || metHelper==0) {
     ATH_MSG_ERROR( "ERROR: null pointers as input!" );
@@ -180,7 +180,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
   if (elem!=42) {
     ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
-  } else ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class" );
+  } else ATH_MSG_DEBUG( "Found " << elem << " aux components in the transient helper class" );
 
   bool skipAuxInfo=false;
   bool save9comp=false;
@@ -214,7 +214,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
       skipAuxInfo=true;
   }
-      ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET." );
+      ATH_MSG_DEBUG( "Found " << comp << " aux components in TrigMissingET." );
 
   // Initialize EDM by setting all components to zero
   met->setEx(0.); met->setEy(0.); met->setEz(0.);
@@ -225,22 +225,22 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
     // basic info - DK calibration
     if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
-      ATH_MSG_WARNING( "skip muon or Had Topo granular or EM Topo correction for all quantities" );
+      ATH_MSG_DEBUG( "skip muon or Had Topo granular or EM Topo correction for all quantities" );
       setMET(met, metHelper, i);
     }
 
     if(save9comp && i == 24) { // Save summed HAD MET
-      ATH_MSG_WARNING( "Save summed HAD MET" );
+      ATH_MSG_DEBUG( "Save summed HAD MET" );
       setMET(met, metHelper, i);
     }
 
     if( (save2comp || save6comp) && i == 34) { // Save JET MET
-      ATH_MSG_WARNING( "Save JET MET" );
+      ATH_MSG_DEBUG( "Save JET MET" );
       setMET(met, metHelper, i);
     }
 
     if(save3comp && i == 39) { // Save PUC MET
-      ATH_MSG_WARNING( "Save PUC MET" );
+      ATH_MSG_DEBUG( "Save PUC MET" );
       setMET(met, metHelper, i);
     }
 
@@ -248,90 +248,90 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
     // auxiliary info - uncorrected
     if (comp == unsigned(elem-17) && i < 24) { // finest granularity
-      ATH_MSG_WARNING( "finest granularity");
+      ATH_MSG_DEBUG( "finest granularity");
       setMETComp(met, metHelper, i);
     } else if(comp == unsigned(elem-17) && i == 41) { // save muons
-      ATH_MSG_WARNING( "save muons");
+      ATH_MSG_DEBUG( "save muons");
       setMETComp(met, metHelper, i-17);
     } else if (save6comp) {
       if (i>=34 && i < 39) { // Central and Forward Jets
-        ATH_MSG_WARNING( "Central and Forward Jets");
+        ATH_MSG_DEBUG( "Central and Forward Jets");
         setMETComp(met, metHelper, i-34);
       }
       if (i==41) { // Muons
-        ATH_MSG_WARNING( "Muons");
+        ATH_MSG_DEBUG( "Muons");
         setMETComp(met, metHelper, 5);
       }
 
     } else if (save9comp) {
       if (i > 24 && i < 29 ) { // HAD scale quantities
-        ATH_MSG_WARNING( "HAD scale quantities" );
+        ATH_MSG_DEBUG( "HAD scale quantities" );
         setMETComp(met, metHelper, i-25);
       } else if( i > 29 && i < 34) {     // EM scale quantities
-        ATH_MSG_WARNING( "EM scale quantities" );
+        ATH_MSG_DEBUG( "EM scale quantities" );
         setMETComp(met, metHelper, i-25-1);
       } else if( i == 41) {    // Muon
-        ATH_MSG_WARNING( "Muon" );
+        ATH_MSG_DEBUG( "Muon" );
         setMETComp(met, metHelper, i-25-8);
       }
     } else if (save5comp) {
       switch (i) {
         case 0: case 1: case 2: case 3: // LAr, barrel
-          ATH_MSG_WARNING("LAr, barrel");
+          ATH_MSG_DEBUG("LAr, barrel");
           setMETComp(met, metHelper, 0, 1);
           break;
         case 4: case 5: case 6: case 7: // LAr, end-cap
-          ATH_MSG_WARNING("LAr, end-cap");
+          ATH_MSG_DEBUG("LAr, end-cap");
         case 21:                        // + FCalEM
-          ATH_MSG_WARNING("+ FCalEM");
+          ATH_MSG_DEBUG("+ FCalEM");
           setMETComp(met, metHelper, 1, 2);
           break;
         case 12: case 13: case 14: // Tile, barrel +
-          ATH_MSG_WARNING("Tile, barrel +");
+          ATH_MSG_DEBUG("Tile, barrel +");
         case 18: case 19: case 20: // Tile, extended barrel
-          ATH_MSG_WARNING("Tile, extended barrel");
+          ATH_MSG_DEBUG("Tile, extended barrel");
           setMETComp(met, metHelper, 2, 3);
           break;
         case 24: case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32: case 33:
         case 34: case 35: case 36: case 37: case 38:
         case 39: case 40 :             // Topo. cluster elements or jets - do nothing.
-          ATH_MSG_WARNING("Topo. cluster elements or jets - do nothing.");
+          ATH_MSG_DEBUG("Topo. cluster elements or jets - do nothing.");
           break;
         case 41: // muons
-          ATH_MSG_WARNING("muons");
+          ATH_MSG_DEBUG("muons");
           setMETComp(met, metHelper, 4);
           break;
         default: // Hadr. end-cap + Tile gap + FCalHad
-          ATH_MSG_WARNING("Hadr. end-cap + Tile gap + FCalHad");
+          ATH_MSG_DEBUG("Hadr. end-cap + Tile gap + FCalHad");
           setMETComp(met, metHelper, 3, 4);
       }
     } else if (save3comp) {
       switch (i) {
         case 39: // Corrected MET
-          ATH_MSG_WARNING( "Corrected MET" );
+          ATH_MSG_DEBUG( "Corrected MET" );
           setMETComp(met, metHelper, 0);
           break;
         case 40: // Original MET
-          ATH_MSG_WARNING( "Original MET" );
+          ATH_MSG_DEBUG( "Original MET" );
           setMETComp(met, metHelper, 1);
           break;
         case 41: // Muons
-          ATH_MSG_WARNING( "Muons" );
+          ATH_MSG_DEBUG( "Muons" );
           setMETComp(met, metHelper, 2);
       }
     } else if (save2comp) { // Jets + muons only
       if (i==34) { // Jets
-        ATH_MSG_WARNING( "Jets+Mu only: Jets");
+        ATH_MSG_DEBUG( "Jets+Mu only: Jets");
         setMETComp(met, metHelper, 0);
       }
       if (i==41) { // Muons
-        ATH_MSG_WARNING( "Jets+Mu only: Muons");
+        ATH_MSG_DEBUG( "Jets+Mu only: Muons");
         setMETComp(met, metHelper, 1);
       }
     } else if (save1comp) { // muons only
       if (i==41) { // REPLACE WITH A TEST OVER COMP. NAME
-        ATH_MSG_WARNING("Muons only");
+        ATH_MSG_DEBUG("Muons only");
         setMETComp(met, metHelper, 0);
       }
     }
@@ -375,7 +375,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   //   if(msgLvl(MSG::DEBUG)){
         s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
 			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        ATH_MSG_WARNING( s );
+        ATH_MSG_DEBUG( s );
    //   }
    // }
 
@@ -396,7 +396,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     // if(msgLvl(MSG::DEBUG)){
       message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
        name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
-      ATH_MSG_WARNING( message );
+      ATH_MSG_DEBUG( message );
     // }
 
   }
