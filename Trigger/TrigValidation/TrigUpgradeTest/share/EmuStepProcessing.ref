@@ -1,9 +1,11 @@
-TrigSignatureMoniMT                                INFO HLT_e20                       3         3         2         2         2         
-TrigSignatureMoniMT                                INFO HLT_e20 decisions                                 4         4         
 TrigSignatureMoniMT                                INFO HLT_e5                        2         2         1         1         1         
 TrigSignatureMoniMT                                INFO HLT_e5 decisions                                  2         2         
 TrigSignatureMoniMT                                INFO HLT_e5_e8                     2         2         1         0         1         
 TrigSignatureMoniMT                                INFO HLT_e5_e8 decisions                               6         0         
+TrigSignatureMoniMT                                INFO HLT_e5_v2                     0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_e5_v2 decisions                               0         0         
+TrigSignatureMoniMT                                INFO HLT_e5_v3                     1         1         1         1         1         
+TrigSignatureMoniMT                                INFO HLT_e5_v3 decisions                               2         2         
 TrigSignatureMoniMT                                INFO HLT_e8                        4         4         3         3         3         
 TrigSignatureMoniMT                                INFO HLT_e8 decisions                                  5         5         
 TrigSignatureMoniMT                                INFO HLT_g5                        2         2         1         0         1         
