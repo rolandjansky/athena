@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalNoiseOccupancyMonTool.h
@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 #include <list>
-using namespace std;
 
 //Pre declarations
 class TH1F_LW;
@@ -41,8 +40,8 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
   
  public:
   /// Constructor
-  InDetGlobalNoiseOccupancyMonTool(const string & type, 
-				   const string & name,
+  InDetGlobalNoiseOccupancyMonTool(const std::string & type, 
+				   const std::string & name,
 				   const IInterface* parent); 
   
   /// Virtual destructor
@@ -70,7 +69,7 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
    *@param rdoId
    *@return
    */
-  int histIdx( const vector<int> &aList, 
+  int histIdx( const std::vector<int> &aList, 
 	       const Identifier &rdoId) const;
   
   
@@ -88,7 +87,7 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
    * new methods for calculating the correlation coefficients
    * Added by m
    */
-  void correlation_coeffs(vector<struct noise> &no);
+  void correlation_coeffs(std::vector<struct noise> &no);
   
   float calc_correlation(float *sum_x, float *sum_y, 
 			 float *sum_xy, float *sum_x_sq, float *sum_y_sq,
@@ -223,12 +222,12 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
   TH2F_LW * m_TRT_NO_ntrk;
   
   /// Temporary (to be verified)
-  vector<int> m_phiModBTemp;
-  vector<int> m_phiModECATemp;
-  vector<int> m_phiModECCTemp;
+  std::vector<int> m_phiModBTemp;
+  std::vector<int> m_phiModECATemp;
+  std::vector<int> m_phiModECCTemp;
   
   /// list of trt circle identifiers
-  list<Identifier> m_dcidOnTrack;
+  std::list<Identifier> m_dcidOnTrack;
   
   /* 
    * Vector to hold the noise occupancies so they can
@@ -238,7 +237,7 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
    * Added by m
    */  
 
-  vector<struct noise> m_NO;
+  std::vector<struct noise> m_NO;
 };
 
 #endif
