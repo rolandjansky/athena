@@ -1,176 +1,176 @@
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :348 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG     Fragment size including 68 bytes from 1x DynAux: 416 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :772 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG     Fragment size including 52 bytes from 1x DynAux: 824 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :716 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG     Fragment size including 892 bytes from 14x DynAux: 1608 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :632 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG     Fragment size including 124 bytes from 1x DynAux: 756 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1732 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG     Fragment size including 64 bytes from 1x DynAux: 1796 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :2832 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG     Fragment size including 2180 bytes from 14x DynAux: 5012 bytes
-HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :824 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG     Fragment size including 144 bytes from 1x DynAux: 968 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :2372 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG     Fragment size including 72 bytes from 1x DynAux: 2444 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1728 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG     Fragment size including 1508 bytes from 14x DynAux: 3236 bytes
-HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :632 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG     Fragment size including 112 bytes from 1x DynAux: 744 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1732 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG     Fragment size including 64 bytes from 1x DynAux: 1796 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3292 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG     Fragment size including 2460 bytes from 14x DynAux: 5752 bytes
-HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :444 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG     Fragment size including 92 bytes from 1x DynAux: 536 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1092 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG     Fragment size including 56 bytes from 1x DynAux: 1148 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :992 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG     Fragment size including 1060 bytes from 14x DynAux: 2052 bytes
-HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :916 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG     Fragment size including 152 bytes from 1x DynAux: 1068 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :2692 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG     Fragment size including 76 bytes from 1x DynAux: 2768 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :4580 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG     Fragment size including 3244 bytes from 14x DynAux: 7824 bytes
-HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :348 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG     Fragment size including 72 bytes from 1x DynAux: 420 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :772 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG     Fragment size including 52 bytes from 1x DynAux: 824 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1176 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG     Fragment size including 1172 bytes from 14x DynAux: 2348 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :536 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG     Fragment size including 100 bytes from 1x DynAux: 636 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1412 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG     Fragment size including 60 bytes from 1x DynAux: 1472 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3016 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG     Fragment size including 2292 bytes from 14x DynAux: 5308 bytes
-HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :444 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG     Fragment size including 100 bytes from 1x DynAux: 544 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1092 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG     Fragment size including 56 bytes from 1x DynAux: 1148 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :808 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG     Fragment size including 948 bytes from 14x DynAux: 1756 bytes
-HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :252 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :452 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :440 bytes
-HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :632 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG     Fragment size including 144 bytes from 1x DynAux: 776 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1732 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG     Fragment size including 64 bytes from 1x DynAux: 1796 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3476 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG     Fragment size including 2572 bytes from 14x DynAux: 6048 bytes
-HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :348 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG     Fragment size including 68 bytes from 1x DynAux: 416 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :772 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG     Fragment size including 52 bytes from 1x DynAux: 824 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :808 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG     Fragment size including 948 bytes from 14x DynAux: 1756 bytes
-HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :1012 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG     Fragment size including 196 bytes from 1x DynAux: 1208 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :3012 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG     Fragment size including 80 bytes from 1x DynAux: 3092 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3844 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG     Fragment size including 2796 bytes from 14x DynAux: 6640 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :444 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG     Fragment size including 104 bytes from 1x DynAux: 548 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1092 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG     Fragment size including 56 bytes from 1x DynAux: 1148 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :2464 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG     Fragment size including 1956 bytes from 14x DynAux: 4420 bytes
-HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :348 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG     Fragment size including 72 bytes from 1x DynAux: 420 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :772 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG     Fragment size including 52 bytes from 1x DynAux: 824 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :716 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG     Fragment size including 892 bytes from 14x DynAux: 1608 bytes
-HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :252 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :452 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :440 bytes
-HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :348 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG     Fragment size including 64 bytes from 1x DynAux: 412 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :772 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG     Fragment size including 52 bytes from 1x DynAux: 824 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :440 bytes
-HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :444 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG     Fragment size including 104 bytes from 1x DynAux: 548 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1092 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG     Fragment size including 56 bytes from 1x DynAux: 1148 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1360 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG     Fragment size including 1284 bytes from 14x DynAux: 2644 bytes
-HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :444 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG     Fragment size including 100 bytes from 1x DynAux: 544 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1092 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG     Fragment size including 56 bytes from 1x DynAux: 1148 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :808 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG     Fragment size including 948 bytes from 14x DynAux: 1756 bytes
-HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux. Fragment size :536 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG     Fragment size including 92 bytes from 1x DynAux: 628 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions Fragment size :152 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1412 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG     Fragment size including 60 bytes from 1x DynAux: 1472 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :172 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3292 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG     Fragment size including 2460 bytes from 14x DynAux: 5752 bytes
-HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :168 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :380 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 128 bytes from 1x DynAux : 508
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :748 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 1392 bytes from 14x DynAux : 2140
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :664 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG    Fragment size including 184 bytes from 1x DynAux : 848
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1764 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG    Fragment size including 100 bytes from 1x DynAux : 1864
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :2864 bytes
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG    Fragment size including 2680 bytes from 14x DynAux : 5544
+HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :856 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG    Fragment size including 204 bytes from 1x DynAux : 1060
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :2404 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG    Fragment size including 108 bytes from 1x DynAux : 2512
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1760 bytes
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG    Fragment size including 2008 bytes from 14x DynAux : 3768
+HLTRMakerAlg.MKTool.Serialiser          2   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :664 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG    Fragment size including 172 bytes from 1x DynAux : 836
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1764 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG    Fragment size including 100 bytes from 1x DynAux : 1864
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3324 bytes
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG    Fragment size including 2960 bytes from 14x DynAux : 6284
+HLTRMakerAlg.MKTool.Serialiser          3   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :476 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG    Fragment size including 152 bytes from 1x DynAux : 628
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1124 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG    Fragment size including 92 bytes from 1x DynAux : 1216
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1024 bytes
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG    Fragment size including 1560 bytes from 14x DynAux : 2584
+HLTRMakerAlg.MKTool.Serialiser          4   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :948 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG    Fragment size including 212 bytes from 1x DynAux : 1160
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :2724 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG    Fragment size including 112 bytes from 1x DynAux : 2836
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :4612 bytes
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG    Fragment size including 3744 bytes from 14x DynAux : 8356
+HLTRMakerAlg.MKTool.Serialiser          5   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :380 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 132 bytes from 1x DynAux : 512
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1208 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 1672 bytes from 14x DynAux : 2880
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :568 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG    Fragment size including 160 bytes from 1x DynAux : 728
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1444 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG    Fragment size including 96 bytes from 1x DynAux : 1540
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3048 bytes
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG    Fragment size including 2792 bytes from 14x DynAux : 5840
+HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :476 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG    Fragment size including 160 bytes from 1x DynAux : 636
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1124 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG    Fragment size including 92 bytes from 1x DynAux : 1216
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :840 bytes
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG    Fragment size including 1448 bytes from 14x DynAux : 2288
+HLTRMakerAlg.MKTool.Serialiser          8   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :284 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :484 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :472 bytes
+HLTRMakerAlg.MKTool.Serialiser          9   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :664 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG    Fragment size including 204 bytes from 1x DynAux : 868
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1764 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG    Fragment size including 100 bytes from 1x DynAux : 1864
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3508 bytes
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG    Fragment size including 3072 bytes from 14x DynAux : 6580
+HLTRMakerAlg.MKTool.Serialiser          10  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :380 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG    Fragment size including 128 bytes from 1x DynAux : 508
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :840 bytes
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG    Fragment size including 1448 bytes from 14x DynAux : 2288
+HLTRMakerAlg.MKTool.Serialiser          11  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :1044 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 256 bytes from 1x DynAux : 1300
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :3044 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 116 bytes from 1x DynAux : 3160
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3876 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 3296 bytes from 14x DynAux : 7172
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :476 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG    Fragment size including 164 bytes from 1x DynAux : 640
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1124 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG    Fragment size including 92 bytes from 1x DynAux : 1216
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :2496 bytes
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG    Fragment size including 2456 bytes from 14x DynAux : 4952
+HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :380 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG    Fragment size including 132 bytes from 1x DynAux : 512
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :748 bytes
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG    Fragment size including 1392 bytes from 14x DynAux : 2140
+HLTRMakerAlg.MKTool.Serialiser          14  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :284 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :484 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :472 bytes
+HLTRMakerAlg.MKTool.Serialiser          15  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :380 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG    Fragment size including 124 bytes from 1x DynAux : 504
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :472 bytes
+HLTRMakerAlg.MKTool.Serialiser          16  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :476 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG    Fragment size including 164 bytes from 1x DynAux : 640
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1124 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG    Fragment size including 92 bytes from 1x DynAux : 1216
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1392 bytes
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG    Fragment size including 1784 bytes from 14x DynAux : 3176
+HLTRMakerAlg.MKTool.Serialiser          17  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :476 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG    Fragment size including 160 bytes from 1x DynAux : 636
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1124 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG    Fragment size including 92 bytes from 1x DynAux : 1216
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :840 bytes
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG    Fragment size including 1448 bytes from 14x DynAux : 2288
+HLTRMakerAlg.MKTool.Serialiser          18  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :568 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG    Fragment size including 152 bytes from 1x DynAux : 720
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :1444 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG    Fragment size including 96 bytes from 1x DynAux : 1540
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :3324 bytes
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG    Fragment size including 2960 bytes from 14x DynAux : 6284
+HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut                 20        10        6         5         5         
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut decisions                           16        83        
 TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut               20        20        12        10        10        

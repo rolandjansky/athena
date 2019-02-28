@@ -356,6 +356,9 @@ serialiser.addCollectionListToMainResult([
    "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ])
 
+print serialiser
+
+
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
 
@@ -396,8 +399,8 @@ deserialiser.Prefix="SERIALISED_"
 deserialiser.OutputLevel=DEBUG
 
 # # add prefix + remove version to class name
-# l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
-#StreamESD.ItemList += l
+l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
+StreamESD.ItemList += l
 
 
 
@@ -425,7 +428,7 @@ svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
 
 ################################################################################
 # assemble top list of algorithms
-hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, StreamESD, streamBS, deserialiser ] )
+hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, deserialiser, StreamESD, streamBS ] )
 
 
 
