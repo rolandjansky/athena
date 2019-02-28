@@ -58,11 +58,27 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
 
     StatusCode executeMT(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper);
 
-  private:
-    void setMET(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
-                unsigned char comp_i);
-    void setMETComp(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
-                    unsigned char comp_i, signed char add_i=-1);
+    class ComponentCopier
+    {
+    public:
+      ComponentCopier(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper)
+      {
+        m_met = met;
+        m_helper = metHelper;
+      }
+
+      void addHelperCompToMET(unsigned char helper_i);
+      void setMETCompFromHelper(unsigned char met_i, unsigned char helper_i);
+      void addMETCompWithHelper(unsigned char met_i, unsigned char met_add_i, unsigned char helper_i);
+      void setHelperFromMET();
+
+      xAOD::TrigMissingET* getMET() {return m_met; }
+      TrigEFMissingEtHelper* getMETHelper() {return m_helper; }
+      
+    private:
+      xAOD::TrigMissingET *m_met;
+      TrigEFMissingEtHelper *m_helper;
+    };
 
 };
 
