@@ -56,7 +56,7 @@ DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) 
    if (m_index_ref != nullptr && s >= m_index_ref->GetEntries()) {
       *m_index = this->nextRecordId();
       m_index_ref->SetAddress(m_index);
-      if (this->isBranchContainer()) m_index_ref->Fill();
+      if( isBranchContainer() && !m_treeFillMode ) m_index_ref->Fill();
    }
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
    DbStatus status = RootTreeContainer::writeObject(ent);
