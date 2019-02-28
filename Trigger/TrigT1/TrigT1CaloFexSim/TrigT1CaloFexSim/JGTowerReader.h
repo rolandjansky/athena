@@ -153,8 +153,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  jJet_L1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
-  std::map<TString, TH1*> hName;
-  std::map<TString, TH2*> h2Name;
+  std::map<TString, TH1*> m_hName;
+  std::map<TString, TH2*> m_h2Name;
   int m_jTowerHashMax;
   int m_gTowerHashMax;
 

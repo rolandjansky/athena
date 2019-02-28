@@ -377,11 +377,11 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const D
     TH1F*h = new TH1F( name, name, nbinsx, xbins);
     h->Sumw2();
     CHECK( histSvc->regHist(Form("/OUTPUT/%s",name.Data()),h));
-    hName[name]=h;
-    hName[name]->Fill(xvalue,wei);
+    m_hName[name]=h;
+    m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
   }
-  else hName[name]->Fill(xvalue,wei);
+  else m_hName[name]->Fill(xvalue,wei);
   return StatusCode::SUCCESS;
 }
 
@@ -391,11 +391,11 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_
     TH1F*h=new TH1F( name, name, nbinsx, xbin_down,xbin_up);
     h->Sumw2();
     CHECK( histSvc->regHist(Form("/OUTPUT/%s",name.Data()),h));
-    hName[name]=h;
-    hName[name]->Fill(xvalue,wei);
+    m_hName[name]=h;
+    m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
   }
-  else  hName[name]->Fill(xvalue,wei);
+  else  m_hName[name]->Fill(xvalue,wei);
   return StatusCode::SUCCESS;
 }
 
@@ -689,10 +689,10 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
     // set seed ET to 0 if it has less ET than N times the total noise over the seed towers
     if(seed_ET < seed_totalNoise * m_map_seed_total_noise_multiplier)
       seed_ET = 0;
-    else
+    else{
       // ATH_MSG_DEBUG("adding a non-zero seed " << i_seed << " at (eta,phi)=" << towerMap_seedEta[i_seed] << "," << towerMap_seedPhi[i_seed] << ") with ET " << seed_ET);
-      ;
-
+      
+    }
     towerMapSeed_ET.push_back(seed_ET);
   }
 
