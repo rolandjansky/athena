@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMiniFCAL_ID_H
@@ -75,10 +75,13 @@ public:
 
   /** build a module identifier for a channel  */
   Identifier  module_id ( int pos_neg, int module ) const ;
+  Identifier  module_id ( int pos_neg, int module, bool checks ) const ;
 
   /** build a cell identifier for a channel  */
   Identifier  channel_id( int pos_neg,  int module,  int depth,
                           int eta,      int phi ) const ;
+  Identifier  channel_id( int pos_neg,  int module,  int depth,
+                          int eta,      int phi, bool checks ) const ;
 
   /** allows to know in which region is a channel/cell
       -- valid for both kinds of channels */
@@ -88,6 +91,8 @@ public:
       -- valid for both kinds of channels */
   Identifier  channel_id( const Identifier moduleId, int depth,
                           int eta, int phi) const ;
+  Identifier  channel_id( const Identifier moduleId, int depth,
+                          int eta, int phi, bool checks) const ;
                              
   bool is_supercell (const Identifier channelId) const;
                                  
@@ -308,13 +313,13 @@ LArMiniFCAL_ID::channel_id (const ExpandedIdentifier& exp_id) const
 
 //----------------------------------------------------------------------------
 inline Identifier 
-LArMiniFCAL_ID::module_id (int pos_neg, int module) const 
+LArMiniFCAL_ID::module_id (int pos_neg, int module, bool checks) const 
 {
 
     Identifier result(0);
 
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
         module_id_checks ( pos_neg, module );
     }
 
@@ -327,14 +332,21 @@ LArMiniFCAL_ID::module_id (int pos_neg, int module) const
     return result;
 }
 
+inline Identifier 
+LArMiniFCAL_ID::module_id (int pos_neg, int module) const 
+{
+  return module_id (pos_neg, module, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier 
 LArMiniFCAL_ID::channel_id   ( int pos_neg, int module, int depth,
-                           int eta,     int phi ) const 
+                               int eta,     int phi,
+                               bool checks ) const 
 {  
 
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
         channel_id_checks( pos_neg, module, depth, eta, phi );
     }
 
@@ -349,6 +361,13 @@ LArMiniFCAL_ID::channel_id   ( int pos_neg, int module, int depth,
     m_phi_impl.pack      (phi,                    result);
 
     return result;
+}
+
+inline Identifier 
+LArMiniFCAL_ID::channel_id   ( int pos_neg, int module, int depth,
+                               int eta,     int phi ) const
+{
+  return channel_id (pos_neg, module, depth, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -367,10 +386,11 @@ LArMiniFCAL_ID::module_id   ( const Identifier channelId ) const
 //----------------------------------------------------------------------------
 inline Identifier 
 LArMiniFCAL_ID::channel_id   ( const Identifier module_id, int depth,
-                           int eta,       int phi ) const 
+                               int eta,       int phi,
+                               bool checks) const 
 {
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
       channel_id_checks( module_id, depth, eta, phi );
     }
 
@@ -385,6 +405,13 @@ LArMiniFCAL_ID::channel_id   ( const Identifier module_id, int depth,
     m_phi_impl.pack      (phi, result);
 
     return result;
+}
+
+inline Identifier 
+LArMiniFCAL_ID::channel_id   ( const Identifier module_id, int depth,
+                               int eta,       int phi) const
+{
+  return channel_id (module_id, depth, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------
