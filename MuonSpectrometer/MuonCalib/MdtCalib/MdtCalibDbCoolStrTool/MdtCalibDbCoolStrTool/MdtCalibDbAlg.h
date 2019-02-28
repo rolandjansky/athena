@@ -113,6 +113,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
   double m_rtShift;
   double m_rtScale;
   double m_prop_beta;
+  const double m_speed_of_light;
   ServiceHandle<IAtRndmGenSvc> m_AtRndmGenSvc;
   CLHEP::HepRandomEngine *p_engine;
 

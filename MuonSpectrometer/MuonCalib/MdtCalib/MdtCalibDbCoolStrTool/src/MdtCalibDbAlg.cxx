@@ -77,6 +77,7 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_rtShift(0.),
   m_rtScale(1.),
   m_prop_beta(1.0),
+  m_speed_of_light(299.792458),
   m_AtRndmGenSvc ("AtRndmGenSvc", name),
   m_buffer_length(0),
   m_decompression_buffer(NULL),
@@ -661,7 +662,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
   ATH_MSG_DEBUG( " Created new MdtTubeCalibContainerCollection size " << writeCdoTube->size() );
 
   // Inverse of wire propagation speed
-  float inversePropSpeed = 1./(299.792458*m_prop_beta);
+  float inversePropSpeed = 1./(m_speed_of_light*m_prop_beta);
 
   //loop over modules (MDT chambers) and create an MdtTubeContainer for each
   MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
@@ -756,7 +757,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
   ATH_MSG_INFO("Range of input is " << rangeTube);
   
   // Inverse of wire propagation speed
-  float inversePropSpeed = 1./(299.792458*m_prop_beta);
+  float inversePropSpeed = 1./(m_speed_of_light*m_prop_beta);
 
   // unpack the strings in the collection and update the 
   // MdtTubeCalibContainers in TDS
