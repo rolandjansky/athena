@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArCablingChecker.h"
 #include "LArRawEvent/LArDigit.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRawConditions/LArCalibParams.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <algorithm>
@@ -55,9 +55,10 @@ StatusCode LArCablingChecker::initialize() {
     ATH_MSG_ERROR ( "Unable to open output file with name " << m_outFileName );
     return StatusCode::FAILURE;
   }
-  
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
+
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
 
   m_channelHashMax = m_onlineHelper->channelHashMax();
 
