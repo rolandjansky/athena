@@ -101,7 +101,7 @@ StatusCode CaloLCWeightTool::initialize()
  
   m_sampnames.reserve(CaloSampling::Unknown);
   for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
-     m_sampnames[iSamp] = CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp);
+     m_sampnames.push_back(CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
   }
 
   return StatusCode::SUCCESS;
