@@ -204,7 +204,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     unsigned int kk=0;
     for(auto muon : *muonContainer) 
     {
-      ATH_MSG_DEBUG("Looking at muon " << ++kk << "pt = " << muon->pt() << "eta= " << muon->eta() << "phi= " << muon->phi());
+      ATH_MSG_DEBUG("Looking at muon " << kk++ << ": (pt, eta, phi) = (" << muon->pt() << ", " << muon->eta() << ", " << muon->phi() << ")");
 
       // combined or segment tagged muon
       if(muon->muonType() == xAOD::Muon::MuonType::Combined 
@@ -247,7 +247,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
         muon_sum_e  += E;
         ++nMuons;
 
-        ATH_MSG_DEBUG("REGTEST: Adding muon with pT = " << Et << " MeV, phi = " << phi << " rad, eta = " << eta );
+        ATH_MSG_DEBUG("Adding muon with (pt, eta, phi) = (" << muon->pt() << ", " << muon->eta() << ", " << muon->phi() << ")");
       } // end if muonType
     } // end for(muon : muonContainer)
   } // end for(te : muonTE's)
@@ -260,7 +260,13 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
 
   ATH_MSG_DEBUG("Setting energies and flag");
 
-  unsigned int muonComp = m_met->getNumberOfComponents() - 1; // Muons are always the last component \_( )_/
+  unsigned int muonComp = m_met->getNumberOfComponents() - 1; // Muons are always the last component \_(y)_/
+  ATH_MSG_VERBOSE("Outputting met component names:");
+  ATH_MSG_VERBOSE("ii \t m_met->nameOfComponent(ii)");
+  for(uint ii=0; ii<m_met->getNumberOfComponents(); ii++){
+    ATH_MSG_VERBOSE(ii << '\t' << m_met->nameOfComponent(ii));
+  }
+
   // Suggested by Diego: Checking the component name of the input
   // Turns out to be a good test 
   if( (m_met->nameOfComponent(muonComp)).substr(0,4)!="Muon") 
