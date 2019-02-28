@@ -1,24 +1,22 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
    MdtCalibDbAlg reads raw condition data and writes derived condition data to the condition store
 */
 
-#ifndef MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
-#define MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
+#ifndef MDTCALIBDBCOOLSTRTOOL_MDTCALIBDBALG_H
+#define MDTCALIBDBCOOLSTRTOOL_MDTCALIBDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-//#include "GaudiKernel/Property.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-//new code to replace dummy 
-//members from MdtCalibDbCoolStrTool.h
-//removing obsolete ones for me 
+//from MdtCalibDbCoolStrTool.h
+//removing obsolete ones
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
@@ -49,8 +47,6 @@ namespace MuonGM{
 namespace coral	{
   class Blob;
 }
-
-//namespace MuonCalib {
 
 //class RtResolutionLookUp;
 //class SamplePoint;
@@ -99,10 +95,10 @@ class MdtCalibDbAlg: public AthAlgorithm {
   void initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet);
 
   //if m_TimeSlewingCorrection is set to true then it is assumed that the
-  //time slewing correction is applied. If false not. If this flag does 
-  //not match the bit in the creation parameters, the rt-relation and t0 
-  //will be corrected.  
-  //NOTE: This is a preliminary solution for 17.2. In principle each
+  //time slewing correction is applied. If false not. If this flag does
+  //not match the bit in the creation parameters, the rt-relation and t0
+  //will be corrected.
+  //NOTE: This was a preliminary solution for 17.2. In principle each
   //MdtDriftCircleOnTrackCreator could decide individually if it wants to
   //have TS-correction. In the default reco-jobs however, this is
   //configured by one muonRecFlag, that will be used to set this job-option.
@@ -139,7 +135,5 @@ class MdtCalibDbAlg: public AthAlgorithm {
   SG::WriteCondHandleKey<MdtCorFuncSetCollection> m_writeKeyCor;
    
 };
-
-//}  //namespace MuonCalib 
 
 #endif

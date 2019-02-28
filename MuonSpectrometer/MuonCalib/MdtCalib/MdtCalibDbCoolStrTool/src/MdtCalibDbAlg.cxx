@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibDbCoolStrTool/MdtCalibDbAlg.h"
 
-//includes from MdtCalibDbCoolStrTool.cxx
+//from MdtCalibDbCoolStrTool.cxx
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
@@ -40,8 +40,6 @@
 #include "MdtCalibData/RtFromPoints.h"
 #include "MdtCalibData/RtResolutionFromPoints.h"
 
-//#include "MdtCalibDbCoolStrTool/MdtCalibDbCoolStrTool.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -54,6 +52,7 @@
 
 //like MdtCalibrationDbSvc
 //for corData in loadRt
+
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/BFieldCorFunc.h"
@@ -87,8 +86,6 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_writeKeyTube("MdtTubeCalibContainerCollection"),
   m_writeKeyCor("MdtCorFuncSetCollection")
 {
-
-  //declareInterface< IMdtCalibDBTool >(this);
 
   //Db Folders
   declareProperty("TubeFolder",m_tubeFolder,"DB folder containing the tube constants");
@@ -379,7 +376,6 @@ StatusCode MdtCalibDbAlg::loadRt(){
   //atrc is readCdoRt here
 
   //tr-relation creators
-  //MuonCalib::RtResolutionFromPoints res_from_points;//never used
   MuonCalib::RtFromPoints rt_fromPoints;
 
   if ( defaultRt(writeCdoRt).isFailure() ){
