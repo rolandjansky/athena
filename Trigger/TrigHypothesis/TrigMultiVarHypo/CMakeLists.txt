@@ -9,6 +9,7 @@ atlas_subdir( TrigMultiVarHypo )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigRinger
                           Trigger/TrigEvent/TrigCaloEvent
@@ -28,17 +29,17 @@ atlas_add_library( TrigMultiVarHypoLib
                    src/tools/*.cxx
                    src/preproc/*.cxx
                    PUBLIC_HEADERS TrigMultiVarHypo
-                   LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent
-		   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
-		   LumiBlockCompsLib PathResolver DecisionHandlingLib
+                   LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent
+                   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
+                   LumiBlockCompsLib PathResolver DecisionHandlingLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
 atlas_add_component( TrigMultiVarHypo
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent
-		     TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
-		     GaudiKernel TrigMultiVarHypoLib PathResolver
-		     LumiBlockCompsLib DecisionHandlingLib)
+                     LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent
+                     TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
+                     GaudiKernel TrigMultiVarHypoLib PathResolver
+                     LumiBlockCompsLib DecisionHandlingLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

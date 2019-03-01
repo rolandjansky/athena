@@ -35,7 +35,6 @@ TrigEgammaL2CaloRingerSelectorTool( const std::string& myname )
   declareProperty("CalibPathThresholds", m_calibPath_thresholds=""            );
 
   m_output    = 0;
-  m_reader.setMsgStream(msg());
   m_useLumiVar=false;
   m_useEtaVar=false;
 
