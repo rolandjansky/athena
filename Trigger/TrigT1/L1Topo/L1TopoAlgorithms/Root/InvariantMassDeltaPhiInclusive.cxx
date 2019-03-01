@@ -24,14 +24,10 @@
 #include "TH2F.h"
 
 #include <cmath>
-#include <iostream>
 
 REGISTER_ALG_TCS(InvariantMassDeltaPhiInclusive)
 
 using namespace std;
-
-// not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::InvariantMassDeltaPhiInclusive:     "
 
 
 TCS::InvariantMassDeltaPhiInclusive::InvariantMassDeltaPhiInclusive(const std::string & name) : DecisionAlg(name)
@@ -82,7 +78,6 @@ TCS::InvariantMassDeltaPhiInclusive::InvariantMassDeltaPhiInclusive(const std::s
    defineParameter("MaxDeltaPhi", 31, 4);
    defineParameter("MinDeltaPhi",  0, 5);
    defineParameter("MaxDeltaPhi", 31, 5);
-
    //does this need to change? 
    setNumberOutputBits(6);
 }

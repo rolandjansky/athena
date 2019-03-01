@@ -9,7 +9,6 @@
 #ifndef __TopoCore__InvariantMassDeltaPhiInclusive__
 #define __TopoCore__InvariantMassDeltaPhiInclusive__
 
-#include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 class TH2;
@@ -21,16 +20,16 @@ namespace TCS {
       InvariantMassDeltaPhiInclusive(const std::string & name);
       virtual ~InvariantMassDeltaPhiInclusive();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override final;
  
       virtual StatusCode processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                                   const std::vector<TCS::TOBArray *> & output,
-                                  Decision & decison );
+                                  Decision & decison ) override final;
 
       
       virtual StatusCode process( const std::vector<TCS::TOBArray const *> & input,
                                   const std::vector<TCS::TOBArray *> & output,
-                                  Decision & decison );
+                                  Decision & decison ) override final;
       
 
    private:
