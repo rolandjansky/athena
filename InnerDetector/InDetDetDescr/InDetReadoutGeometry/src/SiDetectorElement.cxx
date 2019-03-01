@@ -381,19 +381,17 @@ SiDetectorElement::transformHit() const
 const Amg::Transform3D &
 SiDetectorElement::transform() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_transform;
 }
 
 const HepGeom::Transform3D &
 SiDetectorElement::transformCLHEP() const
 {
-  //if (!m_cacheValid) updateCache();
-  //return m_transform;
   //stuff to get the CLHEP version of the local to global transform.
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_transformCLHEP;
 }
 
@@ -507,48 +505,48 @@ SiDetectorElement::isModuleFrame() const
 const Amg::Vector3D & 
 SiDetectorElement::center() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_center;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::normal() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_normal;
 }
 
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::etaAxisCLHEP() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_etaAxisCLHEP;
 }
 
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::phiAxisCLHEP() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_phiAxisCLHEP;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::etaAxis() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_etaAxis;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::phiAxis() const
 {
-  if (!m_cacheValid) updateCache();
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
   return m_phiAxis;
 }
 
@@ -629,6 +627,7 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
 // compute sin(tilt angle) at center:
 double SiDetectorElement::sinTilt() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // Tilt is defined as the angle between a refVector and the sensor normal.
@@ -643,7 +642,6 @@ double SiDetectorElement::sinTilt() const
   // HepGeom::Vector3D<double> refVector(m_center.x(), m_center.y(), 0);
   // return (refVector.cross(m_normal)).z()/refVector.mag();
   // or the equivalent
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   return (m_center.x() * m_normal.y() - m_center.y() * m_normal.x()) / m_center.perp();
 }
 
@@ -660,6 +658,7 @@ double SiDetectorElement::sinTilt() const
 
 double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) const
 { 
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // It is assumed that the global position is already in the plane of the element.
@@ -667,7 +666,6 @@ double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) con
   // tilt angle is not defined for the endcap
   if (isEndcap()) return 0;
   
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   // Angle between normal and radial vector.
   //HepGeom::Vector3D<double> refVector(globalPos.x(), globalPos.y(), 0);
   //return (refVector.cross(m_normal)).z()/refVector.mag();
@@ -677,7 +675,7 @@ double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) con
 
 double SiDetectorElement::sinStereo() const
 {
-
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // Stereo is the angle between a refVector and a vector along the strip/pixel in eta direction.
@@ -702,7 +700,6 @@ double SiDetectorElement::sinStereo() const
   //           = -(center cross etaAxis) . zAxis
   //           = (etaAxis cross center). z() 
 
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   double sinStereo;
   if (isBarrel()) {
     sinStereo = m_phiAxis.z();
@@ -726,9 +723,9 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
   // sinStereo =  (refVector cross stripAxis) . normal
   //
 
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   double sinStereo;
   if (isBarrel()) {
     if (m_design->shape() != InDetDD::Trapezoid) {

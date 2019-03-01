@@ -666,8 +666,8 @@ namespace InDetDD {
     
     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
     }
 
@@ -678,8 +678,8 @@ namespace InDetDD {
     
      inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
     }
      //here
@@ -695,15 +695,16 @@ namespace InDetDD {
     
     inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double> & globalPosition) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
       return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
     }
 
-    inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const{
-      if (!m_cacheValid) updateCache();
+    inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const
+    {
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       Amg::Vector3D relativePos = globalPosition - m_center;
       return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
     }
