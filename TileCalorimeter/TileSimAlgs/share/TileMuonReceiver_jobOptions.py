@@ -48,11 +48,8 @@ topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
                                                    , TileCondToolPulseShape = toolSvc.TileCondToolMuRcvPulseShape
-                                                   , TileRawChannelBuilderMF = toolSvc.TileMuRcvRawChannelBuilderMF
-                                                   , RndmSvc = jobproperties.Digitization.rndmSvc())
+                                                   , TileRawChannelBuilderMF = toolSvc.TileMuRcvRawChannelBuilderMF)
 
-
-jobproperties.Digitization.rndmSeedList.addSeed("Tile_PulseForTileMuonReceiver", 4789899, 989240512)
 
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
 #                                                , OutputLevel = VERBOSE 

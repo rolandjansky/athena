@@ -34,7 +34,9 @@
 // Atlas include
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+
 #include "AthenaKernel/Units.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -87,16 +89,13 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_nShapeLo(0),
     m_nBinsPerXLo(0),
     m_binTime0Lo(0),
-    m_timeStepLo(0.0),
-    m_pHRengine(0),
-    m_rndmSvc ("AtRndmGenSvc", name)
+    m_timeStepLo(0.0)
 {
   declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
   declareProperty("FilterThresholdMBTS",   m_filterThresholdMBTS = 0.0 * MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)");
   declareProperty("TileInfoName",   m_infoName = "TileInfo");
   declareProperty("IntegerDigits",  m_integerDigits = true);
   declareProperty("CalibrationRun", m_calibRun = false);
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileDigitsMaker");
   declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false,"Pileup and/or noise added by overlaying random events (default=false)");
   declareProperty("UseCoolPulseShapes",m_useCoolPulseShapes = true,"Pulse shapes from database (default=true)");
   declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
@@ -173,7 +172,6 @@ StatusCode TileDigitsMaker::initialize() {
 
   if (m_tileNoise || m_tileCoherNoise || m_rndmEvtOverlay) {
     ATH_CHECK( m_rndmSvc.retrieve());
-    m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
   }
 
   ATH_MSG_DEBUG( "Event Overlay: " << ((m_rndmEvtOverlay)?"true":"false"));
@@ -360,6 +358,13 @@ StatusCode TileDigitsMaker::execute() {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  // Prepare RNG service
+  ATHRNG::RNGWrapper* rngWrapper = nullptr;
+  if (m_tileNoise || m_tileCoherNoise || m_rndmEvtOverlay) {
+    rngWrapper = m_rndmSvc->getEngine(this);
+    rngWrapper->setSeed( name(), ctx );
+  }
 
   static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
   if (first) {
@@ -802,13 +807,13 @@ StatusCode TileDigitsMaker::execute() {
       //NOTE: ShootArray's inputs are : the engine, the size, the vector, the mean, the standard dev
       for (int k = 0; k < m_nSamples; ++k) {
         double * RndmVec = CorrRndmVec[k];
-        RandGaussQ::shootArray(m_pHRengine, nchMax, RndmVec, 0.0, 1.0);
+        RandGaussQ::shootArray(*rngWrapper, nchMax, RndmVec, 0.0, 1.0);
       }
 
       if (m_calibRun) {
         for (int k = 0; k < m_nSamples; ++k) {
           double * RndmVecLo = CorrRndmVecLo[k];
-          RandGaussQ::shootArray(m_pHRengine, nchMax, RndmVecLo, 0.0, 1.0);
+          RandGaussQ::shootArray(*rngWrapper, nchMax, RndmVecLo, 0.0, 1.0);
         }
       }
     }
@@ -891,11 +896,11 @@ StatusCode TileDigitsMaker::execute() {
 
       /* If tileNoise is requested, generate array of random numbers.   */
       if (tileNoiseLG) { // true if tileNoise is set or noise is needed for low gain in overlay
-        RandGaussQ::shootArray(m_pHRengine, m_nSamples, Rndm, 0.0, 1.0);
-        RandFlat::shootArray(m_pHRengine, 1, Rndm_dG, 0.0, 1.0);
+        RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm, 0.0, 1.0);
+        RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
         if (m_calibRun) {
-          RandGaussQ::shootArray(m_pHRengine, m_nSamples, RndmLo, 0.0, 1.0);
-          RandFlat::shootArray(m_pHRengine, 1, RndmLo_dG, 0.0, 1.0);
+          RandGaussQ::shootArray(*rngWrapper, m_nSamples, RndmLo, 0.0, 1.0);
+          RandFlat::shootArray(*rngWrapper, 1, RndmLo_dG, 0.0, 1.0);
         }
       }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon import CfgMgr
@@ -39,10 +39,6 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
         kwargs.setdefault("TriggerTimeTool", "CosmicTriggerTimeTool")
         kwargs.setdefault("HitTimeFlag", 2)
         kwargs.setdefault("UseTriggerTime", True)
-
-    # Random number engine
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    digitizationFlags.rndmSeedList.addSeed("Tile_HitVecToCnt", 4789899, 989240512)
 
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Tile_FirstXing() ) 
