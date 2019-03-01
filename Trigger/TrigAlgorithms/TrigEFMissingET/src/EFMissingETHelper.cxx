@@ -71,80 +71,80 @@ std::string TrigEFMissingEtComponent::ComponentToName(const Component c)
   std::string name;
   switch(c)
   {
-      // LAr barrel
+    // 00-03 LAr barrel 
     case PreSamplB:  name="PreSamplB";    break;
     case EMB1:       name="EMB1";         break;
     case EMB2:       name="EMB2";         break;
     case EMB3:       name="EMB3";         break;
 
-    // LAr EM endcap 
+    // 04-07 LAr EM endcap 
     case PreSamplE:  name="PreSamplE";    break;
     case EME1:       name="EME1";         break;
     case EME2:       name="EME2";         break;
     case EME3:       name="EME3";         break;
 
-    // Hadronic end cap cal.
+    // 08-11 Hadronic end cap cal.
     case HEC0:       name="HEC0";         break;
     case HEC1:       name="HEC1";         break;
     case HEC2:       name="HEC2";         break;
     case HEC3:       name="HEC3";         break;
 
-    // Tile barrel
+    // 12-14 Tile barrel
     case TileBar0:   name="TileBar0";     break;
     case TileBar1:   name="TileBar1";     break;
     case TileBar2:   name="TileBar2";     break;
 
-    // Tile gap (ITC & scint)  
+    // 15-17 Tile gap (ITC & scint)  
     case TileGap1:   name="TileGap1";     break;
     case TileGap2:   name="TileGap2";     break;
     case TileGap3:   name="TileGap3";     break;
 
-    // Tile extended barrel 
+    // 18-20 Tile extended barrel 
     case TileExt0:   name="TileExt0";     break;
     case TileExt1:   name="TileExt1";     break;
     case TileExt2:   name="TileExt2";     break;
 
-    // Forward cal endcap  
+    // 21-23 Forward cal endcap  
     case FCalEM:     name="FCalEM";       break;
     case FCalHad1:   name="FCalHad1";     break;
     case FCalHad2:   name="FCalHad2";     break;
 
-    // Topo. clusters Had  
+    // 24    Topo. clusters Had  
     case TCLCW:      name="TCLCW";        break;
 
-    // pos. and neg. eta barrel                         
+    // 25-26 pos. and neg. eta barrel                         
     case TCLCWB1:    name="TCLCWB1";      break;
     case TCLCWB2:    name="TCLCWB2";      break;
 
-    // pos. and neg. eta endcap             
+    // 27-28 pos. and neg. eta endcap             
     case TCLCWE1:    name="TCLCWE1";      break;
     case TCLCWE2:    name="TCLCWE2";      break;
 
-    // Topo. clusters EM             
+    // 29    Topo. clusters EM             
     case TCEM:       name="TCEM";         break;
 
-    // pos. and neg. eta barrel                         
+    // 30-31 pos. and neg. eta barrel                         
     case TCEMB1:     name="TCEMB1";       break;
     case TCEMB2:     name="TCEMB2";       break;
 
-    // pos. and neg. eta endcap              
+    // 32-33 pos. and neg. eta endcap              
     case TCEME1:     name="TCEME1";       break;
     case TCEME2:     name="TCEME2";       break;
 
-    // Jet              
+    // 34-38 Jet              
     case JET:        name="JET";          break;
     case JETB1:      name="JETB1";        break;
     case JETB2:      name="JETB2";        break;
     case JETE1:      name="JETE1";        break;
     case JETE2:      name="JETE2";        break;
 
-    // Topo. cluster Fit              
+    // 39    Topo. cluster Fit              
     case TCPUC:      name="TCPUC";        break;
 
-    // Topo. cluster Fit -- uncorrected                         
+    // 40    Topo. cluster Fit -- uncorrected                         
     case TCPUCUnc:   name="TCPUCUnc";     break;
 
-    // Muons                         
+    // 41    Muons                         
     case Muons:      name="Muons";        break;
 
     default:         name="Unknown";
