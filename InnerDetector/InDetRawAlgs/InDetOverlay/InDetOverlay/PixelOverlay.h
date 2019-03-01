@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETOVERLAY_PIXELOVERLAY_H
@@ -14,8 +14,8 @@ public:
 
   PixelOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
 private:
   SG::ReadHandleKey<PixelRDO_Container> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+PixelRDOs", "ReadHandleKey for Background Input PixelRDO_Container" };

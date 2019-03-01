@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetOverlay/PixelOverlay.h"
+
+#include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -10,7 +12,9 @@
 namespace Overlay
 {
   // Specialize copyCollection() for the Pixel
-  template<> void copyCollection(const InDetRawDataCollection<PixelRDORawData> *input_coll, InDetRawDataCollection<PixelRDORawData> *copy_coll)
+  template<>
+  void copyCollection(const InDetRawDataCollection<PixelRDORawData> *input_coll,
+                      InDetRawDataCollection<PixelRDORawData> *copy_coll)
   {
     copy_coll->setIdentifier(input_coll->identify());
     InDetRawDataCollection<PixelRDORawData>::const_iterator firstData = input_coll->begin();
@@ -29,7 +33,6 @@ namespace Overlay
 PixelOverlay::PixelOverlay(const std::string &name, ISvcLocator *pSvcLocator)
   : IDC_OverlayBase(name, pSvcLocator)
 {
-  
 }
 
 StatusCode PixelOverlay::initialize()
@@ -69,7 +72,7 @@ StatusCode PixelOverlay::execute()
     bkgContainerPtr = bkgContainer.cptr();
 
     ATH_MSG_DEBUG("Found background Pixel RDO container " << bkgContainer.name() << " in store " << bkgContainer.store());
-    ATH_MSG_DEBUG("Pixel Background = " << shortPrint(bkgContainer.cptr()));
+    ATH_MSG_DEBUG("Pixel Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   }
 
   SG::ReadHandle<PixelRDO_Container> signalContainer(m_signalInputKey);
@@ -78,7 +81,7 @@ StatusCode PixelOverlay::execute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal Pixel RDO container " << signalContainer.name() << " in store " << signalContainer.store());
-  ATH_MSG_DEBUG("Pixel Signal     = " << shortPrint(signalContainer.cptr()));
+  ATH_MSG_DEBUG("Pixel Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
 
   // Creating output RDO container
   SG::WriteHandle<PixelRDO_Container> outputContainer(m_outputKey);
@@ -88,7 +91,7 @@ StatusCode PixelOverlay::execute()
   if (outputContainer.isValid()) {
     overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
 
-    ATH_MSG_DEBUG("Pixel Result   = " << shortPrint(outputContainer.ptr()));
+    ATH_MSG_DEBUG("Pixel Result   = " << Overlay::debugPrint(outputContainer.ptr()));
   }
 
   ATH_MSG_DEBUG("execute() end");

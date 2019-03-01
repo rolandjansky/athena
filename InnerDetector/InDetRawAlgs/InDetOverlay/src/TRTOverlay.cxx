@@ -5,7 +5,6 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "HepMC/GenParticle.h"
 
 #include "InDetIdentifier/TRT_ID.h"
@@ -14,6 +13,8 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
+
+#include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -134,7 +135,7 @@ StatusCode TRTOverlay::execute() {
     bkgContainerPtr = bkgContainer.cptr();
 
     ATH_MSG_DEBUG("Found background TRT RDO container " << bkgContainer.name() << " in store " << bkgContainer.store());
-    ATH_MSG_DEBUG("TRT Background = " << shortPrint(bkgContainer.cptr()));
+    ATH_MSG_DEBUG("TRT Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   }
 
   SG::ReadHandle<TRT_RDO_Container> signalContainer(m_signalInputKey);
@@ -143,7 +144,7 @@ StatusCode TRTOverlay::execute() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal TRT RDO container " << signalContainer.name() << " in store " << signalContainer.store());
-  ATH_MSG_DEBUG("TRT Signal     = " << shortPrint(signalContainer.cptr()));
+  ATH_MSG_DEBUG("TRT Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
 
   SG::ReadHandle<InDetSimDataCollection> signalSDOContainer(m_signalInputSDOKey);
   if (!signalSDOContainer.isValid()) {
@@ -168,7 +169,7 @@ StatusCode TRTOverlay::execute() {
       overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
     }
 
-    ATH_MSG_DEBUG("TRT Result   = " << shortPrint(outputContainer.ptr()));
+    ATH_MSG_DEBUG("TRT Result   = " << Overlay::debugPrint(outputContainer.ptr()));
   }
 
   ATH_MSG_DEBUG("execute() end");
@@ -372,4 +373,3 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
     outputCollection->push_back(p_rdo);
   } // <= while
 }
-
