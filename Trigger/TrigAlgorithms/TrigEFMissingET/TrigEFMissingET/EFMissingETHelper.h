@@ -28,7 +28,7 @@
 
 class TrigEFMissingEtComponent {
   public: // all attributes are public: like a struct
-    enum Component 
+    enum Component : uint 
     { 
         PreSamplB = 0 , 
                    EMB1     , EMB2     , EMB3     ,     // LAr barrel
