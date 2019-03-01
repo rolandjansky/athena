@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleSTgcClusterBuilderTool.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
@@ -28,10 +28,8 @@ Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
 
 StatusCode Muon::SimpleSTgcClusterBuilderTool::initialize()
 {
-  StoreGateSvc* detStore=0;
-  ATH_CHECK(serviceLocator()->service("DetectorStore",detStore));
 
-  ATH_CHECK(detStore->retrieve(m_muonMgr));  
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));  
   m_stgcIdHelper = m_muonMgr->stgcIdHelper();
 
   return StatusCode::SUCCESS;
@@ -91,7 +89,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
       //
       for ( unsigned int i=0 ; i<m_clusters[multilayer][gasGap].size() ; ++i ) { 
         // get the cluster
-        std::vector<Muon::sTgcPrepData> cluster = m_clusters[multilayer][gasGap].at(i);
+        std::vector<Muon::sTgcPrepData> const &cluster = m_clusters[multilayer][gasGap].at(i);
         //
         // loop on the strips and set the cluster weighted position and charge
         //
@@ -141,7 +139,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash 
         else {
           sigmaSq = resolution;
         }
-        sigmaSq = sigmaSq/(totalCharge*totalCharge);
+        sigmaSq = sigmaSq/(totalCharge*totalCharge*12);
         ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
         Amg::MatrixX* covN = new Amg::MatrixX(1,1);
         (*covN)(0,0) = sigmaSq;
@@ -195,10 +193,10 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     //
     for ( unsigned int i=0 ; i<m_clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
 
-      set<unsigned int> clusterStripNum = m_clustersStripNum[multilayer][gasGap].at(i);
+      set<unsigned int> &clusterStripNum = m_clustersStripNum[multilayer][gasGap].at(i);
 
-      unsigned int firstStrip = *(m_clustersStripNum[multilayer][gasGap].at(i).begin());
-      unsigned int lastStrip  = *(--m_clustersStripNum[multilayer][gasGap].at(i).end());
+      unsigned int firstStrip = *(clusterStripNum.begin());
+      unsigned int lastStrip  = *(--clusterStripNum.end());
 
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
       if ( stripNum==lastStrip+1 || stripNum==firstStrip-1 ) {
