@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/DetectorDescription/IdDictParser/src/IdDictParser.cxx,v 1.13 2008-12-09 09:55:22 dquarrie Exp $  
@@ -158,18 +158,16 @@ using namespace IdDictParserNS;
  
 IdDictParser::IdDictParser () : XMLCoreParser ()  
 {  
-  initialize_factories ();
-
-  register_factory ("IdDict", new IdDictMgrFactory);  
-  register_factory ("IdDictionary", new DictionaryFactory);  
-  register_factory ("field", new FieldFactory);  
-  register_factory ("label", new LabelFactory);  
-  register_factory ("alternate_regions", new AltRegionsFactory);  
-  register_factory ("region", new RegionFactory);  
-  register_factory ("subregion", new SubRegionFactory);  
-  register_factory ("range", new RangeFactory);  
-  register_factory ("reference", new ReferenceFactory);  
-  register_factory ("dictionary", new DictionaryRefFactory);  
+  register_factory ("IdDict",            std::make_unique<IdDictMgrFactory>());  
+  register_factory ("IdDictionary",      std::make_unique<DictionaryFactory>());  
+  register_factory ("field",             std::make_unique<FieldFactory>());  
+  register_factory ("label",             std::make_unique<LabelFactory>());  
+  register_factory ("alternate_regions", std::make_unique<AltRegionsFactory>());  
+  register_factory ("region",            std::make_unique<RegionFactory>());  
+  register_factory ("subregion",         std::make_unique<SubRegionFactory>());  
+  register_factory ("range",             std::make_unique<RangeFactory>());  
+  register_factory ("reference",         std::make_unique<ReferenceFactory>());  
+  register_factory ("dictionary",        std::make_unique<DictionaryRefFactory>());
  
   m_dictionary = 0; 
   m_field      = 0; 
