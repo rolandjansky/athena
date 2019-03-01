@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -1096,17 +1096,14 @@ void TileGeoG4CalibSD::DefaultHitIDCalculatorTB(int sample, int region, int eta,
 //-----------------------------------------------------------------------------------
 //DM Hit ID MAKER
 Identifier TileGeoG4CalibSD::DM_ID_Maker(int subDet, int nType, int nSample, int nRegion, int nTower, int nModule) {
-  G4bool doo_checks = m_caloDM_ID->do_checks();
   Identifier caloDMID;
   try {
-    m_caloDM_ID->set_do_checks(true);
-    caloDMID = m_caloDM_ID->zone_id(subDet, nType, nSample, nRegion, nTower, nModule);
+    caloDMID = m_caloDM_ID->zone_id(subDet, nType, nSample, nRegion, nTower, nModule, true);
   } catch (const CaloID_Exception & CalEx) {
     DebugDMCellIDFields(nSample);
     G4cout << "ERROR: M_ID_Maker() - WRONG ID -> " << CalEx.message() << G4endl;
   }
 
-  m_caloDM_ID->set_do_checks(doo_checks);
   return caloDMID;
 }
 
