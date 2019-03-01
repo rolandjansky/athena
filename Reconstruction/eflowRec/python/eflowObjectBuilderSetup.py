@@ -66,7 +66,7 @@ def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
 
     ObjectBuilder.PrivateToolList += [MomentCalculatorTool]
 
-    if (nameModifier == "EM" or nameModifier == "EM_HLHLC") and not jobproperties.eflowRecFlags.CalType == "NoCal": 
+    if (nameModifier == "EM" or nameModifier == "EM_HLLHC") and not jobproperties.eflowRecFlags.CalType == "NoCal": 
         try:
             from eflowRec.eflowLCCalibToolDefault import eflowLCCalibToolDefault
             LCCalibTool = eflowLCCalibToolDefault("eflowLCCalibTool_"+nameModifier)

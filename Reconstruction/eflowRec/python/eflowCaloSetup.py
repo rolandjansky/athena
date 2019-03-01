@@ -6,8 +6,8 @@ from RecExConfig.Configured import Configured # import base class
 
 def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
 
-    if nameModifier != "EM" and nameModifier != "LC":
-        mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
+    if nameModifier != "EM" and nameModifier != "EM_HLLHC" and nameModifier != "LC":
+        mlog.error("Invalid calorimeter scale was specified : should be LC or EM or EM_HLLHC, but was "+nameModifier)
         return False
 
     try:
@@ -39,7 +39,7 @@ def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
 
     from eflowRec.eflowRecFlags import jobproperties
     
-    if "EM" == nameModifier:
+    if "EM" == nameModifier or "EM_HLLHC" == nameModifier:
         eflowPreparationAlgorithm.ClustersName = "CaloTopoCluster"
         eflowPreparationAlgorithm.CalClustersName = "CaloCalTopoClusters"
     elif "LC" == nameModifier:
@@ -77,7 +77,9 @@ def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
     ToolSvc += TrackSelectionTool
 
     TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0 
+    TrackSelectionTool.minPt = 500.0
+    if "EM_HLLHC" == nameModifier:
+        TrackSelectionTool.maxAbsEta=4.0
 
     eflowPreparationAlgorithm.TrackSelectionTool = TrackSelectionTool
 
