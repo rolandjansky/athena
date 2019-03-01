@@ -16,7 +16,6 @@
 //Athena includes
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "StoreGate/ReadHandle.h"
 
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthReentrantAlgorithm(name, pSvcLocator),
@@ -33,10 +32,7 @@ StatusCode SCT_MonitorConditionsTestAlg::initialize()
   ATH_MSG_DEBUG("Found SCT_ID Tool");
 
   ATH_CHECK(m_pMonitorConditionsTool.retrieve());
-  ATH_MSG_DEBUG("Found SCT_MoniotorConditinosSvc");
-
-  // Read Handle
-  ATH_CHECK(m_evtKey.initialize());
+  ATH_MSG_DEBUG("Found SCT_MoniotorConditinosTool");
 
   return StatusCode::SUCCESS;
 
@@ -56,16 +52,10 @@ StatusCode SCT_MonitorConditionsTestAlg::execute(const EventContext& ctx) const
 
   ATH_MSG_DEBUG(" in execute()");
 
-  SG::ReadHandle<xAOD::EventInfo> evt{m_evtKey, ctx};
-  if (not evt.isValid()) {
-    ATH_MSG_FATAL("could not get event info ");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Event: [" << evt->runNumber()
-                  << "," << evt->eventNumber()
-                  << ":" << evt->timeStamp()
-                  << "]");
-  }
+  ATH_MSG_DEBUG("Event: [" << ctx.eventID().run_number()
+                << "," << ctx.eventID().event_number()
+                << ":" << ctx.eventID().time_stamp()
+                << "]");
  
   std::string defectlist; 
   std::string EfficiencyTable;

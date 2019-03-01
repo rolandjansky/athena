@@ -7,16 +7,6 @@ from AthenaCommon.DetFlags import DetFlags
 
 isData = (globalflags.DataSource == 'data')
 
-eventInfoKey = "ByteStreamEventInfo"
-if not isData:
-    eventInfoKey = "McEventInfo"
-if globalflags.isOverlay() and isData :
-    if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-    else :
-        eventInfoKey = "McEventInfo"
-
 if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
@@ -229,7 +219,6 @@ if DetFlags.haveRIO.SCT_on():
         from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
         sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
         sct_TdaqEnabledToolSetup.setFolder(tdaqFolder)
-        sct_TdaqEnabledToolSetup.setEventInfoKey(eventInfoKey)
         sct_TdaqEnabledToolSetup.setup()
         InDetSCT_TdaqEnabledTool = sct_TdaqEnabledToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):

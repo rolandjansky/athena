@@ -19,11 +19,6 @@
 
 #include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
 
-// Read Handle Key
-#include "StoreGate/ReadHandleKey.h"
-// Event Info
-#include "xAODEventInfo/EventInfo.h"
-
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
@@ -43,10 +38,6 @@ class SCT_MonitorConditionsTestAlg : public AthReentrantAlgorithm {
  private:
   ToolHandle<ISCT_MonitorConditionsTool> m_pMonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
   const SCT_ID* m_sctId;
-
-  // Parameters to control the db access 
-  SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey{this, "EventInfoKey", "EventInfo"};
-
 }; // end of class
 
 #endif // SCT_MonitorConditionsTestAlg_H
