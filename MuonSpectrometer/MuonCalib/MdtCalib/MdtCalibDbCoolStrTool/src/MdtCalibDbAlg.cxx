@@ -465,6 +465,14 @@ StatusCode MdtCalibDbAlg::loadRt(){
     std::vector<MuonCalib::SamplePoint> tr_points(0), ts_points(0);  //all the points in time,radius [RT] and time,sigma [resolution func]
     float multilayer_tmax_diff(-9e9);
 
+    double innerTubeRadius = -9999.;
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(athenaId,1,1,1) );
+    if( !detEl ){
+      ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_mdtIdHelper->print_to_string(athenaId) );
+    } else {
+      innerTubeRadius = detEl->innerTubeRadius();
+    }
+
     char *RTPar= new char [payload.size()+1];
     strncpy(RTPar, payload.c_str(), payload.size()+1);
     RTPar[payload.size()]='\0';   //terminate string (not sure this is really needed because payload.c_str() should be terminated in \0)
@@ -476,7 +484,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	float radius = atof(pch1);       
 	if( m_rtShift != 0. ) {
 	  float oldradius = radius;
-	  float rshift = m_rtShift*1.87652e-2*radius*(radius-14.6);
+	  float rshift = m_rtShift*1.87652e-2*radius*(radius-innerTubeRadius);
 	  radius = oldradius + rshift;
 	  ATH_MSG_DEBUG( "DEFORM RT: old radius " << oldradius << " new radius " 
 			  << radius << " shift " << rshift << " max shift " << m_rtShift );
@@ -521,7 +529,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
 
     if(rt_ts_applied != m_TimeSlewingCorrection) {
       float sign(rt_ts_applied ? -1.0 : 1.0);
-      float slice_width = 14.6/static_cast<float>(m_MeanCorrectionVsR.size());
+      float slice_width = innerTubeRadius/static_cast<float>(m_MeanCorrectionVsR.size());
       for(std::vector<MuonCalib::SamplePoint>::iterator it=tr_points.begin(); it!=tr_points.end(); it++) {
 	int slice_number=static_cast<int>(std::floor(it->x2()/slice_width));		
 	if (slice_number<0)
