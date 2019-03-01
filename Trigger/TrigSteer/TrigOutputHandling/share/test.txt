@@ -6,7 +6,7 @@ deserialiser2.OutputLevel=1;
 deserialiser2.Prefix="DESERIALISED2_";
 deserialised2.ModuleID=1;
 ToolSvc.serialiser.OutputLevel=1;
-ToolSvc.serialiser.CollectionsToSerialize = {"xAOD::TrigEMClusterContainer_v1#EMClusters":[0], 
-                                        "xAOD::TrigEMClusterAuxContainer_v2#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat":[0],
-					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions":[0,1],
-					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2":[0,1]};
+ToolSvc.serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer_v1#EMClusters;0", 
+                                        "xAOD::TrigEMClusterAuxContainer_v2#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat;0",
+					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions;0,1",
+					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2;0,1"];

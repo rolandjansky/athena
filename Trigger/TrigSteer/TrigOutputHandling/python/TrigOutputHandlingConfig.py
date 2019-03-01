@@ -46,8 +46,13 @@ def TriggerEDMSerialiserToolCfg(name):
    serialiser = TriggerEDMSerialiserTool(name)
    from collections import OrderedDict
    class OD(OrderedDict):
+      """Purpose of this class is to present map (ordered by insertion order) interface on python side, 
+      whereas the property to look like vector of such strings
+      "type#key;id0,id1"
+      when it gets to setting the serialiser property
+      """
       def __repr__(self):
-         return '{' + ','.join( ['"'+str(k)+'":'+str(v) for k,v in self.iteritems()] ) + '}'
+         return '[' +','.join( ['"'+str(typekey)+';'+','.join(map( lambda _:str(_), ids) )+'"'  for typekey,ids in self.iteritems()] ) + ']'
       def __str__(self):
          return self.__repr__()
 
