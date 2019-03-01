@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHVTEST_H
@@ -13,9 +13,8 @@
 
 #include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -49,8 +48,6 @@ class LArHVTest: public AthAlgorithm
   const LArHEC_ID*      m_larhec_id;	
   const LArFCAL_ID*     m_larfcal_id;	
   const LArElectrodeID* m_electrodeID;  
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
 
   ToolHandle<ILArHVTool> m_hvtool;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Mapping key"};
