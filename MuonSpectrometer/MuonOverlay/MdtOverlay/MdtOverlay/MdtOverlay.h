@@ -20,10 +20,8 @@
 #include "MuonOverlayBase/MuonOverlayBase.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
 
-class MdtIdHelper;
-
-
 class MdtOverlay : public MuonOverlayBase  {
+
 public:
 
   MdtOverlay(const std::string &name,ISvcLocator *pSvcLocator);
@@ -46,7 +44,6 @@ private:
   SG::WriteHandleKey<MdtDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
 
   float m_adcIntegrationWindow{20.0}; // in ns
-  const MdtIdHelper   * m_mdtHelper{nullptr};
   bool m_clean_overlay_data{false};
   bool m_clean_overlay_signal{false};
 };
