@@ -6,12 +6,10 @@
                            MultiSVTag.cxx
 ***************************************************************************/
 #include "JetTagTools/MultiSVTag.h"
-//#include "JetEvent/Jet.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "Navigation/NavigationToken.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "JetTagTools/HistoHelperRoot.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"

@@ -12,7 +12,6 @@
 #include "JetTagTools/GradedTrack.h"
 #include "JetTagTools/SVForIPTool.h"
 #include "JetTagTools/ITrackGradeFactory.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TrackGrade.h"
 #include "JetTagInfo/TrackGradesDefinition.h"

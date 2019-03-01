@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "JetTagTools/HistoHelperRoot.h"
 #include "JetTagTools/LikelihoodComponents.h"
-#include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 
 #include "xAODTracking/TrackParticle.h"

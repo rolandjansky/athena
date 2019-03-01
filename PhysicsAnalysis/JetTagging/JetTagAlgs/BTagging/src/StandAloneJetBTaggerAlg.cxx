@@ -69,35 +69,51 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       }
       //Check if Jet collection already not tagged
       if (!evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName)) {
-        ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName );
-	if (evtStore()->contains<xAOD::JetAuxContainer>(m_JetCollectionName+"Aux.")) {
-	  if (overwrite<xAOD::JetContainer, xAOD::JetAuxContainer>(m_JetCollectionName).isFailure()) {
-	    ATH_MSG_FATAL( "Couldn't call overwrite with concrete auxiliary store" );
-	    return StatusCode::FAILURE;
+        if (m_JetCollectionName != "AntiKt4EMPFlowJets") {
+          ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName );
+	  if (evtStore()->contains<xAOD::JetAuxContainer>(m_JetCollectionName+"Aux.")) {
+	    if (overwrite<xAOD::JetContainer, xAOD::JetAuxContainer>(m_JetCollectionName).isFailure()) {
+	      ATH_MSG_FATAL( "Couldn't call overwrite with concrete auxiliary store" );
+	      return StatusCode::FAILURE;
+	    }
+	  } else if (evtStore()->template contains< xAOD::AuxContainerBase >(m_JetCollectionName+"Aux.")) {
+	    if (overwrite<xAOD::JetContainer, xAOD::AuxContainerBase>(m_JetCollectionName).isFailure()) {
+	      ATH_MSG_FATAL( "Couldn't call overwrite with generic auxiliary store" );
+	      return StatusCode::FAILURE;
+	    }
 	  }
-	} else if (evtStore()->template contains< xAOD::AuxContainerBase >(m_JetCollectionName+"Aux.")) {
-	  if (overwrite<xAOD::JetContainer, xAOD::AuxContainerBase>(m_JetCollectionName).isFailure()) {
-	    ATH_MSG_FATAL( "Couldn't call overwrite with generic auxiliary store" );
-	    return StatusCode::FAILURE;
-	  }
-	}
-	xAOD::JetContainer* jets(0);
-	CHECK( evtStore()->retrieve(jets, m_JetCollectionName) );
-        int ret = m_JetBTaggerTool->modify(*jets);
-        if (!ret) {
-          ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+	  xAOD::JetContainer* jets(0);
+	  CHECK( evtStore()->retrieve(jets, m_JetCollectionName) );
+          int ret = m_JetBTaggerTool->modify(*jets);
+          if (!ret) {
+            ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+          }
         }
-        // Try to run the same (public) tools on the same AntiKt4EMPFlowJets
-        if (m_JetCollectionName == "AntiKt4EMPFlowJets") {
-          std::string suffix = "_PFlowTune";
-          //shallow copy 
+        // Run the same (public) tools on AntiKt4EMPFlowJets to tag it twice (2 different tunes)
+        else {
+          const xAOD::JetContainer* constjets(0);
+          CHECK( evtStore()->retrieve( constjets, m_JetCollectionName ) );
+          //shallow copy with Oct 2018 taggers
+          std::string suffix = "_BTagging201810";
           ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " and registration with new name " << m_JetCollectionName + suffix);
-          std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > pflow_shallowCopy = xAOD::shallowCopyContainer( *jets );
+          std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > pflow_shallowCopy = xAOD::shallowCopyContainer( *constjets );
           //Record in StoreGate the copy of AntiKt4EMPFlowJets with renaming
           CHECK( evtStore()->record( pflow_shallowCopy.first, m_JetCollectionName + suffix) );
           CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix) );
           //tag it, the other one is already tagged
           int ret = m_JetBTaggerTool->modify(*pflow_shallowCopy.first);
+          //shallow copy with Mar 2019 taggers
+          suffix = "_BTagging201903";
+          ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " and registration with new name " << m_JetCollectionName + suffix);
+          pflow_shallowCopy = xAOD::shallowCopyContainer( *constjets );
+          //Record in StoreGate the copy of AntiKt4EMPFlowJets with renaming
+          CHECK( evtStore()->record( pflow_shallowCopy.first, m_JetCollectionName + suffix) );
+          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix) );
+          //tag it, the other one is already tagged
+          ret = m_JetBTaggerTool->modify(*pflow_shallowCopy.first);
+          if (!ret) {
+            ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+          }
         }        
       }
       else { //Shallow copy for re-tagging already tagged jet

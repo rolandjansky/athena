@@ -19,7 +19,6 @@
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include <iostream>
 #include <string>
@@ -124,23 +123,24 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   std::string bTaggingContName = m_BTagName;
 
   //modify can be called twice by standalone btagging algorithm for PFlow jets, the first one is tagged with EMTopo calibration (keeping same name as before)
-  //the second one is tagged with PFlow calibration ("_PFlowTune" added to the names of all containers)
+  //the second one is tagged with PFlow calibration ("_timestamp" added to the names of all containers)
   bool pflow = false;
   std::string jetName = m_JetName;
-  if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) {
-    if (jets.size() > 0) {
-      xAOD::JetContainer::iterator itB = jets.begin();
-      xAOD::Jet& jet = **itB;
-      std::string author = JetTagUtils::getJetAuthor(jet);
-      if (author == "AntiKt4EMPFlow") {
-        //already one AntiKt4EMPFlow tagged, the second one is the self tune one's
-        ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " in store, pflow tune scenario");
-        bTaggingContName += "_PFlowTune";
-        jetName += "_PFlowTune";
-        pflow = true;
-      }
+  if (m_JetName == "AntiKt4EMPFlow") {
+    std::string pflowBTaggingContName = bTaggingContName + "_201810";
+    //if PFlow jets already tagged with 201810 tuning, do the one with 201903 tuning
+    if (evtStore()->contains<xAOD::BTaggingContainer > ( pflowBTaggingContName)) {
+      ATH_MSG_DEBUG("#BTAG# BTagging container " << pflowBTaggingContName << " in store, pflow tune scenario");
+      bTaggingContName += "_201903";
+      jetName += "_BTagging201903";
+      pflow = true;
     }
-  } 
+    else {
+      bTaggingContName += "_201810";
+      jetName += "_BTagging201810";
+      pflow = true;
+    }
+  }
  
   std::vector<xAOD::BTagging *> btagsList;
   xAOD::BTaggingContainer * bTaggingContainer(0);

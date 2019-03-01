@@ -1334,9 +1334,11 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
               if (JetCollection == "AntiKt4EMPFlow"):
-                self.RegisterOutputContainersForJetCollection(JetCollection+"_PFlowTune", Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              else:
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
               
               if not JetCollection in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]

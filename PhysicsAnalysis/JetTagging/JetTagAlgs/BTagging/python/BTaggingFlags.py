@@ -473,8 +473,8 @@ class _BTaggingFlags:
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow_PFlowTune->AntiKt4EMPFlow_PFlowTune,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4EMPFlow_BTagging201810->AntiKt4EMPFlow_BTagging201810,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4EMPFlow_BTagging201903->AntiKt4EMPFlow_BTagging201903,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
                               "AntiKt4HI->AntiKt4HI,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]) 
 
       for attr in self._CalibrationSingleFolder:

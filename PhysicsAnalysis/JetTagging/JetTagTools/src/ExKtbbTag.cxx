@@ -5,7 +5,6 @@
 #include "JetTagTools/ExKtbbTag.h"
 
 #include "GaudiKernel/IToolSvc.h"
-#include "JetTagTools/JetTagUtils.h"     // get jet author
 #include "xAODBTagging/SecVtxHelper.h"   // extract SV information
 #include "xAODTracking/TrackParticleContainer.h"
 

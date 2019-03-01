@@ -25,7 +25,6 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"

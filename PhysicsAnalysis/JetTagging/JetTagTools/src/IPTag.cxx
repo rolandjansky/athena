@@ -23,7 +23,6 @@
 #include "Navigation/NavigationToken.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"

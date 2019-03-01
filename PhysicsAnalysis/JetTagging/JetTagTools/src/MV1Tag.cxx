@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODJet/Jet.h"
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"

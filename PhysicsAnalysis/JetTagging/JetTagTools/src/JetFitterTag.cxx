@@ -35,8 +35,6 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#
-#include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 
 namespace Analysis {
