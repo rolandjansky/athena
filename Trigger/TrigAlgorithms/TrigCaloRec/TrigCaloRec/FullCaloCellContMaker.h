@@ -26,6 +26,9 @@
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 class FullCaloCellContMaker : public IAlgToolEFCalo {
 	 public:
            // Constructor
