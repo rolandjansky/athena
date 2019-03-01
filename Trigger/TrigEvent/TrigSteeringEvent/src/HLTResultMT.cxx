@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/HLTResultMT.h"
@@ -24,6 +24,11 @@ HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags
 // Getter/setter methods for stream tags
 // =============================================================================
 const std::vector<eformat::helper::StreamTag>& HLT::HLTResultMT::getStreamTags() const {
+  return m_streamTags;
+}
+
+// -----------------------------------------------------------------------------
+std::vector<eformat::helper::StreamTag>& HLT::HLTResultMT::getStreamTagsNonConst() {
   return m_streamTags;
 }
 
