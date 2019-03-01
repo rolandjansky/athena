@@ -165,9 +165,7 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
   // Initialize component names and calibration constants (c0, c1) = (0, 1)
   for (unsigned char i=0; i<m_elements; ++i){
     if(m_elements==42){ // finest granularity
-      strcpy(m_vecOfComponents[i].m_name, 
-        TrigEFMissingEtComponent::ComponentToName((TrigEFMissingEtComponent::Component) i).c_str());
-      // std::snprintf(m_vecOfComponents[i].m_name,10, "%s", TrigEFMissingEtComponent::ComponentToName(i));
+      std::snprintf(m_vecOfComponents[i].m_name,10, "%s", TrigEFMissingEtComponent::ComponentToName(i).c_str());
       m_vecOfComponents[i].m_calib0 = 0.0;
       m_vecOfComponents[i].m_calib1 = 1.0;
     } else {
