@@ -3,8 +3,6 @@
 */
 
 #include "LumiBlockComps/LumiBlockTester.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -25,6 +23,8 @@ LumiBlockTester::initialize()
 {
   ATH_MSG_INFO("LumiBlockTester::initialize()");
 
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   // Get the luminosity tool
   CHECK(m_lumiTool.retrieve());
 
@@ -44,11 +44,16 @@ LumiBlockTester::execute()
 {
   ATH_MSG_DEBUG("LumiBlockTester::execute()");
 
-  const EventInfo* eventInfo_c=0;
-  CHECK(evtStore()->retrieve(eventInfo_c));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);  
 
-  unsigned int lumiblock = eventInfo_c->event_ID()->lumi_block();
-  unsigned int bcid = eventInfo_c->event_ID()->bunch_crossing_id();
+  // only there for serial running; remove when only doing MT
+  if(!eventInfo.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_eventInfoKey.key());
+    return StatusCode::FAILURE;
+  }
+
+  unsigned int lumiblock = eventInfo->lumiBlock();
+  unsigned int bcid = eventInfo->bcid();
 
   ATH_MSG_DEBUG(" lumiblock " << lumiblock << " BCID " << bcid);
 
@@ -69,8 +74,6 @@ LumiBlockTester::execute()
   instmu = m_muTool->actualInteractionsPerCrossing();
   ATH_MSG_INFO( "From muTool - <mu>: " << avgmu << " mu: " << instmu);
 
-  const EventInfo* eventInfo;
-  CHECK(evtStore()->retrieve(eventInfo));
   instmu = eventInfo->actualInteractionsPerCrossing();
   avgmu = eventInfo->averageInteractionsPerCrossing();
   ATH_MSG_INFO( "From EvInfo - <mu>: " << avgmu << " mu: " << instmu);

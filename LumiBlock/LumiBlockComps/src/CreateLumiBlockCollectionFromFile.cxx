@@ -7,8 +7,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODLuminosity/LumiBlockRangeContainer.h"
@@ -37,7 +35,9 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
 //*******************************************************
 
   ATH_MSG_INFO( "initialize() and create listeners" );
-                                                                                 
+
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   // Locate the StoreGateSvc and initialize our local ptr
   // ****************************************************
   ATH_CHECK( m_metaStore.retrieve() );
@@ -82,30 +82,36 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
   ATH_MSG_VERBOSE( "execute()" );
 
   // Check for event header
-  const DataHandle<EventInfo> evt;
-  ATH_CHECK( evtStore()->retrieve(evt) );
-   if(m_lastRun!=evt->event_ID()->run_number() || 
-      m_lastLumiBlock!=evt->event_ID()->lumi_block()) { 
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
 
-       IOVTime iovtime(evt->event_ID()->run_number(),evt->event_ID()->lumi_block());
-       RLBMap::iterator mitr;
-       mitr=m_LumiBlockInfo.find(iovtime);
-       if (mitr==m_LumiBlockInfo.end()) {
-       ATH_MSG_INFO( "Fill LumiBlockInfo with numExpected="<<m_numExpected );
-       inOut lbInOut(m_numExpected,1);
-       m_LumiBlockInfo[iovtime] = lbInOut;
-       }
-       else {
-         m_LumiBlockInfo[iovtime].second++;
-       }
-   
-     m_lastRun=evt->event_ID()->run_number();
-     m_lastLumiBlock=evt->event_ID()->lumi_block();
-     m_lastIOVTime=iovtime;
-   }
-   else {
-     m_LumiBlockInfo[m_lastIOVTime].second++;
-   }
+  // check is only useful for serial running; remove when MT scheduler used
+  if(!evt.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_eventInfoKey.key());
+    return StatusCode::FAILURE;
+  }
+
+  if(m_lastRun!=evt->runNumber() ||
+     m_lastLumiBlock!=evt->lumiBlock()) {
+
+    IOVTime iovtime(evt->runNumber(),evt->lumiBlock());
+    RLBMap::iterator mitr;
+    mitr=m_LumiBlockInfo.find(iovtime);
+    if (mitr==m_LumiBlockInfo.end()) {
+      ATH_MSG_INFO( "Fill LumiBlockInfo with numExpected="<<m_numExpected );
+      inOut lbInOut(m_numExpected,1);
+      m_LumiBlockInfo[iovtime] = lbInOut;
+    }
+    else {
+      m_LumiBlockInfo[iovtime].second++;
+    }
+
+    m_lastRun=evt->runNumber();
+    m_lastLumiBlock=evt->lumiBlock();
+    m_lastIOVTime=iovtime;
+  }
+  else {
+    m_LumiBlockInfo[m_lastIOVTime].second++;
+  }
   
   return (StatusCode::SUCCESS);
 }

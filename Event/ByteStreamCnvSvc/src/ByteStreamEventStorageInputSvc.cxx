@@ -6,6 +6,7 @@
 
 #include "DumpFrags.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "ByteStreamData/ByteStreamUserMetadata.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "EventStorage/pickDataReader.h"
@@ -168,7 +169,9 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
 	  m_reader->maxEvents(), m_reader->recEnable(), m_reader->triggerType(), word1.to_ulong(), word2.to_ulong(),
 	  m_reader->beamType(), m_reader->beamEnergy(), m_reader->GUID(), m_reader->stream(),
 	  m_reader->projectTag(), m_reader->lumiblockNumber(), nonuser);
-  StatusCode status = m_mdSvc->record(metadata, "ByteStreamMetadata");
+  ByteStreamMetadataContainer* bsmdc = new ByteStreamMetadataContainer;
+  bsmdc->push_back(metadata);
+  StatusCode status = m_mdSvc->record(bsmdc, "ByteStreamMetadata");
   if (!status.isSuccess()) {
      delete metadata; metadata = 0;
      ATH_MSG_WARNING("Unable to record Input MetaData for ByteStream");

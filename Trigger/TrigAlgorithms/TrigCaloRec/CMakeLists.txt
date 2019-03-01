@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
+                          Control/CxxUtils
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloIdentifier

@@ -52,7 +52,7 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
       "Threshold on maximum fraction of energy reconstructed in 2nd sampling"};
 
   /** @brief Threshold on maximum fraction of energy reconstructed in 3rd sampling */
-  Gaudi::Property<double> m_thrF3max {this, "ThrF3max", 0.65,
+  Gaudi::Property<double> m_thrF3max {this, "ThrF3max", 0.8,
       "Threshold on maximum fraction of energy reconstructed in 3rd sampling"};
 
 };

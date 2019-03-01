@@ -171,7 +171,8 @@ namespace {
 // Constructor
 SCT_CablingCondAlgFromCoraCool::SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc{"CondSvc", name}
+  m_condSvc{"CondSvc", name},
+  m_idHelper{nullptr}
 {
 }
 
@@ -195,6 +196,9 @@ SCT_CablingCondAlgFromCoraCool::initialize() {
     ATH_MSG_FATAL(m_readKeyGeo.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
+
+  // SCT_ID
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
 
   // Read Cond Handle
   ATH_CHECK(m_readKeyRod.initialize());
@@ -233,9 +237,6 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
                   << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
-
-  const SCT_ID* idHelper{nullptr};
-  ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
   // Determine the folders are Run2 or Run1
   bool isRun2{m_readKeyRod.key()==rodFolderName2};
@@ -481,7 +482,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
         ATH_MSG_WARNING("Invalid eta, phi..skipping insertion to map for module " << snString << " (may be already present in map)");
         continue;
       }
-      Identifier offlineId{idHelper->wafer_id(bec,layer,phi,eta,side)};
+      Identifier offlineId{m_idHelper->wafer_id(bec,layer,phi,eta,side)};
       int link{rxLink[side]};
       if (defaultLink==link) {
         link = (fibreOffset % fibresPerRod) + fibreInMur*2 + side;
@@ -503,7 +504,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
         ATH_MSG_WARNING(bec << " " << layer << " " << phi << " " << eta << " " << side);
         ATH_MSG_INFO("MUR, position " << mur << ", " << harnessPosition);
       } 
-      IdentifierHash offlineIdHash{idHelper->wafer_hash(offlineId)};
+      IdentifierHash offlineIdHash{m_idHelper->wafer_hash(offlineId)};
       insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), writeCdo.get());
       numEntries++;
     }

@@ -9,7 +9,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "TBEvent/TBScintillatorCont.h"
@@ -64,8 +64,9 @@ StatusCode CBNT_Timing::CBNT_initialize() {
 
   ATH_MSG_DEBUG  ( "CBNT_Timing in initialize()" );
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );

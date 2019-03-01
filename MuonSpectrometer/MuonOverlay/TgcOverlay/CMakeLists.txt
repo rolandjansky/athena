@@ -11,10 +11,20 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonOverlay/MuonOverlayBase
                           PRIVATE
+                          AtlasTest/TestTools
                           Control/AthenaKernel
                           Control/StoreGate
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonIdHelpers )
+
+#External dependencies:
+find_package( GTest )
+
+atlas_add_test( TgcOverlay_test
+                SOURCES src/*.cxx test/TgcOverlay_test.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase AthenaKernel StoreGateLib SGtests MuonIdHelpersLib ${GTEST_LIBRARIES}
+                EXTRA_PATTERNS "[0-9]+ ms")
 
 # Component(s) in the package:
 atlas_add_component( TgcOverlay

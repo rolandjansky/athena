@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArHVTest.h"
@@ -49,40 +49,19 @@ StatusCode LArHVTest::initialize() {
     msg(MSG::ERROR) << "Unable to retrieve  CaloCellID from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-// retrieve LArEM id helper
 
-  sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endmsg;
-   return sc;
-  }
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  m_larem_id   = idHelper->em_idHelper();
+  m_larhec_id   = idHelper->hec_idHelper();
+  m_larfcal_id   = idHelper->fcal_idHelper();
 
-  sc = detStore()->retrieve(m_calodetdescrmgr);                
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get CaloDetDescrManager" << endmsg;
-    return StatusCode::FAILURE;                              
-  } 
-
-
-  sc=detStore()->retrieve(m_electrodeID);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get LArElectrodeID helper" << endmsg;
-    return sc;
-  }
-
-  if (m_hvtool.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Unable to find tool for LArHVTool" << endmsg; 
-    return StatusCode::FAILURE;
-  }
-
-
-  ATH_CHECK(m_cablingKey.initialize());
-  ATH_CHECK(m_hvmapKey.initialize());
-  ATH_CHECK(m_hvdataKey.initialize());
+  ATH_CHECK( detStore()->retrieve(m_electrodeID) );
+  ATH_CHECK( m_hvtool.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_hvmapKey.initialize()) ;
+  ATH_CHECK( m_hvdataKey.initialize() );
 
   ATH_MSG_DEBUG("LArHVTest initialize() end");
   return StatusCode::SUCCESS;

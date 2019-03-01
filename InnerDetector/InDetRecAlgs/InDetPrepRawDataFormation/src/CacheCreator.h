@@ -16,13 +16,11 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-#include "PixelConditionsData/SpecialPixelMap.h"
 
 class TRT_ID;
 class PixelID;
@@ -53,8 +51,6 @@ namespace InDet{
         bool m_disableTRT;
         mutable bool m_disableWarning;
 	//Temporary workarounds for problem in scheduler - remove later
-        SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
-        SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
         bool isInsideView(const EventContext&) const;
         template<typename T>
         StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;

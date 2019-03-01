@@ -500,6 +500,7 @@ namespace asg
 #ifdef XAOD_STANDALONE
       interfaceType_t *baseToolPtr = nullptr;
       AnaToolCleanup baseCleanup;
+      // cppcheck-suppress nullPointer
       ANA_CHECK (makeToolRootCore (toolName, baseToolPtr, baseCleanup));
       th = ToolHandle<interfaceType_t> (baseToolPtr);
       cleanup.swap (baseCleanup);

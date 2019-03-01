@@ -21,14 +21,14 @@ constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonOverlayBase(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
 //================================================================
-StatusCode CscOverlay::overlayInitialize()
+StatusCode CscOverlay::initialize()
 {
-  ATH_MSG_INFO("CscOverlay initialized");
+  ATH_MSG_DEBUG("CscOverlay initialized");
 
   /** access to the CSC Identifier helper */
   ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
@@ -40,90 +40,37 @@ StatusCode CscOverlay::overlayInitialize()
   // get cscRdoDecoderTool
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
-  ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digitization Tool.");
-
-  ATH_CHECK(m_rdoTool2.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 2.");
-
-  ATH_CHECK(m_rdoTool4.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 4.");
-
   //random number initialization
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  ATH_CHECK( m_inputDataRDOKey.initialize() );
-  ATH_CHECK( m_inputOverlayRDOKey.initialize() );
-  ATH_CHECK( m_outputContainerKey.initialize() );
+  ATH_CHECK( m_bkgInputKey.initialize() );
+  ATH_CHECK( m_signalInputKey.initialize() );
+  ATH_CHECK( m_outputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode CscOverlay::overlayFinalize()
-{
-  ATH_MSG_INFO("CscOverlay finalized");
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode CscOverlay::overlayExecute() {
+StatusCode CscOverlay::execute() {
   ATH_MSG_DEBUG("CscOverlay::execute() begin");
   //----------------------------------------------------------------
-  unsigned int numsamples=0;//to be determined from the data
-  SG::ReadHandle<CscRawDataContainer> inputDataRDO(m_inputDataRDOKey);
-  if(!inputDataRDO.isValid()) {
-    ATH_MSG_WARNING("Could not get data CscRawDataContainer  \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey);
+  if(!bkgContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal CSC container " << bkgContainer.name() << " from store " << bkgContainer.store());
+    return StatusCode::FAILURE;
   }
-  ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
-  if ((inputDataRDO->begin()==inputDataRDO->end()) || !*(inputDataRDO->begin())){
-        ATH_MSG_WARNING("Could not get nsamples, inputDataRDO empty?");
-  }
-  else{
-    numsamples=inputDataRDO->begin()->numSamples();
-  }
+  ATH_MSG_DEBUG("Found background CscRawDataContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
 
-  /** in the simulation stream, run digitization of the fly
-      and make RDO - this will be used as input to the overlay job */
-  if ( m_digTool->processAllSubEvents().isFailure() ) {
-     ATH_MSG_WARNING("On the fly CSC digitization failed ");
-     return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("Retrieving signal input CSC container");
+  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey);
+  if(!signalContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal CSC container " << signalContainer.name() << " from store " << signalContainer.store());
+    return StatusCode::FAILURE;
   }
+  ATH_MSG_DEBUG("Found signal CscRawOverlayContainer called " << signalContainer.name() << " in store " << signalContainer.store());
 
-  if (numsamples==2) {
-    if ( m_rdoTool2->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 2 failed ");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Digitizing with 2 samples");
-  }
-  else if (numsamples==4) {
-    if ( m_rdoTool4->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 4 failed ");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Digitizing with 4 samples");
-  }
-  else{
-    ATH_MSG_WARNING("On the fly CSC Digit -> RDO failed - not 2 or 4 samples!");
-    //return StatusCode::SUCCESS;
-  }
-
-  if (numsamples>0) {
-    ATH_MSG_DEBUG("Retrieving MC input CSC container");
-    SG::ReadHandle<CscRawDataContainer> inputOverlayRDO(m_inputOverlayRDOKey);
-    if(!inputOverlayRDO.isValid()) {
-      ATH_MSG_WARNING("Could not get overlay CscRawDataContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
-
-    /* now do the overlay - reading real data from the data stream
-       and reading simulated RDO produced in the previous steps
-       from the simulation stream */
-    this->overlayContainer(inputDataRDO.cptr(), inputOverlayRDO.cptr());
-  }
+  /* now do the overlay */
+  ATH_CHECK(this->overlayContainer(bkgContainer.cptr(), signalContainer.cptr()));
 
   //----------------------------------------------------------------
   ATH_MSG_DEBUG("CscOverlay::execute() end");
@@ -131,14 +78,15 @@ StatusCode CscOverlay::overlayExecute() {
 }
 
 //================================================================
-void CscOverlay::overlayContainer(const CscRawDataContainer *main,
+StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *main,
                                   const CscRawDataContainer *overlay)
 {
   ATH_MSG_DEBUG("overlayContainer<>() begin");
 
-  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputContainerKey);
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
   if (outputContainer.record(std::make_unique<CscRawDataContainer>()).isFailure()) {
-    ATH_MSG_ERROR("Failed to record " << m_outputContainerKey);
+    ATH_MSG_ERROR("Could not record output CscRawDataContainer called " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
   }
 
   /** Add data from the main container to the output one */
@@ -269,11 +217,13 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
       }
 
       /** The new collection goes to m_storeGateOutput */
-      if(outputContainer->addCollection(out_coll.release(), out_coll->identify()).isFailure()) {
-        ATH_MSG_WARNING("overlayContainer(): Problem in outputContainer->addCollection(Identifier)");
+      if(outputContainer->addCollection(out_coll.get(), out_coll->identify()).isFailure()) {
+        ATH_MSG_ERROR("overlayContainer(): Problem in outputContainer->addCollection(Identifier)");
+        return StatusCode::FAILURE;
       }
       else {
         ATH_MSG_DEBUG("overlayContainer() added new RDO");
+        out_coll.release(); // now owned by outputContainer
       }
     }
 
@@ -281,6 +231,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
   }
 
   ATH_MSG_DEBUG("overlayContainer<>() end");
+  return StatusCode::SUCCESS;
 }
 
 // Copying CscRawDataCollection properties

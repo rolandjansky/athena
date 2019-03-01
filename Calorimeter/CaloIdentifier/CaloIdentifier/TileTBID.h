@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -102,15 +102,20 @@ public:
    * @brief identifer for Tile testbeam detectors of a give type
    */
   Identifier          type_id                 ( int type)                     const;
+  Identifier          type_id                 ( int type, bool checks )       const;
   /**
    * @brief identifer for one module of a Tile testbeam detector
    */
   Identifier          module_id               ( int type, int module )        const;
+  Identifier          module_id               ( int type, int module, bool checks ) const;
   /**
    * @brief identifer for one channel of a Tile testbeam detector
    */
   Identifier          channel_id              ( int type, int module, 
                                                 int channel )                 const;
+  Identifier          channel_id              ( int type, int module, 
+                                                int channel,
+                                                bool checks)                  const;
 
   /**
    * @brief extract module ID from channel ID

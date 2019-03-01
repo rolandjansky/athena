@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfoByteStreamCnv.h"
@@ -10,6 +10,7 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
@@ -36,7 +37,7 @@
 // const  ICnvFactory& EventInfoByteStreamCnvFactory = s_factory;
 
 EventInfoByteStreamCnv::EventInfoByteStreamCnv(ISvcLocator* svcloc)
-	: Converter(ByteStream_StorageType, classID(), svcloc),
+    : Converter(storageType(), classID(), svcloc),
 		m_ByteStreamCnvSvc(0),
 		m_robDataProvider("ROBDataProviderSvc", "EventInfoByteStreamCnv"),
 		m_mdSvc("InputMetaDataStore", "EventInfoByteStreamCnv"),
@@ -48,6 +49,10 @@ EventInfoByteStreamCnv::EventInfoByteStreamCnv(ISvcLocator* svcloc)
 
 const CLID& EventInfoByteStreamCnv::classID() {
    return(ClassID_traits<EventInfo>::ID());
+}
+
+long EventInfoByteStreamCnv::storageType() {
+   return ByteStreamAddress::storageType();
 }
 
 StatusCode EventInfoByteStreamCnv::initialize() {
@@ -199,11 +204,12 @@ StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
 
   unsigned int detMask0 = 0xFFFFFFFF, detMask1 = 0xFFFFFFFF, detMask2 = 0xFFFFFFFF, detMask3 = 0xFFFFFFFF;
   // Get ByteStream Metadata from Input MetaData Store
-  const ByteStreamMetadata* metadata = 0;
-  StatusCode status = m_mdSvc->retrieve(metadata, "ByteStreamMetadata");
+  const ByteStreamMetadataContainer* metadatacont = 0;
+  StatusCode status = m_mdSvc->retrieve(metadatacont, "ByteStreamMetadata");
   if (!status.isSuccess()) {
     log << MSG::WARNING << "Unable to retrieve Input MetaData for ByteStream" << endmsg;
   } else {
+    const ByteStreamMetadata* metadata = *(metadatacont->begin());
     uint64_t detectorMask = metadata->getDetectorMask();
     detMask0 = (unsigned int)(detectorMask & 0x00000000FFFFFFFF);
     detMask1 = (unsigned int)(detectorMask >> 32);

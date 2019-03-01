@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "GeneratorObjects/McEventCollection.h"
+#include "HepMC/GenParticle.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetOverlay/TRTOverlay.h"
@@ -65,25 +65,12 @@ namespace Overlay
 
 
 TRTOverlay::TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : IDC_OverlayBase(name, pSvcLocator),
-    m_trtId(nullptr),
-    m_rndmSvc("AtRndmGenSvc",name),
-    m_rndmEngineName("TRTOverlay"),
-    m_rndmEngine(nullptr),
-    m_TRT_LocalOccupancyTool("TRT_LocalOccupancy",this),
-    m_TRTStrawSummarySvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc")
+  : IDC_OverlayBase(name, pSvcLocator)
 {
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service");
-  declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
-
-  declareProperty("TRT_LocalOccupancyTool", m_TRT_LocalOccupancyTool);
-
   declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.110);
   declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.090);
   declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE", m_HTOccupancyCorrectionB_noE=0.060);
   declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE", m_HTOccupancyCorrectionEC_noE=0.050);
-  
-  declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);  
 }
 
 StatusCode TRTOverlay::initialize()
@@ -113,13 +100,6 @@ StatusCode TRTOverlay::initialize()
 
   // Initialize random number generator
   CHECK(m_rndmSvc.retrieve());
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
-  }
 
   // Retrieve TRT local occupancy tool
   CHECK(m_TRT_LocalOccupancyTool.retrieve());
@@ -217,6 +197,10 @@ void TRTOverlay::overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
      }
    }
 
+   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+   CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
+
    /** Add data from the signal container to the output one */
    TRT_RDO_Container::const_iterator p_signal = signalContainer->begin();
    TRT_RDO_Container::const_iterator p_signal_end = signalContainer->end();
@@ -238,7 +222,7 @@ void TRTOverlay::overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
          Retrieve q */
          std::unique_ptr <TRT_RDO_Collection> coll_bkg ((TRT_RDO_Collection *) *q);
          int det =  m_trtId->barrel_ec( (*p_signal)->identify() );
-         mergeTRTCollections(coll_bkg.get(), coll_signal.get(), coll_out.get(), occupancyMap[det], SDO_Map);
+         mergeTRTCollections(coll_bkg.get(), coll_signal.get(), coll_out.get(), occupancyMap[det], SDO_Map, rndmEngine);
 
          outputContainer->removeCollection(p_signal.hashId());
          if (outputContainer->addCollection(coll_out.release(), coll_id).isFailure() ) {
@@ -259,7 +243,8 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
                                      TRT_RDO_Collection *signalCollection,
                                      TRT_RDO_Collection *outputCollection,
                                      double occupancy,
-                                     const InDetSimDataCollection& SDO_Map)
+                                     const InDetSimDataCollection& SDO_Map,
+                                     CLHEP::HepRandomEngine* rndmEngine)
 {
 
   if (bkgCollection->identify() != signalCollection->identify()) {
@@ -369,7 +354,7 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
               HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE;
             }
 
-            if( isXenonStraw && occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) )
+            if( isXenonStraw && occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( rndmEngine, 0, 1) )
               newword += 1 << (26-9);
             //
             TRT_LoLumRawData newrdo( pr1->identify(), newword);

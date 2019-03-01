@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -89,8 +89,8 @@ public:
 
     /// Modifiers
     void                set_range        (const IdDictRange* range);
-    void                set_field        (Range::field  field);
-    void                set_ored_field   (Range::field ored_field);
+    void                set_field        (const Range::field&  field);
+    void                set_ored_field   (const Range::field& ored_field);
     void                set_bits_offset  (size_type bits_offset);
     void                set_bits         (size_type bits, size_type bits_offset);
     void                set_decode_index (bool decode_index);
@@ -248,7 +248,7 @@ inline void  IdDictFieldImplementation::initialize()
 }
 
 //-----------------------------------------------------------------
-inline void  IdDictFieldImplementation::set_field        (Range::field  field)
+inline void  IdDictFieldImplementation::set_field        (const Range::field&  field)
 //-----------------------------------------------------------------
 {
     m_field = field;
@@ -256,7 +256,7 @@ inline void  IdDictFieldImplementation::set_field        (Range::field  field)
 
 
 //-----------------------------------------------------------------
-inline void  IdDictFieldImplementation::set_ored_field   (Range::field ored_field)
+inline void  IdDictFieldImplementation::set_ored_field   (const Range::field& ored_field)
 //-----------------------------------------------------------------
 {
     // Set ored field and bits, and init

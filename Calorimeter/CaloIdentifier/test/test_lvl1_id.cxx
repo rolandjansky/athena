@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -146,10 +146,10 @@ check_lvl1_helper(IdDictMgr& idd)
     const CaloLVL1_ID* lvl1_id = &lvl1Id;
 
 
-    bool verif = lvl1_id->do_checks();
+    bool verif = lvl1Id.do_checks();
     std::cout << "verif0 = " << verif << std::endl;
-    lvl1_id->set_do_checks(true);
-    verif = lvl1_id->do_checks();
+    lvl1Id.set_do_checks(true);
+    verif = lvl1Id.do_checks();
     std::cout << "verif1 = " << verif << std::endl;
 
 

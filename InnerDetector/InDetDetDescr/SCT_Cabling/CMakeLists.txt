@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/CoraCool
-                          Event/EventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           Tools/PathResolver )
 
@@ -29,12 +28,12 @@ atlas_add_library( SCT_CablingLib
                    PUBLIC_HEADERS SCT_Cabling
                    PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaPoolUtilities CoraCool EventInfo InDetIdentifier PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaPoolUtilities CoraCool InDetIdentifier PathResolver )
 
 atlas_add_component( SCT_Cabling
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CoraCool EventInfo InDetIdentifier PathResolver SCT_CablingLib )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities CoraCool InDetIdentifier PathResolver SCT_CablingLib )
 
 atlas_add_test( TestSCT_CablingCfg
                 SCRIPT share/TestSCT_CablingCfg.sh

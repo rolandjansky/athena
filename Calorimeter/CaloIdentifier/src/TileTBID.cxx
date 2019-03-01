@@ -106,10 +106,9 @@ TileTBID::tiletb_id     ()      const
 // Build type & module id
 //
 Identifier
-TileTBID::type_id       ( int type )      const
+TileTBID::type_id       ( int type, bool checks )      const
 {
-#ifndef NDEBUG
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -123,19 +122,23 @@ TileTBID::type_id       ( int type )      const
 	    throw TileID_Exception(errorMessage , 2);
 	}
     }
-#endif
 
     Identifier compactID(m_base_tile_type);
     m_type_impl.pack	(type,compactID);
 
     return (compactID);
 }
+Identifier
+TileTBID::type_id       ( int type )      const
+{
+  return type_id (type, do_checks());
+}
+
 
 Identifier
-TileTBID::module_id       ( int type, int module )       const
+TileTBID::module_id       ( int type, int module, bool checks )       const
 {
-#ifndef NDEBUG
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -149,7 +152,6 @@ TileTBID::module_id       ( int type, int module )       const
 	    throw TileID_Exception(errorMessage , 1);
 	}
     }
-#endif
 
     Identifier compactID(m_base_tile_type);
     m_type_impl.pack	(type,compactID);
@@ -157,15 +159,19 @@ TileTBID::module_id       ( int type, int module )       const
 
     return (compactID);
 }
+Identifier
+TileTBID::module_id       ( int type, int module )       const
+{
+  return module_id (type, module, do_checks());
+}
 
 //
 // Build channel id
 //
 Identifier
-TileTBID::channel_id ( int type, int module, int channel ) const
+TileTBID::channel_id ( int type, int module, int channel, bool checks ) const
 {
-#ifndef NDEBUG
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -179,7 +185,6 @@ TileTBID::channel_id ( int type, int module, int channel ) const
 	    throw TileID_Exception(errorMessage , 1);
 	}
     }
-#endif
 
     Identifier compactID(m_base_tile_type);
     m_type_impl.pack	(type,compactID);
@@ -187,6 +192,11 @@ TileTBID::channel_id ( int type, int module, int channel ) const
     m_channel_impl.pack	(channel,compactID);
 
     return (compactID);
+}
+Identifier
+TileTBID::channel_id ( int type, int module, int channel ) const
+{
+  return channel_id (type, module, channel, do_checks());
 }
 
 Identifier
@@ -205,7 +215,6 @@ TileTBID::channel_id    ( const Identifier & module_id,
     Identifier compactId(module_id);
     m_channel_impl.pack(channel,compactId);
 
-#ifndef NDEBUG
     if(m_do_checks) {
 	
 	// Check that id is within allowed range
@@ -230,7 +239,6 @@ TileTBID::channel_id    ( const Identifier & module_id,
 	    throw TileID_Exception(errorMessage , 1);
 	}
     }
-#endif
 
     return compactId;
 }

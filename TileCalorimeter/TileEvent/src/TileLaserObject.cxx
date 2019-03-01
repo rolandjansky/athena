@@ -23,6 +23,8 @@ TileLaserObject::TileLaserObject()
   , m_pmtsHG(nbPmts,TileLaserPmt())
   , m_lascalib(nbTypes,std::vector<TileLasCalib>(16))
   , m_plc()
+  , m_qdctimeout(false)
+  , m_tdctimeout(false)
   , m_daqtype(0)
   , m_BCID(0)
   , m_version(0)
@@ -286,6 +288,14 @@ void TileLaserObject::setPLC(const int alphaPos,
   m_plc.setPLC(alphaPos, LVdiodes, HVpmts, shutter, interlock, alarm);
   
 }
+
+void TileLaserObject::setTimeouts(const bool qdc, 
+				  const bool tdc)
+{
+  m_qdctimeout = qdc;
+  m_tdctimeout = tdc;
+}
+
 
 void TileLaserObject::setDiode(const unsigned int diode,
                                const int diodeAdc,

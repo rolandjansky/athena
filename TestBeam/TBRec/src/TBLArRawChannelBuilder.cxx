@@ -50,10 +50,12 @@ StatusCode TBLArRawChannelBuilder::initialize(){
     return StatusCode::FAILURE;
   }
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
+
+  const CaloCell_ID* caloId = nullptr;
+  ATH_CHECK( detStore()->retrieve (caloId, "CaloCell_ID") );
+  m_emId=caloId->em_idHelper();
+  m_fcalId=caloId->fcal_idHelper();
+  m_hecId=caloId->hec_idHelper();
 
   ATH_CHECK( m_cablingKey.initialize() );
 

@@ -75,9 +75,6 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
 
     kwargs.setdefault("includeBkg", True);
 
-    kwargs.setdefault("RndmEngine", "TRTOverlay")
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc.get_Value())
-
     kwargs.setdefault("TRT_LocalOccupancyTool", "TRT_LocalOccupancy")
 
     # HT hit correction fraction

@@ -24,6 +24,7 @@
 #include "circ/Circservice.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "CxxUtils/checker_macros.h"
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -147,8 +148,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
       
     } 
     else {
-      
-      m_cid = CircOpenCircConnection(0, (char*)name.c_str(), calBufferSize);
+      char* chr ATLAS_THREAD_SAFE = const_cast<char*>(name.c_str());
+      m_cid = CircOpenCircConnection(0, chr, calBufferSize);
       if( m_cid == -1 ) {
 	ATH_MSG_WARNING("Could not open muon calibration buffer: name="
 			<< name << " buffer size=" << calBufferSize);
@@ -182,7 +183,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
     m_outputFile = NULL;
   }
   else if ( !m_writeToFile && m_cid>-1) {
-    if (CircCloseCircConnection (0,(char*)name.c_str(),m_cid) != 0 ) {
+    char* chr ATLAS_THREAD_SAFE = const_cast<char*>(name.c_str());
+    if (CircCloseCircConnection (0,chr,m_cid) != 0 ) {
       ATH_MSG_WARNING("Could not close the muon calibration stream. Stream name: " << m_calBufferName);
     }
     else {

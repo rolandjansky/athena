@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Generic overlaying code for Identifiable Containers.
@@ -20,27 +20,6 @@
 #include <sstream>
 
 namespace Overlay {
-  
-  template<class IDC_Container> 
-  std::string shortPrint(const IDC_Container *container, unsigned maxprint) {
-    std::ostringstream os;
-    if(container) {
-      for(unsigned i=0; i<maxprint; i++) {
-	typename IDC_Container::const_iterator p = container->indexFind(i);
-	if(p != container->end()) {
-	  os<<" "<< (*p)->size();
-	}
-	else {
-	  os<<" *";
-	}
-      }
-    }
-    else {
-      os<<"(NULL)";
-    }
-    return os.str();
-  }
-
 
   //================================================================
   template<class IDC_Container, class OvlAlg>

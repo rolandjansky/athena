@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALODM_ID_H
@@ -111,6 +111,7 @@ public:
 
   /** build a region identifier valid for both LAr and Tiles  */
   Identifier region_id  ( int pos_neg_z, int dmat, int sampling, int region )  const;
+  Identifier region_id  ( int pos_neg_z, int dmat, int sampling, int region, bool checks)  const;
 
   /** build a region identifier valid for both LAr and Tiles  */
   Identifier region_id  (const Identifier& zoneId ) const;
@@ -118,10 +119,14 @@ public:
   /** build a zone identifier valid for both LAr and Tiles  */
   Identifier  zone_id   	(int pos_neg_z, int dat, int sampling, int region,
 				 int eta,       int phi )  const;
+  Identifier  zone_id   	(int pos_neg_z, int dat, int sampling, int region,
+				 int eta,       int phi, bool checks )  const;
 				 
   /** build a zone identifier valid for both LAr and Tiles  */
   Identifier  zone_id   	(const Identifier& regionId,
     				 int eta,       int phi )  const ;
+  Identifier  zone_id   	(const Identifier& regionId,
+    				 int eta,       int phi, bool checks )  const ;
 
   /** to disentangle between LAr and Tile dead material */
   bool is_lar  (const Identifier& zoneId) const;
@@ -378,7 +383,8 @@ CLASS_DEF( CaloDM_ID , 167756483 , 1 )
 
      
 //----------------------------------------------------------------------------
-inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, int region)  const
+inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, int region,
+                                        bool checks)  const
 {
     Identifier result(0);
     // Pack fields independently
@@ -389,7 +395,7 @@ inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, i
     m_region_impl.pack   (region,                         result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
       if(abs(pos_neg_z) == 4) {
 	lar_region_id_checks( pos_neg_z, dmat, sampling, region);
       } else
@@ -406,6 +412,11 @@ inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, i
     return result;
 }
 
+inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, int region)  const
+{
+  return region_id (pos_neg_z, dmat, sampling, region, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier 
 CaloDM_ID::region_id   ( const Identifier& zoneId ) const 
@@ -419,7 +430,8 @@ CaloDM_ID::region_id   ( const Identifier& zoneId ) const
 
 //----------------------------------------------------------------------------
 inline Identifier CaloDM_ID::zone_id   ( int pos_neg_z, int dmat, int sampling, int region,
-					 int eta,       int phi )  const
+					 int eta,       int phi,
+                                         bool checks)  const
 {  
     Identifier result(0);
     // Pack fields independently
@@ -432,7 +444,7 @@ inline Identifier CaloDM_ID::zone_id   ( int pos_neg_z, int dmat, int sampling, 
     m_phi_impl.pack      (phi,                            result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
       if(abs(pos_neg_z) == 4) {
 	lar_zone_id_checks( pos_neg_z, dmat, sampling, region, eta, phi );
       } 
@@ -447,10 +459,16 @@ inline Identifier CaloDM_ID::zone_id   ( int pos_neg_z, int dmat, int sampling, 
 
     return result;
 }
- 
+
+inline Identifier CaloDM_ID::zone_id   ( int pos_neg_z, int dmat, int sampling, int region,
+					 int eta,       int phi )  const
+{
+  return zone_id (pos_neg_z, dmat, sampling, region, eta, phi, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier CaloDM_ID::zone_id   ( const Identifier& regionId,
-					 int eta,  int phi ) const 
+					 int eta,  int phi, bool checks ) const 
 {
     Identifier result(regionId);
 
@@ -461,11 +479,17 @@ inline Identifier CaloDM_ID::zone_id   ( const Identifier& regionId,
     m_phi_impl.pack      (phi, result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	zone_id_checks( regionId, eta, phi );
     }
 
     return result;
+}
+
+inline Identifier CaloDM_ID::zone_id   ( const Identifier& regionId,
+					 int eta,  int phi ) const
+{
+  return zone_id (regionId, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------

@@ -5,6 +5,34 @@ def HLTResultMTMakerCfg():
    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
    m = HLTResultMTMaker()
+
+   # ROBs/SubDets which are enabled but not necessarily part of the ROS-ROB map
+   from libpyeformat_helper import SourceIdentifier,SubDetector
+   subdets = [
+      SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI,
+      SubDetector.TDAQ_CALO_JET_PROC_ROI,
+      SubDetector.TDAQ_HLT,
+      SubDetector.TDAQ_FTK,
+      SubDetector.TDAQ_CALO_TOPO_PROC,
+      SubDetector.TDAQ_CALO_DIGITAL_PROC,
+      SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI,
+   ]
+   m.ExtraEnabledSubDets = []
+   for subdetId in subdets:
+      m.ExtraEnabledSubDets.append( int(subdetId) )
+
+   def addROBs(dest,subdet,modules):
+      for moduleId in modules:
+         dest.append(SourceIdentifier(subdet,moduleId).code())
+
+   m.ExtraEnabledROBs = []
+   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, [0xa8, 0xa9, 0xaa, 0xab])
+   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_JET_PROC_ROI,     [0xac, 0xad])
+   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_MUON_CTP_INTERFACE,    [0x01])
+   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CTP,                   [0x01])
+   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
+
+   # Configure HLT result monitoring histograms
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTResultMTMaker')
    m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
                                              xbins=100, xmin=0, xmax=1000 ),
@@ -44,5 +72,12 @@ def TriggerEDMSerialiserToolCfg(name):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
-   serialiser.CollectionsToSerialize = {}
+   from collections import OrderedDict
+   class OD(OrderedDict):
+      def __repr__(self):
+         return '{' + ','.join( ['"'+str(k)+'":'+str(v) for k,v in self.iteritems()] ) + '}'
+      def __str__(self):
+         return self.__repr__()
+
+   serialiser.CollectionsToSerialize = OD()
    return serialiser

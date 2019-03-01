@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_MDOVERLAP_H
@@ -12,12 +12,10 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaKernel/getMessageSvc.h"
 
-#include "Ttypes.h"
 #include "TH1.h"
 #include "TH2.h"
 

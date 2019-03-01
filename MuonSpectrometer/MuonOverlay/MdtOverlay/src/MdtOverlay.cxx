@@ -15,7 +15,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
 
 #include <iostream>
@@ -90,9 +89,6 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 StatusCode MdtOverlay::overlayInitialize()
 {
   ATH_MSG_INFO("MdtOverlay initialized");
-
-  ATH_CHECK(detStore()->retrieve(m_mdtHelper, "MDTIDHELPER"));
-  ATH_MSG_DEBUG(" Found the MdtIdHelper. ");
 
   ATH_CHECK(m_mainInputDigitKey.initialize());
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_mainInputDigitKey );

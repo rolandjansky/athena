@@ -264,8 +264,7 @@ if doPFlow:
   IsoCorEg.append([ isoPar.coreCone, isoPar.pileupCorrection ])
   IsoCorEgExtra.append([isoPar.ptCorrection])
   IsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
-  IsoCorMuExtra.append([isoPar.ptCorrection])
-
+  IsoCorMuExtra.append([])
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 isoBuilder = AlgFactory(IsolationBuilder,

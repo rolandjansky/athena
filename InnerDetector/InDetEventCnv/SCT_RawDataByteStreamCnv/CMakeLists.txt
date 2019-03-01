@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/Identifier
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetConditions/SCT_ConditionsTools
@@ -33,16 +32,20 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps StoreGateLib SGtests Identifier EventInfo xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
 
 # Run tests:
 atlas_add_test( TestSCTDecode
                 SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTDecode.py
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
-atlas_add_test( TestSCTEncode
+atlas_add_test( TestSCTEncodeSerial
                 SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
                 PROPERTIES TIMEOUT 300 )
+atlas_add_test( TestSCTEncode
+                SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTEncode.py
+                PROPERTIES TIMEOUT 300
+                ENVIRONMENT THREADS=5 )
 
 # Install files from the package:
 atlas_install_headers( SCT_RawDataByteStreamCnv )
