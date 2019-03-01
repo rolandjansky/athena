@@ -13,7 +13,7 @@ namespace NSWL1 {
 
   StripOfflineData::StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit) : 
     StripData(),
-    m_id(id), m_helper(helper),m_trig_bcid(0),m_band_id(-1)
+    m_id(id), m_helper(helper),m_trig_bcid(0),m_band_id(-1),m_phi_id(-1)
     {
       m_strip_charge_6bit=digit-> charge_6bit(); 
       m_strip_charge_10bit= digit-> charge_10bit();

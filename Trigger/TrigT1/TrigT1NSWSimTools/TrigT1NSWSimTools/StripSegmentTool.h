@@ -98,6 +98,8 @@ namespace NSWL1 {
     std::vector<float> *m_seg_eta;                          //!< m_seg_eta
     std::vector<float> *m_seg_phi;
     std::vector<int> *m_seg_bandId;
+    std::vector<int> *m_seg_phiId;
+    std::vector<int> *m_seg_rIdx;
     std::vector<float> *m_seg_global_r;
     std::vector<float> *m_seg_global_x;
     std::vector<float> *m_seg_global_y;

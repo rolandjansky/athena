@@ -35,6 +35,7 @@ namespace NSWL1 {
 
     //! methods for retrieving the bare data
     virtual int bandId()         const = 0; //!< get the band id
+    virtual int phiId()         const = 0; //!< get the band id
     //! helper  methods decoding the hit fragment position within the NSW detector
     virtual int isSmall()      const = 0;    //!< get the side (0==sideC, 1==sideA)
     virtual int moduleId()    const = 0;    //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)

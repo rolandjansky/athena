@@ -119,7 +119,7 @@ namespace NSWL1 {
     std::vector<int> *m_cl_module;
     std::vector<int> *m_cl_layer;
     std::vector<int> *m_cl_bandId;
-
+    std::vector<int> *m_cl_phiId;
     //Cache that holds which strips to read based on bandid
     // 2d-vector for eta/phi station coordinates
     // map from BandID to a set of strips

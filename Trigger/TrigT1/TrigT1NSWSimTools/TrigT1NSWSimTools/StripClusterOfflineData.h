@@ -35,6 +35,7 @@ namespace NSWL1 {
 
   private:
     int m_bandId;
+    int m_phiId;
     int m_isSmall;
     int m_moduleId;
     int m_sectorId;
@@ -49,6 +50,7 @@ namespace NSWL1 {
   public:
 
     StripClusterOfflineData(int bandId,
+                int phiId,
 			    int isSmall,
 			    int moduleId,
 			    int sectorId,
@@ -63,6 +65,7 @@ namespace NSWL1 {
         
    //! methods for retrieving the bare data
     int set_bandId(int bandId);
+    int set_phiId(int phiId);
     bool set_isSmall(bool set_isSmall);
     int set_moduleId(int moduleId);
     int set_sectorId(int sectorId);
@@ -78,6 +81,7 @@ namespace NSWL1 {
 
     //! methods for retrieving the bare data
     int bandId()  const {return m_bandId;}; //!< get the band id
+    int phiId() const {return m_phiId;}
     //! helper  methods decoding the hit fragment position within the NSW detector
     int isSmall() const {return m_isSmall;};
     int moduleId() const {return m_moduleId;};

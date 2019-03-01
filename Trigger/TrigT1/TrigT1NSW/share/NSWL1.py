@@ -124,12 +124,12 @@ topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="dummyRDO"
 
 
 #Tools' Messaging Levels
-topSequence.NSWL1Simulation.OutputLevel=WARNING
-topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=DEBUG
 topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=WARNING
-topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=WARNING
-topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=DEBUG
 
 # Simulation parameters
 #topSequence.NSWL1Simulation.PadTdsTool.VMM_DeadTime=3

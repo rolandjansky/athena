@@ -156,9 +156,9 @@ namespace NSWL1 {
     StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
       SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
-      
-      
-      auto p=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+       auto recordp=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+       ATH_CHECK( trgRdos.record( std::move(recordp)));
+      //auto p=std::make_unique<Muon::NSW_TrigRawDataContainer>();
       
       
       //TODO : put  sector Id and BCID in the ctor of NSW_TrigRawData below
@@ -192,7 +192,7 @@ namespace NSWL1 {
            ATH_MSG_WARNING("Cluster size is zero for outer wedge trg with bandId "<<bandId<<"...skipping");
            continue;
       }
-  
+        int phiId=band.second[0].at(0)->phiId();
 	    float glx1=0;
 	    float gly1=0;
         float glx2=0;
@@ -207,7 +207,7 @@ namespace NSWL1 {
 	    //first measuement
 	    float r1=0;
 	    float z1=0;
-	    for( const auto& cl : band.second[0] ){
+	    for( const auto& cl : band.second[0] ){//inner
 	      r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
 	      z1+=cl->globZ()*cl->charge();
 	      glx1+=cl->globX()*cl->charge();
@@ -218,7 +218,7 @@ namespace NSWL1 {
 	    //first measuement
 	    float r2=0;
 	    float z2=0;
-	    for( const auto& cl : band.second[1] ){
+	    for( const auto& cl : band.second[1] ){//outer
             r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
             z2+=cl->globZ()*cl->charge();
             glx2+=cl->globX()*cl->charge();
@@ -239,9 +239,8 @@ namespace NSWL1 {
         }
         glx=(glx1+glx2)/2.;
         gly=(gly1+gly2)/2.;
-
         float slope=(r2-r1)/(z2-z1);
-        float avg_r=(r1+r2)/2.;
+        float avg_r=(r1+r2)/2.;//S.I is it possible in the Hardware implementation?
         float avg_z=(z1+z2)/2.;
         float inf_slope=(avg_r/avg_z);
         //float dR=slope-inf_slope;
@@ -273,11 +272,88 @@ namespace NSWL1 {
         else{
             ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
         }
-
+        //R index calculation below :  needs to be replaced by a generic solution. Probably theres a tool to access these boundaries
+        static std::vector<float> bw_roi_boundaries={
+                //FWD
+                2.4148,
+                2.3777,
+                2.3439,
+                2.3100,
+                2.2755,
+                2.2417,
+                2.2070,
+                2.1734,
+                2.1411,
+                2.1088,
+                2.0781,
+                2.0476,
+                2.0166,
+                1.9855,
+                1.9537,
+                1.9214,
+                1.9163,
+                //EC
+                1.9172,
+                1.8932,
+                1.8679,
+                1.8420,
+                1.8153,
+                1.7882,
+                1.7608,
+                1.7328,
+                1.7050,
+                1.6781,
+                1.6524,
+                1.6274,
+                1.6038,
+                1.5810,
+                1.5591,
+                1.5385,
+                1.5187,
+                1.4997,
+                1.4811,
+                1.4622,
+                1.4428,
+                1.4227,
+                1.4015,
+                1.3783,
+                1.3528,
+                1.3257,
+                1.2972,
+                1.2681,
+                1.2384,
+                1.2086,
+                1.1798,
+                1.1528,
+                1.1275,
+                1.1036,
+                1.0807,
+                1.0587,
+                1.0375,
+                1.0334,
+        };
+        //just to make sure sort eta boundaries.
+        std::sort(bw_roi_boundaries.begin(),bw_roi_boundaries.end());//or in the reverse order depends on what people want
+        if(fabs(dtheta)>15) return StatusCode::SUCCESS;//it seems to be the most optimistic hw scenario . However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided by hw ppl
+        
+        static auto calc_rIndex=[](const float &eta){
+            for(unsigned int i=0;i<bw_roi_boundaries.size();i++){
+                if(i==bw_roi_boundaries.size()-1) return 0;
+                float eta_b0=bw_roi_boundaries.at(i);
+                float eta_b1=bw_roi_boundaries.at(i+1);
+                if(eta>eta_b0 && eta<eta_b1) return (int)(i+1);
+            }
+            
+            return 0;
+        };
+        uint8_t rIndex=(uint8_t)calc_rIndex(eta);
+        
         m_seg_wedge1_size->push_back(band.second[0].size());
         m_seg_wedge2_size->push_back(band.second[1].size());
 
         m_seg_bandId->push_back(bandId);
+        m_seg_phiId->push_back(phiId);
+        m_seg_rIdx->push_back(rIndex);
         m_seg_theta->push_back(theta);
         m_seg_dtheta->push_back(dtheta);
         m_seg_eta->push_back(eta);
@@ -294,18 +370,18 @@ namespace NSWL1 {
         
        //Use these only for salt.... True values will be provided later 
        bool phiRes=true;
-       bool lowRes=false;
-       uint8_t rIndex=53;
-       uint8_t phiIndex=13;
+       bool lowRes=false;//we do not have singlewedge trigger. not implemented in the HW. yet  so lowres is always false for now
+       uint8_t phiIndex=(uint8_t)phiId;
        uint8_t deltaTheta=uint8_t(dtheta);
+       ATH_MSG_DEBUG("dTheta="<<dtheta<<" phiIndex="<<phiIndex<<" lowRes="<<lowRes<<" phiRes="<<phiRes);
        //S.I As far as I understand memory is handled by the DataVector so we shoul not delete the pointer
        auto* rdo_segment= new Muon::NSW_TrigRawDataSegment( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
        trgRawData.push_back(rdo_segment);
      
      }//end of clmap loop
-     p->push_back(std::make_unique< Muon::NSW_TrigRawData>(trgRawData));
-    ATH_CHECK( trgRdos.record( std::move(p)));
+     
     
+
       return StatusCode::SUCCESS;
     }
 
@@ -325,6 +401,8 @@ namespace NSWL1 {
       m_seg_dir_y = new std::vector< float >();
       m_seg_dir_z = new std::vector< float >();
       m_seg_bandId = new std::vector< int >();
+      m_seg_phiId = new std::vector< int >();
+      m_seg_rIdx=new std::vector< int >();
       m_seg_wedge1_size = new std::vector< int >();
       m_seg_wedge2_size = new std::vector< int >();
 
@@ -347,6 +425,8 @@ namespace NSWL1 {
          m_tree->Branch(TString::Format("%s_seg_dir_y",n).Data(),&m_seg_dir_y);
          m_tree->Branch(TString::Format("%s_seg_dir_z",n).Data(),&m_seg_dir_z);
          m_tree->Branch(TString::Format("%s_seg_bandId",n).Data(),&m_seg_bandId);
+         m_tree->Branch(TString::Format("%s_seg_phiId",n).Data(),&m_seg_phiId);
+         m_tree->Branch(TString::Format("%s_seg_rIdx",n).Data(),&m_seg_rIdx);
          m_tree->Branch(TString::Format("%s_seg_wedge1_size",n).Data(),&m_seg_wedge1_size);
          m_tree->Branch(TString::Format("%s_seg_wedge2_size",n).Data(),&m_seg_wedge2_size);
 
@@ -380,6 +460,8 @@ namespace NSWL1 {
       m_seg_dir_y->clear();
       m_seg_dir_z->clear();
       m_seg_bandId->clear();
+      m_seg_phiId->clear();
+      m_seg_rIdx->clear();
       m_seg_wedge2_size->clear();
       m_seg_wedge1_size->clear();
   }

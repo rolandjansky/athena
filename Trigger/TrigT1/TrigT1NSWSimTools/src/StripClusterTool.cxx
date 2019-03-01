@@ -180,7 +180,7 @@ namespace NSWL1 {
       m_cl_module= new std::vector<int>();
       m_cl_layer= new std::vector<int>();
       m_cl_bandId= new std::vector<int>();
-
+      m_cl_phiId= new std::vector<int>();
 
 
       if (m_tree) {
@@ -206,6 +206,7 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_cl_module",n).Data(),&m_cl_module);
         m_tree->Branch(TString::Format("%s_cl_layer",n).Data(),&m_cl_layer);
         m_tree->Branch(TString::Format("%s_cl_bandId",n).Data(),&m_cl_bandId);
+        m_tree->Branch(TString::Format("%s_cl_phiId",n).Data(),&m_cl_phiId);
         m_tree->Branch(TString::Format("%s_cl_truth_x",n).Data(),&m_cl_truth_x);
         m_tree->Branch(TString::Format("%s_cl_truth_y",n).Data(),&m_cl_truth_y);
         m_tree->Branch(TString::Format("%s_cl_truth_z",n).Data(),&m_cl_truth_z);
@@ -265,6 +266,7 @@ namespace NSWL1 {
       m_cl_module->clear();
       m_cl_layer->clear();
       m_cl_bandId->clear();
+      m_cl_phiId->clear();
       /*
       for( auto cl: m_clusters){
 	    delete (cl);
@@ -438,7 +440,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
      m_cl_module->push_back(m_clusters.at(cl_i)->at(0)->moduleId() );
      m_cl_layer->push_back(m_clusters.at(cl_i)->at(0)->layer());
      m_cl_bandId->push_back(m_clusters.at(cl_i)->at(0)->bandId());
-
+     m_cl_phiId->push_back(m_clusters.at(cl_i)->at(0)->phiId());
      ATH_MSG_DEBUG("Cluster dump with X:" << x_pos << " Y: " << y_pos << " Z: " << z_pos << " cluster charge: " << charge);
      ATH_MSG_DEBUG("Cluster dump with lX:" << x_lpos << " lY: " << y_lpos << " lZ: " << z_lpos << " cluster charge: " << charge);
 
@@ -459,6 +461,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
      auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
                            m_clusters.at(cl_i)->at(0)->bandId(),
+                           m_clusters.at(cl_i)->at(0)->phiId(),
 						   m_clusters.at(cl_i)->at(0)->isSmall(),
 						   m_clusters.at(cl_i)->at(0)->moduleId(),
 						   m_clusters.at(cl_i)->at(0)->sectorId(),
@@ -511,7 +514,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       //for(auto const& hit=strips.begin();hit!=hit_end;hit++){
       for(auto & hit : strips){
 	      if(!(hit)->readStrip() )continue;
-          if( ((hit)->bandId()==-1) ){ // Someone from sTGC should really check this...
+          if( ((hit)->bandId()==-1 || hit->phiId()==-1) ){ // Someone from sTGC should really check this...
 	       ATH_MSG_WARNING("Read Strip without BandId :" << (hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (hit)->Identity())
 		      << "   " <<   (hit)->moduleId() << "   " << (hit)->sectorId() << "   " <<(hit)->wedge()
 		      << "  "<< (hit)->sideId()   );

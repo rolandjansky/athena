@@ -499,7 +499,7 @@ namespace NSWL1 {
                 read_strip=read_strip || _tmp;
             }
             */
-            if (read_strip && strip->bandId() ==-1){
+            if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
                 ATH_MSG_DEBUG("StripTdsOfflineTool:NO MATCH ALL \n" <<
                     "wedge:" << strip->wedge() << "\n"
                     <<"layer:"<< strip->layer() << "\n"
@@ -540,7 +540,10 @@ namespace NSWL1 {
       ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: BandId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
 		   <<"sectiorID:"<< strip->sectorId() + 1<< "\n" <<"layer:"<<strip->wedge()<< "\n");
     }
-
+    if (strip->phiId() !=-1){
+      ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: PhiId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
+		   <<"sectiorID:"<< strip->sectorId() + 1<< "\n" <<"layer:"<<strip->wedge()<< "\n");
+    }
 
     char side= strip->sideId() ? 'A' : 'C';
     char type= strip->type();
@@ -569,16 +572,13 @@ namespace NSWL1 {
 		 <<"loc_x:"<< strip->locX()<< "\n");
 
     for(const auto& trig :padTriggers){
-        //Bu padTriggeri adam gibi bir class yap
-        const auto& innerbands=trig->m_trgSelectedBandsInner;
-        const auto& outerbands=trig->m_trgSelectedBandsOuter;
+
         const auto& innerbandsLocMinY=trig->m_trglocalminYInner;
         const auto& innerbandsLocMaxY=trig->m_trglocalmaxYInner;
         const auto& outerbandsLocMinY=trig->m_trglocalminYOuter;
         const auto& outerbandsLocMaxY=trig->m_trglocalmaxYOuter;        
         const auto& innerLayers=trig->m_trgSelectedLayersInner;
         const auto& outerLayers=trig->m_trgSelectedLayersOuter;
-        
         int idxinner=0;
         for(const auto& lyr : innerLayers){
                   int loc_min_y = innerbandsLocMinY.at(idxinner);
@@ -605,7 +605,9 @@ namespace NSWL1 {
                       idxinner++;
                       continue;
                   }
-                  strip->setBandId(innerbands.at(idxinner));
+                          strip->setBandId(trig->m_bandid);
+                          strip->setPhiId(trig->m_phi_id);
+
                   return true;
         }//inner layers loop
         
@@ -635,7 +637,9 @@ namespace NSWL1 {
                       idxouter++;
                       continue;
                   }
-                  strip->setBandId(outerbands.at(idxouter));
+                          strip->setBandId(trig->m_bandid);
+                          strip->setPhiId(trig->m_phi_id);
+
                   return true;
         }//outer layer loop
         

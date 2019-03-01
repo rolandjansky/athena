@@ -318,7 +318,6 @@ TTree* PadTriggerLogicOfflineTool::get_tree_from_histsvc()
 
 //------------------------------------------------------------------------------
 NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandidate &stc){
-    
     //check if [b0,b1] is within [a0,a1]
     static auto within=[](const auto& a0,const auto&  a1,const auto&  b0,const auto&  b1,const auto& tol){
         if(a0<=b0 && a1>=b1) return true;
@@ -455,7 +454,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                 
                 for(const auto& ieta : stationEtas){
                     if(ieta==stationEta) break;
-                    //bandOffset+=sTGC_helper.Get_sTGCDetector(type,ieta,stationPhi,multiplet,side)->GetReadoutParameters().nTriggerBands.at(layer-1);
+                    bandOffset+=sTGC_helper.Get_sTGCDetector(type,ieta,stationPhi,multiplet,side)->GetReadoutParameters().nTriggerBands.at(layer-1);
                     bandOffset+=0;//do not apply band Offsets as strip channels start from 1 on the next module;
                 }
                 if(bandisUp ){
