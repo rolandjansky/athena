@@ -27,13 +27,13 @@ namespace CP {
                 m_custom_file_HighEta(),
                 m_custom_file_LowPt(),
                 m_custom_file_LowPtCalo(),
-                m_filtered_sys_sets(),
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
                 m_calibration_version("190220_Winter_r21"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
+                m_filtered_sys_sets(),
                 m_init(false),
                 m_seperateSystBins(false),
                 m_breakDownSyst(false),
@@ -151,7 +151,6 @@ namespace CP {
         // m_init has to be true for affectingSystematics()
         m_init = true;
         m_affectingSys = affectingSystematics();
-
         // set up for default running without systematics
         if (!applySystematicVariation(SystematicSet())) {
             ATH_MSG_ERROR("loading the central value systematic set failed");
@@ -461,11 +460,11 @@ namespace CP {
         return syst_map;
     }
     bool MuonEfficiencyScaleFactors::isAffectedBySystematic(const SystematicVariation& systematic) const {
-        SystematicSet sys = affectingSystematics();
-        return sys.find(systematic) != sys.end();
+        return m_affectingSys.find(systematic) != m_affectingSys.end();
     }
     /// returns: the list of all systematics this tool can be affected by
     SystematicSet MuonEfficiencyScaleFactors::affectingSystematics() const {
+        if (!m_affectingSys.empty()) return m_affectingSys;
         SystematicSet result;
         for (auto& collection : m_sf_sets){
             if (!collection->getSystSet()){
@@ -490,59 +489,49 @@ namespace CP {
             ATH_MSG_ERROR("Initialize first the tool!");
             return SystematicCode::Unsupported;
         }
-        SystematicSet mySysConf;
-        if (m_filtered_sys_sets.find(systConfig) == m_filtered_sys_sets.end()) {
-            if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, mySysConf)) {
+        
+        //check if systematics is cached
+        std::unordered_map<CP::SystematicSet, EffiCollection*>::const_iterator itr  = m_filtered_sys_sets.find (systConfig);
+        
+        SystematicSet mySysConf(systConfig);
+        
+        if (itr == m_filtered_sys_sets.end()) {
+             if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, mySysConf)) {
                 ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
                 return SystematicCode::Unsupported;
             }
-            m_filtered_sys_sets[systConfig] = mySysConf;
+            itr = m_filtered_sys_sets.find(mySysConf);
         }
-        mySysConf = m_filtered_sys_sets[systConfig];
-        ATH_MSG_DEBUG(mySysConf.name() << " made it into applySystematicVariation()");
-
-        unsigned int currentBinNumber = 0;
-        std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter =  m_sf_sets.end();
-        if (m_seperateSystBins && !mySysConf.name().empty()) {
-            for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
-                /// Only decorrelated systematics are toy variations the rest
-                /// are the ordinary ones
+        
+        // No cache is available 
+        if (itr == m_filtered_sys_sets.end()){
+            std::vector<std::unique_ptr<EffiCollection>>::const_iterator coll_itr = std::find_if(m_sf_sets.begin(), m_sf_sets.end(),[&mySysConf](const std::unique_ptr<EffiCollection>& a){return a->isAffectedBySystematic(mySysConf);});
+            if (coll_itr == m_sf_sets.end()){
+                ATH_MSG_WARNING("Invalid systematic given.");
+                return SystematicCode::Unsupported;
+            }
+            m_filtered_sys_sets.insert(std::pair<SystematicSet, EffiCollection*>(systConfig, coll_itr->get()));
+            itr = m_filtered_sys_sets.find(systConfig);
+        }
+        m_current_sf = itr->second;
+        
+        if (m_seperateSystBins && !itr->first.name().empty()){
+            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
+                    // First entry corresponds to the bin number and
+                    // the second entry to the position in which the map is ordered
+                    // into the m_sf_sets container
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
-                    currentBinNumber = pair.first;
-                    unsigned int pos = pair.second;
-                    if (pos < m_sf_sets.size()) SFiter = m_sf_sets.begin() + pos;
-                } else {
-                    SFiter = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a) {
-                        return a->isAffectedBySystematic(mySysConf);
-                    });
+                    if (pair.first != 0 && !m_current_sf->SetSystematicBin(pair.first)){
+                        ATH_MSG_WARNING("Could not apply systematic " << (*t).name() << " for bin " << pair.first);
+                            return SystematicCode::Unsupported;
+                    }
+                    return SystematicCode::Ok; 
                 }
             }
-            ATH_MSG_DEBUG("Set current bin" << currentBinNumber);
-        } else{         
-            SFiter = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a) {
-                return a->isAffectedBySystematic(mySysConf);
-            });
         }
-        if (SFiter != m_sf_sets.end()) {
-            m_current_sf = SFiter->get();
-            if (m_seperateSystBins && currentBinNumber != 0) {
-                if (!m_current_sf->SetSystematicBin(currentBinNumber)) {
-                    ATH_MSG_WARNING("Could not apply systematic " << mySysConf.name() << " for bin " << currentBinNumber);
-                    return SystematicCode::Unsupported;
-                }
-            }
-            return SystematicCode::Ok;
-        } else {
-            ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? You passed " << mySysConf.name());
-            ATH_MSG_DEBUG("List of relevant systematics included in your combination:");
-            for (SystematicSet::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
-                ATH_MSG_DEBUG("\t" << (*t).name());
-            }
-        } 
-        return SystematicCode::Unsupported;
+        return SystematicCode::Ok;
     }
-    
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
           throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;

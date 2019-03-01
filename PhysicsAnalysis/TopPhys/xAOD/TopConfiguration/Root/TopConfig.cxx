@@ -1088,12 +1088,13 @@ namespace top{
 
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
-      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & result, std::string const & key) {
+      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & triggersByPeriod, std::string const & key) {
           /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
+          std::unordered_map<std::string, std::vector<std::string>> result;
           std::vector<std::string> pairs;
           boost::split(pairs, settings->value(key), boost::is_any_of(" "));
           for (std::string const & pair : pairs) {
-            if (pair.empty())
+            if (pair.empty() || pair == "None")
               continue;
             auto i = pair.find('@');
             if (!(i != std::string::npos && pair.find('@', i + 1) == std::string::npos))
@@ -1104,12 +1105,24 @@ namespace top{
               throw std::invalid_argument(std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key + "'");
             boost::split(triggers, triggerstr, boost::is_any_of(","));
           }
+          /* merge trigger map from this configuration line into triggersByPeriod */
+          for (auto&& kv : result) {
+            auto&& src = kv.second;
+            auto&& dst = triggersByPeriod[kv.first];
+            for (std::string const & trigger : src) {
+              if (std::find(dst.begin(), dst.end(), trigger) != dst.end())
+                throw std::invalid_argument(std::string() + "Trigger `" + trigger + "' was specified multiple times");
+              dst.push_back(trigger);
+            }
+          }
         };
       m_trigGlobalConfiguration.isActivated = true;
-      parseTriggerString(m_trigGlobalConfiguration.electron_trigger, "ElectronTriggers");
-      parseTriggerString(m_trigGlobalConfiguration.electron_trigger_loose, "ElectronTriggersLoose");
-      parseTriggerString(m_trigGlobalConfiguration.muon_trigger, "MuonTriggers");
-      parseTriggerString(m_trigGlobalConfiguration.muon_trigger_loose, "MuonTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "ElectronTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "ElectronTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "MuonTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "MuonTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "GlobalTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "GlobalTriggersLoose");
     }
 
   }
