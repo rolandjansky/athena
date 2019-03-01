@@ -441,14 +441,6 @@ class useOnlineLumi(_modifier):
         from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
         ToolSvc += LuminosityToolOnline()
 
-        # This is needed for the correct functioning of LumiBlockMuTool
-        from LumiBlockComps.LumiBlockCompsConf import LumiBlockMuWriter        
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence += LumiBlockMuWriter("LumiBlockMuWriter",
-                                         LuminosityTool = ToolSvc.LuminosityTool)
-        
-        
 ###############################################################
 # Algorithm modifiers 
 ###############################################################
