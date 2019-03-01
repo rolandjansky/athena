@@ -1,0 +1,59 @@
+{
+    "name": "Physics_pp_v7",
+    "chains": [
+        {
+            "counter": 1,
+            "name": "HLT_e26_lhtight_idperf",
+            "l1item": "L1_EM22VHI",
+            "streams": [
+                {
+                    "obeyLB": "yes",
+                    "prescale": "1",
+                    "name": "Main",
+                    "type": "physics"
+                }
+            ],
+            "groups": [
+                {
+                    "name": "RATE:IDMonitoring"
+                },
+                {
+                    "name": "BW:Egamma"
+                },
+                {
+                    "name": "BW:ID"
+                }
+            ]
+        },
+        {
+            "counter": 2,
+            "name": "HLT_e28_lhtight_idperf",
+            "l1item": "L1_EM24VHI",
+            "streams": [
+                {
+                    "obeyLB": "yes",
+                    "prescale": "1",
+                    "name": "Main",
+                    "type": "physics"
+                },
+                {
+                    "obeyLB": "yes",
+                    "prescale": "1",
+                    "name": "express",
+                    "type": "express"
+                }
+            ],
+            "groups": [
+                {
+                    "name": "RATE:IDMonitoring"
+                },
+                {
+                    "name": "BW:Egamma"
+                },
+                {
+                    "name": "BW:ID"
+                }
+            ]
+        }
+    ]
+}
