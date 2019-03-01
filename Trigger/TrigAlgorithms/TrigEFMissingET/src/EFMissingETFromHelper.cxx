@@ -174,9 +174,9 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   met->setFlag( metHelper->GetStatus() );
 
-  unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
-  unsigned char nHelperComp = metHelper->GetElements(); // no. of transient aux. compon.
-  if (nHelperComp!=42) {
+  uint comp = met->getNumberOfComponents(); // final no. of aux. compon.
+  uint nHelperComp = metHelper->GetElements(); // no. of transient aux. compon.
+  if (nHelperComp != static_cast<unsigned char>(TrigEFMissingEtComponent::ComponentSize)) {
     ATH_MSG_WARNING( "Found " << nHelperComp << " aux components in the transient helper class.  Not supported!" );
   } else ATH_MSG_DEBUG( "Found " << nHelperComp << " aux components in the transient helper class" );
 
@@ -219,25 +219,25 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   met->setSumE(0.); met->setSumEt(0.);
 
   // take info from *metHelper and update *met
-  for (unsigned char  helper_i=0; helper_i<nHelperComp; ++helper_i) { // loop over transient components
+  for (uint helper_i=0; helper_i<nHelperComp; ++helper_i) { // loop over transient components
 
     // basic info - DK calibration
-    if (helper_i<nHelperComp-18){  
+    if (helper_i < nHelperComp-18){  
       ATH_MSG_DEBUG( "skip muon or Had Topo granular or EM Topo correction for all quantities" );
       copier.addHelperCompToMET(helper_i);
     }
 
-    if(save9comp && helper_i == 24) { 
+    if(save9comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCLCW) ) { 
       ATH_MSG_DEBUG( "Save summed HAD MET" );
       copier.addHelperCompToMET(helper_i);
     }
 
-    if( (save2comp || save6comp) && helper_i == 34) { 
+    if( (save2comp || save6comp) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::JET)) { 
       ATH_MSG_DEBUG( "Save JET MET" );
       copier.addHelperCompToMET(helper_i);
     }
 
-    if(save3comp && helper_i == 39) { 
+    if(save3comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCPUC)) { 
       ATH_MSG_DEBUG( "Save PUC MET" );
       copier.addHelperCompToMET(helper_i);
     }
@@ -248,7 +248,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     if (comp == unsigned(nHelperComp-17) && helper_i < 24) { 
       ATH_MSG_DEBUG( "finest granularity");
       copier.setMETCompFromHelper(helper_i, helper_i);
-    } else if(comp == unsigned(nHelperComp-17) && helper_i == 41) { 
+    } else if(comp == unsigned(nHelperComp-17) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
       ATH_MSG_DEBUG( "save muons");
       copier.setMETCompFromHelper(helper_i-17, helper_i);
     } else if (save6comp) {
@@ -256,7 +256,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         ATH_MSG_DEBUG( "Central and Forward Jets");
         copier.setMETCompFromHelper(helper_i-34, helper_i);
       }
-      if (helper_i==41) { 
+      if (helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
         ATH_MSG_DEBUG( "Muons");
         copier.setMETCompFromHelper(5, helper_i);
       }
@@ -268,37 +268,45 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       } else if( helper_i > 29 && helper_i < 34) {     
         ATH_MSG_DEBUG( "EM scale quantities" );
         copier.setMETCompFromHelper(helper_i-25-1, helper_i);
-      } else if( helper_i == 41) {    
+      } else if( helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) {    
         ATH_MSG_DEBUG( "Muon" );
         copier.setMETCompFromHelper(helper_i-25-8, helper_i);
       }
     } else if (save5comp) {
-      switch (helper_i) {
-        case 0: case 1: case 2: case 3: 
+      switch (static_cast<TrigEFMissingEtComponent::Component>(helper_i)) {
+        case TrigEFMissingEtComponent::PreSamplB: case TrigEFMissingEtComponent::EMB1: 
+        case TrigEFMissingEtComponent::EMB2:      case TrigEFMissingEtComponent::EMB3: 
           ATH_MSG_DEBUG("LAr, barrel");
           copier.addMETCompWithHelper(0, 1, helper_i);
           break;
-        case 4: case 5: case 6: case 7: 
+        case TrigEFMissingEtComponent::PreSamplE: case TrigEFMissingEtComponent::EME1: 
+        case TrigEFMissingEtComponent::EME2: case TrigEFMissingEtComponent::EME3: 
           ATH_MSG_DEBUG("LAr, end-cap");
           /* FALLTHROUGH */
-        case 21:                        
+        case TrigEFMissingEtComponent::FCalEM:                        
           ATH_MSG_DEBUG("+ FCalEM");
           copier.addMETCompWithHelper(1, 2, helper_i);
           break;
-        case 12: case 13: case 14: 
+        case TrigEFMissingEtComponent::TileBar0: case TrigEFMissingEtComponent::TileBar1: case TrigEFMissingEtComponent::TileBar2: 
           ATH_MSG_DEBUG("Tile, barrel +");
           /* FALLTHROUGH */
-        case 18: case 19: case 20: 
+        case TrigEFMissingEtComponent::TileExt0: case TrigEFMissingEtComponent::TileExt1: case TrigEFMissingEtComponent::TileExt2: 
           ATH_MSG_DEBUG("Tile, extended barrel");
           copier.addMETCompWithHelper(2, 3, helper_i);
           break;
-        case 24: case 25: case 26: case 27: case 28:
-        case 29: case 30: case 31: case 32: case 33:
-        case 34: case 35: case 36: case 37: case 38:
-        case 39: case 40 :             
+        case TrigEFMissingEtComponent::TCLCW: 
+        case TrigEFMissingEtComponent::TCLCWB1: case TrigEFMissingEtComponent::TCLCWB2: 
+        case TrigEFMissingEtComponent::TCLCWE1: case TrigEFMissingEtComponent::TCLCWE2:
+        case TrigEFMissingEtComponent::TCEM:  
+        case TrigEFMissingEtComponent::TCEMB1:  case TrigEFMissingEtComponent::TCEMB2:  
+        case TrigEFMissingEtComponent::TCEME1:  case TrigEFMissingEtComponent::TCEME2:
+        case TrigEFMissingEtComponent::JET:   
+        case TrigEFMissingEtComponent::JETB1:   case TrigEFMissingEtComponent::JETB2:   
+        case TrigEFMissingEtComponent::JETE1:   case TrigEFMissingEtComponent::JETE2:
+        case TrigEFMissingEtComponent::TCPUC: case TrigEFMissingEtComponent::TCPUCUnc:             
           ATH_MSG_DEBUG("Topo. cluster elements or jets - do nothing.");
           break;
-        case 41: 
+        case TrigEFMissingEtComponent::Muons: 
           ATH_MSG_DEBUG("muons");
           copier.setMETCompFromHelper(4, helper_i);
           break;
@@ -307,28 +315,28 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
           copier.addMETCompWithHelper(3, 4, helper_i);
       }
     } else if (save3comp) {
-      switch (helper_i) {
-        case 39: 
+      switch (static_cast<TrigEFMissingEtComponent::Component>(helper_i)) {
+        case TrigEFMissingEtComponent::TCPUC: 
           ATH_MSG_DEBUG( "Corrected MET" );
           copier.setMETCompFromHelper(0, helper_i);
           break;
-        case 40: 
+        case TrigEFMissingEtComponent::TCPUCUnc: 
           ATH_MSG_DEBUG( "Original MET" );
           copier.setMETCompFromHelper(1, helper_i);
           break;
-        case 41: 
+        case TrigEFMissingEtComponent::Muons: 
           ATH_MSG_DEBUG( "Muons" );
           copier.setMETCompFromHelper(2, helper_i);
         default:
         ;
       }
     } else if (save2comp) { 
-      switch(helper_i){
-        case 34:
+      switch(static_cast<TrigEFMissingEtComponent::Component>(helper_i)){
+        case TrigEFMissingEtComponent::JET:
           ATH_MSG_DEBUG( "Jets+Mu only: Jets");
           copier.setMETCompFromHelper(0, helper_i);
           break;
-        case 41:
+        case TrigEFMissingEtComponent::Muons:
           ATH_MSG_DEBUG( "Jets+Mu only: Muons");
           copier.setMETCompFromHelper(1, helper_i);
           break;
@@ -336,7 +344,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         ;
       }
     } else if (save1comp) { 
-      if (helper_i==41) { // REPLACE WITH A TEST OVER COMP. NAME
+      if (helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { // REPLACE WITH A TEST OVER COMP. NAME
         ATH_MSG_DEBUG("Muons only");
         copier.setMETCompFromHelper(0, helper_i);
       }
@@ -371,40 +379,32 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     ATH_MSG_DEBUG( message );
   }
 
-  unsigned int Nc = met->getNumberOfComponents();
+  if(msgLvl(MSG::DEBUG)){
+    unsigned int nMetComp = met->getNumberOfComponents();
 
-  // if (Nc > 0) {
-  //   if(msgLvl(MSG::DEBUG)){
-        s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        ATH_MSG_DEBUG( s );
-   //   }
-   // }
+    s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+      s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+    ATH_MSG_DEBUG( s );
 
-   for(uint j = 0; j < Nc; j++) {
+    for(uint j = 0; j < nMetComp; j++) 
+    {
+    	const char* name =               met->nameOfComponent(j).c_str();
+    	const short status =             met->statusComponent(j);
+    	const unsigned short usedChan =  met->usedChannelsComponent(j);
+    	const short sumOfSigns =         met->sumOfSignsComponent(j);
+    	const float calib0 =             met->calib0Component(j);
+    	const float calib1 =             met->calib1Component(j);
+    	const float ex =                 met->exComponent(j);
+    	const float ey =                 met->eyComponent(j);
+    	const float ez =                 met->ezComponent(j);
+    	const float sumE =               met->sumEComponent(j);
+    	const float sumEt =              met->sumEtComponent(j);
 
-  	const char* name =               met->nameOfComponent(j).c_str();
-  	const short status =             met->statusComponent(j);
-  	const unsigned short usedChan =  met->usedChannelsComponent(j);
-  	const short sumOfSigns =         met->sumOfSignsComponent(j);
-  	const float calib0 =             met->calib0Component(j);
-  	const float calib1 =             met->calib1Component(j);
-  	const float ex =                 met->exComponent(j);
-  	const float ey =                 met->eyComponent(j);
-  	const float ez =                 met->ezComponent(j);
-  	const float sumE =               met->sumEComponent(j);
-  	const float sumEt =              met->sumEtComponent(j);
-
-    // if(msgLvl(MSG::DEBUG)){
       message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
        name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
       ATH_MSG_DEBUG( message );
-    // }
-
+    }
   }
-
-
-
   return StatusCode::SUCCESS;
 }
 
