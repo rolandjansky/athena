@@ -12,7 +12,6 @@ class SCT_TdaqEnabledToolSetup:
         self.alg = None
         self.toolName = "InDetSCT_TdaqEnabledTool"
         self.tool = None
-        self.eventInfoKey = "ByteStreamEventInfo"
 
     def getFolder(self):
         return self.folder
@@ -60,8 +59,7 @@ class SCT_TdaqEnabledToolSetup:
         if not hasattr(condSeq, self.algName):
             from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_TdaqEnabledCondAlg
             condSeq += SCT_TdaqEnabledCondAlg(name = self.algName,
-                                              ReadKey = self.folder,
-                                              EventInfoKey = self.eventInfoKey)
+                                              ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
@@ -77,12 +75,6 @@ class SCT_TdaqEnabledToolSetup:
 
     def getToolName(self):
         return self.toolName
-
-    def setEventInfoKey(self, eventInfoKey):
-        self.eventInfoKey = eventInfoKey
-
-    def getEventInfoKey(self):
-        return self.eventInfoKey
 
     def setup(self):
         self.setFolders()

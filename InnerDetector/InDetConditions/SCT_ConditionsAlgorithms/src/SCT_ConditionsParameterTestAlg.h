@@ -13,8 +13,6 @@
 // Include Athena stuff
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsParameterTool.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/ToolHandle.h"
@@ -33,7 +31,6 @@ class SCT_ConditionsParameterTestAlg : public AthReentrantAlgorithm {
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey{this, "EventInfoKey", "EventInfo", "Key of EventInfo"};
   ToolHandle<ISCT_ConditionsParameterTool> m_conditionsParameterTool{this, "SCT_ConditionsParameterTool", "SCT_ConditionsParameterTool", "Tool to retrieve SCT conditions parameters"};
 };
 
