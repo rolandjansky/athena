@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XMLCoreParser_hpp
 #define XMLCoreParser_hpp
  
-#include <string> 
+#include <string>
+#include <map>
+#include <memory>
 
 class XMLCoreParser;
+class XMLCoreParserImpl;
 
 namespace CoreParser
 {
@@ -17,32 +20,51 @@ namespace CoreParser
 class XMLCoreNode
 {
 public:
-  XMLCoreNode (CoreParser::DOMNode* node) : m_node (node)
-      {
-      }
+  XMLCoreNode (const CoreParser::DOMNode* node)
+    : m_node (node),
+      m_owns (false)
+  {
+  }
 
-  XMLCoreNode (const XMLCoreNode& other) : m_node (other.m_node)
-      {
-      }
+  XMLCoreNode (std::unique_ptr<CoreParser::DOMNode> node)
+    : m_node (node.release()),
+      m_owns (true)
+  {
+  }
 
-  XMLCoreNode&  operator= (const XMLCoreNode& other)  
-      {
-          m_node = other.m_node;
-          return *this;
-      }
+  XMLCoreNode (const XMLCoreNode& other)
+    : m_node (other.m_node),
+      m_owns (false)
+  {
+  }
+
+  XMLCoreNode (XMLCoreNode&& other)
+    : m_node (other.m_node),
+      m_owns (other.m_owns)
+  {
+    other.m_node = nullptr;
+    other.m_owns = false;
+  }
+
+  XMLCoreNode&  operator= (const XMLCoreNode& other);
+    
+  XMLCoreNode&  operator= (XMLCoreNode&& other);
+
+  ~XMLCoreNode();
     
   operator const CoreParser::DOMNode& () const
       {
         return (*m_node);
       }
 
-  CoreParser::DOMNode& get_node () const
+  const CoreParser::DOMNode& get_node () const
       {
         return (*m_node);
       }
 
 private:
-  CoreParser::DOMNode* m_node;
+  const CoreParser::DOMNode* m_node;
+  bool m_owns;
 };
 
 class XMLCoreFactory 
@@ -95,18 +117,23 @@ public:
   XMLCoreNode parse (const std::string& file_name); 
   void visit (const std::string& file_name); 
  
-  void initialize_factories ();
-  void register_factory (const std::string& name, XMLCoreFactory* factory); 
-  void register_default_factory (XMLCoreFactory* factory); 
+  void register_default_factory (std::unique_ptr<XMLCoreFactory> factory); 
+  void register_factory (const std::string& name,
+                         std::unique_ptr<XMLCoreFactory> factory); 
   void register_external_entity (const std::string& name, const std::string& file_name); 
-  void register_text_entity (const std::string& name, const std::string& text); 
+  void register_text_entity (const std::string& name, const std::string& text);
  
-  static void debug_test (XMLCoreParser& parser, XMLCoreFactory* factory = 0);
   
 private: 
  
-  void visit (const XMLCoreNode& node); 
+  void visit (const XMLCoreNode& node);
   void terminate ();
+  XMLCoreFactory* find_factory (const std::string& name);
+
+
+  typedef std::map <std::string, std::unique_ptr<XMLCoreFactory> > FactoryMap; 
+  FactoryMap m_factories;
+  std::unique_ptr<XMLCoreFactory> m_default_factory;
 }; 
  
 #endif 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 
 int main (int /*argc*/, char* argv[])
 { 
-  CoreParser::DOMNode* doc = ExpatCoreParser::parse (argv[1]);
+  std::unique_ptr<CoreParser::DOMNode> doc = ExpatCoreParser::parse (argv[1]);
            
   if (doc != 0) doc->print ("============ ALL =============");
 
