@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthFilterAlgorithm.h 
@@ -18,6 +18,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class AthFilterAlgorithm
   : public ::AthAlgorithm
@@ -48,7 +50,7 @@ class AthFilterAlgorithm
    *  It will in turn invoke the initialize() method of the derived algorithm,
    *  and of any sub-algorithms which it creates.
    */
-  virtual StatusCode sysInitialize();
+  virtual StatusCode sysInitialize() override;
   
   /// Set the filter passed flag to the specified state
   virtual void setFilterPassed( bool state ) const;
@@ -63,6 +65,9 @@ class AthFilterAlgorithm
 
   /// return the @c CutIdentifier corresponding to the top-level cut of this filter algorithm
   CutIdentifier cutID();
+
+  /// EventInfo key for use in derived classes.
+  const SG::ReadHandleKey<xAOD::EventInfo>& eventInfoKey() const;
 
 
   /////////////////////////////////////////////////////////////////// 
@@ -88,6 +93,8 @@ class AthFilterAlgorithm
   bool m_resetSelfDescription;
   void doNotResetSelfDescription( Property& );
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+  { this, "EventInfoKey", "EventInfo", "" };
 }; 
 
 // I/O operators

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthFilterAlgorithm.cxx
@@ -12,6 +12,7 @@
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 // STL includes
 
@@ -91,6 +92,8 @@ AthFilterAlgorithm::sysInitialize()
     }
   }
 
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   // re-direct to base class...
   return AthAlgorithm::sysInitialize();
 }
@@ -104,16 +107,11 @@ AthFilterAlgorithm::setFilterPassed( bool state ) const
   if (state) {
     double evtWeight=1.0;
 
-    const xAOD::EventInfo* evtInfo = nullptr;
-    StatusCode sc = evtStore()->retrieve(evtInfo);
-    if ( sc.isFailure() || NULL == evtInfo ) {
-      ATH_MSG_ERROR("Could not retrieve xAOD::EventInfo from StoreGate ");
-      evtWeight=-1000.;
-    } else {
-      // Only try to access the mcEventWeight if we are running on Monte Carlo, duhhh!
-      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
-        evtWeight = evtInfo->mcEventWeight();
-      }
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<xAOD::EventInfo> evtInfo (m_eventInfoKey, ctx);
+    // Only try to access the mcEventWeight if we are running on Monte Carlo, duhhh!
+    if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
+      evtWeight = evtInfo->mcEventWeight();
     }
     m_cutFlowSvc->addEvent(m_cutID,evtWeight);
   }
@@ -136,3 +134,10 @@ AthFilterAlgorithm::setFilterDescription(const std::string& descr)
 
   return;
 }
+
+const SG::ReadHandleKey<xAOD::EventInfo>&
+AthFilterAlgorithm::eventInfoKey() const
+{
+  return m_eventInfoKey;
+}
+
