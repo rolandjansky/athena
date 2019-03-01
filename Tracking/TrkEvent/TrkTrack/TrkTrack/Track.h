@@ -191,10 +191,10 @@ namespace Trk
        /**									   
         * Find perigee in the vector of track parameters.
         * It can be used to lazy-init the m_perigeeParameters			   
-        */									   
-       void findPerigee() const;						   
-        									     
-       /**									   
+        */									      									     
+       void findPerigee() const;
+
+        /**									   
         * A vector of TrackParameters: these can be any of the classes that	   
         * derive from Trk::TrackParameters, for example, Perigee, MeasuredPerigee, 
         * AtaCylinder etc.							   
@@ -260,6 +260,13 @@ namespace Trk
 #ifndef NDEBUG 									     
        static std::atomic<unsigned int> s_numberOfInstantiations;				   
 #endif       
+       private:
+       /**
+        * find PerigeeImpl. 
+        * Assumes that Perigee parameters are currently inValid
+        */
+       void findPerigeeImpl() const;						   
+             
 };//end of class definitions
 
 
@@ -291,7 +298,7 @@ inline const Trk::Perigee* Trk::Track::perigeeParameters() const
     if(!m_perigeeParameters.isValid()){
     //findPerigee performs the setting of the parameters
     //i.e does the CachedValue set
-      findPerigee();
+      findPerigeeImpl();
     }
     //Here the cached value type is a pointer 
     return *(m_perigeeParameters.ptr());
