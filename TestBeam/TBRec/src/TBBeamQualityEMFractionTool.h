@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -20,7 +20,6 @@
 //#include "LArDetDescr/LArDetDescrManager.h"
 
 #include "CaloIdentifier/CaloID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 class TBBeamQualityEMFractionTool : public TBBeamQualityTool
 {
@@ -42,8 +41,6 @@ class TBBeamQualityEMFractionTool : public TBBeamQualityTool
   
   //LArDetDescrManager* m_larMgr;
 
-  CaloIdManager* m_caloMgr;
-  
   // Identifier Pointers
   const LArEM_ID* m_emecID_help;
   const LArHEC_ID* m_hecID_help;

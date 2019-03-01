@@ -5,7 +5,7 @@
 #include "CBNT_TBRecBase.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 
@@ -30,10 +30,11 @@ StatusCode CBNT_TBRecBase::initialize() {
     return sc;
   }
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
+  m_hecId=idHelper->hec_idHelper();
 
 
   if (!m_emId) {

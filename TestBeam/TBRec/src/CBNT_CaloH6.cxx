@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -16,12 +16,7 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
-
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-
-#include "CaloIdentifier/CaloIdManager.h"
-// #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "Identifier/Identifier.h"
 
@@ -66,22 +61,22 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
   //   return sc;
   // }
   
-  //obtainine Identifier helpers
-  // m_hecID_help = m_larMgr->get_hec_id();
-  m_hecID_help = CaloIdManager::instance()->getHEC_ID();
+  // Identifier helpers
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_hecID_help = idHelper->hec_idHelper();
   if (!m_hecID_help) {
     ATH_MSG_ERROR ( "unable to obtain hec id " );
     return StatusCode::FAILURE;
   }
-  // m_emecID_help = m_larMgr->get_em_id();
-  m_emecID_help = CaloIdManager::instance()->getEM_ID();
+
+  m_emecID_help = idHelper->em_idHelper();
   if (!m_emecID_help) {
     ATH_MSG_ERROR ( "unable to obtain emec id " );
     return StatusCode::FAILURE;
   }
   
-  // m_fcalID_help = m_larMgr->get_fcal_id();
-  m_fcalID_help =  CaloIdManager::instance()->getFCAL_ID();
+  m_fcalID_help =  idHelper->fcal_idHelper();
   if (!m_fcalID_help) {
     ATH_MSG_ERROR ( "unable to obtain fcal id " );
     return StatusCode::FAILURE;
