@@ -23,16 +23,15 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
     
 
     #Build standard sequences:
-    #cfg.addSequence(AthSequencer("AthMasterSeq"))
-    cfg.addSequence(AthSequencer('AthAlgEvtSeq'),parentName="AthMasterSeq") 
-    cfg.addSequence(AthSequencer('AthOutSeq'),parentName="AthMasterSeq")
+    cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
+    cfg.addSequence(AthSequencer('AthOutSeq',Prompt=False),parentName="AthMasterSeq")
     cfg.addSequence(AthSequencer('AthRegSeq'),parentName="AthMasterSeq")
 
-    cfg.addSequence(AthSequencer('AthBeginSeq'),parentName='AthAlgEvtSeq')
+    cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq'),parentName='AthAlgEvtSeq') 
-    cfg.addSequence(AthSequencer('AthEndSeq'),parentName='AthAlgEvtSeq') 
+    cfg.addSequence(AthSequencer('AthAlgSeq',Sequential=False,IgnoreFilterPassed=True),parentName='AthAllAlgSeq')
+    cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
     cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
-    cfg.addSequence(AthSequencer('AthAlgSeq'),parentName='AthAllAlgSeq')
 
     #Set up incident firing:
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
@@ -52,7 +51,7 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
     from StoreGate.StoreGateConf import StoreGateSvc
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
-    cfg.addService(StoreGateSvc("ConditionStore"))
+    cfg.addService(StoreGateSvc("HistoryStore"))
     
     cfg.setAppProperty('InitializationLoopCheck',False)
     return cfg
@@ -78,7 +77,8 @@ def MainServicesThreadedCfg(cfgFlags):
 
     msgsvc = MessageSvc()
     msgsvc.defaultLimit = 0 
-    msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+    #msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+    msgFmt = "% F%18W%S%7W%R%T %0W%M"
     msgsvc.Format = msgFmt
     cfg.addService(msgsvc)
 
@@ -92,8 +92,8 @@ def MainServicesThreadedCfg(cfgFlags):
     hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
     cfg.addService( hivesvc )
 
-    import StoreGate.StoreGateConf as StoreGateConf
-    cfg.addService( StoreGateConf.StoreGateSvc("ConditionStore") )
+    from StoreGate.StoreGateConf import StoreGateSvc
+    cfg.addService( StoreGateSvc("ConditionStore") )
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     from AthenaCommon.Constants import INFO
@@ -115,7 +115,7 @@ def MainServicesThreadedCfg(cfgFlags):
     # dependencies are not found in the store.  It should probably be changed
     # to True eventually.
     inputloader = SGInputLoader (FailIfNoProxy = False)
-    cfg.addEventAlgo( inputloader )
+    cfg.addEventAlgo( inputloader, "AthAlgSeq" )
     scheduler.DataLoaderAlg = inputloader.getName()
 
     from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
