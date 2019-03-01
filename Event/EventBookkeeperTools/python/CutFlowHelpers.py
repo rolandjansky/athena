@@ -65,6 +65,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
 
+
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
       from AthenaServices.AthenaServicesConf import MetaDataSvc
@@ -78,7 +79,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     outname = "CutBookkeepers"
     cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
-                                 OutputCollName= outname) 
+                                 OutputCollName= outname,
+                                 ProcessMetadataCollName=inname+"File") 
     svcMgr.ToolSvc += cutflowtool
 
 
@@ -141,7 +143,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
-        SGkey = "FileBookkeepers"
+        #SGkey = "FileBookkeepers"
+        SGkey = "CutBookkeepersFile"
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )

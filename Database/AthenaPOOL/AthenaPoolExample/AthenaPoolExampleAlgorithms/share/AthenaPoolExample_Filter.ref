@@ -1,27 +1,26 @@
-Tue Feb 12 15:15:37 CST 2019
+Tue Feb 26 09:22:30 CST 2019
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_FilterJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5451 configurables from 155 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5462 configurables from 20 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on hepd-0004 on Tue Feb 12 15:15:46 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on atlaslogin01.hep.anl.gov on Tue Feb 26 09:22:38 2019
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3045 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3110 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 836 CLIDRegistry entries for module ALL
@@ -36,8 +35,8 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /home/gemmeren/workarea/build/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host hepd-0004.lcrc.anl.gov [ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-25T2138/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host atlaslogin01.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -50,7 +49,7 @@ EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector       DEBUG Service base class initialized successfully
 EventSelector.Q...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 1967 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 20?0 CLIDRegistry entries for module ALL
 EventSelector.Q...   INFO in initialize()
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query EventNumber > 5
@@ -168,7 +167,7 @@ Stream1             DEBUG Data Deps for Stream1
   + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
 RegStream1          DEBUG Property update for OutputLevel : new value = 2
 RegStream1.RegS...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 665 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 673 CLIDRegistry entries for module ALL
 RegStream1          DEBUG In initialize 
 RegStream1          DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
@@ -771,7 +770,6 @@ Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 RegStream1.TagTool   INFO Collection Events output: 10
 MetaDataSvc         DEBUG MetaDataSvc::stop()
 Stream1             DEBUG handle() incident type: MetaDataStop
-MetaDataSvc         DEBUG prepareOutput
 MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
@@ -825,11 +823,11 @@ EventSelector.Q...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 11
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 32
-cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 35
-fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.625(+- 2.42)/    0/   10 [ms] #= 32
-cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.606(+- 2.39)/    0/   10 [ms] #= 33
-cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.465(+- 2.11)/    0/   10 [ms] #= 43
-ChronoStatSvc        INFO Time User   : Tot= 0.66  [s]                                             #=  1
+fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 32
+cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 43
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.286(+- 1.67)/    0/   10 [ms] #= 35
+cObj_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.909(+- 2.87)/    0/   10 [ms] #= 33
+ChronoStatSvc        INFO Time User   : Tot= 0.65  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
