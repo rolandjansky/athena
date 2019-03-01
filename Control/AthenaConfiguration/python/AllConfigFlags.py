@@ -101,6 +101,10 @@ def _createCfgFlags():
         return createMuonConfigFlags()
     acf.addFlagsCategory( "Muon", __muon )
 
+    def __egamma():
+        from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
+        return createEgammaConfigFlags()
+    acf.addFlagsCategory( "Egamma", __egamma )
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
