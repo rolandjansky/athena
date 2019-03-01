@@ -123,8 +123,8 @@ StatusCode MetaDataSvc::initialize() {
    }
    ATH_MSG_INFO("Found " << m_metaDataTools);
 
-   m_incSvc->addListener(this, "FirstInputFile", 90);
-   m_incSvc->addListener(this, "BeginInputFile", 90);
+   m_incSvc->addListener(this, "FirstInputFile", 80);
+   m_incSvc->addListener(this, "BeginInputFile", 80);
    m_incSvc->addListener(this, "EndInputFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
    m_incSvc->addListener(this, "ShmProxy", 90);
@@ -323,7 +323,6 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 
 StatusCode MetaDataSvc::prepareOutput()
 {
-   ATH_MSG_DEBUG("prepareOutput");
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
@@ -403,11 +402,11 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
 
-   Incident metaDataStopIncident(name(), "MetaDataStop");
-   m_incSvc->fireIncident(metaDataStopIncident);
-
    // Set to be listener for end of event
    ATH_CHECK(this->prepareOutput());
+
+   Incident metaDataStopIncident(name(), "MetaDataStop");
+   m_incSvc->fireIncident(metaDataStopIncident);
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {

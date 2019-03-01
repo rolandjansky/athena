@@ -13,6 +13,7 @@
 #include "StoreGate/ReadMetaHandle.h"
 
 #include "xAODCutFlow/CutBookkeeperContainer.h"
+#include "ByteStreamData/ByteStreamMetadata.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -21,10 +22,15 @@
 MetadataTest::MetadataTest(const std::string& name, ISvcLocator* pSvcLocator) : 
    AthAlgorithm(name, pSvcLocator),
    m_hkey("CutBookkeepers","MetaDataStore"),
+   m_hinckey("IncompleteCutBookkeepers","MetaDataStore"),
    m_eihkey("StreamAOD","MetaDataStore"),
-   //m_eihkey2("DataStream","MetaDataStore"),
-   m_esidone(false)
+   m_bshkey("ByteStreamMetadata","MetaDataStore"),
+   m_esidone(false),
+   m_inputstream("StreamAOD")
 {
+   declareProperty("InputStream",
+                   m_inputstream = "StreamAOD",
+                   "Key to read EventStreamInfo.");
 }
 
 MetadataTest::~MetadataTest()
@@ -33,9 +39,11 @@ MetadataTest::~MetadataTest()
 StatusCode MetadataTest::start() 
 {
   // Get proper dbkey.
+   m_eihkey = SG::ReadMetaHandleKey<EventStreamInfo>(m_inputstream,"MetaDataStore");
    ATH_CHECK( m_hkey.initialize() );  
+   ATH_CHECK( m_hinckey.initialize() );  
    ATH_CHECK( m_eihkey.initialize() );
-   //ATH_CHECK( m_eihkey2.initialize() );
+   ATH_CHECK( m_bshkey.initialize() );
    m_esidone = false;
    return StatusCode::SUCCESS;
 }
@@ -43,15 +51,10 @@ StatusCode MetadataTest::start()
 StatusCode MetadataTest::execute() 
 {
    ATH_MSG_DEBUG ( "in execute()" );
-
-   const DataHeader* thisDH = nullptr;
-   ATH_CHECK( evtStore()->retrieve(thisDH, "EventSelector") );
-   std::string sid = thisDH->begin()->getToken()->dbID().toString();
    if (!m_esidone) {
-     //m_hkey.setDbKey(sid);
-     SG::ReadMetaHandleKey<xAOD::CutBookkeeperContainer> readkey(m_hkey.key(),sid);
-     ATH_CHECK(readkey.initialize());
-     SG::ReadMetaHandle<xAOD::CutBookkeeperContainer> readhand(readkey,this->getContext());
+     ATH_MSG_INFO("== CUTBOOKKEEPERCONTAINER CHECKS ==");
+     // create handle, get pointer to object
+     SG::ReadMetaHandle<xAOD::CutBookkeeperContainer> readhand(m_hkey,this->getContext());
      const xAOD::CutBookkeeperContainer* cbkCont(*readhand);
      if (cbkCont != nullptr) {
        ATH_MSG_INFO("Found cbk size " << cbkCont->size());
@@ -61,8 +64,20 @@ StatusCode MetadataTest::execute()
      } else {
        ATH_MSG_ERROR("Did not retrieve CutBookkeeperContainer from store");
      }
+     // create handle, get pointer to object
+     SG::ReadMetaHandle<xAOD::CutBookkeeperContainer> increadhand(m_hinckey,this->getContext());
+     const xAOD::CutBookkeeperContainer* inccbkCont(*increadhand);
+     if (inccbkCont != nullptr) {
+       ATH_MSG_INFO("Found inc cbk size " << inccbkCont->size());
+       for (auto it = inccbkCont->begin(); it != inccbkCont->end(); ++it) {
+         ATH_MSG_INFO("Name: " <<(*it)->name() << ", N=" << (*it)->nAcceptedEvents());
+       }
+     } else {
+       ATH_MSG_ERROR("Did not retrieve inc CutBookkeeperContainer from store");
+     }
 
-     m_eihkey.setDbKey(sid);
+     ATH_MSG_INFO("== EVENTSTREAMINFO CHECKS ==");
+     // create handle, get pointer to object
      SG::ReadMetaHandle<EventStreamInfo> eikey(m_eihkey,this->getContext());
      const EventStreamInfo* esi(*eikey);
      if (esi!=nullptr) {
@@ -70,16 +85,20 @@ StatusCode MetadataTest::execute()
      } else {
        ATH_MSG_ERROR("Did not retrieve EventStreamInfo " << m_eihkey.objKey());
      }
-/*
-     m_eihkey2.setDbKey(sid);
-     SG::ReadMetaHandle<EventStreamInfo> eikey2(m_eihkey2,this->getContext());
-     const EventStreamInfo* esi2(*eikey2);
-     if (esi2!=nullptr) {
-       ATH_MSG_INFO(" esi has n events = " << esi2->getNumberOfEvents());
+
+     ATH_MSG_INFO("== BYTESTREAMMETADATACONTAINER CHECKS ==");
+     // create handle, get pointer to object
+     SG::ReadMetaHandle<ByteStreamMetadataContainer> bskey(m_bshkey,this->getContext());
+     const ByteStreamMetadataContainer* bsmc(*bskey);
+     if (bsmc!=nullptr) {
+       ATH_MSG_INFO("ByteStreamMetadataContainer size " << bsmc->size());
+       for (auto it = bsmc->begin(); it != bsmc->end(); ++it) {
+         ATH_MSG_INFO("Run="<<(*it)->getRunNumber()<<" E="<<(*it)->getBeamEnergy()<<" s="<<(*it)->getStream());
+       } 
      } else {
-       ATH_MSG_ERROR("Did not retrieve EventStreamInfo " << m_eihkey2.objKey());
+       ATH_MSG_ERROR("Did not find ByteStreamMetadataContainer");
      }
-*/
+
      m_esidone=true;
    }
 

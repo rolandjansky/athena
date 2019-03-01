@@ -67,6 +67,8 @@ if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
 svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
 if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
     svcMgr.ToolSvc += CfgMgr.ByteStreamMetadataTool()
+    svcMgr.ToolSvc.ByteStreamMetadataTool.InputCollName = "ByteStreamMetadata"
+    svcMgr.ToolSvc.ByteStreamMetadataTool.OutputCollName = "ByteStreamMetadata"
 
 # User metadata in FMD
 if not hasattr (svcMgr, 'ByteStreamAttListMetadataSvc'):
