@@ -70,8 +70,19 @@ TCS::InvariantMassDeltaPhiInclusive::InvariantMassDeltaPhiInclusive(const std::s
    defineParameter("MaxEta1", 31);
    defineParameter("MinEta2",  0);
    defineParameter("MaxEta2", 31);
+   defineParameter("MinDeltaPhi",  0, 0);
+   defineParameter("MaxDeltaPhi", 31, 0);
    defineParameter("MinDeltaPhi",  0, 1);
    defineParameter("MaxDeltaPhi", 31, 1);
+   defineParameter("MinDeltaPhi",  0, 2);
+   defineParameter("MaxDeltaPhi", 31, 2);
+   defineParameter("MinDeltaPhi",  0, 3);
+   defineParameter("MaxDeltaPhi", 31, 3);
+   defineParameter("MinDeltaPhi",  0, 4);
+   defineParameter("MaxDeltaPhi", 31, 4);
+   defineParameter("MinDeltaPhi",  0, 5);
+   defineParameter("MaxDeltaPhi", 31, 5);
+
    //does this need to change? 
    setNumberOutputBits(6);
 }

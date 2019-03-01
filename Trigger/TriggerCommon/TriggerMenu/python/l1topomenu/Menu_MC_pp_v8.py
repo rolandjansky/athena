@@ -10,7 +10,7 @@ def defineMenu():
     
     from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
     from TriggerMenu.l1topo.TopoOutput import TopoOutput
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
+#    from TriggerJobOpts.TriggerFlags import TriggerFlags flagged by pyflakes test
 
     
     L1TopoFlags.algos = [

@@ -1715,7 +1715,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET1', ocut1, 0)# noqa: F821
             alg.addvariable('MinET2', ocut2, 0)# noqa: F821
             alg.addvariable('MinMSqr', minInvm*minInvm , 0)        # noqa: F821         
-            alg.addvariable('MaxMSqr', maxInvm *maxInvm , 0)        # noqa: F821
+            alg.addvariable('MaxMSqr', maxInvm*maxInvm , 0)        # noqa: F821
             alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
             alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
 
