@@ -30,7 +30,8 @@ class TrigEFMissingEtComponent {
   public: // all attributes are public: like a struct
     enum Component 
     { 
-        PreSamplB, EMB1     , EMB2     , EMB3     ,     // LAr barrel
+        PreSamplB = 0 , 
+                   EMB1     , EMB2     , EMB3     ,     // LAr barrel
         PreSamplE, EME1     , EME2     , EME3     ,     // LAr EM endcap 
         HEC0     , HEC1     , HEC2     , HEC3     ,     // Hadronic end cap cal.
         TileBar0 , TileBar1 , TileBar2 ,                // Tile barrel
@@ -48,7 +49,8 @@ class TrigEFMissingEtComponent {
         JETE1    , JETE2    ,                           // 
         TCPUC    ,                                      // Topo. cluster Fit 
         TCPUCUnc ,                                      // Topo. cluster Fit -- uncorrected
-        Muons                                           // Muons 
+        Muons,                                          // Muons 
+        ComponentSize
     };
 
 
