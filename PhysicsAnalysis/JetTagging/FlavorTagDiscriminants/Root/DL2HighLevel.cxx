@@ -37,6 +37,7 @@ namespace FlavorTagDiscriminants {
     //
 
     // type and default value-finding regexes are hardcoded for now
+    // TODO: these will have to be updated with the new schema.
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
       {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
@@ -103,6 +104,7 @@ namespace FlavorTagDiscriminants {
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
+  DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
   void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);
