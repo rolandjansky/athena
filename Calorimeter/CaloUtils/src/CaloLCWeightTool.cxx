@@ -99,6 +99,11 @@ StatusCode CaloLCWeightTool::initialize()
     ATH_MSG_INFO(  "Noise Tool retrieved"  );
   } 
  
+  m_sampnames.reserve(CaloSampling::Unknown);
+  for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
+     m_sampnames.push_back(CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -115,7 +120,7 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
   std::vector<int> isAmpMap(CaloSampling::Unknown,-1);
   for (int iArea=0;iArea<data->getSizeAreaSet();iArea++) {
     for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
-      if ( CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp) == data->getArea(iArea)->getTitle() ) {
+      if ( m_sampnames[iSamp] == data->getArea(iArea)->getTitle() ) {
         ATH_MSG_DEBUG("Found Area for Sampling " << CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
         isAmpMap[iSamp] = iArea;
         break;
