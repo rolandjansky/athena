@@ -39,7 +39,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
  private: 
   Gaudi::Property< std::vector< std::string > > m_collectionsToSerialize {
     this, "CollectionsToSerialize", {},
-    "EDM streaming configuration \'collectionKeyType, module1,module2,module3\' where collectionKeyType is a string formatted like for "
+    "EDM streaming configuration \'collectionKeyType;module1,module2,module3\' where collectionKeyType is a string formatted like for "
     "AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. The type has to be an exact type, i.e. with _vN not the alias "
     "type. moduleIdVec is the vector of HLTResult ROB module IDs to which the collection should be written. ID=0 is "
     "the main result, other IDs are used for data scouting."
