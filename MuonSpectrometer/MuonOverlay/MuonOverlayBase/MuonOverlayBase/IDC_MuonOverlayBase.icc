@@ -7,9 +7,9 @@
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006-2009
 
 #include <Identifier/Identifier.h>
-#include <Identifier/IdentifierHash.h>
 
-#include "IDC_MultiHitOverlayCommon.h"
+#include <IDC_OverlayBase/IDC_OverlayCommon.h>
+#include <MuonOverlayBase/IDC_MultiHitOverlayCommon.h>
 
 
 template <class Collection>
@@ -38,13 +38,32 @@ StatusCode IDC_MuonOverlayBase::overlayContainerBase(const IDC_Container *bkgCon
                                                      bool isMultiHitCollection)
 {
   typedef typename IDC_Container::base_value_type Collection;
-  typedef typename Collection::base_value_type Datum;
 
   ATH_MSG_DEBUG("overlayContainer<>() begin");
 
-  // Get all the hashes for both signal and background container
-  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
+  // Get all the hashes for the signal container
   const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
+
+  // There are some use cases where background is empty
+  if (!bkgContainer) {
+    // Only loop through the signal collections and copy them over
+    for (const IdentifierHash &hashId : signalHashes) {
+      // Copy the signal collection
+      std::unique_ptr<Collection> signalCollection = copyCollection(hashId, signalContainer->indexFindPtr(hashId));
+
+      if (outputContainer->addCollection(signalCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding signal Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        signalCollection.release();
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  // Get all the hashes for the background container
+  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
 
   // The MC signal container should typically be smaller than bkgContainer,
   // because the latter contains all the noise, minimum bias and pile up.
@@ -89,11 +108,9 @@ StatusCode IDC_MuonOverlayBase::overlayContainerBase(const IDC_Container *bkgCon
       if (isMultiHitCollection) {
         Overlay::mergeMultiHitCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get());
       } else {
-        // TODO: single-hit case not used at the moment
-        // Overlay::mergeCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get());
+        Overlay::mergeCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get(), this);
       }
 
-      outputContainer->removeCollection(hashId);
       if (outputContainer->addCollection(outputCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding overlaid Collection with hashId " << hashId << " failed");
         return StatusCode::FAILURE;
