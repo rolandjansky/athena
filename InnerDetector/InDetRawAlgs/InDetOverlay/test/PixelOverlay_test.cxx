@@ -378,8 +378,8 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputCollection->size()==1 );
     const PixelRDORawData* outputDigit1 = outputCollection->at(0);
     ASSERT_TRUE( outputDigit1!=nullptr );
-    ASSERT_TRUE( outputDigit1->getToT()==bkgToT ); // Bkg RDO taken in case of matching Identifiers
-    ASSERT_TRUE( outputDigit1->getBCID()==bkgBCID-1 ); // Bkg RDO taken in case of matching Identifiers
+    ASSERT_TRUE( outputDigit1->getToT()==sigToT ); // Signal RDO taken in case of matching Identifiers
+    ASSERT_TRUE( outputDigit1->getBCID()==sigBCID-1 ); // Signal RDO taken in case of matching Identifiers
   }
 
   TEST_F(PixelOverlay_test, two_RDOs_with_matching_id_bkg_first) {
@@ -424,8 +424,8 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputCollection->size()==1 );
     const PixelRDORawData* outputDigit1 = outputCollection->at(0);
     ASSERT_TRUE( outputDigit1!=nullptr );
-    ASSERT_TRUE( outputDigit1->getToT()==bkgToT ); // Bkg RDO taken in case of matching Identifiers
-    ASSERT_TRUE( outputDigit1->getBCID()==bkgBCID-1 ); // Bkg RDO taken in case of matching Identifiers
+    ASSERT_TRUE( outputDigit1->getToT()==sigToT ); // Signal RDO taken in case of matching Identifiers
+    ASSERT_TRUE( outputDigit1->getBCID()==sigBCID-1 ); // Signal RDO taken in case of matching Identifiers
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_collections_one_different_RDO_each_v2) {
