@@ -836,6 +836,7 @@ void TrackFitter::processor(const FTKRoad &road) {
      // copy newtrk after truth assignment.
      m_tracks.push_back(newtrk);
    }
+
    m_nfits_rej += 1;
    if (nmissing>0) m_nfits_rejmaj++;
        }
@@ -953,7 +954,7 @@ TrackFitter::compute_truth(const unsigned int& /*ibank*/,const FTKRoad& road,FTK
 
 /** this method attempets to add a track into a list of tracks,
     before to do that applies the usual HW filter */
-int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks_list)
+int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks_list, bool isfirst)
 {
   // remains 0 if the track has to be added
   // -1 means is worse than an old track (duplicated)
@@ -961,30 +962,39 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
   int accepted(0);
 
   list<FTKTrack>::iterator itrack = tracks_list.begin();
-
   for (;itrack!=tracks_list.end();++itrack) { // loop over tracks of this bank
 
     // reference to an old track
     FTKTrack &track_old = *itrack;
-    if (track_old.getHWRejected()%10 !=0 || track_old.getHWRejected()/100!=0)
+    if (track_old.getHWRejected()/100 !=0) //We still want to compare to duplicate tracks
+    //if (track_old.getHWRejected()%10 !=0 || track_old.getHWRejected()/100!=0)
       // skip HW rejected tracks and tracks with bad chi2,
       // tracks in removed roads are used, but if a match is found
       // will be always rejected or marked as removed, if compared
       // to a combination in a good road
       continue;
 
-    int HWres = track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior);
+    //Slightly different logic on first stage (AUX) vs. 2nd stage (SSB)
+    int HWres = track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior, isfirst);
 
     if (HWres==-1) {
       accepted = -1;
       // passing the end of the list means remove current
-      removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      if (isfirst) { //for first stage processing, don't remove tracks from list yet as they're needed for duplicate removal comparisons
+        removeTrackStage1(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      } else {
+        removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      }
     }
     else if (HWres==1) {
       accepted = 1;
       // return the new current position, it changes if the
       // rejected track is removed from the list
-      itrack = removeTrack(tracks_list,itrack,track_old,track_toadd);
+      if (isfirst) {
+        itrack = removeTrackStage1(tracks_list,itrack,track_old,track_toadd);
+      } else {
+        itrack = removeTrack(tracks_list,itrack,track_old,track_toadd);
+      }
     }
 
   } // end loop over tracks of this bank
@@ -1044,6 +1054,37 @@ list<FTKTrack>::iterator TrackFitter::removeTrack(list<FTKTrack> &tracks_list, l
       itrack = before;
     }
     else if  (rejtrk.getHWRejected()%10==0) { // mark only if not yet marked
+      // mark the old track as rejected
+      rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
+      // assign the ID of the track rejected this
+      rejtrk.setHWTrackID(killer.getTrackID());
+      //m_nfits_rej += 1;
+    }
+
+  }
+  else {  // is rejecting the new track, not yet in the list
+    if (rejtrk.getHWRejected()%10==0) { // mark only the first time
+      // the new track is rejected
+      // mark the old track as rejected
+      rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
+      // assign the ID of the track rejected this
+      rejtrk.setHWTrackID(killer.getTrackID());
+
+      //m_nfits_rej += 1;
+    }
+  }
+
+  return itrack;
+}
+
+//Track remover for first stage does not delete tracks, as they are still needed for HW duplciate comparison
+
+list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &tracks_list, list<FTKTrack>::iterator itrack,
+                          FTKTrack &rejtrk, const FTKTrack &killer, bool rejnew)
+{
+
+  if (!rejnew) { // is rejecting a track in the list
+    if  (rejtrk.getHWRejected()%10==0) { // mark only if not yet marked
       // mark the old track as rejected
       rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
       // assign the ID of the track rejected this

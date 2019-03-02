@@ -6,7 +6,6 @@
 #include "TrigFTKSim/TrackFitter711.h"
 #include "TrigFTKSim/MultiTruth.h"
 #include "TrigFTKSim/ftkdefs.h"
-
 #include <TSystem.h>
 
 #include <algorithm>
@@ -648,14 +647,25 @@ void TrackFitter711::processor(const FTKRoad &road) {
 
     // perfom the incomplete fit
     processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
-
     if (road_tracks.empty()) return;
 
     if (m_saveIncompleteTracks) {
       int region = road.getRegion();
       list<FTKTrack>::iterator itrack = road_tracks.begin();
       for (;itrack!=road_tracks.end();++itrack) {
-        m_trackoutput->addTrackI(region,*itrack);
+        FTKTrack &track_temp = *itrack;
+        if (m_keep_rejected) { //Add all tracks
+            if ( (*itrack).getHWRejected() == 0) {
+                m_trackoutput->addTrackI(region,*itrack);
+            }
+        } else { //Only add tracks that passed the hit warrior
+            if ( (*itrack).getHWRejected() == 0) {
+                m_trackoutput->addTrackI(region,*itrack);
+            } else {//remove track
+                //3rd and 4th arguments should be arbitrary
+                itrack = removeTrack(road_tracks,itrack,track_temp,track_temp,false);
+            }
+        }
       }
       if (m_saveStepByStepTracks) {
         itrack = road_tracks_pre_hw.begin();
@@ -784,7 +794,6 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        if (nhits>m_norecovery_nhits && m_norecovery_nhits!=-1) norecovery_mask |= (1<<p);
      }
    }
-
    m_ncombsI += ncomb;
 
    // newtrkI and newtrk are "global", the road related values can be set here
@@ -1040,7 +1049,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        int accepted(0);
        // Disable hitwarrior, auto-accept every track
        if (m_HitWarrior!=0)
-         accepted = doHitWarriorFilter(newtrkI,road_tracks);
+         accepted = doHitWarriorFilter(newtrkI,road_tracks,true);//boolean stops duplicate tracks from being removed early for first stage
 
        if (accepted>=0) { // track accepted, no hits shared with already fitted tracks
          // copy newtrkI after truth assignment.
@@ -1058,11 +1067,11 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          // the track is candidate as ghost and is not the best
          // clean the list of the hits
 
-         if (m_keep_rejected) {
-           // copy newtrk after truth assignment.
-           compute_truth_incomplete(region,road,newtrkI);
-           road_tracks.push_back(newtrkI);
-         }
+         //if (m_keep_rejected) {//Need to keep all until HW duplicate removal is done
+         // copy newtrk after truth assignment.
+         compute_truth_incomplete(region,road,newtrkI);
+         road_tracks.push_back(newtrkI);
+         //}
          m_nfits_rejI += 1;
          if (nmissing>0) m_nfits_rejmajI += 1;
        }
