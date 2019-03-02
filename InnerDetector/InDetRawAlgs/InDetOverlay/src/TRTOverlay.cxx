@@ -22,20 +22,10 @@
 namespace Overlay
 {
   // Specialize mergeChannelData() for the TRT
-  template<> void mergeChannelData(TRT_RDORawData &r1, const TRT_RDORawData &r2, IDC_OverlayBase *parent)
+  template<> void mergeChannelData(TRT_RDORawData &r1,
+                                   const TRT_RDORawData &r2,
+                                   TRTOverlay *)
   {
-
-    // ----------------------------------------------------------------
-    // debug
-    static bool first_time = true;
-    if (first_time) {
-      first_time = false;
-      parent->msg(MSG::INFO) << "Overlay::mergeChannelData(): "
-                             << "TRT specific code is called for "
-                             << typeid(TRT_RDORawData).name()
-                             << endmsg;
-    }
-
     // ----------------------------------------------------------------
     // FIXME: That should really be a call to r1.merge(r2);
 
@@ -49,18 +39,24 @@ namespace Overlay
   } // mergeChannelData()
 
   // Specialize copyCollection() for the TRT
-  template<> void copyCollection(const InDetRawDataCollection<TRT_RDORawData> *input_coll, InDetRawDataCollection<TRT_RDORawData> *copy_coll)
+  template<>
+  std::unique_ptr<TRT_RDO_Collection> copyCollection(const IdentifierHash &hashId,
+                                                     const TRT_RDO_Collection *collection)
   {
-    copy_coll->setIdentifier(input_coll->identify());
-    InDetRawDataCollection<TRT_RDORawData>::const_iterator firstData = input_coll->begin();
-    InDetRawDataCollection<TRT_RDORawData>::const_iterator lastData = input_coll->end();
-    for ( ; firstData != lastData; ++firstData)
-    {
-	    const Identifier ident = (*firstData)->identify();
-	    const unsigned int word = (*firstData)->getWord();
-	    TRT_LoLumRawData *newData = new TRT_LoLumRawData(ident, word);
-	    copy_coll->push_back(newData);
+    auto outputCollection = std::make_unique<TRT_RDO_Collection>(hashId);
+    if (!collection) {
+      return outputCollection;
     }
+
+    outputCollection->setIdentifier(collection->identify());
+
+    for (const TRT_RDORawData *existingDatum : *collection) {
+      // Owned by the collection
+      auto *datumCopy = new TRT_LoLumRawData(existingDatum->identify(), existingDatum->getWord());
+      outputCollection->push_back(datumCopy);
+    }
+
+    return outputCollection;
   }
 } // namespace Overlay
 
@@ -166,7 +162,7 @@ StatusCode TRTOverlay::execute() {
       //Merge containers
       overlayTRTContainers(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr(), occupancy, *signalSDOContainer);
     } else {
-      overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
+      ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
     }
 
     ATH_MSG_DEBUG("TRT Result   = " << Overlay::debugPrint(outputContainer.ptr()));
@@ -189,8 +185,7 @@ void TRTOverlay::overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
 
      for(; p_bkg != p_bkg_end; ++p_bkg) {
        IdentifierHash hashId = p_bkg.hashId();
-       auto coll_bkg = std::make_unique<TRT_RDO_Collection>(hashId);
-       Overlay::copyCollection(*p_bkg, coll_bkg.get());
+       auto coll_bkg = Overlay::copyCollection(hashId, *p_bkg);
 
        if (outputContainer->addCollection(coll_bkg.release(), p_bkg.hashId() ).isFailure()) {
          ATH_MSG_WARNING("add background Collection failed for output " << p_bkg.hashId());
@@ -209,8 +204,7 @@ void TRTOverlay::overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
    for (; p_signal != p_signal_end; ++p_signal) {
 
       IdentifierHash coll_id = p_signal.hashId();
-      auto coll_signal = std::make_unique<TRT_RDO_Collection>(coll_id);
-      Overlay::copyCollection( *p_signal, coll_signal.get() ) ;
+      auto coll_signal = Overlay::copyCollection( coll_id, *p_signal ) ;
 
       /** The newly created stuff will go to the output EventStore SG */
       auto coll_out = std::make_unique<TRT_RDO_Collection>(coll_id);
