@@ -122,6 +122,10 @@ public:
                          std::unique_ptr<XMLCoreFactory> factory); 
   void register_external_entity (const std::string& name, const std::string& file_name); 
   void register_text_entity (const std::string& name, const std::string& text);
+
+  void up();
+  void down();
+  int level() const;
  
   
 private: 
@@ -134,6 +138,7 @@ private:
   typedef std::map <std::string, std::unique_ptr<XMLCoreFactory> > FactoryMap; 
   FactoryMap m_factories;
   std::unique_ptr<XMLCoreFactory> m_default_factory;
+  int m_level = 0;
 }; 
  
 #endif 
