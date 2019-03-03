@@ -74,14 +74,14 @@ def generateMenu( flags ):
 
     _log.info('Obtained Menu Chain objects')
 
-    # pass all menuChain to CF builder    
-    mainSequenceName = 'HLTAllSteps'
+    # pass all menuChain to CF builder
     useReworked = True
 
     if useReworked:
-        menuAcc = generateDecisionTree(mainSequenceName, menuChains, allChainDicts)
+        menuAcc = generateDecisionTree(menuChains, allChainDicts)
     else:
         menuAcc = ComponentAccumulator()
+        mainSequenceName = 'HLTAllSteps'
         menuAcc.addSequence( seqAND(mainSequenceName) )
         chainsAcc = generateDecisionTreeOld(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
         menuAcc.merge(chainsAcc)

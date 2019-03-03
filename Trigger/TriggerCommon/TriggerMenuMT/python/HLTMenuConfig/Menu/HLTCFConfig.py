@@ -454,23 +454,22 @@ def connectStepToFilter(chainStep, filter):
         sequence.connectToFilter(output)
 
 
-def generateDecisionTree(mainSequenceName, chains, allChainDicts):
+def generateDecisionTree(chains, allChainDicts):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from collections import defaultdict
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     from AthenaCommon.CFElements import findOwningSequence
 
-    log.debug("Run decisionTree_From_Chains on %s", mainSequenceName)
-
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     acc.addSequence( seqAND(mainSequenceName) )
+
+    log.debug('Generating decision tree with main sequence: {}'.format(mainSequenceName))
 
     chainStepsMatrix = defaultdict(lambda: defaultdict(list))
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs(allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)
