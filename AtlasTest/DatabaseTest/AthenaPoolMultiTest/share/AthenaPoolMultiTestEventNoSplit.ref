@@ -2,13 +2,13 @@ Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfi
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 Splitter1           DEBUG Property update for OutputLevel : new value = 2
 Splitter1            INFO in initialize()
-Splitter1           DEBUG input handles: 1
+Splitter1           DEBUG input handles: 3
 Splitter1           DEBUG output handles: 0
 Splitter1           DEBUG Data Deps for Splitter1
 Splitter2            INFO in initialize()
 Splitter3           DEBUG Property update for OutputLevel : new value = 2
 Splitter3            INFO in initialize()
-Splitter3           DEBUG input handles: 1
+Splitter3           DEBUG input handles: 3
 Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
 Triggered            INFO in initialize()
