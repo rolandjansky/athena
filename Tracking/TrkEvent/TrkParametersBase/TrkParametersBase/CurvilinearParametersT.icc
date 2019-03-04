@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,12 +17,13 @@ namespace Trk
   template <int DIM,class T,class S>
   Trk::CurvilinearParametersT<DIM,T,S>::CurvilinearParametersT(const AmgVector(DIM+2)& parameters,
 							       AmgSymMatrix(DIM)* covariance,
-							       unsigned int cIdentifier) :
+							       unsigned int cIdentifier):
     ParametersT<DIM,T,S>(Amg::Vector3D(parameters[x],parameters[y],parameters[z]),
-			 Amg::Vector3D(parameters[3],parameters[4],parameters[5]),
-			 covariance),
+                         Amg::Vector3D(parameters[3],parameters[4],parameters[5]),
+                         covariance),
     m_cIdentifier(cIdentifier)
   {
+   
     // flip the charge according to qOverP
     if (parameters[6] < 0.) this->m_chargeDef.setCharge(-1);
     // assign the parameters
@@ -32,6 +33,9 @@ namespace Trk
     this->m_parameters[phi]    = this->momentum().phi();
     this->m_parameters[theta]  = this->momentum().theta();
     this->m_parameters[qOverP] = parameters[6]/this->momentum().mag();
+
+    /* we need all the above to be there for the surfac*/ 
+    this->m_surface=new S(this->m_position,curvilinearFrame());
   }
   
   // Constructor with TP arguments
@@ -43,11 +47,10 @@ namespace Trk
 							AmgSymMatrix(DIM)* cov,
 							unsigned int cIdentifier):
     ParametersT<DIM,T,S>(),
-    m_cIdentifier(cIdentifier)
+   m_cIdentifier(cIdentifier)
   {
-    this->m_position   = pos;
-    this->m_covariance = cov;
-
+    this->m_covariance =cov;
+    this->m_position=pos;
     // flip the charge according to qOverP
     if(tqOverP < 0.)
       this->m_chargeDef.setCharge(-1.);
@@ -65,6 +68,8 @@ namespace Trk
     double p = fabs(1./tqOverP);
     this->m_momentum = Amg::Vector3D(p*cos(tphi)*sin(ttheta),p*sin(tphi)*sin(ttheta),p*cos(ttheta));
 
+    /* we need all the above for the surface*/
+    this->m_surface=new S(this->m_position,curvilinearFrame());
   }
 
   // full global constructor
@@ -92,6 +97,9 @@ namespace Trk
     this->m_parameters[Trk::qOverP] = charge/mom.mag();
     this->m_position = pos;
     this->m_momentum = mom;
+  
+    /* we need all the above to be there for the surfac*/ 
+    this->m_surface=new S(this->m_position,curvilinearFrame());
   }
 
   // copy constructor
@@ -170,19 +178,7 @@ namespace Trk
     // compare equality of base class parts
     return ParametersT<DIM,T,S>::operator==(rhs);
   }
-  
-  template<int DIM,class T,class S>
-  const S& CurvilinearParametersT<DIM,T,S>::associatedSurface() const
-  {
-    if(!this->m_surface)
-    {
-      // create the surface for global position and global rotation
-      const_cast<S*&>(this->m_surface) = new S(this->position(),curvilinearFrame());
-    }
-
-    return (*this->m_surface);
-  }
-  
+ 
   // Screen output dump
   template<int DIM,class T,class S>
   MsgStream& CurvilinearParametersT<DIM,T,S>::dump(MsgStream& out) const
@@ -208,7 +204,7 @@ namespace Trk
   template <int DIM,class T,class S>
   const Amg::RotationMatrix3D CurvilinearParametersT<DIM,T,S>::measurementFrame() const
   {
-    static Amg::RotationMatrix3D mFrame;
+    Amg::RotationMatrix3D mFrame;
     // the columnes
     CurvilinearUVT local_curvilinearFrame=curvilinearFrame();
     mFrame.col(0) = local_curvilinearFrame.curvU();
@@ -240,7 +236,7 @@ namespace Trk
     if (updatedCovariance)
     {
       if (updatedCovariance != this->m_covariance)
-	delete this->m_covariance;
+        delete this->m_covariance;
       this->m_covariance = updatedCovariance;
     }
     

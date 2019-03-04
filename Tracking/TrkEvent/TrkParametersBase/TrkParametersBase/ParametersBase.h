@@ -118,6 +118,10 @@ namespace Trk
     /** Return the ParametersType enum */
     virtual ParametersType type() const = 0;
     
+    /** Test to see if there's a surface there. */
+    virtual bool hasSurface() const = 0 ;
+
+
     /** Returns charge of concrete type (i.e. must be implemented in inheriting classes) */
     virtual double charge() const = 0;
 
