@@ -72,7 +72,7 @@ function( _add_test testName toExecute )
 endfunction( _add_test )
 
 # Test(s) in the package:
-# Write 'Hits', with multistreamand TAGs
+# Write 'Hits', with multistreamand
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
    EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
@@ -102,26 +102,16 @@ _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest
    EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
-# Read via TAGs and use query to filter events
-_add_test( AthenaPoolExample_Filter
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_FilterJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest
-   EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
-_add_test( AthenaPoolExample_RFilter
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RFilterJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Filter_ctest
-   EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
-# Read all (including bad files, skipped for now expected failure)
+# Read all
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest
    EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
 _add_test( AthenaPoolExample_Concat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest
-           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
    EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadConcat
