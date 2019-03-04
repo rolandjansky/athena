@@ -97,7 +97,7 @@ private:
   // small helper function
   unsigned int computeIstrip4moncond(const Identifier& elementId) const;
 
-  static std::string s_separator;
+  static const std::string s_separator;
 
   IntegerProperty              m_nhits_noisychip{this, "Nnoisychip", 64};
   IntegerProperty              m_nhits_noisywafer{this, "Nnoisywafer", 384};
