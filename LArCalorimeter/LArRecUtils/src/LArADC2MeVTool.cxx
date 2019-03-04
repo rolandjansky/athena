@@ -33,8 +33,7 @@ LArADC2MeVTool::LArADC2MeVTool(const std::string& type,
     m_useHVScaleCorr(false),
     m_useFEBGainThresholds(false),
     m_cacheValid(false),
-    m_febConfigReader("LArFEBConfigReader")
-    , m_isSC(false)
+    m_isSC(false)
 
 {
   declareInterface<ILArADC2MeVTool>(this);
@@ -47,7 +46,6 @@ LArADC2MeVTool::LArADC2MeVTool(const std::string& type,
   declareProperty("UseMphysOverMcal",m_useMphysOverMcal);
   declareProperty("UseHVScaleCorr",m_useHVScaleCorr);
   declareProperty("LoadAtBegin",m_loadAtBegin=true);
-  declareProperty("FebConfigReader",m_febConfigReader);
   declareProperty("UseFEBGainTresholds",m_useFEBGainThresholds);
   declareProperty("IsSC",m_isSC);
   m_ADC2MeV=NULL;
@@ -158,7 +156,7 @@ StatusCode LArADC2MeVTool::initialize() {
     }
   }
 
-  ATH_CHECK( m_febConfigReader.retrieve( DisableTool{ !m_useFEBGainThresholds } ));
+  if(m_useFEBGainThresholds) ATH_CHECK(m_configKey.initialize());
 
   if (m_loadAtBegin) {
     ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run");
@@ -288,6 +286,16 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
   unsigned int ngains(3);
   if ( m_isSC ) ngains=1;
   
+  // retrieve LArFebConfig if needed
+  const LArFebConfig *febConfig=nullptr;
+  if(m_useFEBGainThresholds) {
+     SG::ReadCondHandle<LArFebConfig> configHdl{m_configKey};
+     febConfig = *configHdl;
+     if (febConfig==nullptr) {
+        ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_configKey.key());
+        return StatusCode::FAILURE;
+     }
+  }
   for(;it!=it_e;++it) {
     count ++;
     const HWIdentifier id  = *it;
@@ -361,7 +369,7 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
         const std::size_t iMax = ADC2DAC.size(); 
         vADC2MeV.reserve(iMax); 
   	for(unsigned int i=0;i<iMax;i++) {
-	  if (m_useFEBGainThresholds && igain==1 && i==0 && m_febConfigReader->lowerGainThreshold(id)<5) {
+	  if (febConfig && igain==1 && i==0 && febConfig->lowerGainThreshold(id)<5) {
 	    //Don't use ramp offset in MED gain offset if HIGH gain is not used
 	    ++count8;
 	    vADC2MeV.push_back(0.);

@@ -1,21 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from IOVDbSvc.CondDB import conddb
-from AthenaCommon.Logging import logging
-from AthenaCommon.AppMgr import ServiceMgr
-
-def LArFEBConfigReaderDefault (name="LArFEBConfigReaderDefault", **kw): 
-    mlog = logging.getLogger( 'LArFEBConfigReaderDefault::__init__ ' )
-
-    if hasattr(ServiceMgr.ToolSvc,name):
-        mlog.info("LArFEBConfigReader with name" + name + "already known to ToolSvc")
-        return getattr(ServiceMgr.ToolSvc,name)
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from IOVDbSvc.IOVDbSvcConfig import addFolders
+from LArRecUtils.LArRecUtilsConf import LArFEBConfigCondAlg
 
 
-    # call base class constructor
-    from AthenaCommon import CfgMgr
-    kw['name'] = name
-    tool = CfgMgr.LArFEBConfigReader (**kw)
+def LArFEBConfigCondAlgCfg (configFlags): 
+
+    result=ComponentAccumulator()
 
     LArFebConfigFolders=[
     "/LAR/Configuration/FEBConfig/Physics/EMBA1",  
@@ -41,7 +33,8 @@ def LArFEBConfigReaderDefault (name="LArFEBConfigReaderDefault", **kw):
 
     for f in LArFebConfigFolders:
         conddb.addFolder("LAR_ONL",f)
+        result.merge(addFolders(configFlags,f,"LAR_ONL",className="CondAttrListCollection"))
 
-    tool.ListOfFolders=LArFebConfigFolders
+    result.addCondAlgo(LArFEBConfigCondAlg(ListOfFolders=LArFebConfigFolders,keyOutput="LArFebConfig"))    
+
     return tool
-    

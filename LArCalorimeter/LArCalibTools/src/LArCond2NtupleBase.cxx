@@ -281,7 +281,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      return false;
  }
  const LArOnOffIdMapping* cabling=nullptr;
- if(m_isSC) {
+ if(!m_isSC) {
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
     cabling = *cablingHdl;
  } else {
