@@ -43,7 +43,8 @@ namespace FlavorTagDiscriminants {
     } else if (graph_config.inputs.size() == 1){
       m_input_node_name = graph_config.inputs.at(0).name;
       m_variable_cleaner.reset(new lwt::NanReplacer(
-                                 graph_config.inputs.at(0).defaults));
+                                 graph_config.inputs.at(0).defaults,
+                                 lwt::rep::all));
     }
     for (const auto& input: inputs) {
       auto filler = get_filler(input.name, input.type, input.default_flag);
@@ -196,15 +197,31 @@ namespace FlavorTagDiscriminants {
     //
     Getter get_filler(std::string name, EDMType type,
                       std::string default_flag) {
-      switch (type) {
-      case EDMType::INT: return BVarGetter<int>(name, default_flag);
-      case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
-      case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
-      case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
-      default: {
-        throw std::logic_error("Unknown EDM type");
+      if(default_flag.size() == 0 || name==default_flag)
+      {
+        switch (type) {
+        case EDMType::INT: return BVarGetterNoDefault<int>(name);
+        case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
+        case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
+        case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
+        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+        default: {
+          throw std::logic_error("Unknown EDM type");
+        }
       }
       }
+      else{
+        switch (type) {
+        case EDMType::INT: return BVarGetter<int>(name, default_flag);
+        case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
+        case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
+        case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
+        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+        default: {
+          throw std::logic_error("Unknown EDM type");
+      }
+      }
+    }
     }
     TrackSortVar get_track_sort(SortOrder order, EDMSchema schema) {
       typedef xAOD::TrackParticle Tp;
