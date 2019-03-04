@@ -43,7 +43,7 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-         from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+         from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
          pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
          pixelSiPropertiesToolSetup.setup()
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
@@ -56,7 +56,7 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-         from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+         from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
          pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
          pixelSiPropertiesToolSetup.setup()
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):

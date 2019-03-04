@@ -9,10 +9,10 @@
 #ifndef SiPropertiesTool_h
 #define SiPropertiesTool_h
 
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "SiPropertiesTool/ISiPropertiesTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SiPropertiesSvc/SiliconPropertiesVector.h"
+#include "SiPropertiesTool/SiliconPropertiesVector.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 /**

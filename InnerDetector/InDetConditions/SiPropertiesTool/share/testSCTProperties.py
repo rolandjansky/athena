@@ -80,13 +80,13 @@ sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
 sct_SiliconConditionsToolSetup.setup()
 
 # Set up SCT_SiPropertiesTool
-from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
 sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
 sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
 sct_SiPropertiesToolSetup.setup()
 
 # Set up SCTSiPropertiesTestAlg
-from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesTestAlg
+from SiPropertiesTool.SiPropertiesToolConf import SCTSiPropertiesTestAlg
 job += SCTSiPropertiesTestAlg(SCTPropertiesTool=sct_SiPropertiesToolSetup.getTool())
 
 # Prepare EventSelector

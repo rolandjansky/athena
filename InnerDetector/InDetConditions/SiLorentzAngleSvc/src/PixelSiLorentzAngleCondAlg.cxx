@@ -11,7 +11,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 
 PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),

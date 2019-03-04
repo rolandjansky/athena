@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SIPROPERTIESSVC_SILICONPROPERTIES_H
-#define SIPROPERTIESSVC_SILICONPROPERTIES_H
+#ifndef SIPROPERTIESTOOL_SILICONPROPERTIES_H
+#define SIPROPERTIESTOOL_SILICONPROPERTIES_H
 
 ///////////////////////////////////////////////////////////////////
 //   Header file for class SiliconProperties
@@ -85,9 +85,9 @@ private:
 
   bool   m_override; // signal that quantities are overriden and recalculation are disabled.
 
-  static double s_ehPairsPerEnergyDefault;
+  const static double s_ehPairsPerEnergyDefault;
 };
 
 } // namespace InDetDD
 
-#endif // SIPROPERTIESSVC_SILICONPROPERTIES_H
+#endif // SIPROPERTIESTOOL_SILICONPROPERTIES_H

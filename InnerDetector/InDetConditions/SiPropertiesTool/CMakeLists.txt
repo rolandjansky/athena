@@ -1,9 +1,9 @@
 ################################################################################
-# Package: SiPropertiesSvc
+# Package: SiPropertiesTool
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( SiPropertiesSvc )
+atlas_subdir( SiPropertiesTool )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
@@ -24,22 +24,22 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 
 # Component(s) in the package:
-atlas_add_library( SiPropertiesSvcLib
+atlas_add_library( SiPropertiesToolLib
                    src/*.cxx
-                   PUBLIC_HEADERS SiPropertiesSvc
+                   PUBLIC_HEADERS SiPropertiesTool
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier InDetIdentifier )
 
-atlas_add_component( SiPropertiesSvc
+atlas_add_component( SiPropertiesTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesToolLib )
 
 # Run tests:
 atlas_add_test( TestSCTProperties
-                SCRIPT athena.py --threads=5 SiPropertiesSvc/testSCTProperties.py
+                SCRIPT athena.py --threads=5 SiPropertiesTool/testSCTProperties.py
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 

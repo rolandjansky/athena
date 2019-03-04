@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include <cmath>
@@ -17,7 +17,7 @@ using InDetDD::electrons;
 // This value for the number of eh pairs per deposited energy is fairly standard I think. 
 // In reality there is some temperture dependence but for the temperature ranges we deal with 
 // I don't think variations are too signifcant.
-double SiliconProperties::s_ehPairsPerEnergyDefault = 1. / (3.62 * CLHEP::eV); // 1 eh pair per 3.62 CLHEP::eV.
+const double SiliconProperties::s_ehPairsPerEnergyDefault = 1. / (3.62 * CLHEP::eV); // 1 eh pair per 3.62 CLHEP::eV.
 
 // Constants used in the formula
 const double elecHallFactZero  = 1.13;

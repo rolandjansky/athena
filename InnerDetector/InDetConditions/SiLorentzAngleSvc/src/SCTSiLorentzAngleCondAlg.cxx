@@ -14,7 +14,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 
 // Gaudi include
 #include "GaudiKernel/PhysicalConstants.h"

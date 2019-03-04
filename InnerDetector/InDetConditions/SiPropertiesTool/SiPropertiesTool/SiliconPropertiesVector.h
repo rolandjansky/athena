@@ -2,15 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SIPROPERTIESSVC_SILICONPROPERTIESVECTOR_H
-#define SIPROPERTIESSVC_SILICONPROPERTIESVECTOR_H
+#ifndef SIPROPERTIESTOOL_SILICONPROPERTIESVECTOR_H
+#define SIPROPERTIESTOOL_SILICONPROPERTIESVECTOR_H
 
 ///////////////////////////////////////////////////////////////////
 //   Header file for class SiliconPropertiesVector for SiPropertiesTool
 ///////////////////////////////////////////////////////////////////
 
 #include <vector>
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 #include "Identifier/IdentifierHash.h"
 #include "SGTools/CLASS_DEF.h"
 
@@ -39,4 +39,4 @@ CLASS_DEF(InDet::SiliconPropertiesVector, 10146683 , 1)
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF(InDet::SiliconPropertiesVector, 246562685);
 
-#endif // SIPROPERTIESSVC_SILICONPROPERTIESVECTOR_H
+#endif // SIPROPERTIESTOOL_SILICONPROPERTIESVECTOR_H

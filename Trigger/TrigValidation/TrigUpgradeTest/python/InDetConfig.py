@@ -169,10 +169,10 @@ def TrigInDetCondConfig( flags ):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
   acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
 
-  from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+  from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
   acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
 
-  from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+  from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
   TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
   acc.addPublicTool(TrigSiPropertiesTool)

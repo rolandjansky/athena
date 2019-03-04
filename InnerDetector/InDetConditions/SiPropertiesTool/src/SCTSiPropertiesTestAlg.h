@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "SiPropertiesTool/ISiPropertiesTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 

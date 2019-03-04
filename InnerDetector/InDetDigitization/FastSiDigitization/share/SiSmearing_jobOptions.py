@@ -36,7 +36,7 @@ from AthenaCommon.BeamFlags import jobproperties
 # sct_SiliconConditionsToolSetup.setup()
 
 # # Silicon properties tool
-# from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+# from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
 # sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
 # sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
 # sct_SiPropertiesToolSetup.setup()
