@@ -118,7 +118,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
 
   //decompression buffer and length of buffer
   uLongf m_buffer_length;
-  Bytef *m_decompression_buffer;
+  std::unique_ptr<Bytef> m_decompression_buffer;
   
   //wrapper function for the zlib uncompress, 
   //that automatically creates or increases the buffer if needed.    

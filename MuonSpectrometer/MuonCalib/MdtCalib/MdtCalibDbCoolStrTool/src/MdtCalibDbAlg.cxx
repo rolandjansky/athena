@@ -80,7 +80,7 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_speed_of_light(299.792458),
   m_AtRndmGenSvc ("AtRndmGenSvc", name),
   m_buffer_length(0),
-  m_decompression_buffer(NULL),
+  m_decompression_buffer(nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
   m_readKeyTube("/MDT/T0BLOB"),
   m_writeKeyRt("MdtRtRelationCollection"),
@@ -410,7 +410,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	ATH_MSG_FATAL( "Cannot uncompress buffer" );
 	return StatusCode::FAILURE;
       }
-      std::string istr(reinterpret_cast<char*>(m_decompression_buffer));
+      std::string istr(reinterpret_cast<char*>(m_decompression_buffer.get()));
       ATH_CHECK( extractString(istr, header, "\n") );
       ATH_CHECK( extractString(istr, payload, "\n") );
       if( istr.size() ) ATH_CHECK( extractString(istr, trailer, "\n") );
@@ -780,7 +780,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
 	ATH_MSG_FATAL( "Cannot uncompress buffer" );
 	return StatusCode::FAILURE;
       }
-      std::string istr(reinterpret_cast<char*>(m_decompression_buffer));
+      std::string istr(reinterpret_cast<char*>(m_decompression_buffer.get()));
       ATH_CHECK( extractString(istr, header, "\n") );
       ATH_CHECK( extractString(istr, payload, "\n") );
       if( istr.size() ) ATH_CHECK( extractString(istr, trailer, "\n") );
@@ -998,19 +998,19 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(cons
 inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   if (!m_decompression_buffer) {
     m_buffer_length= 50000;
-    m_decompression_buffer = new Bytef[m_buffer_length];
+    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
   }
   uLongf actual_length;	
   while(1) {
     actual_length=m_buffer_length;
-    int res(uncompress(m_decompression_buffer, &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
+    int res(uncompress(m_decompression_buffer.get(), &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
     if (res == Z_OK) break;
     //double buffer if it was not big enough
     if( res == Z_BUF_ERROR) {
       m_buffer_length*=2;
       ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
-      delete [] m_decompression_buffer;
-      m_decompression_buffer = new Bytef[m_buffer_length];
+      m_decompression_buffer.reset();
+      m_decompression_buffer.reset(new Bytef[m_buffer_length]);
       continue;
     }
     //something else is wrong
@@ -1018,14 +1018,14 @@ inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   }
   //append 0 to terminate string, increase buffer if it is not big enough
   if (actual_length >= m_buffer_length)	{
-    Bytef * old_buffer=m_decompression_buffer;
+    std::unique_ptr<Bytef> old_buffer(std::move(m_decompression_buffer));
     size_t old_length=m_buffer_length;
     m_buffer_length*=2;
-    m_decompression_buffer = new Bytef[m_buffer_length];
-    memcpy(m_decompression_buffer, old_buffer, old_length);
-    delete [] old_buffer;
+    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
+    memcpy(m_decompression_buffer.get(), old_buffer.get(), old_length);
+    old_buffer.reset();
   }
-  m_decompression_buffer[actual_length]=0;
+  m_decompression_buffer.get()[actual_length]=0;
   return true;
 }
 
