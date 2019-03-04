@@ -215,14 +215,24 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   if (asg::ToolStore::contains<IJetModifier>(fjvt_tool_name)) {
     m_fjvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
   } else {
-    IJetModifier* fJVTTool = new JetForwardJvtTool(fjvt_tool_name);
+    IJetModifier *fJVTTool = new JetForwardJvtTool(fjvt_tool_name);
     top::check(asg::setProperty(fJVTTool, "JvtMomentName", "AnalysisTop_JVT"),
-                "Failed to set JvtMomentName for JetForwardJvtTool");
+               "Failed to set JvtMomentName for JetForwardJvtTool");
     // following instructions from:
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/METUtilities#MET_with_forward_JVT
-    if (m_config->fwdJetAndMET() == "fJVT") {
+    if (m_config->fwdJetAndMET() == "fJVT")
+    {
       top::check(asg::setProperty(fJVTTool, "CentralMaxPt", 60e3),
-                  "Failed to set CentralMaxPt for JetForwardJvtTool");
+                 "Failed to set CentralMaxPt for JetForwardJvtTool");
+    }
+    if (m_config->fwdJetAndMET() == "fJVTTight")
+    {
+      top::check(asg::setProperty(fJVTTool, "CentralMaxPt", 60e3),
+                 "Failed to set CentralMaxPt for JetForwardJvtTool");
+      top::check(asg::setProperty(fJVTTool, "OutputDec", "passFJVTTight"),
+                 "Failed to set OutputDec for JetForwardJvtTool");
+      top::check(asg::setProperty(fJVTTool, "UseTightOP", true),
+                 "Failed to set UseTightOP for JetForwardJvtTool");
     }
     top::check(fJVTTool->initialize(), "Failed to initialize " + fjvt_tool_name);
     m_fjvtTool = fJVTTool;
@@ -500,16 +510,24 @@ StatusCode JetMETCPTools::setupMET()
     m_met_maker = asg::ToolStore::get<IMETMaker>("met::METMaker");
   } 
   else {
-    met::METMaker* metMaker = new met::METMaker("met::METMaker");
-    top::check( metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name" );
-    if (m_config->fwdJetAndMET() == "Tight") {
-      top::check( metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight" );
+    met::METMaker *metMaker = new met::METMaker("met::METMaker");
+    top::check(metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name");
+    if (m_config->fwdJetAndMET() == "Tight")
+    {
+      top::check(metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight");
     }
-    else if (m_config->fwdJetAndMET() == "fJVT") {
-      top::check( metMaker->setProperty("JetRejectionDec", "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT" );
+    else if (m_config->fwdJetAndMET() == "fJVT")
+    {
+      ATH_MSG_WARNING(" option fJVT no longer recommended, please use  fJVTTight. Option to be removed.");
+      top::check(metMaker->setProperty("JetRejectionDec", "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT");
     }
-    top::check( metMaker->initialize() , "Failed to initialize" );
-    metMaker->msg().setLevel( MSG::INFO );
+    else if ((m_config->fwdJetAndMET() == "fJVTTight"))
+    {
+      ATH_MSG_INFO("JetRejectionDec set to passFJVTTight");
+      top::check(metMaker->setProperty("JetRejectionDec", "passFJVTTight"), "Failed to set METMaker JetRejectionDec to passFJVTTight");
+    }
+    top::check(metMaker->initialize(), "Failed to initialize");
+    metMaker->msg().setLevel(MSG::INFO);
     m_met_maker = metMaker;
   }
 
