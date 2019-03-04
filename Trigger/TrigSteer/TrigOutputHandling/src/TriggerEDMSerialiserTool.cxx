@@ -25,9 +25,12 @@ TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
 StatusCode TriggerEDMSerialiserTool::initialize() {
 
   ATH_CHECK( m_serializerSvc.retrieve() );
-  ATH_CHECK( m_clidSvc.retrieve() );
-  for ( const auto& [typeKeyAux, moduleIdVec] : m_collectionsToSerialize ) {
+  ATH_CHECK( m_clidSvc.retrieve() );  
+  for ( const auto& typeKeyAuxIDs : m_collectionsToSerialize ) {    
+    ATH_MSG_DEBUG("Parsing " << typeKeyAuxIDs);
+    const std::string typeKeyAux = typeKeyAuxIDs.substr( 0, typeKeyAuxIDs.find(';') );
     const std::string persistentType = typeKeyAux.substr( 0, typeKeyAux.find('#') );
+    ATH_MSG_DEBUG("Type " << typeKeyAux);
     if ( persistentType.find('_') == std::string::npos ) {
       ATH_MSG_ERROR( "Unversioned object to be recorded " << typeKeyAux );
       return StatusCode::FAILURE;
@@ -46,6 +49,14 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
       ATH_MSG_ERROR( "The type " << persistentType <<  " is not known to ROOT serialiser" );
       return StatusCode::FAILURE;
     }
+    
+
+    const std::string moduleIDs  = typeKeyAuxIDs.substr( typeKeyAuxIDs.find(';')+1 );
+    std::vector<std::string> splitModuleIDs;
+    boost::split( splitModuleIDs, moduleIDs, [](const char c){ return c == ','; } );
+    std::vector<uint16_t> moduleIdVec;
+    for ( const auto& module: splitModuleIDs ) moduleIdVec.push_back( std::stoi( module ) );
+
     if (moduleIdVec.empty()) {
       ATH_MSG_ERROR( "No HLT result module IDs given for " << typeKeyAux );
       return StatusCode::FAILURE;
