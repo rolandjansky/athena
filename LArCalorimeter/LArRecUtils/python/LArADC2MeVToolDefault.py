@@ -32,11 +32,8 @@ def LArADC2MeVToolDefault (name="LArADC2MeVToolDefault", **kw):
         tool.UseHVScaleCorr = True
 
         if larCondFlags.useLArFEBGainThresholds():
-            from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault
-            theLArFebConfigReader=LArFEBConfigReaderDefault()
-            #theLArFebConfigReader.OutputLevel=DEBUG
-            ServiceMgr.ToolSvc+=theLArFebConfigReader
-            tool.FebConfigReader=theLArFebConfigReader
+            from LArRecUtils.LArFebConfigCondAlgDefault import LArFebConfigCondAlgDefault
+            LArFebConfigCondAlgDefault()
             tool.UseFEBGainTresholds=True
         
 

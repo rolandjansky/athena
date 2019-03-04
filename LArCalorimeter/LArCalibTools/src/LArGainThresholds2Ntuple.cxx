@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArGainThresholds2Ntuple.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 LArGainThresholds2Ntuple::LArGainThresholds2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
-  LArCond2NtupleBase(name, pSvcLocator), m_febConfigReader("LArFEBConfigReader") {
+  LArCond2NtupleBase(name, pSvcLocator) {
 
-  declareProperty("FebConfigReader",m_febConfigReader);
   m_ntTitle="Gain Thresholds";
   m_ntpath="/NTUPLES/FILE1/GAINTH";
 }
@@ -16,10 +15,7 @@ LArGainThresholds2Ntuple::LArGainThresholds2Ntuple(const std::string& name, ISvc
 
 StatusCode LArGainThresholds2Ntuple::initialize() {
 
-  if (m_febConfigReader.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_febConfigReader << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_configKey.initialize());
 
   return LArCond2NtupleBase::initialize();
 }
@@ -28,40 +24,35 @@ LArGainThresholds2Ntuple::~LArGainThresholds2Ntuple()
 {}
 
 StatusCode LArGainThresholds2Ntuple::stop() {
-  StatusCode sc;
-  NTuple::Item<long> lower;
-  NTuple::Item<long> upper;
+
+   ATH_MSG_DEBUG(" trying stop");
+
+   NTuple::Item<long> lower;
+   NTuple::Item<long> upper;
  
-   sc=m_nt->addItem("lower",lower,-1000,5000);
-   if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem 'lower' failed" << endmsg;
+   SG::ReadCondHandle<LArFebConfig> configHdl{m_configKey};
+   const LArFebConfig* febConfig = *configHdl;
+   if (febConfig==nullptr) {
+     ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_configKey.key());
      return StatusCode::FAILURE;
    }
-   
-   sc=m_nt->addItem("upper",upper,-1000.,5000.);
-   if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem 'upper' failed" << endmsg;
-     return StatusCode::FAILURE;
-   }
+
+   ATH_CHECK(m_nt->addItem("lower",lower,-1000,5000));
+   ATH_CHECK(m_nt->addItem("upper",upper,-1000.,5000.));
    
    std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
-     lower=m_febConfigReader->lowerGainThreshold(hwid);
-     upper=m_febConfigReader->upperGainThreshold(hwid);
-     
+     lower=febConfig->lowerGainThreshold(hwid);
+     upper=febConfig->upperGainThreshold(hwid);
+
      fillFromIdentifier(hwid);
      
-     sc=ntupleSvc()->writeRecord(m_nt);      
-     if (sc!=StatusCode::SUCCESS) {
-       (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK(ntupleSvc()->writeRecord(m_nt));      
    }
  
-   msg(MSG::INFO) << "LArGainThresholds2Ntuple has finished." << endmsg;
+   ATH_MSG_INFO("LArGainThresholds2Ntuple has finished.");
    return StatusCode::SUCCESS;
    
-}// end finalize-method.
-   
+}
