@@ -66,10 +66,10 @@ using namespace SCT_Monitoring;
 namespace {// anonymous namespace for functions at file scope
   const bool testOffline(false);
 
-  std::string histogramPath[] = {
+  const std::string histogramPath[] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  std::string histogramPathRe[] = {
+  const std::string histogramPathRe[] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };// 23.01.2015
 
