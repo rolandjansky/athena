@@ -584,8 +584,33 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ),( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
   muEFCBRecoSequence += ViewVerifyTrk
 
+
+  #Precision Tracking 
+  PTAlgs = [] #List of precision tracking algs
+  PTTracks = [] #List of TrackCollectionKeys 
+  PTTrackParticles = [] #List of TrackParticleKeys
+
+  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking   
+  #When run in a different view than FTF some data dependencies needs to be loaded through verifier
+  #Pass verifier as an argument and it will automatically append necessary DataObjects
+  #@NOTE: Don't provide any verifier if loaded in the same view as FTF
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk ) 
+
+  #Get last tracks from the list as input for other alg
+
+  ##Not added to the sequence! Causing stall 
+  PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
+  muEFCBRecoSequence += PTSeq
+
+  #Default from FTF
+  #trackParticles = "xAODTracks" 
+  #TODO: change according to what needs to be done here
+  #Last key in the list is for the TrackParticles after all PT stages (so far only one :) ) 
+  trackParticles = PTTrackParticles[-1] 
+  print 'TRACKPARTICLES %s' %trackParticles
+
   #Make InDetCandidates
-  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg",TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = ["xAODTracks"],ForwardParticleLocation="xAODTracks",OutputLevel=DEBUG)
+  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg",TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [ trackParticles ],ForwardParticleLocation=trackParticles,OutputLevel=DEBUG)
 
   #MuonCombinedCandidates
   theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool", "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
