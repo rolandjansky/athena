@@ -354,12 +354,16 @@ def defineMenu():
         '2INVM8-MU6ab-MU4ab', # ATR-15197 '2INVM9-MU6ab-MU4ab',
         '2INVM9-2MU4ab',
         '2INVM9-MU6ab-MU4ab',
-        'KF-XE40-AJall',
-        'KF-XE50-AJall',
-        'KF-XE55-AJall',
-        'KF-XE60-AJall',
-        'KF-XE65-AJall',
-        'KF-XE75-AJall',
+#        'KF-XE40-AJall',
+#        'KF-XE50-AJall',
+#        'KF-XE55-AJall',
+#        'KF-XE60-AJall',
+#        'KF-XE65-AJall',
+#        'KF-XE75-AJall',
+        '400INVM9999-0DPHI20-J30s6-AJ20s6',
+        '400INVM9999-0DPHI22-J30s6-AJ20s6',
+        '400INVM9999-0DPHI24-J30s6-AJ20s6',
+        '400INVM9999-0DPHI26-J30s6-AJ20s6',
 
         'LATE-MU10s1',
         'SC111-CJ15ab.ETA26',
@@ -695,7 +699,7 @@ def defineMenu():
         
         # Jpsi T&P
         'L1_JPSI-1M5', 'L1_JPSI-1M5-EM7', 'L1_JPSI-1M5-EM12',    
-        'L1_KF-XE50', 'L1_KF-XE55', 'L1_KF-XE60', 'L1_KF-XE65', 'L1_KF-XE75',
+#        'L1_KF-XE50', 'L1_KF-XE55', 'L1_KF-XE60', 'L1_KF-XE65', 'L1_KF-XE75',
         
         # W T&P
 #        'L1_W-05DPHI-JXE-0',
@@ -818,6 +822,11 @@ def defineMenu():
         'L1_3J20_4J20.0ETA49_MJJ-800',
         'L1_3J20_4J20.0ETA49_MJJ-900',
         
+        # INVM + DPHI 
+        'L1_MJJ-400-NFF-0DPHI20',
+        'L1_MJJ-400-NFF-0DPHI22',
+        'L1_MJJ-400-NFF-0DPHI24',
+        'L1_MJJ-400-NFF-0DPHI26',
    
         ### ATR-15062
         'L1_EM18VHI_MJJ-300',
@@ -1306,11 +1315,11 @@ def defineMenu():
         'L1_JPSI-1M5' : 262,
         'L1_JPSI-1M5-EM7' : 263,
         'L1_JPSI-1M5-EM12' : 264,
-        'L1_KF-XE50' : 266,
-        'L1_KF-XE55' : 267,
-        'L1_KF-XE60' : 268,
-        'L1_KF-XE65' : 269,
-        'L1_KF-XE75' : 270,
+#        'L1_KF-XE50' : 266,
+#        'L1_KF-XE55' : 267,
+#        'L1_KF-XE60' : 268,
+#        'L1_KF-XE65' : 269,
+#        'L1_KF-XE75' : 270,
 #        'L1_W-05DPHI-JXE-0' : 271,
 #        'L1_W-10DPHI-JXE-0' : 272,
 #        'L1_W-15DPHI-JXE-0' : 273,
@@ -1323,6 +1332,11 @@ def defineMenu():
 #        'L1_W-HT20-JJ15.ETA49' : 281,
 #        'L1_W-NOMATCH' : 282,
         #'L1_W-NOMATCH_W-05RO-XEEMHT' : 283,
+
+        'L1_MJJ-400-NFF-0DPHI20' : 266,
+        'L1_MJJ-400-NFF-0DPHI22' : 267,
+        'L1_MJJ-400-NFF-0DPHI24' : 268,
+        'L1_MJJ-400-NFF-0DPHI26' : 269,
 
         'L1_EM12_W-MT25' : 50,
         'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 139,
