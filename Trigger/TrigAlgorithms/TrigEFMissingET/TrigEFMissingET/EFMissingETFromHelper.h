@@ -18,7 +18,8 @@ PURPOSE:  Updates TrigMissingET using TrigMissingETHelper info
  ********************************************************************/
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
-//#include "TrigCaloEvent/TrigMissingET.h"
+#include "TrigEFMissingET/EFMissingETHelper.h"
+// #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 
 
@@ -56,6 +57,29 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
 
 
     StatusCode executeMT(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper);
+
+    class ComponentCopier
+    {
+    public:
+      ComponentCopier(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper)
+      {
+        m_met = met;
+        m_helper = metHelper;
+      }
+
+      void addHelperCompToMET(unsigned char helper_i);
+      void setMETCompFromHelper(unsigned char met_i, unsigned char helper_i);
+      void addMETCompWithHelper(unsigned char met_i, unsigned char met_add_i, unsigned char helper_i);
+      void setHelperFromMET();
+
+      xAOD::TrigMissingET* getMET() {return m_met; }
+      TrigEFMissingEtHelper* getMETHelper() {return m_helper; }
+      
+    private:
+      xAOD::TrigMissingET *m_met;
+      TrigEFMissingEtHelper *m_helper;
+    };
+
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMHELPER
