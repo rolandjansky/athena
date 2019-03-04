@@ -24,12 +24,12 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
 
     #Build standard sequences:
     cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
-    cfg.addSequence(AthSequencer('AthOutSeq',Prompt=False),parentName="AthMasterSeq")
+    cfg.addSequence(AthSequencer('AthOutSeq',StopOverride=True),parentName="AthMasterSeq")
     cfg.addSequence(AthSequencer('AthRegSeq'),parentName="AthMasterSeq")
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq'),parentName='AthAlgEvtSeq') 
-    cfg.addSequence(AthSequencer('AthAlgSeq',Sequential=False,IgnoreFilterPassed=True),parentName='AthAllAlgSeq')
+    cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
     cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
 
@@ -37,10 +37,10 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
     from GaudiCoreSvc.GaudiCoreSvcConf import IncidentProcAlg
 
-    cfg.addEventAlgo(AthIncFirerAlg("BeginIncFiringAlg",Incidents=['BeginEvent']),sequenceName='AthBeginSeq')
+    cfg.addEventAlgo(AthIncFirerAlg("BeginIncFiringAlg",FireSerial=False,Incidents=['BeginEvent']),sequenceName='AthBeginSeq')
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg1'),sequenceName='AthBeginSeq')
 
-    cfg.addEventAlgo(AthIncFirerAlg('EndIncFiringAlg',Incidents=['EndEvent']), sequenceName="AthEndSeq")
+    cfg.addEventAlgo(AthIncFirerAlg('EndIncFiringAlg',FireSerial=False,Incidents=['EndEvent']), sequenceName="AthEndSeq")
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg2'),sequenceName="AthEndSeq")
 
     #Basic services:
