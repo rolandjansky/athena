@@ -68,9 +68,9 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 	  }
 	  sel.selectAux( variableNames );
 	}
-	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
+	m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
       } else {
-    	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );      
+    	m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );      
       }
     } else { // an old T/P type
       m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::OldTP, xAOD::AuxSelection() );      
@@ -237,8 +237,13 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
 }
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
-  
 
+  // Leave this check until there is a justified case for appending data to an existing result
+  if (not resultToFill.getSerialisedData().empty()) {
+    ATH_MSG_ERROR("Trying to fill a result which is not empty! Likely misconfiguration, returning a FAILURE");
+    return StatusCode::FAILURE;
+  }
+  
   for ( const Address& address: m_toSerialise ) {
     ATH_MSG_DEBUG( "Streaming " << address.persType );
     // obtain object
