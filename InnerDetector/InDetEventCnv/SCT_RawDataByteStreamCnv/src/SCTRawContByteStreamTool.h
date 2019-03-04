@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -82,7 +82,7 @@ class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStrea
 
   /** Conversion between Lower level Source ID to higher level source ID, used to assemble
       fragments from ROD fragments to assemble full ATLAS raw events. */ 
-  mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler;
+  mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler ATLAS_THREAD_SAFE;
 
   mutable std::mutex m_mutex;
 };
