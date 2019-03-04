@@ -24,17 +24,17 @@ class TileLaserCalibAlg: public AthAlgorithm {
     TileLaserCalibAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~TileLaserCalibAlg();
 
-    typedef ToolHandleArray<ITileCalibTool> lastools_t;
-
     // Functions
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
 
+  private:
+
+    typedef ToolHandleArray<ITileCalibTool> lastools_t;
+
     lastools_t m_lasTools{this,
       "Tools",{},"Tile laser calibration tools"};
-
-  private:
 
     ServiceHandle<IROBDataProviderSvc> m_RobSvc;
 
