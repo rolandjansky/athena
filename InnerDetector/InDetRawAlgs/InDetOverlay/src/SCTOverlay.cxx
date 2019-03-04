@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetOverlay/SCTOverlay.h"
+
+#include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -11,7 +13,9 @@
 namespace Overlay
 {
   // Specialize copyCollection() for the SCT
-  template<> void copyCollection(const InDetRawDataCollection<SCT_RDORawData> *input_coll, InDetRawDataCollection<SCT_RDORawData> *copy_coll)
+  template<>
+  void copyCollection(const InDetRawDataCollection<SCT_RDORawData> *input_coll,
+                      InDetRawDataCollection<SCT_RDORawData> *copy_coll)
   {  
     copy_coll->setIdentifier(input_coll->identify());
     InDetRawDataCollection<SCT_RDORawData>::const_iterator firstData = input_coll->begin();
@@ -176,10 +180,8 @@ namespace Overlay
 
 
 SCTOverlay::SCTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : IDC_OverlayBase(name, pSvcLocator),
-    m_sctId(nullptr)
+  : IDC_OverlayBase(name, pSvcLocator)
 {
-  
 }
 
 StatusCode SCTOverlay::initialize()
@@ -225,7 +227,7 @@ StatusCode SCTOverlay::execute()
     bkgContainerPtr = bkgContainer.cptr();
 
     ATH_MSG_DEBUG("Found background SCT RDO container " << bkgContainer.name() << " in store " << bkgContainer.store());
-    ATH_MSG_DEBUG("SCT Background = " << shortPrint(bkgContainer.cptr(), 50));
+    ATH_MSG_DEBUG("SCT Background = " << Overlay::debugPrint(bkgContainer.cptr(), 50));
   }
 
   SG::ReadHandle<SCT_RDO_Container> signalContainer(m_signalInputKey);
@@ -234,7 +236,7 @@ StatusCode SCTOverlay::execute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal SCT RDO container " << signalContainer.name() << " in store " << signalContainer.store());
-  ATH_MSG_DEBUG("SCT Signal     = " << shortPrint(signalContainer.cptr(), 50));
+  ATH_MSG_DEBUG("SCT Signal     = " << Overlay::debugPrint(signalContainer.cptr(), 50));
 
   // Creating output RDO container
   SG::WriteHandle<SCT_RDO_Container> outputContainer(m_outputKey);
@@ -244,7 +246,7 @@ StatusCode SCTOverlay::execute()
   if (outputContainer.isValid()) {
     overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
 
-    ATH_MSG_DEBUG("SCT Result   = " << shortPrint(outputContainer.ptr(), 50));
+    ATH_MSG_DEBUG("SCT Result   = " << Overlay::debugPrint(outputContainer.ptr(), 50));
   }
 
   ATH_MSG_DEBUG("execute() end");
