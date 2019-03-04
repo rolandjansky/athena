@@ -4,11 +4,11 @@
 
 /**
 
-@page SiPropertiesSvc_page SiPropertiesSvc Package
+@page SiPropertiesTool_page SiPropertiesTool Package
 
 @authors Grant Gorfine
 
-@section SiPropertiesSvc_SiPropertiesSvcIntro Introduction
+@section SiPropertiesTool_SiPropertiesToolIntro Introduction
 
 Service for providing silicon properties for each detector element.
 The properties are available via the SiliconProperties class from

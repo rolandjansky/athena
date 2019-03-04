@@ -11,7 +11,7 @@
 
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 #include "Identifier/IdentifierHash.h"
 
 /**

@@ -10,7 +10,7 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
-#include "SiPropertiesSvc/SiliconPropertiesVector.h"
+#include "SiPropertiesTool/SiliconPropertiesVector.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 

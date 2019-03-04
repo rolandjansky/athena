@@ -58,14 +58,14 @@ class PixelSiPropertiesToolSetup:
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(condSeq, "PixelSiPropertiesCondAlg"):
-      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+      from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
       condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg")
     self.alg = getattr(condSeq, "PixelSiPropertiesCondAlg")
 
   def setTool(self):
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+      from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
       ToolSvc += SiPropertiesTool(name = "PixelSiPropertiesTool",
                                   DetectorName = "Pixel",
                                   ReadKey = "PixelSiliconPropertiesVector")

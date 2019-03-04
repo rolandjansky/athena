@@ -12,7 +12,7 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "GaudiKernel/ICondSvc.h"
 
-#include "SiPropertiesSvc/SiliconPropertiesVector.h"
+#include "SiPropertiesTool/SiliconPropertiesVector.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 

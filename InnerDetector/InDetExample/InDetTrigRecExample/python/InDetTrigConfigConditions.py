@@ -181,10 +181,10 @@ class PixelConditionsServicesSetup:
     # Lorentz Angle Setup #
     #######################
     if not hasattr(condSeq, 'PixelSiPropertiesCondAlg'):
-      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+      from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
       condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg")
 
-    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+    from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
     TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
     ToolSvc += TrigSiPropertiesTool

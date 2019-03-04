@@ -36,7 +36,7 @@ class SCT_SiPropertiesToolSetup:
         condSeq = AthSequencer("AthCondSeq")
 
         if not hasattr(condSeq, self.algName):
-            from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
+            from SiPropertiesTool.SiPropertiesToolConf import SCTSiPropertiesCondAlg
             if self.siliconTool is None:
                 condSeq += SCTSiPropertiesCondAlg(name = self.algName)
             else:
@@ -46,7 +46,7 @@ class SCT_SiPropertiesToolSetup:
 
     def setTool(self):
         if self.tool is None:
-            from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+            from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
             self.tool = SiPropertiesTool(name = self.toolName,
                                          DetectorName = "SCT",
                                          ReadKey = "SCTSiliconPropertiesVector")

@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsTools
-                          InnerDetector/InDetConditions/SiPropertiesSvc
+                          InnerDetector/InDetConditions/SiPropertiesTool
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ModuleDistortions
@@ -40,7 +40,7 @@ atlas_add_component( SCT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel SiDigitization InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry InDetSimData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel SiDigitization InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry InDetSimData )
 
 # Install files from the package:
 atlas_install_headers( SCT_Digitization )

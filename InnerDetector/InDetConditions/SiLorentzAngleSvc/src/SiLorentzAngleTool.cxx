@@ -12,7 +12,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 
 SiLorentzAngleTool::SiLorentzAngleTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),

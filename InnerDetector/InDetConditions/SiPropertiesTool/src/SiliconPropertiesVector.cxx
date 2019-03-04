@@ -6,7 +6,7 @@
 //   Source file for class SiliconPropertiesVector for SiPropertiesTool
 ///////////////////////////////////////////////////////////////////
 
-#include "SiPropertiesSvc/SiliconPropertiesVector.h"
+#include "SiPropertiesTool/SiliconPropertiesVector.h"
 
 namespace InDet {
   
