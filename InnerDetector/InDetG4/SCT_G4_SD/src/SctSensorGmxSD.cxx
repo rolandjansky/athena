@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -38,7 +38,7 @@ G4bool SctSensorGmxSD::ProcessHits(G4Step *aStep, G4TouchableHistory * /* not us
   }
   edep *= CLHEP::MeV;
 
-  G4TouchableHistory *myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
   //
   // Get the hit start and end point local coordinates
   //

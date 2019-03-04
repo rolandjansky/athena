@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************************************
@@ -41,7 +41,7 @@ public:
   template <class... Args> void AddHit(Args&&... args){ m_HitColl->Emplace( args... ); }
 
 private:
-  void indexMethod(G4TouchableHistory *myTouch, double coord1z, int &brlEcap, int &layerDisk, int &etaMod, int &phiMod, int &side);
+  void indexMethod(const G4TouchableHistory *myTouch, double coord1z, int &brlEcap, int &layerDisk, int &etaMod, int &phiMod, int &side);
 protected:
   // The hits collection
   SG::WriteHandle<SiHitCollection> m_HitColl;
