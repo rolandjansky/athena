@@ -76,7 +76,6 @@ if DetFlags.digitize.SCT_on():
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
     theSCT_FrontEnd = ToolSvc.SCT_FrontEnd
-    theSCT_FrontEnd.MaxStripsPerSide = 1280
     theSCT_FrontEnd.UseCalibData = False
 
     if not digitizationFlags.doXingByXingPileUp():

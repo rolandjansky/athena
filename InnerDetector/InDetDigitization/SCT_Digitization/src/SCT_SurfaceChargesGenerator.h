@@ -68,7 +68,7 @@ namespace CLHEP {
 
 template <class HIT> class TimedHitPtr;
 
-class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
+class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
  public:
 
   /**  constructor */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SurfaceChargesGenerator.h"
@@ -40,7 +40,7 @@ using namespace std;
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type,
                                                          const std::string& name,
                                                          const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
   m_tHalfwayDrift{0},
   m_distInterStrip{1.0},
   m_distHalfInterStrip{0},
@@ -73,8 +73,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   m_h_velocity_trap{nullptr},
   m_h_mobility_trap{nullptr},
   m_h_trap_pos{nullptr} {
-    declareInterface<ISCT_SurfaceChargesGenerator>(this);
-
     declareProperty("FixedTime", m_tfix = -999.); // !< fixed timing
     declareProperty("SubtractTime", m_tsubtract = -999); // !< substract drift time
     declareProperty("SurfaceDriftTime", m_tSurfaceDrift = 10); // !< max surface drift time

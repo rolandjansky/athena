@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_Digitization/SCT_DigitizationTool.h"
+#include "SCT_DigitizationTool.h"
 
 // Mother Package includes
 #include "SiDigitization/SiHelper.h"
@@ -47,8 +47,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_mergeSvc{"PileUpMergeSvc", name},
   m_thpcsi{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
-    declareInterface<SCT_DigitizationTool>(this);
-
     declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
     declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
     declareProperty("EnableHits", m_enableHits = true, "Enable hits");
