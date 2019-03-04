@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,20 +40,9 @@ Trk::DiscBounds::DiscBounds(double minrad, double maxrad, double avephi, double 
         swap(m_boundValues[DiscBounds::bv_rMin],  m_boundValues[DiscBounds::bv_rMax]);
 }
 
-Trk::DiscBounds::DiscBounds(const DiscBounds& discbo) :
-  Trk::SurfaceBounds(),
-  m_boundValues(discbo.m_boundValues)
-{}
 
 Trk::DiscBounds::~DiscBounds()
 {}
-
-Trk::DiscBounds& Trk::DiscBounds::operator=(const DiscBounds& discbo)
-{
-    if (this!=&discbo)
-        m_boundValues    = discbo.m_boundValues;
-    return *this;
-}
 
 bool Trk::DiscBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {
