@@ -18,7 +18,7 @@ def setupMenu():
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
-    # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
+    # ['chainName', [L1 thresholds for chainParts], [stream], [groups], EBstep], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
     #---------------------------------------------------------------------
 
     #---------------------------------------------------------------------
@@ -32,18 +32,18 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        #['mu20',      'L1_MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        #['mu8',	      'L1_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['mu8_L1MU6',     [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
      ]
     TriggerFlags.EgammaSlice.signatures = [
-        ['HLT_e3_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e5_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e7_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        #['e20',	      'L1_EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
+        ['HLT_e3_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        #['e20_L1EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
         ]
     TriggerFlags.CombinedSlice.signatures = [
-        #['e8_mu8',    'L1_EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ]
     TriggerFlags.JetSlice.signatures = [ ]
     TriggerFlags.BjetSlice.signatures = [] 
@@ -60,9 +60,6 @@ def setupMenu():
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
-
-
-
 
     signatureList=[]
     for prop in dir(TriggerFlags):

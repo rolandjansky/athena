@@ -1,8 +1,8 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #########################################################################################
 #
 # TriggerConfigHLT class, providing basic functionality for assembling the menu
-#
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 #########################################################################################
 

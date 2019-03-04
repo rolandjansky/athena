@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -40,13 +40,15 @@ class DictFromChainName(object):
 
         elif type(chainInfo) == list:
             m_chainName = chainInfo[0]
-            m_L1item = chainInfo[1]
-            m_L1items_chainParts = chainInfo[2]
-            m_stream = chainInfo[3]
-            m_groups = chainInfo[4]
-            m_EBstep = chainInfo[5]
+            m_L1item = '' 
+            m_L1items_chainParts = chainInfo[1]
+            m_stream = chainInfo[2]
+            m_groups = chainInfo[3]
+            m_EBstep = chainInfo[4]
         else:
             logDict.error("Format of chainInfo passed to genChainDict not known")
+
+        m_L1item = self.getOverallL1item(m_chainName)
 
         logDict.debug("Analysing chain with name: %s", m_chainName)
         chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts, m_L1item)
@@ -106,6 +108,30 @@ class DictFromChainName(object):
         return chainProp
 
 
+    def checkL1inName(self, m_chainName):
+        if '_L1' in m_chainName:
+            return True
+        else:
+            return False
+
+    def getOverallL1item(self, chainName):
+        mainL1 = ''
+
+        if not self.checkL1inName(chainName):
+            logDict.warning("Chain name not complying with naming convention: L1 item missing! PLEASE FIX THIS!!")
+            return mainL1
+        # this assumes that the last string of a chain name is the overall L1 item
+        cNameParts = chainName.split("_") 
+        mainL1 = cNameParts[-1]
+
+        if "L1" not in mainL1:
+            logDict.warning("Chain name not complying with naming convention: L1 item missing! PLEASE FIX THIS!!")
+            return ''
+        mainL1 = mainL1.replace("L1", "L1_")
+
+        return mainL1
+        
+
     def getChainMultFromDict(self, chainDict):
         allMultis = []
         for cpart in chainDict['chainParts']:
@@ -149,7 +175,7 @@ class DictFromChainName(object):
         for cpart in cNameParts:
             m = pattern.match(cpart)
             if m: 
-                logDict.debug("In getChainMultFromName: Pattern found in this string: %s", cpart)
+                logDict.debug("In getChainThresholdFromName: Pattern found in this string: %s", cpart)
                 m_groupdict = m.groupdict()
                 allThresh.append(m_groupdict['threshold'])
                 trigType.append(m_groupdict['trigType'])
