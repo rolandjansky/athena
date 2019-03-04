@@ -38,6 +38,11 @@ if [ -z "${REGTESTEXP}" ]; then
   export REGTESTEXP="REGTEST"
 fi
 
+# Option to override the regtest reference location
+if [ -z "${REGTESTREF}" ]; then
+  export REGTESTREF=${REF_FOLDER}/athena.regtest
+fi
+
 ###
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
@@ -52,18 +57,19 @@ tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
 ###
 
-grep -E "${REGTESTEXP}" ${JOB_LOG} > athena.regtest
+REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
+grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
 
-if [ -f ${REF_FOLDER}/athena.regtest ]; then
-  echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest --linematch ".*" | tee regtest.log
+if [ -f ${REGTESTREF} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
+  timeout 1m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
-  echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
+  echo $(date "+%FT%H:%M %Z")"     The reference file does not exist: ${REGTESTREF}"
   echo "art-result: 999 RegTest"
 fi
 
-mv athena.regtest athena.regtest.new
+mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"

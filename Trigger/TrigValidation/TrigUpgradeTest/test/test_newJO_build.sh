@@ -13,7 +13,11 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="newJOtest.pkl"
 export FROMPICKLE=1
-export REGTESTEXP="REGTEST|.*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
+export REGTESTEXP=".*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
+
+# Find the regtest reference installed with the release
+export REGTESTREF=`find_data.py TrigUpgradeTest/NewJO.ref`
+
 
 rm -rf newJOtest.py bootstrap.pkl bootstrap.py
 
