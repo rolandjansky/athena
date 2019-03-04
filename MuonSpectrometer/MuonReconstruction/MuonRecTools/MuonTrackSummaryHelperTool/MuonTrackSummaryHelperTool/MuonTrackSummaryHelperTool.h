@@ -26,6 +26,9 @@ class RpcIdHelper;
 class TgcIdHelper;
 class CscIdHelper;
 class MdtIdHelper;
+// New Small Wheel
+class MmIdHelper;
+class sTgcIdHelper;
 
 class Identifier;
 
@@ -89,6 +92,9 @@ private:
         const TgcIdHelper* m_tgcId;
         const CscIdHelper* m_cscId;
         const MdtIdHelper* m_mdtId;
+        //New Small Wheel
+        const sTgcIdHelper* m_stgcId;
+        const MmIdHelper* m_mmId;
         
         /** tool used to do hole search */
         ToolHandle<Trk::ITrackHoleSearchTool> m_muonTgTool;
