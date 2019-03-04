@@ -463,18 +463,11 @@ topSequence+=EventCounter(Frequency=100)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jpCF
-nThreads = jpCF.ConcurrencyFlags.NumThreads()
-
 if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     condSeq+=xAODMaker__EventInfoCnvAlg()
     pass
-else:
-    if( (nThreads == 0) and (not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ) ) ):
-        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
-        pass
 
 # bytestream reading need to shedule some algorithm
 
