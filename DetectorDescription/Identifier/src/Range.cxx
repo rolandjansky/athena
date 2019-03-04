@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -322,17 +322,16 @@ Range::field::field ()
  
 //----------------------------------------------- 
 Range::field::field (const field& other) 
-  : m_values (other.m_values),
-    m_indexes (other.m_indexes)
+  : m_minimum (other.m_minimum),
+    m_maximum (other.m_maximum),
+    m_values (other.m_values),
+    m_indexes (other.m_indexes),
+    m_indices (other.m_indices),
+    m_previous (other.m_previous),
+    m_next (other.m_next),
+    m_mode (other.m_mode),
+    m_continuation_mode (other.m_continuation_mode)
 { 
-  m_minimum  = other.m_minimum; 
-  m_maximum  = other.m_maximum; 
-  m_indices  = other.m_indices;
-  m_previous = other.m_previous;
-  m_next     = other.m_next;
-  m_mode     = other.m_mode; 
-  m_continuation_mode = other.m_continuation_mode;
-
 } 
 
 //----------------------------------------------- 
@@ -556,7 +555,7 @@ bool Range::field::overlaps_with (const field& other) const
       all_values 
     } check_type; 
  
-  static check_type check_needed[5][5] = 
+  static const check_type check_needed[5][5] = 
   { 
     {done, done,    done,    done,          done}, 
     {done, done,    min_max, min_max,       min_max}, 
@@ -1173,9 +1172,9 @@ Range::Range ()
 } 
  
 //----------------------------------------------- 
-Range::Range (const Range& other) 
+Range::Range (const Range& other)
+  : m_fields (other.m_fields)
 { 
-  m_fields = other.m_fields; 
 } 
  
 //----------------------------------------------- 
@@ -2007,7 +2006,7 @@ void Range::const_identifier_factory::operator ++ ()
   if (m_id.fields () == 0) return; 
  
   size_type fields = m_id.fields (); 
-  size_type i = fields; 
+  size_type i = fields - 1; 
  
     // 
     // Starting from the end, we try to increment the m_id fields 
@@ -2352,16 +2351,13 @@ private:
  
 //----------------------------------------------- 
 MultiRange::MultiRange () 
-    :
-    m_it_count(0)
 { 
 } 
  
 //----------------------------------------------- 
 MultiRange::MultiRange (const MultiRange& other) 
     : 
-    m_ranges (other.m_ranges),
-    m_it_count(0)
+    m_ranges (other.m_ranges)
 { 
 } 
 
@@ -2369,12 +2365,7 @@ MultiRange::MultiRange (const MultiRange& other)
 MultiRange& MultiRange::operator= (const MultiRange& other) 
 {
   if (this != &other) {
-    if (m_it_count > 0) {
-      // Can't do this if we still have iterators referencing us.
-      std::abort();
-    }
     m_ranges = other.m_ranges;
-    m_it_count = other.m_it_count;
   }
   return *this;
 }
@@ -2386,28 +2377,11 @@ MultiRange& MultiRange::operator= (const MultiRange& other)
  *   source file. 
  */ 
 MultiRange::MultiRange (const Range& r, const Range& s) 
-    : 
-    m_it_count(0)
 { 
   m_ranges.push_back (r); 
   m_ranges.push_back (s); 
 } 
- 
-//----------------------------------------------- 
-MultiRange::MultiRange (const std::string& text) 
-    : 
-    m_it_count(0)
-{ 
-  build (text); 
-} 
- 
-//----------------------------------------------- 
-void MultiRange::build (const std::string& text) 
-{ 
-  static MultiRangeParser parser; 
-  parser.run (text, *this); 
-} 
- 
+
 //----------------------------------------------- 
 void MultiRange::clear () 
 { 
@@ -2553,19 +2527,17 @@ bool MultiRange::has_overlap () const
 } 
  
 //----------------------------------------------- 
-MultiRange::identifier_factory MultiRange::factory_begin (bool sort) 
+MultiRange::identifier_factory MultiRange::factory_begin () 
 { 
   const MultiRange& me = *this; 
-  if (sort) m_it_count++;
-  return (identifier_factory (me, sort)); 
+  return (identifier_factory (me)); 
 } 
  
 //----------------------------------------------- 
-MultiRange::const_identifier_factory MultiRange::factory_begin (bool sort) const 
+MultiRange::const_identifier_factory MultiRange::factory_begin () const 
 { 
   const MultiRange& me = *this; 
-  if (sort) m_it_count++;
-  return (const_identifier_factory (me, sort)); 
+  return (const_identifier_factory (me)); 
 } 
  
 //----------------------------------------------- 
@@ -2587,7 +2559,6 @@ MultiRange::const_identifier_factory MultiRange::factory_end () const
 //----------------------------------------------- 
 MultiRange::identifier_factory::identifier_factory () 
     : 
-    m_sort(false),
     m_multirange(0)
 { 
 }
@@ -2596,7 +2567,6 @@ MultiRange::identifier_factory::identifier_factory ()
 MultiRange::identifier_factory::identifier_factory (const identifier_factory& other) 
     :
     m_id 		(other.m_id),
-    m_sort 		(other.m_sort),
     m_id_fac_it  	(other.m_id_fac_it),
     m_id_fac_end 	(other.m_id_fac_end),
     m_range_it 		(other.m_range_it),
@@ -2605,107 +2575,31 @@ MultiRange::identifier_factory::identifier_factory (const identifier_factory& ot
     m_id_vec_end 	(other.m_id_vec_end),
     m_multirange	(other.m_multirange)
 {
-	    
-    if (m_sort && m_multirange) {
-	m_multirange->m_it_count++;
-//  	std::cout << "MultiRange::identifier_factory::operator =: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-    }
 } 
  
 //----------------------------------------------- 
-MultiRange::identifier_factory::identifier_factory (const MultiRange& multirange, bool sort) 
+MultiRange::identifier_factory::identifier_factory (const MultiRange& multirange) 
     :
-    m_sort(sort),
     m_range_it(multirange.m_ranges.begin()),
     m_range_end(multirange.m_ranges.end()),
     m_multirange(&multirange)
 { 
     if (m_range_it == m_range_end)return;  // no ranges
     /** 
-     *  For sorted ids, must set up initial id vector. For unsorted,
-     *  one can just set up iterators over ranges and ids.
+     *  Set up iterators over ranges and ids.
      */
-    if (m_sort) {
-	if (m_multirange->m_ids.size() > 0) {
-	    // id vector has already been created
-	    // Set up iterator over ids
-	    m_id_vec_it  = m_multirange->m_ids.begin();
-	    m_id_vec_end = m_multirange->m_ids.end();
-	    if (m_id_vec_it != m_id_vec_end) {
-		// Set id
-		m_id = *m_id_vec_it;
-	    }
-	}
-	else {
-	    // Limit sorted access to just under 500K ids
-	    size_type nids = m_multirange->cardinality();
-	    if (500000 < nids) {
-		std::cout << "MultiRange::identifier_factory: unable to provide " 
-			  << " access to sorted identifier iterator. Limited to < 500k ids." 
-			  << std::endl;
-	    }
-	    else {
-		// Access and sort ids, removing duplicates
-		std::set<ExpandedIdentifier> ids;
-		for (; m_range_it != m_range_end; ++m_range_it) {
-		    m_id_fac_it  = (*m_range_it).factory_begin();
-		    m_id_fac_end = (*m_range_it).factory_end();
-		    for (; m_id_fac_it != m_id_fac_end; ++m_id_fac_it) {
-			ids.insert(*m_id_fac_it);
-		    }
-		}
-		std::set<ExpandedIdentifier>::iterator    firstIds = ids.begin();
-		std::set<ExpandedIdentifier>::iterator    lastIds  = ids.end();
-		for(; firstIds != lastIds; ++firstIds) {
-		    m_multirange->m_ids.push_back (*firstIds); 
-		}
-		// Set up iterator over ids
-		m_id_vec_it  = m_multirange->m_ids.begin();
-		m_id_vec_end = m_multirange->m_ids.end();
-		if (m_id_vec_it != m_id_vec_end) {
-		    // Set id
-		    m_id = *m_id_vec_it;
-		}
-	    }	    
-	}
-    }
-    else {
-	/** 
-	 *  No sort: Set up the iterators for range and identifiers
-	 */
-	if (m_range_it != m_range_end) {
-	    m_id_fac_it  = (*m_range_it).factory_begin();
-	    m_id_fac_end = (*m_range_it).factory_end();
-	    if(m_id_fac_it != m_id_fac_end) {
-		// Set id
-		m_id = *m_id_fac_it;
-	    }
-	}
+    if (m_range_it != m_range_end) {
+      m_id_fac_it  = (*m_range_it).factory_begin();
+      m_id_fac_end = (*m_range_it).factory_end();
+      if(m_id_fac_it != m_id_fac_end) {
+        // Set id
+        m_id = *m_id_fac_it;
+      }
     }
 }
  
 MultiRange::identifier_factory::~identifier_factory ()
 {
-    // remove id buffer in multirange if no iterator is still using it
-    if (m_sort && m_multirange) {
-	if(m_multirange->m_it_count) {
-	    m_multirange->m_it_count--;
-	}
-	else {
-	    std::cout << "MultiRange::identifier_factory::~identifier_factory: it_count ALREADY 0" 
-		      << std::endl;
-	}
-//  	std::cout << "MultiRange::identifier_factory::~identifier_factory: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-	if (!m_multirange->m_it_count) {
-	    m_multirange->m_ids.clear();
-//  	std::cout << "MultiRange::identifier_factory::~identifier_factory: cleared id buffer" 
-//  		  << std::endl;
-	}    
-    }
 }
 
 
@@ -2714,7 +2608,6 @@ MultiRange::identifier_factory& MultiRange::identifier_factory::operator = (cons
 { 
   if (this != &other) {
     m_id 		= other.m_id;
-    m_sort 		= other.m_sort;
     m_id_fac_it  	= other.m_id_fac_it;
     m_id_fac_end 	= other.m_id_fac_end;
     m_range_it 		= other.m_range_it;
@@ -2722,14 +2615,6 @@ MultiRange::identifier_factory& MultiRange::identifier_factory::operator = (cons
     m_id_vec_it 	= other.m_id_vec_it;
     m_id_vec_end 	= other.m_id_vec_end;
     m_multirange	= other.m_multirange;
-    // Must increment number of iterators looking at the id buffer in
-    // the multirange
-    if (m_sort && m_multirange) {
-	m_multirange->m_it_count++;
-//  	std::cout << "MultiRange::identifier_factory::operator =: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-    }
   }
   return (*this); 
 } 
@@ -2739,7 +2624,6 @@ MultiRange::identifier_factory& MultiRange::identifier_factory::operator = (iden
 { 
   if (this != &other) {
     m_id 		= std::move(other.m_id);
-    m_sort 		= other.m_sort;
     m_id_fac_it  	= std::move(other.m_id_fac_it);
     m_id_fac_end 	= std::move(other.m_id_fac_end);
     m_range_it 		= other.m_range_it;
@@ -2758,36 +2642,21 @@ void MultiRange::identifier_factory::operator ++ ()
  
     if (m_id.fields () == 0) return; 
 
-    /** 
-     *  Advance iterators depending upon whether or not we have sorted.
-     */
-
-    if (m_sort) {
-	m_id.clear();
-	if (m_id_vec_it != m_id_vec_end) {
-	    ++m_id_vec_it;
-	    if (m_id_vec_it != m_id_vec_end) {
-		m_id = *m_id_vec_it;
-	    }
-	}
-    }
-    else {
-	m_id.clear();
-	if (m_range_it != m_range_end) {
-	    if (m_id_fac_it != m_id_fac_end) {
-		++m_id_fac_it;
-	    }
-	    if (m_id_fac_it == m_id_fac_end) {
-		++m_range_it;
-		if (m_range_it != m_range_end) {
-		    m_id_fac_it  = (*m_range_it).factory_begin();
-		    m_id_fac_end = (*m_range_it).factory_end();
-		}
-	    }
-	    if (m_id_fac_it != m_id_fac_end) {
-		m_id = *m_id_fac_it;
-	    }
-	}
+    m_id.clear();
+    if (m_range_it != m_range_end) {
+      if (m_id_fac_it != m_id_fac_end) {
+        ++m_id_fac_it;
+      }
+      if (m_id_fac_it == m_id_fac_end) {
+        ++m_range_it;
+        if (m_range_it != m_range_end) {
+          m_id_fac_it  = (*m_range_it).factory_begin();
+          m_id_fac_end = (*m_range_it).factory_end();
+        }
+      }
+      if (m_id_fac_it != m_id_fac_end) {
+        m_id = *m_id_fac_it;
+      }
     }
 } 
 
@@ -2815,7 +2684,6 @@ bool MultiRange::identifier_factory::operator != (const identifier_factory& othe
 //----------------------------------------------- 
 MultiRange::const_identifier_factory::const_identifier_factory () 
     : 
-    m_sort(false),
     m_multirange(0)
 { 
 } 
@@ -2824,7 +2692,6 @@ MultiRange::const_identifier_factory::const_identifier_factory ()
 MultiRange::const_identifier_factory::const_identifier_factory (const const_identifier_factory& other) 
     :
     m_id 		(other.m_id),
-    m_sort 		(other.m_sort),
     m_id_fac_it  	(other.m_id_fac_it),
     m_id_fac_end 	(other.m_id_fac_end),
     m_range_it 		(other.m_range_it),
@@ -2833,117 +2700,34 @@ MultiRange::const_identifier_factory::const_identifier_factory (const const_iden
     m_id_vec_end 	(other.m_id_vec_end),
     m_multirange	(other.m_multirange)
 {
-	    
-    if (m_sort && m_multirange) {
-	m_multirange->m_it_count++;
-//  	std::cout << "MultiRange::const_identifier_factory::operator =: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-    }
 } 
  
  
 //----------------------------------------------- 
-MultiRange::const_identifier_factory::const_identifier_factory (const MultiRange& multirange, bool sort) 
+MultiRange::const_identifier_factory::const_identifier_factory (const MultiRange& multirange) 
     :
-    m_sort(sort),
     m_range_it(multirange.m_ranges.begin()),
     m_range_end(multirange.m_ranges.end()),
     m_multirange(&multirange)
 { 
 
-//      std::cout << "MultiRange::const_identifier_factory::const_identifier_factory: sort "  
-//  	      << sort << " size " << m_multirange->m_ids.size()
-//  	      << " range it " << (m_range_it == m_range_end)
-//  	      << " multi range " << (std::string)(*m_multirange)
-//  	      << std::endl;
-    
-
     if (m_range_it == m_range_end)return;  // no ranges
     /** 
-     *  For sorted ids, must set up initial id vector. For unsorted,
-     *  one can just set up iterators over ranges and ids.
+     *  Set up iterators over ranges and ids.
      */
-    if (m_sort) {
-	if (m_multirange->m_ids.size() > 0) {
-	    // id vector has already been created
-	    // Set up iterator over ids
-	    m_id_vec_it  = m_multirange->m_ids.begin();
-	    m_id_vec_end = m_multirange->m_ids.end();
-	    if (m_id_vec_it != m_id_vec_end) {
-		// Set id
-		m_id = *m_id_vec_it;
-	    }
-	}
-	else {
-	    // Limit sorted access to just under 500K ids
-	    size_type nids = m_multirange->cardinality();
-	    if (500000 < nids) {
-		std::cout << "MultiRange::identifier_factory: unable to provide " 
-			  << " access to sorted identifier iterator. Limited to < 500k ids." 
-			  << std::endl;
-	    }
-	    else {
-		// Access and sort ids, removing duplicates
-		std::set<ExpandedIdentifier> ids;
-		for (; m_range_it != m_range_end; ++m_range_it) {
-		    m_id_fac_it  = (*m_range_it).factory_begin();
-		    m_id_fac_end = (*m_range_it).factory_end();
-		    for (; m_id_fac_it != m_id_fac_end; ++m_id_fac_it) {
-			ids.insert(*m_id_fac_it);
-		    }
-		}
-		std::set<ExpandedIdentifier>::iterator    firstIds = ids.begin();
-		std::set<ExpandedIdentifier>::iterator    lastIds  = ids.end();
-		for(; firstIds != lastIds; ++firstIds) {
-		    m_multirange->m_ids.push_back (*firstIds); 
-		}
-		// Set up iterator over ids
-		m_id_vec_it  = m_multirange->m_ids.begin();
-		m_id_vec_end = m_multirange->m_ids.end();
-		if (m_id_vec_it != m_id_vec_end) {
-		    // Set id
-		    m_id = *m_id_vec_it;
-		}
-	    }	    
-	}
-    }
-    else {
-	/** 
-	 *  No sort: Set up the iterators for range and identifiers
-	 */
-	if (m_range_it != m_range_end) {
-	    m_id_fac_it  = (*m_range_it).factory_begin();
-	    m_id_fac_end = (*m_range_it).factory_end();
-	    if(m_id_fac_it != m_id_fac_end) {
-		// Set id
-		m_id = *m_id_fac_it;
-	    }
-	}
+    if (m_range_it != m_range_end) {
+      m_id_fac_it  = (*m_range_it).factory_begin();
+      m_id_fac_end = (*m_range_it).factory_end();
+      if(m_id_fac_it != m_id_fac_end) {
+        // Set id
+        m_id = *m_id_fac_it;
+      }
     }
 } 
 
  
 MultiRange::const_identifier_factory::~const_identifier_factory ()
 {
-    // remove id buffer in multirange if no iterator is still using it
-    if (m_sort && m_multirange) {
-	if(m_multirange->m_it_count) {
-	    m_multirange->m_it_count--;
-	}
-	else {
-	    std::cout << "MultiRange::const_identifier_factory::~const_identifier_factory: it_count ALREADY 0" 
-		      << std::endl;
-	}
-//  	std::cout << "MultiRange::const_identifier_factory::~const_identifier_factory: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-	if (!m_multirange->m_it_count) {
-	    m_multirange->m_ids.clear();
-//  	std::cout << "MultiRange::const_identifier_factory::const_~identifier_factory: cleared id buffer" 
-//  		  << std::endl;
-	}    
-    }
 }
 
  
@@ -2952,7 +2736,6 @@ MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::oper
 { 
   if (this != &other) {
     m_id 		= other.m_id;
-    m_sort 		= other.m_sort;
     m_id_fac_it  	= other.m_id_fac_it;
     m_id_fac_end 	= other.m_id_fac_end;
     m_range_it 		= other.m_range_it;
@@ -2960,14 +2743,6 @@ MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::oper
     m_id_vec_it 	= other.m_id_vec_it;
     m_id_vec_end 	= other.m_id_vec_end;
     m_multirange	= other.m_multirange;
-    // Must increment number of iterators looking at the id buffer in
-    // the multirange
-    if (m_sort && m_multirange) {
-	m_multirange->m_it_count++;
-//  	std::cout << "MultiRange::const_identifier_factory::operator =: it_count" 
-//  		  << m_multirange->m_it_count 
-//  		  << std::endl;
-    }
   } 
   return (*this); 
 } 
@@ -2977,7 +2752,6 @@ MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::oper
 { 
   if (this != &other) {
     m_id 		= std::move(other.m_id);
-    m_sort 		= other.m_sort;
     m_id_fac_it  	= std::move(other.m_id_fac_it);
     m_id_fac_end 	= std::move(other.m_id_fac_end);
     m_range_it 		= other.m_range_it;
@@ -2996,36 +2770,21 @@ void MultiRange::const_identifier_factory::operator ++ ()
  
     if (m_id.fields () == 0) return; 
 
-    /** 
-     *  Advance iterators depending upon whether or not we have sorted.
-     */
-
-    if (m_sort) {
-	m_id.clear();
-	if (m_id_vec_it != m_id_vec_end) {
-	    ++m_id_vec_it;
-	    if (m_id_vec_it != m_id_vec_end) {
-		m_id = *m_id_vec_it;
-	    }
-	}
-    }
-    else {
-	m_id.clear();
-	if (m_range_it != m_range_end) {
-	    if (m_id_fac_it != m_id_fac_end) {
-		++m_id_fac_it;
-	    }
-	    if (m_id_fac_it == m_id_fac_end) {
-		++m_range_it;
-		if (m_range_it != m_range_end) {
-		    m_id_fac_it  = (*m_range_it).factory_begin();
-		    m_id_fac_end = (*m_range_it).factory_end();
-		}
-	    }
-	    if (m_id_fac_it != m_id_fac_end) {
-		m_id = *m_id_fac_it;
-	    }
-	}
+    m_id.clear();
+    if (m_range_it != m_range_end) {
+      if (m_id_fac_it != m_id_fac_end) {
+        ++m_id_fac_it;
+      }
+      if (m_id_fac_it == m_id_fac_end) {
+        ++m_range_it;
+        if (m_range_it != m_range_end) {
+          m_id_fac_it  = (*m_range_it).factory_begin();
+          m_id_fac_end = (*m_range_it).factory_end();
+        }
+      }
+      if (m_id_fac_it != m_id_fac_end) {
+        m_id = *m_id_fac_it;
+      }
     }
 } 
  
