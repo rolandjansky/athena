@@ -42,8 +42,7 @@ namespace Muon
     /** standard finalize method */
     virtual StatusCode finalize();
 
-    StatusCode getClusters(const IdentifierHash hash,
-                           std::vector<Muon::sTgcPrepData>& stripsVect, 
+    StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
 			   std::vector<Muon::sTgcPrepData*>& clustersVect);
 
   private: 

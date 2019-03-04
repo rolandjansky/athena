@@ -44,12 +44,15 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
 //
 // Build the clusters given a vector of single-hit PRD
 //
-StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(const IdentifierHash hash, 
-                                                           std::vector<Muon::sTgcPrepData>& stripsVect, 
+StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
 							   std::vector<Muon::sTgcPrepData*>& clustersVect)
 {
 
   ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
+
+  //
+  // define the identifier hash
+  IdentifierHash hash;
 
   double resolution=0.;
   bool isWire = false;
@@ -182,8 +185,13 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);
 
-    m_clustersStripNum[multilayer][gasGap].push_back(clusterStripNum);
-    m_clusters[multilayer][gasGap].push_back(cluster);
+    std::vector<std::set<unsigned int>> &clustersStripNum = m_clustersStripNum[multilayer][gasGap];
+    std::vector<std::vector<Muon::sTgcPrepData>> &clusters = m_clusters[multilayer][gasGap];
+
+    clustersStripNum.emplace_back();
+    clustersStripNum.back().insert(stripNum);
+    clusters.emplace_back();
+    clusters.back().push_back(strip);
 
     return true;
   }

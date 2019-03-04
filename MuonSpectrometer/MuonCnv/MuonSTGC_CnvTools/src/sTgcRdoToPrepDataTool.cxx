@@ -283,11 +283,11 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     //
     // Clusterize strips
     //
-    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcStripPrds,sTgcStripClusters));
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcStripPrds,sTgcStripClusters));
     //
     // Clusterize wires
     //
-    ATH_CHECK(m_clusterBuilderTool->getClusters(hash,sTgcWirePrds,sTgcWireClusters));
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
     //
     // Add the clusters to the event store ( do not clusterize wires for now )
     //
