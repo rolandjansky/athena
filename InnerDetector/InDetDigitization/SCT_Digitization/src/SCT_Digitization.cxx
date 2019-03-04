@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_Digitization/SCT_Digitization.h"
-#include "SCT_Digitization/SCT_DigitizationTool.h"
+#include "SCT_Digitization.h"
+#include "SCT_DigitizationTool.h"
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
