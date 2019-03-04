@@ -62,7 +62,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Input format and file for athena running
-if athenaCommonFlags.FilesInput is not None:
+if len(athenaCommonFlags.FilesInput())>0:
     from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys, GetRunNumber
     ConfigureFromListOfKeys(['everything'])
     TriggerRelease.Modifiers._run_number = GetRunNumber()
@@ -120,6 +120,7 @@ if globalflags.DataSource.is_geant4():  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
+                     'BFieldAutoConfig',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'UseBeamSpotFlagForBjet',
