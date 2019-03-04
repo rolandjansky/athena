@@ -90,7 +90,7 @@ private:
 	/** Hash ID Identifier mapping to collection index. */
 	LArRodIdHash m_hash;
 	/** Hardware to Source ID conversion */
-	mutable Hid2RESrcID m_conv;
+	Hid2RESrcID m_conv;
 	/** FEB Hardware Identifier for second FEBs in a
 	    Collection */
 	std::vector<HWIdentifier> m_second;
