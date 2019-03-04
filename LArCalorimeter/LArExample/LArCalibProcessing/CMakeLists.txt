@@ -9,6 +9,9 @@ atlas_subdir( LArCalibProcessing )
 atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
+# Necessary external(s):
+find_package( cx_Oracle )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
