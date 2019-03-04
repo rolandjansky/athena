@@ -31,6 +31,9 @@ atlas_depends_on_subdirs(
 atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
   Root/BTagTrackAugmenter.cxx
+  Root/BTagAugmenterTool.cxx
+  Root/BTagMuonAugmenter.cxx
+  Root/BTagMuonAugmenterTool.cxx
   Root/DL2.cxx
   Root/DL2HighLevel.cxx
   Root/DL2Tool.cxx

@@ -13,6 +13,14 @@ There are several user-level tools here:
 
    - `BTagJetAugmenter`: adds jet-wise flavor-tagging inputs.
 
+   - `BTagAugmenterTool`: ASG Tool interface around `BTagJetAugmenter`.
+
+   - `BTagMuonAugmenter`: Class for adding muon information for the
+     soft muon tagger.
+
+   - `BTagMuonAugmenterTool`: ASG Tool wrapper around
+     `BTagMuonAugmenter`.
+
    - `BTagTrackAugmenter`: add track-wise inputs. These include signed
       impact parameters and track grades. Note that the signed impact
       parameters **should not be added** in derivations: they are
