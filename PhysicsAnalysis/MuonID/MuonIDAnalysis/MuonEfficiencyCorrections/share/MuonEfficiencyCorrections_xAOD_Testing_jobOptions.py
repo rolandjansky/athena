@@ -18,10 +18,10 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cSummer2018"
-alg.ValidationRelease="cMoriond2019"
+alg.DefaultRelease="cWinter2019_BeforeFix"
+alg.ValidationRelease="cWinter2019"
 ## Select 30 GeV muons for the high-pt WP only
-alg.MinPt = 30000
+alg.MinPt = 15000
 alg.MaxEta = 2.5
 
 WPs = [
@@ -34,7 +34,7 @@ WPs = [
          # track-to-vertex-association WPs
    #      "TTVA",
          # BadMuon veto SFs
-        "BadMuonVeto_HighPt",
+   #     "BadMuonVeto_HighPt",
          # isolation WPs
       #  "FixedCutPflowTightIso",
     #    "FixedCutPflowLooseIso",
@@ -47,9 +47,10 @@ WPs = [
         ]
 
 for WP in WPs: 
-  #  alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190220_Winter_r21")]#, CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
-
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, #Release="190220_Winter_r21", 
+                                                  CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_fixedTruth_v2/")]
+    #alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "190220_Winter_r21")]
+  
 theJob += alg
 
 # Do some additional tweaking:

@@ -59,7 +59,7 @@ namespace CP {
             }
         }       
         
-        eff *= std::fabs(1 + m_SystWeight * std::fabs(syst));
+        eff *= 1 + m_SystWeight * std::fabs(syst);
         return cc_flat;
     }
             

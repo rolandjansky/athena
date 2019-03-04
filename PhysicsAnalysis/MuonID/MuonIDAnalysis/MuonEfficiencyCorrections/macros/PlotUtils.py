@@ -2,7 +2,7 @@
 
 #!/usr/bin/env python
 import ROOT, math
-
+from array import array
 class DiagnosticHisto(object):
     def __init__(self, name = "",
                        axis_title = "",
@@ -10,7 +10,8 @@ class DiagnosticHisto(object):
                        bmin = 0.,
                        bmax = -1.e9,
                        bin_width = -1,
-                       bdir = None):
+                       bdir = None,
+                       log_binning = False):
         self.__name = name
         self.__xTitle = axis_title
         self.__min = bmin
@@ -21,11 +22,18 @@ class DiagnosticHisto(object):
         self.__TH1 = None
         self.__TDir = bdir
         
-        if bins > 0:
+        if bins > 0 and not log_binning:
             self.__width = (bmax-bmin)/ bins 
             self.__TH1 = ROOT.TH1D(name, "Diagnostic histogram", bins, bmin, bmax)
             self.__TH1.SetDirectory(bdir) 
-                
+        elif bins > 0:
+            log_start = math.log(bmin)
+            log_end = math.log(bmax)
+            log_step = (log_end -log_start) / bins
+            binning = array("f", [math.exp(log_start +n*log_step) for n in range(bins+1)])
+            self.__TH1 = ROOT.TH1D(name, "Diagnostic histogram", bins, binning)
+            self.__TH1.SetDirectory(bdir)
+            
     def name(self): return self.__name
     def TH1(self): return self.__TH1
     def fill(self, value, weight=1.):

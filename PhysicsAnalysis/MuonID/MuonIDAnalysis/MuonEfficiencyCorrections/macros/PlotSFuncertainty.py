@@ -23,6 +23,8 @@ class SystDependency(object):
         self.__muon_var  = test_tree.GetLeaf("Muon_%s"%(var_name))
         
         self.__var_name  = "%s_%s_%s"%(wp,var_name, sys)
+        self.__wp = wp
+        self.__sys = sys
         self.__nom_sf = test_tree.GetLeaf("%s_SF"%(wp))
         self.__1up_sf = test_tree.GetLeaf("%s_SF__MUON_EFF_%s_%s__1up"%(wp,KnownWPs[wp],sys))
         self.__1dn_sf = test_tree.GetLeaf("%s_SF__MUON_EFF_%s_%s__1down"%(wp,KnownWPs[wp],sys))
@@ -60,21 +62,12 @@ class SystDependency(object):
     def get_1up_H1(self): return  self.__1up_histo 
     def get_1dn_H1(self): return  self.__1dn_histo 
     
+    def get_wp(self): return self.__wp
+    def get_sys(self): return self.__sys
+    
   
 if __name__ == "__main__":
-    
-    parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="SFTest.root")
-    parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
-    parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
-    parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
-    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down", "MUON_EFF_RECO_SYS__1up" ])
-    parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","DataEff","MCEff"])
-    parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
-    parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
-    parser.add_argument('--noComparison', help='do not plot comparison to old release', action='store_true', default=False)
-    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=20)
-    Options = parser.parse_args()
+    Options = getArgParser().parse_args()
 
     if not os.path.exists(Options.InputFile):
         print 'ERROR: File %s does not exist!'%Options.InputFile
@@ -83,7 +76,7 @@ if __name__ == "__main__":
     
     tree = infile.Get("MuonEfficiencyTest")
     branchesInFile = [key.GetName() for key in tree.GetListOfBranches()]
-    calibReleases = []
+
     allWPs = []
     for wp in KnownWPs.iterkeys():
         if not wp in allWPs: allWPs.append(wp)
@@ -115,7 +108,7 @@ if __name__ == "__main__":
             SystDependency(
                  var_name = "pt", 
                  axis_title ="p_{T} #mu(%s) [MeV]"%(wp),
-                 bins =500 , bmin = 0., bmax = 10.e6,
+                 bins =500 , bmin = 30.e3, bmax = 10.e6,
                  wp =wp, sys = sys, test_tree = tree),
            SystDependency(
                 var_name = "eta", 
@@ -143,8 +136,7 @@ if __name__ == "__main__":
     dummy.SaveAs("%s/AllSystDep%s.pdf[" % (Options.outDir, bonusname))
     for H in Histos:
         can = ROOT.TCanvas("sf_dep_%s"%(H.name()),"SFCheck",1000,600)
-       # can.SetLogx()
-      #  H.finalize()
+       
         nom = H.get_nom_H1().TH1()
         up = H.get_1dn_H1().TH1()
         dn = H.get_1up_H1().TH1()
@@ -161,15 +153,14 @@ if __name__ == "__main__":
         up.SetTitle("1UP")
         dn.SetTitle("1DOWN")
         
-        up.SetMinimum(0.01)
-        up.SetMaximum(max(up.GetMaximum(), dn.GetMaximum()) *1.5)
+        up.SetMinimum(0.01)     
+        up.GetXaxis().SetRangeUser(40.e3, 10.e6)
         up.SetMaximum(2)
      
         up.GetYaxis().SetTitle("Ratio to nominal")
        
         pu.DrawLegend([(up,'L'),(dn,'L')], 0.3, 0.75, 0.9, 0.9)          
-      #  pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
-       # pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
+        pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(H.get_wp(), H.get_sys()))
        # pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
         can.SaveAs("%s/SysCheck%s%s.pdf"%(Options.outDir, H.name(),bonusname))
         can.SaveAs("%s/AllSystDep%s.pdf" % (Options.outDir, bonusname))

@@ -17,7 +17,8 @@ class ReleaseComparer(object):
                  
                  test_tree = None,
                  branch_old = "",   branch_new = "",
-                 weight_old = None, weight_new = None
+                 weight_old = None, weight_new = None,
+                 log_binning = False
                  ):
         ### Direct access to the branch which are going to be compared
         self.__old_branch = test_tree.GetLeaf(branch_old)
@@ -32,12 +33,12 @@ class ReleaseComparer(object):
                                     name = "%s_%s"%(name_old_rel, var_name),
                                     axis_title = axis_title,
                                     bins = bins, bmin = bmin, bmax = bmax, 
-                                    bin_width = bin_width, bdir = bdir)
+                                    bin_width = bin_width, bdir = bdir, log_binning = log_binning)
         self.__new_histo = DiagnosticHisto(
                                     name = "%s_%s"%(name_new_rel, var_name),
                                     axis_title = axis_title,
                                     bins = bins, bmin = bmin, bmax = bmax, 
-                                    bin_width = bin_width, bdir = bdir)
+                                    bin_width = bin_width, bdir = bdir, log_binning = log_binning)
                 
     def fill(self):
         self.__old_histo.fill(value = self.__old_branch.GetValue(), weight= self.get_old_weight())
@@ -87,14 +88,15 @@ class SystematicComparer(ReleaseComparer):
         ReleaseComparer.__init__(self,
                                  var_name = var_name,
                                  axis_title = axis_title,
-                                 bins = bins, bmin = 0., bmax = 0.15,
+                                 bins = bins, bmin = 1.e-4, bmax = 0.15,
                                  name_old_rel =name_old_rel, 
                                  name_new_rel =name_new_rel,
                                  test_tree = test_tree,
                                  branch_old = branch_old,
                                  branch_new = branch_new,
                                  weight_old = weight_old,
-                                 weight_new = weight_new)
+                                 weight_new = weight_new,
+                                 log_binning = True)
         self.__sys_old = test_tree.GetLeaf(branch_sys_old)
         self.__sys_new = test_tree.GetLeaf(branch_sys_new)
         
@@ -122,7 +124,6 @@ KnownWPs = {
     "FixedCutHighPtTrackOnlyIso" : "ISO",
     "FixedCutTightIso" : "ISO",
     "BadMuonVeto_HighPt" : "BADMUON",
-    "BadMuonVeto": "BADMUON",
     }
 
 def GetProbeMatchFromType(Type,WP):
@@ -164,7 +165,7 @@ def getArgParser():
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
     parser.add_argument('--noComparison', help='do not plot comparison to old release', action='store_true', default=False)
-    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=20)
+    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=100)
     return parser
 if __name__ == "__main__":    
     Options = getArgParser().parse_args()
@@ -248,6 +249,7 @@ if __name__ == "__main__":
                             branch_sys_new = "c%s_%s_%s__%s"%(calibReleases[1],wp,t,var.replace("RECO",KnownWPs[wp])),
                         )] 
   
+            continue
             Histos +=[
                 ReleaseComparer(var_name = "pt_%s"%(wp), axis_title ="p_{T} #mu(%s) [MeV]"%(wp),
                             bins = 15, bmin = 15.e3, bmax = 200.e3,
@@ -278,8 +280,7 @@ if __name__ == "__main__":
         tree.GetEntry(i)
         if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
         if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
-        for H in Histos: 
-            if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
+        for H in Histos: H.fill()
         
     print "INFO: Histograms filled"
     pu = PlotUtils()
