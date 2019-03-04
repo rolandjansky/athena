@@ -48,9 +48,6 @@ namespace coral	{
   class Blob;
 }
 
-//class RtResolutionLookUp;
-//class SamplePoint;
-
 #include "MdtCalibData/RtResolutionLookUp.h"
 #include "MuonCalibMath/SamplePoint.h"
 
