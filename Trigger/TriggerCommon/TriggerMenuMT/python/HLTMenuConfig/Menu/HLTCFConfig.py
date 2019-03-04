@@ -518,8 +518,9 @@ def generateDecisionTree(chains, allChainDicts):
 
             for chain in chainsInCell:
                 for seq in chain.steps[nstep].sequences:
-                    if seq.ca:
-                        stepsAcc.merge( seq.ca )
+                    if seq.ca is None:
+                        raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
+                    stepsAcc.merge( seq.ca )
                     recoAcc.addEventAlgo( seq.hypo.Alg, sequenceName = stepView.getName() )
                 sfilter.setChains(chain.name)
 
