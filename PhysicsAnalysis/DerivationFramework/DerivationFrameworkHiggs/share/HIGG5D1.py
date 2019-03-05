@@ -301,6 +301,9 @@ DerivationFrameworkJob += higg5d1Seq
 # evtStream = augStream.GetEventStream()
 # svcMgr += createThinningSvc( svcName="HIGG5D1ThinningSvc", outStreams=[evtStream] )
 
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq, algname="QGTaggerToolAlg")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

@@ -1,12 +1,13 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 #ifndef PATINTERFACES_SYSTEMATICS_UTIL_H
 #define PATINTERFACES_SYSTEMATICS_UTIL_H
-
-//        Copyright Iowa State University 2014.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
 
 #include <PATInterfaces/Global.h>
 #include <vector>

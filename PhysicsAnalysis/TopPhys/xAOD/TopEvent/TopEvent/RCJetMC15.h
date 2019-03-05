@@ -85,6 +85,8 @@ public:
     
     void getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
     void getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
+    
+    void getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet, const top::Event& event);
 
 
 private:
@@ -107,6 +109,7 @@ private:
     std::string m_egamma;
     std::string m_jetsyst;
     std::string m_muonsyst;
+    std::string m_tracksyst;
 
     std::string m_InJetContainerBase;
     std::string m_OutJetContainerBase;

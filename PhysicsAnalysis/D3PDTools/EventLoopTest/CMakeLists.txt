@@ -15,7 +15,8 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/EventLoop
    PRIVATE
    Control/AthToolSupport/AsgTools
-   Control/xAODRootAccess )
+   Control/xAODRootAccess
+   Event/xAOD/xAODEventInfo )
 
 # Find the needed external(s):
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
@@ -24,7 +25,7 @@ find_package( GTest )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoopTestLib
    EventLoopTestDictSource
-   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h
+   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlgXAOD.h EventLoopTest/UnitTestAlg1.h
    EventLoopTest/UnitTestAlg2.h EventLoopTest/UnitTestAlg3.h
    EventLoopTest/UnitTestTool.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
@@ -34,7 +35,7 @@ atlas_add_library( EventLoopTestLib
    PUBLIC_HEADERS EventLoopTest
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils
-   SampleHandler EventLoop AsgTestingLib
+   SampleHandler EventLoop AsgTestingLib xAODEventInfo
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
 
 target_compile_definitions (EventLoopTestLib PUBLIC USE_CMAKE)
@@ -58,7 +59,7 @@ endfunction( _add_gtest )
 set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
 
 set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx
-   test/gt_LeakChecks.cxx)
+   test/gt_LeakChecks.cxx test/gt_UnitTestAlgXAOD.cxx)
 
 
 file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )

@@ -47,12 +47,14 @@ namespace top{
 
     m_jetSubstructureName("None"),
 
+    m_recomputeCPvars(true),
+
     // Do systematics? - this needs many more configuration options
     m_systematics("SetMe"),
     /// special syst config
     m_nominalSystName("Nominal"),
     m_allSystName("All"),
-    
+
     m_DSID(-1),
     m_MapIndex(0),
     // Is MC
@@ -84,6 +86,9 @@ namespace top{
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
     m_doLooseEvents(false),
+    // Runs systematics on the given selection
+    m_doTightSysts(true),
+    m_doLooseSysts(true),
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -184,7 +189,7 @@ namespace top{
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
-    m_jetPtGhostTracks(17000.),
+    m_jetPtGhostTracks(19000.),
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
@@ -252,7 +257,7 @@ namespace top{
     m_saveOnlySelectedEvents(true),
     m_outputFileSetAutoFlushZero(false),
     m_outputFileNEventAutoFlush(1000), // 1000 events
-    m_outputFileBasketSizePrimitive(4096), // 4kB 
+    m_outputFileBasketSizePrimitive(4096), // 4kB
     m_outputFileBasketSizeVector(40960),   // 40kB
     // Number of events to run on (only for testing)
     m_numberOfEventsToRun(0),
@@ -474,7 +479,7 @@ namespace top{
     this->sgKeyTrackJets( settings->value("TrackJetCollectionName") );
     this->jetSubstructureName( settings->value("LargeJetSubstructure") );
     this->decoKeyJetGhostTrack( settings->value("JetGhostTrackDecoName") );
-    
+
     // ROOTCORE/Analysis release series
     this->setReleaseSeries();
 
@@ -585,16 +590,21 @@ namespace top{
 
     }
 
+    // Force recomputation of CP variables?
+    if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
+
     // Bootstrapping weights (permitted in MC and Data)
     if(settings->value("SaveBootstrapWeights") == "True") {
       this->setSaveBootstrapWeights(true);
       this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
     }
- 
+
 
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
       m_doTightEvents = (settings->value("DoTight") == "MC" || settings->value("DoTight") == "Both");
+      m_doLooseSysts  = (settings->value("DoSysts") == "Loose" || settings->value("DoSysts") == "Both") && m_doLooseEvents;
+      m_doTightSysts  = (settings->value("DoSysts") == "Tight" || settings->value("DoSysts") == "Both") && m_doTightEvents;
     }
     else {
       m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
@@ -669,7 +679,7 @@ namespace top{
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
-    
+
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -753,12 +763,12 @@ namespace top{
       this->m_useRCJetSubstructure = true;
     else
       this->m_useRCJetSubstructure = false;
-      
+
     if (settings->value("UseRCJetAdditionalSubstructure") == "True" || settings->value("UseRCJetAdditionalSubstructure") == "true")
       this->m_useRCJetAdditionalSubstructure = true;
     else
       this->m_useRCJetAdditionalSubstructure = false;
-   
+
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
     this->VarRCJetTrimcut(std::stof(settings->value("VarRCJetTrim")) );
@@ -775,7 +785,7 @@ namespace top{
       this->m_useVarRCJetAdditionalSubstructure = true;
     else
       this->m_useVarRCJetAdditionalSubstructure = false;
-    
+
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
     m_bJSF = std::stof(settings->value("bJSF"));
@@ -864,7 +874,7 @@ namespace top{
       m_lhapdf_options.baseLHAPDF = LHAPDFBase;
     }
     // if not already present, add to the list of PDF sets
-    if( ! m_lhapdf_options.baseLHAPDF.empty() && 
+    if( ! m_lhapdf_options.baseLHAPDF.empty() &&
 	!(std::find(m_lhapdf_options.pdf_set_names.begin(),
 		    m_lhapdf_options.pdf_set_names.end(),
 		    m_lhapdf_options.baseLHAPDF) != m_lhapdf_options.pdf_set_names.end()) )
@@ -1027,6 +1037,21 @@ namespace top{
       std::cout << "Custom PRW scale-factors - nominal:" << SFs_tokens[0]<<"="<<m_pileup_reweighting.custom_SF[0] << " up:"<< SFs_tokens[1]<<"=" << m_pileup_reweighting.custom_SF[1] << " down:" << SFs_tokens[2]<<"="<< m_pileup_reweighting.custom_SF[2]  << std::endl;
     }
 
+    if ( m_pileup_reweighting.apply && settings->value("PRWPeriodAssignments") != " ") {
+      std::vector<std::string> period_tokens;
+      tokenize(settings->value("PRWPeriodAssignments"), period_tokens, ":");
+      if (period_tokens.size() % 3 != 0){
+        throw std::invalid_argument("TopConfig: Option PRWPeriodAssignments requires values in the form of \'value:value:value\'. The number of values needs to be divisible by 3.");
+      }
+      try {
+        for (const std::string& per : period_tokens){
+          m_pileup_reweighting.periodAssignments.emplace_back(std::stoi(per));
+        }
+      } catch (...) {
+        throw std::invalid_argument("TopConfig: Cannot convert the strings into integers for the run numbers in Option PRWPeriodAssignments");
+      }
+    }
+
     // TRUTH derivations do not contain pile-up weights
     if(m_isTruthDxAOD)
         m_pileup_reweighting.apply = false;
@@ -1063,12 +1088,13 @@ namespace top{
 
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
-      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & result, std::string const & key) {
+      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & triggersByPeriod, std::string const & key) {
           /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
+          std::unordered_map<std::string, std::vector<std::string>> result;
           std::vector<std::string> pairs;
           boost::split(pairs, settings->value(key), boost::is_any_of(" "));
           for (std::string const & pair : pairs) {
-            if (pair.empty())
+            if (pair.empty() || pair == "None")
               continue;
             auto i = pair.find('@');
             if (!(i != std::string::npos && pair.find('@', i + 1) == std::string::npos))
@@ -1079,14 +1105,26 @@ namespace top{
               throw std::invalid_argument(std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key + "'");
             boost::split(triggers, triggerstr, boost::is_any_of(","));
           }
+          /* merge trigger map from this configuration line into triggersByPeriod */
+          for (auto&& kv : result) {
+            auto&& src = kv.second;
+            auto&& dst = triggersByPeriod[kv.first];
+            for (std::string const & trigger : src) {
+              if (std::find(dst.begin(), dst.end(), trigger) != dst.end())
+                throw std::invalid_argument(std::string() + "Trigger `" + trigger + "' was specified multiple times");
+              dst.push_back(trigger);
+            }
+          }
         };
       m_trigGlobalConfiguration.isActivated = true;
-      parseTriggerString(m_trigGlobalConfiguration.electron_trigger, "ElectronTriggers");
-      parseTriggerString(m_trigGlobalConfiguration.electron_trigger_loose, "ElectronTriggersLoose");
-      parseTriggerString(m_trigGlobalConfiguration.muon_trigger, "MuonTriggers");
-      parseTriggerString(m_trigGlobalConfiguration.muon_trigger_loose, "MuonTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "ElectronTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "ElectronTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "MuonTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "MuonTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.trigger, "GlobalTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.trigger_loose, "GlobalTriggersLoose");
     }
-    
+
   }
 
   void TopConfig::setGrlDir( const std::string& s )
@@ -1135,7 +1173,7 @@ namespace top{
       m_jetUncertainties_QGFracFile = s;
     }
   }
- 
+
   void TopConfig::jetUncertainties_QGHistPatterns( const std::string& s )
   {
     if (!m_configFixed) {
@@ -1337,14 +1375,14 @@ namespace top{
 
   void TopConfig::setBTaggingSFSysts( std::string WP, const std::set<std::string>& btagging_SF_names, bool isTrackJet )
   {
-    
+
     //this avoids code duplication
     std::unordered_map<std::string,std::set<std::string>>& base_names = isTrackJet ? bTag_base_names_trkJet : bTag_base_names;
     std::unordered_map<std::string,std::set<std::string>>& named_systs = isTrackJet ? bTag_named_systs_trkJet : bTag_named_systs;
     std::unordered_map<std::string,unsigned int>& eigen_B = isTrackJet ? bTag_eigen_B_trkJet : bTag_eigen_B;
     std::unordered_map<std::string,unsigned int>& eigen_C = isTrackJet ? bTag_eigen_C_trkJet : bTag_eigen_C;
     std::unordered_map<std::string,unsigned int>& eigen_light = isTrackJet ? bTag_eigen_light_trkJet : bTag_eigen_light;
-    
+
     //names of all systematics
     base_names[WP] = btagging_SF_names;
     //initialise named systematics to empty set
@@ -1377,15 +1415,15 @@ namespace top{
   void TopConfig::setBTagWP_available( std::string btagging_WP ) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
-  
+
   void TopConfig::setBTagWP_available_trkJet( std::string btagging_WP ) {
     m_available_btaggingWP_trkJet.push_back(btagging_WP);
   }
-  
+
   void TopConfig::setBTagWP_calibrated( std::string btagging_WP ) {
     m_calibrated_btaggingWP.push_back(btagging_WP);
   }
-  
+
   void TopConfig::setBTagWP_calibrated_trkJet( std::string btagging_WP ) {
     m_calibrated_btaggingWP_trkJet.push_back(btagging_WP);
   }
@@ -1568,7 +1606,7 @@ namespace top{
       if( !m_configFixed ){
           // Add the nominal (for reporting purposes).
           (* m_systMapJetGhostTrack)[m_nominalHashValue] = {};
-          (* m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack;
+          (* m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack+"_";
           m_jetGhostTrackSystematics.push_back("");
 
           for(auto s : syst){
@@ -1884,8 +1922,8 @@ namespace top{
 	m_systSgKeyMapPseudoTop->insert( std::make_pair( (*i).first , m_sgKeyPseudoTop + "_" + (*i).second ) );
       if (m_doLooseEvents)
 	m_systSgKeyMapPseudoTopLoose->insert( std::make_pair( (*i).first , m_sgKeyPseudoTop + "_Loose_" + (*i).second ) );
-      
-      
+
+
     }
 
 
@@ -1893,14 +1931,18 @@ namespace top{
     unsigned int TTreeIndex(0);
     if (m_doTightEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doTightSysts){
+	  m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
     if (m_doLooseEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-        m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
-        ++TTreeIndex;
+	if ((*i).second == "nominal" || m_doLooseSysts){
+	  m_systAllTTreeLooseIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
+	  ++TTreeIndex;
+	}
       }
     }
 
@@ -2269,7 +2311,9 @@ namespace top{
       if (it != m_systDecoKeyMapJetGhostTrack->end()){
           return it->second;
       } else {
-          return m_decoKeyJetGhostTrack;
+	  it = m_systDecoKeyMapJetGhostTrack->find(m_nominalHashValue);
+	  if( it==m_systDecoKeyMapJetGhostTrack->end() )throw std::runtime_error("TopConfig: Failed to retrieve decoKeyJetGhostTrack.");
+	  return it->second;
       }
   }
 
@@ -2564,7 +2608,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_muonQualityLoose = settings->m_muonQualityLoose;
     m_muonIsolation = settings->m_muonIsolation;
     m_muonIsolationLoose = settings->m_muonIsolationLoose;
-    
+
     for (std::vector<std::pair<std::string, std::string> >::const_iterator i=settings->m_chosen_btaggingWP.begin();i!=settings->m_chosen_btaggingWP.end();++i)
         m_chosen_btaggingWP.push_back( *i );
 
@@ -2622,7 +2666,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
         m_systPersistantAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second ) );
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second));
     }
-    
+
     for (std::vector<std::size_t>::const_iterator i=settings->m_list_systHashAll.begin();i!=settings->m_list_systHashAll.end();++i)
         m_list_systHashAll->push_back( *i );
 
@@ -2731,17 +2775,17 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
-  const std::string TopConfig::getYear(unsigned int runnumber){    
+  const std::string TopConfig::getYear(unsigned int runnumber){
 
     // 2015 : 266904 - 284484
-    if(runnumber >= 266904 && runnumber <= 284484) return "2015"; 
+    if(runnumber >= 266904 && runnumber <= 284484) return "2015";
 
     // 2016 : 296939 - 311481
     if(runnumber >= 296939 && runnumber <= 311481) return "2016";
 
     // 2017 : 324320 - 999999
     if(runnumber >= 324320) return "2017";
-    
+
     return "ERROR";
   }
 
@@ -2753,7 +2797,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_trigGlobalConfiguration.isConfigured                 = true;
     return;
   }
-  
+
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)

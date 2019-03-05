@@ -320,6 +320,10 @@ namespace EL
     static const std::string optPerfTree;
 
 
+    /// \brief the option to select whether our input is xAODs
+  public:
+    static const std::string optXAODInput;
+
     /// description: the option to select the access mode for xAODs.
     ///   this can be "branch" for branch access, or "class" for
     ///   access.  if this option isn't specified EventLoop will pick
@@ -474,6 +478,16 @@ namespace EL
     static const std::string optMemFailOnLeak;
 
     /// @}
+
+
+    /// \brief the name of the histogram output stream
+    ///
+    /// Normally users don't need to worry about the histogram output
+    /// stream, and it just gets created for you automatically, but in
+    /// some situations you will need to reconfigure the histogram
+    /// output stream.
+    static const std::string histogramStreamName;
+
 
 
     //

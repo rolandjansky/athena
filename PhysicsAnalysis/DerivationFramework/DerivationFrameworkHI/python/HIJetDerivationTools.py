@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 def addJetThinningTool(collection="AntiKt4HIJets",deriv="HION7",jet_pt_threshold=15) :
     from AthenaCommon.AppMgr import ToolSvc
@@ -12,6 +12,19 @@ def addJetThinningTool(collection="AntiKt4HIJets",deriv="HION7",jet_pt_threshold
 
     ToolSvc+=jet_tool
     return jet_tool
+
+def addBtaggThinningTool(Btaggcollection="BTagging_DFAntiKt4HI",jetcollection="DFAntiKt4HIJets",deriv="HION7",jet_pt_threshold=15) :
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkHI.DerivationFrameworkHIConf import DerivationFramework__BtaggedObjectThinning
+    bjet_tool = DerivationFramework__BtaggedObjectThinning(name                    = "%sJetThinningTool_%s" % (deriv,Btaggcollection),
+                                                          ThinningService         = "%sThinningSvc" % deriv,
+                                                          ContainerName           = Btaggcollection,
+                                                          SelectionString         = "%s.pt  > (%d* GeV)" % (jetcollection,jet_pt_threshold),
+                                                          ApplyAnd                = False)
+                                                                 
+
+    ToolSvc+=bjet_tool
+    return bjet_tool
     
 def addJetClusterThinningTool(collection="AntiKt4HIJets",deriv="HION7",pt_cut=25) :
     from AthenaCommon.AppMgr import ToolSvc
@@ -62,11 +75,21 @@ def addTrackThinningToolTight(deriv="HION7", track_pt_threshold=4) :
     ToolSvc += TPThinningTool
     return TPThinningTool
 
+pp_trigger_collections=["HLT_xAOD__JetContainer_a4tcemsubjesISFS","HLT_xAOD__JetContainer_a4tcemsubjesFS"]
+HI_trigger_collections=["HLT_xAOD__JetContainer_a4ionemsubjesISFS","HLT_xAOD__JetContainer_a4ionemsubjesFS"]
+largeR_pp_trigger_collections=pp_trigger_collections+["HLT_xAOD__JetContainer_a10tclcwsubjesFS"]
 
-HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesISFS.pt"
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.eta",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.phi",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.m"]
+
+def makeHITriggerJetBasicBranchList(isPP, largeR) :
+    HITriggerBranches=["pt","eta","phi","m"]
+    if isPP and largeR=="HION9": trigger_collections = largeR_pp_trigger_collections
+    elif isPP: trigger_collections = pp_trigger_collections
+    else: trigger_collections = HI_trigger_collections 
+    TriggerVars = []
+    for collection in trigger_collections :  
+        for j in HITriggerBranches: 
+            TriggerVars.append(collection+'.'+j)
+    return TriggerVars    
 
 HIClusterVars=["HIClusters.eta0",
                "HIClusters.phi0",
@@ -84,6 +107,19 @@ HIClusterVars=["HIClusters.eta0",
 #               "HIClusters.time"]
 
 HISeedBranches=["pt","eta","phi","m"]
+
+def makeHIJetBasicBranchList() :
+    state_vars=["pt","eta","phi","m"]
+    c=list(state_vars)
+    states=["JetUnsubtractedScaleMomentum","JetSubtractedScaleMomentum"]
+    for s in states:
+        for v in state_vars:
+            c.append(s+'_'+v)
+    c+=['ConstituentScale',
+        'constituentLinks',
+        'constituentWeights',
+        ]
+    return c
 
 def makeHIJetBranchList() :
     state_vars=["pt","eta","phi","m"]
@@ -124,6 +160,7 @@ def makeHIJetBranchList() :
 
 
 HIJetBranches=makeHIJetBranchList()
+HIJetBasicBranches=makeHIJetBasicBranchList()
 
 ##DROPPED CONTENT##
 ##misc##
@@ -230,37 +267,66 @@ def addUPCJets(jetalg,radius,inputtype,sequence,outputlist):
             addStandardJetsUPC(jetalg, radius, inputtype, mods="topo_upc",
                                ghostArea=0.01, ptmin=2000, ptminFilter=5000, calibOpt="o", algseq=sequence, outputGroup=outputlist)
 
-#99% trigger efficiency points for different items
-HITriggerDict = {'HLT_j50_ion_L1TE20':  68, 'HLT_j60_ion_L1TE50': 79, 'HLT_j75_ion_L1TE50': 89}
-ppTriggerDict = {'HLT_j30_L1TE5': 34,'HLT_j40_L1TE10':  44, 'HLT_j50_L1J12': 59, 'HLT_j60_L1J15': 70, 'HLT_j75_L1J20': 79, 'HLT_j85': 89}
+#2015 PbPb 99% trigger efficiency points
+HI15TriggerDict_HP_HION8 = {'HLT_j50_ion_L1TE20':  68, 'HLT_j60_ion_L1TE50': 79, 'HLT_j75_ion_L1TE50': 89}
+HI15TriggerDict_HP_HION7 = HI15TriggerDict_HP_HION8.copy()
+HI15TriggerDict_HP_HION7.update({'HLT_mu4_j40_ion_dr05': 40 ,'HLT_mu4_j50_ion_dr05': 50 })
+HI15TriggerDict_HP_HION9 = {'HLT_j75_ion_L1TE50': 150}
+HI15TriggerDict_MB = {'HLT_noalg_mb_L1TE50':  20, 'HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50': 20}
 
-HI18TriggerDict = {
-'HLT_mb_sptrk_L1ZDC_A_C_VTE50': 20,
-'HLT_noalg_pc_L1TE50_VTE600.0ETA49': 20,
-'HLT_noalg_cc_L1TE600.0ETA49': 20,
-'HLT_mb_sptrk': 20,
-'HLT_noalg_mb_L1TE50': 20,
-'HLT_j50_ion_L1J12': 50,
-'HLT_j60_ion_L1J15': 60,
-'HLT_j60_ion_L1J20': 60,
-'HLT_j75_ion_L1J20': 75,
-'HLT_j75_ion_L1J30': 75,
-'HLT_j85_ion_L1J20': 85,
-'HLT_j85_ion_L1J30': 85,
-'HLT_j100_ion_L1J20': 100,
-'HLT_j100_ion_L1J30': 100,
-'HLT_j110_ion_L1J30': 110,
-'HLT_j110_ion_L1J50': 110,
-'HLT_j120_ion_L1J30': 120,
-'HLT_j120_ion_L1J50': 120,
-'HLT_j130_ion_L1J30': 130,
-'HLT_j150_ion_L1J30': 150,
-'HLT_j150_ion_L1J50': 150,
-'HLT_j180_ion_L1J50': 180,
-'HLT_j200_ion_L1J50': 200}
+#2015 pp 99% trigger efficiency points
+pp15TriggerDict_HP_HION8 = {'HLT_j30_L1TE5': 34,'HLT_j40_L1TE10':  44, 'HLT_j50_L1J12': 59, 'HLT_j60_L1J15': 70, 'HLT_j75_L1J20': 79, 'HLT_j85': 89}
+pp15TriggerDict_HP_HION7 = pp15TriggerDict_HP_HION8.copy()
+pp15TriggerDict_HP_HION7.update({'HLT_mu4_j40_dr05': 40 ,'HLT_mu4_j50_dr05': 50 })
+pp15TriggerDict_HP_HION9 = {'HLT_j85': 150}
+pp15TriggerDict_MB = {'HLT_mb_sptrk': 20}
 
+#2018 PbPb  90% trigger efficiency points
+HI18TriggerDict_HP_HION8 = {'HLT_j50_ion_L1J12': 60, 'HLT_j60_ion_L1J15': 70.5, 'HLT_j75_ion_L1J20': 84.5, 'HLT_j75_ion_L1J30': 84.5, 'HLT_j85_ion_L1J30': 94.5}
+HI18TriggerDict_HP_HION7 = HI18TriggerDict_HP_HION8.copy()
+HI18TriggerDict_HP_HION7.update({'HLT_mu4_j30_a2_ion_dr05': 30 ,'HLT_mu4_j40_a2_ion_dr05': 40 ,'HLT_mu4_j30_a3_ion_dr05': 30 ,'HLT_mu4_j40_a3_ion_dr05': 40 ,'HLT_mu4_j40_ion_dr05': 40 ,'HLT_mu4_j50_ion_dr05': 50, 'HLT_mu4_j60_ion_dr05_L1MU4_J15': 60})
+HI18TriggerDict_HP_HION9 = {'HLT_j85_ion_L1J30': 150, 'HLT_j150_a10_ion_L1J50': 160, 'HLT_j180_a10_ion_L1J50': 190, 'HLT_j200_a10_ion_L1J50': 210}
+HI18TriggerDict_MB = {'HLT_mb_sptrk_L1ZDC_A_C_VTE50': 20, 'HLT_noalg_pc_L1TE50_VTE600.0ETA49': 20, 'HLT_noalg_cc_L1TE600.0ETA49': 20}
 
+#2017 pp  90% trigger efficiency points
+#TODO update thresholds
+pp17TriggerDict_HP_HION8 = {'HLT_j30_0eta490_L1TE20': 34,'HLT_j40_0eta490_L1TE20':  44, 'HLT_j50_L1J15': 59, 'HLT_j60': 70, 'HLT_j60_200eta320_L1J20': 70, 'HLT_j75_L1J20': 79, 'HLT_j75_200eta320_L1J20': 79, 'HLT_j85': 89, 'HLT_j100_L1J20': 100}
+pp17TriggerDict_HP_HION7 = pp17TriggerDict_HP_HION8.copy()
+pp17TriggerDict_HP_HION7.update({'HLT_mu4_j40_dr05': 40 ,'HLT_mu4_j50_dr05': 50 })
+pp17TriggerDict_HP_HION9 = {'HLT_j85': 150, 'HLT_j100_L1J20': 150, 'HLT_j110_a10_lcw_subjes_L1J30': 150}
+pp17TriggerDict_MB = {'HLT_mb_sptrk': 20}
 
+def GetTriggers(project_tag, isMB, deriv):    
+    switcher_HP_HION7 = {
+        'data15_hi': HI15TriggerDict_HP_HION7,
+        'data15_5TeV': pp15TriggerDict_HP_HION7,
+        'data18_hi': HI18TriggerDict_HP_HION7,
+        'data17_5TeV': pp17TriggerDict_HP_HION7,
+    }
+    switcher_HP_HION8 = {
+        'data15_hi': HI15TriggerDict_HP_HION8,
+        'data15_5TeV': pp15TriggerDict_HP_HION8,
+        'data18_hi': HI18TriggerDict_HP_HION8,
+        'data17_5TeV': pp17TriggerDict_HP_HION8,
+    }
+    switcher_HP_HION9 = {
+        'data15_hi': HI15TriggerDict_HP_HION9,
+        'data15_5TeV': pp15TriggerDict_HP_HION9,
+        'data18_hi': HI18TriggerDict_HP_HION9,
+        'data17_5TeV': pp17TriggerDict_HP_HION9,
+    }
+    switcher_MB = {
+        'data15_hi': HI15TriggerDict_MB,
+        'data15_5TeV': pp15TriggerDict_MB,
+        'data18_hi': HI18TriggerDict_MB,
+        'data17_5TeV': pp17TriggerDict_MB,
+    }
+    
+    if isMB: return switcher_MB.get(project_tag, "Invalid project tag")
+    elif deriv == "HION7" : return  switcher_HP_HION7.get(project_tag, "Invalid project tag")
+    elif deriv == "HION8" : return  switcher_HP_HION8.get(project_tag, "Invalid project tag")
+    elif deriv == "HION9" : return  switcher_HP_HION9.get(project_tag, "Invalid project tag")
+    else: print "Invalid derivation reduction tag"
 
 
 

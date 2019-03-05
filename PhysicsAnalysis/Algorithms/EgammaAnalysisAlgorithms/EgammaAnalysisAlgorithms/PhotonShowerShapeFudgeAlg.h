@@ -13,6 +13,7 @@
 #include <EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h>
 #include <EgammaAnalysisAlgorithms/CopyHelpers.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODEgamma/PhotonContainer.h>
@@ -50,6 +51,11 @@ namespace CP
   private:
     SysCopyHandle<xAOD::PhotonContainer> m_photonHandle {
       this, "photons", "Photons", "the photon collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results
   private:

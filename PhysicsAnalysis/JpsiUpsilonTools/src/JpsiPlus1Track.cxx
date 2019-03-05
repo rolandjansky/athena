@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -16,7 +16,6 @@
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
@@ -24,7 +23,13 @@
 #include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
 
 namespace Analysis {
-    
+
+
+    // Set masses
+    constexpr double muMass = 105.658;
+    constexpr double kMass = 493.677;
+    constexpr double piMass = 139.57;
+
     StatusCode JpsiPlus1Track::initialize() {
         
         // retrieving vertex Fitter
@@ -51,21 +56,19 @@ namespace Analysis {
         } else {
             ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
         }
- 
-        // Get the Particle Properties Service
-        IPartPropSvc* partPropSvc = 0;
-        StatusCode sc = service("PartPropSvc", partPropSvc, true);
-        if (sc.isFailure()) {
-            ATH_MSG_ERROR("Could not initialize Particle Properties Service");
-            return StatusCode::SUCCESS;
-        } else {
-            m_particleDataTable = partPropSvc->PDT();
-        }
+
 
         if (m_requiredNMuons > 0 && !m_excludeJpsiMuonsOnly) {
           ATH_MSG_FATAL("Invalid configuration");
           return StatusCode::FAILURE;
         }
+
+        if(m_muonMasses.empty()){
+          m_muonMasses.assign(2, muMass);
+        }
+
+        m_useGSFTrack.reset();
+        for(int i : m_useGSFTrackIndices) m_useGSFTrack.set(i, true);
 
         ATH_MSG_INFO("Initialize successful");
         
@@ -81,7 +84,6 @@ namespace Analysis {
     }
     
     JpsiPlus1Track::JpsiPlus1Track(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-    m_particleDataTable(0),
     m_piMassHyp(false),
     m_kMassHyp(true),
     m_trkThresholdPt(0.0),
@@ -106,7 +108,8 @@ namespace Analysis {
     m_trkTrippletMassLower(-1.0),
     m_trkTrippletPt(-1.0),
     m_trkDeltaZ(-1.0),
-    m_requiredNMuons(0)
+    m_requiredNMuons(0),
+    m_TrkParticleGSFCollection("GSFTrackParticles")
     {
         declareInterface<JpsiPlus1Track>(this);
         declareProperty("pionHypothesis",m_piMassHyp);
@@ -136,6 +139,9 @@ namespace Analysis {
         declareProperty("TrkQuadrupletPt"       ,m_trkTrippletPt       );
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ           );
         declareProperty("RequireNMuonTracks"    ,m_requiredNMuons      );
+        declareProperty("AlternativeMassConstraintTrack", m_muonMasses );
+        declareProperty("UseGSFTrackIndices",    m_useGSFTrackIndices  );
+        declareProperty("GSFCollection",         m_TrkParticleGSFCollection);
 
     }
     
@@ -159,10 +165,7 @@ namespace Analysis {
             return StatusCode::FAILURE;
         };
         
-        // Set masses
-        constexpr double muMass = 105.658;
-        constexpr double kMass = 493.677;
-        constexpr double piMass = 139.57;
+
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
@@ -185,7 +188,13 @@ namespace Analysis {
             ATH_MSG_DEBUG("Found track particle collection " << m_TrkParticleCollection << " in StoreGate!");
         }
         ATH_MSG_DEBUG("Track container size "<< importedTrackCollection->size());
-        
+
+        const xAOD::TrackParticleContainer* importedGSFTrackCollection(nullptr);
+        if(m_useGSFTrack.any()){
+           ATH_CHECK(evtStore()->retrieve(importedGSFTrackCollection, m_TrkParticleGSFCollection));
+        }
+
+
         // Get the muon collection used to build the J/psis
         const xAOD::MuonContainer* importedMuonCollection(0);
         if (m_MuonsUsedInJpsi!="NONE") {
@@ -217,8 +226,6 @@ namespace Analysis {
         if (theIDTracksAfterSelection.empty()) return StatusCode::SUCCESS;
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
         
-        // Set vector of muon masses
-        const std::vector<double> muonMasses(2 , muMass);
 
         
         // Loop over J/psi candidates, select, collect up tracks used to build a J/psi
@@ -229,7 +236,7 @@ namespace Analysis {
             if (m_jpsiMassUpper>0.0 || m_jpsiMassLower >0.0) {
                 xAOD::BPhysHelper jpsiCandidate(*vxcItr);
                 jpsiCandidate.setRefTrks();
-                double jpsiMass = jpsiCandidate.totalP(muonMasses).M();
+                double jpsiMass = jpsiCandidate.totalP(m_muonMasses).M();
                 bool pass = JpsiUpsilonCommon::cutRange(jpsiMass, m_jpsiMassLower, m_jpsiMassUpper);
                 if (!pass) continue;
             }
@@ -252,7 +259,7 @@ namespace Analysis {
         if (!m_kMassHyp && !m_piMassHyp && m_BMassUpper>0.0) {
             massHypotheses.push_back(kMass); massHypotheses.push_back(piMass);
         }        
-        std::vector<double> tripletMasses(2, muMass);
+        std::vector<double> tripletMasses(m_muonMasses);
         // Attempt to fit each track with the two tracks from the J/psi candidates
         // Loop over J/psis
 
@@ -268,12 +275,13 @@ namespace Analysis {
             muonTracks.push_back(track);
           }
         }
+        std::vector<const xAOD::TrackParticle*> tracks(3, nullptr);
 
         for(auto jpsiItr=selectedJpsiCandidates.cbegin(); jpsiItr!=selectedJpsiCandidates.cend(); ++jpsiItr) {
 
             // Extract tracks from J/psi
-            const xAOD::TrackParticle* jpsiTP1 = (*jpsiItr)->trackParticle(0);
-            const xAOD::TrackParticle* jpsiTP2 = (*jpsiItr)->trackParticle(1);
+            const xAOD::TrackParticle* jpsiTP1 = tracks[0] =  (*jpsiItr)->trackParticle(0);
+            const xAOD::TrackParticle* jpsiTP2 = tracks[1] =  (*jpsiItr)->trackParticle(1);
 
 	    //If requested, only exclude duplicates in the same tripplet
             if(!m_excludeCrossJpsiTracks){
@@ -296,7 +304,7 @@ namespace Analysis {
                   }
                 }
                 // Convert to TrackParticleBase
-                const xAOD::TrackParticle* theThirdTP = *trkItr;
+                const xAOD::TrackParticle* theThirdTP = tracks[2] = *trkItr;
 
                 if (m_trkTrippletPt>0 && JpsiUpsilonCommon::getPt(jpsiTP1, jpsiTP2, theThirdTP) < m_trkTrippletPt ) continue; // track tripplet pT cut (daniel Scheirich)
                 if(m_trkDeltaZ>0 &&
@@ -311,15 +319,15 @@ namespace Analysis {
 
                 if (m_trkTrippletMassUpper>0.0 || m_trkTrippletMassLower>0.0) {
                      massCuts.clear();
-                     if(m_kMassHyp)  massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,kMass ));
-                     if(m_piMassHyp) massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,piMass));
+                     if(m_kMassHyp)  massCuts.push_back(getInvariantMass(tracks, m_muonMasses[0], m_muonMasses[1], kMass));
+                     if(m_piMassHyp) massCuts.push_back(getInvariantMass(tracks, m_muonMasses[0], m_muonMasses[1], piMass));
                      passRoughMassCuts = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkTrippletMassLower, m_trkTrippletMassUpper);
                  }
                  if (!passRoughMassCuts) continue;
 
 
                 //Managed pointer, "release" if you don't want it deleted. Automatically "deleted" otherwise
-                std::unique_ptr<xAOD::Vertex> bVertex( fit(jpsiTP1,jpsiTP2,theThirdTP,m_useMassConst, m_altMassConst, importedTrackCollection));
+                std::unique_ptr<xAOD::Vertex> bVertex( fit(tracks, importedTrackCollection, importedGSFTrackCollection));
                 if (bVertex) {
 
                         // Chi2/DOF cut
@@ -374,29 +382,21 @@ namespace Analysis {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    xAOD::Vertex* JpsiPlus1Track::fit(const xAOD::TrackParticle* mu1,const xAOD::TrackParticle* mu2,const xAOD::TrackParticle* trk, bool doMassConst, double massConst, const xAOD::TrackParticleContainer* importedTrackCollection) {
+    xAOD::Vertex* JpsiPlus1Track::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks, const xAOD::TrackParticleContainer* importedTrackCollection, const xAOD::TrackParticleContainer* gsfCollection) const {
         
         m_VKVFitter->setDefault();
-        
-        // Assemble input tracks
-        std::vector<const xAOD::TrackParticle*> inputTracks;
-        inputTracks.push_back(mu1);
-        inputTracks.push_back(mu2);
-        inputTracks.push_back(trk);
         
         // Set the mass constraint if requested by user (default=true)
         // Can be set by user (m_altMassConstraint) - default is -1.0.
         // If < 0.0, uses J/psi (default)
         // If > 0.0, uses the value provided
         constexpr double jpsiTableMass = 3096.916;
-        constexpr double muTableMass = 105.658;
 
-        if (doMassConst) {
-            std::vector<double> muMasses(2, muTableMass);
-            m_VKVFitter->setMassInputParticles(muMasses);
-            std::vector<int> indices{1, 2};
-            if (massConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
-            if (massConst>0.0) m_VKVFitter->setMassForConstraint(massConst,indices);
+        if (m_useMassConst) {
+            m_VKVFitter->setMassInputParticles(m_muonMasses);
+            std::vector<int> indices = {1, 2};
+            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
+            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices);
         }
         
         // Do the fit itself.......
@@ -411,14 +411,15 @@ namespace Analysis {
 
         // Added by ASC
         if(theResult != 0){
-        std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-        for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
-        { ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const) 
-        mylink.setStorableObject(*importedTrackCollection, true); 
-        newLinkVector.push_back( mylink ); }
-        
-        theResult->clearTracks();
-        theResult->setTrackParticleLinks( newLinkVector );
+           std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+           for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
+           {
+              ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const)
+              mylink.setStorableObject( m_useGSFTrack[i] ?  *gsfCollection : *importedTrackCollection, true);
+              newLinkVector.push_back( mylink );
+           }
+           theResult->clearTracks();
+           theResult->setTrackParticleLinks( newLinkVector );
         }
 
     
@@ -428,23 +429,22 @@ namespace Analysis {
     
     
 
-    double JpsiPlus1Track::getInvariantMass(const xAOD::TrackParticle* trk1, double mass1,
-                                             const xAOD::TrackParticle* trk2, double mass2,
-                                             const xAOD::TrackParticle* trk3, double mass3)
+    double JpsiPlus1Track::getInvariantMass(const std::vector<const xAOD::TrackParticle*> &trk, double mass1,
+                                            double mass2, double mass3)
     {
-        const auto trk1V = trk1->p4();
+        const auto trk1V = trk[0]->p4();
         double px1 = trk1V.Px();
         double py1 = trk1V.Py();
         double pz1 = trk1V.Pz();
         double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
 
-        const auto trk2V = trk2->p4();
+        const auto trk2V = trk[1]->p4();
         double px2 = trk2V.Px();
         double py2 = trk2V.Py();
         double pz2 = trk2V.Pz();
         double e2 = sqrt(px2*px2+py2*py2+pz2*pz2+mass2*mass2);
         
-        const auto trk3V = trk3->p4();
+        const auto trk3V = trk[2]->p4();
         double px3 = trk3V.Px();
         double py3 = trk3V.Py();
         double pz3 = trk3V.Pz();

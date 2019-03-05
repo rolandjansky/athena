@@ -64,56 +64,57 @@ private:
   
   // for the tagging type
     enum TAGCLASS{Unknown, WBoson, TopQuark};
-  
-  // DNN tools
-  std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
-  std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
-  
-  // inclusive config file
-  std::string m_configFile;
-  std::string m_tagType;
-  std::string m_kerasConfigFileName;
-  std::string m_kerasConfigFilePath;
-  std::string m_kerasConfigOutputName;
 
-  std::string m_weightConfigPath;
-  
-  // for internal usage
-  mutable TAGCLASS m_TagClass;
-  
-  // bool to check whether variables are corrupt
-  mutable bool m_undefInput;
-  
-  // parameters to store specific cut values
-  std::string m_strMassCutLow;
-  std::string m_strMassCutHigh;
-  std::string m_strScoreCut;
-  
-  // functions that are configurable for specific cut values
-  TF1* m_funcMassCutLow;
-  TF1* m_funcMassCutHigh;
-  TF1* m_funcScoreCut;
-  
-  // histograms for scale factors
-  std::map<std::string, TH2*> m_weightHistograms;
-  
-  // histograms for scale factors
-  std::map<std::string, TH2*> m_weightHistograms_nominal;
-  
-  // string for decorating jets with DNN output
-  std::string m_decorationName;
+    // DNN tools
+    std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
+    std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
 
-  // string for scale factors
-  std::string m_weightdecorationName;
-  std::string m_weightFileName;
-  std::string m_weightHistogramName;
-  std::string m_weightFlavors;
+    // inclusive config file
+    std::string m_configFile;
+    std::string m_tagType;
+    std::string m_kerasConfigFileName;
+    std::string m_kerasConfigFilePath;
+    std::string m_kerasConfigOutputName;
+    std::string m_calibarea_keras;
+    
+    std::string m_weightConfigPath;
+
+    // for internal usage
+    mutable TAGCLASS m_TagClass;
+
+    // bool to check whether variables are corrupt
+    mutable bool m_undefInput;
+
+    // parameters to store specific cut values
+    std::string m_strMassCutLow;
+    std::string m_strMassCutHigh;
+    std::string m_strScoreCut;
+
+    // functions that are configurable for specific cut values
+    TF1* m_funcMassCutLow;
+    TF1* m_funcMassCutHigh;
+    TF1* m_funcScoreCut;
+
+    // histograms for scale factors
+    std::map<std::string, TH2*> m_weightHistograms;
   
-  // decorators
-  SG::AuxElement::Decorator<float> m_dec_mcutL;
-  SG::AuxElement::Decorator<float> m_dec_mcutH;
-  SG::AuxElement::Decorator<float> m_dec_scoreCut;
-  SG::AuxElement::Decorator<float> m_dec_scoreValue;
-  SG::AuxElement::Decorator<float> m_dec_weight;
+    // histograms for scale factors
+    std::map<std::string, TH2*> m_weightHistograms_nominal;
+  
+    // string for decorating jets with DNN output
+    std::string m_decorationName;
+
+    // string for scale factors
+    std::string m_weightdecorationName;
+    std::string m_weightFileName;
+    std::string m_weightHistogramName;
+    std::string m_weightFlavors;
+    
+    // decorators
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
+    SG::AuxElement::Decorator<float> m_dec_weight;
 };
 #endif

@@ -200,6 +200,16 @@ SUSY15TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name   
 ToolSvc += SUSY15TauTPThinningTool
 thinningTools.append(SUSY15TauTPThinningTool)
 
+#Tracks associated with Jets
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+SUSY15AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                   = "SUSY15AKt4JetTPThinningTool",
+                                                                            ThinningService         = SUSY15ThinningHelper.ThinningSvc(),
+                                                                            JetKey                  = "AntiKt4EMTopoJets",
+                                                                            SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV && abs(AntiKt4EMTopoJets.eta) < 2.1",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY15AKt4JetTPThinningTool
+thinningTools.append(SUSY15AKt4JetTPThinningTool)
+
 
 #====================================================================
 # THINNING FOR RANDOMIZED TRACKS
@@ -444,7 +454,7 @@ SUSY15SlimmingHelper.AllVariables = [
                                      "VrtSecInclusive_All2TrksVertices", # only filled for debug, by default off
                                      ]
 
-SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
 					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
 					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",

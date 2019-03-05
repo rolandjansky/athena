@@ -49,6 +49,10 @@ namespace CP
     /// \brief the underlying accessor
   private:
     SG::AuxElement::Accessor<SelectionType> m_accessor;
+
+    /// \brief the underlying accessor
+  private:
+    SG::AuxElement::ConstAccessor<SelectionType> m_constAccessor;
   };
 }
 

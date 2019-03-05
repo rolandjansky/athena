@@ -38,6 +38,4 @@
 #pragma link C++ class std::pair<Long64_t,Long64_t>+;
 #pragma link C++ class std::vector<std::pair<Long64_t,Long64_t> >+;
 
-#pragma link C++ class EL::TEventSvc+;
-
 #endif

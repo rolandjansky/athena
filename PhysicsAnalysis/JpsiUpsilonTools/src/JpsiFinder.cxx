@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -14,13 +14,11 @@
 
 #include "JpsiUpsilonTools/JpsiFinder.h"
 #include "xAODBPhys/BPhysHelper.h"
-#include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkV0Fitter/TrkV0VertexFitter.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
@@ -59,14 +57,6 @@ namespace Analysis {
             return StatusCode::FAILURE;
         } else {
             ATH_MSG_INFO("Retrieved tool " << m_trkSelector);
-        }
-        
-        // uploading the V0 tools
-        if ( m_V0Tools.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_V0Tools);
         }
         
         // Get the vertex point estimator tool from ToolSvc
@@ -139,7 +129,6 @@ namespace Analysis {
     m_TrkParticleCollection("TrackParticleCandidate"),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_iV0VertexFitter("Trk::V0VertexFitter"),
-    m_V0Tools("Trk::V0Tools"),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_helpertool("InDet::ConversionFinderUtils"),//unused remove later
     m_vertexEstimator("InDet::VertexPointEstimator"),
@@ -175,7 +164,6 @@ namespace Analysis {
         declareProperty("MuonTrackKeys",m_MuonTrackKeys);
         declareProperty("TrkVertexFitterTool",m_iVertexFitter);
         declareProperty("V0VertexFitterTool",m_iV0VertexFitter);
-        declareProperty("V0Tools",m_V0Tools);
         declareProperty("TrackSelectorTool",m_trkSelector);
         declareProperty("ConversionFinderHelperTool",m_helpertool);
         declareProperty("VertexPointEstimator",m_vertexEstimator);

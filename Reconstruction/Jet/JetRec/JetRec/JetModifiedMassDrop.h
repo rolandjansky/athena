@@ -78,8 +78,8 @@ private:  // data
   // Recursion choice, larger_pt or larger_mt, default is larger_pt
   int m_recursion;
 
-  JetRecGroomingParams::SymmetryMeasure test_sym;
-  JetRecGroomingParams::RecursionChoice test_rec;
+  // JetRecGroomingParams::SymmetryMeasure test_sym;
+  // JetRecGroomingParams::RecursionChoice test_rec;
 
   ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
 
