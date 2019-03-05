@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTOWERSTORE_H
@@ -148,6 +148,9 @@ Updated:  Jul 2009, sss
 #include "CxxUtils/CachedValue.h"
 #include <vector>
 #include <utility>
+
+
+class CaloDetDescrManager;
 
 
 class CaloTowerStore
@@ -351,8 +354,9 @@ private:
   size_t size() const { return m_towers.size(); }
 
   /// \brief setup trigger
-  bool buildLookUp(const CaloTowerSeg& theTowerSeg,
-                   std::vector<CaloCell_ID::SUBCALO> theCalos);
+  bool buildLookUp(const CaloDetDescrManager& theManager,
+                   const CaloTowerSeg& theTowerSeg,
+                   const std::vector<CaloCell_ID::SUBCALO>& theCalos);
 
  private:
   friend class tower_iterator;

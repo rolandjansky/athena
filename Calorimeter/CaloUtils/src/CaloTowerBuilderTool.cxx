@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -28,7 +28,8 @@
 CaloTowerBuilderTool::CaloTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
-  : CaloTowerBuilderToolBase(name,type,parent)
+  : CaloTowerBuilderToolBase(name,type,parent),
+    m_caloDDM(nullptr)
     //  , m_errorCounter(0)
 {
   declareInterface<ICaloTowerBuilderToolBase>(this);    
@@ -51,6 +52,7 @@ CaloTowerBuilderTool::~CaloTowerBuilderTool()
 
 // protected!
 StatusCode CaloTowerBuilderTool::initializeTool() {
+  ATH_CHECK( detStore()->retrieve (m_caloDDM, "CaloMgr") );
   m_caloIndices = parseCalos (m_includedCalos);
   return this->checkSetup(msg());
 }
@@ -302,7 +304,7 @@ CaloTowerBuilderTool::parseCalos
 StatusCode CaloTowerBuilderTool::rebuildLookup()
 {
   if (towerSeg().neta() != 0 && towerSeg().nphi() != 0) {
-    if (m_cellStore.buildLookUp(towerSeg(), m_caloIndices)) {
+    if (m_cellStore.buildLookUp(*m_caloDDM, towerSeg(), m_caloIndices)) {
       return StatusCode::SUCCESS;
     }
   }

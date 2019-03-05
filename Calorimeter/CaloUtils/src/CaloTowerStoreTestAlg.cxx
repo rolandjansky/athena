@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,6 +14,7 @@
 
 #include "CaloTowerStoreTestAlg.h"
 #include "CaloUtils/CaloTowerStore.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <iostream>
 #include <cmath>
 #include <cassert>
@@ -24,8 +25,19 @@
  */
 CaloTowerStoreTestAlg::CaloTowerStoreTestAlg (const std::string& name,
                                               ISvcLocator* pSvcLocator)
-  : AthAlgorithm (name, pSvcLocator)
+  : AthAlgorithm (name, pSvcLocator),
+    m_caloDDM (nullptr)
 {
+}
+
+
+/** 
+ * @brief Standard Gaudi initialize method.
+ */
+StatusCode CaloTowerStoreTestAlg::initialize()
+{
+  ATH_CHECK( detStore()->retrieve (m_caloDDM, "CaloMgr") );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -82,7 +94,7 @@ CaloTowerStoreTestAlg::test_subseg_iter (const CaloTowerStore& store1,
 {
   CaloTowerSeg seg = subseg.segmentation();
   CaloTowerStore store2;
-  assert (store2.buildLookUp (seg, calos));
+  assert (store2.buildLookUp (*m_caloDDM, seg, calos));
 
   assert (subseg.size() == store2.size());
 
@@ -105,7 +117,7 @@ void CaloTowerStoreTestAlg::test1()
   calos.push_back (CaloCell_ID::LARHEC);
   calos.push_back (CaloCell_ID::TILE);
   CaloTowerStore store;
-  assert (store.buildLookUp (seg, calos));
+  assert (store.buildLookUp (*m_caloDDM, seg, calos));
 
   CaloTowerSeg::SubSeg subseg1 = seg.subseg (0.7, 0.3, -0.2, 0.4);
   test_subseg_iter (store, calos, subseg1);
