@@ -154,3 +154,40 @@ void JSSTaggerBase::DecorateMatchedTruthJet(const xAOD::Jet& jet,
     }
   }
 }
+
+StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
+
+  const xAOD::JetContainer* truthJet=nullptr;
+  evtStore()->retrieve(truthJet, m_truthJetContainerName);
+  if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
+    //std::cout << "isTRUTH3!!" << std::endl;
+    const xAOD::TruthParticleContainer* truthPartsW=nullptr;
+    evtStore()->retrieve(truthPartsW, m_truthWBosonContainerName);
+    const xAOD::TruthParticleContainer* truthPartsZ=nullptr;
+    evtStore()->retrieve(truthPartsZ, m_truthZBosonContainerName);
+    const xAOD::TruthParticleContainer* truthPartsTop=nullptr;
+    evtStore()->retrieve(truthPartsTop, m_truthTopQuarkContainerName);
+    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthJet, decorName,
+			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+  }else if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthParticleContainerName ) ){    
+    const xAOD::TruthParticleContainer* truthParts=nullptr;
+    evtStore()->retrieve(truthParts, m_truthParticleContainerName);
+    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, decorName,
+			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+  }
+
+  return StatusCode::FAILURE;
+}
+
+StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ ) const {
+  DecorateMatchedTruthJet(jet, truthJets, /*dR*/dRmax_truthJet, "dRMatchedTruthJet");
+  const xAOD::Jet* truthjet=jet.auxdata<const xAOD::Jet*>("dRMatchedTruthJet");
+  WTopLabel jetContainment=WTopLabel::notruth;
+  bool isSherpa=getIsSherpa(m_DSID);
+  if ( truthjet ) {
+    jetContainment=getWTopContainment(*truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+  }
+  jet.auxdecor<WTopLabel>(decorName) = jetContainment;
+
+  return StatusCode::SUCCESS;
+}

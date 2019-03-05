@@ -29,7 +29,7 @@ class SmoothedWZTagger : public  JSSTaggerBase {
 
   // Run once at the end of the job to clean up
   StatusCode finalize();
-
+  
   // Implement IJSSTagger interface
   virtual Root::TAccept tag(const xAOD::Jet& jet) const;
 
