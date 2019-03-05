@@ -7,8 +7,19 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include <vector>
+#include <set>
+
+class sTgcIdHelper;
+namespace MuonGM
+{
+  class MuonDetectorManager;
+}
+
+
 //
-// Simple clusterization tool for MicroMegas
+// Simple clusterization tool for STgc
 //
 namespace Muon
 {
@@ -18,6 +29,7 @@ namespace Muon
   class SimpleSTgcClusterBuilderTool : virtual public ISTgcClusterBuilderTool, public AthAlgTool {
 
   public:
+
     /** Default constructor */
     SimpleSTgcClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
     
@@ -35,10 +47,19 @@ namespace Muon
 
   private: 
   
+    /// Muon detector manager and helper
+    const MuonGM::MuonDetectorManager* m_muonMgr;
+    const sTgcIdHelper* m_stgcIdHelper;
+
+    std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
+    std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];
+
+    bool addStrip(Muon::sTgcPrepData& strip);
 
 
-};
+  };
 
 
 }
 #endif
+

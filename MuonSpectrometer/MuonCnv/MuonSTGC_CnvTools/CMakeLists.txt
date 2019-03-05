@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
+			  MuonSpectrometer/MuonReconstruction/MuonDataPrep/STgcClusterization
                           Tracking/TrkDetDescr/TrkSurfaces )
 
 # External dependencies (some of these aren't currently needed, but they will once we add BS etc)
@@ -34,7 +35,7 @@ atlas_add_component( MuonSTGC_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps Identifier EventPrimitives TGCcablingInterfaceLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps Identifier EventPrimitives TGCcablingInterfaceLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces STgcClusterization )
 
 # Install files from the package:
 atlas_install_headers( MuonSTGC_CnvTools )
