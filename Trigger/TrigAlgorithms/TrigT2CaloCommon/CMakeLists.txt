@@ -65,6 +65,13 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( TestService 
 		SCRIPT test/test_dataaccess.sh
+		POST_EXEC_SCRIPT nopost.sh
 		PROPERTIES TIMEOUT 1200)
+
+atlas_add_test( TestServiceNewJO 
+		SCRIPT test/test_dataaccessNewJO.sh
+		POST_EXEC_SCRIPT nopost.sh
+		PROPERTIES TIMEOUT 1200)
+
 
 
