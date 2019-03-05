@@ -26,7 +26,6 @@
 
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/DataHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 

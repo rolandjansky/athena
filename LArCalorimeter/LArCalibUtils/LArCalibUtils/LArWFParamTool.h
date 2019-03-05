@@ -12,7 +12,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h" 
 
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArWFParams.h"

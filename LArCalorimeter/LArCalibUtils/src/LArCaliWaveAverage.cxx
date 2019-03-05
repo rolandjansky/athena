@@ -32,18 +32,19 @@ LArCaliWaveAverage::LArCaliWaveAverage(const std::string& name, ISvcLocator* pSv
 LArCaliWaveAverage::~LArCaliWaveAverage() {}
 
 StatusCode LArCaliWaveAverage::initialize() {
-  const CaloIdManager *caloIdMgr = CaloIdManager::instance();
-  m_emId = caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId = idHelper->em_idHelper();
   if (!m_emId) {
     ATH_MSG_ERROR ( "Could not get lar EM ID helper!" );
     return StatusCode::FAILURE;
   }
-  m_fcalId=caloIdMgr->getFCAL_ID();
+  m_fcalId=idHelper->fcal_idHelper();
   if (!m_fcalId) {
     ATH_MSG_ERROR ( "Could not get lar FCAL ID helper" );
     return StatusCode::FAILURE;
   }
-  m_hecId=caloIdMgr->getHEC_ID();
+  m_hecId=idHelper->hec_idHelper();
   if (!m_hecId) {
     ATH_MSG_ERROR ( "Could not get lar HEC ID helper" );
     return StatusCode::FAILURE;

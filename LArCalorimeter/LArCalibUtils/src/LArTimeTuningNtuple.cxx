@@ -4,16 +4,14 @@
 
 #include "LArCalibUtils/LArTimeTuningNtuple.h"
 #include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 LArTimeTuningNtuple::LArTimeTuningNtuple (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_ntuplePtr(0),
   m_larOnlineHelper(0)
 {
-  declareProperty("TBPhaseKey",m_TBPhaseKey="");
-  declareProperty("GlobalTimeOffsetKey",m_GlobalTimeKey="");
-  declareProperty("FebTimeOffsetKey",m_FebTimeKey="");
   declareProperty("CellTimeOffsetKey",m_CellTimeOffsetKey);
 }
 
@@ -34,13 +32,13 @@ StatusCode LArTimeTuningNtuple::initialize(){
     ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
   }
-  if (m_GlobalTimeKey.length()>0) {
+  if (!m_GlobalTimeKey.empty()) {
     ATH_CHECK( nt->addItem("GlobalTimeOffset",m_globalTimeNt,-100.0,100.0) );
   }
-  if (m_TBPhaseKey.length()) {
+  if (!m_TBPhaseKey.empty()) {
     ATH_CHECK( nt->addItem("PhaseTimeOffset",m_phaseNt,-100.0,100.0) );
   }
-  if (m_FebTimeKey.length()) {
+  if (!m_FebTimeKey.empty()) {
     ATH_CHECK( nt->addItem("FebIndex",m_nFebNt,0,1500) );
     ATH_CHECK( nt->addItem("FebTimeOffset",m_nFebNt,m_febTimeNt) );
     ATH_CHECK( nt->addItem("FebSlot",m_nFebNt,m_febSlotNt) );
@@ -48,7 +46,7 @@ StatusCode LArTimeTuningNtuple::initialize(){
     ATH_CHECK( nt->addItem("FebID",m_nFebNt,m_febIDNt) );
   }
   
-  if (m_CellTimeOffsetKey.length()) {
+  if (!m_CellTimeOffsetKey.empty()) {
     ATH_CHECK( nt->addItem("CellIndex",m_nCellNt,0,1500) );
     ATH_CHECK( nt->addItem("CellTimeOffset",m_nCellNt,m_cellTimeNt) );
     ATH_CHECK( nt->addItem("CellSlot",m_nCellNt,m_cellSlotNt) );
@@ -62,7 +60,12 @@ StatusCode LArTimeTuningNtuple::initialize(){
     ATH_CHECK( nt->addItem("CellChannel",m_nCellNt,m_cellChannelNt) );
     ATH_CHECK( nt->addItem("CellCalibLine",m_nCellNt,m_cellCalibLineNt) );
   }
-  
+
+
+  ATH_CHECK( m_GlobalTimeKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_TBPhaseKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_FebTimeKey.initialize (SG::AllowEmpty) );
+
   m_ntuplePtr=nt;
 
   ATH_CHECK( m_cablingKey.initialize() );
@@ -73,41 +76,34 @@ StatusCode LArTimeTuningNtuple::initialize(){
 
 
 StatusCode LArTimeTuningNtuple::execute()
-{  
-  if (m_GlobalTimeKey.length()>0) {
-    const LArGlobalTimeOffset* larGlobalTimeOffset;
-    StatusCode sc=evtStore()->retrieve(larGlobalTimeOffset,m_GlobalTimeKey);
-    if (sc.isSuccess()) {
-      m_globalTimeNt=larGlobalTimeOffset->TimeOffset();
-      //std::cout << "Global Time Offset= " << m_globalTimeNt << std::endl;
-    }
-    else {
-      ATH_MSG_WARNING ( "Could not retrieve LArGlobalTimeOffset with key '" << m_GlobalTimeKey << "'" );
-      m_globalTimeNt=-999;
-    }
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (!m_GlobalTimeKey.empty()) {
+    SG::ReadHandle<LArGlobalTimeOffset> larGlobalTimeOffset
+      (m_GlobalTimeKey, ctx);
+    m_globalTimeNt = larGlobalTimeOffset->TimeOffset();
+    //std::cout << "Global Time Offset= " << m_globalTimeNt << std::endl;
+  }
+  else {
+    m_globalTimeNt = -1;
   }
   
-  if (m_TBPhaseKey.length()>0) {
-    const TBPhase* tbPhase;
-    StatusCode sc=evtStore()->retrieve(tbPhase,m_TBPhaseKey);
-    if (sc.isSuccess()) 
-      m_phaseNt=tbPhase->getPhase();
-    else {
-      ATH_MSG_WARNING ( "Could not retrieve TBPhase with key '" << m_TBPhaseKey << "'" );
-      m_phaseNt=-999;
-    }  
+  if (!m_TBPhaseKey.empty()) {
+    SG::ReadHandle<TBPhase> tbPhase (m_TBPhaseKey, ctx);
+    m_phaseNt = tbPhase->getPhase();
+  }
+  else {
+    m_phaseNt = -999;
   }
     
-  if (m_FebTimeKey.length()>0) {
-    LArFEBTimeOffset* larFebTimeOffset;
-    StatusCode sc=evtStore()->retrieve(larFebTimeOffset,m_FebTimeKey);
-    if (sc.isSuccess() && larFebTimeOffset->size()>0) {
-      larFebTimeOffset->setDefaultReturnValue(-999);
+  if (!m_FebTimeKey.empty()) {
+    SG::ReadHandle<LArFEBTimeOffset> larFebTimeOffset (m_FebTimeKey, ctx);
+    if (larFebTimeOffset->size()>0) {
       std::vector<HWIdentifier>::const_iterator it=m_larOnlineHelper->feb_begin();
       std::vector<HWIdentifier>::const_iterator it_e=m_larOnlineHelper->feb_end();
       m_nFebNt=0;
       for (;it!=it_e;it++) {
-	m_febTimeNt[m_nFebNt] = larFebTimeOffset->TimeOffset(*it);
+	m_febTimeNt[m_nFebNt] = larFebTimeOffset->TimeOffset(*it, -999);
 	m_febSlotNt[m_nFebNt] = m_larOnlineHelper->slot(*it);
 	m_febFTNt[m_nFebNt]   = m_larOnlineHelper->feedthrough(*it);
 	m_febIDNt[m_nFebNt]   = (*it).get_identifier32().get_compact();
@@ -125,9 +121,9 @@ StatusCode LArTimeTuningNtuple::execute()
 
 StatusCode LArTimeTuningNtuple::stop(){
 
-  const LArEM_ID* emId;
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* emId = idHelper->em_idHelper();
   if (!emId) {
     ATH_MSG_ERROR ( "Could not get lar EM ID helper" );
     return StatusCode::FAILURE;
