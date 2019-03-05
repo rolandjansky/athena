@@ -22,7 +22,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=94 -DLCG_VERSION_POSTFIX="a")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=95 -DLCG_VERSION_POSTFIX="")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)

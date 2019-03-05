@@ -7,6 +7,7 @@ atlas_subdir( PyJobTransforms )
 
 # External dependencies:
 find_package( PythonLibs )
+find_package( cx_Oracle )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

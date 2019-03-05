@@ -25,8 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
+find_package( cx_Oracle )
 
 # Component(s) in the package:
 atlas_add_library( MuonCalibDbOperationsLib
