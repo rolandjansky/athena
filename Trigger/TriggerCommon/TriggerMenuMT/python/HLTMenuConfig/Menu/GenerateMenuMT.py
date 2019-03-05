@@ -77,7 +77,7 @@ class GenerateMenuMT:
 
         if self.doTestChains:
             try:
-                import TriggerMenuMT.HLTMenuConfig.Egamma.generateTestChainDefs  
+                import TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs  
             except:
                 log.exception('Problems when importing generateTestChainDefs, disabling Test chains.')
                 self.doTestChains = False
