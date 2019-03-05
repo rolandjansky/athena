@@ -11,7 +11,7 @@ _log.setLevel( VERBOSE )
 
 def fillGeneratorsMap( sigMap, signature ):
     """ Fill the mapping from the flag container name to the function responsible for generating the Chain objects
-    
+
     Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateChains"""
 
     if signature in sigMap:
@@ -20,14 +20,11 @@ def fillGeneratorsMap( sigMap, signature ):
     capitalizedSignature = signature.capitalize()
     importString = 'TriggerMenuMT.HLTMenuConfig.{}.generate{}'.format(capitalizedSignature, capitalizedSignature)
 
-    try:
-        gen = __import__(importString, globals(), locals(), ['generateChains'])
-        sigMap[signature] = gen.generateChains
-        _log.info( 'Imported generator for %s' % signature )
-    except Exception as ex:
-        _log.warning( 'Cant import {} {}'.format(signature, ex) )
 
-    
+    gen = __import__(importString, globals(), locals(), ['generateChains'])
+    sigMap[signature] = gen.generateChains
+    _log.info( 'Imported generator for %s' % signature )
+
 
 def generateMenu( flags ):
     """
@@ -52,8 +49,13 @@ def generateMenu( flags ):
     for name, cfgFlag in list(flags._flagdict.iteritems()):
         if not 'Trigger.menu.' in name:
             continue
+        value = flags._get(name)
+        if len(value) == 0:
+            continue
+
 
         # fill the map[signature, generating function]
+
         signature = name.split('.')[-1]
         fillGeneratorsMap( signatureToGenerator, signature )
 
