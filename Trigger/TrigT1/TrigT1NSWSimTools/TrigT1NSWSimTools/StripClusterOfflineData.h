@@ -63,7 +63,11 @@ namespace NSWL1 {
 			    float globZ);
     ~StripClusterOfflineData();
         
-   //! methods for retrieving the bare data
+   //! methods for retrieving the bare data 
+    /*
+    S.I :  are you sure are these all for retrieving the data ? Someone seems to copy paste without spending even a single second to figure things out 
+    and the bad news is, it all around this codebase
+    */                                        
     int set_bandId(int bandId);
     int set_phiId(int phiId);
     bool set_isSmall(bool set_isSmall);
@@ -79,8 +83,8 @@ namespace NSWL1 {
     
 
 
-    //! methods for retrieving the bare data
-    int bandId()  const {return m_bandId;}; //!< get the band id
+    //! methods for retrieving the bare data //S.I yes see my comment above
+    int bandId()  const {return m_bandId;}; //!< get the band id // wow so explanatory
     int phiId() const {return m_phiId;}
     //! helper  methods decoding the hit fragment position within the NSW detector
     int isSmall() const {return m_isSmall;};

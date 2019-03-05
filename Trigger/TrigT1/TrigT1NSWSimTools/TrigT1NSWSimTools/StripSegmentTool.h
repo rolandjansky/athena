@@ -16,6 +16,9 @@
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
 
 
+//To access detector envelope
+#include "MuonRegionSelector/sTGC_RegionSelectorTable.h"
+
 //local includes
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
@@ -110,8 +113,18 @@ namespace NSWL1 {
     
     protected:
         SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
+        int m_rIndexBits;
+        StatusCode FetchDetectorEnvelope();
+        std::pair<float,float> m_zbounds;
+        std::pair<float,float> m_etabounds;
+        std::pair<float,float> m_rbounds;
+        int findRIdx(const float& ,const int scheme=0);
+    private:
+           ToolHandle<sTGC_RegionSelectorTable> m_regionHandle;
+     
     
-				   };  // end of StripSegmentTool class
+  };  // end of StripSegmentTool class
+    
 } // namespace NSWL1
 
 #endif

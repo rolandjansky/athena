@@ -15,7 +15,11 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
+
 // Muon software includes
+#include "MuonAGDDDescription/sTGCDetectorHelper.h"
+#include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -47,36 +51,30 @@ namespace NSWL1 {
       m_rndmEngine(0),
       m_detManager(0),
       m_sTgcIdHelper(0),
-      m_tree(0)
-
+      m_tree(0),
+      m_rIndexBits(0),
+      m_zbounds({-1,1}),
+      m_etabounds({-1,1}),
+      m_rbounds({-1,-1})
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 
       declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
+      declareProperty("rIndexBits", m_rIndexBits = 8, "number bits in the rIndex slicing");
       declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO");
 
     }
 
     StripSegmentTool::~StripSegmentTool() {
 
-      // Clear Ntuple variables
-      //      if(m_cl_charge) delete m_cl_charge;
-      //if(m_cl_eta) delete m_cl_eta;
-      //if(m_cl_phi) delete m_cl_phi;
-
-
     }
 
  
   
   StatusCode StripSegmentTool::initialize() {
-    ATH_MSG_INFO( "initializing " << name() ); 
-    
-    ATH_MSG_INFO( name() << " configuration:"); 
-    ATH_CHECK( m_trigRdoContainer.initialize() );   
-    
-    
+      ATH_MSG_INFO("initializing " << name() );
+      ATH_MSG_INFO(name() << " configuration:");       
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
       std::string algo_name = pnamed->name();
@@ -142,7 +140,15 @@ namespace NSWL1 {
       } else {
         ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
       }
- 
+      
+      ATH_CHECK( m_trigRdoContainer.initialize() );
+      
+      if(m_regionHandle.retrieve().isFailure()){
+            ATH_MSG_FATAL("Error retrieving sTGC_RegionSelectorTable");
+            return StatusCode::FAILURE;
+      }      
+
+      ATH_CHECK( FetchDetectorEnvelope());
       return StatusCode::SUCCESS;
     }
 
@@ -151,18 +157,97 @@ namespace NSWL1 {
         this->reset_ntuple_variables();
       }
     }
+    
+    StatusCode StripSegmentTool::FetchDetectorEnvelope(){//S.I : Sufficient to call this only once. probably inside init()
+        const auto  p_IdHelper =m_detManager->stgcIdHelper();
+        const auto ModuleContext = p_IdHelper->module_context();
+        
+        auto regSelector=m_regionHandle->getLUT();
+        float rmin=-1.;
+        float rmax=-1.;
+        float zfar=-1.;
+        float znear=-1;
+        float etamin=-1;
+        float etamax=-1;
+        int ctr=0;
+          for(const auto& i : p_IdHelper->idVector()){// all modules
+            IdentifierHash moduleHashId;            
+            p_IdHelper->get_hash( i, moduleHashId, &ModuleContext );
+            auto module=regSelector->Module(moduleHashId);//pick envelope from the regionselector
+            if(module->zMax()<0) continue;
+            if(ctr==0){
+                rmin=module->rMin();
+                rmax=module->rMax();
+                etamin=module->_etaMin();
+                etamax=module->_etaMax();
+                /*
+                 we shouldnt  care whether it's side A/C. However keep in mind that we always return positive nrs here.
+                 So you may have to handle it later depending on what you want to calculate
+                 */                
+                zfar=module->zMax();
+                znear=module->zMin();
 
+            }
+            ctr++;
+            if(etamin>module->_etaMin() ) etamin=module->_etaMin();
+            if(etamax<module->_etaMax() ) etamax=module->_etaMax();
+            if(zfar<module->zMax()) zfar=module->zMax();
+            if(znear>module->zMin()) znear=module->zMin();
+            if(rmin>module->rMin()) rmin=module->rMin();
+            if(rmax<module->rMax()) rmax=module->rMax();
+        }
+        
+        if(rmin<=0 || rmax<=0){
+            ATH_MSG_FATAL("Unable to fetch NSW r/z boundaries");
+            return StatusCode::FAILURE;
+        }
+        m_rbounds= std::make_pair(rmin,rmax);
+        m_etabounds=std::make_pair(etamin,etamax);
+
+        m_zbounds=std::make_pair(znear,zfar);
+        ATH_MSG_INFO("rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second<<" zfar="<<zfar<<" znear="<<znear);
+        return StatusCode::SUCCESS;
+    }
+  
+  int StripSegmentTool::findRIdx(const float& val,const int scheme){
+    static unsigned int nSlices=(1<<m_rIndexBits);
+    std::pair<float,float> range;
+    switch(scheme){
+        case 0:
+            range=m_rbounds;
+            break;
+        case 1:
+            range=m_etabounds;
+            break;
+            
+        default:
+            break;
+    }
+    
+    static  float step=(range.second-range.first)/nSlices;
+    if(val<=range.first) return 0;
+    if(val>=range.second) return nSlices-1;
+    for(unsigned int i=0;i<nSlices;i++){
+            if(range.first+i*step>=val){
+                return i;
+            }
+    }
+    return -1;
+  }
   
     StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
-      SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
-       auto recordp=std::make_unique<Muon::NSW_TrigRawDataContainer>();
-       ATH_CHECK( trgRdos.record( std::move(recordp)));
+      //SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
+      
+      
+      
+       auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+       
       //auto p=std::make_unique<Muon::NSW_TrigRawDataContainer>();
       
       
       //TODO : put  sector Id and BCID in the ctor of NSW_TrigRawData below
-      Muon::NSW_TrigRawData trgRawData;//like vector<trigger segment>
+      auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>();//like vector<trigger segment>
       
       std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
@@ -177,10 +262,7 @@ namespace NSWL1 {
 	    }
       }
       
-      for(const auto& band : cluster_map){//main cluster loop
-	    
-          
-          
+      for(const auto& band : cluster_map){//main cluster loop  
        int bandId=band.first;
        if (band.second[0].size() == 0){
            ATH_MSG_WARNING("Cluster size is zero for inner wedge trg with bandId "<<bandId<<"...skipping");
@@ -192,7 +274,9 @@ namespace NSWL1 {
            ATH_MSG_WARNING("Cluster size is zero for outer wedge trg with bandId "<<bandId<<"...skipping");
            continue;
       }
-        int phiId=band.second[0].at(0)->phiId();
+
+        
+        
 	    float glx1=0;
 	    float gly1=0;
         float glx2=0;
@@ -272,85 +356,29 @@ namespace NSWL1 {
         else{
             ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
         }
-        //R index calculation below :  needs to be replaced by a generic solution. Probably theres a tool to access these boundaries
-        static std::vector<float> bw_roi_boundaries={
-                //FWD
-                2.4148,
-                2.3777,
-                2.3439,
-                2.3100,
-                2.2755,
-                2.2417,
-                2.2070,
-                2.1734,
-                2.1411,
-                2.1088,
-                2.0781,
-                2.0476,
-                2.0166,
-                1.9855,
-                1.9537,
-                1.9214,
-                1.9163,
-                //EC
-                1.9172,
-                1.8932,
-                1.8679,
-                1.8420,
-                1.8153,
-                1.7882,
-                1.7608,
-                1.7328,
-                1.7050,
-                1.6781,
-                1.6524,
-                1.6274,
-                1.6038,
-                1.5810,
-                1.5591,
-                1.5385,
-                1.5187,
-                1.4997,
-                1.4811,
-                1.4622,
-                1.4428,
-                1.4227,
-                1.4015,
-                1.3783,
-                1.3528,
-                1.3257,
-                1.2972,
-                1.2681,
-                1.2384,
-                1.2086,
-                1.1798,
-                1.1528,
-                1.1275,
-                1.1036,
-                1.0807,
-                1.0587,
-                1.0375,
-                1.0334,
-        };
-        //just to make sure sort eta boundaries.
-        std::sort(bw_roi_boundaries.begin(),bw_roi_boundaries.end());//or in the reverse order depends on what people want
-        if(fabs(dtheta)>15) return StatusCode::SUCCESS;//it seems to be the most optimistic hw scenario . However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided by hw ppl
         
-        static auto calc_rIndex=[](const float &eta){
-            for(unsigned int i=0;i<bw_roi_boundaries.size();i++){
-                if(i==bw_roi_boundaries.size()-1) return 0;
-                float eta_b0=bw_roi_boundaries.at(i);
-                float eta_b1=bw_roi_boundaries.at(i+1);
-                if(eta>eta_b0 && eta<eta_b1) return (int)(i+1);
-            }
-            
-            return 0;
-        };
-        uint8_t rIndex=(uint8_t)calc_rIndex(eta);
         
+        if(fabs(dtheta)>15) return StatusCode::SUCCESS; //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
+        
+
+        
+        //do not get confused. this one is trig. phi-Id
+        int phiId=band.second[0].at(0)->phiId();
+        float delta_z=fabs(m_zbounds.second-z2);
+        float delta_r=delta_z*tan(theta);
+        float rfar=r2+delta_r;
+        
+        
+        if(rfar < m_rbounds.first || rfar>m_rbounds.second){
+            ATH_MSG_WARNING("R index out of NSW surface rfar="<<rfar<<" where rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second);
+        }
+        
+    
+        
+        
+        uint8_t rIndex=(uint8_t)(findRIdx(rfar));
         m_seg_wedge1_size->push_back(band.second[0].size());
         m_seg_wedge2_size->push_back(band.second[1].size());
-
         m_seg_bandId->push_back(bandId);
         m_seg_phiId->push_back(phiId);
         m_seg_rIdx->push_back(rIndex);
@@ -364,23 +392,20 @@ namespace NSWL1 {
         m_seg_global_z->push_back(avg_z); 
         m_seg_dir_r->push_back(slope); 
         m_seg_dir_y->push_back(-99); 
-        m_seg_dir_z->push_back(-99); 
-       
+        m_seg_dir_z->push_back(-99);
         
-        
-       //Use these only for salt.... True values will be provided later 
        bool phiRes=true;
-       bool lowRes=false;//we do not have singlewedge trigger. not implemented in the HW. yet  so lowres is always false for now
+       bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
        uint8_t phiIndex=(uint8_t)phiId;
        uint8_t deltaTheta=uint8_t(dtheta);
-       ATH_MSG_DEBUG("dTheta="<<dtheta<<" phiIndex="<<phiIndex<<" lowRes="<<lowRes<<" phiRes="<<phiRes);
-       //S.I As far as I understand memory is handled by the DataVector so we shoul not delete the pointer
-       auto* rdo_segment= new Muon::NSW_TrigRawDataSegment( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
-       trgRawData.push_back(rdo_segment);
+       auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
+       trgRawData->push_back(std::move(rdo_segment));
      
      }//end of clmap loop
      
-    
+      trgContainer->push_back(std::move(trgRawData));
+      auto trgRdos = SG::makeHandle( m_trigRdoContainer );
+      ATH_CHECK( trgRdos.record( std::move(trgContainer)));
 
       return StatusCode::SUCCESS;
     }
@@ -429,8 +454,6 @@ namespace NSWL1 {
          m_tree->Branch(TString::Format("%s_seg_rIdx",n).Data(),&m_seg_rIdx);
          m_tree->Branch(TString::Format("%s_seg_wedge1_size",n).Data(),&m_seg_wedge1_size);
          m_tree->Branch(TString::Format("%s_seg_wedge2_size",n).Data(),&m_seg_wedge2_size);
-
-
        }
       // else { 
       //    return StatusCode::FAILURE;

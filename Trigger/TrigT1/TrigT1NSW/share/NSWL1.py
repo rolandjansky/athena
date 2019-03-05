@@ -103,6 +103,12 @@ ServiceMgr += Agdd2GeoSvc
 #-----------------------------------------------------------------------------
 # Algorithms:  NSW L1 simulation
 #-----------------------------------------------------------------------------
+# please import configurables yourself instead.
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+from AthenaCommon.AppMgr import ServiceMgr
+theRegSelSvc = RegSelSvcDefault()
+ServiceMgr += theRegSelSvc
+
 
 include ('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
@@ -128,7 +134,7 @@ topSequence.NSWL1Simulation.OutputLevel=DEBUG
 topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=DEBUG
 topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
 topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=DEBUG
 
 # Simulation parameters
