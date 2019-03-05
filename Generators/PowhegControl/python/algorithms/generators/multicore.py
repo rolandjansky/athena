@@ -5,6 +5,7 @@ from ...decorators import timed
 from ...utility import FileParser, ProcessManager, SingleProcessThread
 from functools import partial
 import os
+import shutil
 
 # Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -56,6 +57,10 @@ def __multicore_multistage(process, generation_fn):
 
     @author James Robinson  <james.robinson@cern.ch>
     """
+    shutil.rmtree("multistage_inputs", ignore_errors=True)
+    os.mkdir("multistage_inputs")
+    shutil.copy("pwgseeds.dat", "multistage_inputs/pwgseeds.dat")
+
     if process.stage_is_completed(1):
         logger.info("=> Skipping multi-core generation (V2/RES): stage 1 <=")
     else:
@@ -83,6 +88,7 @@ def __multicore_multistage_stage_1(generation_fn, n_xgrid_iterations):
     # For stage 1, we need n_xgrid_iterations iterations
     for xgrid_iteration in range(1, n_xgrid_iterations + 1):
         FileParser("powheg.input").text_replace("xgriditeration.*", "xgriditeration {}".format(xgrid_iteration))
+        shutil.copy("powheg.input", "multistage_inputs/powheg.input.parallelstage{ps}.xgriditeration{xgi}".format(ps=1, xgi=xgrid_iteration))
         generation_fn()
 
 @timed("multi-core generation (V2/RES): stage 2)")
@@ -94,6 +100,7 @@ def __multicore_multistage_stage_2(generation_fn):
     @author James Robinson  <james.robinson@cern.ch>
     """
     FileParser("powheg.input").text_replace("parallelstage.*", "parallelstage 2")
+    shutil.copy("powheg.input", "multistage_inputs/powheg.input.parallelstage{ps}".format(ps=2))
     generation_fn()
 
 @timed("multi-core generation (V2/RES): stage 3)")
@@ -105,6 +112,7 @@ def __multicore_multistage_stage_3(generation_fn):
     @author James Robinson  <james.robinson@cern.ch>
     """
     FileParser("powheg.input").text_replace("parallelstage.*", "parallelstage 3")
+    shutil.copy("powheg.input", "multistage_inputs/powheg.input.parallelstage{ps}".format(ps=3))
     generation_fn()
 
 @timed("multi-core generation (V2/RES): stage 4)")
@@ -116,6 +124,7 @@ def __multicore_multistage_stage_4(generation_fn):
     @author James Robinson  <james.robinson@cern.ch>
     """
     FileParser("powheg.input").text_replace("parallelstage.*", "parallelstage 4")
+    shutil.copy("powheg.input", "multistage_inputs/powheg.input.parallelstage{ps}".format(ps=4))
     generation_fn()
 
 def multicore_untimed(process):
