@@ -32,7 +32,8 @@ private:
   void fillEFCalo(const std::string,const xAOD::CaloCluster *);
   void fillL2Electron(const std::string,const xAOD::TrigElectron *);
   void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
-  void fillRinger(const std::string,const xAOD::TrigEMCluster *);
+  void fillRingerShapes(const std::string,const xAOD::TrigRingerRings *);
+  void fillRnnDistribution(const std::string,const xAOD::TrigRNNOutput *);
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
    /*! Include more detailed histograms */
   bool m_detailedHists;

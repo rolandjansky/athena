@@ -27,13 +27,25 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     m_dir=plot()->getBasePath();
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
 
-    for(const auto trigName:m_trigInputList){ 
-        if (std::find(chains.begin(), chains.end(), trigName) != chains.end()) {
+    for(const auto trigName:m_trigInputList){
+        if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){ 
             if(plot()->getTrigInfoMap().count(trigName) != 0)
                 ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
-            else 
+            else {
                 m_trigList.push_back(trigName);
+                setTrigInfo(trigName);
+            }
         }
+        // Special code to attach trigger without of the menu
+        else if(getEmulation() && m_forceTrigAttachment){// 
+          ATH_MSG_INFO("Trigger doesn't exist in menu. Attach to emulate.");
+          if(plot()->getTrigInfoMap().count(trigName) == 0){
+            m_trigList.push_back(trigName);
+            setTrigEmulation();
+            setTrigInfo(trigName);
+          }
+        }
+
     }
 
     // Container level kinematic histograms
@@ -57,8 +69,6 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
         setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
     }
    
-    for (const auto trigger: m_trigList)
-            setTrigInfo(trigger);
 
     plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()) {
@@ -78,6 +88,21 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     if( !TrigEgammaNavBaseTool::EventWiseSelection() ) {
         ATH_MSG_DEBUG("Fails EventWise selection");
         return StatusCode::SUCCESS; //return nicely
+    }
+    // Check for Rnn container in SG
+    if(m_storeGate->contains<xAOD::TrigRNNOutputContainer>("HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex")){
+        ATH_MSG_DEBUG("Rnn container in SG "); 
+        setSGContainsRnn(true);
+    }
+    if(m_storeGate->contains<xAOD::TrigPhotonContainer>("HLT_xAOD__TrigPhotonContainer_L2PhotonFex")){
+        ATH_MSG_DEBUG("TrigPhotonContainer in SG ");
+        setSGContainsTrigPhoton(true);
+    }
+    ATH_MSG_DEBUG("Rnn container in SG " << getSGContainsRnn());
+    ATH_MSG_DEBUG("TrigPhotonContainer in SG " << getSGContainsTrigPhoton());
+    for( const auto& tool : m_tools) {
+        tool->setSGContainsRnn(getSGContainsRnn());
+        tool->setSGContainsTrigPhoton(getSGContainsTrigPhoton());
     }
 
     // Check HLTResult

@@ -144,13 +144,34 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
                 // Only consider passing objects
                 if(!obj) continue;
-                if(!ancestorPassed<xAOD::TrigEMCluster>(feat.te())) continue;
                 cd(dir+"HLT");
-                hist1("rejection")->Fill("L2Calo",1);
+                if(ancestorPassed<xAOD::TrigEMCluster>(feat.te()))
+                  hist1("rejection")->Fill("L2Calo",1);
                 fillL2Calo(dir+"L2Calo",obj); // Fill HLT shower shapes
-                if(boost::contains(info.trigName,"ringer") || info.trigEtcut || info.trigPerf)
-                    fillRinger(dir+"L2Calo",obj); // Fill HLT shower shapes
             }
+
+            /*
+            const auto vec_l2ringer = fc.get<xAOD::TrigRingerRings>("",TrigDefs::alsoDeactivateTEs);
+            for(const auto feat : vec_l2ringer){
+                if(feat.te()==nullptr) continue;
+                const auto* obj = getFeature<xAOD::TrigRingerRings>(feat.te());
+                // Only consider passing objects
+                if(!obj) continue;
+                fillRingerShapes(dir+"L2Calo",obj);// Fill HLT ringer shapes
+            }*/
+
+            const auto vec_l2rnn = fc.get<xAOD::TrigRNNOutput>("",TrigDefs::alsoDeactivateTEs);
+            for(const auto feat : vec_l2rnn){
+                if(feat.te()==nullptr) continue;
+                const auto* obj = getFeature<xAOD::TrigRNNOutput>(feat.te());
+                // Only consider passing objects
+                if(!obj) continue;   
+                //cd(dir+"HLT");
+                //if(ancestorPassed<xAOD::TrigRNNOutput>(feat.te()))
+                //  hist1("rejection")->Fill("L2Calo",1);
+                fillRnnDistribution(dir+"L2Calo",obj);// Fill HLT Rnn distribution output
+            }
+
             const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_clus){
                 if(feat.te()==nullptr) continue;
@@ -309,31 +330,56 @@ void TrigEgammaDistTool::fillL2Calo(const std::string dir, const xAOD::TrigEMClu
     }
 }
 
-void TrigEgammaDistTool::fillRinger(const std::string dir, const xAOD::TrigEMCluster *emCluster){
+void TrigEgammaDistTool::fillRingerShapes(const std::string dir, const xAOD::TrigRingerRings *ringer){
     cd(dir);
-    if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
+    if(!ringer) ATH_MSG_DEBUG("Online pointer fails");  
     else{
-        bool hasRings = false;
-        std::vector<float> ringsE;
-        hasRings = getTrigCaloRings(emCluster, ringsE );
-        if(hasRings){
-            hist2("ringer_etVsEta")->Fill(emCluster->eta(), emCluster->et()/1.e3);
-            ///Fill rings pdf for each ring
-            if(m_detailedHists){
-                for(unsigned layer =0; layer < 7; ++layer){
-                    unsigned minRing, maxRing;  std::string strLayer;
-                    parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
-                    cd(dir+"/rings_"+strLayer);
-                    for(unsigned r=minRing; r<=maxRing; ++r){
-                        std::stringstream ss;
-                        ss << "ringer_ring#" << r;
-                        hist1(ss.str())->Fill( ringsE.at(r) );
-                    }///loop into rings
-                }///loop for each calo layer
-            }
-        }
+      //for(unsigned r=0; r<ringer->rings().size(); ++r){
+      //  hist2("ringer_shapes")->Fill(r, ringer->rings()[r]);
+      // }
+      ATH_MSG_DEBUG("L2 Calo distributions.");
     }
 }
+
+void TrigEgammaDistTool::fillRnnDistribution(const std::string dir, const xAOD::TrigRNNOutput *rnn){
+    // ringer threshold grid for mc15c, 2016 and 2017       
+    float ringer_thres_et_bins[6]={15.,20.,30.,40.,50.,50000.};
+    float ringer_thres_eta_bins[6]={0.,0.8,1.37,1.54,2.37,2.5};
+
+    if(!rnn)  ATH_MSG_DEBUG("Online pointer fails");
+    else{
+      if(rnn->rnnDecision().empty() || rnn->rnnDecision().size()!=3){
+        ATH_MSG_DEBUG("Invalid RNN Decision. skip object...");
+        return;
+      }
+
+      auto emCluster=rnn->ringer()->emCluster();
+      float eta=std::abs(emCluster->eta());
+      float et=emCluster->et()*1e-3;
+      float output=rnn->rnnDecision()[2];
+      float avgmu=rnn->rnnDecision()[0];
+
+      cd(dir);
+      hist1("discriminant")->Fill(output);
+      hist2("discriminantVsMu")->Fill(output,avgmu);
+      cd(dir+"/discriminant_binned");
+      for (unsigned etBinIdx=0; etBinIdx<6-1; ++etBinIdx){
+        for (unsigned etaBinIdx=0; etaBinIdx<6-1; ++etaBinIdx){
+          if( ( et < ringer_thres_et_bins[etBinIdx]  && ringer_thres_et_bins[etBinIdx+1] >= et)
+           && ( eta < ringer_thres_eta_bins[etaBinIdx]  && ringer_thres_eta_bins[etaBinIdx+1] >= eta)){
+            std::stringstream ss1,ss2;
+            ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+            ss2 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+            hist1(ss1.str())->Fill(output);
+            hist2(ss2.str())->Fill(output,avgmu);
+           }
+        }
+      }
+      ATH_MSG_DEBUG("L2 Calo distributions.");
+    }
+}
+
+
 
 void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
     cd(dir);
@@ -362,8 +408,11 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
         hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
-        if (eg->pt() > 0) 
+        hist1("topoetcone40_shift")->Fill((getIsolation_topoetcone40(eg)-2450)/1e3);
+        if (eg->pt() > 0) {
             hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
+            hist1("topoetcone40_shift_rel")->Fill((getIsolation_topoetcone40(eg)-2450)/eg->pt());
+        }
         
     }
 }

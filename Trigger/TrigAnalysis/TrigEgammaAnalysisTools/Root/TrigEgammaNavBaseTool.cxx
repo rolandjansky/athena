@@ -13,7 +13,6 @@
  * Description:
  *      Inherits from TrigEgammaAnalysisBaseTool.
  **********************************************************************/
-#include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "PATCore/AcceptData.h"
@@ -138,6 +137,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     //Calculate number of vertex 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
 
+
     return true; 
 }
 
@@ -239,15 +239,20 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
-      
 
-      if (match()->match(el, trigItem, te)){
-         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
-         m_objTEList.push_back(pair);
-      }
-      else {
-          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
-          m_objTEList.push_back(pair);
+      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      if(isEmulation && getEmulation()){
+        emulation()->match(el,te);
+        std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+        m_objTEList.push_back(pair);
+      }else{
+        if (match()->match(el, trigItem, te)){
+           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+           m_objTEList.push_back(pair);
+        }else {
+            std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
+            m_objTEList.push_back(pair);
+        }
       }
 
   }
@@ -279,13 +284,19 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
       }
       xAOD::Photon *ph = new xAOD::Photon(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      if ( match()->match(ph, trigItem, te)){
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
-          m_objTEList.push_back(pair);
-      }
-      else {
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
-          m_objTEList.push_back(pair);
+      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      if(isEmulation && getEmulation()){
+        emulation()->match(ph,te);
+        std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+        m_objTEList.push_back(pair);
+      }else{
+        if (match()->match(ph, trigItem, te)){
+           std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+           m_objTEList.push_back(pair);
+        }else {
+            std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
+            m_objTEList.push_back(pair);
+        }
       }
 
   }

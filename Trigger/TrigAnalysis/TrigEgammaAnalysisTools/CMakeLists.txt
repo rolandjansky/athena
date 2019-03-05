@@ -6,37 +6,38 @@
 atlas_subdir( TrigEgammaAnalysisTools )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTrigCalo
-   Event/xAOD/xAODTrigEgamma
-   Event/xAOD/xAODTrigRinger
-   Event/xAOD/xAODTrigger
-   Event/xAOD/xAODTruth
-   LumiBlock/LumiBlockComps
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-   Reconstruction/RecoTools/RecoToolInterfaces
-   PhysicsAnalysis/ElectronPhotonID/egammaMVACalibAnalysis
-   Trigger/TrigAnalysis/TrigDecisionTool
-   Trigger/TrigAnalysis/TrigEgammaMatchingTool
-   Trigger/TrigAnalysis/TrigEgammaEmulationTool
-   Trigger/TrigConfiguration/TrigConfHLTData
-   Trigger/TrigEvent/TrigSteeringEvent
-   Trigger/TrigMonitoring/TrigHLTMonitoring
-   PhysicsAnalysis/AnalysisCommon/PATCore
-   PRIVATE
-   Control/AthenaBaseComps
-   Control/AthenaMonitoring
-   Control/StoreGate
-   GaudiKernel
-   Trigger/TrigConfiguration/TrigConfxAOD )
-
+atlas_depends_on_subdirs( PUBLIC
+                          Control/AthToolSupport/AsgTools
+                          Event/xAOD/xAODCaloEvent
+                          Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODJet
+                          Event/xAOD/xAODPrimitives
+                          Event/xAOD/xAODTracking
+                          Event/xAOD/xAODTrigCalo
+                          Event/xAOD/xAODTrigEgamma
+                          Event/xAOD/xAODTrigRinger
+                          Event/xAOD/xAODTrigger
+                          Event/xAOD/xAODTruth
+                          Event/xAOD/xAODMissingET
+                          Event/xAOD/xAODCaloRings
+                          LumiBlock/LumiBlockComps
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          Reconstruction/RecoTools/RecoToolInterfaces
+                          Reconstruction/egamma/egammaMVACalib
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Trigger/TrigAnalysis/TrigEgammaMatchingTool
+                          Trigger/TrigAnalysis/TrigEgammaEmulationTool
+                          Trigger/TrigConfiguration/TrigConfHLTData
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigMonitoring/TrigHLTMonitoring
+                          PhysicsAnalysis/AnalysisCommon/PATCore
+                          PRIVATE
+                          Control/AthenaBaseComps
+                          Control/AthenaMonitoring
+                          Control/StoreGate
+                          GaudiKernel
+                          Trigger/TrigConfiguration/TrigConfxAOD )
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core Hist Tree )
@@ -48,20 +49,25 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-   xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger
-   xAODTrigger xAODTruth LumiBlockCompsLib EgammaAnalysisInterfacesLib
+   xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODMissingET
+   xAODTrigger xAODCaloRings xAODTruth LumiBlockCompsLib EgammaAnalysisInterfacesLib
    RecoToolInterfaces egammaMVACalibAnalysisLib TrigDecisionToolLib
    TrigEgammaMatchingToolLib TrigEgammaEmulationToolLib TrigConfHLTData
    TrigSteeringEvent TrigHLTMonitoringLib PATCoreLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfxAODLib )
 
 atlas_add_component( TrigEgammaAnalysisTools
-   src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthenaBaseComps GaudiKernel AsgTools TrigHLTMonitoringLib
-   AthenaMonitoringLib TrigDecisionToolLib TrigEgammaMatchingToolLib xAODEgamma
-   TrigEgammaAnalysisToolsLib )
+                     src/*.h
+                     src/*.cxx
+                     Root/*.cxx
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODMissingET xAODEgamma xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODCaloRings xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigEgammaEmulationTool TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel PATCoreLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigEgamma*.py )
 atlas_install_joboptions( share/test*.py )
-atlas_install_scripts( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh )
+atlas_install_generic( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh 
+                        DESTINATION share
+                        EXECUTABLE )
+
