@@ -14,14 +14,13 @@ Columns are:
    Charge (for PDG table)
 
    Mass Offset in the Pythia6 simulation configuration
-   8 mass options taken from slides 4 and 5 of ESK's presentation here:
-https://indico.cern.ch/event/748024/contributions/3094005/attachments/1701409/2740180/GlRhadMasses_20180816.pdf
-   First 3 are as shown on slide 4; 4th is the first specrum shifted to make the gluino R-glueball heaver 
+   8 mass options documented in the INT note of the stopped particle analysis:
+   https://cds.cern.ch/record/2665511
+   First 3 are the meson fits; 4th is the first specrum shifted to make the gluino R-glueball heaver
     than the lightest R-mesons, but with the same relative splitting otherwise.
-   Second set of four follow the same pattern, but for the splittings shown on slide 5.
+   Second set of four follow the same pattern, but for the baryon fits.
 
-The list of possible R-hadrons comes from the Pythia8 code, for example:
-/afs/cern.ch/sw/lcg/external/MCGenerators_lcgcmt67c/pythia8/235/share/sources/src/RHadrons.cc 
+The list of possible R-hadrons comes from the Pythia8 code, in src/RHadrons.cc (at the top)
 """
 
 first_mass_set = 4
