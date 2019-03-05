@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLMULTITEST_DUMMYLUMIRANGETOOL_H
@@ -50,11 +50,11 @@ public:
                             ISvcLocator* pSvcLocator);
 
   /// Initialize DummyLumirangeTool
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
   /// Terminate DummyLumirangeTool
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 protected:
 
@@ -64,7 +64,8 @@ protected:
   IntegerProperty  m_rangesize, m_blocksperrun, m_lumitot;
 
 private:
-  SG::WriteHandleKey<CollectionMetadataContainer> m_wcmd;
+  SG::WriteHandleKey<CollectionMetadataContainer> m_wcmd
+  { this, "WCmd", "", "" };
 
 };
 
