@@ -31,6 +31,21 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   declareProperty( "MassCutLowFunc",      m_strMassCutLow="" , "");
   declareProperty( "MassCutHighFunc",     m_strMassCutHigh="" , "");
   declareProperty( "D2CutFunc",           m_strD2Cut="" , "");
+
+  // tagging scale factors
+  declareProperty( "CalcSF",                    m_calcSF = false);
+  declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
+  declareProperty( "WeightFile",                m_weightFileName = "");
+  declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
+  declareProperty( "WeightFlavors",             m_weightFlavors = "");
+  declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "WTopContainmentTruthLabel");
+  declareProperty( "TruthJetContainerName",   m_truthJetContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
+  declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
+  declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
+  declareProperty( "TruthZBosonContainerName",   m_truthZBosonContainerName="TruthBosonWithDecayParticles");
+  declareProperty( "TruthTopQuarkContainerName",   m_truthTopQuarkContainerName="TruthTopQuarkWithDecayParticles");
+  
+  declareProperty( "DSID",             m_DSID = -1);
 }
 
 SmoothedWZTagger::~SmoothedWZTagger() {}
@@ -134,6 +149,9 @@ StatusCode SmoothedWZTagger::initialize(){
 Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth WZ result" );
+
+  // decorate truth label for SF provider
+  decorateTruthLabel(jet, m_truthLabelDecorationName);
 
   //reset the TAccept cut results to false
   m_accept.clear();

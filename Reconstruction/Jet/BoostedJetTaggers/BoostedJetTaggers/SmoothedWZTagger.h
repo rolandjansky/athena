@@ -56,6 +56,12 @@ class SmoothedWZTagger : public  JSSTaggerBase {
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+ 
+    // string for scale factors
+    std::string m_weightdecorationName;
+    std::string m_weightFileName;
+    std::string m_weightHistogramName;
+    std::string m_weightFlavors;
 
     // decorators
     SG::AuxElement::Decorator<float>    m_dec_mcutL;
