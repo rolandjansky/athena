@@ -1,20 +1,25 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+import sys
 import myunittest
-from PyJobTransformsCore.TransformConfig import *
+from PyJobTransformsCore.TransformConfig import TransformConfig, ListOfStrings
+sys.tracebacklimit=0
 
-class TransfromConfigTest(myunittest.TestCase):
-    def setUp(self):
-        self.config = TransformConfig()
+class DerivedTransformConfig(TransformConfig):
+    __slots__ = ()
+    keywords = ListOfStrings("Search keywords for a dummy dataset")
 
-    def testAddAttribute(self):
-        """add a member to the config"""
-        self.config.addAttribute( String( "myString", "myStringDefault", "myStringDoc" ) )
-        print ""
-        print self.config
-        self.config.myString = "myStringValue"
-        print self.config
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+
+
+class DerivedTransformConfigTest(myunittest.TestCase):
+    def testListOfStringsSetValues(self):
+        dummyConfig = DerivedTransformConfig('DummyTransformConfig')
+        dummyConfig.keywords = ["QCD", "minBias", "SM"]
+        self.assertListEqual(dummyConfig.keywords, ["QCD", "minBias", "SM"])
+        print(dummyConfig.keywords)
 
 
 if __name__ == "__main__":
