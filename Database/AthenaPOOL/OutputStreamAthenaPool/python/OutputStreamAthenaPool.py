@@ -11,7 +11,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
-def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
+def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False ):
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
