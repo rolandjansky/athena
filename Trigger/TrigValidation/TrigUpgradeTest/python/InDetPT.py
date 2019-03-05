@@ -124,6 +124,8 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   #allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
   print  InDetTrigMTxAODTrackParticleCnvAlg
   
+  #ToolSvc.InDetTrigHoleSearchTool.SctSummaryTool.InDetTrigInDetSCT_FlaggedConditionTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
+
   
   #Return list of Track keys, TrackParticle keys, and PT algs
   return  nameTrackCollections, nameTrackParticles, [InDetTrigMTAmbiguitySolver, InDetTrigMTxAODTrackParticleCnvAlg]
