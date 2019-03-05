@@ -245,8 +245,9 @@ def add_single_weight(process, weight, idx_weight, n_total, use_XML):
 
 
 def rename_LHE_output(powheg_LHE_output):
+    reweighted_events_file_name = powheg_LHE_output.replace(".lhe", "-rwgt.lhe")
     try:
-        shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
+        shutil.move(reweighted_events_file_name, powheg_LHE_output)
     except IOError:
-        raise IOError("Reweighted LHE file could not be found. Probably POWHEG-BOX crashed during reweighting.")
+        raise IOError("Reweighted LHE file '{filename}' could not be found. Probably POWHEG-BOX crashed during reweighting.".format(filename=reweighted_events_file_name))
 
