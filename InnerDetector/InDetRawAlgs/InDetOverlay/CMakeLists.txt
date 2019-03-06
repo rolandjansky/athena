@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
                           Control/StoreGate
+                          DetectorDescription/IdDictParser
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetSimData
@@ -24,11 +25,24 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( GTest )
 
+# Helper variable(s):
+set( _jobOPath
+    "${CMAKE_CURRENT_SOURCE_DIR}/share:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
+set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
+
+# Unit Tests
 atlas_add_test( PixelOverlay_test
                 SOURCES src/PixelOverlay.cxx test/PixelOverlay_test.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES  ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES}
                 EXTRA_PATTERNS "[0-9]+ ms")
+
+atlas_add_test( SCTOverlay_test
+                SOURCES src/SCTOverlay.cxx test/SCTOverlay_test.cxx
+                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
+                EXTRA_PATTERNS "[0-9]+ ms"
+                ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 
 # Component(s) in the package:
@@ -41,3 +55,4 @@ atlas_add_component( InDetOverlay
 # Install files from the package:
 atlas_install_headers( InDetOverlay )
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/StoreGateTestCommon.txt )
