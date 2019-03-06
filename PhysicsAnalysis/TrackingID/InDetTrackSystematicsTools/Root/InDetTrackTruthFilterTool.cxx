@@ -144,10 +144,7 @@ namespace InDet {
 
   bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track, float mu) const {
 
-    int origin = m_trackOriginTool->getTrackOrigin(track);
-
     float pt = track->pt();
-    float eta = track->eta();
     float d0 = track->d0();
     
     if(isActive( TRK_FAKE_RATE_LOOSE_ROBUST )){
