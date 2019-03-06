@@ -59,24 +59,10 @@ namespace EL
   BatchWorker ::
   BatchWorker (const BatchJob *val_job,
 	       const BatchSample *val_sample,
-	       const BatchSegment *val_segment,
-	       TList *output)
-    : Worker ((RCU_REQUIRE (val_job != 0),
-	       RCU_REQUIRE (val_sample != 0),
-	       RCU_REQUIRE (val_segment != 0),
-	       RCU_REQUIRE (output != 0),
-	       &val_sample->meta), output),
-      m_job (val_job), m_sample (val_sample), m_segment (val_segment)
+	       const BatchSegment *val_segment)
+    : m_job (val_job), m_sample (val_sample), m_segment (val_segment)
   {
     using namespace msgEventLoop;
-
-    setJobConfig (JobConfig (val_job->job.jobConfig()));
-
-    for (Job::outputIter out = m_job->job.outputBegin(),
-	   end = m_job->job.outputEnd(); out != end; ++ out)
-    {
-      ANA_CHECK_THROW (addOutputWriter (out->label(), std::unique_ptr<SH::DiskWriter> (out->output()->makeWriter ("", m_segment->name, -1, ".root"))));
-    }
 
     RCU_NEW_INVARIANT (this);
   }
@@ -84,11 +70,22 @@ namespace EL
 
 
   void BatchWorker ::
-  run ()
+  run (const BatchJob *val_job)
   {
     using namespace msgEventLoop;
 
     RCU_CHANGE_INVARIANT (this);
+
+    setJobConfig (JobConfig (val_job->job.jobConfig()));
+
+    for (Job::outputIter out = m_job->job.outputBegin(),
+	   end = m_job->job.outputEnd(); out != end; ++ out)
+    {
+      Detail::OutputStreamData data;
+      data.m_writer =
+        out->output()->makeWriter (m_segment->sampleName, m_segment->segmentName, ".root");
+      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
+    }
  
     Long64_t beginFile = m_segment->begin_file;
     Long64_t endFile   = m_segment->end_file;
@@ -119,9 +116,9 @@ namespace EL
   {
     try
     {
-      std::auto_ptr<TFile> file (TFile::Open (confFile, "READ"));
+      std::unique_ptr<TFile> file (TFile::Open (confFile, "READ"));
       RCU_ASSERT_SOFT (file.get() != 0);
-      std::auto_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
+      std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
       RCU_ASSERT_SOFT (job.get() != 0);
       RCU_ASSERT_SOFT (job_id < job->segments.size());
       BatchSegment *segment = &job->segments[job_id];
@@ -132,22 +129,18 @@ namespace EL
       gSystem->Exec ("pwd");
       gSystem->MakeDirectory ("output");
 
-      TList output;
-      BatchWorker worker (job.get(), sample, segment,
-			  &output);
-      worker.run ();
+      BatchWorker worker (job.get(), sample, segment);
+      worker.setMetaData (&sample->meta);
+      worker.setOutputHist (job->location + "/fetch");
+      worker.setSegmentName (segment->fullName);
+      worker.run (job.get());
 
       std::ostringstream job_name;
       job_name << job_id;
-      Driver::saveOutput (job->location + "/fetch", segment->name, output);
       std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
-    } catch (std::exception& e)
+    } catch (...)
     {
-      std::cout << "exception caught: " << e.what() << std::endl;
-      exit (EXIT_FAILURE);
-    } catch (std::string& s)
-    {
-      std::cout << "exception caught: " << s << std::endl;
+      Detail::report_exception ();
       exit (EXIT_FAILURE);
     }
   }

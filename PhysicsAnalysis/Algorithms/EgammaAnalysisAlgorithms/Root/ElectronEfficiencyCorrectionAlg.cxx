@@ -44,6 +44,7 @@ namespace CP
     m_systematicsList.addHandle (m_electronHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -59,9 +60,12 @@ namespace CP
         ANA_CHECK (m_electronHandle.getCopy (electrons, sys));
         for (xAOD::Electron *electron : *electrons)
         {
-          double eff = 0;
-          ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, eff));
-          (*m_efficiencyAccessor) (*electron) = eff;
+          if (m_preselection.getBool (*electron))
+          {
+            double eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, eff));
+            (*m_efficiencyAccessor) (*electron) = eff;
+          }
         }
         return StatusCode::SUCCESS;
       });

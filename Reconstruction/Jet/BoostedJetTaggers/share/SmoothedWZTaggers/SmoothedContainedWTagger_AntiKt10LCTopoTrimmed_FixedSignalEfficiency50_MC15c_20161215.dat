@@ -28,3 +28,10 @@ MassCutLow: x > 2500 ? 59.942411393 : sqrt(pow((-9052.91592315)/x-(-49.372858914
 MassCutHigh: x > 2500 ? 99.7442516049 : sqrt(pow((-11.4057280304)/x-(-94.0148203305),2)+pow((0.0189881985791)*x+(-14.139023159),2))
 
 D2Cut: x > 2500 ? 2.02631629905 : (0.606822142017)+(0.00186129259062)*x+(-1.44204208479e-06)*pow(x,2)+(6.49417252462e-10)*pow(x,3)+(-1.11823842798e-13)*pow(x,4)
+
+CalcSF: true
+WeightFile: test2.root
+WeightDecorationName: SF
+WeightHistogramName: weightHistogram
+WeightFlavors: t_qqb,W_qq,q
+TruthLabelDecorationName: WTopContainmentTruthLabel

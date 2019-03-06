@@ -1,19 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef SAMPLE_HANDLER__DISK_OUTPUT_LOCAL_H
 #define SAMPLE_HANDLER__DISK_OUTPUT_LOCAL_H
-
-//        Copyright Iowa State University 2013.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 
 #include <SampleHandler/Global.h>
@@ -26,7 +20,7 @@ namespace SH
   ///
   /// Local disks in this case means disks accessed through the file
   /// system.
-  class DiskOutputLocal : public DiskOutput
+  class DiskOutputLocal final : public DiskOutput
   {
     //
     // public interface
@@ -59,7 +53,7 @@ namespace SH
     /// \par Failures
     ///   out of memory II
   public:
-    DiskOutputLocal (const std::string& val_prefix);
+    explicit DiskOutputLocal (const std::string& val_prefix);
 
 
 
@@ -67,11 +61,17 @@ namespace SH
     // inherited interface
     //
 
-    /// \copydoc DiskOutput::doMakeWriter()
   protected:
-    virtual DiskWriter *
-    doMakeWriter (const std::string& sample, const std::string& name,
-		  int index, const std::string& suffix) const;
+    virtual std::unique_ptr<DiskWriter>
+    doMakeWriter (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const;
+
+  protected:
+    virtual std::string
+    getTargetURL (const std::string& sampleName,
+                  const std::string& segmentName,
+                  const std::string& suffix) const;
 
 
 

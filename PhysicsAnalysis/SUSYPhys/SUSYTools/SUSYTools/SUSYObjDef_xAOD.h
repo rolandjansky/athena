@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
@@ -461,6 +461,7 @@ namespace ST {
     bool m_force_noElId;
     bool m_force_noMuId;
     bool m_doTTVAsf;
+    bool m_doModifiedEleId;
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
@@ -475,6 +476,9 @@ namespace ST {
 
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
+
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
 
     bool m_tool_init;
     bool m_subtool_init;
@@ -554,6 +558,7 @@ namespace ST {
     std::string m_tauIdBaseline;
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
+    double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
@@ -696,8 +701,6 @@ namespace ST {
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
-    std::string m_WtagConfig;
-    std::string m_ZtagConfig;
     asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 

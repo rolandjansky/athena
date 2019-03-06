@@ -17,9 +17,8 @@
 
 #include <string>
 #include <memory>
-
+#include <map>
 #include <unordered_map>
-
 namespace CP {
     class MuonEfficiencyScaleFactors: virtual public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
 
@@ -155,9 +154,7 @@ namespace CP {
             std::string m_custom_file_HighEta;
             std::string m_custom_file_LowPt;
             std::string m_custom_file_LowPtCalo;
-
-            std::map<CP::SystematicSet, CP::SystematicSet> m_filtered_sys_sets;
-
+   
             // Decorate the data-monteCarlo & scale-factors
             // to the muon. Decoration names can be set flexile
             std::string m_efficiency_decoration_name_data;
@@ -171,7 +168,10 @@ namespace CP {
             float m_lowpt_threshold;
          
             CP::SystematicSet m_affectingSys;
-            
+            /// It turned out that the code spends a large time in the look up of
+            /// the systematics. This map tries to mitigate this issue.
+            std::unordered_map<CP::SystematicSet, EffiCollection*> m_filtered_sys_sets;
+   
             bool m_init;
             bool m_seperateSystBins;
             bool m_breakDownSyst;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
@@ -24,7 +24,8 @@ namespace {
 
 namespace FlavorTagDiscriminants {
 
-  DL2HighLevel::DL2HighLevel(const std::string& nn_file_name):
+  DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
+                             EDMSchema schema):
     m_dl2(nullptr)
   {
     // get the graph
@@ -36,17 +37,23 @@ namespace FlavorTagDiscriminants {
     //
 
     // type and default value-finding regexes are hardcoded for now
+    // TODO: these will have to be updated with the new schema.
     TypeRegexes type_regexes{
-      {"(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)"_r, EDMType::DOUBLE},
-      {"(JetFitter_|SV1_)[Nn].*"_r, EDMType::INT},
-      {"(JetFitter_|SV1_).*"_r, EDMType::FLOAT},
-      {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER}};
+      {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
+      {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
+      {"secondaryVtx_[mEa].*|(min_|max_|avg_)trk_.*"_r, EDMType::DOUBLE},
+      {"(JetFitter_|secondaryVtx_|SV1_)[Nn].*"_r, EDMType::INT},
+      {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
+      {".*_isDefaults"_r, EDMType::UCHAR},
+      {"(JetFitter_|SV1_).*|secondaryVtx_L.*"_r, EDMType::FLOAT},
+      };
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
       {"IP3D_.*"_r, "IP3D_isDefaults"},
       {"SV1_.*"_r, "SV1_isDefaults"},
       {"JetFitter_.*"_r, "JetFitter_isDefaults"},
       {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
+      {".*_trk_flightDirRelEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
@@ -82,7 +89,8 @@ namespace FlavorTagDiscriminants {
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
     SortRegexes trk_sort_regexes {
-      {".*sd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
       {".*ptsort"_r, SortOrder::PT_DESCENDING},
     };
     TrkSelRegexes trk_select_regexes {
@@ -92,10 +100,11 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
-    m_dl2.reset(new DL2(config, input_config, trk_config));
+    m_dl2.reset(new DL2(config, input_config, trk_config, schema));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
+  DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
   void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);

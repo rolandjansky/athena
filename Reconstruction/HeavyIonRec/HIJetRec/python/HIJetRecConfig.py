@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 import AthenaCommon.SystemOfUnits as Units
@@ -13,6 +13,7 @@ def SetHIPMode() :
     HIJetFlags.SeedPtMin.set_Value_and_Lock(8*Units.GeV)
     HIJetFlags.RecoOutputPtMin.set_Value_and_Lock(8*Units.GeV)
     HIJetFlags.TrackJetPtMin.set_Value_and_Lock(4*Units.GeV)
+    HIJetFlags.ApplyTowerEtaPhiCorrection.set_Value_and_Lock(False)
 
 def SetDebugMode():
     print 'Setting HIJetRec in DEBUG mode'

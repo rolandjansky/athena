@@ -258,6 +258,8 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
                                         'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config',
                                                               'EtaJES_JMS'),
+                      'AntiKt2LCTopo':('JES_2015_2016_data_Rscan2LC_18Dec2018_R21.config',
+                                       'JetArea_Residual_EtaJES_GSC'),
                       }
         if fatjetconfig=='calo': #Choose JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
             configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config',
@@ -303,7 +305,7 @@ def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrame
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20',sequence=None):
-    supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20']
+    supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt2LCTopo']
     if not jetalg in supportedJets:
         extjetlog.warning('*** Calibration requested for unsupported jet collection! ***')
         extjetlog.warning('Supported custom jets: '+supportedJets)

@@ -10,12 +10,22 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIJetRec.HIJetRecUtils import HasCollection
 
 #====================================================================
 #Read and set conditions
 #====================================================================
 
 GetConditionsFromMetaData()
+
+#====================================================================
+#Check to see type of data
+#====================================================================
+from PyUtils import AthFile
+af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
+beam_energy = af.fileinfos['metadata']['/TagInfo']['beam_energy']
+print '+++++++++++++++++++++++++++++++ project tag: ',project_tag,' +++++++++++++++++++++++++++++++'
 
 #====================================================================
 #Now do the skimming/thinning
@@ -27,9 +37,24 @@ DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=4000 #in MeV
 #Thinning threshods for jets is applied only in data
 largeRThreshold=150
-expression='HLT_j75_ion_L1TE50 && count(DFAntiKt10HIJets.pt > %d*GeV) >=1' % largeRThreshold
-if HIDerivationFlags.isPP() : expression='HLT_j85 && count(DFAntiKt10HIJets.pt > %d*GeV) >=1' % largeRThreshold
-if HIDerivationFlags.doMinBiasSelection() : expression = '(HLT_noalg_mb_L1TE50 || HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50) && count(DFAntiKt10HIJets.pt > %d*GeV) >=1' % largeRThreshold
+
+expression=''
+if not HIDerivationFlags.isSimulation():
+    #Trigger selection
+    TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
+    for i, key in enumerate(TriggerDict):
+	    #Event selection based on DF jets for HI
+	    expression = expression + '(' + key + ' && count(DFAntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    expression = expression + '|| (' + key + ' && count(DFAntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): expression + '|| (' + key + ' && count(AntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): expression + '|| (' + key + ' && count(AntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    #Event selection based also on non-DF jets for pp
+	    if not i == len(TriggerDict) - 1:
+		    expression = expression + ' || ' 
+	    
+    print "==========Event filtering expression=========="
+    print expression
+    print "=============================================="
 
 #########Skimming#########
 skimmingTools=[]
@@ -44,10 +69,6 @@ for t in skimmingTools : ToolSvc+=t
 
 
 #########Thinning#########
-
-thinningTools=[]
-thinningTools.append(addJetClusterThinningTool('DFAntiKt10HIJets',DerivationName,largeRThreshold))
-
 
 #track thinning
 #Version without track selector: 
@@ -72,9 +93,18 @@ TPThinningTool=DerivationFramework__HITrackParticleThinningTool(name='%sTPThinni
 ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
-#Jet thinning
-# if not HIDerivationFlags.isSimulation() : 
-#     for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets"] : thinningTools.append(addJetThinningTool(collection,DerivationName,100.)
+#Jet thinning only for PbPb data
+largeRcollections =  ["DFAntiKt8HIJets", "DFAntiKt10HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): largeRcollections+=["AntiKt8HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): largeRcollections+=["AntiKt10HIJets"]
+
+
+for collection in largeRcollections :
+    #Only clusters associated with jets (high pT)
+    thinningTools.append(addJetClusterThinningTool(collection,DerivationName,largeRThreshold))
+    #Jet thinning to 35 GeV 
+    thinningTools.append(addJetThinningTool(collection,DerivationName,35))
+
 
 if HIDerivationFlags.isSimulation() :
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -91,11 +121,12 @@ if HIDerivationFlags.isSimulation() :
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SlimmingHelper = SlimmingHelper("%sSlimmingHelper" % DerivationName)
 
-AllVarContent=["AntiKt4HITrackJets","DFAntiKt10HIJets"]
+AllVarContent=["AntiKt4HITrackJets"]
+AllVarContent+=largeRcollections
 AllVarContent+=HIGlobalVars
 
-extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt10HIJets"]
-if HIDerivationFlags.isSimulation() : extra_jets+=["AntiKt10TruthJets"]
+extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets"]
+if HIDerivationFlags.isSimulation() : extra_jets+=["AntiKt8TruthJets","AntiKt10TruthJets"]
 for item in extra_jets:
     if not SlimmingHelper.AppendToDictionary.has_key(item):
         SlimmingHelper.AppendToDictionary[item]='xAOD::JetContainer'
@@ -110,18 +141,18 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "PrimaryVertices"]
 ##AllVariables
 if HIDerivationFlags.isSimulation() : 
-    AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles","AntiKt10TruthJets"]
+    AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles","AntiKt8TruthJets","AntiKt10TruthJets"]
 	
 SlimmingHelper.AllVariables=AllVarContent
 
-##ExtraVaraibles
-###ExtraVars=HIJetTriggerVars+HIClusterVars
+
 ExtraVars=[]
-ExtraVars+=HIJetTriggerVars
-for collection in ["AntiKt2HIJets","AntiKt4HIJets"] :  
-    for j in HIJetBranches: 
-        #ExtraVars.append(collection+'.'+j) #!!!removed non-DF
-        ExtraVars.append('DF' + collection+'.'+j)
+if not HIDerivationFlags.isSimulation(): ExtraVars+=makeHITriggerJetBasicBranchList(HIDerivationFlags.isPP,DerivationName)
+
+#Only basic kinematics for small jets
+for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets"] :  
+    for j in HIJetBasicBranches: 
+        ExtraVars.append(collection+'.'+j)
 
 
 ExtraVars.append("InDetTrackParticles.truthMatchProbability")
@@ -156,6 +187,3 @@ for es in ["EventShapeWeighted_iter0_Modulate","EventShapeWeighted_iter1_Modulat
     TheStream.AddItem("xAOD::HIEventShapeContainer#" + es);
     TheStream.AddItem("xAOD::HIEventShapeAuxContainer#" + es + "Aux.");
 
-
-#    TheStream.AddItem("xAOD::JetContainer#DF"+collection)
-#    TheStream.AddItem("xAOD::JetAuxContainer#DF"+collection+"Aux.")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -12,7 +12,6 @@
 
 #define APP_NAME "JSSWTopTaggerDNN"
 
-namespace CP {
 JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   JSSTaggerBase( name ),
   m_name(name),
@@ -22,8 +21,7 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
   m_dec_scoreValue("scoreValue"),
-  m_dec_weight("weightdec"),
-  m_DSID(-1)
+  m_dec_weight("weightdec")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -36,7 +34,8 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
 
     declareProperty( "TaggerType",    m_tagType="XXX");
 
-    declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/");
+    declareProperty( "CalibArea",      m_calibarea = "");
+    declareProperty( "CalibAreaKeras", m_calibarea_keras = "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/");
     declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
     declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
 
@@ -69,7 +68,8 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -94,7 +94,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
     // get the CVMFS calib area where stuff is stored
     // if this is set to "Local" then it will look for the config file in the share space
-    m_calibarea = configReader.GetValue("CalibArea" ,"");
+    m_calibarea_keras = configReader.GetValue("CalibAreaKeras" ,"");
 
     // get the name/path of the JSON config
     m_kerasConfigFileName = configReader.GetValue("KerasConfigFile" ,"");
@@ -123,7 +123,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // print out the configuration parameters for viewing
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea              : "<<m_calibarea );
+    ATH_MSG_INFO( "calibarea_keras        : "<<m_calibarea_keras );
     ATH_MSG_INFO( "kerasConfigFileName    : "<<m_kerasConfigFileName );
     ATH_MSG_INFO( "kerasConfigOutputName  : "<<m_kerasConfigOutputName );
     ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
@@ -191,7 +191,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea.empty() ){
+  if( m_calibarea_keras.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
@@ -207,7 +207,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_kerasConfigFileName).c_str() );
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
     if(m_calcSF)
       m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea+m_weightFileName).c_str());
   }
@@ -297,6 +297,9 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   ATH_MSG_DEBUG( ": Obtaining DNN result" );
+
+  // decorate truth label for SF provider
+  decorateTruthLabel(jet, m_truthLabelDecorationName);
 
   //clear all accept values
   m_accept.clear();
@@ -572,47 +575,10 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
   return DNN_inputValues;
 }
 
-StatusCode JSSWTopTaggerDNN::decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
-
-  const xAOD::JetContainer* truthJet=nullptr;
-  evtStore()->retrieve(truthJet, m_truthJetContainerName);
-  if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
-    //std::cout << "isTRUTH3!!" << std::endl;
-    const xAOD::TruthParticleContainer* truthPartsW=nullptr;
-    evtStore()->retrieve(truthPartsW, m_truthWBosonContainerName);
-    const xAOD::TruthParticleContainer* truthPartsZ=nullptr;
-    evtStore()->retrieve(truthPartsZ, m_truthZBosonContainerName);
-    const xAOD::TruthParticleContainer* truthPartsTop=nullptr;
-    evtStore()->retrieve(truthPartsTop, m_truthTopQuarkContainerName);
-    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthJet, decorName,
-			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
-  }else if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthParticleContainerName ) ){    
-    const xAOD::TruthParticleContainer* truthParts=nullptr;
-    evtStore()->retrieve(truthParts, m_truthParticleContainerName);
-    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, decorName,
-			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
-  }
-
-  return StatusCode::FAILURE;
-}
-
-StatusCode JSSWTopTaggerDNN::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ ) const {
-  DecorateMatchedTruthJet(jet, truthJets, /*dR*/dRmax_truthJet, "dRMatchedTruthJet");
-  const xAOD::Jet* truthjet=jet.auxdata<const xAOD::Jet*>("dRMatchedTruthJet");
-  WTopLabel jetContainment=WTopLabel::notruth;
-  bool isSherpa=getIsSherpa(m_DSID);
-  if ( truthjet ) {
-    jetContainment=getWTopContainment(*truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
-  }
-  jet.auxdecor<WTopLabel>(decorName) = jetContainment;
-
-  return StatusCode::SUCCESS;
-}
-
 StatusCode JSSWTopTaggerDNN::finalize(){
     // Delete or clear anything
     return StatusCode::SUCCESS;
 }
 
-}/*namespace CP*/
+
 

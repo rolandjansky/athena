@@ -63,7 +63,7 @@ namespace EL
     ::StatusCode FileExecutedModule ::
     postFinalize (ModuleData& data)
     {
-      data.m_output->Add (m_fileExecutedTree.release());
+      data.addOutput (std::move (m_fileExecutedTree));
       return ::StatusCode::SUCCESS;
     }
   }

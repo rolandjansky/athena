@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 
 #include "PathResolver/PathResolver.h"
+
+#include "xAODJet/JetContainer.h"
 
 #include "TEnv.h"
 #include "TF1.h"
@@ -14,7 +16,9 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   JSSTaggerBase( name ),
   m_dec_mcutL("mcutL"),
   m_dec_mcutH("mcutH"),
-  m_dec_d2cut("d2cut")
+  m_dec_d2cut("d2cut"),
+  m_dec_ntrkcut("ntrkcut"),
+  m_dec_weight("weightdec")
 {
 
   declareProperty( "ConfigFile",   m_configFile="");
@@ -31,6 +35,25 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   declareProperty( "MassCutLowFunc",      m_strMassCutLow="" , "");
   declareProperty( "MassCutHighFunc",     m_strMassCutHigh="" , "");
   declareProperty( "D2CutFunc",           m_strD2Cut="" , "");
+
+  declareProperty( "NtrkCutFunc",         m_strNtrkCut="", "");
+
+  declareProperty( "CalibArea",      m_calibarea ="");
+
+  // tagging scale factors
+  declareProperty( "CalcSF",                    m_calcSF = false);
+  declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
+  declareProperty( "WeightFile",                m_weightFileName = "");
+  declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
+  declareProperty( "WeightFlavors",             m_weightFlavors = "");
+  declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "WTopContainmentTruthLabel");
+  declareProperty( "TruthJetContainerName",   m_truthJetContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
+  declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
+  declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
+  declareProperty( "TruthZBosonContainerName",   m_truthZBosonContainerName="TruthBosonWithDecayParticles");
+  declareProperty( "TruthTopQuarkContainerName",   m_truthTopQuarkContainerName="TruthTopQuarkWithDecayParticles");
+  
+  declareProperty( "DSID",             m_DSID = -1);
 }
 
 SmoothedWZTagger::~SmoothedWZTagger() {}
@@ -44,7 +67,8 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -68,20 +92,35 @@ StatusCode SmoothedWZTagger::initialize(){
       m_strMassCutLow=configReader.GetValue("MassCutLow" ,"");
       m_strMassCutHigh=configReader.GetValue("MassCutHigh" ,"");
       m_strD2Cut=configReader.GetValue("D2Cut" ,"");
+      m_strNtrkCut=configReader.GetValue("NtrkCut" ,"");
     } else {
       m_strMassCutLow=configReader.GetValue((m_wkpt+".MassCutLow").c_str() ,"");
       m_strMassCutHigh=configReader.GetValue((m_wkpt+".MassCutHigh").c_str() ,"");
       m_strD2Cut=configReader.GetValue((m_wkpt+".D2Cut").c_str() ,"");
+      m_strNtrkCut=configReader.GetValue((m_wkpt+".NtrkCut").c_str() ,"");
     }
 
     // get the decoration name
     m_decorationName = configReader.GetValue("DecorationName" ,"");
 
+    // get the scale factor configuration
+    m_calcSF = configReader.GetValue("CalcSF", false);
+    if(m_calcSF){
+      m_weightdecorationName = configReader.GetValue("WeightDecorationName", "");
+      m_weightFileName = configReader.GetValue("WeightFile", "");
+      m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
+      m_weightFlavors = configReader.GetValue("WeightFlavors", "");
+      m_truthLabelDecorationName = configReader.GetValue("TruthLabelDecorationName", "");
+      m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/SmoothedWZTaggers/"+m_weightFileName).c_str());
+    }
   }
   else { // no config file
     // Assume the cut functions have been set through properties.
     // check they are non empty
-    if( m_strD2Cut.empty() || m_strMassCutLow.empty() || m_strMassCutHigh.empty()) {
+    if( m_strD2Cut.empty() || m_strMassCutLow.empty() || m_strMassCutHigh.empty() ||
+	((m_weightdecorationName.empty() ||
+	  m_weightHistogramName.empty() ||
+	  m_weightFlavors.empty()) && m_calcSF) ) {
       ATH_MSG_ERROR( "No config file provided AND no parameters specified." ) ;
       return StatusCode::FAILURE;
     }
@@ -100,18 +139,40 @@ StatusCode SmoothedWZTagger::initialize(){
   dec_name = m_decorationName+"_Cut_D2";
   ATH_MSG_INFO( "  "<<dec_name<<" : D2 cut for tagger choice" );
   m_dec_d2cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  if(!m_strNtrkCut.empty()){
+    dec_name = m_decorationName+"_Cut_Ntrk";
+    ATH_MSG_INFO( "  "<<dec_name<<" : Ntrk cut for tagger choice" );
+    m_dec_ntrkcut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  }
+  if(m_calcSF){
+    dec_name = m_decorationName+"_"+m_weightdecorationName;
+    ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
+    m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  }
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
   m_funcMassCutHigh  = new TF1("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
   m_funcD2Cut        = new TF1("strD2Cut",       m_strD2Cut.c_str(),       0, 14000);
+  if(!m_strNtrkCut.empty())
+    m_funcNtrkCut      = new TF1("strNtrkCut",     m_strNtrkCut.c_str(),     0, 14000);
 
   ATH_MSG_INFO( "Smoothed WZ Tagger tool initialized" );
   ATH_MSG_INFO( "  Mass cut low    : "<< m_strMassCutLow );
   ATH_MSG_INFO( "  Mass cut High   : "<< m_strMassCutHigh );
   ATH_MSG_INFO( "  D2 cut low      : "<< m_strD2Cut );
+  if(!m_strNtrkCut.empty())
+    ATH_MSG_INFO( "  Ntrk cut low    : "<< m_strNtrkCut );
   ATH_MSG_INFO( "  Decorate        : "<< m_decorate );
   ATH_MSG_INFO( "  DecorationName  : "<< m_decorationName );
+  if(m_calcSF){
+    ATH_MSG_INFO( "weightdecorationName    : "<<m_weightdecorationName );
+    ATH_MSG_INFO( "weightFile              : "<<m_weightFileName );
+    ATH_MSG_INFO( "weightHistogramName     : "<<m_weightHistogramName );
+    ATH_MSG_INFO( "weightFlavors           : "<<m_weightFlavors );
+    ATH_MSG_INFO( "truthLabelDecorationName: "<<m_truthLabelDecorationName );
+    
+  }
 
   //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
@@ -121,10 +182,32 @@ StatusCode SmoothedWZTagger::initialize(){
   m_accept.addCut( "PassMassLow"         , "mJet > mCutLow"       );
   m_accept.addCut( "PassMassHigh"        , "mJet < mCutHigh"      );
   m_accept.addCut( "PassD2"              , "D2Jet < D2Cut"            );
+  if(!m_strNtrkCut.empty()){
+    m_accept.addCut( "ValidEventContent" , "True if primary vertex was found" );
+    m_accept.addCut( "PassNtrk"          , "NtrkJet < NtrkCut"    );
+  }
 
   //loop over and print out the cuts that have been configured
   ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
   showCuts();
+
+  // setup scale factors
+  if(m_calcSF){
+    TFile* weightConfig=new TFile( m_weightConfigPath.c_str(), "OPEN" );
+    if( !weightConfig ) {
+      ATH_MSG_INFO( ("SmoothedWZTagger: Error openning config file : "+m_weightConfigPath ) );
+      return StatusCode::FAILURE;
+    }
+
+    // install histograms for tagging SF
+    std::stringstream ss{m_weightFlavors};
+    std::string flavor;
+    while(std::getline(ss, flavor, ',')){
+      m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
+    }
+    m_weightHistograms = m_weightHistograms_nominal;    
+  }
 
   return StatusCode::SUCCESS;
 } // end initialize()
@@ -134,6 +217,9 @@ StatusCode SmoothedWZTagger::initialize(){
 Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth WZ result" );
+
+  // decorate truth label for SF provider
+  decorateTruthLabel(jet, m_truthLabelDecorationName);
 
   //reset the TAccept cut results to false
   m_accept.clear();
@@ -165,7 +251,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   float jet_mass = jet.m()/1000.0;
 
   // d2 - check if its there, otherwise, write it out
-  float jet_d2;
+  float jet_d2 = 0;       // default d2 to 0.  This probably gets used when the jet has one constituent, so it will fail the mass cut anyways
 
   static SG::AuxElement::ConstAccessor<float>    acc_D2   ("D2");
   static SG::AuxElement::ConstAccessor<float>    acc_ECF1 ("ECF1");
@@ -183,9 +269,6 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
       if( acc_ECF2(jet)>0.0 ){
         jet_d2 = acc_ECF3(jet) * pow(acc_ECF1(jet), 3.0) / pow(acc_ECF2(jet), 3.0);
       }
-    }
-    else{
-      jet_d2 = 0;       // set d2 artificially to 0.  This is probably because the jet has one constituent, so it will fail the mass cut anyways
     }
   }
 
@@ -214,12 +297,106 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   if(jet_d2<cut_d2)
     m_accept.setCutResult("PassD2",true);
 
+  // Check if it's a smooth three-variable tagger (ntrk) 
+  if(!m_strNtrkCut.empty()){
+
+    m_accept.setCutResult( "ValidEventContent" , true);
+
+    float cut_ntrk        = m_funcNtrkCut->Eval(jet_pt);
+
+    if(m_decorate)
+      m_dec_ntrkcut(jet) = cut_ntrk;
+
+    //Get the primary vertex
+    bool isValid = false;
+    const xAOD::Vertex* primaryVertex = 0;
+
+    const xAOD::VertexContainer* vxCont = 0;
+    if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+      isValid = false;
+    }
+    else{
+      for(const auto& vx : *vxCont){
+        if(vx->vertexType()==xAOD::VxType::PriVtx){
+          primaryVertex = vx;
+	  break;
+        }
+      }
+
+      if(primaryVertex)
+        isValid = true;
+    }
+
+    if(isValid){
+      static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
+      const xAOD::Jet * ungroomedJet = 0;
+      if(ungroomedLink.isAvailable(jet)){
+        ElementLink<xAOD::JetContainer> linkToUngroomed = ungroomedLink(jet);
+        if (  linkToUngroomed.isValid() ){
+          ungroomedJet = *linkToUngroomed;
+	  std::vector<int> NTrkPt500;
+          ungroomedJet->getAttribute(xAOD::JetAttribute::NumTrkPt500, NTrkPt500);
+          int jet_ntrk = NTrkPt500.at(primaryVertex->index());
+
+          if(jet_ntrk < cut_ntrk)
+            m_accept.setCutResult("PassNtrk",true);
+        }
+        else{
+	  m_accept.setCutResult("ValidJetContent", false);
+        }
+      }
+      else{
+        ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
+        m_accept.setCutResult("ValidJetContent", false);
+      }
+    }
+    else{
+      m_accept.setCutResult("ValidEventContent", false);
+    }
+  }
+
+  if ( m_calcSF && m_decorate ){
+    if ( m_accept ) {
+      // pass tagger
+      SG::AuxElement::ConstAccessor<WTopLabel> WTopContainmentTruthLabel(m_truthLabelDecorationName);
+      try{
+	WTopContainmentTruthLabel(jet);
+	m_dec_weight(jet) = getWeight(jet);
+      } catch (...) {
+	ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"WTopContainmentTruthLabel\" to your jet before calling tag(..)");
+      }
+    }else{
+      m_dec_weight(jet) = 1.0;
+    }
+  }
+
   // return the TAccept to be queried later
   return m_accept;
 
 }
 
-
+double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
+  if ( jet.pt() < 200e3 || fabs(jet.eta())>2.0 ) return 1.0;
+  
+  std::string truthLabelStr;
+  WTopLabel jetContainment=jet.auxdata<WTopLabel>(m_truthLabelDecorationName);
+  if( jetContainment==WTopLabel::t ){
+    truthLabelStr="t_qqb";
+  }else if( jetContainment==WTopLabel::W || jetContainment==WTopLabel::Z){
+    truthLabelStr="W_qq";
+  }else{
+    truthLabelStr="q";
+  }
+  
+  double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
+  int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log10(jet.m()/jet.pt()));
+  double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+  
+  std::cout << "SF = " << SF << std::endl;
+  if ( SF < 1e-3 ) return 1.0;
+  else return SF;
+}
 
 StatusCode SmoothedWZTagger::finalize(){
   /* Delete or clear anything */

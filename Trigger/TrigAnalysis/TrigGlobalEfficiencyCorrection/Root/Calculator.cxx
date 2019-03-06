@@ -277,7 +277,6 @@ auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 	}
 	globalEfficiencies = {1.};
 	bool success = true;
-	Efficiencies efficiencies;
 	for(auto& lepton : leptons)
 	{
 		if(trig.irrelevantFor(lepton) || !aboveThreshold(lepton, trig())) continue;

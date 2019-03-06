@@ -27,45 +27,42 @@
 #include <fstream>
 #include <vector>
 
-namespace CP{
-  class JSSWTopTaggerDNN:  public IJetTagger, public JSSTaggerBase {
-    ASG_TOOL_CLASS(JSSWTopTaggerDNN, IJetTagger)
-
-    public:
-
-    //Default - so root can load based on a name
-    JSSWTopTaggerDNN(const std::string& name);
-    
-    // Default - so we can clean up
-    ~JSSWTopTaggerDNN();
-    JSSWTopTaggerDNN& operator=(const JSSWTopTaggerDNN& rhs);
-
-    // Run once at the start of the job to setup everything
-    StatusCode initialize();
-
-    // IJetTagger interface
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const;
-    virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
-    virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
-
-    // Retrieve score for a given DNN type (top/W)
-    double getScore(const xAOD::Jet& jet) const;
-
-    // Get scale factor
-    double getWeight(const xAOD::Jet& jet) const;
-
-    // Write the decoration to the jet
-    void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const;
-
-    // Update the jet substructure variables for each jet to use in DNN
-    std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
-    StatusCode finalize();
-
-  private:
-    std::string m_name;
-    std::string m_APP_NAME;
-
-    // for the tagging type
+class JSSWTopTaggerDNN:  public JSSTaggerBase {
+  ASG_TOOL_CLASS0(JSSWTopTaggerDNN)
+  
+  public:
+  
+  //Default - so root can load based on a name
+  JSSWTopTaggerDNN(const std::string& name);
+  
+  // Default - so we can clean up
+  ~JSSWTopTaggerDNN();
+  JSSWTopTaggerDNN& operator=(const JSSWTopTaggerDNN& rhs);
+  
+  // Run once at the start of the job to setup everything
+  StatusCode initialize();
+  
+  // IJSSTagger interface
+  virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  
+  // Retrieve score for a given DNN type (top/W)
+  double getScore(const xAOD::Jet& jet) const;
+  
+  // Get scale factor
+  double getWeight(const xAOD::Jet& jet) const;
+  
+  // Write the decoration to the jet
+  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const;
+  
+  // Update the jet substructure variables for each jet to use in DNN
+  std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
+  StatusCode finalize();
+  
+private:
+  std::string m_name;
+  std::string m_APP_NAME;
+  
+  // for the tagging type
     enum TAGCLASS{Unknown, WBoson, TopQuark};
 
     // DNN tools
@@ -78,13 +75,10 @@ namespace CP{
     std::string m_kerasConfigFileName;
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
+    std::string m_calibarea_keras;
 
     std::string m_weightConfigPath;
-
-    // flag to calculate scale factor
-    bool m_calcSF;
-    int m_DSID;
-
+  
     // for internal usage
     mutable TAGCLASS m_TagClass;
 
@@ -103,26 +97,18 @@ namespace CP{
 
     // histograms for scale factors
     std::map<std::string, TH2*> m_weightHistograms;
-
+  
     // histograms for scale factors
     std::map<std::string, TH2*> m_weightHistograms_nominal;
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
-    std::string m_truthJetContainerName;
 
     // string for scale factors
     std::string m_weightdecorationName;
     std::string m_weightFileName;
     std::string m_weightHistogramName;
     std::string m_weightFlavors;
-    std::string m_truthLabelDecorationName;
-
-    // TRUTH1 or TRUTH3
-    std::string m_truthParticleContainerName;
-    std::string m_truthWBosonContainerName;
-    std::string m_truthZBosonContainerName;
-    std::string m_truthTopQuarkContainerName;
 
     // decorators
     SG::AuxElement::Decorator<float> m_dec_mcutL;
@@ -130,6 +116,5 @@ namespace CP{
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
     SG::AuxElement::Decorator<float> m_dec_weight;
-  };
-}
+};
 #endif

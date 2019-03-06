@@ -26,12 +26,12 @@ class JSSTaggerBase :   public asg::AsgTool ,
 			virtual public IJetSelectorTool,
 			virtual public IJetSelector {
   ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelectorTool, IJetSelector )
-
+  
   protected:
-
+  
   // the object where you store the contents of what the jet has passed
   mutable Root::TAccept m_accept;
-
+  
   // the kinematic bounds for the jet - these are in MeV (not GeV!)
   float m_jetPtMin;
   float m_jetPtMax;
@@ -42,6 +42,18 @@ class JSSTaggerBase :   public asg::AsgTool ,
 
    // the location where CVMFS files live
   std::string m_calibarea;
+
+  // flag to calculate scale factor
+  bool m_calcSF;
+  int m_DSID;
+  // truth label
+  std::string m_truthLabelDecorationName;
+  // TRUTH1 or TRUTH3
+  std::string m_truthJetContainerName;
+  std::string m_truthParticleContainerName;
+  std::string m_truthWBosonContainerName;
+  std::string m_truthZBosonContainerName;
+  std::string m_truthTopQuarkContainerName;
 
    // default constructor - to be used in all derived classes
   JSSTaggerBase(const std::string &name);
@@ -63,6 +75,8 @@ class JSSTaggerBase :   public asg::AsgTool ,
 			       const xAOD::JetContainer* truthJets,
 			       double dRmax,
 			       std::string decorName) const;
+  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName="WTopContainmentTruthLabel", double dR_truthJet=0.75, double dR_truthPart=0.75, double mLowTop=140, double mHighTop=200, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const;
+  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   bool getIsSherpa(const int DSID) const {
     if( (304307 <= DSID && DSID <=304309) || // Sherpa 2.2.1 W+jets
 	(304707 <= DSID && DSID <=304709) || // Sherpa 2.2.1 Z+jets

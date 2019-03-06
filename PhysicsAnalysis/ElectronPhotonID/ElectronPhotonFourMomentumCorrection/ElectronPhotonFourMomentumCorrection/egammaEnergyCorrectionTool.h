@@ -1,7 +1,7 @@
 // Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////
@@ -235,6 +235,7 @@ namespace egEnergyCorr {
 
     es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
     es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
+    es2017_R21_ofc0_v1,  // Release 21 model calibration extrapolated for OFC(mu=0), coveering 2015,2016,2017 and 2018 data
     
     UNDEFINED
 
@@ -469,7 +470,7 @@ namespace AtlasRoot {
     unsigned int  m_begRunNumber;
     unsigned int  m_endRunNumber;
 
-    std::unique_ptr<TH1>         m_trkSyst;
+   std::unique_ptr<TH1>         m_trkSyst;
 
     std::unique_ptr<TH1>         m_aPSNom;
     std::unique_ptr<TH1>         m_daPSCor;
@@ -480,6 +481,7 @@ namespace AtlasRoot {
     std::unique_ptr<TH1>         m_zeeNom;
     std::unique_ptr<TH1>         m_zeeNom_data2015;
     std::unique_ptr<TH1>         m_zeeNom_data2016;
+    std::unique_ptr<TH1>         m_zeeNom_data2018;
     std::unique_ptr<TH1>         m_zeeFwdk;
     std::unique_ptr<TH1>         m_zeeFwdb;
 

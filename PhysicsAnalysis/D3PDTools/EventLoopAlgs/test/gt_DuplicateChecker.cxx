@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2015.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -18,7 +12,7 @@
 
 #include <EventLoopAlgs/DuplicateChecker.h>
 #include <EventLoopAlgs/Global.h>
-
+#include <AsgTesting/UnitTest.h>
 #include <AthContainers/AuxStoreStandalone.h>
 #include <AsgTools/StatusCode.h>
 #include <RootCoreUtils/Assert.h>
@@ -118,21 +112,21 @@ void checkHistograms (const std::string& submitdir,
 		      bool expect_success)
 {
   std::unique_ptr<TFile> file (TFile::Open ((submitdir + "/hist-sample.root").c_str(), "READ"));
-  RCU_ASSERT_SOFT (file != nullptr);
+  ASSERT_NE (file, nullptr);
 
   TH1 *hist = dynamic_cast<TH1*>(file->Get ("EventLoop_EventCount"));
-  RCU_ASSERT_SOFT (file != nullptr);
+  ASSERT_NE (hist, nullptr);
+  ASSERT_EQ (hist->GetNbinsX(), 2);
 
   // hist->Print ("ALL");
-  RCU_ASSERT_SOFT (hist->GetBinContent(1) == raw);
-  RCU_ASSERT_SOFT (hist->GetBinContent(2) == raw);
-  RCU_ASSERT_SOFT (hist->GetBinContent(3) == final);
+  EXPECT_EQ (hist->GetBinContent(1), raw);
+  EXPECT_EQ (hist->GetBinContent(2), final);
 
   TTree *summary = dynamic_cast<TTree*>(file->Get ("summary"));
-  RCU_ASSERT_SOFT (summary != nullptr);
+  ASSERT_NE (summary, nullptr);
 
   // summary->Print ("ALL");
-  RCU_ASSERT_SOFT (summary->GetEntries() == raw);
+  EXPECT_EQ (summary->GetEntries(), raw);
 
   summary->SetBranchStatus ("*", 0);
   summary->SetBranchStatus ("processed", 1);
@@ -145,13 +139,13 @@ void checkHistograms (const std::string& submitdir,
     if (processed)
       ++ count;
   }
-  RCU_ASSERT_SOFT (count == final);
+  EXPECT_EQ (count, final);
 
   bool success = DuplicateChecker::processSummary (submitdir, "summary");
-  RCU_ASSERT_SOFT (success == expect_success);
+  EXPECT_EQ (success, expect_success);
 }
 
-int main ()
+TEST (DuplicateCheckerTest, all_tests)
 {
   xAOD::TReturnCode::enableFailure();
   xAOD::Init ().ignore();
@@ -162,18 +156,15 @@ int main ()
 
   if (makeXAOD ("test1.root", 1, 0).isFailure())
   {
-    std::cout << "failed to make test file" << std::endl;
-    return EXIT_FAILURE;
+    FAIL() << "failed to make test file";
   }
   if (makeXAOD ("test2.root", 1, 8000).isFailure())
   {
-    std::cout << "failed to make test file" << std::endl;
-    return EXIT_FAILURE;
+    FAIL() << "failed to make test file";
   }
   if (makeXAOD ("test3.root", 2, 0).isFailure())
   {
-    std::cout << "failed to make test file" << std::endl;
-    return EXIT_FAILURE;
+    FAIL() << "failed to make test file";
   }
   std::unique_ptr<SH::SampleLocal> sample (new SH::SampleLocal ("sample"));
   sample->add ("test1.root");
@@ -218,6 +209,6 @@ int main ()
       checkHistograms (prefix + "3", 30000, 26000, true);
     }
   }
-
-  return 0;
 }
+
+ATLAS_GOOGLE_TEST_MAIN

@@ -276,7 +276,8 @@ def submit(config, allSamples):
     print logger.FAIL + 'No OutputFileName found' + logger.ENDC
     sys.exit(1)
   elif len(outputFiles) ==1: # the simplest case
-    outputFilenames = outputFiles[0]
+    outF = outputFiles[0]
+    outputFilenames = outF.replace(".root","_root") + ":" + outF
   else: # len(outputFiles) >=2: multiple output files, or a single combined one
     # check if the output files are unique
     if len(outputFiles) != len(set(outputFiles)):

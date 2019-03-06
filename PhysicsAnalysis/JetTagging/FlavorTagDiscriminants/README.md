@@ -28,6 +28,9 @@ There are several user-level tools here:
      saved NN file. This code uses a fair number of hardcoded regular
      expressions to determine properties of the inputs.
 
+   - `DL2Tool`: ASG Tool interface around `DL2HighLevel`. Uses
+     PathResolver to find the input calibration file.
+
 ### Other Files ###
 
 There are also several tools that you _probably_ don't have to touch:

@@ -99,6 +99,7 @@ namespace InDet {
     std::string m_calibFileData16_postTS1;
     std::string m_calibFileData17_preFire;
     std::string m_calibFileData17_postFire;
+    std::string m_calibFileData18;
 
   }; // class InDetTrackBiasingTool
 

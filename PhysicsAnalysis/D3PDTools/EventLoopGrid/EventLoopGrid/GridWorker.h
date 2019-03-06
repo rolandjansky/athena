@@ -24,13 +24,12 @@ namespace EL
     void testInvariant() const;
 
     GridWorker(const SH::MetaObject *sample, 
-	       TList *output,
-	       const TList& bigOutputs,
-               JobConfig&& jobConfig, 
 	       const std::string& location,
 	       PandaRootTools& pandaTools);
 
-    void run();
+    void run(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location);
+
+    static void execute (const std::string& sampleName);
 
 
   private:

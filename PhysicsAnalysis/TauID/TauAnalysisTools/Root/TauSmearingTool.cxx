@@ -24,6 +24,7 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   declareProperty( "ApplyMVATES",         m_bApplyMVATES = true);
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
+  declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
 
   // deprecated property
   declareProperty( "IsData",              m_bIsData = false );
@@ -62,6 +63,7 @@ StatusCode TauSmearingTool::initialize()
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyInsituCorrection", m_bApplyInsituCorrection));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
   }
@@ -75,6 +77,7 @@ StatusCode TauSmearingTool::initialize()
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck));
+    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyInsituCorrection", m_bApplyInsituCorrection));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
   }

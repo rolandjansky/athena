@@ -33,11 +33,11 @@ namespace DerivationFramework {
     ~BPhysPVThinningTool();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual StatusCode doThinning() const;
+    virtual StatusCode doThinning() const override;
  
   private:
     ServiceHandle<IThinningSvc> m_thinningSvc;

@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2013.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -19,6 +13,7 @@
 #include <SampleHandler/DiskOutput.h>
 
 #include <RootCoreUtils/Assert.h>
+#include <SampleHandler/DiskWriter.h>
 
 //
 // method implementations
@@ -44,25 +39,30 @@ namespace SH
 
 
 
-  DiskWriter *DiskOutput ::
-  makeWriter (const std::string& sample, const std::string& name,
-	      int index, const std::string& suffix) const
+  std::unique_ptr<DiskWriter> DiskOutput ::
+  makeWriter (const std::string& sampleName,
+              const std::string& segmentName,
+              const std::string& suffix) const
   {
     RCU_READ_INVARIANT (this);
-    RCU_REQUIRE (!sample.empty() || !name.empty());
-    RCU_REQUIRE (index >= -1);
-    DiskWriter *const result = doMakeWriter (sample, name, index, suffix);
-    RCU_PROVIDE (result != 0);
+    RCU_REQUIRE (!sampleName.empty());
+    std::unique_ptr<DiskWriter> result
+      = doMakeWriter (sampleName, segmentName, suffix);
+    RCU_PROVIDE (result != nullptr);
     return result;
   }
 
 
 
-  DiskWriter *DiskOutput ::
-  doMakeWriter (const std::string& /*sample*/, const std::string& /*name*/,
-		int /*index*/, const std::string& /*suffix*/) const
+  std::string DiskOutput ::
+  targetURL (const std::string& sampleName,
+             const std::string& segmentName,
+             const std::string& suffix) const
   {
-    RCU_ASSERT0_NOIMP ((std::string ("DiskOutput::doMakeWriter not overridden for ") + typeid(*this).name()).c_str());
-    return 0; // compiler dummy
+    RCU_READ_INVARIANT (this);
+    RCU_REQUIRE (!sampleName.empty());
+    std::string result = getTargetURL (sampleName, segmentName, suffix);
+    RCU_PROVIDE (!result.empty());
+    return result;
   }
 }

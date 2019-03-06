@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_H
@@ -7,6 +7,7 @@
 
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -30,7 +31,8 @@ namespace lwt {
 namespace FlavorTagDiscriminants {
 
   enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
-  enum class SortOrder {ABS_D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
+  enum class SortOrder {
+    ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
 
   // Structures to define DL2 input.
@@ -89,8 +91,8 @@ namespace FlavorTagDiscriminants {
     typedef std::pair<std::string, std::vector<double> > NamedSeq;
     typedef xAOD::Jet Jet;
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
-    typedef std::function<bool(const xAOD::TrackParticle*,
-                               const xAOD::TrackParticle*)> TrackSort;
+    typedef std::function<double(const xAOD::TrackParticle*,
+                                 const xAOD::Jet&)> TrackSortVar;
     typedef std::function<bool(const xAOD::TrackParticle*)> TrackSelect;
 
     // getter functions
@@ -126,18 +128,38 @@ namespace FlavorTagDiscriminants {
       }
     };
 
+    template <typename T>
+    class BVarGetterNoDefault
+    {
+    private:
+      typedef SG::AuxElement AE;
+      AE::ConstAccessor<T> m_getter;
+      std::string m_name;
+    public:
+      BVarGetterNoDefault(const std::string& name):
+        m_getter(name),
+        m_name(name)
+        {
+        }
+      NamedVar operator()(const xAOD::Jet& jet) const {
+        const xAOD::BTagging* btag = jet.btagging();
+        if (!btag) throw std::runtime_error("can't find btagging object");
+        return {m_name, m_getter(*btag)};
+      }
+    };
+
     // The track getter is responsible for getting the tracks from the
     // jet applying a selection, and then sorting the tracks.
     class TrackGetter
     {
     public:
-      TrackGetter(SortOrder, TrackSelection);
+      TrackGetter(SortOrder, TrackSelection, EDMSchema);
       Tracks operator()(const xAOD::Jet& jet) const;
     private:
       typedef SG::AuxElement AE;
       typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
       AE::ConstAccessor<TrackLinks> m_track_associator;
-      TrackSort m_sort_function;
+      TrackSortVar m_sort_var_getter;
       TrackSelect m_select_function;
     };
 
@@ -169,11 +191,12 @@ namespace FlavorTagDiscriminants {
   public:
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
-        const std::vector<DL2TrackSequenceConfig>& = {});
+        const std::vector<DL2TrackSequenceConfig>& = {},
+        EDMSchema = EDMSchema::WINTER_2018);
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceGetter {
-      TrackSequenceGetter(SortOrder, TrackSelection);
+      TrackSequenceGetter(SortOrder, TrackSelection, EDMSchema);
       std::string name;
       internal::TrackGetter getter;
       std::vector<internal::SeqGetter> sequence_getters;
@@ -192,8 +215,8 @@ namespace FlavorTagDiscriminants {
   // Filler functions
   namespace internal {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
-    TrackSort get_track_sort(SortOrder);
-    TrackSelect get_track_select(TrackSelection);
+    TrackSortVar get_track_sort(SortOrder, EDMSchema);
+    TrackSelect get_track_select(TrackSelection, EDMSchema);
     SeqGetter get_seq_getter(const DL2TrackInputConfig&);
   }
 }

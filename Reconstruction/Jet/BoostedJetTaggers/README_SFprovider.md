@@ -16,7 +16,7 @@ const WTopLabel WTopLabel_types [] = {WTopLabel::t, WTopLabel::W, WTopLabel::Z, 
 ```
 
 
-It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJetTaggers/IJetTagger.h interface class.
+It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJetTaggers/JSSTaggerBase.h, which is called inside the tag() function.
 * First of all, DecorateMatchedTruthJet( ) function, defined in BoostedJetTaggers/JSSTaggerBase.h, is called to decorate trimmed truth jet associated with the given jet by dR<0.75. The function automatically identifies the format of the truth particle container (TRUTH1 or TRUTH3).
 * If the matching to truth jet is failed, WTopLabel::notruth is docorated as the truth label.
 * Then getWTopContainment( ) function is called to decorate truth labeling according to the definitions below.

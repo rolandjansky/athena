@@ -12,6 +12,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODMuon/MuonContainer.h>
@@ -48,6 +49,11 @@ namespace CP
   private:
     SysCopyHandle<xAOD::MuonContainer> m_muonHandle {
       this, "muons", "Muons", "the muon collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results
   private:

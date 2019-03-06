@@ -37,6 +37,8 @@ DerivationFramework::BPhysPVThinningTool::BPhysPVThinningTool(const std::string&
     declareProperty("ThinningService", m_thinningSvc);
     declareProperty("CandidateCollections" , m_BPhyCandList);
     declareProperty("KeepPVTracks", m_keepTracks);
+    declareProperty("TrackParticleContainerName", m_TrackContainerName);
+    declareProperty("PrimaryVertexContainerName", m_PVContainerName);
 }
 
 // Destructor
