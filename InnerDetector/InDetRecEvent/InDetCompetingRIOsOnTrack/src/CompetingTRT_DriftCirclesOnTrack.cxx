@@ -32,7 +32,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const 
   m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface.load()) {
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
-    m_associatedSurface = (!compROT.m_associatedSurface.load()->associatedDetectorElement()) ? compROT.m_associatedSurface.load()->clone() : compROT.m_associatedSurface.load();
+    m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
   } else {
     m_associatedSurface = 0;
   }
@@ -77,12 +77,12 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     delete m_containedChildRots;
     delete m_globalPosition;
     // delete surface if not owned by detElement
-    if (m_associatedSurface && !m_associatedSurface.load()->associatedDetectorElement())
+    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
       delete m_associatedSurface;
     m_containedChildRots = new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
     if (compROT.m_associatedSurface) {
       // copy only if surface is not one owned by a detector Element
-      m_associatedSurface = (!compROT.m_associatedSurface.load()->associatedDetectorElement()) ? compROT.m_associatedSurface.load()->clone() : compROT.m_associatedSurface.load();
+      m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
     } else {
       m_associatedSurface = 0;
     }
@@ -97,7 +97,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
 
 InDet::CompetingTRT_DriftCirclesOnTrack::~CompetingTRT_DriftCirclesOnTrack() {
   // delete surface if not owned by detElement
-  if (m_associatedSurface && !m_associatedSurface.load()->associatedDetectorElement())
+  if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
     delete m_associatedSurface;
   delete m_globalPosition;
   clearChildRotVector();
@@ -155,22 +155,23 @@ bool InDet::CompetingTRT_DriftCirclesOnTrack::ROTsHaveCommonSurface(const bool w
 
 
 const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() const {
-  if (m_globalPosition) return (*m_globalPosition);
+  auto ptr = m_globalPosition.load();
+  if (ptr) return (*ptr);
   // cannot use the localToGlobal transformation, because the local z-coordinate along
   // the wire is not known here. The contained TRT_DriftCircleOnTrack use the full
   // transformation => use the weighted mean of their GlobalPositions
     
   // FIXME: introduce a special function in base class, which returns the sum of assignment probabilities
   double assgnProbSum = 0.;
-  std::vector<AssignmentProb>::const_iterator assgnProbIter = m_assignProb.load()->begin();
-  for (; assgnProbIter != m_assignProb.load()->end(); ++assgnProbIter) {
+  std::vector<AssignmentProb>::const_iterator assgnProbIter = m_assignProb->begin();
+  for (; assgnProbIter != m_assignProb->end(); ++assgnProbIter) {
     assgnProbSum += (*assgnProbIter);
   }
 
   Amg::Vector3D globalPos(0.,0.,0.);
   if (assgnProbSum > 0.) {
     std::vector< const InDet::TRT_DriftCircleOnTrack* >::const_iterator rotIter = m_containedChildRots->begin();
-    assgnProbIter = m_assignProb.load()->begin();
+    assgnProbIter = m_assignProb->begin();
     for (; rotIter != m_containedChildRots->end(); ++rotIter, ++assgnProbIter) {
       globalPos += ( ((*assgnProbIter)/assgnProbSum) * ((*rotIter)->globalPosition()) );
     }
@@ -178,9 +179,14 @@ const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() c
   } else {
     globalPos = (*m_containedChildRots->begin())->globalPosition();
   }
-    
-  m_globalPosition = new Amg::Vector3D(globalPos);
-  return *m_globalPosition;
+  auto newptr = new Amg::Vector3D(globalPos);
+  if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
+     return *newptr; //new object is now stored in m_globalPosition for other threads
+  }
+  assert(ptr != nullptr);
+  delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
+  return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
+  
 }
 
 void InDet::CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() {

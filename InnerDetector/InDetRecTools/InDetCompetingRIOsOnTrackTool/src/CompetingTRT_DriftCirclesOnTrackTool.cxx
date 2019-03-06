@@ -479,7 +479,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     
     // cast baseCompROT to CompTRT_DConTrack:
 
-    const InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< const InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
+    InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
     if (!compROT) {
         ATH_MSG_ERROR("Given CompetingRIOsOnTrack is not a CompetingTRT_DriftCirclesOnTrack!");
         ATH_MSG_ERROR("Update of assignment probabilities aborted!!!");
@@ -714,7 +714,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // update maximum assign prob index:
     compROT->m_indexMaxAssignProb = maximumAssignProbIndex;
     // update surface
-    if (!compROT->m_associatedSurface.load()->associatedDetectorElement())
+    if (!compROT->m_associatedSurface->associatedDetectorElement())
         delete compROT->m_associatedSurface;
     compROT->m_associatedSurface=assocSurface;
     // delete global position (will be recreated in competingROT itself
