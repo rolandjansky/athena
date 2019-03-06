@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/EventInfo
-                          DetectorDescription/RegionSelector
+
                           MuonSpectrometer/MuonDetDescr/MuonRegionSelector
                           MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -42,7 +42,7 @@ atlas_add_library( TrigT1NSWSimToolsLib
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  RegionSelector MuonRegionSelector )
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO   MuonRegionSelector )
 
 
 # Component(s) in the package:
@@ -52,7 +52,7 @@ atlas_add_component( TrigT1NSWSimTools
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegionSelector MuonRegionSelector TrigT1NSWSimToolsLib)
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  MuonRegionSelector TrigT1NSWSimToolsLib)
 
 
 #loop over each cxx file in the util directory of this package

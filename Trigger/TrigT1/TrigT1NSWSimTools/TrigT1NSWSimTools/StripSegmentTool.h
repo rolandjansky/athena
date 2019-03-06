@@ -101,6 +101,8 @@ namespace NSWL1 {
     std::vector<float> *m_seg_eta;                          //!< m_seg_eta
     std::vector<float> *m_seg_phi;
     std::vector<int> *m_seg_bandId;
+    std::vector<int> *m_seg_secId;
+    std::vector<int> *m_seg_bcId;
     std::vector<int> *m_seg_phiId;
     std::vector<int> *m_seg_rIdx;
     std::vector<float> *m_seg_global_r;
@@ -119,6 +121,7 @@ namespace NSWL1 {
         std::pair<float,float> m_etabounds;
         std::pair<float,float> m_rbounds;
         int findRIdx(const float& ,const int scheme=0);
+        int m_ridxScheme;
     private:
            ToolHandle<sTGC_RegionSelectorTable> m_regionHandle;
      

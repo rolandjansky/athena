@@ -35,6 +35,7 @@ namespace NSWL1 {
 
   private:
     int m_bandId;
+    int m_bcid;
     int m_phiId;
     int m_isSmall;
     int m_moduleId;
@@ -50,6 +51,7 @@ namespace NSWL1 {
   public:
 
     StripClusterOfflineData(int bandId,
+                int bcid,
                 int phiId,
 			    int isSmall,
 			    int moduleId,
@@ -69,6 +71,7 @@ namespace NSWL1 {
     and the bad news is, it all around this codebase
     */                                        
     int set_bandId(int bandId);
+    int set_BCID(int);
     int set_phiId(int phiId);
     bool set_isSmall(bool set_isSmall);
     int set_moduleId(int moduleId);
@@ -84,7 +87,8 @@ namespace NSWL1 {
 
 
     //! methods for retrieving the bare data //S.I yes see my comment above
-    int bandId()  const {return m_bandId;}; //!< get the band id // wow so explanatory
+    int bandId()  const {return m_bandId;} //!< get the band id // wow so explanatory
+    int BCID()    const {return m_bcid;}
     int phiId() const {return m_phiId;}
     //! helper  methods decoding the hit fragment position within the NSW detector
     int isSmall() const {return m_isSmall;};

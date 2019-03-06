@@ -55,14 +55,16 @@ namespace NSWL1 {
       m_rIndexBits(0),
       m_zbounds({-1,1}),
       m_etabounds({-1,1}),
-      m_rbounds({-1,-1})
+      m_rbounds({-1,-1}),
+      m_ridxScheme(0)
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 
       declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
       declareProperty("rIndexBits", m_rIndexBits = 8, "number bits in the rIndex slicing");
-      declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO");
+      declareProperty("rIndexScheme", m_ridxScheme = 0, "rIndex sclicing scheme/ 0-->R / 1-->eta");
+      declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
 
     }
 
@@ -97,7 +99,8 @@ namespace NSWL1 {
         if (sc.isFailure()) {
           ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
           return sc;
-        } else {
+        } 
+        else {
           ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
           sc = this->book_branches();
           if (sc.isFailure()) {
@@ -142,6 +145,7 @@ namespace NSWL1 {
       }
       
       ATH_CHECK( m_trigRdoContainer.initialize() );
+      
       
       if(m_regionHandle.retrieve().isFailure()){
             ATH_MSG_FATAL("Error retrieving sTGC_RegionSelectorTable");
@@ -237,132 +241,140 @@ namespace NSWL1 {
   
     StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
-      //SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
-      
-      
-      
-       auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
-       
-      //auto p=std::make_unique<Muon::NSW_TrigRawDataContainer>();
-      
-      
-      //TODO : put  sector Id and BCID in the ctor of NSW_TrigRawData below
-      auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>();//like vector<trigger segment>
+      /** S.I If you worry(you should) about events with no clusters why dont we add this at the very beginning ? ***/
+      if (clusters.size()==0){
+          ATH_MSG_INFO("Received event with no clusters. Skipping...");  
+          return StatusCode::SUCCESS;
+      }
+      /*********************************************************/
+       auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();//to be posted to the SG
       
       std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
-
+       int bcid=-1;
+       int sectorid=-1;
+       
       for(  auto& cl : clusters){
-	    auto item =cluster_map.find(cl->bandId());
-	    if (item != cluster_map.end()){
-	      item->second[cl->wedge()-1].push_back(std::move(cl));
-	    }
-	    else{
-	      cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
-	    }
+          bcid=cl->BCID();
+          /*
+            S.I : For the sector logic I guess we need sector Ids from 1 to 16 / per side
+          The convention followed by different people throghout this simulation chain (starting from padTDs Tool upto here) is :
+          sector Id ranges from 1 to 8 + combined with the info Small or Large.
+          */
+          sectorid=cl->sectorId();  
+	      if(cl->isSmall()) sectorid*=2;
+          else sectorid=sectorid*2-1;
+          /*****************************************************************************************************/
+          auto item =cluster_map.find(cl->bandId());
+	      if (item != cluster_map.end()){
+	        item->second[cl->wedge()-1].push_back(std::move(cl));
+	      }
+	      else{
+	        cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
+	      }
       }
+      auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>((uint16_t)(sectorid), (uint16_t)(bcid));
       
-      for(const auto& band : cluster_map){//main cluster loop  
-       int bandId=band.first;
-       if (band.second[0].size() == 0){
-           ATH_MSG_WARNING("Cluster size is zero for inner wedge trg with bandId "<<bandId<<"...skipping");
-           continue;
-           
-      }
+      for(const auto& band : cluster_map){//main band loop
+         int bandId=band.first;
+         if (band.second[0].size() == 0){
+             ATH_MSG_WARNING("Cluster size is zero for inner wedge trg with bandId "<<bandId<<"...skipping");
+             continue;
+         }
       
-      if(band.second[1].size() == 0){
-           ATH_MSG_WARNING("Cluster size is zero for outer wedge trg with bandId "<<bandId<<"...skipping");
-           continue;
-      }
+         if(band.second[1].size() == 0){
+             ATH_MSG_WARNING("Cluster size is zero for outer wedge trg with bandId "<<bandId<<"...skipping");
+             continue;
+         }
 
-        
-        
-	    float glx1=0;
-	    float gly1=0;
-        float glx2=0;
-        float gly2=0;
-        float glx=0;
-        float gly=0;
-	    float phi=0;
-	    float eta=0;
-	    float charge1=0;
-        float charge2=0;
+	     float glx1=0;
+	     float gly1=0;
+         float glx2=0;
+         float gly2=0;
+         float glx=0;
+         float gly=0;
+	     float phi=0;
+	     float eta=0;
+	     float charge1=0;
+         float charge2=0;
 
-	    //first measuement
-	    float r1=0;
-	    float z1=0;
-	    for( const auto& cl : band.second[0] ){//inner
-	      r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
-	      z1+=cl->globZ()*cl->charge();
-	      glx1+=cl->globX()*cl->charge();
-	      gly1+=cl->globY()*cl->charge();
-	      charge1+=cl->charge();
-	    }
+	     //first measuement
+	     float r1=0;
+	     float z1=0;
+	     for( const auto& cl : band.second[0] ){//inner
+	       r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+	       z1+=cl->globZ()*cl->charge();
+	       glx1+=cl->globX()*cl->charge();
+	       gly1+=cl->globY()*cl->charge();
+	       charge1+=cl->charge();
+	     }
 
-	    //first measuement
-	    float r2=0;
-	    float z2=0;
-	    for( const auto& cl : band.second[1] ){//outer
-            r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
-            z2+=cl->globZ()*cl->charge();
-            glx2+=cl->globX()*cl->charge();
-            gly2+=cl->globY()*cl->charge();
-            charge2+=cl->charge();
-        }
-        if(charge1!=0){
-            r1=r1/charge1;
-            z1=z1/charge1;
-            glx1=glx1/charge1;
-            gly1=gly1/charge1;
-        }
-        if(charge2!=0){
+	     //first measurement 
+	     //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
+	     float r2=0;
+	     float z2=0;
+	     for( const auto& cl : band.second[1] ){//outer
+             r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+             z2+=cl->globZ()*cl->charge();
+             glx2+=cl->globX()*cl->charge();
+             gly2+=cl->globY()*cl->charge();
+             charge2+=cl->charge();
+         }
+         if(charge1!=0){
+             r1=r1/charge1;
+             z1=z1/charge1;
+             glx1=glx1/charge1;
+             gly1=gly1/charge1;
+         }
+         if(charge2!=0){
             r2=r2/charge2;
             z2=z2/charge2;
             glx2=glx2/charge2;
             gly2=gly2/charge2;
-        }
-        glx=(glx1+glx2)/2.;
-        gly=(gly1+gly2)/2.;
-        float slope=(r2-r1)/(z2-z1);
-        float avg_r=(r1+r2)/2.;//S.I is it possible in the Hardware implementation?
-        float avg_z=(z1+z2)/2.;
-        float inf_slope=(avg_r/avg_z);
-        //float dR=slope-inf_slope;
-        float theta_inf=atan(inf_slope);
-        float theta=atan(slope);
-        float dtheta=(theta_inf-theta)*1000;//In Milliradian
-        if(avg_z>0){
-            eta=-log(tan(theta/2));
-        }
-        else if(avg_z<0){
+         }
+         glx=(glx1+glx2)/2.;
+         gly=(gly1+gly2)/2.;
+         float slope=(r2-r1)/(z2-z1);
+         float avg_r=(r1+r2)/2.;//S.I is it possible in the Hardware implementation? Somebody said no
+         float avg_z=(z1+z2)/2.;
+         float inf_slope=(avg_r/avg_z);
+         //float dR=slope-inf_slope;
+         float theta_inf=atan(inf_slope);
+         float theta=atan(slope);
+         float dtheta=(theta_inf-theta)*1000;//In Milliradian
+         if(avg_z>0){
+            eta=-log(tan(theta/2));//S.I Does this local eta have a meaning ?
+         }
+         else if(avg_z<0){
             eta=log(tan(-theta/2));
-        }
-        else{
-            ATH_MSG_ERROR("Segment Global Z at IP");
-        }
-        
-        if(glx>=0 && gly>=0){
-            phi=atan(gly/glx);
-        }
-        else if(glx<0 && gly>0){
+         }
+         else{
+            ATH_MSG_ERROR("Segment Global Z at IP");//S.I : Error so ?
+         }
+         
+         
+         //S.I instead of doing all these stuff like below, which is quite error prone  why dont we use TVectors?
+         if(glx>=0 && gly>=0){
+             phi=atan(gly/glx);
+         }
+         
+         else if(glx<0 && gly>0){
             phi=PI-atan(abs(gly/glx));
-        }
-        else if(glx<0 && gly<0){
+         }
+         else if(glx<0 && gly<0){
             phi=-1*PI+atan(gly/glx);
-        }
-        else if(glx>0 && gly<0){
+         }
+         else if(glx>0 && gly<0){
             phi=-atan(abs(gly/glx));
-        }
-        else{
-            ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
-        }
+         }
+         else{
+            ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");//S.I does this even necessary ? then what ?
+         }
         
         
-        if(fabs(dtheta)>15) return StatusCode::SUCCESS; //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
+        //if(fabs(dtheta)>15) return StatusCode::SUCCESS; //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
         
-
-        
-        //do not get confused. this one is trig. phi-Id
+        //do not get confused. this one is trigger phiId 
         int phiId=band.second[0].at(0)->phiId();
         float delta_z=fabs(m_zbounds.second-z2);
         float delta_r=delta_z*tan(theta);
@@ -372,11 +384,16 @@ namespace NSWL1 {
         if(rfar < m_rbounds.first || rfar>m_rbounds.second){
             ATH_MSG_WARNING("R index out of NSW surface rfar="<<rfar<<" where rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second);
         }
-        
     
-        
-        
         uint8_t rIndex=(uint8_t)(findRIdx(rfar));
+        bool phiRes=true;
+        bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
+        uint8_t phiIndex=(uint8_t)phiId;
+        uint8_t deltaTheta=uint8_t(dtheta);
+        auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
+        trgRawData->push_back(std::move(rdo_segment));
+        
+        //Fill ntuple info
         m_seg_wedge1_size->push_back(band.second[0].size());
         m_seg_wedge2_size->push_back(band.second[1].size());
         m_seg_bandId->push_back(bandId);
@@ -392,20 +409,15 @@ namespace NSWL1 {
         m_seg_global_z->push_back(avg_z); 
         m_seg_dir_r->push_back(slope); 
         m_seg_dir_y->push_back(-99); 
-        m_seg_dir_z->push_back(-99);
-        
-       bool phiRes=true;
-       bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
-       uint8_t phiIndex=(uint8_t)phiId;
-       uint8_t deltaTheta=uint8_t(dtheta);
-       auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
-       trgRawData->push_back(std::move(rdo_segment));
+        m_seg_dir_z->push_back(-99);        
      
-     }//end of clmap loop
-     
+      }//end of clmap loop
+       
+    
+      //save rdo to the SG 
       trgContainer->push_back(std::move(trgRawData));
-      auto trgRdos = SG::makeHandle( m_trigRdoContainer );
-      ATH_CHECK( trgRdos.record( std::move(trgContainer)));
+      auto rdohandle = SG::makeHandle( m_trigRdoContainer );
+      ATH_CHECK( rdohandle.record( std::move(trgContainer)));
 
       return StatusCode::SUCCESS;
     }

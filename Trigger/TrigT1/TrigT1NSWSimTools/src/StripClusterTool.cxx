@@ -461,6 +461,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
      auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
                            m_clusters.at(cl_i)->at(0)->bandId(),
+                           m_clusters.at(cl_i)->at(0)->trig_BCID(),                                         
                            m_clusters.at(cl_i)->at(0)->phiId(),
 						   m_clusters.at(cl_i)->at(0)->isSmall(),
 						   m_clusters.at(cl_i)->at(0)->moduleId(),
@@ -519,7 +520,10 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 		      << "   " <<   (hit)->moduleId() << "   " << (hit)->sectorId() << "   " <<(hit)->wedge()
 		      << "  "<< (hit)->sideId()   );
 	       continue;
-          }
+          }/*S.I : the warning message above is totally misleading someone who reads the code. I didn't check if we fall into the given condition. 
+             However it must be changed into sthg that ends with "skipping this strip ..." anyway..
+             And i am not even sure whether it should be a  warning or debug message...
+            */
 
 	      //Identifier hit_id=(*hit)->Identity();
 	     bool sameMod=false;

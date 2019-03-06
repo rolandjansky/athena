@@ -118,13 +118,17 @@ topSequence.NSWL1Simulation.DoPadTrigger=True
 topSequence.NSWL1Simulation.DoMM=False
 
 
-#Select ntuples to be created
+
 topSequence.NSWL1Simulation.DoNtuple=True
 topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="dummyRDO"
+
+topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
+topSequence.NSWL1Simulation.StripSegmentTool.rIndexBits=8
+topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="NSWTRGRDO"
+
 
 
 
