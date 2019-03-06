@@ -66,6 +66,8 @@
 
 #include "TrigMuonEFUtils.icc"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 #if DEBUG_ROI_VS_FULL
 #include <set> //used in the method sanity_check
 #endif
