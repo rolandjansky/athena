@@ -714,7 +714,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // update maximum assign prob index:
     compROT->m_indexMaxAssignProb = maximumAssignProbIndex;
     // update surface
-    if (!compROT->m_associatedSurface->associatedDetectorElement())
+    if (!compROT->m_associatedSurface.load()->associatedDetectorElement())
         delete compROT->m_associatedSurface;
     compROT->m_associatedSurface=assocSurface;
     // delete global position (will be recreated in competingROT itself
