@@ -26,10 +26,10 @@ namespace MuonCombined {
 
   MuonCombinedStacoTagTool::MuonCombinedStacoTagTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool"),
+	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",this),
+	m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool",this),
         m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-	m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
+	m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",this)
   {
     declareInterface<IMuonCombinedTagTool>(this);
     declareProperty("Printer",m_printer );
