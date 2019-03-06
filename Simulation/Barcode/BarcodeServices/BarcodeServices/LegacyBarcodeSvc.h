@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ namespace Barcode {
     virtual Barcode::ParticleBarcode particleGenerationIncrement() const override;
 
     /** handles to get barcode bitcalculator */
-    virtual inline Barcode::BitCalculator* getBitCalculator() const override { return m_bitcalculator; }
+    virtual inline const Barcode::BitCalculator* getBitCalculator() const override { return m_bitcalculator; }
     virtual inline bool hasBitCalculator() const override { return (m_bitcalculator!=0); }
 
   private:
