@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4COSMICFILTER_G4CosmicOrFilter_H
@@ -7,9 +7,6 @@
 
 #include "G4UserEventAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 namespace G4UA
 {
@@ -51,12 +48,6 @@ namespace G4UA
 
       Config m_config;
       Report m_report;
-
-      typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-      /// Pointer to StoreGate (event store by default)
-      mutable StoreGateSvc_t m_evtStore;
-      /// Pointer to StoreGate (detector store by default)
-      mutable StoreGateSvc_t m_detStore;
 
   }; // class G4CosmicOrFilter
 
