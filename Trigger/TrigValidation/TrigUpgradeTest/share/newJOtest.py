@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -13,6 +13,15 @@ from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
+flags.Detector.GeometryPixel = True     
+flags.Detector.GeometrySCT   = True 
+flags.Detector.GeometryTRT   = True 
+flags.Detector.GeometryLAr   = True     
+flags.Detector.GeometryTile  = True     
+flags.Detector.GeometryMDT   = True 
+flags.Detector.GeometryTGC   = True
+flags.Detector.GeometryCSC   = True     
+flags.Detector.GeometryRPC   = True     
 
 flags.needFlagsCategory('Trigger')
 setupMenu(flags)
@@ -42,15 +51,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge( triggerRunCfg( flags, generateMenu ) )
 
-from RegionSelector.RegSelConfig import RegSelConfig
-rsc, regSel = RegSelConfig( flags )
-regSel.enableCalo=True
-regSel.enableID=True
-regSel.enablePixel = True
-regSel.enableSCT = True
-regSel.enableTRT = True
-acc.merge( rsc )
-acc.addService(regSel)
+from RegionSelector.RegSelConfig import regSelCfg
+acc.merge( regSelCfg( flags ) )
+
 
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
