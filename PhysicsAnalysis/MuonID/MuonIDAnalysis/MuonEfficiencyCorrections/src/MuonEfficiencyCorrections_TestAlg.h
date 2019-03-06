@@ -56,6 +56,8 @@ namespace CP {
             
             float m_pt_cut;
             float m_eta_cut;
+            
+            unsigned long long m_evNumber;
     };
 
 } // namespace CP

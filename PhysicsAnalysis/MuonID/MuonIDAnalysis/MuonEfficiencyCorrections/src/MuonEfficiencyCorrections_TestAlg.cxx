@@ -25,7 +25,8 @@ namespace CP {
                 m_first_release_name("First"),
                 m_second_release_name("Second"),                
                 m_pt_cut(-1),
-                m_eta_cut(-1) {
+                m_eta_cut(-1),
+                m_evNumber(0) {
         declareProperty("SGKey", m_sgKey = "Muons");
         // prepare the handle
         declareProperty("PileupReweightingTool", m_prw_Tool);
@@ -65,6 +66,7 @@ namespace CP {
             }
         }
         m_test_helper->setSelectionTool(m_sel_tool);
+        m_test_helper->tree()->Branch("eventNumber", &m_evNumber);
         for (auto & SFTool : m_effi_SF_tools) {
             ATH_CHECK(SFTool.retrieve());
             m_test_helper->addTool(SFTool);
@@ -91,6 +93,7 @@ namespace CP {
         ATH_CHECK(evtStore()->retrieve(ei, "EventInfo"));
         //Apply the prwTool first before calling the efficiency correction methods
         ATH_CHECK(m_prw_Tool->apply(*ei));
+        m_evNumber = ei->eventNumber();
 
         for (const auto& mu : *muons) {
             if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
