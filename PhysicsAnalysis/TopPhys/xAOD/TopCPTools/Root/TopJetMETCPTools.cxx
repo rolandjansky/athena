@@ -227,8 +227,6 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     }
     if (m_config->fwdJetAndMET() == "fJVTTight")
     {
-      top::check(asg::setProperty(fJVTTool, "CentralMaxPt", 60e3),
-                 "Failed to set CentralMaxPt for JetForwardJvtTool");
       top::check(asg::setProperty(fJVTTool, "OutputDec", "passFJVTTight"),
                  "Failed to set OutputDec for JetForwardJvtTool");
       top::check(asg::setProperty(fJVTTool, "UseTightOP", true),
