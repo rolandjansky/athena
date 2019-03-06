@@ -89,7 +89,6 @@ namespace InDet
       void setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
 		 const Amg::Vector3D& position,
 		 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList);
-      
     };
   
   ///////////////////////////////////////////////////////////////////
