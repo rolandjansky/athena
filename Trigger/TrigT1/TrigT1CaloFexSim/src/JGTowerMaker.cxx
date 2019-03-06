@@ -14,6 +14,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "TrigT1CaloFexSim/JGTowerMaker.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
+#include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloTriggerTool/LArTTCell.h"
@@ -186,7 +187,6 @@ StatusCode JGTowerMaker::ForwardMapping(){
 
 
      const CaloDetDescrElement* dde = m_sem_mgr->get_element(scid);
-
      float scEta = dde->eta_raw();
      float scPhi = dde->phi_raw();
      if(fabs(scEta)<3.2) continue;
@@ -195,7 +195,13 @@ StatusCode JGTowerMaker::ForwardMapping(){
 
      std::shared_ptr<JGTower> JGT = std::make_shared<JGTower>(scEta,scDEta,scPhi,scDPhi);
      JGT->SetSCIndices(sc_hs);
-     JGT->SetSampling(2);
+
+     // forward region sampling should have more detail.
+     unsigned int samplingEnum = m_ccIdHelper->calo_sample(scid);
+     std::string detName = CaloSampling::getSamplingName(samplingEnum);
+     if(detName.find("FCAL0")!=std::string::npos) JGT->SetSampling(2);
+     if(detName.find("FCAL1")!=std::string::npos) JGT->SetSampling(3);
+     if(detName.find("FCAL2")!=std::string::npos) JGT->SetSampling(4);
      m_jT.push_back(JGT);
   }
   //define gTowers geometry
