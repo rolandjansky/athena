@@ -2,7 +2,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains, \
-    generateDecisionTree, generateDecisionTreeOld
+    generateDecisionTreeOld
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
