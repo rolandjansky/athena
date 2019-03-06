@@ -416,8 +416,6 @@ namespace CP {
                 break;
             }
             insert_bit("STAT", get_bit(look_up));
-            if (measurement() == TTVA) insert_bit("STAT", EffiCollection::OwnFallBack);
-
           
             /// If the systematics shall be split into bins
             if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
@@ -453,8 +451,7 @@ namespace CP {
                 insert_bit( *syst_name, get_bit(look_up));
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
                 if (has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
-                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);
-                if (measurement() == TTVA) insert_bit(*syst_name, EffiCollection::OwnFallBack);
+                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
         }
         return syst_map;
