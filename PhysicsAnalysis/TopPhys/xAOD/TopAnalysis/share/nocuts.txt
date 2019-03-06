@@ -43,7 +43,7 @@ ElectronIsolationLoose None
 
 MuonQuality Medium
 MuonQualityLoose Medium
-MuonIsolation Gradient
+MuonIsolation FCTight_FixedRad
 MuonIsolationLoose None
 
 # DoTight/DoLoose to activate the loose and tight trees

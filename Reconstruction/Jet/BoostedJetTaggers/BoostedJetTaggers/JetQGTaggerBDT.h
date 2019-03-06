@@ -31,69 +31,73 @@ namespace InDet {
   class IInDetTrackSelectionTool;
 }
 
-class JetQGTaggerBDT : public JSSTaggerBase {
-  ASG_TOOL_CLASS0(JetQGTaggerBDT)
+namespace CP {
 
-  public:
+  class JetQGTaggerBDT : public JSSTaggerBase {
+    ASG_TOOL_CLASS0(JetQGTaggerBDT)
 
-    //Default - so root can load based on a name
-    JetQGTaggerBDT(const std::string& name);
+    public:
 
-    // Default - so we can clean up
-    ~JetQGTaggerBDT();
+      //Default - so root can load based on a name
+      JetQGTaggerBDT(const std::string& name);
 
-    // Run once at the start of the job to setup everything
-    virtual StatusCode initialize() override;
+      // Default - so we can clean up
+      ~JetQGTaggerBDT();
 
-    // IJetSelectorTool interface
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const override;
+      // Run once at the start of the job to setup everything
+      virtual StatusCode initialize() override;
 
-    // Retrieve BDT score
-    float getScore(const xAOD::Jet& jet) const;
+      // IJetSelectorTool interface
+      virtual Root::TAccept tag(const xAOD::Jet& jet) const override;
 
-    // Update the jet substructure variables for each jet to use in BDT
-    void getJetProperties(const xAOD::Jet& jet) const;
+      // Retrieve BDT score
+      float getScore(const xAOD::Jet& jet) const;
 
-    virtual StatusCode finalize();
+      // Update the jet substructure variables for each jet to use in BDT
+      void getJetProperties(const xAOD::Jet& jet) const;
 
-  private:
+      virtual StatusCode finalize();
 
-    // naming of tool
-    std::string m_name;
-    std::string m_APP_NAME;
+    private:
 
-    // TMVA tools
-    std::unique_ptr<TMVA::Reader> m_bdtTagger;
-    std::map<std::string,std::string> m_bdt_weights;
-    std::string m_inputVariableSet;
-    std::string m_BDTmethod;
+      // naming of tool
+      std::string m_name;
+      std::string m_APP_NAME;
 
-    asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+      // TMVA tools
+      std::unique_ptr<TMVA::Reader> m_bdtTagger;
+      std::map<std::string,std::string> m_bdt_weights;
+      std::string m_inputVariableSet;
+      std::string m_BDTmethod;
 
-    // inclusive config file
-    std::string m_configFile;
-    std::string m_tmvaConfigFileName;
-    std::string m_tmvaConfigFilePath;
+      asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
-    //string for cut function
-    std::string m_strScoreCut;
+      // inclusive config file
+      std::string m_configFile;
+      std::string m_tmvaConfigFileName;
+      std::string m_tmvaConfigFilePath;
 
-    //TF1 for pT dependent cut
-    std::unique_ptr<TF1> m_funcScoreCut;
+      //string for cut function
+      std::string m_strScoreCut;
 
-    // variables for TMVA
-    mutable float m_pt;
-    mutable float m_eta;
-    mutable float m_ntracks;
-    mutable float m_trackwidth;
-    mutable float m_trackC1;
+      //TF1 for pT dependent cut
+      std::unique_ptr<TF1> m_funcScoreCut;
 
-    // bool to check whether variables are undefined
-    mutable  bool m_undefInput;
+      // variables for TMVA
+      mutable float m_pt;
+      mutable float m_eta;
+      mutable float m_ntracks;
+      mutable float m_trackwidth;
+      mutable float m_trackC1;
 
-    // string for decorating jets with DNN output
-    std::string m_decorationName;
+      // bool to check whether variables are undefined
+      mutable  bool m_undefInput;
 
-};
+      // string for decorating jets with DNN output
+      std::string m_decorationName;
+
+  };
+
+} /* namespace CP */
 
 #endif

@@ -289,7 +289,8 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
 if DerivationFrameworkIsMonteCarlo:
         # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Jets_MET
         HIGG2D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
-                                                   "AntiKt4TruthWZJets"]
+                                                   "AntiKt4TruthWZJets",
+                                                   "AntiKt4TruthDressedWZJets"]
 
 HIGG2D1SlimmingHelper.ExtraVariables = HIGG2D1ExtraContent
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *

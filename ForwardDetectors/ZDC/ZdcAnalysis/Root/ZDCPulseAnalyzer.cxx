@@ -567,7 +567,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   m_maxADCValue = *maxIter;
   m_minADCValue = *minIter;
 
-  float maxMinADCDiff = m_maxADCValue - m_minADCValue;
+  // float maxMinADCDiff = m_maxADCValue - m_minADCValue;
 
   m_maxSampl = std::distance(m_samplesSub.cbegin(), maxIter);
   m_minSampl = std::distance(m_samplesSub.cbegin(), minIter);

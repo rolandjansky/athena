@@ -19,7 +19,7 @@ namespace CP
 {
   SelectionAccessorChar ::
   SelectionAccessorChar (const std::string& name)
-    : m_accessor (name)
+    : m_accessor (name), m_constAccessor (name)
   {}
 
 
@@ -27,7 +27,7 @@ namespace CP
   SelectionType SelectionAccessorChar ::
   getBits (const SG::AuxElement& element) const
   {
-    if (m_accessor (element))
+    if (m_constAccessor (element))
       return selectionAccept();
     else
       return 0;
@@ -50,7 +50,7 @@ namespace CP
   bool SelectionAccessorChar ::
   getBool (const SG::AuxElement& element) const
   {
-    return m_accessor (element);
+    return m_constAccessor (element);
   }
 
 

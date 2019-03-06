@@ -1,19 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef QUICK_ANA__TAU_TOOL_H
 #define QUICK_ANA__TAU_TOOL_H
-
-//        Copyright Iowa State University 2014.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 ///
 /// The current tau recommendations come from here:
@@ -219,10 +213,6 @@ namespace ana
     //virtual StatusCode matchobject(const xAOD::TauJet& tau) override;
 
   private:
-
-    /// @brief Cache the last event number.
-    /// Used to call the CP tool initializeEvent method only once per event.
-    mutable unsigned long long m_lastEventNumber;
 
     // Configuration
 

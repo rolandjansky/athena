@@ -3,10 +3,15 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon import CfgMgr
+from AthenaCommon.GlobalFlags import globalflags
+import PyJobTransforms.trfJobOptions
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
 from AODFix_base import AODFix_base
+
+from RecExConfig.InputFilePeeker import inputFileSummary
+import os
 
 class AODFix_r210(AODFix_base):
     ''' This class just performs AODFix on 21.0.X releases
@@ -42,6 +47,11 @@ class AODFix_r210(AODFix_base):
             topSequence = AlgSequence()
 
             oldMetadataList = self.prevAODFix.split("-")
+            
+            if "evtRunNum" not in oldMetadataList:
+                self.evtRunNum_postSystemRec(topSequence)
+                pass
+
             if "trklinks" not in oldMetadataList:
                 self.trklinks_postSystemRec(topSequence)
                 pass
@@ -90,6 +100,89 @@ class AODFix_r210(AODFix_base):
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
 
+    def evtRunNum_postSystemRec(self, topSequence): 
+
+        """ This fixes the wrong run number arising from buggy EVNT-to-EVNT transform workflows. 
+          --- > JIRA: https://its.cern.ch/jira/browse/AGENE-1655
+        """
+        schedule_evtRunNum = False
+        if 'mc_channel_number' in inputFileSummary:
+          input_mcChanNb = inputFileSummary['mc_channel_number'][0]
+          """
+          MC15.366000.Sherpa_221_NNPDF30NNLO_Znunu_PTV0_70.py
+          MC15.366001.Sherpa_221_NNPDF30NNLO_Znunu_PTV70_100.py
+          MC15.366002.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ0_500.py
+          MC15.366003.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ500_1000.py
+          MC15.366004.Sherpa_221_NNPDF30NNLO_Znunu_PTV100_140_MJJ1000_E_CMS.py
+          MC15.366005.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ0_500.py
+          MC15.366006.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ500_1000.py
+          MC15.366007.Sherpa_221_NNPDF30NNLO_Znunu_PTV140_280_MJJ1000_E_CMS.py
+          MC15.366008.Sherpa_221_NNPDF30NNLO_Znunu_PTV280_500.py
+          """
+          if input_mcChanNb>= 366000 and input_mcChanNb<=366008: 
+            schedule_evtRunNum = True
+          """
+          MC15.304784.Pythia8EvtGen_A14NNPDF23LO_jetjet_Powerlaw.py
+          """
+          if input_mcChanNb==304784:
+            schedule_evtRunNum = True
+          """
+          mc15_13TeV.364310.Sherpa_222_NNPDF30NNLO_Wenu_MAXHTPTV70_140.evgen.EVNT.e6209
+          mc15_13TeV.364311.Sherpa_222_NNPDF30NNLO_Wmunu_MAXHTPTV70_140.evgen.EVNT.e6209 
+          mc15_13TeV.364312.Sherpa_222_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140.evgen.EVNT.e6209
+          mc15_13TeV.364103.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CVetoBVeto.evgen.EVNT.e5271
+          mc15_13TeV.364132.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_CFilterBVeto.evgen.EVNT.e5307
+          mc15_13TeV.364145.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_CVetoBVeto.evgen.EVNT.e5308
+          mc15_13TeV.364146.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_CFilterBVeto.evgen.EVNT.e5308
+          mc15_13TeV.364106.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5271
+          mc15_13TeV.364107.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5271
+          mc15_13TeV.364120.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5299
+          mc15_13TeV.364134.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5307
+          mc15_13TeV.364148.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5308
+          mc15_13TeV.364162.Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5340
+          mc15_13TeV.364163.Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5340
+          mc15_13TeV.364176.Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5340
+          mc15_13TeV.364177.Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5340
+          mc15_13TeV.364190.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5340
+          mc15_13TeV.364191.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5340
+        """
+          if input_mcChanNb>=364310 and input_mcChanNb<=364312:
+            schedule_evtRunNum = True
+          if input_mcChanNb==364132:
+            schedule_evtRunNum = True
+          if input_mcChanNb>=364145 and input_mcChanNb<=364146:
+            schedule_evtRunNum = True
+          if input_mcChanNb>=364106 and input_mcChanNb<=364107:
+            schedule_evtRunNum = True
+          if input_mcChanNb==364120:
+            schedule_evtRunNum = True
+          if input_mcChanNb==364134:
+            schedule_evtRunNum = True
+          if input_mcChanNb==364148:
+            schedule_evtRunNum = True
+          if input_mcChanNb>=364162 and input_mcChanNb<=364163:
+            schedule_evtRunNum = True
+          if input_mcChanNb>=364176 and input_mcChanNb<=364177:
+            schedule_evtRunNum = True
+          if input_mcChanNb>=364190 and input_mcChanNb<=364191:
+            schedule_evtRunNum = True
+
+        if schedule_evtRunNum:
+          variables = {}
+          runNumber = None
+          if os.access('runargs.AODtoDAOD.py',os.R_OK):
+            execfile('runargs.AODtoDAOD.py',variables)
+          if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
+            runNumber = variables['runArgs'].runNumber
+
+          isSimulation = False
+          if (globalflags.DataSource() == 'geant4'):
+            isSimulation = True
+
+          if isSimulation and runNumber and runNumber != input_mcChanNb:
+            from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
+            EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
+            topSequence+=EventInfoRunNumberFixAlg
 
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging

@@ -44,6 +44,7 @@ namespace CP
     m_systematicsList.addHandle (m_photonHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -59,9 +60,12 @@ namespace CP
         ANA_CHECK (m_photonHandle.getCopy (photons, sys));
         for (xAOD::Photon *photon : *photons)
         {
-          double eff = 0;
-          ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, eff));
-          (*m_efficiencyAccessor) (*photon) = eff;
+          if (m_preselection.getBool (*photon))
+          {
+            double eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, eff));
+            (*m_efficiencyAccessor) (*photon) = eff;
+          }
         }
         return StatusCode::SUCCESS;
       });

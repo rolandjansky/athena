@@ -27,7 +27,6 @@ namespace TrigAnalysisTest {
   private:
     unsigned int _passed_l1;
     unsigned int _passed_hlt;
-    bool _first_call;
     std::map<std::string,int> trigger_counts;
 
     TFile *histFile;

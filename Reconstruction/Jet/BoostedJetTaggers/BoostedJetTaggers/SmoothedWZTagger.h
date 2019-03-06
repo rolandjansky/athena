@@ -12,6 +12,9 @@
 
 #include "PATCore/TAccept.h"
 
+#include <TFile.h>
+#include <TH2.h>
+
 class TF1;
 
 class SmoothedWZTagger : public  JSSTaggerBase {
@@ -32,6 +35,9 @@ class SmoothedWZTagger : public  JSSTaggerBase {
   
   // Implement IJSSTagger interface
   virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  
+  // get scale factor
+  double getWeight(const xAOD::Jet& jet) const;
 
   private:
 
@@ -39,20 +45,23 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_wkpt;
     std::string m_tagType;
     std::string m_configFile;
+    std::string m_weightConfigPath;
 
     // variables to be used for making selection
-    float m_mass;
-    float m_D2;
+    // float m_mass;
+    // float m_D2;
 
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;
     std::string m_strD2Cut;
+    std::string m_strNtrkCut;
 
     // functions that are configurable for specific cut values
     TF1* m_funcMassCutLow;
     TF1* m_funcMassCutHigh;
     TF1* m_funcD2Cut;
+    TF1* m_funcNtrkCut;
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
@@ -63,10 +72,18 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_weightHistogramName;
     std::string m_weightFlavors;
 
+    // histograms for scale factors
+    std::map<std::string, TH2*> m_weightHistograms;
+    // histograms for scale factors
+    std::map<std::string, TH2*> m_weightHistograms_nominal;
+
+
     // decorators
     SG::AuxElement::Decorator<float>    m_dec_mcutL;
     SG::AuxElement::Decorator<float>    m_dec_mcutH;
     SG::AuxElement::Decorator<float>    m_dec_d2cut;
+    SG::AuxElement::Decorator<float>    m_dec_ntrkcut;
+    SG::AuxElement::Decorator<float> m_dec_weight;
 
 
 };

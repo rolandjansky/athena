@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file:   BPhysHelper.h
@@ -58,6 +58,7 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 
 #include "TVector3.h"
@@ -90,7 +91,9 @@ namespace xAOD {
         m_refTracksCached(false),
         m_cachedRefTracks(0),
         m_muonsCached(false),
+        m_electronsCached(false),
         m_cachedMuons(0),
+        m_cachedElectrons(0),
         m_precedingVerticesCached(false),
         m_cachedPrecedingVertices(0),
         m_cascadeVerticesCached(false),
@@ -324,6 +327,7 @@ namespace xAOD {
         */
       
       int nMuons();
+      int nElectrons();
       
       /** Returns pointer to the i-th linked muon
        *  @param[in] index  index of the linked muon 
@@ -331,12 +335,14 @@ namespace xAOD {
        */
       
       const xAOD::Muon* muon(const size_t index);
+      const xAOD::Electron* electron(const size_t index);
       
       /** Returns linked muons
        *  @returns:  linked muons, empty vector in case of an error 
        */
       
       const std::vector<const xAOD::Muon*>& muons();
+      const std::vector<const xAOD::Electron*>& electrons();
       
       /** Set links to muons
        *  @param[in] muons          std::vector of muons to be linked to this vertex
@@ -347,6 +353,8 @@ namespace xAOD {
       bool setMuons(const std::vector<const xAOD::Muon*>& muons, 
                     const xAOD::MuonContainer* muonContainer);
       
+      bool setElectrons(const std::vector<const xAOD::Electron*>& electrons, 
+                    const xAOD::ElectronContainer* electronContainer);
       /** @} */
       
       /************************************************************************/
@@ -640,6 +648,7 @@ namespace xAOD {
        */
       
       bool cacheMuons();
+      bool cacheElectrons();
 
 
       /** @brief: Cache preceding vertices
@@ -692,7 +701,9 @@ namespace xAOD {
        */
       
       bool                           m_muonsCached;
+      bool                           m_electronsCached;
       std::vector<const xAOD::Muon*> m_cachedMuons;
+      std::vector<const xAOD::Electron*> m_cachedElectrons;
       
       /** @} */
 
@@ -715,6 +726,7 @@ namespace xAOD {
       
       static const std::vector<TVector3>            emptyVectorOfTVector3;
       static const std::vector<const xAOD::Muon*>   emptyVectorOfMuons;
+      static const std::vector<const xAOD::Electron*>   emptyVectorOfElectrons;
       static const TMatrixTSym<double>              emptyMatrix;
       static const std::vector<const xAOD::Vertex*> emptyVectorOfVertices;
       /** @}  */

@@ -8,8 +8,6 @@
 #include "JetSubStructureUtils/SubstructureCalculator.h"
 #include "fastjet/contrib/EnergyCorrelator.hh"
 
-using namespace fastjet;
-
 namespace JetSubStructureUtils {
 
   class EnergyCorrelatorGeneralized : public SubstructureCalculator<double>,

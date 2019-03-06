@@ -92,16 +92,22 @@ namespace asg {
    }
 
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
+      using namespace msgToolHandle;
 
       ToolMap_t::const_iterator itool = tools().find( name );
-      if( itool == tools().end() ) {
-         if( ! silent ) {
-            std::cout << "asg::ToolStore::get       WARNING Tool with name \""
-                      << name << "\" not found" << std::endl;
-         }
-         return 0;
+      if( itool != tools().end() )
+        return itool->second;
+
+      if (name.find ("ToolSvc.") != 0) {
+        itool = tools().find( "ToolSvc." + name );
+        if( itool != tools().end() )
+          return itool->second;
       }
-      return itool->second;
+
+      if( ! silent ) {
+        ANA_MSG_WARNING ("Tool with name \"" << name << "\" not found");
+      }
+      return nullptr;
    }
 
    StatusCode ToolStore::remove( const IAsgTool* tool ) {

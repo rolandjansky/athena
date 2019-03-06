@@ -306,7 +306,7 @@ std::vector< std::unique_ptr< TrigBtagEmulationJet > > JetManager::getJets() {
   for ( std::unique_ptr< TrigBtagEmulationJet >& el : m_outputJets )
     output.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet(*el) ) );
 
-  return std::move( output );
+  return output;
 }
 
 

@@ -48,10 +48,6 @@
 
 #include "AsgTools/AnaToolHandle.h"
 
-const float GeV = 1000.;
-const float iGeV = 0.001;
-const float PI = 3.1416;
-
 template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, const std::string &Key, Container* &C, xAOD::ShallowAuxContainer* &Aux) {
     if (Aux) delete Aux;
     if (C) delete C;

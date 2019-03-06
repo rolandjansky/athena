@@ -136,6 +136,11 @@ reducedJetList = [
   "AntiKt4TruthWZJets" , "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot9Seq,"EXOT9")
 
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'],Sequencer = exot9Seq)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

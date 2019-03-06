@@ -1,15 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
-
-/*
- *  MuonTriggerScaleFactors.cxx
- *
- *  Created on: Oct 22, 2014
- *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- *
- *  Updates for 2016: Jun 20, 2016
- *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <sstream>
@@ -491,7 +481,6 @@ namespace CP {
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
-	unsigned int run = getRunNumber();            
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
@@ -608,7 +597,7 @@ namespace CP {
                 configuration.isData = false;
                 configuration.replicaIndex = -1;
                 CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, *mu, muon_trigger_name, mc_err);
-                if (result_mc != CorrectionCode::Ok) return result_data;
+                if (result_mc != CorrectionCode::Ok) return result_mc;
             }
             rate_not_fired_data *= (1. - eff_data);
             rate_not_fired_mc *= (1. - eff_mc);
@@ -680,7 +669,7 @@ namespace CP {
 	configuration.replicaIndex = -1;
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
-	  return result_data;
+	  return result_mc;
 	if (eff_data == 0)
 	  TriggerSF =  0;
         if (fabs(eff_mc) > 0.0001)

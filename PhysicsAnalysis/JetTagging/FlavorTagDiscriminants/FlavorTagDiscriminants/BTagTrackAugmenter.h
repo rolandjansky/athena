@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef BTAG_TRACK_AUGMENTER_HH
 #define BTAG_TRACK_AUGMENTER_HH
+
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 #include <vector>
 
@@ -26,7 +28,8 @@ struct BTagSignedIP {
 
 class BTagTrackAugmenter {
 public:
-  BTagTrackAugmenter();
+  typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
+  BTagTrackAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,
@@ -41,6 +44,9 @@ public:
   //
   // Better advice: don't use this at all, use get_signed_ip() instead
   void augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
+  double d0(const xAOD::TrackParticle &track) const;
+  double d0Uncertainty(const xAOD::TrackParticle &track) const;
+  double z0SinTheta(const xAOD::TrackParticle &track) const;
 
   BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
 private:

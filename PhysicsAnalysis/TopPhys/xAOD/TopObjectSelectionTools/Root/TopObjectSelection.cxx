@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
@@ -17,6 +17,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
+#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace top {
 
@@ -439,7 +440,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
 	
 	float radius2=std::max(0.02,std::min(0.4,30000./jet2->pt()));
 	
-	dr_jets = sqrt( pow(jetPtr->eta()-jet2->eta(),2) + pow(jetPtr->phi()- jet2->phi(),2) );
+	dr_jets = xAOD::P4Helpers::deltaR(jetPtr,jet2,false);
 	if ( dr_jets < std::min(radius1,radius2) ) passDRcut = false;
       
       }
@@ -510,6 +511,9 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
     ///-- if executeNominal, skip other systematics (and vice-versa) --///
     if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
     if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+
+    if((!m_config->doTightSysts() && !isLoose) && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+    if((!m_config->doLooseSysts() && isLoose)  && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
 
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );

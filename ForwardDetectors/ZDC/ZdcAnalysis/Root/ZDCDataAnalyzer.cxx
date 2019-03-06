@@ -12,7 +12,6 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG, 
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
 				 bool forceLG) : 
-  m_msg (val_msg),
   m_nSample(nSample), m_deltaTSample(deltaTSample), m_preSampleIdx(preSampleIdx),
   m_fitFunction(fitFunction),
   m_forceLG(forceLG),
@@ -27,7 +26,8 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
   m_calibModuleSum({{0, 0}}), 
   m_calibModuleSumErrSq({{0,0}}),
   m_averageTime({{0, 0}}), 
-  m_fail({{false, false}})
+  m_fail({{false, false}}),
+  m_msg (val_msg)
 {
   m_moduleDisabled[0] = {{false, false, false, false}};
   m_moduleDisabled[1] = {{false, false, false, false}};

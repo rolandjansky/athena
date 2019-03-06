@@ -197,7 +197,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
-  if (m_doMuIsoSignal) dec_isol(input) = m_isoTool->accept(input);
+  if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
   
   ATH_MSG_VERBOSE("FillMuon: passed baseline selection");

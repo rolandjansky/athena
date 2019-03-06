@@ -93,7 +93,7 @@ private:
   bool m_bIsConfigured;
   int m_iIDLevel;
 
-  unsigned int m_iRunNumber;
+  // unsigned int m_iRunNumber;
 
   std::string m_sEventInfoName;
 }; // class DiTauEfficiencyCorrectionsTool

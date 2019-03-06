@@ -12,6 +12,7 @@
 
 #include <EventLoop/ModuleData.h>
 
+#include <EventLoop/OutputStreamData.h>
 #include <RootCoreUtils/Assert.h>
 
 //
@@ -20,4 +21,13 @@
 
 namespace EL
 {
+  namespace Detail
+  {
+    void ModuleData ::
+    addOutput (std::unique_ptr<TObject> output)
+    {
+      RCU_ASSERT (m_histOutput != nullptr);
+      m_histOutput->m_output.emplace_back (std::move (output));
+    }
+  }
 }

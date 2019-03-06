@@ -235,21 +235,25 @@ namespace top {
     std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
     if (m_config->doTightEvents() && !m_config->HLLHC()) {
       for (auto treeName : *config->systAllTTreeNames()) {
-        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
-        m_treeManagers.back()->branchFilters() = branchFilters();
-        if (treeName.first == m_config->nominalHashValue()) {
-          nominalTTreeName = treeName.second;
-        }
+	if (treeName.first == m_config->nominalHashValue() || m_config->doTightSysts()){
+	  m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
+	  m_treeManagers.back()->branchFilters() = branchFilters();
+	  if (treeName.first == m_config->nominalHashValue()) {
+	    nominalTTreeName = treeName.second;
+	  }
+	}
       }
     }
 
     if (m_config->doLooseEvents()) {
       for (auto treeName : *config->systAllTTreeNames()) {
-        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
-        m_treeManagers.back()->branchFilters() = branchFilters();
-        if (treeName.first == m_config->nominalHashValue()) {
-          nominalLooseTTreeName = treeName.second+"_Loose";
-        }
+	if (treeName.first == m_config->nominalHashValue() || m_config->doLooseSysts()){
+	  m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
+	  m_treeManagers.back()->branchFilters() = branchFilters();
+	  if (treeName.first == m_config->nominalHashValue()) {
+	    nominalLooseTTreeName = treeName.second+"_Loose";
+	  }
+	}
       }
     }
 
@@ -859,11 +863,10 @@ namespace top {
           systematicTree->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
-
           systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
           systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
           systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
-
+          systematicTree->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
         }
         if(m_useRCAdditionalJSS){
 
@@ -1313,6 +1316,8 @@ namespace top {
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+        m_particleLevelTreeManager->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
 
       }
       if (m_useRCAdditionalJSS){
@@ -2094,6 +2099,7 @@ namespace top {
       }
     }
 
+
     //jets
     if (m_config->useJets()) {
       unsigned int i(0);
@@ -2110,6 +2116,15 @@ namespace top {
 
       // ghost tracks
       if( m_config->useJetGhostTrack() ){
+	m_jet_ghostTrack_pt    .clear();
+	m_jet_ghostTrack_eta   .clear();
+	m_jet_ghostTrack_phi   .clear();
+	m_jet_ghostTrack_e     .clear();
+	m_jet_ghostTrack_d0    .clear();
+	m_jet_ghostTrack_z0    .clear();
+	m_jet_ghostTrack_qOverP.clear();
+	
+	
         m_jet_ghostTrack_pt.resize(event.m_jets.size());
         m_jet_ghostTrack_eta.resize(event.m_jets.size());
         m_jet_ghostTrack_phi.resize(event.m_jets.size());
@@ -2188,10 +2203,6 @@ namespace top {
 
           const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
 
-          const auto & ghostTracksNominal = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(m_config->nominalHashValue()) );
-
-
-
           const unsigned int nghostTracks=ghostTracks.size();
 
           m_jet_ghostTrack_pt[i].resize(nghostTracks);
@@ -2203,7 +2214,10 @@ namespace top {
           m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
-            m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+	    
+	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+            
+	    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
             m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
@@ -2429,6 +2443,7 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
@@ -2484,6 +2499,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
       m_rcjet_gECF322_clstr.clear();
@@ -2527,6 +2543,8 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);        
+
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -2581,6 +2599,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
@@ -3527,6 +3546,8 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");      
+
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
@@ -3577,6 +3598,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
 
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
@@ -3622,6 +3644,7 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -3674,6 +3697,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;

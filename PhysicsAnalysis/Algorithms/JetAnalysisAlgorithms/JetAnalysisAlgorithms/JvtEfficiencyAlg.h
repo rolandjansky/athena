@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -12,6 +12,7 @@
 #include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -49,9 +50,26 @@ namespace CP
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the truth jet collection to use
   private:
     std::string m_truthJetsName;
+
+    /// \brief differenciate between JVT and fJVT
+  private:
+    bool  m_dofJVT = false;
+
+    /// \brief the decoration for the fJVT selection
+  private:
+    std::string m_fJVTStatus;
+
+    /// \brief the accessor for \ref m_fJVTStatus
+  private:
+    std::unique_ptr<ISelectionAccessor> m_fJVTStatusAccessor;
 
     /// \brief the decoration for the JVT selection
   private:

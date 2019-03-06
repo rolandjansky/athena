@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from JetRec.JetRecFlags import jetFlags
@@ -177,10 +177,13 @@ hi_calib_map={}
 if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     for R in HIJetFlags.AntiKtRValues() : 
+        #non existing calibration for large R jets, R=0.4 jet calibration to be used (GetHIModifierList)
+        if int(10*R) > 4 : continue 
         calib_seq='EtaJES'
         JES_is_data=True
         if jetFlags.useTruth(): JES_is_data=False
-        elif R is 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        elif int(10*R) is 4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        #elif R is 1.0 : R = 0.4
         calib_tool=JetCalibrationTool('HICalibToolR%d' % int(10*R),JetCollection='AntiKt%dHI' % int(10*R),
                                       ConfigFile='JES_MC15c_HI_Nov2016.config',CalibSequence=calib_seq,IsData=JES_is_data)
 
@@ -196,8 +199,8 @@ if jetFlags.useTracks():
     hi_modifiers += [jtm.trkmoms, jtm.jvf, jtm.jvt]
 #    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
-    hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
-    hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
+    hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]
+    hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]
 
 
 

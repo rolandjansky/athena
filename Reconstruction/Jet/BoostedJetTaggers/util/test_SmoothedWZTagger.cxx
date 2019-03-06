@@ -201,6 +201,7 @@ int main( int argc, char* argv[] ) {
       pt = jet->pt();
       m = jet->m();
       eta = jet->eta();
+      sf = jet->auxdata<float>("SmoothWContained50_SF");
       truthLabel = (int)jet->auxdata<WTopLabel>("WTopContainmentTruthLabel");
 
       Tree->Fill();
