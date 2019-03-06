@@ -89,8 +89,7 @@ def GetPRWTool(
                 "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root",      #data17
                "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root",     #data18
        	],
-        PRWMCConfigFiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid301534_FS.root"%(c) for c in ["a","d","e"]] + [
-                            "dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid361107_FS.root"%(c) for c in ["a","d","e"]]
+        PRWMCConfigFiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid%d_FS.root"%(c,mc) for c in ["a","d","e"] for mc in [410470,301534,361107]  ]
                             ):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
