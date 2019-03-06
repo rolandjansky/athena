@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
+#include <atomic>
 #include <iosfwd>
 
 class MsgStream;
@@ -103,7 +104,7 @@ private:
 
 
     /** The global Position */
-    mutable const Amg::Vector3D*        m_globalPosition;
+    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
 
     /** The vector of contained InDet::PixelClusterOnTrack objects */
     std::vector<const InDet::PixelClusterOnTrack*>*   m_containedChildRots;
@@ -138,9 +139,9 @@ inline const InDet::PixelClusterOnTrack& CompetingPixelClustersOnTrack::rioOnTra
 
  inline const Amg::Vector3D& CompetingPixelClustersOnTrack::globalPosition() const {
     if (m_globalPosition)
-        return (*m_globalPosition);
+        return (*m_globalPosition.load());
     m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return (*m_globalPosition);
+    return (*m_globalPosition.load());
 }
 
 inline unsigned int CompetingPixelClustersOnTrack::numberOfContainedROTs() const {

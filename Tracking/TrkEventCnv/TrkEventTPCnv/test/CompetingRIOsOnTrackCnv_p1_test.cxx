@@ -30,7 +30,7 @@ public:
                             const std::vector<double>& probs);
   
   virtual unsigned int numberOfContainedROTs() const override
-  { return m_assignProb->size(); }
+  { return m_assignProb.load()->size(); }
 
   virtual const Trk::Surface& associatedSurface() const override
   { std::abort(); }

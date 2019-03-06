@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include <atomic>
 #include <ostream>
 #include <cassert>
 
@@ -109,10 +110,10 @@ protected:
     friend class ::CompetingRIOsOnTrackCnv_p1;
 
     //! index of hightest assignment probability
-    mutable unsigned int           m_indexMaxAssignProb;
+    mutable std::atomic_uint m_indexMaxAssignProb;
 
     //! assignment probabilities of the ROTs
-    mutable const std::vector<AssignmentProb>*   m_assignProb;
+    mutable std::atomic<const std::vector<AssignmentProb>*> m_assignProb;
 
     //! used to flag that the m_indexMaxAssignProb hasn't been calculated yet
     bool                            m_maxProbCalculated;
@@ -133,7 +134,7 @@ protected:
 inline CompetingRIOsOnTrack::AssignmentProb CompetingRIOsOnTrack::assignmentProbability(unsigned int indx) const {
     assert ( indx < numberOfContainedROTs() );
     if (indx < numberOfContainedROTs() )
-        return m_assignProb->operator[](indx);
+        return m_assignProb.load()->operator[](indx);
     return 0; // could consider throwing an exception here - EJWM
 }
 
