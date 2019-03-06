@@ -656,14 +656,20 @@ namespace xAOD {
 
    bool EventInfo_v1::updateEventFlagBit( EventFlagSubDet subDet, size_t bit) const
    {
-      // Get the accessor:
-      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
-      if( ! acc ) {
+      // Check if the bit makes sense:
+      if( bit >= EF_ERROR_SHIFT ) {
          return false;
       }
 
-      // Check if the bit makes sense:
-      if( bit >= EF_ERROR_SHIFT ) {
+      // Don't try to write if the requested flag is already set.
+      uint32_t existingFlags = (*eventFlagsConstAccessorsV1( subDet ))( *this );
+      if (existingFlags & (1u << bit)) {
+        return true;
+      }
+
+      // Get the accessor:
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      if( ! acc ) {
          return false;
       }
 
@@ -695,8 +701,16 @@ namespace xAOD {
    }
 
    bool EventInfo_v1::updateEventFlags( const EventFlagSubDet subDet,
-                                        const uint32_t flags) const
+                                        const uint32_t flags_in) const
    {
+      uint32_t flags = flags_in & EF_BITS;
+
+      // Don't try to write if all requested flags are already set.
+      uint32_t existingFlags = (*eventFlagsConstAccessorsV1( subDet ))( *this );
+      if ((existingFlags | flags) ==  existingFlags) {
+        return true;
+      }
+
       // Get the accessor:
       const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
       if( ! acc ) {
@@ -753,15 +767,20 @@ namespace xAOD {
    bool EventInfo_v1::updateErrorState( const EventFlagSubDet subDet,
                                         const EventFlagErrorState state ) const
    {
+      // Check its value:
+      if( ( state != NotSet ) && ( state != Warning ) && ( state != Error ) ) {
+         return false;
+      }
+
+      // Return without trying to write if the desired state is
+      // already set.
+      if (errorState (subDet) == state) {
+        return true;
+      }
 
       // Get the accessor:
       const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
       if( ! acc ) {
-         return false;
-      }
-
-      // Check its value:
-      if( ( state != NotSet ) && ( state != Warning ) && ( state != Error ) ) {
          return false;
       }
 

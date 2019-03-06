@@ -412,7 +412,7 @@ namespace xAOD {
       /// Turn on a set of event flags for one particular sub-detector.
       /// This does a logical OR of the exising flags and FLAGS.
       bool updateEventFlags( const EventFlagSubDet subDet,
-                             const uint32_t flags ) const;
+                             const uint32_t flags_in ) const;
       /// Update the error state for one particular sub-detector.
       /// The error state may only be increased by this method.
       /// If STATE is less than the current error state, then this method
