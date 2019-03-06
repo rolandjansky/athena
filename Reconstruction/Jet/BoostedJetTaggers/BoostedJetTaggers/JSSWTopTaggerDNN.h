@@ -76,9 +76,9 @@ private:
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
     std::string m_calibarea_keras;
-    
-    std::string m_weightConfigPath;
 
+    std::string m_weightConfigPath;
+  
     // for internal usage
     mutable TAGCLASS m_TagClass;
 
@@ -100,7 +100,7 @@ private:
   
     // histograms for scale factors
     std::map<std::string, TH2*> m_weightHistograms_nominal;
-  
+
     // string for decorating jets with DNN output
     std::string m_decorationName;
 
@@ -109,7 +109,7 @@ private:
     std::string m_weightFileName;
     std::string m_weightHistogramName;
     std::string m_weightFlavors;
-    
+
     // decorators
     SG::AuxElement::Decorator<float> m_dec_mcutL;
     SG::AuxElement::Decorator<float> m_dec_mcutH;

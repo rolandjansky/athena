@@ -207,7 +207,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_kerasConfigFileName).c_str() );
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
     if(m_calcSF)
       m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea+m_weightFileName).c_str());
   }

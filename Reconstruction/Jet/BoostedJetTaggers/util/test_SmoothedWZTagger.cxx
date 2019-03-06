@@ -134,9 +134,15 @@ int main( int argc, char* argv[] ) {
 
   // Fill a validation true with the tag return value
   TFile* outputFile = TFile::Open( "output_SmoothedWZTagger.root", "recreate" );
-  int pass;
+  int pass,truthLabel;
+  float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
+  Tree->Branch( "sf", &sf, "sf/F" );
+  Tree->Branch( "pt", &pt, "pt/F" );
+  Tree->Branch( "m", &m, "m/F" );
+  Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -152,6 +158,9 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
+  m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
+  //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
+  m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat");
   m_Tagger.retrieve();
 
@@ -189,6 +198,11 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
 
       pass = res;
+      pt = jet->pt();
+      m = jet->m();
+      eta = jet->eta();
+      sf = jet->auxdata<float>("SmoothWContained50_SF");
+      truthLabel = (int)jet->auxdata<WTopLabel>("WTopContainmentTruthLabel");
 
       Tree->Fill();
     }
