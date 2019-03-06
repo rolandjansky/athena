@@ -21,12 +21,13 @@ namespace Monitored {
 
   void Timer::start() { m_startTime = clock_type::now(); }
 
-  void Timer::stop() const { m_stopTime = clock_type::now(); }
+  void Timer::stop() { m_stopTime = clock_type::now(); }
 
   Timer::operator double() const {
-    if (m_stopTime == clock_type::time_point()) // never stoppped
-      stop();
-    auto d = std::chrono::duration_cast<std::chrono::microseconds>(m_stopTime - m_startTime);
+    clock_type::time_point stopTime = m_stopTime;
+    if (stopTime == clock_type::time_point()) // never stopped
+      stopTime = clock_type::now();
+    auto d = std::chrono::duration_cast<std::chrono::microseconds>(stopTime - m_startTime);
     return d.count();
   }
 

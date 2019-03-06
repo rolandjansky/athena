@@ -34,6 +34,8 @@
 #include <limits.h>
 #include <vector>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;    // legacy (serial) DQ monitoring framework
+
 class AthenaMonManager::Imp {
 public:
     Imp(AthenaMonManager*man,const std::string& name) :  m_theManager(man),
