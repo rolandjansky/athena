@@ -158,9 +158,9 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( input.pt() < ptcut ) return false;
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.eta()) > m_photonEta ) return false;
+    if(fabs(input.caloCluster()->etaBE(2)) > m_photonEta ) return false;
   }
-  else if ( fabs(input.eta()) > etacut ) return false;
+  else if ( fabs(input.caloCluster()->etaBE(2)) > etacut ) return false;
 
   if (m_photonCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {

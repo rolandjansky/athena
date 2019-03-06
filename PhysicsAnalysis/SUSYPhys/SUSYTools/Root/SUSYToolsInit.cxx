@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -30,10 +30,11 @@ using namespace ST;
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
@@ -46,8 +47,6 @@ using namespace ST;
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -67,8 +66,6 @@ using namespace ST;
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "PathResolver/PathResolver.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
-
-#include "PathResolver/PathResolver.h"
 
 #define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )                \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
@@ -375,8 +372,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise jet f-JVT efficiency tool for scale factors
 
   if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
-    toolName = "FJVTEfficiencyTool";
-    m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/"+toolName);
+    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
+    m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
     if(m_fwdjetTightOp)
       ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
     else
@@ -393,8 +390,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise FwdJVT tool
 
   if (!m_jetFwdJvtTool.isUserConfigured()) {
-    toolName = m_metJetSelection;
-    m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/"+toolName);
+    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
+    m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/FJVTTool_"+toolName);
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
     // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
     if (m_doFwdJVT && m_metJetSelection == "Tight") {
@@ -540,6 +537,34 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // Use for the low-pt WP a dedicated set of isolation scale-factors having an extra uncertainty in place
     ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint",(m_muId == 5 ? "LowPt_" : "") + tmp_muIso_WP + "Iso") );
     ATH_CHECK( m_muonIsolationSFTool.retrieve() );
+
+  }
+
+  if (!m_muonHighPtIsolationSFTool.isUserConfigured()) {
+    toolName = "MuonHighPtIsolationScaleFactors_" + m_muIsoHighPt_WP;
+
+    std::string tmp_muIsoHighPt_WP = m_muIsoHighPt_WP;
+    if ( !check_isOption(m_muIsoHighPt_WP, m_mu_iso_support) ) { //check if supported
+      ATH_MSG_WARNING("Your selected muon high-pt Iso WP ("
+		      << m_muIsoHighPt_WP
+		      << ") does not have SFs defined. Will try to find an appropriate fall-back.");
+      if (m_mu_iso_fallback.count(m_muIsoHighPt_WP) > 0){
+	tmp_muIsoHighPt_WP = m_mu_iso_fallback[m_muIsoHighPt_WP];
+	ATH_MSG_WARNING("Your selected muon high-pt Iso WP ("
+			<< m_muIsoHighPt_WP
+			<< " is not supported, and does not have SFs available.  Falling back to "
+			<< tmp_muIsoHighPt_WP
+			<< " for SF determination.");
+      } else {
+        ATH_MSG_ERROR("***  The muon isolation WP you selected (" << m_muIsoHighPt_WP << ") is not currentely supported, and no known fall-back option for SFs exists. Sorry! ***");
+        return StatusCode::FAILURE;
+      }
+    }
+
+    m_muonHighPtIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
+    // Use for the low-pt WP a dedicated set of isolation scale-factors having an extra uncertainty in place
+    ATH_CHECK( m_muonHighPtIsolationSFTool.setProperty("WorkingPoint",(m_muId == 5 ? "LowPt_" : "") + tmp_muIsoHighPt_WP + "Iso") );
+    ATH_CHECK( m_muonHighPtIsolationSFTool.retrieve() );
 
   }
 
@@ -1216,7 +1241,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise MET tools
 
   if (!m_metMaker.isUserConfigured()) {
-    m_metMaker.setTypeAndName("met::METMaker/METMaker_SUSYTools_"+m_metJetSelection);
+    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
+    m_metMaker.setTypeAndName("met::METMaker/METMaker_ST_"+toolName);
 
     ATH_CHECK( m_metMaker.setProperty("ORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons) );
     ATH_CHECK( m_metMaker.setProperty("DoSetMuonJetEMScale", m_metDoSetMuonJetEMScale) );
@@ -1393,7 +1419,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_isoHighPtTool.isUserConfigured()) {
     m_isoHighPtTool.setTypeAndName("CP::IsolationSelectionTool/IsoHighPtTool");
     ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP) );
-    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIso_WP ) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP ) );
     ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP ) );
     ATH_CHECK( m_isoHighPtTool.retrieve() );
   }
