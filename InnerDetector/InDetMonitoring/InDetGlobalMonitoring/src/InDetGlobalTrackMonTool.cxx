@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTrackMonTool.cxx
@@ -62,7 +62,6 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
     : ManagedMonitorToolBase(type, name, parent),
       m_baseline_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
       m_tight_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
-      m_doLumiblock(true),
       m_doHolePlots(false),
       m_DoHoles_Search(false),
       m_doHitMaps(false),
@@ -112,7 +111,6 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_holes_eta_pt(nullptr),
       m_holes_phi_pt(nullptr), 
       m_holes_eta_phi_n(nullptr),
-      m_holesComb2(nullptr),
       m_holes_hits(nullptr),
       m_holesvshits(nullptr),
       m_holesvshits_ECA(nullptr),
@@ -778,10 +776,10 @@ StatusCode InDetGlobalTrackMonTool::procHistograms()
 
 void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary )
 {
-    int pixHits = ( summary->get(Trk::numberOfPixelHits) >= 0 ) ? summary->get(Trk::numberOfPixelHits) : 0 
-	+ ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors ) : 0;
-    int sctHits = ( ( summary->get(Trk::numberOfSCTHits) >= 0 ) ? summary->get(Trk::numberOfSCTHits) : 0 )
-	+ ( ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 );
+  int pixHits = ( summary->get(Trk::numberOfPixelHits) >= 0 ? summary->get(Trk::numberOfPixelHits) : 0 )
+    + ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ? summary->get(Trk::numberOfPixelDeadSensors ) : 0 );
+  int sctHits = (summary->get(Trk::numberOfSCTHits) >= 0 ? summary->get(Trk::numberOfSCTHits) : 0)
+    + (summary->get(Trk::numberOfSCTDeadSensors) >= 0 ? summary->get(Trk::numberOfSCTDeadSensors) : 0 );
     int trtHits = summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTDeadStraws);
     
     const Trk::Perigee *perigee = track->perigeeParameters();

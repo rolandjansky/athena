@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalNoiseOccupancyMonTool.cxx
@@ -110,7 +110,7 @@ InDetGlobalNoiseOccupancyMonTool::InDetGlobalNoiseOccupancyMonTool(
    m_SCT_TRT_NO(0),
    m_SCT_PIX_NO(0),
    m_PIX_TRT_NO(0),
-   m_PIX_SCT_TRT_NO(0),
+   //m_PIX_SCT_TRT_NO(0),
    m_TRT_SCTvTRT_PIX_10evt(0),
    m_TRT_SCTvSCT_PIX_10evt(0),
    m_TRT_PIXvSCT_PIX_10evt(0),

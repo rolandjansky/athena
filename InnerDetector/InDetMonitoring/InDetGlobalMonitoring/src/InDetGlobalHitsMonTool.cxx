@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalHitsMonTool.cxx
@@ -56,8 +56,6 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
 				               const std::string & name,
 				               const IInterface* parent)
     : InDetGlobalMotherMonTool(type, name, parent),
-      m_updator(nullptr),
-      m_nTracks(0),
       m_tracks(nullptr),
       m_ID_hitmap_x_y(nullptr),
       m_ID_hitmap_x_y_eca(nullptr),
