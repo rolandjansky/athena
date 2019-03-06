@@ -107,7 +107,8 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
       exctrace1_test bitscan_test ConcurrentRangeMap_test
-      CachedValue_test CachedPointer_test atomic_fetch_minmax_test
+      CachedValue_test CachedPointer_test CachedUniquePtr_test
+      atomic_fetch_minmax_test
       MurmurHash2_test bitmask_test crc64_test Ring_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
