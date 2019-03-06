@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IdDictParser_h__  
-#define __IdDictParser_h__  
+#ifndef IDDICTPARSER_IDDICTPARSER_H
+#define IDDICTPARSER_IDDICTPARSER_H
   
 #include "XMLCoreParser/XMLCoreParser.h"  
 #include "IdDict/IdDictDefs.h"  
