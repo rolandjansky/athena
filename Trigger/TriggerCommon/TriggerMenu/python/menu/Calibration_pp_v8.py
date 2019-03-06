@@ -1,13 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
 import TriggerMenu.menu.Physics_pp_v8 as physics_menu
-
 from TriggerJobOpts.TriggerFlags          import TriggerFlags
-from copy                                 import deepcopy
-
-import re
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'Calibration_pp_v8.py' )
 
@@ -31,7 +25,6 @@ def setupMenu():
                 del m_slice[m_slice.index(chain)]
 
     # stream, BW and RATE tags for Bphysics items that appear in Muon and Bphysics slice.signatures
-    BPhysicsStream     = "BphysLS"
     #BMultiMuonStream   = "Main"  
     RATE_BphysTag      = 'RATE:Bphysics'
     #RATE_BMultiMuonTag = 'RATE:MultiMuon'  # can become RATE:BMultiMuon' with one letter change 
