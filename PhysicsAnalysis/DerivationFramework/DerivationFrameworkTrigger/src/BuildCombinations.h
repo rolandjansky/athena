@@ -71,7 +71,7 @@ namespace DerivationFramework { namespace TriggerMatchingUtils {
 
     // This iterator points to where in the vector of ranged iterators we are
     // looking. This can therefore often be acting as an iterator to and
-    // iterator! *itr is an iterator, **itr is a const xAOD::IParticle*!
+    // iterator! *itr is an iterator, **itr is a const T&!
     // To disambiguate I will refer to itr as the outer iterator and *itr as the
     // inner iterator.
     auto itr = inputs.begin();

@@ -12,6 +12,16 @@
 #include <memory>
 
 namespace {
+  std::ostream& operator<<(std::ostream& os, const xAOD::IParticle& part)
+  {
+    os << "(type, pt, eta, phi, m) = ("
+      << part.type() << ", "
+      << part.pt()   << ", "
+      << part.eta()  << ", "
+      << part.phi()  << ", "
+      << part.m()    << ")";
+    return os;
+  }
   /// Helper typedefs for accessors/decorators, vectors of ele links
   template <typename T>
     using constAcc_t = SG::AuxElement::ConstAccessor<T>;
@@ -154,33 +164,23 @@ namespace DerivationFramework {
       /* ATH_MSG_INFO("Chain: " << chain ); */
       std::vector<particleVec_t> onlineCombinations;
       ATH_CHECK( getOnlineCombinations( onlineCombinations, *cg) );
+      ATH_MSG_INFO("Number of combinations: " << onlineCombinations.size() );
       std::vector<particleVec_t> offlineCombinations;
       /* ATH_MSG_INFO("Number of combinations found: " << onlineCombinations.size() ); */
       for (const particleVec_t& combination : onlineCombinations) {
         std::vector<particleRange_t> matchCandidates;
-        /* ATH_MSG_INFO("With " << combination.size() << " legs"); */
         for (const xAOD::IParticle* part : combination) {
-          /* ATH_MSG_INFO( "type, pt, eta, phi, m: " */
-          /*     << part->type() << ", " */
-          /*     << part->pt()   << ", " */
-          /*     << part->eta()  << ", " */
-          /*     << part->phi()  << ", " */
-          /*     << part->m() ); */
           const particleVec_t& possibleMatches = getCandidateMatchesFor(
               part, offlineCandidates, matches);
           matchCandidates.emplace_back(possibleMatches.begin(), possibleMatches.end() );
-          /* ATH_MSG_INFO( "Can match to: " ); */
-          for (const xAOD::IParticle* cand : possibleMatches) {
-            /* ATH_MSG_INFO( "type, pt, eta, phi, m: " */
-            /*     << cand->type() << ", " */
-            /*     << cand->pt()   << ", " */
-            /*     << cand->eta()  << ", " */
-            /*     << cand->phi()  << ", " */
-            /*     << cand->m() ); */
-          }
         } //> end loop over particles
-        for (const particleVec_t& vec : 
-            TriggerMatchingUtils::getAllDistinctCombinations<const xAOD::IParticle*>(matchCandidates) ) {
+        ATH_MSG_INFO(chain << ": checking combos with " <<  matchCandidates.size() << " legs");
+        for (const particleRange_t& range : matchCandidates)
+          ATH_MSG_INFO("leg size is " << range.size() );
+        auto theseCombos = TriggerMatchingUtils::getAllDistinctCombinations<const xAOD::IParticle*>(matchCandidates);
+        for (const particleVec_t& vec : theseCombos) {
+        /* for (const particleVec_t& vec : */ 
+        /*     TriggerMatchingUtils::getAllDistinctCombinations<const xAOD::IParticle*>(matchCandidates) ) { */
           TriggerMatchingUtils::insertIntoSortedVector(offlineCombinations, vec);
         }
       } //> end loop over combinations
@@ -192,7 +192,6 @@ namespace DerivationFramework {
             "TrigMatchedObjects");
         vecLink_t<xAOD::IParticleContainer>& links = dec_links(*composite);
         for (const xAOD::IParticle* part : foundCombination) {
-          /* ATH_MSG_INFO("Get particle of type: " << part->type() ); */
           // TODO This might be dangerous if the user provides the wrong types
           // for the inputs or the input containers are not the owners (so that
           // part->index() isn't the right value...). However I'm not sure what
@@ -240,8 +239,21 @@ namespace DerivationFramework {
     // side-effect free if there's an error.
     std::vector<particleVec_t> tmp;
     Trig::FeatureContainer features = cg.features();
-    for (const Trig::Combination& comb : features.getCombinations() )
+    ATH_MSG_INFO("Investigating combination (" << features.getCombinations().size() << ")");
+    for (const Trig::Combination& comb : features.getCombinations() ) {
       ATH_CHECK( getCombination(tmp, comb) );
+      auto iparticles = comb.getIParticle(1219821989, "xAOD::CaloClusterContainer");
+      ATH_MSG_INFO( "getIParticle found " << iparticles.size() << " results" );
+      for (const auto& f : iparticles)
+        ATH_MSG_INFO(*f.cptr() );
+    }
+    ATH_MSG_INFO("Found " << tmp.size() << " combos");
+    for (const particleVec_t& v : tmp) {
+      ATH_MSG_INFO( "leg size " << v.size() );
+      for (const xAOD::IParticle* p : v)
+        ATH_MSG_INFO(*p);
+    }
+
     std::swap(tmp, combinations);
     return StatusCode::SUCCESS;
   }

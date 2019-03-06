@@ -40,7 +40,7 @@ template <typename T>
       RangedItr(const T& begin, const T& end, const T& position) :
         m_begin(begin), m_end(end), m_position(position) {}
 
-      /// Vector interface
+      /// Iterator interface
       reference operator*() { return m_position.operator*(); }
       pointer operator->() { return m_position.operator->(); }
 
@@ -81,8 +81,12 @@ template <typename T>
       void restart() { m_position = m_begin; }
 
       /// Make this act as a range
-      RangedItr begin() { return RangedItr(m_begin, m_end, m_begin); }
-      RangedItr end() { return RangedItr(m_begin, m_end, m_end); }
+      RangedItr begin() const { return RangedItr(m_begin, m_end, m_begin); }
+      RangedItr end() const { return RangedItr(m_begin, m_end, m_end); }
+      difference_type size() const { return std::distance(m_begin, m_end); }
+
+      /// Allow conversion back to the original iterator type
+      operator T() const { return m_position; }
     private:
       T m_begin;
       T m_end;
