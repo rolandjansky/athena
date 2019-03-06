@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhaseToolMC.cxx,v 1.1 2006-06-27 18:32:08 ssnyder Exp $
@@ -16,7 +16,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ITriggerTime.h"
 #include "AthenaKernel/errorcheck.h"
@@ -132,7 +131,7 @@ StatusCode LArPhaseToolMC::fill_phases ()
 
   // Scan over all hit containers.
   for (unsigned int icont=0; icont < m_container_names.size(); ++icont) {
-    const DataHandle<LArHitContainer> hit_container;
+    const LArHitContainer* hit_container = nullptr;
     if (evtStore()->retrieve (hit_container,
                               m_container_names[icont]) . isSuccess())
     {

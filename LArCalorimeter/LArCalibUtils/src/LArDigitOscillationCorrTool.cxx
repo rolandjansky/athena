@@ -12,7 +12,7 @@
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArH6Oscillation.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <sstream>
 #include <iostream>
@@ -47,10 +47,11 @@ StatusCode LArDigitOscillationCorrTool::initialize()
   
   ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
   
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance();
-  m_emId   = caloIdMgr->getEM_ID();
-  m_fcalId = caloIdMgr->getFCAL_ID();
-  m_hecId  = caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId   = idHelper->em_idHelper();
+  m_fcalId = idHelper->fcal_idHelper();
+  m_hecId  = idHelper->hec_idHelper();
   
   ATH_CHECK( m_cablingKey.initialize() );
   
