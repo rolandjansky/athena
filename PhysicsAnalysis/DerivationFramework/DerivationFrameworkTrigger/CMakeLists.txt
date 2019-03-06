@@ -34,6 +34,7 @@ atlas_add_library(
     NO_PUBLIC_HEADERS
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODBase TrigDecisionToolLib TrigNavStructure xAODCore xAODTrigger xAODCaloEvent FourMomUtils xAODEgamma
+      TrigParticles TrigCaloEvent TrigBphysicsEvent TrigCombinedEvent TrigInDetEvent TrigMuonEvent TrigTopoEvent
 )
 
 atlas_add_component(
