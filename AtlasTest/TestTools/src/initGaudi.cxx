@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -33,6 +33,23 @@ namespace Athena_test {
     string jobOptsPath = jobOptsFile;
     if (access (jobOptsPath.c_str(), R_OK) != 0)
       jobOptsPath = "../share/"+jobOptsFile;
+    if (access (jobOptsPath.c_str(), R_OK) != 0) {
+      const char* jopath = getenv ("JOBOPTSEARCHPATH");
+      if (jopath) {
+        char* savepath = new char[strlen(jopath)+1];
+        strcpy (savepath, jopath);
+        char* saveptr = nullptr;
+        char* str = savepath;
+        while (char* tok = strtok_r (str, ":", &saveptr)) {
+          str = nullptr;
+          jobOptsPath = std::string(tok) + "/" + jobOptsFile;
+          if (access (jobOptsPath.c_str(), R_OK) == 0) {
+            break;
+          }
+        }
+        delete [] savepath;
+      }
+    }
     bool noJobOpts(jobOptsFile.empty());
     if (!noJobOpts) {
       cout << "\n\nInitializing Gaudi ApplicationMgr using job opts " << jobOptsPath << endl;
