@@ -218,10 +218,10 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
       if(m_forcePidSelection){///default is true
         if(!ApplyElectronPid(eg,pidname)){
-	    ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
-	    continue;
-	}
-	ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
+	        ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
+	        continue;
+	      }
+	      ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
       }
 
       if (m_forceProbeIsolation) {///default is false
@@ -306,6 +306,9 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
 }
 
 void TrigEgammaNavBaseTool::clearList(){
+    for( auto paitIt : m_objTEList )
+      delete paitIt.first;
+
     m_objTEList.clear();
 }
 

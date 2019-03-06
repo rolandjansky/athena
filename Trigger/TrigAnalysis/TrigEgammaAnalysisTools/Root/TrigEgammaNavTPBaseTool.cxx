@@ -82,7 +82,10 @@ StatusCode TrigEgammaNavTPBaseTool::childExecute() {
 StatusCode TrigEgammaNavTPBaseTool::childFinalize() {
 
    ATH_MSG_VERBOSE( "child Finalize tool " << name() );
+   // delete electron pointers alloc in the tap execute method and
+   // clear the list of pairs
    clearProbeList();
+   // clear the list of pairs
    clearPairList();
    //m_offElectrons->clearDecorations();
 
@@ -296,11 +299,21 @@ void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
 }
 
 void TrigEgammaNavTPBaseTool::clearProbeList(){
+
+    ATH_MSG_DEBUG("Clear all Probes...");
+    // this vector hold the Electron pointer and need to
+    // be deleted since we alloc such memory for than
+    for (auto it : m_probeElectrons) 
+      delete it;
     m_probeElectrons.clear();
+    
     m_probePhotons.clear();
 }
 
 void TrigEgammaNavTPBaseTool::clearPairList(){
+
+    ATH_MSG_DEBUG("Clear all Pairs...");
+    // this only hold < Electron * , TriggerElement * >
     m_pairObj.clear();
 }
 
