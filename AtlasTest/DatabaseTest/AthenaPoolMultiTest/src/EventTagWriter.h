@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLMULTITEST_EVENTTAGWRITER_H
@@ -50,22 +50,23 @@ class EventTagWriter : public AthAlgorithm
      * @brief Defines event tag metadata schema
      * @return Status of method execution success
      */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /**
      * @brief Stores dummy event tag metadata in attribute list object
      * @return Status of method execution success
      */
-    virtual StatusCode execute();
+    virtual StatusCode execute() override;
 
     /**
      * @brief Prints confirmation message
      * @return Status of method execution success
      */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
   private:
-    SG::ReadHandleKey<xAOD::EventInfo> m_evt;
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt
+    { this, "EventInfo", "EventInfo", "" };
 
     /// Specification of event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;

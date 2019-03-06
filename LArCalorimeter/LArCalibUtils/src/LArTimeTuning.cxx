@@ -6,6 +6,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"
@@ -30,7 +32,6 @@ using CLHEP::megahertz;
 LArTimeTuning::LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_onlineHelper(0),
-  m_DataLocation("FREE"),
   m_AdcCut(1300),
   m_AdcMax(4095),
   m_Nevents(0),
@@ -45,8 +46,6 @@ LArTimeTuning::LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator)
   m_gain(),
   m_scope(GLOBAL)
 {
-  declareProperty("DataLocation", m_DataLocation );
-  
   declareProperty("ADCCut", m_AdcCut );
   declareProperty("ADCMax", m_AdcMax );
   
@@ -68,10 +67,6 @@ LArTimeTuning::LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("CorrectionSign",     m_corrSign = +1);
   declareProperty("GainSelection",      m_gainSel  = "NO");
   declareProperty("LayerSelection",     m_layerSel = -1  );
-  //StoreGateKeys
-  declareProperty("GlobalTimeOffsetOutKey",m_globalTimeOffsetOut = "GlobalTimeOffset");
-  declareProperty("FebTimeOffsetOutKey",   m_febTimeOffsetOut    = "FebTimeOffset");
-  declareProperty("CellTimeOffsetOutKey",  m_cellTimeOffsetOut   = "CellTimeOffset");
 }
 
 LArTimeTuning::~LArTimeTuning() 
@@ -82,8 +77,9 @@ StatusCode LArTimeTuning::initialize(){
 
   ATH_CHECK( m_cablingKey.initialize() );
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId = caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId = idHelper->em_idHelper();
   if (!m_emId) {
     ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
@@ -134,7 +130,14 @@ StatusCode LArTimeTuning::initialize(){
   ATH_MSG_INFO ( " *** Sampling Periode Limits: ( " << m_SamplingPeriodeLowerLimit
                  << ", " << m_SamplingPeriodeUpperLimit << " ) ns" );
   
-  m_nIterAverage = 0 ; 
+  m_nIterAverage = 0 ;
+
+  ATH_CHECK( m_DataLocation.initialize() );
+  ATH_CHECK( m_tbPhaseReadKey.initialize (m_scope != PHASE) );
+  ATH_CHECK( m_globalTimeOffsetOut.initialize (m_scope == GLOBAL) );
+  ATH_CHECK( m_febTimeOffsetOut.initialize (m_scope == FEB) );
+  ATH_CHECK( m_cellTimeOffsetOut.initialize (m_scope == FEB) );
+  ATH_CHECK( m_tbPhaseWriteKey.initialize (m_scope == CELL) );
 
   return StatusCode::SUCCESS;
 }
@@ -142,14 +145,12 @@ StatusCode LArTimeTuning::initialize(){
 
 
 StatusCode LArTimeTuning::execute() {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   m_Nevents++;
 
-  const LArDigitContainer* larDigitContainer=NULL;
   const ILArPedestal* larPedestal;
   const ILArOFC* larOFC;
   
-  TBPhase *theTBPhase;
-
   LArGlobalTimeOffset *larGlobalTimeOffset;
   LArGlobalTimeOffset *larGlobalTimeOffset_corr;
   
@@ -170,7 +171,7 @@ StatusCode LArTimeTuning::execute() {
   std::map<HWIdentifier,double> cellTimeOffset;
 
   // DigitContainer
-  ATH_CHECK( evtStore()->retrieve(larDigitContainer,m_DataLocation) );
+  SG::ReadHandle<LArDigitContainer> larDigitContainer (m_DataLocation, ctx);
   
   ATH_CHECK( detStore()->retrieve(larPedestal) );
   ATH_CHECK( detStore()->retrieve(larOFC) );
@@ -182,8 +183,9 @@ StatusCode LArTimeTuning::execute() {
   }
 
   if (m_scope==GLOBAL) {
-    larGlobalTimeOffset_corr = new LArGlobalTimeOffset();
-    ATH_CHECK( evtStore()->record(larGlobalTimeOffset_corr,m_globalTimeOffsetOut) );
+    auto larGlobalTimeOffset_p = std::make_unique<LArGlobalTimeOffset>();
+    larGlobalTimeOffset_corr = larGlobalTimeOffset_p.get();
+    ATH_CHECK( SG::makeHandle (m_globalTimeOffsetOut, ctx).record (std::move (larGlobalTimeOffset_p)) );
   }
   else
     larGlobalTimeOffset_corr = &dummyGlobalTimeOffset;
@@ -196,16 +198,17 @@ StatusCode LArTimeTuning::execute() {
 
   if (m_scope==FEB) {
     //Get Feb to Feb Time Offset
-    larFebTimeOffset_corr = new LArFEBTimeOffset();
-    ATH_CHECK( evtStore()->record(larFebTimeOffset_corr,m_febTimeOffsetOut) );
+    auto larFebTimeOffset_p = std::make_unique<LArFEBTimeOffset>();
+    larFebTimeOffset_corr = larFebTimeOffset_p.get();
+    ATH_CHECK( SG::makeHandle (m_febTimeOffsetOut, ctx).record (std::move (larFebTimeOffset_p)) );
   }
   else
     larFebTimeOffset_corr = &dummyFebTimeOffset;
 
   if (m_scope!=PHASE) {
-    //Get TB TDC Phase    
-    sc = evtStore()->retrieve(theTBPhase,"TBPhase");
-    if (sc.isFailure()) {
+    //Get TB TDC Phase
+    SG::ReadHandle<TBPhase> theTBPhase (m_tbPhaseReadKey, ctx);
+    if (!theTBPhase.isValid()) {
       // this should be only a 'warning', since TBPhase can miss due to Guard Cut...
       ATH_MSG_WARNING ( "cannot allocate TBPhase with key <TBPhase>. Exiting.");
       if (m_scope==GLOBAL) {
@@ -250,18 +253,15 @@ StatusCode LArTimeTuning::execute() {
     err_timePeak = 0;
     err_Peak     = 0;
     
-    LArDigitContainer::const_iterator cell_it=larDigitContainer->begin();
-    LArDigitContainer::const_iterator cell_it_e=larDigitContainer->end();
-    
     //Loop over all cells
-    for (;cell_it!=cell_it_e;cell_it++) {
+    for (const LArDigit* digit : *larDigitContainer) {
       
       int OFCTimeBin=0;
       
-      const std::vector<short>& samples=(*cell_it)->samples();
+      const std::vector<short>& samples=digit->samples();
       const unsigned nSamples=samples.size(); 
-      const HWIdentifier chid=(*cell_it)->channelID();
-      const CaloGain::CaloGain gain=(*cell_it)->gain();
+      const HWIdentifier chid=digit->channelID();
+      const CaloGain::CaloGain gain=digit->gain();
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
 
       if ( m_layerSel >=0 ) {
@@ -426,7 +426,7 @@ StatusCode LArTimeTuning::execute() {
       ATH_MSG_DEBUG ( "Channel: " << MSG::hex << chid.get_compact() << MSG::dec 
                       << " - TimeOffsetSum = " << timeOffsetSum 
                       << " - TimeSampleShift = " << timeSampleShift << " timeOffsetSteps=" <<timeOffsetSteps 
-                      << " Corr: " << tauPeak/ADCPeak << " Peak=" << (int)ADCPeak << " G=" << (*cell_it)->gain() );
+                      << " Corr: " << tauPeak/ADCPeak << " Peak=" << (int)ADCPeak << " G=" << digit->gain() );
 
       //remaining error (for loop conditions)
       err_Peak     += ADCPeak;
@@ -524,10 +524,8 @@ StatusCode LArTimeTuning::execute() {
     
     if(m_scope==PHASE) { 
        const short phaseIndex=(int)round(phaseTime/m_NOFCTimeBins);
-       TBPhase* thePhase=new TBPhase(phaseTime,phaseIndex);
-       sc=evtStore()->record(thePhase,"TBPhase");
-       if (sc.isFailure())
- 	 ATH_MSG_ERROR ( "Could not record TBPhase with key 'TBPhase' to StoreGate" );
+       auto thePhase = std::make_unique<TBPhase>(phaseTime,phaseIndex);
+       ATH_CHECK( SG::makeHandle(m_tbPhaseWriteKey, ctx).record (std::move (thePhase)) );
     }     
     else if (m_scope==CELL) { //Fill cell time offset map member variable
       WeightedAverageMAP::const_iterator it=CellTimeMap.begin();
@@ -549,7 +547,7 @@ StatusCode LArTimeTuning::execute() {
 StatusCode LArTimeTuning::stop()
 {
  if (m_scope==CELL) {
-   LArCellTimeOffset *cellTimeOffset=new LArCellTimeOffset();
+   auto cellTimeOffset = std::make_unique<LArCellTimeOffset>();
    WeightedAverageMAP::const_iterator it=m_CellTimeAverage.begin();
    WeightedAverageMAP::const_iterator it_e=m_CellTimeAverage.end();
    for (;it!=it_e;it++) {
@@ -557,9 +555,7 @@ StatusCode LArTimeTuning::stop()
      ATH_MSG_DEBUG ( "Ch = " << std::hex << it->first.get_compact() << std::dec
                      << " Time = " << cellTimeOffset->TimeOffset(it->first) );
    }
-   StatusCode sc=evtStore()->record(cellTimeOffset,m_cellTimeOffsetOut);
-   if (sc.isFailure())
-     ATH_MSG_ERROR ( "Could not record LArCellTimeOffset with key '" << m_cellTimeOffsetOut << "' to StoreGate" );
+   ATH_CHECK( SG::makeHandle(m_cellTimeOffsetOut).record (std::move (cellTimeOffset)) );
 
  }
  

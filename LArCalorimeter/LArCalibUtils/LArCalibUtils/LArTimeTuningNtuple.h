@@ -12,6 +12,7 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "LArRawConditions/LArGlobalTimeOffset.h"
 #include "LArRawConditions/LArFEBTimeOffset.h"
 #include "LArRawConditions/LArCellTimeOffset.h"
@@ -29,20 +30,23 @@ class LArTimeTuningNtuple : public AthAlgorithm
 {
  public:
   LArTimeTuningNtuple(const std::string & name, ISvcLocator * pSvcLocator);
-  ~LArTimeTuningNtuple();
+  virtual ~LArTimeTuningNtuple();
 
   //standard algorithm methods
-  StatusCode initialize(); 
-  StatusCode execute();
-  StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override; 
+  virtual StatusCode execute() override;
+  virtual StatusCode stop() override;
  private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
-  std::string m_TBPhaseKey;
-  std::string m_GlobalTimeKey;
-  std::string m_FebTimeKey;
+  SG::ReadHandleKey<TBPhase> m_TBPhaseKey
+    { this, "TBPhaseKey", "", "" };
+  SG::ReadHandleKey<LArGlobalTimeOffset> m_GlobalTimeKey
+    { this, "GlobalTimeOffsetKey", "", "" };
+  SG::ReadHandleKey<LArFEBTimeOffset> m_FebTimeKey
+    { this, "FebTimeOffsetKey", "", "" };
+
   std::string m_CellTimeOffsetKey;
   
   NTuple::Item<float> m_phaseNt;

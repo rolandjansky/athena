@@ -5,6 +5,9 @@
 # Declare the package name:
 atlas_subdir( EventOverlayJobTransforms )
 
+# Necessary external(s):
+find_package( cx_Oracle )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Tools/PyJobTransforms

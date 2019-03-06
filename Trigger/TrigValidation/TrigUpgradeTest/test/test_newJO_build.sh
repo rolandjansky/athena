@@ -13,24 +13,10 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="newJOtest.pkl"
 export FROMPICKLE=1
-export REGTESTEXP=".*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
+export REGTESTEXP=".*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMo.*INFO.*"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/NewJO.ref`
-
-
-rm -rf newJOtest.py bootstrap.pkl bootstrap.py
-
-# this is a hack to pre-confgure scheduler and other MT services, 
-#will be taken away once NEW system has better means to influence the bootstrap content
-cat <<EOF >> bootstrap.py
-from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
-svcMgr.AvalancheSchedulerSvc.ShowControlFlow=True
-svcMgr.AvalancheSchedulerSvc.ShowDataDependencies=True
-EOF
-
-echo $(date "+%FT%H:%M %Z")"     Execute Athena config-only bootstrap for test ${NAME}"
-athena --threads=${THREADS} --concurrent-events=${SLOTS} --config-only=bootstrap.pkl bootstrap.py &> athena.bootstrap.log
 
 get_files -jo TrigUpgradeTest/newJOtest.py
 

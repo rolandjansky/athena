@@ -8,7 +8,6 @@
 
 #include "xAODEventInfo/EventInfo.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "LArRawEvent/LArCalibDigitContainer.h"
@@ -91,6 +90,8 @@ StatusCode LArCalibDigitMaker::execute() {
 
  if (m_dontRun) return StatusCode::SUCCESS;
 
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+
  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
  const LArCalibLineMapping* clcabling{*clHdl};
  if(!clcabling) {
@@ -102,7 +103,7 @@ StatusCode LArCalibDigitMaker::execute() {
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(thisEventInfo->eventNumber())&0xffffff ;
+ const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;
  ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
  const LArCalibParams* calibParams = nullptr;
