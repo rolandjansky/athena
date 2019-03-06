@@ -39,6 +39,9 @@
 #include "SiClusterizationTool/TTrainedNetworkCollection.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
  class TTrainedNetwork;
  class TH1;
  class ICoolHistSvc;
@@ -189,7 +192,7 @@ namespace InDet {
                         kErrorXNN,
                         kErrorYNN,
                         kNNetworkTypes};
-    static const char *s_nnTypeNames[kNNetworkTypes];
+    static const char* const s_nnTypeNames[kNNetworkTypes];
     std::vector<unsigned int> m_nParticleGroup;
     std::vector<std::regex>   m_nnNames;
 
