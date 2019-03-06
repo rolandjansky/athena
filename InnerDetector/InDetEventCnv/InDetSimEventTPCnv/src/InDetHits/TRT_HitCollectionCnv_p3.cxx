@@ -478,7 +478,9 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
         // - For charged particles kinEne is *zero*!
         //
 
-        transCont->Emplace( strawId, persCont->m_barcode[idxBC], persCont->m_id[idxId],
+        HepMcParticleLink partLink(persCont->m_barcode[idxBC]);
+        partLink.setExtendedBarCode(HepMcParticleLink::ExtendedBarCode(persCont->m_barcode[idxBC], 0, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION));;
+        transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );
         //

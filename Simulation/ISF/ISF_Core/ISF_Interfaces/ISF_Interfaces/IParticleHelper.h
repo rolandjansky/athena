@@ -11,19 +11,22 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
- 
+
 // Simulation includes
-#include "ISF_Event/SimSvcID.h" 
+#include "ISF_Event/SimSvcID.h"
 
 // Barcode includes
 #include "BarcodeEvent/Barcode.h"
 
 // Amg includes
 #include "GeoPrimitives/GeoPrimitives.h"
- 
+
 // CLHEP includes
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
+
+// McEventCollection
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 namespace ISF {
 
@@ -31,16 +34,16 @@ namespace ISF {
   class TruthBinding;
  
   /**
-   @class IParticleHelper
-       
-   Interface to create a particle from primary information,
-   allows to reduce dependency on actual StackParticle implementation
-       
-   Could make use of a Data POOL eventually       
-       
-   @author Andreas.Salzburger -at- cern.ch
-   */
-     
+     @class IParticleHelper
+
+     Interface to create a particle from primary information,
+     allows to reduce dependency on actual StackParticle implementation
+
+     Could make use of a Data POOL eventually
+
+     @author Andreas.Salzburger -at- cern.ch
+  */
+
   class IParticleHelper : virtual public IAlgTool {
      public:
      
@@ -59,7 +62,8 @@ namespace ISF {
                                               double pTime,
                                               const ISFParticle &parent,
                                               Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                              TruthBinding* tBinding = nullptr) const = 0;
+                                              TruthBinding* tBinding = nullptr,
+                                           const HepMcParticleLink * partLink = nullptr) const = 0;
 
        /** Create a new particle */
        virtual ISFParticle* createParticle( const Amg::Vector3D& x,
@@ -70,7 +74,8 @@ namespace ISF {
                                             double pTime,
                                             const ISFParticle &parent,
                                             Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                            TruthBinding* tBinding = nullptr) const = 0;
+                                            TruthBinding* tBinding = nullptr,
+                                         const HepMcParticleLink * partLink = nullptr) const = 0;
 
        /** Create a new particle */
        virtual ISFParticle* createParticle( const HepGeom::Point3D<double>& x,
@@ -81,7 +86,8 @@ namespace ISF {
                                             double pTime,
                                             const ISFParticle &parent,
                                             Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                            TruthBinding* tBinding = nullptr) const = 0;
+                                            TruthBinding* tBinding = nullptr,
+                                         const HepMcParticleLink * partLink = nullptr) const = 0;
 
        /** An updated particle (e.g. after transport) */
        virtual ISFParticle* updatedParticle( const ISFParticle& origIsp,

@@ -103,7 +103,7 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
       lastLink = &(siHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
       persCont->m_mcEvtIndex.push_back(lastLink->eventIndex());
-      persCont->m_evtColl.push_back('a');
+      persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());
 
       if (idx > 0) {
         persCont->m_nBC.push_back(idx - endBC);
@@ -299,7 +299,8 @@ void SiHitCollectionCnv_p3::persToTrans(const SiHitCollection_p3* persCont, SiHi
 
         HepGeom::Point3D<double> endThis( endLast + r );
 
-        transCont->Emplace( endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId]);
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), HepMcParticleLink::IS_INDEX );
+        transCont->Emplace( endLast, endThis, eneLoss, meanTime, partLink, persCont->m_id[idxId]);
 
         endLast = endThis;
 
