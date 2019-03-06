@@ -5,7 +5,7 @@
 */
 
 // Implementation file for class BookkeeperTool
-// Authors: Joao Firmino da Costa <joao.costa@cern.ch> and David Cote <david.cote@cern.ch>
+// Authors: Jack Cranshaw <Jack.Cranshaw@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 #include "EventBookkeeperTools/BookkeeperTool.h"
@@ -72,7 +72,11 @@ resolveLink (const xAOD::CutBookkeeper* old,
 
 } // anonymous namespace
 
-
+//
+// (Merge) method required by base clase GenericMetdataTool
+//   Note that the implementation of the IMetaDataTool interface 
+//   is done in GenericMetadataTool and configured by properties 
+//   of that class
 StatusCode
 BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) 

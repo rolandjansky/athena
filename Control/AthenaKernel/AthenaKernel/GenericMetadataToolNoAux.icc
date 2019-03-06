@@ -5,7 +5,7 @@
 */
 
 // Implementation file for class GenericMetadataToolNoAux
-// Authors: Joao Firmino da Costa <joao.costa@cern.ch> and David Cote <david.cote@cern.ch>
+// Authors: Jack Cranshaw <Jack.Cranshaw@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 // STL include
@@ -96,9 +96,10 @@ StatusCode GenericMetadataToolNoAux<T>::beginInputFile(const SG::SourceID& sid)
     ATH_MSG_INFO("No input name");
   }
 
-  // reset cutflow taken marker
+  // reset process metadata taken marker for new input
   m_processMetadataTaken = false;
 
+  // mark that a new source id has been opened
   m_read.insert(sid);
   
   return StatusCode::SUCCESS;
@@ -131,15 +132,11 @@ StatusCode GenericMetadataToolNoAux<T>::metaDataStop()
     const MetaCont<T>* tmp;
     ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
     T* outcom = new T();
-    //U* outcom_aux = new U();
-    //outcom->setStore(outcom_aux);
 
     if (m_markIncomplete) {
       std::string inc_name = storename+"Incomplete"+m_outputCollName+"Cont"; 
       // Build incomplete container to fill
       T* outinc = new T();
-      //U* outinc_aux = new U();
-      //outinc->setStore(outinc_aux);
       // Check if there were any incomplete inputs
       const MetaCont<T>* inc;
       if(outputMetaStore()->retrieve(inc,inc_name).isSuccess()) {
@@ -186,14 +183,11 @@ StatusCode GenericMetadataToolNoAux<T>::metaDataStop()
         ATH_MSG_INFO("Cleaning up class for " << incout_name);
         const T* tmpBook(nullptr);
         if ( outputMetaStore()->retrieve(tmpBook,incout_name).isSuccess() ) {
-          //const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
           ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
-          //ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
         }
         else ATH_MSG_INFO("StoreGate failed retrieve");
       }
       ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
-      //ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
     }  // markIncomplete
     else {
       auto sids_tmp = tmp->sources();
@@ -214,14 +208,11 @@ StatusCode GenericMetadataToolNoAux<T>::metaDataStop()
       ATH_MSG_INFO("Cleaning up class for " << m_outputCollName);
       const T* tmpBook(nullptr);
       if ( outputMetaStore()->retrieve(tmpBook,m_outputCollName).isSuccess() ) {
-        //const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
         ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
-        //ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
       }
       else ATH_MSG_ERROR("StoreGate failed retrieve");
     }
     ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
-    //ATH_CHECK(outputMetaStore()->record(outcom_aux,m_outputCollName+"Aux."));
   } // inputCollName if
 
   if (!m_processMetadataTaken) {
@@ -238,14 +229,12 @@ StatusCode GenericMetadataToolNoAux<T>::metaDataStop()
 
   if (m_inputCollName != "") {  // are there inputs
     // Copy read files into written files
-    //std::copy(m_read.begin(),m_read.end(),back_inserter(m_written));
     for (auto it = m_read.begin(); it != m_read.end(); ++it) {
       m_written.insert(*it);
     }
     // Remove completes from read
     for (auto it = m_fullreads.begin(); it != m_fullreads.end(); ++it) {
       m_read.erase(*it);
-      //std::remove(m_read.begin(); m_read.end(), *it);
     }
     m_fullreads.clear();
   } // inputCollName if
@@ -270,23 +259,7 @@ StatusCode GenericMetadataToolNoAux<T>::initOutputContainer( const std::string& 
   // Create the primary container
   // Put it in a MetaCont
   MetaCont<T>* mcont = new MetaCont<T>(DataObjID(ClassID_traits<T>::ID(),key));
-  // Do the same for the auxiliary container
-  //std::string auxkey(key+"Aux.");
-  //MetaCont<U>* acont = new MetaCont<U>(DataObjID(ClassID_traits<U>::ID(),auxkey));
   ATH_CHECK(outputMetaStore()->record(std::move(mcont),key));
-  //ATH_CHECK(outputMetaStore()->record(std::move(acont),auxkey));
-  //StatusCode sc(StatusCode::SUCCESS);
-/*
-  StatusCode sc = outputMetaStore()->symLink
-          (
-            ClassID_traits<MetaCont<SG::IConstAuxStore> >::ID(),
-            auxkey,
-            ClassID_traits<SG::IConstAuxStore>::ID()
-          );
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to symlink " << auxkey);
-  }
-*/
 
   return StatusCode::SUCCESS;
 }

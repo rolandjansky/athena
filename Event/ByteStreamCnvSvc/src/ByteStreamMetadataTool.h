@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMMETADATATOOL_H
 #define BYTESTREAMMETADATATOOL_H
 
 /** @file ByteStreamMetadataTool.h
- *  @brief This file contains the class definition for the ByteStreamMetadataTool class.
+ *  @brief This class is an implementation of the GenericMetadataToolNoAux
+ *  for the ByteStreamMetadataContainer.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: $
  **/
@@ -34,7 +35,7 @@ public:
    /// Gaudi Service Interface method implementations:
    StatusCode initialize() override;
    StatusCode finalize() override;
-   /// Helper class to update a container with information from another one
+   /// Virtual method to update a container with information from another one
    virtual StatusCode updateContainer(ByteStreamMetadataContainer* bsmdc_out,
                                 const ByteStreamMetadataContainer* bsmdc_in );
 };
