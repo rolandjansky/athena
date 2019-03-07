@@ -62,10 +62,6 @@ datamodel_run_test (xAODTestReadRenameMT
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
-datamodel_run_test (xAODTestReadARA
-                    COMMAND python
-                    ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODTestReadARA_t.py
-                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODRootTestRead
                     COMMAND python
                     ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODRootTestRead_t.py
@@ -144,9 +140,6 @@ datamodel_run_test (CondReadWrite)
 #
 # xAODTestReadFilterRead
 # reads xaoddata_filt.root
-#
-# xAODTestReadARA
-# reads xaoddata.root
 #
 # xAODRootTestRead
 # reads xaoddata.root
