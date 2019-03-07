@@ -812,7 +812,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
             m_StripHitsOnWafer[strip] = -1;
           } else {
             m_StripHitsOnWafer[strip] = 1;
-            SiHelper::SetTimeBin(diode, 2); // set timebin info
+            SiHelper::SetTimeBin(diode, 2, &msg()); // set timebin info
           }
         } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
           if ((m_Analogue[0][strip] >= m_Threshold or m_Analogue[1][strip] < m_Threshold)) {
@@ -823,7 +823,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
             m_StripHitsOnWafer[strip] = -1;
           } else {
             m_StripHitsOnWafer[strip] = 1;
-            SiHelper::SetTimeBin(diode, 2); // set timebin info
+            SiHelper::SetTimeBin(diode, 2, &msg()); // set timebin info
           }
         } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // Check hit pattern
           int have_hit_bin = 0;
@@ -842,7 +842,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
           } else if (m_data_compression_mode == 1) { // !< level and expanded mode
             if (have_hit_bin == 2 or have_hit_bin == 3 or have_hit_bin == 6 or have_hit_bin == 7) {
               m_StripHitsOnWafer[strip] = 1;
-              SiHelper::SetTimeBin(diode, have_hit_bin);
+              SiHelper::SetTimeBin(diode, have_hit_bin, &msg());
             } else {
               SiHelper::belowThreshold(diode, true); // Below strip diode signal threshold
               m_StripHitsOnWafer[strip] = -1;
@@ -850,7 +850,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
           } else if (m_data_compression_mode == 2) { // !< edge and expanded mode
             if (have_hit_bin == 2 or have_hit_bin == 3) {
               m_StripHitsOnWafer[strip] = 1;
-              SiHelper::SetTimeBin(diode, have_hit_bin);
+              SiHelper::SetTimeBin(diode, have_hit_bin, &msg());
             } else {
               SiHelper::belowThreshold(diode, true); // Below strip diode signal threshold
               m_StripHitsOnWafer[strip] = -1;
@@ -862,9 +862,9 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
             } else {
               m_StripHitsOnWafer[strip] = 1;
               if (m_data_readout_mode == 1) { // !< check for exp mode or not
-                SiHelper::SetTimeBin(diode, have_hit_bin);
+                SiHelper::SetTimeBin(diode, have_hit_bin, &msg());
               } else {
-                SiHelper::SetTimeBin(diode, 2);
+                SiHelper::SetTimeBin(diode, 2, &msg());
               }
             }
           }
@@ -1003,7 +1003,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection) cons
         clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;
         hitStrip = m_sct_id->strip_id(collection.identify(), clusterFirstStrip);
         SiChargedDiode& HitDiode = *(collection.find(hitStrip));
-        SiHelper::SetStripNum(HitDiode, clusterSize);
+        SiHelper::SetStripNum(HitDiode, clusterSize, &msg());
                                                                                       
         SiChargedDiode *PreviousHitDiode = &HitDiode;
         for (int i = clusterFirstStrip+1; i <= clusterLastStrip; ++i) {
@@ -1037,7 +1037,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection) cons
           previousHitDiode = &newHitDiode;
           clusterSize++;
         }
-        SiHelper::SetStripNum(hitDiode, clusterSize);
+        SiHelper::SetStripNum(hitDiode, clusterSize, &msg());
 
 #ifdef SCT_DIG_DEBUG
         ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " <<
@@ -1071,7 +1071,7 @@ StatusCode SCT_FrontEnd::addNoiseDiode(SiChargedDiodeCollection& collection, int
   if (NoiseDiode == nullptr) {
     return StatusCode::FAILURE;
   }
-  SiHelper::SetTimeBin(*NoiseDiode, tbin); // set timebin info
+  SiHelper::SetTimeBin(*NoiseDiode, tbin, &msg()); // set timebin info
 
   return StatusCode::SUCCESS;
 }
