@@ -548,7 +548,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     m_robDataProvider->addROBData( requestROBs );
     m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
-  if ( robFrags.empty() ) {
+  if ( robFrags.empty() && (!requestROBs.empty()) ) {
     return 0x1; // dummy code
   }
 
