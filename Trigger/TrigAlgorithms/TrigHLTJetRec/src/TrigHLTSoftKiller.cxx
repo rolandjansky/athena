@@ -79,10 +79,8 @@ HLT::ErrorCode TrigHLTSoftKiller::hltExecute(const HLT::TriggerElement* inputTE,
     const xAOD::IParticleContainer* IP_inputclusters = dynamic_cast<const xAOD::IParticleContainer*> (inputclusters);
     skclustModSeqTool->setInputClusterCollection(IP_inputclusters);
     //skclustModSeqTool->setInputClusterCollection(inputclusters);
-    ATH_MSG_INFO("Input cluster container: " << inputclusters);
     int process_status = skclustModSeqTool->execute();
     const xAOD::CaloClusterContainer* outputclusters = dynamic_cast<const xAOD::CaloClusterContainer*>(skclustModSeqTool->getOutputClusterCollection()); 
-    ATH_MSG_INFO("Output cluster container after: " << outputclusters);
     
     if (process_status == 0)
     {
