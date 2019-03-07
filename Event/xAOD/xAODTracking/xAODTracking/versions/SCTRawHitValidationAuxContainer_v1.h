@@ -21,6 +21,11 @@ namespace xAOD {
   private:
     std::vector<uint64_t> identifier;
     std::vector<uint32_t> dataword;
+    std::vector<int> bec;
+    std::vector<int> layer;
+    std::vector<int> phi_module;
+    std::vector<int> eta_module;
+    std::vector<int> side;
   };
 }
 
