@@ -36,7 +36,7 @@ jetFlags.debug = 4
 
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecCalibrationFinder import jrcf
-# Calibration Configurarion file (now defined in offline code)
+# Calibration Configurarion file (nokw defined in offline code)
 #cfg_file = "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
 #jrcf.configDict["triggerNoPileup"] = cfg_file
 
@@ -1130,7 +1130,7 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         #    'iIParticleSelectorAll') 
 
         iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
-            'nonPositiveJetRjectionTool', OutputLevel=OutputLevel)
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 
@@ -1274,7 +1274,6 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
         self.OutputLevel = OutputLevel
         
-        self.OutputLevel = OutputLevel
         self.cluster_calib = cluster_calib
         # self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
