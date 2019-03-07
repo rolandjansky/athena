@@ -7,12 +7,13 @@ EXOT6SmartContent = [
     "InDetTrackParticles",
     "PrimaryVertices",
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo",
-    "AntiKt4LCTopoJets",
+    "MET_Reference_AntiKt4EMPFlow",
+    "AntiKt4EMPFlowJets",
     "AntiKt4EMTopoJets",
     "AntiKt4TruthJets",
     "TauJets",
-    "BTagging_AntiKt4EMTopo"
+    "BTagging_AntiKt4EMTopo",
+    "BTagging_AntiKt4EMPFlow"
 ]
 
 EXOT6AllVariablesContent = [
