@@ -12,7 +12,8 @@ from GaudiKernel.Constants import (VERBOSE,
 
 import TrigHLTJetRecConf
 from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
-                                             IParticlePtEtaRejectionTool,)
+                                             IParticlePtEtaRejectionTool,
+                                             NonPositiveEnergyRejectionTool)
 
 # from JetRec.JetRecConf import JetRecTool
 # from JetRec.JetRecConf import (JetFromPseudojetMT,)
@@ -1042,6 +1043,31 @@ def _getIParticleNullRejectionTool(toolname, **kwds):
 
     return rejecter
 
+def _getNonPositiveEnergyRejectionTool(toolname, **kwds):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        rejecter = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorAll to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        rejecter = NonPositiveEnergyRejectionTool(
+            name=toolname, **kwds)
+        jtm += rejecter
+        rejecter = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getNonPositiveEnergyRectionTool '\
+            'Added rejecter "%s" to jtm' % toolname
+
+    return rejecter
+
 
 def _getIParticlePtEtaRejectionTool(toolname, **kwds):
 
@@ -1103,8 +1129,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iIParticleSelectorAll') 
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveJetRjectionTool', OutputLevel=OutputLevel)
         
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 
@@ -1183,8 +1209,8 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         # 3/18 IParticle selection moved to TriggerJetBuildTool
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iParticleSelectorAll')
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
         # Groomer builds jets from clusters and then grooms them
@@ -1255,8 +1281,8 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         name = 'iIParticleEtaPtRejecter_%d_%d' % (int(10 * etaMaxCut),
                                                   int(ptMinCut))
         
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
 
         concrete_type = 'Jet'
 
@@ -1313,8 +1339,8 @@ class TrigHLTJetRecFromTriggerTower(
         #                                       int(ptMinCut)),
         #    **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
 

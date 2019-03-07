@@ -27,13 +27,13 @@
 #include "TrigHLTJetRec/IParticlePtEtaRejectionTool.h"
 #include "TrigHLTJetRec/EMTopoRejectionTool.h"
 #include "TrigHLTJetRec/PFlowRejectionTool.h"
-#include "TrigHLTJetRec/NegativeEnergyRejectionTool.h"
+#include "TrigHLTJetRec/NonPositiveEnergyRejectionTool.h"
 
 DECLARE_COMPONENT(IParticleNullRejectionTool)
 DECLARE_COMPONENT(IParticlePtEtaRejectionTool)
 DECLARE_COMPONENT(EMTopoRejectionTool)
 DECLARE_COMPONENT(PFlowRejectionTool)
-DECLARE_COMPONENT(NegativeEnergyRejectionTool)
+DECLARE_COMPONENT(NonPositiveEnergyRejectionTool)
 
 DECLARE_COMPONENT( TrigHLTJetRecFromCluster )
 DECLARE_COMPONENT( TrigHLTJetRecFromJet )
