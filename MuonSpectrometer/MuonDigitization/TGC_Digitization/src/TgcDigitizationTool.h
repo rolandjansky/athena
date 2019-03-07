@@ -13,8 +13,6 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 
