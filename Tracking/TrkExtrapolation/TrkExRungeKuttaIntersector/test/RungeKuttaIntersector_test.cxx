@@ -14,9 +14,11 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 #include "AthenaKernel/Units.h"
+#include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -269,6 +271,7 @@ void test_perigee (Trk::IIntersector& tool)
 int main()
 {
   std::cout << "RungeKuttaIntersector_test\n";
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   ISvcLocator* svcloc = nullptr;
   Athena_test::initGaudi ("RungeKuttaIntersector_test.txt", svcloc);
   ToolHandle<Trk::IIntersector> tool ("Trk::RungeKuttaIntersector");
