@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////
-// BarrelBuilderXML.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
+// BarrelBuilderXML.cxx
 ///////////////////////////////////////////////////////////////////
 
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"

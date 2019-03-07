@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////
-// ITkEndcapBuilder.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
+// ITkEndcapBuilder.cxx
 ///////////////////////////////////////////////////////////////////
 
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
@@ -174,7 +176,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
       float centerphi =  centersOnModule.at(cEl).phi();
       if( centerphi < phiLowBound ) phiLowBound = centerphi;
       if( centerphi > phiHighBound ) phiHighBound = centerphi;
-//       std::cout << "--> testing: (phi,r) = (" << centersOnModule.at(cEl).phi() << ", " << radius << ")   -  min: " << phiLowBound << ", max = " << phiHighBound << std::endl; 
+
     }
     double halfPhiStep = TMath::Pi()/nsectors;
     phiLowBound  -= halfPhiStep;
@@ -468,20 +470,12 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 												   useDisc, ring_rmin, ring_rmax, stereoO);
  
   if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
- 
-//   std::cout << "1 - Module  Id = " << brl_ec << " - " << ilayer << " - " << iphi << " - " << ieta << std::endl;
-//   std::cout << "2 - Module Pos = " << planElement->surface().center().perp() << " - " << planElement->surface().center().z() << " - " << planElement->surface().center().phi() <<  std::endl;
+
 
   centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*cos(planElement->surface().center().phi()),
 				 planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
 				 planElement->surface().center().z());
   
-//    std::cout << "        -->  Endcap Element: " << std::endl;
-//    std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
-//    std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
-//    std::cout << "        -->  Surface Center = " << std::sqrt(std::pow(planElement->surface().center().x(),2)*std::pow(planElement->surface().center().y(),2))<< std::endl;
-//    std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
-
   
   // Add outer stereo layer  // each element points to the other face
   if(layerTmp->double_sided) {
@@ -498,10 +492,6 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 													transform_os, m_pixelCase, isBarrel, isOuterMost,debug,
 													useDisc, ring_rmin, ring_rmax, stereoI);
     
-//     std::cout << "        -->  Other side Endcap Element: " << std::endl;
-//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 1" << std::endl;
-//     std::cout << "        -->  Surface Center = " << planElement_os->surface().center() << std::endl;
-//     std::cout << "        -->  Surface Phi = " << planElement_os->surface().center().phi() << "     Eta = "<< planElement_os->surface().center().eta() << std::endl;
     
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
 
