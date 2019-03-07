@@ -1,13 +1,12 @@
 include.block("TrigT2CaloCommon/CaloCellMasking.py")
 
 from AthenaCommon.AppMgr import ToolSvc #if not already imported
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanLegacyTool, LArBadChannelMasker
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebMasker, LArBadChannelMasker
 
-ToolSvc+=LArBadChanLegacyTool("MyBadChanTool")
-ToolSvc.MyBadChanTool.ReadFromASCII=False #Not necessary if you have already produced a database file
-ToolSvc.MyBadChanTool.ComplementaryCoolFolder="/LAR/BadChannels/BadChannelsOnl"
-#ToolSvc.MyBadChanTool.OutputLevel=VERBOSE
-#ToolSvc.MyBadChanTool.OutputLevel=DEBUG
+#The masker tool name must be "LArBadFebMasker", the same as retrieved in LArCellCont.cxx
+ToolSvc+=LArBadFebMasker("LArBadFebMasker")
+ToolSvc.LArBadFebMasker.DoMasking = True #Masking can easily be turned on and off here.
+#ToolSvc.LArBadFebMasker.OutputLevel=DEBUG
 
 #The masker tool name must be "LArBadChannelMasker", the same as retrieved in LArCellCont.cxx
 ToolSvc+=LArBadChannelMasker("LArBadChannelMasker")
