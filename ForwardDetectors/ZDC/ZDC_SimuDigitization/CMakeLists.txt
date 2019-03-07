@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools
-                          Event/EventInfo
                           ForwardDetectors/ZDC/ZDC_SimEvent
                           ForwardDetectors/ZDC/ZdcEvent
                           GaudiKernel
@@ -26,7 +25,7 @@ atlas_add_component( ZDC_SimuDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo ZDC_SimEvent ZdcEvent GaudiKernel HitManagement Identifier )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib ZDC_SimEvent ZdcEvent GaudiKernel HitManagement Identifier )
 
 # Install files from the package:
 atlas_install_headers( ZDC_SimuDigitization )
