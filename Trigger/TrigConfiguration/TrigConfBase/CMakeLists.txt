@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777942 2016-10-12 01:14:44Z krasznaa $
 ################################################################################
 # Package: TrigConfBase
 ################################################################################
@@ -7,15 +6,25 @@
 atlas_subdir( TrigConfBase )
 
 # External dependencies:
-find_package( Boost COMPONENTS regex )
+find_package( Boost COMPONENTS regex thread )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfBase
    TrigConfBase/*.h src/*.cxx Root/*.cxx
    PUBLIC_HEADERS TrigConfBase
-   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} )
 
-atlas_add_executable( trigconf_msgsvc_test
-   test/trigconf_msgsvc_test.cxx
+atlas_install_joboptions( share/*.py )
+
+# Tests:
+atlas_add_component( TrigConfBaseTest
+   test/TrigConfMsgAlg.cxx
+   LINK_LIBRARIES TrigConfBase AthenaBaseComps )
+
+atlas_add_test( trigconf_msg_standalone_test
+   SOURCES test/trigconf_msgsvc_test.cxx
    LINK_LIBRARIES TrigConfBase )
+
+atlas_add_test( trigconf_msg_athena_test
+   SCRIPT athena.py TrigConfBase/test_TrigConfMsgAlg.py )
