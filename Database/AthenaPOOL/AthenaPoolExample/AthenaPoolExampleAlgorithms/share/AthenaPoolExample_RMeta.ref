@@ -1,11 +1,11 @@
-Tue Feb 26 09:24:13 CST 2019
+Wed Mar  6 20:06:52 CET 2019
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5462 configurables from 20 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5461 configurables from 48 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -13,14 +13,14 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on atlaslogin01.hep.anl.gov on Tue Feb 26 09:24:22 2019
+                                          running on lxplus084.cern.ch on Wed Mar  6 20:07:03 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3110 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3167 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 836 CLIDRegistry entries for module ALL
@@ -36,9 +36,9 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog2.xml) [ok
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-25T2138/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlaslogin01.hep.anl.gov [ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-03-05T2139/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus084.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -54,7 +54,8 @@ EventSelector       DEBUG Service base class initialized successfully
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile5.root" from the collection list.
-PersistencySvc:...  DEBUG lookupPFN: SimplePoolFile5.root returned FID: '????' tech=ROOT_All
+MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
+MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile5.root
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
@@ -70,8 +71,18 @@ SimplePoolFile5...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] 
 SimplePoolFile5...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:bool Typ:bool [9] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[6 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[7 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[8 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[9 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 5 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 10 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -86,15 +97,41 @@ SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLContainerForm(DataHeaderFor
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLContainer(DataHeader) [20?]  (6 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (7 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(Token) [20?]  (7 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (8 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(IsSimulation) [20?]  (8 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(IsCalibration) [20?]  (9 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (a , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(IsTestBeam) [20?]  (a , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 9 Entries in total.
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(McChannel) [20?]  (b , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(RunNumber) [20?]  (c , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber) [20?]  (d , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(LumiBlockN) [20?]  (e , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(ConditionsRun) [20?]  (f , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventTime) [20?]  (10 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventTimeNanoSec) [20?]  (11 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(BunchId) [20?]  (12 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventWeight) [20?]  (13 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (14 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (15 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (16 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (17 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 22 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -104,19 +141,12 @@ SimplePoolFile5...  DEBUG --->Reading Param:PFN=[SimplePoolFile5.root]
 SimplePoolFile5...  DEBUG --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile5...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-POOLContainer(D...  DEBUG Opening
-POOLContainer(D...  DEBUG    attributes# = 1
-POOLContainer(D...  DEBUG Branch container 'DataHeader'
-POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
-MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 2075 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2078 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
@@ -134,66 +164,7 @@ ReadData            DEBUG Data Deps for ReadData
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 EventSelector       DEBUG Try item: "SimplePoolFile5.root" from the collection list.
-PersistencySvc:...  DEBUG lookupPFN: SimplePoolFile5.root returned FID: '????' tech=ROOT_All
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
-Domain[ROOT_All]     INFO                           SimplePoolFile5.root
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
-##Shapes            DEBUG Opening
-##Shapes            DEBUG    attributes# = 1
-##Shapes            DEBUG Opened container ##Shapes of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile5...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 5 Entries in total.
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
-##Links             DEBUG Opening
-##Links             DEBUG    attributes# = 1
-##Links             DEBUG Opened container ##Links of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/CollectionTree(EventInfo_p4/McEventInfo) [20?]  (3 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/CollectionTree(ExampleHitContainer_p1/MyHits) [20?]  (4 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLContainerForm(DataHeaderForm) [20?]  (5 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLContainer(DataHeader) [20?]  (6 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (7 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (8 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (a , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 9 Entries in total.
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
-##Params            DEBUG Opening
-##Params            DEBUG    attributes# = 1
-##Params            DEBUG Opened container ##Params of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Reading Param:FID=[????]
-SimplePoolFile5...  DEBUG --->Reading Param:PFN=[SimplePoolFile5.root]
-SimplePoolFile5...  DEBUG --->Reading Param:POOL_VSN=[1.1]
-SimplePoolFile5...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
-##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-POOLContainer(D...  DEBUG Opening
-POOLContainer(D...  DEBUG    attributes# = 1
-POOLContainer(D...  DEBUG Branch container 'DataHeader'
-POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
 ApplicationMgr       INFO Application Manager Started successfully
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile5.root
@@ -201,11 +172,6 @@ RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolFile5.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolFile5.root
-SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
-MetaDataHdr(Dat...  DEBUG Opening
-MetaDataHdr(Dat...  DEBUG    attributes# = 1
-MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
-MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
@@ -217,18 +183,24 @@ MetaData(Exampl...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWrite
 MetaData(Exampl...  DEBUG Opened container MetaData(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
 ToolSvc.AthPool...   INFO Pedestal x = 193136 y = -5580.01 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000000].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000000].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000000]
+SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
+POOLContainer(D...  DEBUG Opening
+POOLContainer(D...  DEBUG    attributes# = 1
+POOLContainer(D...  DEBUG Branch container 'DataHeader'
+POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainerForm(DataHeaderForm)
 POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
@@ -248,6 +220,7 @@ ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -271,19 +244,21 @@ ReadData             INFO Hit x = 26.9145 y = -47.7762 z = 44.9265 detector = Du
 ReadData             INFO Hit x = 30.1245 y = -53.4551 z = 43.831 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000001].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000001].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000001]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -302,19 +277,21 @@ ReadData             INFO Hit x = 126.915 y = -47.7762 z = -55.0735 detector = D
 ReadData             INFO Hit x = 130.125 y = -53.4551 z = -56.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000002].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000002].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000002]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -333,19 +310,21 @@ ReadData             INFO Hit x = 226.915 y = -47.7762 z = -155.073 detector = D
 ReadData             INFO Hit x = 230.125 y = -53.4551 z = -156.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000003].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000003].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000003]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -364,19 +343,21 @@ ReadData             INFO Hit x = 326.915 y = -47.7762 z = -255.073 detector = D
 ReadData             INFO Hit x = 330.125 y = -53.4551 z = -256.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000004].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000004].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000004]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -395,19 +376,21 @@ ReadData             INFO Hit x = 426.915 y = -47.7762 z = -355.073 detector = D
 ReadData             INFO Hit x = 430.125 y = -53.4551 z = -356.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000005].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000005].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000005]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -426,19 +409,21 @@ ReadData             INFO Hit x = 526.914 y = -47.7762 z = -455.073 detector = D
 ReadData             INFO Hit x = 530.125 y = -53.4551 z = -456.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000006].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000006].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000006]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -457,19 +442,21 @@ ReadData             INFO Hit x = 626.914 y = -47.7762 z = -555.073 detector = D
 ReadData             INFO Hit x = 630.125 y = -53.4551 z = -556.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000007].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000007].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000007]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -488,19 +475,21 @@ ReadData             INFO Hit x = 726.914 y = -47.7762 z = -655.073 detector = D
 ReadData             INFO Hit x = 730.125 y = -53.4551 z = -656.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000008].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000008].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000008]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -519,19 +508,21 @@ ReadData             INFO Hit x = 826.914 y = -47.7762 z = -755.073 detector = D
 ReadData             INFO Hit x = 830.125 y = -53.4551 z = -756.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000009].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000009].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000009]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -550,19 +541,21 @@ ReadData             INFO Hit x = 926.914 y = -47.7762 z = -855.073 detector = D
 ReadData             INFO Hit x = 930.125 y = -53.4551 z = -856.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000A].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000A].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000A]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -581,19 +574,21 @@ ReadData             INFO Hit x = 1026.91 y = -47.7762 z = -955.073 detector = D
 ReadData             INFO Hit x = 1030.12 y = -53.4551 z = -956.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000B].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000B].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000B]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -612,19 +607,21 @@ ReadData             INFO Hit x = 1126.91 y = -47.7762 z = -1055.07 detector = D
 ReadData             INFO Hit x = 1130.12 y = -53.4551 z = -1056.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000C].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000C].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000C]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -643,19 +640,21 @@ ReadData             INFO Hit x = 1226.91 y = -47.7762 z = -1155.07 detector = D
 ReadData             INFO Hit x = 1230.12 y = -53.4551 z = -1156.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000D].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000D].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000D]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -674,19 +673,21 @@ ReadData             INFO Hit x = 1326.91 y = -47.7762 z = -1255.07 detector = D
 ReadData             INFO Hit x = 1330.12 y = -53.4551 z = -1256.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000E].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000E].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000E]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -705,19 +706,21 @@ ReadData             INFO Hit x = 1426.91 y = -47.7762 z = -1355.07 detector = D
 ReadData             INFO Hit x = 1430.12 y = -53.4551 z = -1356.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000F].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000F].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-0000000F]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -736,19 +739,21 @@ ReadData             INFO Hit x = 1526.91 y = -47.7762 z = -1455.07 detector = D
 ReadData             INFO Hit x = 1530.12 y = -53.4551 z = -1456.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000010].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000010].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000010]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -767,19 +772,21 @@ ReadData             INFO Hit x = 1626.91 y = -47.7762 z = -1555.07 detector = D
 ReadData             INFO Hit x = 1630.12 y = -53.4551 z = -1556.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000011].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000011].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000011]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -798,19 +805,21 @@ ReadData             INFO Hit x = 1726.91 y = -47.7762 z = -1655.07 detector = D
 ReadData             INFO Hit x = 1730.12 y = -53.4551 z = -1656.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000012].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000012].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000012]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -829,19 +838,21 @@ ReadData             INFO Hit x = 1826.91 y = -47.7762 z = -1755.07 detector = D
 ReadData             INFO Hit x = 1830.12 y = -53.4551 z = -1756.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000013].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000013].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=0000020?][OID=00000006-00000013]
-AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG The current Event contains: 4 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 40774348, name = SimpleTag
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 ReadData            DEBUG in execute()
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
 ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 40774348, key = SimpleTag
 ReadData             INFO CLID = 222376821, key = StreamX
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
@@ -859,10 +870,10 @@ ReadData             INFO Hit x = 1923.7 y = -42.0973 z = -1853.68 detector = Du
 ReadData             INFO Hit x = 1926.91 y = -47.7762 z = -1855.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1930.12 y = -53.4551 z = -1856.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 EventSelector        INFO Disconnecting input sourceID: ????
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 MetaDataSvc         DEBUG handle() LastInputFile for end
 AthenaEventLoopMgr   INFO No more events in event selection 
 MetaDataSvc         DEBUG MetaDataSvc::stop()
@@ -878,7 +889,7 @@ ToolSvc.AthPool...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.213(+- 1.44)/    0/   10 [ms] #= 47
 cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.444(+- 2.06)/    0/   10 [ms] #= 45
-ChronoStatSvc        INFO Time User   : Tot= 0.56  [s]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 0.55  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
