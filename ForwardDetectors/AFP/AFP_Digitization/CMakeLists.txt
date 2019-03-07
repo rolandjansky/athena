@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           ForwardDetectors/AFP/AFP_DigiEv
                           ForwardDetectors/AFP/AFP_SimEv
@@ -28,7 +27,7 @@ atlas_add_component( AFP_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo xAODEventInfo AFP_DigiEv AFP_SimEv GaudiKernel HitManagement Identifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib xAODEventInfo AFP_DigiEv AFP_SimEv GaudiKernel HitManagement Identifier )
 
 # Install files from the package:
 atlas_install_headers( AFP_Digitization )
