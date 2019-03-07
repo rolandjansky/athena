@@ -10,8 +10,8 @@ test_options=$@
 trap cleanup INT TERM EXIT
 function cleanup {
     sid=`ps -o sess= -p $$`  # our own session id
-    pkill -9 --parent 1 --session $sid ipc_server
-    pkill -9 --parent 1 --session $sid is_server
+    pkill -9 -P 1 -s $sid ipc_server
+    pkill -9 -P 1 -s $sid is_server
 }
 
 # We only test the configuration stage, so these dummy values are just fine.
