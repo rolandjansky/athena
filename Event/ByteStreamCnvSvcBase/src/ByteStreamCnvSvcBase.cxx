@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/GenericAddress.h"
@@ -13,12 +14,9 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "StoreGate/StoreGate.h" 
 
-//External definitions
-long ByteStream_StorageType = 0x43;
-
 //______________________________________________________________________________
 ByteStreamCnvSvcBase::ByteStreamCnvSvcBase(const std::string& name, ISvcLocator* pSvcLocator) :
-	::AthCnvSvc(name, pSvcLocator, ByteStream_StorageType),
+   ::AthCnvSvc(name, pSvcLocator, ByteStreamAddress::storageType()),
 	m_rawEventWrite(0) {
    declareProperty("InitCnvs", m_initCnvs); 
    // This property is used by Tile BS converter, not by this class.

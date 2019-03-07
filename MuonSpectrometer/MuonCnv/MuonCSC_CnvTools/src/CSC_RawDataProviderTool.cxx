@@ -52,22 +52,10 @@ Muon::CSC_RawDataProviderTool::~CSC_RawDataProviderTool()
 StatusCode Muon::CSC_RawDataProviderTool::initialize()
 {
   
-  if (detStore()->retrieve( m_muonMgr ).isFailure()) {
-    ATH_MSG_ERROR ( " Cannot retrieve MuonReadoutGeometry " );
-    return StatusCode::FAILURE;
-  }
-
-  // get the cabling service
-  if (m_cabling.retrieve().isFailure()) {
-    ATH_MSG_ERROR ( "Can't get CSCcablingSvc " );
-    return StatusCode::FAILURE;
-  }
-
-  if (m_robDataProvider.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Failed to retrieve serive " << m_robDataProvider );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO ( "Retrieved service " << m_robDataProvider );
+  ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
+  ATH_CHECK( m_cabling.retrieve() );
+  ATH_CHECK( m_robDataProvider.retrieve() );
+  ATH_MSG_INFO ( "Retrieved service " << m_robDataProvider );
   
   
   const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();

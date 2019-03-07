@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSCondTempAlg.h"
@@ -10,12 +10,19 @@
 
 PixelDCSCondTempAlg::PixelDCSCondTempAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
+  m_pixelID(nullptr),
+  m_useConditions(true),
+  m_defaultTemperature(-7.0),
   m_condSvc("CondSvc", name)
 {
+  declareProperty("UseConditions", m_useConditions); 
+  declareProperty("Temperature",   m_defaultTemperature, "Default temperature in Celcius."); 
 }
 
 StatusCode PixelDCSCondTempAlg::initialize() {
   ATH_MSG_DEBUG("PixelDCSCondTempAlg::initialize()");
+
+  ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -32,7 +39,7 @@ StatusCode PixelDCSCondTempAlg::initialize() {
 StatusCode PixelDCSCondTempAlg::execute() {
   ATH_MSG_DEBUG("PixelDCSCondTempAlg::execute()");
 
-  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
@@ -56,25 +63,37 @@ StatusCode PixelDCSCondTempAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  std::unique_ptr<PixelDCSConditionsData> writeCdo(std::make_unique<PixelDCSConditionsData>());
+  std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
   // Read temperature info
   std::string param{"temperature"};
-  for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-    const CondAttrListCollection::ChanNum &channelNumber{attrList->first};
-    const CondAttrListCollection::AttributeList &payload{attrList->second};
-    if (payload.exists(param) and not payload[param].isNull()) {
-      float val = payload[param].data<float>();
-      writeCdo->setValue(channelNumber, val);
-    } 
-    else {
-      ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-      writeCdo->setValue(channelNumber, -88.0);
+  if (m_useConditions) {
+    for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
+      CondAttrListCollection::ChanNum channelNumber{attrList->first};
+      CondAttrListCollection::AttributeList payload{attrList->second};
+      if (payload.exists(param) and not payload[param].isNull()) {
+        float val = payload[param].data<float>();
+        if (val>100.0 || val<-80.0) {
+          writeCdo->setTemperature((int)channelNumber, m_defaultTemperature);
+        }
+        else {
+          writeCdo->setTemperature((int)channelNumber, val);
+        }
+      } 
+      else {
+        ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
+        writeCdo->setTemperature((int)channelNumber, m_defaultTemperature);
+      }
+    }
+  }
+  else {
+    for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
+      writeCdo->setTemperature(i, m_defaultTemperature);
     }
   }
 
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelDCSConditionsData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+    ATH_MSG_FATAL("Could not record PixelModuleData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

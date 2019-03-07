@@ -72,6 +72,7 @@ using namespace boost::property_tree;
 HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
 : base_class(name, svcLoc),
   m_incidentSvc("IncidentSvc", name),
+  m_jobOptionsSvc("JobOptionsSvc", name),
   m_evtStore("StoreGateSvc", name),
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
@@ -107,14 +108,6 @@ StatusCode HltEventLoopMgr::initialize()
   // JobOptions type
   SmartIF<IProperty> propMgr = serviceLocator()->service<IProperty>("ApplicationMgr");
   if (propMgr.isValid()) {
-    try {
-      if (m_jobOptionsType.assign( propMgr->getProperty("JobOptionsType") ))
-        ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_jobOptionsType);
-    }
-    catch (...) {
-      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow";
-    }
-
     if ( m_topAlgNames.value().empty() ) {
       if (setProperty(propMgr->getProperty("TopAlg")).isFailure()) {
         ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set the TopAlg property from ApplicationMgr";
@@ -125,39 +118,28 @@ StatusCode HltEventLoopMgr::initialize()
     ATH_REPORT_MESSAGE(MSG::WARNING) << "Error retrieving IProperty interface of ApplicationMgr";
   }
 
-  // get JobOptionsSvc to read the configuration of NumConcurrentEvents and NumThreads
-  ServiceHandle<IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
-  if ((jobOptionsSvc.retrieve()).isFailure()) {
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not find JobOptionsSvc to read configuration";
-  }
+  ATH_CHECK( m_jobOptionsSvc.retrieve() );
 
   // print properties
   ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
-  ATH_MSG_INFO(" ---> PartitionName           = " << m_partitionName);
-  ATH_MSG_INFO(" ---> JobOptionsType          = " << m_jobOptionsType);
-  ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout);
-  ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction);
-  ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors);
-  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName);
-  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName);
+  ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction.value());
+  ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors.value());
+  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
   ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
-  if (jobOptionsSvc.isValid()) {
-    const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
-    if (prop)
-      ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << *prop);
-    else
-      ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property EventDataSvc.NSlots";
-    prop = jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
-    if (prop)
-      ATH_MSG_INFO(" ---> NumThreads              = " << *prop);
-    else
-      ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize";
-  }
-  ATH_MSG_INFO(" ---> Enabled ROBs: size = " << m_enabledROBs.value().size()
-               << (m_enabledROBs.value().size()==0 ? ". No check will be performed" : " "));
-  ATH_MSG_INFO(" ---> Enabled Sub Detectors: size = " << m_enabledSubDetectors.value().size()
-               << (m_enabledSubDetectors.value().size()==0 ? ". No check will be performed" : " "));
+
+  const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
+  if (prop)
+    ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << prop->toString());
+  else
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property EventDataSvc.NSlots";
+  prop = m_jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
+  if (prop)
+    ATH_MSG_INFO(" ---> NumThreads              = " << prop->toString());
+  else
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize";
 
   //----------------------------------------------------------------------------
   // Create and initialise the top level algorithms
@@ -447,7 +429,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   updateDFProps();
-  ATH_MSG_INFO("Post-fork initialization for " << m_applicationName.value());
+  ATH_MSG_INFO("Post-fork initialization for " << m_applicationName);
 
   ATH_MSG_DEBUG("Initialising the scheduler after forking");
   m_schedulerSvc = serviceLocator()->service(m_schedulerName, /*createIf=*/ true);
@@ -473,7 +455,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   SmartIF<IIoComponent> histsvc = serviceLocator()->service("THistSvc", /*createIf=*/ false).as<IIoComponent>();
   if ( !m_ioCompMgr->io_retrieve(histsvc.get()).empty() ) {
     boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
-    worker_dir /= m_applicationName.value();
+    std::ostringstream oss;
+    oss << "athenaHLT-" << std::setfill('0') << std::setw(2) << m_workerId;
+    worker_dir /= oss.str();
     // Delete worker directory if it exists already
     if ( boost::filesystem::exists(worker_dir) ) {
       if ( !boost::filesystem::remove_all(worker_dir) ) {
@@ -759,56 +743,19 @@ StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
 // =============================================================================
 void HltEventLoopMgr::updateDFProps()
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
-  if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not find JobOptionsSvc to set DataFlow properties";
-  } else {
-    auto dfprops = p_jobOptionsSvc->getProperties("DataFlowConfig");
+  auto getDFProp = [&](const std::string& name, std::string& value, bool required = true) {
+                     const auto* prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", name);
+                     if (prop) {
+                       value = prop->toString();
+                       ATH_MSG_INFO(" ---> Read from DataFlow configuration: " << name << " = " << value);
+                     } else {
+                       msg() << (required ? MSG::WARNING : MSG::INFO)
+                             << "Could not set Property " << name << " from DataFlow" << endmsg;
+                     }
+                   };
 
-    // Application name
-    auto pname = "DF_ApplicationName";
-    const auto * prop = Gaudi::Utils::getProperty(dfprops, pname);
-    if(prop && m_applicationName.assign(*prop)) {
-      ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_applicationName);
-    } else {
-      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << pname << "' from DataFlow";
-    }
-
-    // Partition name
-    pname = "DF_PartitionName";
-    prop = Gaudi::Utils::getProperty(dfprops, pname);
-    if (prop && m_partitionName.assign(*prop)) {
-      ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_partitionName);
-    } else {
-      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << pname << "' from DataFlow";
-    }
-
-    // get the list of enabled ROBs
-    pname = "DF_Enabled_ROB_IDs";
-    prop = Gaudi::Utils::getProperty(dfprops, pname);
-    if (prop && m_enabledROBs.assign(*prop)) {
-      ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: "
-                    << m_enabledROBs.value().size() << " enabled ROB IDs");
-    } else {
-      // this is only info, because it is normal in athenaHLT
-      ATH_MSG_INFO("Could not set Property '" << pname << "' from DataFlow");
-    }
-
-    // get the list of enabled Sub Detectors
-    pname = "DF_Enabled_SubDet_IDs";
-    prop = Gaudi::Utils::getProperty(dfprops, pname);
-    if (prop && m_enabledSubDetectors.assign(*prop)) {
-      ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: "
-                    << m_enabledSubDetectors.value().size() << " enabled Sub Detector IDs");
-    } else {
-      // this is only info, because it is normal in athenaHLT
-      ATH_MSG_INFO("Could not set Property '" << pname << "' from DataFlow");
-    }
-  }
-
-  p_jobOptionsSvc.release().ignore();
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  getDFProp( "DF_ApplicationName", m_applicationName );
+  getDFProp( "DF_WorkerId", m_workerId, false );
 }
 
 // =============================================================================

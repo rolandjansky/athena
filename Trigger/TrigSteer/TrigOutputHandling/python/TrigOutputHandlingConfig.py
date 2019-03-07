@@ -44,5 +44,12 @@ def TriggerEDMSerialiserToolCfg(name):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
-   serialiser.CollectionsToSerialize = {}
+   from collections import OrderedDict
+   class OD(OrderedDict):
+      def __repr__(self):
+         return '{' + ','.join( ['"'+str(k)+'":'+str(v) for k,v in self.iteritems()] ) + '}'
+      def __str__(self):
+         return self.__repr__()
+
+   serialiser.CollectionsToSerialize = OD()
    return serialiser

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOIDENTIFIER_TTONLINEID_H
@@ -47,6 +47,7 @@ class TTOnlineID : public AtlasDetectorID
   /*=========================== */
   /** (1) create towerId from fields */
   HWIdentifier crateId( int crate ) const;
+  HWIdentifier crateId( int crate, bool checks ) const;
   /** (2) create towerId from hash */
   HWIdentifier crateId( IdentifierHash crate_hash ) const;
   /** (3) create towerId from hash */
@@ -59,6 +60,7 @@ class TTOnlineID : public AtlasDetectorID
   /*=========================== */
   /** (1) create towerId from fields */
   HWIdentifier moduleId( int crate, int module) const;
+  HWIdentifier moduleId( int crate, int module, bool checks) const;
   /** (2) create towerId from hash */
   HWIdentifier moduleId( IdentifierHash crate_hash ) const;
   /** (3) create towerId from hash */
@@ -71,6 +73,7 @@ class TTOnlineID : public AtlasDetectorID
   /*=========================== */
   /** (1) create towerId from fields */
   HWIdentifier submoduleId( int crate, int module, int submodule) const;
+  HWIdentifier submoduleId( int crate, int module, int submodule, bool checks) const;
   /** (2) create towerId from hash */
   HWIdentifier submoduleId( IdentifierHash crate_hash ) const;
   /** (3) create towerId from hash */
@@ -83,6 +86,7 @@ class TTOnlineID : public AtlasDetectorID
   /*=========================== */
   /** (1) create towerId from fields */
   HWIdentifier channelId( int crate, int module, int submodule, int channel) const;
+  HWIdentifier channelId( int crate, int module, int submodule, int channel, bool checks) const;
   /** (2) create towerId from hash */
   HWIdentifier channelId( IdentifierHash crate_hash ) const;
   /** (3) create towerId from hash */
@@ -213,7 +217,7 @@ CLASS_DEF( TTOnlineID , 38321944 , 1 )
 /* Crates */
 
 //==========================================================================================================
-inline HWIdentifier TTOnlineID::crateId( int crate ) const
+inline HWIdentifier TTOnlineID::crateId( int crate, bool checks ) const
 //==========================================================================================================
 {
   HWIdentifier result(0);
@@ -222,10 +226,14 @@ inline HWIdentifier TTOnlineID::crateId( int crate ) const
   m_crate_impl.pack               (crate                , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     crate_Id_checks( crate );
   }
   return result;
+}
+inline HWIdentifier TTOnlineID::crateId( int crate ) const
+{
+  return crateId (crate, do_checks());
 }
 
 //============================================================================== */
@@ -260,7 +268,7 @@ inline std::vector<HWIdentifier>::const_iterator TTOnlineID::crate_end(void) con
 /* Modules */
 
 //==========================================================================================================
-inline HWIdentifier TTOnlineID::moduleId( int crate, int module ) const
+inline HWIdentifier TTOnlineID::moduleId( int crate, int module, bool checks ) const
 //==========================================================================================================
 {
   HWIdentifier result(0);
@@ -270,10 +278,15 @@ inline HWIdentifier TTOnlineID::moduleId( int crate, int module ) const
   m_module_impl.pack              (module               , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     module_Id_checks( crate, module );
   }
   return result;
+}
+
+inline HWIdentifier TTOnlineID::moduleId( int crate, int module ) const
+{
+  return moduleId (crate, module, do_checks());
 }
 
 //============================================================================== */
@@ -309,7 +322,7 @@ inline std::vector<HWIdentifier>::const_iterator TTOnlineID::module_end(void) co
 /* SubModules */
 
 //==========================================================================================================
-inline HWIdentifier TTOnlineID::submoduleId( int crate, int module, int submodule ) const
+inline HWIdentifier TTOnlineID::submoduleId( int crate, int module, int submodule, bool checks ) const
 //==========================================================================================================
 {
   HWIdentifier result(0);
@@ -320,11 +333,16 @@ inline HWIdentifier TTOnlineID::submoduleId( int crate, int module, int submodul
   m_submodule_impl.pack           (submodule            , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     submodule_Id_checks( crate, module, submodule );
   }
   return result;
 }
+inline HWIdentifier TTOnlineID::submoduleId( int crate, int module, int submodule ) const
+{
+  return submoduleId (crate, module, submodule, do_checks());
+}
+
 
 //============================================================================== */
 inline HWIdentifier TTOnlineID::submoduleId(IdentifierHash submodulehash_id) const
@@ -359,7 +377,7 @@ inline std::vector<HWIdentifier>::const_iterator TTOnlineID::submodule_end(void)
 /* Channels */
 
 //==========================================================================================================
-inline HWIdentifier TTOnlineID::channelId( int crate, int module, int submodule, int channel ) const
+inline HWIdentifier TTOnlineID::channelId( int crate, int module, int submodule, int channel, bool checks ) const
 //==========================================================================================================
 {
   HWIdentifier result(0);
@@ -371,10 +389,15 @@ inline HWIdentifier TTOnlineID::channelId( int crate, int module, int submodule,
   m_channel_impl.pack             (channel              , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     channel_Id_checks( crate, module, submodule, channel );
   }
   return result;
+}
+
+inline HWIdentifier TTOnlineID::channelId( int crate, int module, int submodule, int channel ) const
+{
+  return channelId (crate, module, submodule, channel, do_checks());
 }
 
 //============================================================================== */

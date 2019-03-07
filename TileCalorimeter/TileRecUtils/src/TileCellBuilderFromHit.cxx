@@ -741,13 +741,6 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
                                    TileCellContainer* MBTSCells,
                                    TileCellContainer* E4prCells) const
 {
-  // disable checks for TileID and remember previous state
-  // FIXME: const violation; MT problem.
-  bool do_checks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
-  bool do_checks_tb = m_tileID->do_checks();
-  m_tileTBID->set_do_checks(false);
-
   /* zero all counters and sums */
   int nTwo = 0;
   int nCell = 0;
@@ -1217,11 +1210,6 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
 
     msg(MSG::DEBUG) << endmsg;
   }
-
-  m_tileID->set_do_checks(do_checks);
-  // set back this flag to TileID
-  m_tileTBID->set_do_checks(do_checks_tb);
-
 }
 
 #undef NEWTILECELL

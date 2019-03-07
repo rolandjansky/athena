@@ -105,7 +105,7 @@ def _createCfgFlags():
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
         dqf = createDQConfigFlags()
-        createComplexDQConfigFlags(acf)  # TODO try to use the same style?
+        dqf.join( createComplexDQConfigFlags() )
         return dqf
     acf.addFlagsCategory("DQ", __dq )
 

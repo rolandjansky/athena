@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigBphysHelperUtilsTool.cxx 
@@ -373,7 +373,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                                               std::vector<double>& inputMasses) { // inputmasses not const, as vertex code doesn't allowit
+                                               const std::vector<double>& inputMasses) {
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
         ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
@@ -463,7 +463,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<const xAOD::TrackParticle*> &trks,
-                                               std::vector<double>& inputMasses) { // inputmasses not const, as vertex code doesn't allowit
+                                               const std::vector<double>& inputMasses) {
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
         ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );

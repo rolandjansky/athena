@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_DigitizationTool.h"
@@ -14,7 +14,6 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
@@ -56,6 +55,12 @@ StatusCode BCM_DigitizationTool::initialize()
   // get random service
   ATH_CHECK(m_rndmGenSvc.retrieve());
 
+  // Write handle keys
+  ATH_CHECK( m_outputKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputKey);
+  ATH_CHECK( m_outputSDOKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputSDOKey);
+
   return StatusCode::SUCCESS;
 }
 
@@ -64,21 +69,27 @@ StatusCode BCM_DigitizationTool::initialize()
 //----------------------------------------------------------------------
 StatusCode BCM_DigitizationTool::createOutputContainers()
 {
-
-  // Create output RDO container and record it to StoreGate
-  try {
-    m_rdoContainer = new BCM_RDO_Container();
-  } catch (const std::bad_alloc&) {
-    ATH_MSG_FATAL ( "Could not create a new BCM RawDataContainer!" );
+  // Creating output RDO container
+  SG::WriteHandle<BCM_RDO_Container> outputContainer(m_outputKey);
+  ATH_CHECK(outputContainer.record(std::make_unique<BCM_RDO_Container>()));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output BCM RDO container " << outputContainer.name() << " to store " << outputContainer.store());
     return StatusCode::FAILURE;
   }
-  CHECK(evtStore()->record(m_rdoContainer,"BCM_RDOs"));
-  ATH_MSG_DEBUG ( "Container '" << "BCM_RDOs" << "' registered in StoreGate" );
 
-  // Create a map for the SDO and register it into StoreGate
-  m_simDataCollMap = new InDetSimDataCollection();
-  CHECK(evtStore()->record(m_simDataCollMap,"BCM_SDO_Map"));
-  ATH_MSG_DEBUG ( "InDetSimData map '" << "BCM_SDO_Map" << "' registered in StoreGate" );
+  ATH_MSG_DEBUG("Recorded output BCM RDO container " << outputContainer.name() << " in store " << outputContainer.store());
+  m_rdoContainer = outputContainer.ptr();
+
+  // Creating output SDO collection container
+  SG::WriteHandle<InDetSimDataCollection> outputSDOContainer(m_outputSDOKey);
+  ATH_CHECK(outputSDOContainer.record(std::make_unique<InDetSimDataCollection>()));
+  if (!outputSDOContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output BCM SDO container " << outputSDOContainer.name() << " to store " << outputSDOContainer.store());
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG("Recorded output BCM SDO container " << outputSDOContainer.name() << " in store " << outputSDOContainer.store());
+  m_simDataCollMap = outputSDOContainer.ptr();
 
 
   // Clear G4 hit info vectors

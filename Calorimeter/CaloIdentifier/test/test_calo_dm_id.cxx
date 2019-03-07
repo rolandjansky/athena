@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/Calorimeter/CaloIdentifier/test/test_calo_dm_id.cxx,v 1.6 2006-05-18 11:38:04 fledroit Exp $ 
@@ -24,10 +24,10 @@ check_lar_dm_id_decoding(IdDictMgr& idd)
     }
     const CaloDM_ID* dm_p = &dm_id;
 
-    bool verif = dm_p->do_checks();
+    bool verif = dm_id.do_checks();
     std::cout << "verif0 = " << verif << std::endl;
-    dm_p->set_do_checks(true);
-    verif = dm_p->do_checks();
+    dm_id.set_do_checks(true);
+    verif = dm_id.do_checks();
     std::cout << "verif1 = " << verif << std::endl;
 
 
@@ -160,10 +160,10 @@ check_tile_dm_id_decoding(IdDictMgr& idd)
     }
     const CaloDM_ID* dm_p = &dm_id;
 
-    bool verif = dm_p->do_checks();
+    bool verif = dm_id.do_checks();
     std::cout << "verif0 = " << verif << std::endl;
-    dm_p->set_do_checks(true);
-    verif = dm_p->do_checks();
+    dm_id.set_do_checks(true);
+    verif = dm_id.do_checks();
     std::cout << "verif1 = " << verif << std::endl;
 
 

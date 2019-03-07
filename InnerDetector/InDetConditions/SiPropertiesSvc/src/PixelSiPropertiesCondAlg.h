@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef PIXELSIPROPERTIESCONDALG
@@ -9,8 +9,7 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
-#include "PixelConditionsTools/IPixelDCSConditionsTool.h"
+#include "PixelConditionsData/PixelModuleData.h"
 #include "GaudiKernel/ICondSvc.h"
 
 #include "SiPropertiesSvc/SiliconPropertiesVector.h"
@@ -30,11 +29,11 @@ class PixelSiPropertiesCondAlg : public AthAlgorithm {
     const InDetDD::PixelDetectorManager * m_detManager;
     
     ServiceHandle<ICondSvc> m_condSvc;
-    SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyTemp      {this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
-    SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyHV        {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp      {this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV        {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
     SG::WriteCondHandleKey<InDet::SiliconPropertiesVector> m_writeKey{this, "WriteKey",     "PixelSiliconPropertiesVector", "Key of output silicon properties conditions folder"};
 
-    ToolHandle<IPixelDCSConditionsTool> m_DCSConditionsTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
 };
     
 #endif // PIXELSIPROPERTIESCONDALG

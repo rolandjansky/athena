@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -83,10 +83,11 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const xAOD::Vertex* vtx) {
+  StatusCode BTagTool::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag, const xAOD::Vertex* vtx) {
 
-    ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
-		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
+    ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag->px() << ", " << jetToTag->py() << ", "
+		    << jetToTag->pz() << "; " << jetToTag->e() << ") MeV");
+
     m_nAllJets++;
 
     /* ----------------------------------------------------------------------------------- */
@@ -198,10 +199,8 @@ namespace Analysis {
 
     xAOD::BTaggingContainer::iterator btagIter=btaggingContainer->begin();
     for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter) {
-      //temporary const_cast
-      xAOD::Jet& jetToTag = const_cast<xAOD::Jet&>( **jetIter );
-      ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
-		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
+      ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << (*jetIter)->px() << ", " << (*jetIter)->py() << ", "
+                    << (*jetIter)->pz() << "; " << (*jetIter)->e() << ") MeV");
       m_nAllJets++;
 
       /* ----------------------------------------------------------------------------------- */
@@ -212,7 +211,7 @@ namespace Analysis {
       ToolHandleArray< ITagTool >::iterator itTagToolsEnd = m_bTagToolHandleArray.end();
       for (  ; itTagTools != itTagToolsEnd; ++itTagTools ) {
         (*itTagTools)->setOrigin(primaryVertex);
-        StatusCode sc = (*itTagTools)->tagJet(jetToTag, *btagIter);
+        StatusCode sc = (*itTagTools)->tagJet(*jetIter, *btagIter);
         if (sc.isFailure()) {
           ATH_MSG_WARNING("#BTAG# failed tagger: " << (*itTagTools).typeAndName() );
         }

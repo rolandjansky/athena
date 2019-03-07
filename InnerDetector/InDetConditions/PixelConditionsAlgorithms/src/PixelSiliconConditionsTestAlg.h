@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELSILICONcONDITIONSTESTALG_H
@@ -9,10 +9,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "PixelConditionsTools/IPixelDCSConditionsTool.h"
-
 #include "PixelConditionsData/PixelModuleData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
+
+// OLD #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
@@ -24,9 +25,11 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    ToolHandle<IPixelDCSConditionsTool> m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+// OLD    ToolHandle<IPixelDCSConditionsTool>     m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key"};
-
+    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
 };
 
 #endif

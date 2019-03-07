@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -42,14 +42,19 @@ public:
 
 	/** build a tower identifier */
 	Identifier  tower_id   	(int pos_neg, int sampling, int region,
-		 int eta,       int phi ) const ;
+                                 int eta,       int phi ) const ;
+	Identifier  tower_id   	(int pos_neg, int sampling, int region,
+                                 int eta,       int phi, bool checks ) const ;
 				 
 	/** build a tower identifier */
 	Identifier  tower_id   	(const Identifier regionId,
-		 int eta,       int phi )  const ;
+                                 int eta,       int phi )  const ;
+	Identifier  tower_id   	(const Identifier regionId,
+                                 int eta,       int phi, bool checks )  const ;
  
 	/** build a region (of towers) identifier */
 	Identifier region_id  ( int pos_neg, int sampling, int region ) const;
+        Identifier region_id  ( int pos_neg, int sampling, int region, bool checks ) const;
 
 	/** access to IdContext's which define which levels of fields are contained in the id */
 	/** id for towers ("reduced" id) */
@@ -359,7 +364,7 @@ private:
 CLASS_DEF( JGTowerBase_ID , 131336095, 1 )
 
 inline Identifier JGTowerBase_ID::tower_id   ( int pos_neg, int sampling, int region,
-                                               int eta,       int phi ) const 
+                                               int eta,       int phi, bool checks ) const 
 {  
 	Identifier result(0);
 	// Pack fields independently
@@ -371,15 +376,22 @@ inline Identifier JGTowerBase_ID::tower_id   ( int pos_neg, int sampling, int re
 	m_phi_impl.pack      (phi,                   result);
 
 	// Do checks
-	if(m_do_checks) {
+	if(checks) {
 		tower_id_checks( pos_neg, sampling, region, eta, phi );
 	}
 
 	return result;
 }
+
+inline Identifier JGTowerBase_ID::tower_id   ( int pos_neg, int sampling, int region,
+                                               int eta,       int phi ) const
+{
+  return tower_id (pos_neg, sampling, region, eta, phi, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier JGTowerBase_ID::tower_id   ( const Identifier regionId,
-                                               int eta,  int phi ) const 
+                                               int eta,  int phi, bool checks ) const 
 {
 	Identifier result(regionId);
 
@@ -390,11 +402,17 @@ inline Identifier JGTowerBase_ID::tower_id   ( const Identifier regionId,
 	m_phi_impl.pack      (phi, result);
 
 	// Do checks
-	if(m_do_checks) {
+	if(checks) {
 		tower_id_checks( regionId, eta, phi );
 	}
 
 	return result;
+}
+
+inline Identifier JGTowerBase_ID::tower_id   ( const Identifier regionId,
+                                               int eta,  int phi ) const
+{
+  return tower_id (regionId, eta, phi, do_checks());
 }
 
 
@@ -536,7 +554,8 @@ inline Identifier JGTowerBase_ID::region_id   ( const Identifier tower_Id ) cons
 }
 
 //----------------------------------------------------------------------------
-inline Identifier JGTowerBase_ID::region_id (int pos_neg, int sampling, int region)const 
+inline Identifier JGTowerBase_ID::region_id (int pos_neg, int sampling, int region,
+                                             bool checks) const 
 {
 	Identifier result(0);
 	// Pack fields independently
@@ -546,12 +565,18 @@ inline Identifier JGTowerBase_ID::region_id (int pos_neg, int sampling, int regi
 	m_region_impl.pack   (region,                result);
 
 	// Do checks
-	if(m_do_checks) {
+	if(checks) {
 		region_id_checks( pos_neg, sampling, region);
 	}
 
 	return result;
 }
+
+inline Identifier JGTowerBase_ID::region_id (int pos_neg, int sampling, int region)const
+{
+  return region_id (pos_neg, sampling, region, do_checks());
+}
+
 
 //----------------------------------------------------------------------------
 inline Identifier JGTowerBase_ID::tower_id    (IdentifierHash tower_hash_id) const
