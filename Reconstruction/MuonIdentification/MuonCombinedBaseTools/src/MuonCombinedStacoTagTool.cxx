@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,14 +26,16 @@ namespace MuonCombined {
 
   MuonCombinedStacoTagTool::MuonCombinedStacoTagTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool"),
-        m_extrapolator        ("Trk::Extrapolator/AtlasExtrapolator")
+	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",this),
+	m_tagTool("MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool",this),
+        m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+	m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",this)
   {
     declareInterface<IMuonCombinedTagTool>(this);
     declareProperty("Printer",m_printer );
     declareProperty("TagTool",m_tagTool );
     declareProperty("Extrapolator",m_extrapolator );
+    declareProperty("ParticleCaloExtensionTool", m_caloExtTool);
   }
 
   MuonCombinedStacoTagTool::~MuonCombinedStacoTagTool()
@@ -47,6 +49,7 @@ namespace MuonCombined {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_tagTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -77,6 +80,11 @@ namespace MuonCombined {
 
       // ensure that also the id has a perigee with covariance
       if( !idTP->indetTrackParticle().perigeeParameters().covariance() ) continue;
+
+      //ensure that id tp can be extrapolated to something
+      std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(idTP->indetTrackParticle());
+      if(!caloExtension) continue;
+      if(caloExtension->caloLayerIntersections().empty()) continue;
 
       const Trk::Perigee* idPer = &idTP->indetTrackParticle().perigeeParameters();
       const Trk::Perigee* msPer = muonCandidate.extrapolatedTrack()->perigeeParameters();
