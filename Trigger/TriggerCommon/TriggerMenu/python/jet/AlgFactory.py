@@ -257,7 +257,6 @@ class AlgFactory(object):
             'output_collection_label': "'%s'" % (self.fex_params.fex_label),
             'rclus': self.fex_params.rclus,
             'ptfrac': self.fex_params.ptfrac,
-            'OutputLevel':1
         }
 
         return [Alg(factory, (), kwds)]
