@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TRACKCALOCLUSTERRECVALIDATIONTOOL_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TRACKCALOCLUSTERRECVALIDATIONTOOL_H
@@ -23,7 +23,8 @@
 #include <vector>
 
 #include "xAODJet/JetContainer.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class TCCPlots;
 class IJetCalibrationTool;
@@ -108,6 +109,9 @@ private:
     
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;
+
+    // EventInfo
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 template<class T>
