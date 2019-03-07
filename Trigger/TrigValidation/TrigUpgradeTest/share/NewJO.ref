@@ -1,21 +1,20 @@
-Storing config in the config newJOtest.pkl
 Py:Athena            INFO now loading newJOtest.pkl  ... 
 TrigSignatureMo...   INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMo...   INFO Chain name                   L1,      AfterPS, [... steps ...], Output
-TrigSignatureMo...   INFO All                           20        20        0         0         8         
-TrigSignatureMo...   INFO HLT_e3_etcut                  20        20        15        0         0         
-TrigSignatureMo...   INFO HLT_e3_etcut decisions                            44        0         
-TrigSignatureMo...   INFO HLT_e5_etcut                  20        20        14        0         0         
-TrigSignatureMo...   INFO HLT_e5_etcut decisions                            41        0         
-TrigSignatureMo...   INFO HLT_e7_etcut                  20        20        8         0         0         
-TrigSignatureMo...   INFO HLT_e7_etcut decisions                            13        0         
-TrigSignatureMo...   INFO HLT_g10_etcut                 20        20        8         8         8         
-TrigSignatureMo...   INFO HLT_g10_etcut decisions                           12        12        
-TrigSignatureMo...   INFO HLT_g15_etcut                 20        20        5         8         8         
-TrigSignatureMo...   INFO HLT_g15_etcut decisions                           6         12        
-TrigSignatureMo...   INFO HLT_mu10                      20        20        1         0         1         
-TrigSignatureMo...   INFO HLT_mu10 decisions                                1         0         
-TrigSignatureMo...   INFO HLT_mu20                      20        20        0         0         0         
-TrigSignatureMo...   INFO HLT_mu20 decisions                                0         0         
-TrigSignatureMo...   INFO HLT_mu8                       20        20        1         0         1         
-TrigSignatureMo...   INFO HLT_mu8 decisions                                 1         0         
+TrigSignatureMo...   INFO All                           10        10        0         0         2         
+TrigSignatureMo...   INFO HLT_e3_etcut_L1EM3            10        10        6         0         0         
+TrigSignatureMo...   INFO HLT_e3_etcut_L1EM3 decisions                      14        0         
+TrigSignatureMo...   INFO HLT_e5_etcut_L1EM3            10        10        5         0         0         
+TrigSignatureMo...   INFO HLT_e5_etcut_L1EM3 decisions                      12        0         
+TrigSignatureMo...   INFO HLT_e7_etcut_L1EM7            10        10        2         0         0         
+TrigSignatureMo...   INFO HLT_e7_etcut_L1EM7 decisions                      3         0         
+TrigSignatureMo...   INFO HLT_g10_etcut_L1EM7           10        10        2         2         2         
+TrigSignatureMo...   INFO HLT_g10_etcut_L1EM7 decisions                     3         3         
+TrigSignatureMo...   INFO HLT_g15_etcut_L1EM12          10        10        2         2         2         
+TrigSignatureMo...   INFO HLT_g15_etcut_L1EM12 decisions                    3         3         
+TrigSignatureMo...   INFO HLT_mu10_L1MU10               10        10        0         0         0         
+TrigSignatureMo...   INFO HLT_mu10_L1MU10 decisions                         0         0         
+TrigSignatureMo...   INFO HLT_mu20_L1MU20               10        10        0         0         0         
+TrigSignatureMo...   INFO HLT_mu20_L1MU20 decisions                         0         0         
+TrigSignatureMo...   INFO HLT_mu8_L1MU6                 10        10        0         0         0         
+TrigSignatureMo...   INFO HLT_mu8_L1MU6 decisions                           0         0         
