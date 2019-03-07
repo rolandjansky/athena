@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -14,6 +14,9 @@
 #endif
 
 static std::mutex sgMutex;
+
+// This class is singleton and static method and variable are used.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 //
 // private constructor
