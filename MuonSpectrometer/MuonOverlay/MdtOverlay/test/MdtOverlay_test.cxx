@@ -53,11 +53,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isFailure() ); //inputs don't exist
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isFailure() ); //inputs don't exist
   }
 
   TEST_F(MdtOverlay_test, empty_containers_alg_execute) {
@@ -71,11 +71,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
   }
 
   TEST_F(MdtOverlay_test, containers_with_matching_empty_collections) {
@@ -97,11 +97,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG1'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG1'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS1'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS1"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -129,11 +129,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG2'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG2'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS2'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS2"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -169,11 +169,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG3'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG3'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS3'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS3"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -216,11 +216,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG4'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG4'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS4'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS4"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -271,11 +271,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG5'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG5'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS5'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS5"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -323,11 +323,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG6'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG6'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS6'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS6"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -370,11 +370,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG7'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG7'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS7'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS7"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -417,11 +417,11 @@ namespace OverlayTesting {
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG8'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG8'";
     std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS8'";
-    ASSERT_TRUE( m_alg->setProperty( "MainInputDigitKey",   inputSigPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OverlayInputDigitKey",   inputBkgPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->setProperty( "OutputDigitKey", outputPropertyValue).isSuccess() );
-    ASSERT_TRUE( m_alg->overlayInitialize().isSuccess() );
-    ASSERT_TRUE( m_alg->overlayExecute().isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    ASSERT_TRUE( m_alg->execute().isSuccess() );
     // check output makes sense
     SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS8"};
     ASSERT_TRUE( outputDataHandle.isValid() );
