@@ -44,6 +44,14 @@ Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
                                   const std::vector<double>& dphiMins,
                                   const std::vector<double>& dphiMaxs);
 
+Conditions conditionsFactoryDijetMT(const std::vector<double>& massMins,
+                                    const std::vector<double>& massMaxs,
+                                    const std::vector<double>& detaMins,
+                                    const std::vector<double>& detaMaxs,
+                                    const std::vector<double>& dphiMins,
+                                    const std::vector<double>& dphiMaxs);
+
+
 
 // for conditionsFactory2
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etasMin,
