@@ -141,14 +141,37 @@ truth_cond4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 5*GeV)
 truth_cond5 = "((abs(TruthParticles.pdgId) >= 35) && (abs(TruthParticles.pdgId) <= 37))" # BSM Higgs
 
 truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+truth_cond4 +' || '+truth_cond5
+generic_bool = False;
 
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG3D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D1TruthThinningTool",
-                                                                     ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                     ParticleSelectionString = truth_expression,
-                                                                     PreserveDescendants     = True,
-                                                                     PreserveAncestors      = True,
-                                                                     SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
+if( generic_bool):
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+  HIGG3D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D1TruthThinningTool",
+                                                                       ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                       ParticleSelectionString = truth_expression,
+                                                                       PreserveDescendants     = False,
+                                                                       PreserveAncestors      = True,
+                                                                       SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
+else:
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  HIGG3D1TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG3D1TruthThinningTool",
+                                                                    ThinningService              = "HIGG3D1ThinningSvc",
+                                                                    WritePartons                 = False,
+                                                                    WriteHadrons                 = True,
+                                                                    WriteBHadrons                = True,
+                                                                    WriteGeant                   = False,
+                                                                    GeantPhotonPtThresh          = 5000,
+                                                                    WriteTauHad                  = True,
+                                                                    PartonPtThresh               = -1.0,
+                                                                    WriteBSM                     = True,
+                                                                    WriteBosons                  = True,
+                                                                    WriteBSMProducts             = True,
+                                                                    WriteBosonProducts           = True,
+                                                                    WriteTopAndDecays            = True,
+                                                                    WriteEverything              = False,
+                                                                    WriteAllLeptons              = True,
+                                                                    WriteStatus3                 = False,
+                                                                    PreserveGeneratorDescendants = False,
+                                                                    WriteFirstN                  = -1)
 
 if globalflags.DataSource()=='geant4':
     ToolSvc += HIGG3D1TruthThinningTool
@@ -162,10 +185,10 @@ skimmingTools=[]
 
 # preselection
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
-electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
+electronRequirements = '(Electrons.pt > 4*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
 leadElectron = electronRequirements + ' && (Electrons.pt > 17*GeV)'
-muonsRequirements = '(Muons.pt > 7*GeV) && (Muons.DFCommonGoodMuon)'
-leadMuon = muonsRequirements + ' && (Muons.pt > 17*GeV)'
+muonsRequirements = '(Muons.pt > 2*GeV) && (Muons.DFCommonGoodMuon)'
+leadMuon = muonsRequirements + ' && (Muons.pt > 14*GeV)'
 
 eeSelection = '((count('+electronRequirements+') >= 2) && (count('+leadElectron+') >= 1))'
 mmSelection = '((count('+muonsRequirements+') >= 2) && (count('+leadMuon+') >= 1))'
@@ -249,15 +272,12 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
                                                            SkimmingTools = skimmingTools
                                                            )
-
-
-DerivationFrameworkJob += higg3d1PreSeq
 higg3d1PreSeq += higg3d1Seq
 
 higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
                                                            ThinningTools = thinningTools
                                                            )
-
+DerivationFrameworkJob += higg3d1PreSeq
 
 applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
 
@@ -309,7 +329,8 @@ if globalflags.DataSource()=='geant4':
                                                 'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                                #'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
                                                }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
