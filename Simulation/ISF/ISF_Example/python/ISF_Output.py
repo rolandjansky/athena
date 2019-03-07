@@ -153,7 +153,7 @@ class ISF_HITSStream:
         stream1 = None
         if athenaCommonFlags.PoolHitsOutput.statusOn:
             output_file = athenaCommonFlags.PoolHitsOutput()
-            stream1 = AthenaPoolOutputStream("StreamHITS", output_file, noTag=True)
+            stream1 = AthenaPoolOutputStream("StreamHITS", output_file)
             stream1.ForceRead = True
             stream1.ItemList = getHITSStreamItemList()
             ## Make stream aware of aborted events
@@ -165,7 +165,7 @@ class ISF_HITSStream:
         xAODStream = None
         if simFlags.SimulationFlavour == "ParametricSimulation":
             output_file = athenaCommonFlags.PoolAODOutput()
-            xAODStream = AthenaPoolOutputStream("StreamAOD", output_file, noTag=True)
+            xAODStream = AthenaPoolOutputStream("StreamAOD", output_file)
             xAODStream.ForceRead = True
             xAODStream.ItemList = getAODStreamItemList()
             ## Make stream aware of aborted events
