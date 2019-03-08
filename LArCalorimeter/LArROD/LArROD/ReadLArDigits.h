@@ -17,7 +17,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -47,7 +48,8 @@ class ReadLArDigits : public AthAlgorithm
   const LArEM_ID* m_emId;
   const LArOnlineID* m_onlineHelper;
   std::ofstream m_outfile;
-  std::string m_containerKey;
+  SG::ReadHandleKey<LArDigitContainer> m_containerKey
+    { this, "ContainerKey", "FREE", "" };
   std::string m_dumpFile;
   bool m_printCellLoc;
   bool m_printFebChan;

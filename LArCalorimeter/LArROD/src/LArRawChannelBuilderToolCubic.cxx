@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "LArROD/LArRawChannelBuilderToolCubic.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "Identifier/Identifier.h"
 #include "LArRawEvent/LArDigit.h"
 
@@ -41,8 +41,9 @@ LArRawChannelBuilderToolCubic::LArRawChannelBuilderToolCubic(const std::string& 
 
 StatusCode LArRawChannelBuilderToolCubic::initTool()
 {
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_fcalId=caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_fcalId=idHelper->fcal_idHelper();
   
   return StatusCode::SUCCESS;
 }

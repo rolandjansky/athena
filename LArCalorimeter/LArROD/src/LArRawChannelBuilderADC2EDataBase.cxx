@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "LArROD/LArRawChannelBuilderADC2EDataBase.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h" 
 #include "LArIdentifier/LArOnlineID.h" 

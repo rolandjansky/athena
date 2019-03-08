@@ -12,7 +12,6 @@
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "Identifier/Identifier.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
