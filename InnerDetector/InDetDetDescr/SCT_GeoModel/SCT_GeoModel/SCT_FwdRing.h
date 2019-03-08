@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDRING_H
@@ -22,10 +22,13 @@ class SCT_FwdRing : public SCT_UniqueComponentFactory
 
 public:
   SCT_FwdRing(const std::string & name, 
-	      const SCT_FwdModule * module, 
+	      SCT_FwdModule * module, 
 	      int iWheel,
 	      int iRing,
-	      int ec);
+	      int ec,
+              InDetDD::SCT_DetectorManager* detectorManager,
+              const SCT_GeometryManager* geometryManager,
+              SCT_MaterialManager* materials);
 
   ~SCT_FwdRing();
   
@@ -56,7 +59,7 @@ public:
 
   bool discRotated() const {return m_discRotated;}
  
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
 
   // Child elements
   const SCT_FwdModule* module() const {return m_module;}
@@ -106,7 +109,7 @@ private:
   double m_maxModuleServicesBaseToRingCenter;
 
   // Child detector elements
-  const SCT_FwdModule* m_module;
+  SCT_FwdModule* m_module;
   SCT_FwdCoolingBlock * m_coolingBlockHiMain;
   SCT_FwdCoolingBlock * m_coolingBlockHiSec;
   SCT_FwdCoolingBlock * m_coolingBlockLoMain;

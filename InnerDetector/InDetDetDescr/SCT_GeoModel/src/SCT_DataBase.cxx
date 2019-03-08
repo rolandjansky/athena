@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DataBase.h"
@@ -15,41 +15,11 @@
 
 #include <iostream>
 
-SCT_DataBase * SCT_DataBase::s_instance = 0;
-const SCT_GeoModelAthenaComps * SCT_DataBase::s_athenaComps = 0;
-
-SCT_DataBase * SCT_DataBase::instance() 
+SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
 {
-  if (s_athenaComps) {
-    if (!s_instance) s_instance = new SCT_DataBase;
-  } else {
-    std::cout << "SCT_Data ERROR. Cannot create instance without SCT_GeoModelAthenaComps object!" << std::endl;
-  }
-  return s_instance;
-}
+  m_athenaComps = athenaComps;
 
-void SCT_DataBase::reinit()
-{
-  delete s_instance;
-  s_instance = 0;
-}
-
-const SCT_GeoModelAthenaComps *
-SCT_DataBase::athenaComps() const 
-{
-  return  s_athenaComps;
-}
-  
-void 
-SCT_DataBase::setAthenaComps(const SCT_GeoModelAthenaComps * athenaComps)
-{
-  s_athenaComps = athenaComps;
-}
-
-SCT_DataBase::SCT_DataBase()
-
-{
-  IGeoDbTagSvc * geoDbTag = s_athenaComps->geoDbTagSvc();
+  IGeoDbTagSvc * geoDbTag = m_athenaComps->geoDbTagSvc();
 
   // Get version tag and node for SCT
   DecodeVersionKey versionKey(geoDbTag,"SCT");
@@ -60,7 +30,7 @@ SCT_DataBase::SCT_DataBase()
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
 
   // Access the RDB
-  IRDBAccessSvc* rdbSvc = s_athenaComps->rdbAccessSvc();
+  IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();
 
   // SCT version tag
   m_sctVersionTag = rdbSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
@@ -218,6 +188,7 @@ SCT_DataBase::SCT_DataBase()
 
 }
 
+const SCT_GeoModelAthenaComps* SCT_DataBase::athenaComps() const { return m_athenaComps; }
 
 IRDBRecordset_ptr SCT_DataBase::weightTable() const {return m_weightTable;}
 
@@ -293,5 +264,5 @@ const std::string & SCT_DataBase::versionTag() const {
 
 MsgStream&  SCT_DataBase::msg (MSG::Level lvl) const 
 { 
-  return s_athenaComps->msg(lvl); 
+  return m_athenaComps->msg(lvl); 
 }

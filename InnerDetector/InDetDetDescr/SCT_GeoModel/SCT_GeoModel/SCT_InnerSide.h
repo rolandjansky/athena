@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -29,22 +29,25 @@ class SCT_InnerSide: public SCT_UniqueComponentFactory
 {
 public:
 
-  SCT_InnerSide(const std::string & name);
+  SCT_InnerSide(const std::string & name,
+                InDetDD::SCT_DetectorManager* detectorManager,
+                const SCT_GeometryManager* geometryManager,
+                SCT_MaterialManager* materials);
   
   //explicitly disallow copy, assign, to appease coverity
   SCT_InnerSide(const SCT_InnerSide &) = delete;
   SCT_InnerSide & operator=(const SCT_InnerSide &) = delete;
 
   ~SCT_InnerSide();  
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
   
 public:
   double thickness() const {return m_thickness;}
   double width()     const {return m_width;}
   double length()    const {return m_length;}
 
-  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
   // *** End of modified lines. ------------------ (00)*********************************
 
 

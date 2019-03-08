@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_ForwardParameters.h"
@@ -15,15 +15,14 @@
 #include <iostream>
 #include <cmath>
 
-SCT_ForwardParameters::SCT_ForwardParameters()
-  : m_fsiHelper(0)
+SCT_ForwardParameters::SCT_ForwardParameters(SCT_DataBase* rdb)
 {
-  m_rdb = SCT_DataBase::instance();
+  m_rdb = rdb;
+  m_fsiHelper = std::make_unique<FSIHelper>(m_rdb);
 }
 
 SCT_ForwardParameters::~SCT_ForwardParameters()
 {
-  delete m_fsiHelper;
 }
 
 //
@@ -574,7 +573,6 @@ SCT_ForwardParameters::fwdFSIGeomZOffset(int iType) const
 const FSIHelper & 
 SCT_ForwardParameters::fsiHelper() const
 {
-  if (!m_fsiHelper) m_fsiHelper = new FSIHelper(m_rdb);
   return *m_fsiHelper;
 }
 
@@ -776,18 +774,12 @@ SCT_ForwardParameters&
 SCT_ForwardParameters::operator=(const SCT_ForwardParameters& right) {
   if (this != &right) {
     m_rdb = right.m_rdb;
-    m_fsiHelper = nullptr;
-    if (right.m_fsiHelper!=nullptr) {
-      m_fsiHelper = new FSIHelper(m_rdb);
-    }
+    m_fsiHelper.reset(new FSIHelper(m_rdb));
   }
   return *this;
 }
 
 SCT_ForwardParameters::SCT_ForwardParameters(const SCT_ForwardParameters& right) {
   m_rdb = right.m_rdb;
-  m_fsiHelper = nullptr;
-  if (right.m_fsiHelper!=nullptr) {
-    m_fsiHelper = new FSIHelper(m_rdb);
-  }
+  m_fsiHelper.reset(new FSIHelper(m_rdb));
 }
