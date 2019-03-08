@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _PixelRIO_OnTrackErrorScaling_H_
 #define _PixelRIO_OnTrackErrorScaling_H_
@@ -26,11 +26,11 @@ public:
     kPixIBLEta,
     kNParamTypes};
 
-  static const char **paramNames() { return s_names; }
+  static const char* const* paramNames() { return s_names; }
   virtual bool postProcess() override;
  
 protected:
-  static const char *s_names[kNParamTypes];
+  static const char* const s_names[kNParamTypes];
 };
 
 CLASS_DEF( PixelRIO_OnTrackErrorScaling ,           254709438 , 1 )

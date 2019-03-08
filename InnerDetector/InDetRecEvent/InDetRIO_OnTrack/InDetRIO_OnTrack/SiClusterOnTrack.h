@@ -103,7 +103,7 @@ namespace InDet {
       /** The IdentifierHash - probably not used*/
       IdentifierHash                      m_idDE;
       /** The global position */
-      mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+      mutable std::atomic<const Amg::Vector3D*> m_globalPosition; // This may be replaced by CachedUniquePtr
       bool m_isbroad;
   };
 

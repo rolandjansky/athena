@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -96,9 +96,9 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
 //copy constructor:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
 	Trk::RIO_OnTrack(rot),
-  m_globalPosition(rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0 ),
-  m_localAngle(rot.m_localAngle),
-  m_positionAlongWire(rot.m_positionAlongWire),
+  m_globalPosition(rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition.load()) : 0 ),
+  m_localAngle(rot.m_localAngle.load()),
+  m_positionAlongWire(rot.m_positionAlongWire.load()),
   m_rio(rot.m_rio),
   m_idDE(rot.m_idDE),
   m_status(rot.m_status),
@@ -115,8 +115,8 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
     delete m_globalPosition;
     m_globalPosition        = (rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0);
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle;
-    m_positionAlongWire     = rot.m_positionAlongWire;
+    m_localAngle            = rot.m_localAngle.load();
+    m_positionAlongWire     = rot.m_positionAlongWire.load();
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -132,10 +132,10 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
     delete m_globalPosition;
-    m_globalPosition        = rot.m_globalPosition;
+    m_globalPosition        = rot.m_globalPosition.load();
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle;
-    m_positionAlongWire     = rot.m_positionAlongWire;
+    m_localAngle            = rot.m_localAngle.load();
+    m_positionAlongWire     = rot.m_positionAlongWire.load();
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -161,7 +161,15 @@ const Trk::Surface& InDet::TRT_DriftCircleOnTrack::associatedSurface() const
 void InDet::TRT_DriftCircleOnTrack::setGlobalPosition(Amg::Vector3D& loc3Dframe) const{
    const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>( &(associatedSurface()) );
    if(slsf) {
-     m_globalPosition = new  Amg::Vector3D(slsf->transform() * loc3Dframe);
+     delete m_globalPosition;
+     m_globalPosition = nullptr;
+     const Amg::Vector3D* expected{nullptr};
+     const Amg::Vector3D* desired{new Amg::Vector3D(slsf->transform() * loc3Dframe)};
+     if (not m_globalPosition.compare_exchange_strong(expected, desired)) {
+       // This happens if more than one threads try to set m_globalPosition.
+       delete desired;
+       desired = nullptr;
+     }
    }else{
     throw GaudiException("Dynamic_cast to StraightLineSurface failed!",             
                     	 "TRT_DriftCircleOnTrack::setGlobalPosition()", 
