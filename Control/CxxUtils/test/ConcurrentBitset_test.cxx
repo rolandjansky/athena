@@ -17,14 +17,14 @@
 #include "CxxUtils/ConcurrentBitset.h"
 #include "CxxUtils/checker_macros.h"
 #include "TestTools/random.h"
-// Work around a warning in tbb, found by gcc8.
-// Fixed in TBB 2018 U5.
-#if defined(__GNUC__) && __GNUC__ >= 8
+// tbb/machine/gcc_generic.h has spurious trailing semicolons after
+// the clz() functiosn (as of TBB 2019 U1).
+#if defined(__GNUC__)
 # pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wclass-memaccess"
+# pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #include "tbb/concurrent_unordered_set.h"
-#if defined(__GNUC__) && __GNUC__ >= 8
+#if defined(__GNUC__)
 # pragma GCC diagnostic pop
 #endif
 #include "boost/timer/timer.hpp"
