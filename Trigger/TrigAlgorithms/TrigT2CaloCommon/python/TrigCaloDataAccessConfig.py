@@ -49,8 +49,13 @@ def trigCaloDataAccessSvcCfg( flags ):
     
     acc.merge( createLArRoI_Map( flags ) )
 
+    # Needed by LArBadChanLegacyTool, refrerenced from LArCellCont.
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
+    acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))
 
-
+    from TileConditions.TileConditionsConfig import tileCondCfg
+    acc.merge( tileCondCfg (flags) )
 
     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
     import math
