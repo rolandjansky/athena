@@ -88,7 +88,7 @@ StatusCode CaloLCWeightTool::initialize()
   ATH_CHECK( m_key.initialize() );
 
   // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
+  ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
    
   //---- retrieve the noisetool ----------------
