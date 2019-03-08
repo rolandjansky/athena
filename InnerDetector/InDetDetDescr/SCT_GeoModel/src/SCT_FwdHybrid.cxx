@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -35,8 +35,12 @@
 #include <cmath>
 
 
-SCT_FwdHybrid::SCT_FwdHybrid(const std::string & name, int ringType)
-  : SCT_SharedComponentFactory(name), m_ringType(ringType) 
+SCT_FwdHybrid::SCT_FwdHybrid(const std::string & name, int ringType,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType(ringType) 
 {
   getParameters();
   m_physVolume = build();
@@ -48,7 +52,7 @@ void
 SCT_FwdHybrid::getParameters()
 {
 
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
 
   m_materialName  = parameters->fwdHybridMaterial();
 
@@ -80,7 +84,7 @@ SCT_FwdHybrid::getParameters()
 GeoVPhysVol * SCT_FwdHybrid::build() 
 {
 
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
 
   // Make a hybrid. This is a TRD + BOX 
   const GeoTrd * hybridShape1 = new GeoTrd(0.5 * m_thickness, 0.5 * m_thickness, 
@@ -108,11 +112,9 @@ GeoVPhysVol * SCT_FwdHybrid::build()
   const GeoShape & hybridPos2 = (*hybridShape1 << GeoTrf::RotateX3D(rotation)
                       << GeoTrf::TranslateZ3D(position) );
   
-
-  SCT_MaterialManager materials;
   const GeoShapeUnion & hybridShape = hybridPos1.add(hybridPos2);
   // error getting volume directly.
-  m_material = materials.getMaterialForVolume(m_materialName, hybridShape1->volume()+hybridShape2->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, hybridShape1->volume()+hybridShape2->volume());
   const GeoLogVol * hybridLog = new GeoLogVol(getName(), &hybridShape, m_material);
   GeoPhysVol * hybrid = new GeoPhysVol(hybridLog);
 

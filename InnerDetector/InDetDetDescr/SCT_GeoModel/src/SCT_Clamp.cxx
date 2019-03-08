@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Clamp.h"
@@ -16,9 +16,12 @@
 
 
 SCT_Clamp::SCT_Clamp(const std::string & name, int iLayer,
-                           double innerRadius)
-  : SCT_SharedComponentFactory(name), m_iLayer(iLayer),
-    m_innerRadius(innerRadius)
+                     double innerRadius,
+                     InDetDD::SCT_DetectorManager* detectorManager,
+                     const SCT_GeometryManager* geometryManager,
+                     SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_iLayer(iLayer), m_innerRadius(innerRadius)
 {
   getParameters();
   m_physVolume = build();
@@ -28,7 +31,7 @@ SCT_Clamp::SCT_Clamp(const std::string & name, int iLayer,
 void 
 SCT_Clamp::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
       
   m_materialName    = parameters->clampMaterial(m_iLayer);
   m_length      = parameters->clampDeltaZ(m_iLayer);
@@ -41,11 +44,10 @@ GeoVPhysVol *
 SCT_Clamp::build() 
 {
   // Make the clamp. A simple tube.
-  SCT_MaterialManager materials;
 
   const GeoTube * clampShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, clampShape->volume());
-  if(!m_material) {m_material = materials.getMaterial(m_materialName);}
+  m_material = m_materials->getMaterialForVolume(m_materialName, clampShape->volume());
+  if(!m_material) {m_material = m_materials->getMaterial(m_materialName);}
   const GeoLogVol * clampLog = new GeoLogVol(getName(), clampShape, m_material);
 
   GeoPhysVol * clamp = new GeoPhysVol(clampLog);

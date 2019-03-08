@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdFSI.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_FwdFSI::SCT_FwdFSI(const std::string & name, int type)
-  : SCT_SharedComponentFactory(name), m_type(type)
+SCT_FwdFSI::SCT_FwdFSI(const std::string & name, int type,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_type(type)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +30,7 @@ SCT_FwdFSI::SCT_FwdFSI(const std::string & name, int type)
 void 
 SCT_FwdFSI::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
         
   m_materialName= parameters->fwdFSIGeomMaterial(m_type);
   m_thickness   = parameters->fwdFSIGeomThickness(m_type);
@@ -38,10 +42,8 @@ SCT_FwdFSI::getParameters()
 GeoVPhysVol * 
 SCT_FwdFSI::build() 
 {
-  SCT_MaterialManager materials;
-
   const GeoBox * fsiShape = new GeoBox(0.5 * m_deltaR, 0.5 * m_rphi, 0.5 * m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, fsiShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, fsiShape->volume());
   const GeoLogVol * fsiLog = new GeoLogVol(getName(), fsiShape, m_material);
 
   GeoPhysVol * fsi = new GeoPhysVol(fsiLog);

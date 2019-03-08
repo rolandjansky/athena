@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdThermalShieldElement.h"
@@ -16,8 +16,12 @@
 
 #include <cmath>
 
-SCT_FwdThermalShieldElement::SCT_FwdThermalShieldElement(const std::string & name, int iElement)
-  : SCT_SharedComponentFactory(name), m_iElement(iElement)
+SCT_FwdThermalShieldElement::SCT_FwdThermalShieldElement(const std::string & name, int iElement,
+                                                         InDetDD::SCT_DetectorManager* detectorManager,
+                                                         const SCT_GeometryManager* geometryManager,
+                                                         SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_iElement(iElement)
 {
   getParameters();
   m_physVolume = build();
@@ -27,7 +31,7 @@ SCT_FwdThermalShieldElement::SCT_FwdThermalShieldElement(const std::string & nam
 void 
 SCT_FwdThermalShieldElement::getParameters()
 { 
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
   
   m_materialName = parameters->fwdThermalShieldMaterial(m_iElement);
   m_innerRadius = parameters->fwdThermalShieldInnerRadius(m_iElement);
@@ -42,12 +46,10 @@ SCT_FwdThermalShieldElement::getParameters()
 GeoVPhysVol * 
 SCT_FwdThermalShieldElement::build() 
 {
-  SCT_MaterialManager materials;
-
   // Make the support disk. A simple tube.
   const GeoTube * elementShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, elementShape->volume());
-  if(!m_material) {m_material = materials.getMaterial(m_materialName);}
+  m_material = m_materials->getMaterialForVolume(m_materialName, elementShape->volume());
+  if (!m_material) m_material = m_materials->getMaterial(m_materialName);
   const GeoLogVol * elementLog = new GeoLogVol(getName(), elementShape, m_material);
 
   GeoPhysVol * element = new GeoPhysVol(elementLog);

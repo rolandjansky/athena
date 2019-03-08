@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -47,8 +47,13 @@ using namespace InDetDD;
 
 
 SCT_FwdSensor::SCT_FwdSensor(const std::string & name,
-                             int ringType)
-  : SCT_UniqueComponentFactory(name), m_ringType(ringType)
+                             int ringType,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType{ringType},
+    m_noElementWarning{true}
 {
   getParameters();
   m_logVolume = preBuild();
@@ -62,15 +67,14 @@ void
 SCT_FwdSensor::getParameters()
 {
 
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
-  SCT_MaterialManager materials;
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
 
-  m_materialSensor  = materials.getMaterial(parameters->fwdSensorMaterialFar(m_ringType));
+  m_materialSensor  = m_materials->getMaterial(parameters->fwdSensorMaterialFar(m_ringType));
   
  
   m_materialGlass  = 0;
   if (m_ringType == 2) { // Only need to define glass if its a Truncated middle module.
-    m_materialGlass =  materials.getMaterial(parameters->fwdSensorMaterialNear(m_ringType));
+    m_materialGlass =  m_materials->getMaterial(parameters->fwdSensorMaterialNear(m_ringType));
   }
                   
   m_thicknessN = m_thicknessF = parameters->fwdSensorThickness(m_ringType);
@@ -168,7 +172,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
   // Make the moduleside design for this sensor
   makeDesign();
 
-  detectorManager()->addDesign(m_design);
+  m_detectorManager->addDesign(m_design);
 
   return sensorLog;
 }
@@ -225,7 +229,7 @@ void SCT_FwdSensor::makeDesign()
   //   eta coordinate of crystal center
   //   phi coordinate of crystal center 
 
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
  
   double radius1=0;
   double radius2=0;
@@ -306,7 +310,7 @@ void SCT_FwdSensor::makeDesign()
 
 
 
-GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id) const
+GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id)
 {
     
   GeoFullPhysVol * sensor = new GeoFullPhysVol(m_logVolume);
@@ -315,7 +319,7 @@ GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id) const
   // Only do so if we have a valid id helper.
   //id.print(); // for debugging only
 
-  SiCommonItems* commonItems =  geometryManager()->commonItems();
+  const SiCommonItems* commonItems =  m_geometryManager->commonItems();
 
   if (commonItems->getIdHelper()) {
 
@@ -325,13 +329,12 @@ GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id) const
                                                            commonItems);
 
     // Add the detector element.
-    detectorManager()->addDetectorElement(detElement);
+    m_detectorManager->addDetectorElement(detElement);
 
   } else {
-    static bool noElementWarning = true; // So we don't get the message thousands of times.
-    if (noElementWarning) {
+    if (m_noElementWarning) {
       std::cout << "WARNING!!!!: No SCT id helper and so no elements being produced." << std::endl;
-      noElementWarning = false;
+      m_noElementWarning = false;
     }
   }
     

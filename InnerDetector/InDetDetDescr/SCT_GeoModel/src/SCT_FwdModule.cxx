@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -45,22 +45,30 @@
 
 inline double sqr(double x) {return x*x;}
 
-SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType)
-  : SCT_UniqueComponentFactory(name), m_ringType(ringType)
+SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType(ringType)
 {
 
   getParameters();
 
-  m_hybrid = new SCT_FwdHybrid("SCT_FwdHybrid"+intToString(ringType), m_ringType );
-  m_spine  = new SCT_FwdSpine("SCT_FwdSpine"+intToString(ringType), m_ringType);
-  m_subspineL  = new SCT_FwdSubSpine("SCT_FwdSubSpineL"+intToString(ringType), m_ringType, SUBSPINE_LEFT);
-  m_subspineR  = new SCT_FwdSubSpine("SCT_FwdSubSpineR"+intToString(ringType), m_ringType, SUBSPINE_RIGHT);
-  m_sensor = new SCT_FwdSensor("ECSensor"+intToString(ringType), m_ringType);
+  m_hybrid = new SCT_FwdHybrid("SCT_FwdHybrid"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
+  m_spine  = new SCT_FwdSpine("SCT_FwdSpine"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
+  m_subspineL  = new SCT_FwdSubSpine("SCT_FwdSubSpineL"+intToString(ringType), m_ringType, SUBSPINE_LEFT,
+                                     m_detectorManager, m_geometryManager, materials);
+  m_subspineR  = new SCT_FwdSubSpine("SCT_FwdSubSpineR"+intToString(ringType), m_ringType, SUBSPINE_RIGHT,
+                                     m_detectorManager, m_geometryManager, materials);
+  m_sensor = new SCT_FwdSensor("ECSensor"+intToString(ringType), m_ringType,
+                               m_detectorManager, m_geometryManager, materials);
   if (m_connectorPresent) {
-    m_connector = new SCT_FwdModuleConnector("SCT_FwdModuleConnector"+intToString(ringType), m_ringType);
+    m_connector = new SCT_FwdModuleConnector("SCT_FwdModuleConnector"+intToString(ringType), m_ringType,
+                                             m_detectorManager, m_geometryManager, materials);
   }
   else {
-    m_connector = NULL;
+    m_connector = nullptr;
   }
 
   m_logVolume = preBuild();
@@ -81,7 +89,7 @@ SCT_FwdModule::~SCT_FwdModule()
 void 
 SCT_FwdModule::getParameters()
 {
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
   m_glueThickness = parameters->fwdModuleGlueThickness(m_ringType);
   m_distBtwMountPoints = parameters->fwdModuleDistBtwMountPoints(m_ringType);
   m_mountPointToCenter = parameters->fwdModuleMountPoint(m_ringType);
@@ -97,7 +105,7 @@ const GeoLogVol * SCT_FwdModule::preBuild()
 {  
   // module volume preparing 
 
-  const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
+  const SCT_GeneralParameters * generalParameters = m_geometryManager->generalParameters();
   
   double safety = generalParameters->safety();
   double safetyTmp = safety * Gaudi::Units::cm; // For compatibility with minor bug in older version - safety already in CLHEP units;
@@ -159,14 +167,13 @@ const GeoLogVol * SCT_FwdModule::preBuild()
                                                   0.5 * m_length);
   const GeoShapeShift & moduleEnvelope = (*moduleEnvelopeShape << GeoTrf::TranslateZ3D(m_moduleShift) );
   
-  SCT_MaterialManager materials;
-  GeoLogVol * moduleLog =  new GeoLogVol(getName(), &moduleEnvelope, materials.gasMaterial());
+  GeoLogVol * moduleLog =  new GeoLogVol(getName(), &moduleEnvelope, m_materials->gasMaterial());
      
   return moduleLog;
 
 }
 
-GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
+GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id)
 {
 
   // build method for creating module parent physical volume 
@@ -174,7 +181,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   // - relative position of component is part of its shape 
   GeoFullPhysVol * module = new GeoFullPhysVol(m_logVolume);
 
-  if(m_connector != NULL) module->add(m_connector->getVolume());
+  if (m_connector != NULL) module->add(m_connector->getVolume());
   module->add(m_hybrid->getVolume());
   module->add(m_spine->getVolume());
   module->add(m_subspineL->getVolume());
@@ -207,7 +214,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   module->add(bottomSensorPV);
   
   // Store transform
-  detectorManager()->addAlignableTransform(0, id.getWaferId(), bottomTransform, bottomSensorPV); 
+  m_detectorManager->addAlignableTransform(0, id.getWaferId(), bottomTransform, bottomSensorPV); 
 
   
   if (m_ringType == 2) { // Place glass pieces in place of sensor
@@ -235,7 +242,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   module->add(topSensorPV);
 
   // Store transform
-  detectorManager()->addAlignableTransform(0, id.getWaferId(), topTransform, topSensorPV); 
+  m_detectorManager->addAlignableTransform(0, id.getWaferId(), topTransform, topSensorPV); 
 
   if (m_ringType == 2) { // Place glass pieces in place of sensor
     module->add(new GeoTransform(GeoTrf::Transform3D(vecT*rotT)));

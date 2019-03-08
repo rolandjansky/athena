@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDHYBRID_H
@@ -15,7 +15,10 @@ class GeoVPhysVol;
 class SCT_FwdHybrid : public SCT_SharedComponentFactory
 {
 public:
-  SCT_FwdHybrid(const std::string & name, int ringType);
+  SCT_FwdHybrid(const std::string & name, int ringType,
+                InDetDD::SCT_DetectorManager* detectorManager,
+                const SCT_GeometryManager* geometryManager,
+                SCT_MaterialManager* materials);
 
 public:
   //int hybridPart() const {return m_hybridPart;}

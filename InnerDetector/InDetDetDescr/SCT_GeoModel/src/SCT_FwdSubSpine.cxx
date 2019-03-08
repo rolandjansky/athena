@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -35,8 +35,12 @@
 
 
 SCT_FwdSubSpine::SCT_FwdSubSpine(const std::string & name,
-         int ringType, int spineSide)
-  : SCT_SharedComponentFactory(name), m_ringType(ringType), m_spineSide(spineSide)
+                                 int ringType, int spineSide,
+                                 InDetDD::SCT_DetectorManager* detectorManager,
+                                 const SCT_GeometryManager* geometryManager,
+                                 SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType(ringType), m_spineSide(spineSide)
 {
   getParameters();
   m_physVolume = build();
@@ -47,10 +51,9 @@ SCT_FwdSubSpine::SCT_FwdSubSpine(const std::string & name,
 void
 SCT_FwdSubSpine::getParameters()
 {
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
-  SCT_MaterialManager materials;
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
 
-  m_material  = materials.getMaterial(parameters->fwdSubSpineMaterial(m_ringType));
+  m_material  = m_materials->getMaterial(parameters->fwdSubSpineMaterial(m_ringType));
 
   // Width is in direction of module width (ie long axis of arm)
   // Length is in direction of module length (ie short axis of arm)
@@ -73,7 +76,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
 {
   // x,y,z are in the geomodel module coordinates
 
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
   
   const GeoBox * spineShape1 = new GeoBox( m_thickness1/2., m_width1/2., m_length1/2.);
   const GeoBox * spineShape2 = 0;
