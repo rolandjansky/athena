@@ -1,7 +1,16 @@
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j45 ID#3664574289
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j45 ID#3664574289
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j45 ID#3664574289
-TrigSignatureMoniMT                                INFO HLT_j45                       20        20        3         3         
-TrigSignatureMoniMT                                INFO HLT_j45 decisions                                 3         
-TrigSignatureMoniMT                                INFO HLT_j85                       20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j85 decisions                                 0         
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j85 ID#3478728990
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j85 ID#3478728990
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j85 ID#3478728990
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j85 ID#3478728990
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j85 ID#3478728990
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j100 ID#625306965
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j85 ID#3478728990
+TrigSignatureMoniMT                                INFO HLT_j100                      20        20        6         6         
+TrigSignatureMoniMT                                INFO HLT_j100 decisions                                6         
+TrigSignatureMoniMT                                INFO HLT_j85                       20        20        6         6         
+TrigSignatureMoniMT                                INFO HLT_j85 decisions                                 6         

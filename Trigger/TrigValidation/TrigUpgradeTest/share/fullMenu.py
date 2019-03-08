@@ -119,7 +119,7 @@ if (doJet):
     
     jetChains  = [
         Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[jetstep1] )  
+        Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
         ]
     testChains += jetChains
 
