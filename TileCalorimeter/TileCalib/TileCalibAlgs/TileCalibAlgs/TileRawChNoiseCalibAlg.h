@@ -117,10 +117,13 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     // Identifiers
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+      "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+      "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
-    ToolHandle<TileCondIdTransforms> m_tileIdTrans;
+    ToolHandle<TileCondIdTransforms> m_tileIdTrans{this,
+      "TileCondIdTransforms", "TileCondIdTransforms", "Tile Id transforms tool"};
     const uint32_t* m_cispar;
 
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,

@@ -53,7 +53,8 @@ class TileTopCalibAlg : public AthAlgorithm
   /**
    * Vector of algtools to call
    */
-  ToolHandleArray<ITileCalibTool> m_tileCalibToolList;
+  ToolHandleArray<ITileCalibTool> m_tileCalibToolList{this,
+    "TileCalibTools", {}, "Tile calib tools"};
  
   /**
    * Pointer to the ROOT file

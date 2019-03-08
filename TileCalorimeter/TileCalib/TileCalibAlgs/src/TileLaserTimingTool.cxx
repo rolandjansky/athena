@@ -123,14 +123,12 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   : AthAlgTool(type, name, pParent)
   , m_tileHWID(0)
   , m_cabling(0)
-  , m_tileToolTiming("TileCondToolTiming")
   , m_nevts(0)
   , m_gaussf(0)
 {
 
   declareInterface<ITileCalibTool>( this );
 
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("NtupleID", m_ntupleID = "h3000");
   declareProperty("FiberLightSpeed", m_fiberLightSpeed);
   declareProperty("NSamples", m_nSamples = 9);

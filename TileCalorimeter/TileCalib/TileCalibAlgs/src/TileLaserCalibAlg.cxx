@@ -12,7 +12,6 @@
 
 // Tile includes
 #include "TileCalibAlgs/TileLaserCalibAlg.h"
-#include "TileCalibAlgs/ITileCalibTool.h"
 
 #include "TFile.h"
 #include <iostream>
@@ -37,8 +36,8 @@ TileLaserCalibAlg::TileLaserCalibAlg(const std::string& name, ISvcLocator* pSvcL
   , m_runNo(0)
   , m_runType(0)
 {
+
   declareProperty("FileName", m_fileName);
-  declareProperty("Tools", m_lasTools);
 }
 
 TileLaserCalibAlg::~TileLaserCalibAlg() {

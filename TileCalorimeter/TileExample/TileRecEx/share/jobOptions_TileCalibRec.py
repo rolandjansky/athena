@@ -1586,7 +1586,6 @@ if doTileCalib:
 
         TileCisTool.removePed = True
         #from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TileCisTool
         TileCalibAlg.TileCalibTools += [ TileCisTool ]
 
         topSequence += TileCalibAlg
@@ -1608,7 +1607,6 @@ if doTileCalib:
         dqStatus.TileRawChannelContainer = 'TileRawChannelCnt'
 
         #from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TileTriggerTool
         TileCalibAlg.TileCalibTools += [ TileTriggerTool ]
 
         topSequence += TileCalibAlg              
@@ -1629,7 +1627,6 @@ if doTileCalib:
             TileLaserTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
 
         #from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TileLaserTool
         TileCalibAlg.Tools = [ TileLaserTool ]
 
         topSequence += TileCalibAlg
