@@ -1,11 +1,11 @@
-Tue Feb 26 09:22:02 CST 2019
+Thu Mar  7 20:06:56 CET 2019
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5462 configurables from 20 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5462 configurables from 48 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -13,17 +13,18 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on atlaslogin01.hep.anl.gov on Tue Feb 26 09:22:11 2019
+                                          running on lxplus084.cern.ch on Thu Mar  7 20:07:07 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3110 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3167 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 836 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 345 CLIDRegistry entries for module ALL
 ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
@@ -35,9 +36,9 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-25T2138/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlaslogin01.hep.anl.gov [ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-03-06T2144/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus084.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -164,7 +165,6 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEve
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' ) 
-ClassIDSvc           INFO  getRegistryEntries: read 673 CLIDRegistry entries for module ALL
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -324,6 +324,7 @@ WriteTag             INFO EventInfo event: 0  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 0  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
 AthenaPoolCnvSvc    DEBUG setAttribute TREE_MAX_SIZE to 1099511627776L
@@ -358,6 +359,9 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 1
@@ -504,6 +508,7 @@ WriteTag             INFO EventInfo event: 1  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 1  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 ClassIDSvc           INFO  getRegistryEntries: read 3 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
@@ -511,6 +516,9 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
@@ -575,12 +583,16 @@ WriteTag             INFO EventInfo event: 2  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 2  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
@@ -645,12 +657,16 @@ WriteTag             INFO EventInfo event: 3  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 3  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
@@ -715,12 +731,16 @@ WriteTag             INFO EventInfo event: 4  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 4  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
@@ -785,12 +805,16 @@ WriteTag             INFO EventInfo event: 5  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 5  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
@@ -855,12 +879,16 @@ WriteTag             INFO EventInfo event: 6  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 6  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
@@ -925,12 +953,16 @@ WriteTag             INFO EventInfo event: 7  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 7  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
@@ -995,12 +1027,16 @@ WriteTag             INFO EventInfo event: 8  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 8  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
@@ -1065,12 +1101,16 @@ WriteTag             INFO EventInfo event: 9  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 9  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
@@ -1135,12 +1175,16 @@ WriteTag             INFO EventInfo event: 10  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 10  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 11
@@ -1205,12 +1249,16 @@ WriteTag             INFO EventInfo event: 11  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 11  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 12
@@ -1275,12 +1323,16 @@ WriteTag             INFO EventInfo event: 12  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 12  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 13
@@ -1345,12 +1397,16 @@ WriteTag             INFO EventInfo event: 13  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 13  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 14
@@ -1415,12 +1471,16 @@ WriteTag             INFO EventInfo event: 14  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 14  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 15
@@ -1485,12 +1545,16 @@ WriteTag             INFO EventInfo event: 15  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 15  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 16
@@ -1555,12 +1619,16 @@ WriteTag             INFO EventInfo event: 16  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 16  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 17
@@ -1625,12 +1693,16 @@ WriteTag             INFO EventInfo event: 17  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 17  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 18
@@ -1695,12 +1767,16 @@ WriteTag             INFO EventInfo event: 18  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 18  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 19
@@ -1765,12 +1841,16 @@ WriteTag             INFO EventInfo event: 19  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 19  run: 1
 MagicWriteTag        INFO registered all data
+EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
+Stream1             DEBUG addItemObjects(40774348,"SimpleTag") called
+Stream1             DEBUG            Key:SimpleTag
+Stream1             DEBUG  No object matching 40774348,"SimpleTag" found
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
@@ -1838,11 +1918,11 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 62
+cRepR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.0613(+-0.781)/    0/   10 [ms] #=163
+fRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.161(+- 1.26)/    0/   10 [ms] #= 62
 cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.154(+- 1.23)/    0/   10 [ms] #= 65
-cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.317(+- 1.75)/    0/   10 [ms] #= 63
-cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.184(+- 1.74)/    0/   20 [ms] #=163
-fRep_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.645(+- 3.04)/    0/   20 [ms] #= 62
-ChronoStatSvc        INFO Time User   : Tot= 0.67  [s]                                             #=  1
+cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.317(+-  2.5)/    0/   20 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot=  0.6  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
