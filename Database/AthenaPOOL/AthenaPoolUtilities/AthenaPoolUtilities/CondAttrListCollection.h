@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -399,7 +399,7 @@ CondAttrListCollection::attributeList(ChanNum chanNum) const
     if (itr!=m_attrMap.end()) {
         return itr->second;
     } else {
-        static AttributeList attr;
+        static const AttributeList attr;
         return attr;
     }
 }
@@ -423,7 +423,7 @@ inline const std::string& CondAttrListCollection::chanName(ChanNum chanNum) cons
     if (itr!=m_nameMap.end()) {
         return itr->second;
     } else {
-        static std::string name;
+        static const std::string name;
         return name;
     }
 }
