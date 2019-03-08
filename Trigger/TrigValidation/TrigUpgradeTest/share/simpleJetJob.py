@@ -27,10 +27,7 @@ if TriggerFlags.doCalo:
 
 
     # menu items
-     CTPToChainMapping = {
-       "HLT_j85":       "L1_J20"  ,
-       "HLT_j45" : "L1_J20"
-     }
+     CTPToChainMapping = {"HLT_j85":       "L1_J20"  , "HLT_j100" : "L1_J20" }
      testChains =[x for x, y in CTPToChainMapping.items()]
      topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
      print testChains
@@ -70,20 +67,13 @@ if TriggerFlags.doCalo:
      (recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
 
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
-     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
+     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
      hypo = TrigJetHypoAlgMT("jethypo")
      hypo.OutputLevel = DEBUG
      hypo.Jets = sequenceOut
      hypo.HypoInputDecisions = hypoDecisions
      hypo.HypoOutputDecisions = "jetDecisions"
-     
-     def make_dict(chain_name):
-       from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-       chainNameDecoder = DictFromChainName.DictFromChainName()
-       return chainNameDecoder.getChainDict(chain_name)
-       
-     hypo.HypoTools = [trigJetHypoToolFromDict(make_dict(c))
-                       for c in testChains] 
+     hypo.HypoTools = [ trigJetHypoToolFromName( c, c ) for c in testChains ] 
      print hypo
      for tool in hypo.HypoTools:
          print tool
