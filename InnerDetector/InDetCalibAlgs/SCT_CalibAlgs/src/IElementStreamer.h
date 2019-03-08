@@ -23,8 +23,8 @@ class IElementStreamer {
       std::vector<std::string> m_attributeNames;
       std::vector<std::string> m_attributeValues;
       std::ostream & m_os;
-      static unsigned int m_depth;
-      static unsigned int m_nodeIndex;
+      unsigned int m_depth;
+      unsigned int m_nodeIndex;
       unsigned int m_nodeId;
 
    public:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -50,13 +50,13 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       int size(const int histogramIndex) const;
       void binHistograms(const int nLbMerged);
       /// set number of lumiblocks
-      static void setNumberOfLb(const int nLb);
+      void setNumberOfLb(const int nLb);
       /// get number of lumiblocks
-      static int numberOfLb();
+      int numberOfLb();
       /// set number of lumiblocks
-      static void setLbToMerge(const int nLbMerge);
+      void setLbToMerge(const int nLbMerge);
       /// get number of lumiblocks
-      static int LbToMerge();
+      int LbToMerge();
    protected:
       std::vector<TH1F *> m_phistoVector;
       std::vector<TH2F *> m_phistoVector2D;
@@ -66,8 +66,8 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       //ServiceHandle<StoreGateSvc> m_detStore;
       //ServiceHandle<StoreGateSvc> m_evtStore;
       const SCT_ID* m_pSCTHelper;
-      static int m_nLb;
-      static int m_nLbMerge;
+      int m_nLb;
+      int m_nLbMerge;
       //
       bool init();
       template<class T>

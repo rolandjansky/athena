@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,10 +15,8 @@
 #include "TMath.h"
 #include <stdexcept> // out_of_range exception
 
-int ISCT_CalibHistoTool::m_nLb=0;
-int ISCT_CalibHistoTool::m_nLbMerge=0;
-
-ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thistSvc(0),m_pSCTHelper(0) {
+ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thistSvc(0),m_pSCTHelper(0),
+                                           m_nLb(0), m_nLbMerge(0) {
    //std::cout<<"Instantiation of ISCT_CalibHistoTool"<<std::endl;
    //nop
 }
