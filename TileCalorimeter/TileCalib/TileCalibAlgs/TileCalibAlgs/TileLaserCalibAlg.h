@@ -12,10 +12,11 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "TileCalibAlgs/ITileCalibTool.h"
+
 #include <string>
 
 class TFile;
-class ITileCalibTool;
 class IROBDataProviderSvc;
 
 class TileLaserCalibAlg: public AthAlgorithm {
@@ -23,16 +24,17 @@ class TileLaserCalibAlg: public AthAlgorithm {
     TileLaserCalibAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~TileLaserCalibAlg();
 
-    typedef ToolHandleArray<ITileCalibTool> lastools_t;
-
     // Functions
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
 
-    lastools_t m_lasTools;
-
   private:
+
+    typedef ToolHandleArray<ITileCalibTool> lastools_t;
+
+    lastools_t m_lasTools{this,
+      "Tools",{},"Tile laser calibration tools"};
 
     ServiceHandle<IROBDataProviderSvc> m_RobSvc;
 

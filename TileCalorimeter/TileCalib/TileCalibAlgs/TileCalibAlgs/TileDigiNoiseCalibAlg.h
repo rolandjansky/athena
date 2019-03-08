@@ -28,6 +28,7 @@
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 
 #include <cmath>
 #include <vector>
@@ -40,7 +41,6 @@
 // Forward declaration
 class TileHWID;
 class TileBeamElemContByteStreamCnv;
-class TileRawChannelBuilderFlatFilter;
 class TileOFCorrelation;
 
 class TileDigiNoiseCalibAlg: public AthAlgorithm {
@@ -94,7 +94,8 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
       "EventInfo", "EventInfo", "EventInfo key"};
 
   // Tools / storegate info
-    ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;
+    ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool{this,
+      "TileAdderFlatFilter","TileRawChannelBuilderFlatFilter/TileAdderFlatFilter","Tile adder flat filter"};
     TileBeamElemContByteStreamCnv* m_beamCnv;
     const TileCablingService* m_cabling;
     TileOFCorrelation* m_tileOFCorrelation;

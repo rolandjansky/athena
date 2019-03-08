@@ -11,7 +11,6 @@
 #include "TileCalibAlgs/TileExpertDump.h"
 #include "TileConditions/TileInfoLoader.h"
 #include "TileConditions/TileInfo.h"
-#include "TileConditions/TileExpertToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTrigType.h"
@@ -27,10 +26,8 @@
 TileExpertDump::TileExpertDump(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_emExpertOptions(0)
-  , m_tileExpertToolEmscale("TileExpertToolEmscale")
   , m_tileHWID(0)
 {
-  declareProperty("TileExpertToolEmscale"  , m_tileExpertToolEmscale);
   declareProperty("PrintExpertEmscale"     , m_printExpertEmscale=false      ,"Switch on expert calibration chain printout");
   declareProperty("PrintExpertEmscaleOnl"  , m_printExpertEmscaleOnl=false   ,"Switch on expert onl calibration chain printout");
 

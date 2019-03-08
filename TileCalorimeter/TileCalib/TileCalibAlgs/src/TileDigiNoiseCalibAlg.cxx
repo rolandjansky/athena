@@ -29,7 +29,6 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileCalibAlgs/TileOFCorrelation.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -44,7 +43,6 @@
 
 TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_adderFilterAlgTool("TileRawChannelBuilderFlatFilter/TileAdderFlatFilter", this)
   , m_beamCnv(0)
   , m_cabling(0)
   , m_tileOFCorrelation(0)
@@ -61,7 +59,6 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   , m_min(0)
   , m_trigType(0)
 {
-  declareProperty("TileAdderFlatFilter", m_adderFilterAlgTool);
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
   /*  declareProperty("TileRawChannelContainerFlat", m_flatRawChannelContainer = "TileRawChannelFlat");
    declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = ""); // don't create

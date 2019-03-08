@@ -21,7 +21,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingSvc.h"
 
-#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -43,7 +42,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_tileHWID(0)
   , m_cabling(0)
   , m_cablingSvc("TileCablingSvc", name)
-  , m_stuckBitsProbs("")
   , m_scanMap(0)
   , m_scanMapRMS(0)
 {
@@ -64,7 +62,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("linfitMinLo", m_linfitMinLo = 300.0);
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
-  declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   // Initialize arrays for results
