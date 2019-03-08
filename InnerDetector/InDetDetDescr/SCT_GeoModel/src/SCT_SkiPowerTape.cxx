@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -33,8 +33,12 @@
 
 SCT_SkiPowerTape::SCT_SkiPowerTape(const std::string & name,
                                    const SCT_Ski * ski,
-                                   double length) :
-  SCT_SharedComponentFactory(name), m_length(length), m_ski(ski)
+                                   double length,
+                                   InDetDD::SCT_DetectorManager* detectorManager,
+                                   const SCT_GeometryManager* geometryManager,
+                                   SCT_MaterialManager* materials) :
+  SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+  m_length(length), m_ski(ski)
 {
   getParameters();
   m_physVolume = build();
@@ -43,8 +47,8 @@ SCT_SkiPowerTape::SCT_SkiPowerTape(const std::string & name,
 void 
 SCT_SkiPowerTape::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-    
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+
   // Width is the same as the width of a single powertape.
   m_powerTapeThickness        = parameters->powerTapeThickness();
   m_width                     = parameters->powerTapeWidth();
@@ -70,10 +74,9 @@ SCT_SkiPowerTape::build()
 
 
   // This is a volume containing all the power tapes.
-  SCT_MaterialManager materials;
   const GeoBox * skiPowerTapeShape = new GeoBox(0.5*m_thickness, 0.5*m_width, 0.5*m_length);
   const GeoLogVol *skiPowerTapeLog = 
-    new GeoLogVol(getName(), skiPowerTapeShape, materials.gasMaterial());
+    new GeoLogVol(getName(), skiPowerTapeShape, m_materials->gasMaterial());
   GeoPhysVol * skiPowerTape = new GeoPhysVol(skiPowerTapeLog);
 
   // Loop over modules in ski as we need their z positions.
@@ -141,9 +144,8 @@ SCT_SkiPowerTape::build()
 
     // Label tape with M# at end of string
     //std::ostringstream label; label << "PowerTapeM" << iModule + 1; 
-    //SCT_PowerTape powerTape(label.str(), tapeLength);
-    //SCT_PowerTape powerTape(getName()+"PowerTapeM"+intToString(iModule + 1), tapeLength);
-    SCT_PowerTape powerTape(getName()+"PowerTapeM"+intToString(iModule + 1), tapeLength);
+    SCT_PowerTape powerTape(getName()+"PowerTapeM"+intToString(iModule + 1), tapeLength,
+                            m_detectorManager, m_geometryManager, m_materials);
     
     // Calculate x position of tape. This will depend on the module number.
     // The reference point is the middle of the stack.

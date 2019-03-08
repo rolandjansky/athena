@@ -42,18 +42,18 @@
 
 using std::string;
 /////////////////////////////////////////////////////////////////////////////
-string SCTCalibWriteTool::s_separator = string("-");
-string SCTCalibWriteTool::s_defectFolderName = string("/SCT/Derived/Monitoring");
-string SCTCalibWriteTool::s_deadStripFolderName = string("/SCT/Derived/DeadStrips");
-string SCTCalibWriteTool::s_deadChipFolderName = string("/SCT/Derived/DeadChips");
-string SCTCalibWriteTool::s_effFolderName = string("/SCT/Derived/Efficiency");
-string SCTCalibWriteTool::s_noFolderName = string("/SCT/Derived/NoiseOccupancy");
-string SCTCalibWriteTool::s_RawOccuFolderName = string("/SCT/Derived/RawOccupancy");
-string SCTCalibWriteTool::s_BSErrFolderName = string("/SCT/Derived/BSErrorsRun2");
-string SCTCalibWriteTool::s_LAFolderName = string("/SCT/Derived/LorentzAngleRun2_v2");
+const string SCTCalibWriteTool::s_separator = string("-");
+const string SCTCalibWriteTool::s_defectFolderName = string("/SCT/Derived/Monitoring");
+const string SCTCalibWriteTool::s_deadStripFolderName = string("/SCT/Derived/DeadStrips");
+const string SCTCalibWriteTool::s_deadChipFolderName = string("/SCT/Derived/DeadChips");
+const string SCTCalibWriteTool::s_effFolderName = string("/SCT/Derived/Efficiency");
+const string SCTCalibWriteTool::s_noFolderName = string("/SCT/Derived/NoiseOccupancy");
+const string SCTCalibWriteTool::s_RawOccuFolderName = string("/SCT/Derived/RawOccupancy");
+const string SCTCalibWriteTool::s_BSErrFolderName = string("/SCT/Derived/BSErrorsRun2");
+const string SCTCalibWriteTool::s_LAFolderName = string("/SCT/Derived/LorentzAngleRun2_v2");
 
-static bool becCapsFormat(true);
-static bool becUnderscoreFormat(false);
+const bool becCapsFormat(true);
+const bool becUnderscoreFormat(false);
 
 SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent) :
    AthAlgTool(type, name, parent),

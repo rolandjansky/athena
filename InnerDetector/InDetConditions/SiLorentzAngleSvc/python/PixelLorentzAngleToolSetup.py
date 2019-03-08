@@ -32,12 +32,12 @@ class PixelLorentzAngleToolSetup:
       condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=tempFolder, UseConditions=True)
 
     if not hasattr(condSeq, "PixelSiPropertiesCondAlg"):
-      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+      from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
       condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg")
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+      from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
       ToolSvc += SiPropertiesTool(name = "PixelSiPropertiesTool",
                                   DetectorName = "Pixel",
                                   ReadKey = "PixelSiliconPropertiesVector")

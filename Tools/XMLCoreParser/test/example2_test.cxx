@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "XMLCoreParser/XMLCoreParser.h" 
@@ -37,9 +37,8 @@ public:
 int main (int argc, char* argv[]) 
 { 
   XMLCoreParser p;
-  Printer printer;
  
-  p.register_default_factory (&printer);
+  p.register_default_factory (std::make_unique<Printer>());
 
   p.register_external_entity ("InnerDetector", "OtherInDet.xml");
   p.register_external_entity ("LArCalorimeter", "NULL");

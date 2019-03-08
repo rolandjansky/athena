@@ -70,12 +70,12 @@ namespace ISF {
         and push them into the given ISFParticleContainer */
     virtual StatusCode convert(const McEventCollection& inputGenEvents,
                                ISF::ISFParticleContainer& simParticles,
-                               bool isPileup=false) const override final;
+                               EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const override final;
 
     /** */
     virtual StatusCode convertHepMCToG4Event(McEventCollection& inputGenEvents,
                                              G4Event*& outputG4Event,
-                                             bool isPileup) const override final;
+                                             EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const override final;
 
     /** Converts vector of ISF::ISFParticles to G4Event */
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;
@@ -103,7 +103,7 @@ namespace ISF {
     bool passesFilters(const HepMC::GenParticle& p) const;
 
     /** convert GenParticle to ISFParticle */
-    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, int bcid) const;
+    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
 
     /** ParticlePropertyService and ParticleDataTable */
     ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT

@@ -163,8 +163,6 @@ class LArBadChannelState {
 
   std::vector< CoolChannelData> m_DataVec;
 
-  friend class LArBadChanLegacyTool;
-
   // Non-const access to channel data
   CoolChannelData& coolChannel( int i) {
     return m_DataVec.at( static_cast<CoolChannelEnum>(i));

@@ -19,5 +19,11 @@ namespace xAOD {
 // Declare a CLID for the class:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::EventFormat, 243004407, 1 )
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::EventFormat> , 35480469 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::EventFormat>, MetaContBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODEVENTFORMAT_EVENTFORMAT_H

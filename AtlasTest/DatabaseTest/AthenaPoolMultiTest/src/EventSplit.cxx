@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,9 +25,7 @@
 EventSplit::EventSplit(const std::string& name, ISvcLocator* pSvcLocator) : 
    AthFilterAlgorithm(name, pSvcLocator), 
    m_l1bits(0),
-   m_l2bits(0),
-   m_evt("EventInfo"),
-   m_rftm("MultiTestTrigMap")
+   m_l2bits(0)
 {
    // Declare the properties
    declareProperty("L1bitmask", m_l1bits);

@@ -202,14 +202,17 @@ StatusCode SCTCalib::initialize() {
    //--- LB range
    try {
       m_LBRange = std::stoi( m_LBMax );
-      ISCT_CalibHistoTool::setNumberOfLb(m_LBRange);
+      m_calibHitmapTool->setNumberOfLb(m_LBRange);
+      m_calibLbTool->setNumberOfLb(m_LBRange);
+      m_calibBsErrTool->setNumberOfLb(m_LBRange);
    } catch (...) {
       ATH_MSG_ERROR( "Couldn't cast m_LBMax=\""<< m_LBMax <<"\" to m_LBRange...");
       m_LBRange = 0;
    }
 
-   ISCT_CalibHistoTool::setLbToMerge(m_nLbsMerged);
-
+   m_calibHitmapTool->setLbToMerge(m_nLbsMerged);
+   m_calibLbTool->setLbToMerge(m_nLbsMerged);
+   m_calibBsErrTool->setLbToMerge(m_nLbsMerged);
 
    m_readHIST = m_doNoiseOccupancy || m_doRawOccupancy || m_doEfficiency || m_doBSErrorDB || m_doLorentzAngle;
 

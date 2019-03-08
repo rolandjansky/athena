@@ -41,6 +41,7 @@ StatusCode InputMakerBase::sysInitialize() {
 
 
 // For each input Decision in the input container, create an output Decision in the corresponding output container and link them.
+// If the input is invalid or empty, the output is not created, resulting as invalid
 StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
 
   if (!m_mergeOutputs)   ATH_MSG_DEBUG("Creating one output per input");
@@ -51,6 +52,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
   size_t outputIndex = 0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
+
     if( not inputHandle.isValid() ) {
       ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key() << " because handle not valid");
       outputIndex++;
@@ -65,6 +67,8 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     
     // create the output container
     TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+
+
     auto outDecisions = outputHandles[outputIndex].ptr();
 
     //map all RoIs that are stored in this input container
@@ -130,15 +134,16 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
       }
     }
   }
+  ATH_MSG_DEBUG( "number of implicit ReadHandles for input decisions is " << decisionInputs().size() << ", " << validInput << " are valid/notempty" );
+  
   size_t validOutput=0;
-  ATH_MSG_DEBUG( "number of implicit ReadHandles for input decisions is " << decisionInputs().size() << ", " << validInput << " are valid" );
   for ( auto outHandle: outputHandles ) {
     if( not outHandle.isValid() ) continue;
     validOutput++;
   }
-  ATH_MSG_DEBUG("Produced " << validOutput << " output decisions containers");
+  ATH_MSG_DEBUG("Produced " << validOutput << " valid/notempty output decisions containers");
   if(validInput != validOutput) {
-    ATH_MSG_ERROR("Found " << validInput << " inputs and " << validOutput << " outputs");
+    ATH_MSG_ERROR("Found valid/notempty: " << validInput << " inputs and " << validOutput << " outputs");
   }
   
   for ( auto outHandle: outputHandles ) {

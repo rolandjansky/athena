@@ -79,11 +79,13 @@ BOOST_AUTO_TEST_SUITE(CoolFunctionsTest)
     //needs coral::AttributeList argument
     auto pSpec=new coral::AttributeListSpecification;
     pSpec->extend<int>("myInt");
+    pSpec->extend<int>("anotherInt");
     pSpec->extend<std::string>("PoolRef");
     coral::AttributeList attrList(*pSpec, true);
     attrList[0].setValue(1);
-    attrList[1].setValue(std::string("hello"));
-    BOOST_TEST(IOVDbNamespace::attributeListSize(attrList) ==9);
+    attrList[1].setValue(2);
+    attrList[2].setValue(std::string("hello"));
+    BOOST_TEST(IOVDbNamespace::attributeListSize(attrList) ==13);
     
   }
   //

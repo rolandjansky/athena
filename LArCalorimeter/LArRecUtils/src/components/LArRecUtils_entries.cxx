@@ -11,7 +11,6 @@
 #include "LArRecUtils/LArShapePeakRecoTool.h"
 #include "../LArTowerBuilderTool.h"
 #include "../LArFCalTowerBuilderTool.h"
-#include "../LArFEBConfigReader.h"
 #include "../LArFlatConditionSvc.h"
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArFlatConditionsAlg.h"
@@ -29,6 +28,7 @@
 #include "../LArHVCondAlg.h"
 #include "../LArHVScaleCorrCondAlg.h"
 #include "../LArAutoCorrNoiseCondAlg.h"
+#include "../LArFEBConfigCondAlg.h"
 
 
 DECLARE_COMPONENT( LArADC2MeVTool )
@@ -44,7 +44,6 @@ DECLARE_COMPONENT( LArParabolaPeakRecoTool )
 DECLARE_COMPONENT( LArShapePeakRecoTool )
 DECLARE_COMPONENT( LArTowerBuilderTool )
 DECLARE_COMPONENT( LArFCalTowerBuilderTool )
-DECLARE_COMPONENT( LArFEBConfigReader )
 DECLARE_COMPONENT( LArFlatConditionSvc )
 DECLARE_COMPONENT( LArFCalTowerBuilderToolTestAlg )
 DECLARE_COMPONENT( LArCondAlgAutoCorrSC )
@@ -90,3 +89,4 @@ DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
 DECLARE_COMPONENT( LArHVScaleCorrCondAlg )
 DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )
+DECLARE_COMPONENT( LArFEBConfigCondAlg )

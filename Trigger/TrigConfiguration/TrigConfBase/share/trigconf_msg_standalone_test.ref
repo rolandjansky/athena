@@ -1,0 +1,4 @@
+MyClass                        INFO This is a INFO message
+MyClass                        ERROR ERROR message via message stream macros
+MyClass                        WARNING WARNING message
+MyData                         INFO INFO message via MsgStream

@@ -120,9 +120,9 @@ def elStep2Sequence(ConfigFlags, name):
     elstep2_sequence = seqAND(name+"elSeqStep2", [elIM2, elAlg2])
     return (elstep2_sequence, elIM2,elAlg2.Output)
     
-def elStep2MenuSequence(name):
+def elStep2MenuSequence(name, hyponame):
     (elstep2_sequence, elIM2, seqOut) = RecoFragmentsPool.retrieve(elStep2Sequence,ConfigFlags,name=name)
-    elHypo2 = ElGamHypo(name+"Step2ElHypo")
+    elHypo2 = ElGamHypo(hyponame+"Step2ElHypo")
     elHypo2.Input = seqOut    
     return MenuSequence( Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, HypoToolGen=ElTestHypoTool)
 

@@ -476,7 +476,8 @@ DumpSp::build_matching_maps()
     TrackTruthCollection::const_iterator found( TruthMap->find(tracklink2) );
     if( found==TruthMap->end() ) { continue; }
     TrackTruth trtruth( found->second );
-    HepMcParticleLink::ExtendedBarCode extBarcode(trtruth.particleLink().barcode(),trtruth.particleLink().eventIndex());
+    HepMcParticleLink::ExtendedBarCode extBarcode(trtruth.particleLink().barcode(),trtruth.particleLink().eventIndex(),
+                                                  trtruth.particleLink().getEventCollection(), HepMcParticleLink::IS_INDEX);
     // update m_ttrTrackMap with track index corresponding to the greatest figure of merit.
     if( m_ttrProbMap.find(extBarcode)==m_ttrProbMap.end() ) {
       // this is the only track matching this barcode so far
@@ -639,6 +640,8 @@ DumpSp::dump_truth() const
           irecmatch = ibestrec->second;
         }
       }
+      HepMcParticleLink::index_type extBarcode2_index, extBarcode2_position;
+      extBarcode2.eventIndex(extBarcode2_index, extBarcode2_position);
       ParentBitmask parent_mask( construct_truth_bitmap( particle ) );
       (*m_oflraw) << setiosflags(ios::scientific) << "T\t"
                 << setw(14) << setprecision(10) << track_truth_x0 << '\t'
@@ -651,7 +654,7 @@ DumpSp::dump_truth() const
                 << pdgcode << '\t'
                 << setw(14) << (int)irecmatch << '\t'
                 << setw(14) << setprecision(10) << precmatch << '\t'
-                << extBarcode2.eventIndex() << '\t'
+                << extBarcode2_index << '\t'
                 << extBarcode2.barcode() << '\t'
                 << parent_mask.to_ulong() << '\t'
                 << isDetPaperCut << '\t'
@@ -870,7 +873,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               // bcs.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               // if( particleLink.eventIndex()==0 ) {
@@ -904,6 +908,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           } // end if truth found for this pixel
         } // end if pixel truth available
         ++hitIndex;
+        HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+        best_extcode.eventIndex(best_extcode_index, best_extcode_position);
         (*m_oflraw) << "S\t" 
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
@@ -919,7 +925,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
                   << m_pixelId->phi_index(rdoId) << '\t'
                   << m_pixelId->eta_index(rdoId) << '\t'
                   << (*iRDO)->getToT() << '\t'
-                  << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                  << (long)(best_parent ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
                   << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                   << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                   << parent_mask.to_ulong() << '\t'
@@ -1047,7 +1053,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               // bcs.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               // if( particleLink.eventIndex()==0 ) {
@@ -1078,6 +1085,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
             } // end for each contributing particle
           } // end if truth found for this strip
         } // end if sct truth available        
+        HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+        best_extcode.eventIndex(best_extcode_index, best_extcode_position);
         (*m_oflraw) << "S\t" 
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
@@ -1093,7 +1102,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
                   << m_sctId->side(rdoId) << '\t'
                   << m_sctId->strip(rdoId) << '\t'
                   << (*iRDO)->getGroupSize() << '\t'
-                  << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                  << (long)(best_parent ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
                   << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                   << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                   << parent_mask.to_ulong() << '\t'
@@ -1219,7 +1228,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               parent_mask |= construct_truth_bitmap( particle );
             } // loop over deposits
@@ -1274,7 +1284,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         localx = (*iCluster)->localPosition()[Trk::distPhi] - m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
-
+      HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+      best_extcode.eventIndex(best_extcode_index, best_extcode_position);
       (*m_oflraw) << "P\t" 
                 << setw(14) << setprecision(10)
                 << gPos.x() << '\t'
@@ -1296,7 +1307,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
                 << (*iCluster)->width().colRow().y() << '\t' // width in eta?
                 << (*iCluster)->rdoList().size() << '\t' // number of pixels in cluster
         // Cluster truth
-                << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                << (long)(best_parent ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
                 << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                 << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                 << parent_mask.to_ulong()
@@ -1355,7 +1366,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               parent_mask |= construct_truth_bitmap( particle );
             } // loop over deposits
@@ -1386,7 +1398,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         // do not add 0.5 to center in middle of strip; match SCT leading spatial edge convention
         localx = cellIdCentroid.phiIndex() + deltaxphi; // + 0.5
       }
-
+      HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+      best_extcode.eventIndex(best_extcode_index, best_extcode_position);
       (*m_oflraw) << "C\t" 
                 << setw(14) << setprecision(10)
                 << gPos.x() << '\t'
@@ -1404,7 +1417,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
                 << m_sctId->strip(theId) << '\t'
                 << localx << '\t'
                 << (*iCluster)->rdoList().size() << '\t' // number of strips in cluster
-                << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                << (long)(best_parent ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
                 << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                 << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                 << parent_mask.to_ulong() << '\t'
@@ -1600,6 +1613,8 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       assert( ittr != m_ttrProbMap.end() );
       mc_frac = ittr->second;
     }
+    HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+    best_extcode.eventIndex(best_extcode_index, best_extcode_position);
     // dump one line for each track
     if( m_dumpSpacePoints ) {
       (*m_ofl) << "E\t" 
@@ -1608,7 +1623,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
              << setw(14) << setprecision(10) << phi0 << '\t'
              << setw(14) << setprecision(10) << 1./tan(track->perigeeParameters()->parameters()[Trk::theta]) << '\t'
              << setw(15) << setprecision(10) << qpt << '\t'
-             << setw(14) << (long)(mc_frac>=0. ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+             << setw(14) << (long)(mc_frac>=0. ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
              << setw(14) << (long)(mc_frac>=0. ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
              << setw(14) << setprecision(10) << mc_frac
              << endl;
@@ -1619,7 +1634,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
               << setw(14) << setprecision(10) << phi0 << '\t'
               << setw(14) << setprecision(10) << 1./tan(track->perigeeParameters()->parameters()[Trk::theta]) << '\t'
               << setw(15) << setprecision(10) << qpt << '\t'
-              << setw(14) << (mc_frac>=0. ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+              << setw(14) << (mc_frac>=0. ? best_extcode_index : std::numeric_limits<long>::max()) << '\t'
               << setw(14) << (mc_frac>=0. ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
               << setw(14) << setprecision(10) << mc_frac << '\t';
     // dump the indices of the clusters used in this track

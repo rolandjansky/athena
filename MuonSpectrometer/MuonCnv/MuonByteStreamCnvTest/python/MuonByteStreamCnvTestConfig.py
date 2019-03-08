@@ -71,6 +71,11 @@ def getSigTgcDigitToTgcRDO(name="SigTgcDigitToTgcRDO", **kwargs):
     return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
 
 
+def getOverlayCscDigitToCscRDO(name="OverlayCscDigitToCscRDO", **kwargs):
+    kwargs.setdefault("CscDigitToRDOTool","CscDigitToCscRDOTool4")
+    return CfgMgr.CscDigitToCscRDO(name, **kwargs)
+
+
 def getOverlayMdtDigitToMdtRDO(name="OverlayMdtDigitToMdtRDO", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+MDT_DIGITS")

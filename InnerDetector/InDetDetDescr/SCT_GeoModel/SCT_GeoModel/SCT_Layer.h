@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -37,14 +37,17 @@ class SCT_Layer: public SCT_UniqueComponentFactory
 public:
   SCT_Layer(const std::string & name,
 	    int iLayer,
-	    const SCT_Module * module);
+            SCT_Module * module,
+            InDetDD::SCT_DetectorManager* detectorManager,
+            const SCT_GeometryManager* geometryManager,
+            SCT_MaterialManager* materials);
 
   ~SCT_Layer();
   //Explicitly disallow copy, assign to appease coverity
   SCT_Layer(const SCT_Layer &) = delete;
   SCT_Layer & operator=(const SCT_Layer &) = delete;
 
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
 
 
 public:
@@ -100,19 +103,19 @@ private:
   double m_phiScorpion;
   double m_zScorpion;
 
-  const SCT_Module       * m_module;
-  const SCT_Ski          * m_ski;
-  const SCT_Clamp        * m_clamp;
-  const SCT_CoolingEnd   * m_coolingEnd;
-  const SCT_Bracket      * m_bracket;
-  const SCT_Harness      * m_harness;
-  const SCT_SkiPowerTape * m_skiPowerTape;
-  const SCT_SkiAux       * m_skiAux;
-  const SCT_Flange       * m_flange;
-  const SCT_SupportCyl   * m_supportCyl;
-  const SCT_FSIEndJewel  * m_endJewel;
-  const SCT_FSIScorpion  * m_scorpion;
-  const SCT_FSIFibreMask * m_fibreMask;
+  SCT_Module       * m_module;
+  SCT_Ski          * m_ski;
+  SCT_Clamp        * m_clamp;
+  SCT_CoolingEnd   * m_coolingEnd;
+  SCT_Bracket      * m_bracket;
+  SCT_Harness      * m_harness;
+  SCT_SkiPowerTape * m_skiPowerTape;
+  SCT_SkiAux       * m_skiAux;
+  SCT_Flange       * m_flange;
+  SCT_SupportCyl   * m_supportCyl;
+  SCT_FSIEndJewel  * m_endJewel;
+  SCT_FSIScorpion  * m_scorpion;
+  SCT_FSIFibreMask * m_fibreMask;
 
 };
 

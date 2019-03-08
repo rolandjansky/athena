@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_Amp.h"
@@ -15,11 +15,10 @@
 
 // constructor
 SCT_Amp::SCT_Amp(const std::string& type, const std::string& name, const IInterface* parent) 
-  : AthAlgTool(type, name, parent), 
+  : base_class(type, name, parent), 
     m_NormConstCentral{0.},
     m_NormConstNeigh{0.}
 {
-  declareInterface<ISCT_Amp>(this);
   declareProperty("CrossFactor2sides", m_CrossFactor2sides=0.1); //! <Loss of charge to neighbour strip constant
   declareProperty("CrossFactorBack", m_CrossFactorBack=0.07);    //! <Loss of charge to back plane constant
   declareProperty("PeakTime", m_PeakTime=21.);                   //! <Front End Electronics peaking time

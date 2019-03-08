@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "RIO_OnTrackErrorScalingKit.h"
 
 size_t RIO_OnTrackErrorScalingKit::getParamIndex(const std::string &name) const {
-  const char **param_names = paramNames();
+  const char* const* param_names = paramNames();
   for(size_t idx=0; idx<nParametres(); ++idx) {
     if (strcmp(param_names[idx],name.c_str())==0) return idx;
   }

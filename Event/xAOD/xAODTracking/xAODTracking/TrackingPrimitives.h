@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPrimitives.h 576255 2013-12-19 12:54:41Z emoyse $
@@ -393,12 +393,38 @@ namespace xAOD {
     etaLayer3TGCHoles = 75,  //!< number of eta holes in the third  TGC trigger layer (T2)
     etaLayer4TGCHoles = 76,  //!< number of eta holes in the fourth TGC trigger layer (T3)
 
+    // New Small Wheel
+    //STGC
+    phiLayer1STGCHits  = 79,  //!< number of phi hits  in the first  STGC trigger layer (STGC1)
+    phiLayer2STGCHits  = 80,  //!< number of phi hits  in the second STGC trigger layer (STGC2)
+
+    etaLayer1STGCHits  = 81,  //!< number of eta hits  in the first  STGC trigger layer (STGC1)
+    etaLayer2STGCHits  = 82,  //!< number of eta hits  in the second STGC trigger layer (STGC2)
+
+    phiLayer1STGCHoles = 83,  //!< number of phi holes in the first  STGC trigger layer (STGC1)
+    phiLayer2STGCHoles = 84,  //!< number of phi holes in the second STGC trigger layer (STGC2)
+ 
+    etaLayer1STGCHoles = 85,  //!< number of eta holes in the first  STGC trigger layer (STGC1)
+    etaLayer2STGCHoles = 86,  //!< number of eta holes in the second STGC trigger layer (STGC2)
+
+    //MM
+    MMHits = 87,
+    MMHoles = 88,
+    // Note: there is currently no MuonStationIndex for the two MM layers
+    // In the future it might be needed to add them in order to have 
+    // separate counters as follows
+    // Layer1MMHits  = 87,  //!< number of eta hits  in the first  MM layer
+    // Layer2MMHits  = 88,  //!< number of eta hits  in the second MM layer
+    // Layer1MMHoles = 89,  //!< number of eta holes in the first  MM layer
+    // Layer2MMHoles = 90,  //!< number of eta holes in the second MM layer
+
+
     //CSC debugging
     cscEtaHits = 77,           //!<number of CSC eta clusters on the track
     cscUnspoiledEtaHits = 78,  //!<number of unspoiled CSC eta clusters on track
 
     // -- numbers...
-    numberOfMuonSummaryTypes       = 79
+    numberOfMuonSummaryTypes       = 89
   };
 
   /// A convenience namespace to make the client code easier to understand

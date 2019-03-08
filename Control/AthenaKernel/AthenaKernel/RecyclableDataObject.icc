@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // $Id$
 /*
@@ -22,7 +22,7 @@ namespace Athena {
  */
 template <class DOBJ>
 template <typename... ARGS>
-RecyclableDataObject<DOBJ>::RecyclableDataObject (queue_t& queue, ARGS&&... args)
+RecyclableDataObject<DOBJ>::RecyclableDataObject (std::shared_ptr<queue_t> queue, ARGS&&... args)
   : DOBJ (std::forward<ARGS>(args)...),
     m_queue (queue)
 {
@@ -44,9 +44,19 @@ unsigned long RecyclableDataObject<DOBJ>::release()
   unsigned long cnt = DOBJ::release();
   if (cnt == 1) {
     this->recycle();
-    m_queue.push (this);
+    m_queue->push (this);
   }
   return cnt;
+}
+
+
+/** 
+ * @brief Constructor.
+ */
+template <class DOBJ>
+RecyclableDataQueue<DOBJ>::RecyclableDataQueue()
+  : m_queue (std::make_shared<queue_t>())
+{
 }
 
 
@@ -59,10 +69,10 @@ template <typename... ARGS>
 DOBJ* RecyclableDataQueue<DOBJ>::get (ARGS&&... args)
 {
   DOBJ* obj = nullptr;
-  if (this->try_pop (obj)) {
+  if (m_queue->try_pop (obj)) {
     return obj;
   }
-  return new RecyclableDataObject<DOBJ> (*this, std::forward<ARGS>(args)...);
+  return new RecyclableDataObject<DOBJ> (m_queue, std::forward<ARGS>(args)...);
 }
 
 
@@ -75,7 +85,7 @@ template <class DOBJ>
 RecyclableDataQueue<DOBJ>::~RecyclableDataQueue()
 {
   DOBJ* obj = nullptr;
-  while (this->try_pop (obj)) {
+  while (m_queue->try_pop (obj)) {
     delete obj;
   }
 }

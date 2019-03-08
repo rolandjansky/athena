@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -822,7 +822,7 @@ int main (int argc, char* argv[])
 	    std::cout << "Could not find 'part' field"
 		      << " in dictionary " << atlasDict->m_name
 		      << std::endl;
-	    exit (1);
+	    return 1;
 	}
     
 	std::vector <IdDictLabel*>::const_iterator itLabels = partField->m_labels.begin();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -96,8 +96,9 @@ namespace InDet {
    // Private data:
    ///////////////////////////////////////////////////////////////////
  private:
-   Amg::Vector2D m_colrow;//<col, row>
-   Amg::Vector2D m_phirzWidth;
+   // Need to force proper alignment; otherwise cling gets it wrong.
+   alignas(16) Amg::Vector2D m_colrow;//<col, row>
+   alignas(16) Amg::Vector2D m_phirzWidth;
  };
 
  MsgStream&    operator << (MsgStream& stream,    const SiWidth& prd);

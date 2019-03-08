@@ -28,7 +28,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 #include "LArElecCalib/ILArPedestal.h"
 
@@ -75,7 +74,6 @@ class LArHECNoise : public AthAlgorithm  {
 
    /*services*/
    const LArOnlineID* m_LArOnlineIDHelper;
-   const CaloIdManager*  m_caloIdMgr;
    const CaloDetDescrManager* m_calodetdescrmgr;
    const CaloCell_ID*   m_calocell_id;
 
@@ -115,7 +113,7 @@ class LArHECNoise : public AthAlgorithm  {
    std::vector<std::string> m_TriggerLines;
    int m_MinDigitADC;
    int m_MaxDeltaT;
-   const DataHandle<ILArPedestal> m_ped;
+   const ILArPedestal* m_ped;
 
 };
 

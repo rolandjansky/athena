@@ -58,7 +58,6 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
     m_Pixel_track_bar_lay0_cluster_occupancy(0),
     m_Pixel_track_bar_lay1_cluster_occupancy(0),
     m_Pixel_track_bar_lay2_cluster_occupancy(0),
-    m_Pixel_track_Lvl1ID(0),
     m_Pixel_track_Lvl1A(0),
     m_Pixel_track_chi2(0),
     m_Pixel_track_qOverP(0),

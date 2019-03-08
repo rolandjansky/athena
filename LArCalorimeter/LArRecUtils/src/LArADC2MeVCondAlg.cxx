@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,8 +16,6 @@
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloGain.h"
 
-#include "LArElecCalib/ILArFEBConfigReader.h"
-
 #include <memory>
 
 #include "GaudiKernel/EventIDRange.h"
@@ -32,12 +30,10 @@ LArADC2MeVCondAlg::LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcL
   m_lArHVScaleCorrKey("LArHVScaleCorr"),
   m_ADC2MeVKey("LArADC2MeV","LArADC2MeV"),
   m_condSvc("CondSvc",name),
-  m_febCfgReader("LArFEBConfigReader",this),
+  m_configKey("LArFebConfig"),
   m_isSuperCell(false) {
   
 
-  //declareProperty("LArOnlineIDKey",m_larOnlineIDKey,"SG key of LArOnlineID helper obj for regular cells");
-  //declareProperty("LArSCOnlineIDKey",m_larSCOnlineIDKey,"SG key of LArOnlineID helper obj for SuperCells");
   declareProperty("LArOnOffIdMappingKey",m_cablingKey,"SG key of LArOnOffIdMapping object");
   declareProperty("LAruA2MeVKey",m_lAruA2MeVKey,"SG key of uA2MeV object");
   declareProperty("LArDAC2uAKey",m_lArDAC2uAKey,"SG key of DAC2uA object");
@@ -46,8 +42,8 @@ LArADC2MeVCondAlg::LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("LArHVScaleCorrKey",m_lArHVScaleCorrKey,"SG key of HVScaleCorr object (or empty string if no HVScaleCorr)");
   declareProperty("LArADC2MeVKey",m_ADC2MeVKey,"SG key of the resulting LArADC2MeV object");
   declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-  declareProperty("FebConfigReader",m_febCfgReader);
   declareProperty("UseFEBGainTresholds",m_useFEBGainThresholds=true);
+  declareProperty("inputKey",m_configKey,"SG key for FEB config object");
 }
 
 LArADC2MeVCondAlg::~LArADC2MeVCondAlg() {}
@@ -92,11 +88,8 @@ StatusCode LArADC2MeVCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_useFEBGainThresholds) {
-    ATH_CHECK(m_febCfgReader.retrieve());
-  } else {
-    m_febCfgReader.disable();
-  }
+  if (m_useFEBGainThresholds)  ATH_CHECK(m_configKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -164,6 +157,17 @@ StatusCode LArADC2MeVCondAlg::execute() {
   if (!rampHdl.range(rangeIn)){
     ATH_MSG_ERROR("Failed to retrieve validity range for ramp object with key " << rampHdl.key());
     return StatusCode::FAILURE;
+  }
+
+  // retrieve LArFebConfig if needed
+  const LArFebConfig *febConfig=nullptr;
+  if(m_useFEBGainThresholds) {
+     SG::ReadCondHandle<LArFebConfig> configHdl{m_configKey};
+     febConfig = *configHdl;
+     if (febConfig==nullptr) {
+        ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_configKey.key());
+        return StatusCode::FAILURE;
+     }
   }
 
   rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
@@ -280,7 +284,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
 	}
 
 	//Determine if the intercept is to be used:
-	if (igain==0 || (igain==1 && m_useFEBGainThresholds && m_febCfgReader->lowerGainThreshold(chid)<5)) { 
+	if (igain==0 || (igain==1 && febConfig && febConfig->lowerGainThreshold(chid)<5)) { 
 	  //Don't use ramp intercept in high gain and in medium gain if the no high gain is used
 	  //(eg lowerGainThreshold is ~zero)
 	  ADC2MeV.push_back(0.);

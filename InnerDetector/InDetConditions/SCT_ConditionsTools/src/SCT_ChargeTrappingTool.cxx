@@ -12,7 +12,7 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -168,7 +168,7 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
   siProperties.setConditions(temperature, electricField);
 
   // -- Calculate electron and holes drift mobility and velocity for these conditions (temperature, electricField)
-  //    using parametrizations in SiliconProperties (SiPropertiesSvc). These will be used later for the trapping model.
+  //    using parametrizations in SiliconProperties (SiPropertiesTool). These will be used later for the trapping model.
   //    In the SCT we collect holes. 
   double electronDriftMobility{0.};
   double holeDriftMobility{0.};

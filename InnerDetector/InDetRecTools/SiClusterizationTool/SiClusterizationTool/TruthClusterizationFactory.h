@@ -18,6 +18,7 @@
  #include "GaudiKernel/ToolHandle.h"
  #include "GaudiKernel/IIncidentSvc.h"
 
+ #include <atomic>
  #include <vector>
  #include <string>
  #include <map>
@@ -73,7 +74,7 @@ namespace InDet {
 	/** IncidentSvc to catch begining of event and end of event */   
     ServiceHandle<IIncidentSvc>           m_incidentSvc;   	
     SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName {this, "InputSDOMap", "PixelSDO_Map", "sim data collection name"};
-    mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
+    mutable std::atomic<const InDetSimDataCollection*> m_simDataCollection; //!< sim data collection - refreshed at BeginEvent incident
 
   protected:
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;

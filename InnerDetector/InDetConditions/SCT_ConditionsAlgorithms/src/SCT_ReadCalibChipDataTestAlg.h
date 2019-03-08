@@ -16,8 +16,6 @@
 
 #include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -47,7 +45,6 @@ class SCT_ReadCalibChipDataTestAlg : public AthReentrantAlgorithm
   
   //----------Private Attributes----------//
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
-  SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey{this, "EventInfoKey", "EventInfo", "EventInfoKey"};
   Identifier                          m_moduleId;      //!< Module identifier
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier

@@ -108,14 +108,23 @@ StatusCode MooSegmentFinderAlg::execute()
 
   SG::WriteHandle<MuonPatternCombinationCollection> patHandle(m_patternCombiLocation); 
   
-  if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>()).isSuccess() ){
-    ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
-  }else{
-    ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
-  }
-  output.patternCombinations=patHandle.ptr();
-
   m_segmentFinder->findSegments( mdtCols, cscCols, tgcCols, rpcCols, output );
+
+  if(output.patternCombinations){
+    if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>(std::move(*(output.patternCombinations)))).isSuccess() ){
+      ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
+    }else{
+      ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
+    }
+    delete output.patternCombinations;
+  }
+  else{
+    if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>()).isSuccess() ){
+      ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
+    }else{
+      ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
+    }
+  }
 
   //do cluster based segment finding
   if (m_doTGCClust || m_doRPCClust){

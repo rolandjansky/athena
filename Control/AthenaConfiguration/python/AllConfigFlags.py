@@ -19,9 +19,9 @@ def _createCfgFlags():
     acf.addFlag('Concurrency.NumConcurrentEvents', 0)
 
     acf.addFlag('Scheduler.CheckDependencies', True)
-    acf.addFlag('Scheduler.ShowDataDeps', False)
-    acf.addFlag('Scheduler.ShowDataFlow', False)
-    acf.addFlag('Scheduler.ShowControlFlow', False)
+    acf.addFlag('Scheduler.ShowDataDeps', True)
+    acf.addFlag('Scheduler.ShowDataFlow', True)
+    acf.addFlag('Scheduler.ShowControlFlow', True)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
 
@@ -101,6 +101,10 @@ def _createCfgFlags():
         return createMuonConfigFlags()
     acf.addFlagsCategory( "Muon", __muon )
 
+    def __egamma():
+        from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
+        return createEgammaConfigFlags()
+    acf.addFlagsCategory( "Egamma", __egamma )
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags

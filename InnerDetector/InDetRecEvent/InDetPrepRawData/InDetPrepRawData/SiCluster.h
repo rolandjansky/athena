@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" // cant be forward declared
 #include "TrkSurfaces/Surface.h"
+
+#include <atomic>
 
 class PixelClusterContainerCnv;
 class SCT_ClusterContainerCnv;
@@ -111,7 +113,7 @@ class SiCluster :   public Trk::PrepRawData {
 
 	private:
 	InDet::SiWidth m_width; //col, row, and width in mm
-	mutable const Amg::Vector3D* m_globalPosition;
+	mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
 	bool m_gangedPixel;
 	const InDetDD::SiDetectorElement* m_detEl;
 
@@ -132,8 +134,16 @@ inline const InDet::SiWidth&  SiCluster::width() const
 // return globalPosition:
 inline const Amg::Vector3D& SiCluster::globalPosition() const
 {
-        if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).localToGlobal(localPosition());
-	return *m_globalPosition;
+  if (m_globalPosition==nullptr) {
+    const Amg::Vector3D* expected{nullptr};
+    const Amg::Vector3D* desired{m_detEl->surface(identify()).localToGlobal(localPosition())};
+    if (not m_globalPosition.compare_exchange_strong(expected, desired)) {
+      // This happens if more than one threads try to set m_globalPosition.
+      delete desired;
+      desired = nullptr;
+    }
+  }
+  return *m_globalPosition;
 }
 // set gangedPixel:
 inline void SiCluster::setGangedPixel(bool ganged){

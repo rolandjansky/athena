@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETOVERLAY_SCTOVERLAY_H
@@ -16,8 +16,8 @@ public:
 
   SCTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
   // SCT collection merging needs an ID helper.  Instead of retrieving
   // it thousands of times per event in the collection merging code,
@@ -29,7 +29,7 @@ public:
                     BkgSource=0, SignalSource=1, NumberOfSources=2};
 
 private:
-  const SCT_ID *m_sctId;
+  const SCT_ID *m_sctId{};
 
   SG::ReadHandleKey<SCT_RDO_Container> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+SCT_RDOs", "ReadHandleKey for Background Input SCT_RDO_Container" };
   SG::ReadHandleKey<SCT_RDO_Container> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+SCT_RDOs", "ReadHandleKey for Signal Input SCT_RDO_Container" };

@@ -44,7 +44,7 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
         pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
         pixelSiPropertiesToolSetup.setup()
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
@@ -54,7 +54,7 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
         pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
         pixelSiPropertiesToolSetup.setup()
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
@@ -64,7 +64,7 @@ def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
     if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
-        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
         pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
         pixelSiPropertiesToolSetup.setup()
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)

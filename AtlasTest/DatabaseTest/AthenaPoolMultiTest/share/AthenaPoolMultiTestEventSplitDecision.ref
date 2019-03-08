@@ -1,0 +1,232 @@
+Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfig.py"
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+Splitter1           DEBUG Property update for OutputLevel : new value = 2
+Splitter1            INFO in initialize()
+Splitter1           DEBUG input handles: 3
+Splitter1           DEBUG output handles: 0
+Splitter1           DEBUG Data Deps for Splitter1
+Splitter2            INFO in initialize()
+Splitter3           DEBUG Property update for OutputLevel : new value = 2
+Splitter3            INFO in initialize()
+Splitter3           DEBUG input handles: 3
+Splitter3           DEBUG output handles: 0
+Splitter3           DEBUG Data Deps for Splitter3
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+DecisionSvc          INFO Inserting stream: Stream2 with no Algs
+DecisionSvc          INFO Inserting stream: Stream3 with no Algs
+DecisionSvc          INFO Inserting stream: StreamAll2 with no Algs
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+StreamAll2.Stre...   INFO Initializing StreamAll2.StreamAll2Tool - package version AthenaServices-00-00-00
+StreamAll2.Stre...   INFO Initializing StreamAll2.StreamAll2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+StreamAll2           INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll2_MakeEventStreamInfo'])
+StreamAll2           INFO Data output: AthenaPoolMultiTest_StreamAll2.root
+StreamAll2           INFO I/O reinitialization...
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 0 run: 0
+Splitter1           DEBUG Trigmask = 1
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 0 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 0 run: 0
+Splitter3           DEBUG Trigmask = 1
+Splitter3            INFO L1 failed
+Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll2.root
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll2.root File version:61600
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 1 run: 0
+Splitter1           DEBUG Trigmask = 2
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 1 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 1 run: 0
+Splitter3           DEBUG Trigmask = 2
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 2 run: 0
+Splitter1           DEBUG Trigmask = 4
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 2 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 2 run: 0
+Splitter3           DEBUG Trigmask = 4
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 3 run: 0
+Splitter1           DEBUG Trigmask = 256
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 3 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 3 run: 0
+Splitter3           DEBUG Trigmask = 256
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 4 run: 0
+Splitter1           DEBUG Trigmask = 18
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 4 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 4 run: 0
+Splitter3           DEBUG Trigmask = 18
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 5 run: 0
+Splitter1           DEBUG Trigmask = 36
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 5 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 5 run: 0
+Splitter3           DEBUG Trigmask = 36
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 6 run: 0
+Splitter1           DEBUG Trigmask = 65
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 6 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 6 run: 0
+Splitter3           DEBUG Trigmask = 65
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 7 run: 0
+Splitter1           DEBUG Trigmask = 130
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 7 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 7 run: 0
+Splitter3           DEBUG Trigmask = 130
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 8 run: 0
+Splitter1           DEBUG Trigmask = 260
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 8 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 8 run: 0
+Splitter3           DEBUG Trigmask = 260
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 9 run: 0
+Splitter1           DEBUG Trigmask = 513
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 9 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 9 run: 0
+Splitter3           DEBUG Trigmask = 513
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 10 run: 0
+Splitter1           DEBUG Trigmask = 1026
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 10 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 10 run: 0
+Splitter3           DEBUG Trigmask = 1026
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 11 run: 0
+Splitter1           DEBUG Trigmask = 2052
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 11 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 11 run: 0
+Splitter3           DEBUG Trigmask = 2052
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 12 run: 0
+Splitter1           DEBUG Trigmask = 4097
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 12 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 12 run: 0
+Splitter3           DEBUG Trigmask = 4097
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 13 run: 0
+Splitter1           DEBUG Trigmask = 8194
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 13 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 13 run: 0
+Splitter3           DEBUG Trigmask = 8194
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 14 run: 0
+Splitter1           DEBUG Trigmask = 16388
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 14 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 14 run: 0
+Splitter3           DEBUG Trigmask = 16388
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 15 run: 0
+Splitter1           DEBUG Trigmask = 32769
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 15 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 15 run: 0
+Splitter3           DEBUG Trigmask = 32769
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 16 run: 0
+Splitter1           DEBUG Trigmask = 3
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 16 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 16 run: 0
+Splitter3           DEBUG Trigmask = 3
+Splitter3            INFO L1 failed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 17 run: 0
+Splitter1           DEBUG Trigmask = 6
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 17 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 17 run: 0
+Splitter3           DEBUG Trigmask = 6
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 18 run: 0
+Splitter1           DEBUG Trigmask = 5
+Splitter1            INFO L1 passed
+Splitter2            INFO EventInfo event: 18 run: 0
+Splitter2            INFO L1 failed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 18 run: 0
+Splitter3           DEBUG Trigmask = 5
+Splitter3            INFO L1 passed
+Splitter1           DEBUG in execute()
+Splitter1            INFO EventInfo event: 19 run: 0
+Splitter1           DEBUG Trigmask = 10
+Splitter1            INFO L1 failed
+Splitter2            INFO EventInfo event: 19 run: 0
+Splitter2            INFO L1 passed
+Splitter3           DEBUG in execute()
+Splitter3            INFO EventInfo event: 19 run: 0
+Splitter3           DEBUG Trigmask = 10
+Splitter3            INFO L1 failed
+StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
+StreamAll2           INFO Records written: 21
+Splitter1            INFO in finalize()
+Splitter2            INFO in finalize()
+Splitter3            INFO in finalize()
+ItemListSvc         DEBUG STREAM StreamAll2 has (8) items
+ItemListSvc         DEBUG    - EventStreamInfo_StreamAll2

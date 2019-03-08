@@ -68,6 +68,7 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       VecInt *m_scterr_phi;
       VecInt *m_scterr_side;
       VecInt *m_scterr_type;
+      int m_maxHash;
 
       void
       fillBsErrorsForWafer(const Identifier & waferId, const int type);

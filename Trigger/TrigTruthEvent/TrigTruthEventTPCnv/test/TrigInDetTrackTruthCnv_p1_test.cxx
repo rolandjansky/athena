@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -46,29 +46,22 @@ public:
     for (size_t i = 0; i < p1.m_nr_common_hits.size(); i++)
       ::compare (p1.m_nr_common_hits[i], p2.m_nr_common_hits[i]);
     assert (p1.m_family_tree == p2.m_family_tree);
-    
+
   }
 
-  static void set (TrigInDetTrackTruth& p)
+  static void set (TrigInDetTrackTruth& p, std::vector<HepMC::GenParticle*>& genPartVector)
   {
-    p.m_true_part_vec.emplace_back (1001, 10);
-    p.m_true_part_vec.emplace_back (1002, 11);
-    p.m_true_part_vec.emplace_back (1003, 12);
-
     int nstat = 4;
     p.m_nr_common_hits.resize (nstat);
     for (int i=0; i < nstat; i++) {
-      p.m_nr_common_hits[i][TrigIDHitStats::PIX] = 12 + i*10;
-      p.m_nr_common_hits[i][TrigIDHitStats::SCT] = 13 + i*10;
-      p.m_nr_common_hits[i][TrigIDHitStats::TRT] = 14 + i*10;
+      HepMcParticleLink particleLink(genPartVector.at(i)->barcode(),genPartVector.at(i)->parent_event()->event_number());
+      TrigIDHitStats tihs;
+      tihs[TrigIDHitStats::PIX] = 12 + i*10;
+      tihs[TrigIDHitStats::SCT] = 13 + i*10;
+      tihs[TrigIDHitStats::TRT] = 14 + i*10;
+      p.addMatch(particleLink, tihs);
+      p.updateFamilyTree();
     }
-
-    p.m_family_tree.emplace_back (0, 1);
-    p.m_family_tree.emplace_back (0, 2);
-
-    p.m_best_match_hits = 0;
-    p.m_best_Si_match_hits = 1;
-    p.m_best_TRT_match_hits = 2;
   }
 };
 
@@ -105,8 +98,8 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   Athena_test::Leakcheck check;
 
   TrigInDetTrackTruth trans1;
-  TrigInDetTrackTruthCnv_p1_test::set (trans1);
-    
+  TrigInDetTrackTruthCnv_p1_test::set (trans1, genPartVector);
+
   testit (trans1);
 }
 

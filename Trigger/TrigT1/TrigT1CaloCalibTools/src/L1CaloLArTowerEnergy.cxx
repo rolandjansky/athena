@@ -3,6 +3,7 @@
 */
 
 #include "TrigT1CaloCalibTools/L1CaloLArTowerEnergy.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 namespace LVL1{
 
@@ -14,7 +15,7 @@ namespace LVL1{
     m_LArOnlineHelper(nullptr),
     m_ttService(nullptr),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_badChannelTool("LArBadChanLegacyTool"),
+    m_badFebMasker("LArBadFebMasker"),
     m_larCablingSvc("LArCablingLegacyService"),
     m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   {
@@ -43,14 +44,11 @@ namespace LVL1{
       return StatusCode::FAILURE;
     }
     
-    sc = m_cells2tt.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Cannot get L1CaloCells2TriggerTowers !");return sc;}
+    ATH_CHECK(m_cells2tt.retrieve());
 
-    sc=m_badChannelTool.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR( "Could not retrieve BadChannelTool" );return sc;}
+    ATH_CHECK(m_badFebMasker.retrieve());
 
-    sc=m_larCablingSvc.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR( "Could not retrieve LArCablingService" );return sc;}    
+    ATH_CHECK(m_larCablingSvc.retrieve());
 
 
     //Retrieve cabling & tt services
@@ -243,7 +241,7 @@ namespace LVL1{
     {
       HWIdentifier chid = m_larCablingSvc->createSignalChannelID(*it);
       HWIdentifier febId = m_LArOnlineHelper->feb_Id(chid);
-      LArBadFeb febstatus = m_badChannelTool->febStatus(febId);
+      LArBadFeb febstatus = m_badFebMasker->febStatus(febId);
       bool deadReadout = febstatus.deadReadout();
       bool desactivatedInOKS = febstatus.deactivatedInOKS();
 

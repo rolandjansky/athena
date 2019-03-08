@@ -26,6 +26,7 @@
 #include "StoreGate/ReadMetaHandleKey.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "EventInfo/EventStreamInfo.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 
 class MetadataTest : public AthAlgorithm {
 public:
@@ -40,11 +41,12 @@ public:
 
 private:
   SG::ReadMetaHandleKey<xAOD::CutBookkeeperContainer> m_hkey;
+  SG::ReadMetaHandleKey<xAOD::CutBookkeeperContainer> m_hinckey;
   SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey;
-  //SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey2;
+  SG::ReadMetaHandleKey<ByteStreamMetadataContainer> m_bshkey;
 
   bool m_esidone;
-
+  std::string m_inputstream;
 
 };
 #endif

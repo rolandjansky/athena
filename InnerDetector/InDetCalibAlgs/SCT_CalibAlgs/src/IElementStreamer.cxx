@@ -12,11 +12,8 @@
 
 namespace SCT_CalibAlgs {
 
-unsigned int IElementStreamer::m_depth=0;
-unsigned int IElementStreamer::m_nodeIndex=0;
-
 IElementStreamer::IElementStreamer(const std::string & name, const std::map<std::string, std::string> & attributeMap, std::ostream & os):
-   m_name(name), m_os(os),m_nodeId(m_nodeIndex) {
+  m_name(name), m_os(os), m_depth(0), m_nodeIndex(0), m_nodeId(m_nodeIndex) {
    std::map<std::string, std::string>::const_iterator i(attributeMap.begin());
    std::map<std::string, std::string>::const_iterator end(attributeMap.end());
    for(; i!=end; ++i) {

@@ -12,7 +12,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "SiPropertiesTool/ISiPropertiesTool.h"
 
 #include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 #include "InDetIdentifier/PixelID.h"

@@ -3,7 +3,6 @@
 */
 
 #include "LArCalibUtils/LArRampBuilder.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArCalibTriggerAccumulator.h"
 #include "LArRawConditions/LArRampComplete.h"
@@ -140,8 +139,10 @@ void LArRampBuilder::chooseRecoMode()  {
     
     if(m_correctBias){
       // if using parabola, get offlineID helper to obtain the layer (needed for correction) 
-      const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-      m_emId=caloIdMgr->getEM_ID();
+      const CaloCell_ID* idHelper = nullptr;
+      if ( detStore()->retrieve (idHelper, "CaloCell_ID").isSuccess() ) {
+        m_emId = idHelper->em_idHelper();
+      }
       if (!m_emId) {
 	ATH_MSG_ERROR( "Could not access lar EM ID helper" );
 	return ;
@@ -300,7 +301,7 @@ StatusCode LArRampBuilder::execute()
       ATH_MSG_WARNING("Cannot remove LArCaliWaveContainer from StoreGate ! ");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG("Succefully removed LArCaliWaveContainer from StoreGate ");
+    ATH_MSG_DEBUG("Successfully removed LArCaliWaveContainer from StoreGate ");
     
   } // m_ipassShape
   

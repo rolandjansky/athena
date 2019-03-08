@@ -12,15 +12,14 @@
  *  @date 14/12/2014.
  *
  */
- 
+
+#include "GaudiKernel/time_r.h" // localtime_r
+
+#include <ctime> // std::time_t, std::tm
+#include <iomanip> // put_time
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <chrono>  // chrono::system_clock
-#include <ctime>   // localtime
-#include <iomanip> // put_time
-
-
  
 namespace SCT_Cabling{
   const std::string XmlHeader("<?xml version=\"1.0\"?>");
@@ -55,14 +54,9 @@ namespace SCT_Cabling{
      
   std::string dateTime(){
     std::stringstream ss;
-    //no 'put_time' in gcc48 or gcc49 :-(
-    //ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
-    std::time_t t = std::time(NULL);
-    char mbstr[100];
-    if (std::strftime(mbstr, sizeof(mbstr), "%Y-%m-%d", std::localtime(&t))) {
-      ss << mbstr;
-    }
-  
+    std::time_t t = std::time(nullptr);
+    std::tm lt;
+    ss << std::put_time(localtime_r(&t, &lt), "%Y-%m-%d %X");
     return ss.str();
   }
   std::string makeCablingFileName(){

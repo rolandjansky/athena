@@ -25,9 +25,12 @@ TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
 StatusCode TriggerEDMSerialiserTool::initialize() {
 
   ATH_CHECK( m_serializerSvc.retrieve() );
-  ATH_CHECK( m_clidSvc.retrieve() );
-  for ( const auto& [typeKeyAux, moduleIdVec] : m_collectionsToSerialize ) {
+  ATH_CHECK( m_clidSvc.retrieve() );  
+  for ( const auto& typeKeyAuxIDs : m_collectionsToSerialize ) {    
+    ATH_MSG_DEBUG("Parsing " << typeKeyAuxIDs);
+    const std::string typeKeyAux = typeKeyAuxIDs.substr( 0, typeKeyAuxIDs.find(';') );
     const std::string persistentType = typeKeyAux.substr( 0, typeKeyAux.find('#') );
+    ATH_MSG_DEBUG("Type " << typeKeyAux);
     if ( persistentType.find('_') == std::string::npos ) {
       ATH_MSG_ERROR( "Unversioned object to be recorded " << typeKeyAux );
       return StatusCode::FAILURE;
@@ -46,6 +49,14 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
       ATH_MSG_ERROR( "The type " << persistentType <<  " is not known to ROOT serialiser" );
       return StatusCode::FAILURE;
     }
+    
+
+    const std::string moduleIDs  = typeKeyAuxIDs.substr( typeKeyAuxIDs.find(';')+1 );
+    std::vector<std::string> splitModuleIDs;
+    boost::split( splitModuleIDs, moduleIDs, [](const char c){ return c == ','; } );
+    std::vector<uint16_t> moduleIdVec;
+    for ( const auto& module: splitModuleIDs ) moduleIdVec.push_back( std::stoi( module ) );
+
     if (moduleIdVec.empty()) {
       ATH_MSG_ERROR( "No HLT result module IDs given for " << typeKeyAux );
       return StatusCode::FAILURE;
@@ -68,9 +79,9 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 	  }
 	  sel.selectAux( variableNames );
 	}
-	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
+	m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );      
       } else {
-    	m_toSerialise.emplace_back(transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );      
+    	m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );      
       }
     } else { // an old T/P type
       m_toSerialise.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::OldTP, xAOD::AuxSelection() );      
@@ -237,8 +248,13 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
 }
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
-  
 
+  // Leave this check until there is a justified case for appending data to an existing result
+  if (not resultToFill.getSerialisedData().empty()) {
+    ATH_MSG_ERROR("Trying to fill a result which is not empty! Likely misconfiguration, returning a FAILURE");
+    return StatusCode::FAILURE;
+  }
+  
   for ( const Address& address: m_toSerialise ) {
     ATH_MSG_DEBUG( "Streaming " << address.persType );
     // obtain object

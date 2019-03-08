@@ -254,58 +254,58 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 
       // compute auxiliary quantities
       if (i<4) { // EMB
-	if (Name.substr(0,3)=="EMB" || Name=="PreSamplB" ) {
-	  EM_SumE += sumE;
-	  EMB_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find EMB!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,3)=="EMB" || Name=="PreSamplB" ) {
+      	  EM_SumE += sumE;
+      	  EMB_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find EMB!  Skipping check" );
+      	  break;
+      	}
       } else if (i<8) { // EME
-	if (Name.substr(0,3)=="EME" || Name=="PreSamplE" ) {
-	  EM_SumE += sumE;
-	  EME_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find EME!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,3)=="EME" || Name=="PreSamplE" ) {
+      	  EM_SumE += sumE;
+      	  EME_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find EME!  Skipping check" );
+      	  break;
+      	}
       } else if (i<12) { // HEC
-	if (Name.substr(0,3)=="HEC") {
-	  HEC_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find HEC!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,3)=="HEC") {
+      	  HEC_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find HEC!  Skipping check" );
+      	  break;
+      	}
       } else if (i<15) { // TileBar
-	if (Name.substr(0,7)=="TileBar") {
-	  TileBar_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find TileBar!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,7)=="TileBar") {
+      	  TileBar_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find TileBar!  Skipping check" );
+      	  break;
+      	}
       } else if (i<18) { // TileGap
-	if (Name.substr(0,7)=="TileGap") {
-	  TileGap_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find TileGap!  Skipping check" );
-	break;
-	}
+      	if (Name.substr(0,7)=="TileGap") {
+      	  TileGap_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find TileGap!  Skipping check" );
+      	break;
+      	}
       } else if (i<21) { // TileExt
-	if (Name.substr(0,7)=="TileExt") {
-	  TileExt_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find TileExt!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,7)=="TileExt") {
+      	  TileExt_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find TileExt!  Skipping check" );
+      	  break;
+      	}
       } else { // FCal
         // note: i must be < 28 because i < elem-18 = 42-14 = 28
-	if (Name.substr(0,4)=="FCal") {
-	  if (Name == "FCalEM") EM_SumE += sumE;
-	  FCal_SumE += sumE;
-	} else {
-    ATH_MSG_WARNING( "Cannot find FCal!  Skipping check" );
-	  break;
-	}
+      	if (Name.substr(0,4)=="FCal") {
+      	  if (Name == "FCalEM") EM_SumE += sumE;
+      	  FCal_SumE += sumE;
+      	} else {
+          ATH_MSG_WARNING( "Cannot find FCal!  Skipping check" );
+      	  break;
+      	}
       }  // end loop over i
 
      }  //end elem == 42
@@ -363,45 +363,45 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     // flag component if SumE/SumE_subdet is outside the allowed range
     if (i<4) {
       if (EMB_SumE != 0) {
-	float ratio = sumE / EMB_SumE;
-	if (ratio<m_MinSumEratioInEMB || ratio>m_MaxSumEratioInEMB) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+      	float ratio = sumE / EMB_SumE;
+      	if (ratio<m_MinSumEratioInEMB || ratio>m_MaxSumEratioInEMB) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<8) {
       if (EME_SumE != 0) {
-	float ratio = sumE / EME_SumE;
-	if (ratio<m_MinSumEratioInEME || ratio>m_MaxSumEratioInEME) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+      	float ratio = sumE / EME_SumE;
+      	if (ratio<m_MinSumEratioInEME || ratio>m_MaxSumEratioInEME) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<12) {
       if (HEC_SumE != 0) {
-	float ratio = sumE / HEC_SumE;
-	if (ratio<m_MinSumEratioInHEC || ratio>m_MaxSumEratioInHEC) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+      	float ratio = sumE / HEC_SumE;
+      	if (ratio<m_MinSumEratioInHEC || ratio>m_MaxSumEratioInHEC) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<15) {
       if (TileBar_SumE != 0) {
-	float ratio = sumE / TileBar_SumE;
-	if (ratio<m_MinSumEratioInTileBar || ratio>m_MaxSumEratioInTileBar) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+      	float ratio = sumE / TileBar_SumE;
+      	if (ratio<m_MinSumEratioInTileBar || ratio>m_MaxSumEratioInTileBar) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<18) {
-      if (TileGap_SumE != 0) {
-	float ratio = sumE / TileGap_SumE;
-	if (ratio<m_MinSumEratioInTileGap || ratio>m_MaxSumEratioInTileGap) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+            if (TileGap_SumE != 0) {
+      	float ratio = sumE / TileGap_SumE;
+      	if (ratio<m_MinSumEratioInTileGap || ratio>m_MaxSumEratioInTileGap) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<21) {
-      if (TileExt_SumE != 0) {
-	float ratio = sumE / TileExt_SumE;
-	if (ratio<m_MinSumEratioInTileExt || ratio>m_MaxSumEratioInTileExt) {
-	  metComp->m_status |= m_maskBadEnergyRatio;
-	}
+            if (TileExt_SumE != 0) {
+      	float ratio = sumE / TileExt_SumE;
+      	if (ratio<m_MinSumEratioInTileExt || ratio>m_MaxSumEratioInTileExt) {
+      	  metComp->m_status |= m_maskBadEnergyRatio;
+      	}
       }
     } else if (i<24) {
        if (FCal_SumE != 0) {
@@ -475,8 +475,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     for (unsigned char c=0; c<elem; ++c) {
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(c);
       for (int b=0; b<16; ++b) {
-	unsigned short mask = (1<<b);
-	if (metComp->m_status & mask) m_hCompFlags->Fill(c,b);
+      	unsigned short mask = (1<<b);
+      	if (metComp->m_status & mask) m_hCompFlags->Fill(c,b);
       }
     }
   }

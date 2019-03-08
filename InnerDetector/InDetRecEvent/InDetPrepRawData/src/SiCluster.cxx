@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ SiCluster::SiCluster(const SiCluster& RIO):
 SiCluster::SiCluster(SiCluster&& RIO):
         PrepRawData( std::move(RIO) ),
 	m_width( std::move(RIO.m_width) ),
-	m_globalPosition( RIO.m_globalPosition ),
+	m_globalPosition( RIO.m_globalPosition.load() ),
 	m_gangedPixel( RIO.m_gangedPixel ),
 	m_detEl( RIO.m_detEl )
 
@@ -107,7 +107,7 @@ SiCluster& SiCluster::operator=(SiCluster&& RIO){
                 Trk::PrepRawData::operator= (std::move(RIO));
 		delete m_globalPosition;
 		m_width = RIO.m_width;
-		m_globalPosition = RIO.m_globalPosition;
+		m_globalPosition = RIO.m_globalPosition.load();
                 RIO.m_globalPosition = nullptr;
 		m_gangedPixel = RIO.m_gangedPixel;
 		m_detEl =  RIO.m_detEl ;

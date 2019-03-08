@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTracking/versions/SCTRawHitValidation_v1.h"
@@ -11,6 +11,11 @@ namespace xAOD {
   SCTRawHitValidation_v1::SCTRawHitValidation_v1() { }
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, uint64_t, identifier, setIdentifier)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, int, bec, setBec)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, int, layer, setLayer)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, int, eta_module, setEta_module)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, int, phi_module, setPhi_module)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, int, side, setSide)
 
   static const SG::AuxElement::Accessor<uint32_t> word_acc("dataword");
   void SCTRawHitValidation_v1::setWord(uint32_t new_word) {

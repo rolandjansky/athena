@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_MODULE_H
@@ -24,14 +24,17 @@ class SCT_Module: public SCT_UniqueComponentFactory
 {
 public:
 
-  SCT_Module(const std::string & name);
+  SCT_Module(const std::string & name,
+             InDetDD::SCT_DetectorManager* detectorManager,
+             const SCT_GeometryManager* geometryManager,
+             SCT_MaterialManager* materials);
 
   ~SCT_Module(); 
   //Explicitly disallow copy, assign to appease coverity
   SCT_Module(const SCT_Module &) = delete;
   SCT_Module & operator=(const SCT_Module &) = delete;
   
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
   
 public:
   double thickness() const {return m_thickness;}
@@ -45,8 +48,8 @@ public:
   double env2Width()     const {return m_env2Width;}
   double env2Length()    const {return m_env2Length;}
 
-  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
 
   double sensorGap()    const {return m_sensorGap;}
   double stereoInner()  const {return m_stereoInner;}
@@ -91,9 +94,9 @@ private:
   int    m_upperSide;
   double m_safety;
 
-  const SCT_InnerSide * m_innerSide;
-  const SCT_OuterSide * m_outerSide;
-  const SCT_BaseBoard * m_baseBoard;
+  SCT_InnerSide * m_innerSide;
+  SCT_OuterSide * m_outerSide;
+  SCT_BaseBoard * m_baseBoard;
   //const SCT_Sensor          * m_sensor; // 14:00 Thu 14th Jul 2005 D.Naito removed.
 
   GeoTrf::Transform3D * m_innerSidePos;

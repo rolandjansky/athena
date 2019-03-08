@@ -1,0 +1,839 @@
+{
+    "ctpVersion": 4,
+    "version": 1,
+    "name": "Physics_pp_v7",
+    "menu": {
+        "name": "Physics_pp_v7",
+        "phase": "lumi",
+        "items": [
+            {
+                "complexDeadtime": 0,
+                "ctpId": 11,
+                "definition": "(EM22VHI[x1]&BGRP0&BGRP1)",
+                "monitor": "LF:111|HF:000",
+                "name": "L1_EM22VHI",
+                "partition": 1,
+                "triggerType": "10000100",
+                "AND": [
+                    {
+                        "TriggerCondition": {
+                            "multi": 1,
+                            "name": "EM22VHI_x1",
+                            "triggerThreshold": "EM22VHI"
+                        }
+                    },
+                    {
+                        "InternalTrigger": {
+                            "name": "BGRP0"
+                        }
+                    },
+                    {
+                        "InternalTrigger": {
+                            "name": "BGRP1"
+                        }
+                    }
+                ]
+            },
+            {
+                "complexDeadtime": 0,
+                "ctpId": 392,
+                "definition": "(EM24VHI[x1]&BGRP0&BGRP1)",
+                "monitor": "LF:111|HF:000",
+                "name": "L1_EM24VHI",
+                "partition": 1,
+                "triggerType": "10000100",
+                "AND": [
+                    {
+                        "TriggerCondition": {
+                            "multi": 1,
+                            "name": "EM24VHI_x1",
+                            "triggerThreshold": "EM24VHI"
+                        }
+                    },
+                    {
+                        "InternalTrigger": {
+                            "name": "BGRP0"
+                        }
+                    },
+                    {
+                        "InternalTrigger": {
+                            "name": "BGRP1"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "thresholds": [
+        {
+            "active": 1,
+            "bitnum": 3,
+            "id": 63,
+            "input": "ctpin",
+            "mapping": 13,
+            "name": "EM22VHI",
+            "type": "EM",
+            "version": 1,
+            "thresholdValues": [
+                {
+                    "em_isolation": 63,
+                    "etamax": 49,
+                    "etamin": -49,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 1,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -17,
+                    "etamin": -25,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -15,
+                    "etamin": -17,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -14,
+                    "etamin": -15,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 19,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -13,
+                    "etamin": -14,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 20,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -11,
+                    "etamin": -13,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -8,
+                    "etamin": -11,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 22,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -7,
+                    "etamin": -8,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 0,
+                    "etamin": -7,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 7,
+                    "etamin": 0,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 8,
+                    "etamin": 7,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 11,
+                    "etamin": 8,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 22,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 13,
+                    "etamin": 11,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 14,
+                    "etamin": 13,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 20,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 15,
+                    "etamin": 14,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 19,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 17,
+                    "etamin": 15,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 25,
+                    "etamin": 17,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM22VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                }
+            ],
+            "cable": {
+                "connector": "CON1",
+                "input": "SLOT7",
+                "name": "EM2",
+                "signal": {
+                    "rangeBegin": 15,
+                    "rangeEnd": 17
+                }
+            }
+        },
+        {
+            "active": 1,
+            "bitnum": 3,
+            "id": 64,
+            "input": "ctpin",
+            "mapping": 14,
+            "name": "EM24VHI",
+            "type": "EM",
+            "version": 1,
+            "thresholdValues": [
+                {
+                    "em_isolation": 63,
+                    "etamax": 49,
+                    "etamin": -49,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 1,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -17,
+                    "etamin": -25,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 25,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -15,
+                    "etamin": -17,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -14,
+                    "etamin": -15,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -13,
+                    "etamin": -14,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 22,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -11,
+                    "etamin": -13,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -8,
+                    "etamin": -11,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": -7,
+                    "etamin": -8,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 25,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 0,
+                    "etamin": -7,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 26,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 7,
+                    "etamin": 0,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 26,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 8,
+                    "etamin": 7,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 25,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 11,
+                    "etamin": 8,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 24,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 13,
+                    "etamin": 11,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 14,
+                    "etamin": 13,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 22,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 15,
+                    "etamin": 14,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 21,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 17,
+                    "etamin": 15,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 23,
+                    "type": "EM",
+                    "window": 0
+                },
+                {
+                    "em_isolation": 63,
+                    "etamax": 25,
+                    "etamin": 17,
+                    "had_isolation": 63,
+                    "had_veto": 99,
+                    "isobits": "00100",
+                    "name": "EM24VHIfull",
+                    "phimax": 64,
+                    "phimin": 0,
+                    "priority": 2,
+                    "thresholdval": 25,
+                    "type": "EM",
+                    "window": 0
+                }
+            ],
+            "cable": {
+                "connector": "CON1",
+                "input": "SLOT7",
+                "name": "EM2",
+                "signal": {
+                    "rangeBegin": 18,
+                    "rangeEnd": 20
+                }
+            }
+        }
+    ],
+    "CaloInfo": {
+        "global_em_scale": 2,
+        "global_jet_scale": 1,
+        "name": "CaloInfo",
+        "METSignificance": {
+            "teSqrtMax": 63,
+            "teSqrtMin": 4,
+            "xeMax": 63,
+            "xeMin": 11,
+            "xsSigmaOffset": 1640,
+            "xsSigmaScale": 1150
+        },
+        "Isolation": [
+            {
+                "thrtype": "HAIsoForEMthr",
+                "Parametrization": [
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 1,
+                        "mincut": 10,
+                        "offset": -2,
+                        "priority": 0,
+                        "slope": 230,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 2,
+                        "mincut": 0,
+                        "offset": 0,
+                        "priority": 0,
+                        "slope": 0,
+                        "upperlimit": 0
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 3,
+                        "mincut": 10,
+                        "offset": -2,
+                        "priority": 0,
+                        "slope": 230,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 4,
+                        "mincut": 10,
+                        "offset": -2,
+                        "priority": 0,
+                        "slope": 230,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 5,
+                        "mincut": 10,
+                        "offset": -2,
+                        "priority": 0,
+                        "slope": 230,
+                        "upperlimit": 50
+                    }
+                ]
+            },
+            {
+                "thrtype": "EMIsoForEMthr",
+                "Parametrization": [
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 1,
+                        "mincut": 0,
+                        "offset": 0,
+                        "priority": 0,
+                        "slope": 0,
+                        "upperlimit": 0
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 2,
+                        "mincut": 20,
+                        "offset": -18,
+                        "priority": 0,
+                        "slope": 80,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 3,
+                        "mincut": 20,
+                        "offset": -18,
+                        "priority": 0,
+                        "slope": 80,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 4,
+                        "mincut": 10,
+                        "offset": -20,
+                        "priority": 0,
+                        "slope": 80,
+                        "upperlimit": 50
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 5,
+                        "mincut": 15,
+                        "offset": -18,
+                        "priority": 0,
+                        "slope": 80,
+                        "upperlimit": 50
+                    }
+                ]
+            },
+            {
+                "thrtype": "EMIsoForTAUthr",
+                "Parametrization": [
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 1,
+                        "mincut": 0,
+                        "offset": 30,
+                        "priority": 0,
+                        "slope": 100,
+                        "upperlimit": 60
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 2,
+                        "mincut": 0,
+                        "offset": 20,
+                        "priority": 0,
+                        "slope": 100,
+                        "upperlimit": 60
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 3,
+                        "mincut": 0,
+                        "offset": 15,
+                        "priority": 0,
+                        "slope": 100,
+                        "upperlimit": 60
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 4,
+                        "mincut": 0,
+                        "offset": 40,
+                        "priority": 0,
+                        "slope": 0,
+                        "upperlimit": 124
+                    },
+                    {
+                        "etamax": 49,
+                        "etamin": -49,
+                        "isobit": 5,
+                        "mincut": 0,
+                        "offset": 30,
+                        "priority": 0,
+                        "slope": 100,
+                        "upperlimit": 60
+                    }
+                ]
+            }
+        ],
+        "MinimumTOBPt": [
+            {
+                "etamax": 49,
+                "etamin": -49,
+                "priority": 0,
+                "ptmin": 3,
+                "thrtype": "EM"
+            },
+            {
+                "etamax": 49,
+                "etamin": -49,
+                "priority": 0,
+                "ptmin": 8,
+                "thrtype": "TAU"
+            },
+            {
+                "etamax": 49,
+                "etamin": -49,
+                "priority": 0,
+                "ptmin": 12,
+                "thrtype": "JETS",
+                "window": 4
+            },
+            {
+                "etamax": 49,
+                "etamin": -49,
+                "priority": 0,
+                "ptmin": 12,
+                "thrtype": "JETL",
+                "window": 8
+            }
+        ]
+    },
+    "MuctpiInfo": {
+        "high_pt": 1,
+        "low_pt": 1,
+        "max_cand": 13,
+        "name": "muctpi"
+    }
+}

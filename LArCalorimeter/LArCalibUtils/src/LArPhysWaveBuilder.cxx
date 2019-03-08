@@ -15,13 +15,14 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
+#include "StoreGate/ReadHandle.h"
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -195,9 +196,6 @@ LArPhysWaveBuilder::LArPhysWaveBuilder (const std::string& name,
 
   /// Algorithm properties.
 
-  // Storegate key for the @c LArDigitContainer of interest.
-  declareProperty("GainCont", m_gainCont = "FREE");
-
   // Number of bins per sample to record.
   declareProperty("BinsPerSample", m_bins_per_sample = 24);
 
@@ -289,6 +287,8 @@ StatusCode LArPhysWaveBuilder::initialize()
     m_hlaymax[i] = new TH1F (buf, buf, 500, 0, 500);
   }
 
+  ATH_CHECK( m_gainCont.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -298,6 +298,7 @@ StatusCode LArPhysWaveBuilder::initialize()
  */
 StatusCode LArPhysWaveBuilder::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ( "LArPhysWaveBuilder in execute()" );
 
   // Retrieve cabling
@@ -309,11 +310,12 @@ StatusCode LArPhysWaveBuilder::execute()
   }
 
   // Get the identifier helper.
-  const LArEM_ID* emId = CaloIdManager::instance()->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* emId = idHelper->em_idHelper();
 
   // Our input data.
-  const LArDigitContainer* digcontainer =
-    evtStore()->retrieve<const LArDigitContainer> (m_gainCont);
+  SG::ReadHandle<LArDigitContainer> digcontainer (m_gainCont, ctx);
 
   // Get the pedestal information.
   const ILArPedestal* larPedestal =
@@ -323,18 +325,15 @@ StatusCode LArPhysWaveBuilder::execute()
   const LArOnlineID* online_helper =
     detStore()->retrieve<const LArOnlineID> ("LArOnlineID");
 
-  if (!digcontainer || !online_helper) {
+  if (!online_helper) {
     REPORT_ERROR (StatusCode::FAILURE) << "Cannot find storegate inputs";
     return StatusCode::SUCCESS;
   }
 
   // Loop on LArDigits
-  LArDigitContainer::const_iterator iterd = digcontainer->begin();
-  LArDigitContainer::const_iterator iendd = digcontainer->end();
-  for(; iterd != iendd; iterd++) {
+  for (const LArDigit* p_lardigit : *digcontainer) {
 
     // Get data from LArDigit
-    const LArDigit* p_lardigit = *iterd;
     HWIdentifier chid = p_lardigit->hardwareID();  
 
     // Convert the gain from an enum to an index in our tables.
@@ -657,7 +656,9 @@ StatusCode
 LArPhysWaveBuilder::write_root (LArPhysWaveContainer* larPhysWaveContainer)
 {
   // Get ID translators.
-  const LArEM_ID* emId = CaloIdManager::instance()->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* emId = idHelper->em_idHelper();
 
   // Retrieve cabling
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};

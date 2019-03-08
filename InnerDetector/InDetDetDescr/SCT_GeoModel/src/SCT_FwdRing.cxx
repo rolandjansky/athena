@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdRing.h"
@@ -34,11 +34,14 @@
 inline double sqr(double x) {return x*x;}
 
 SCT_FwdRing::SCT_FwdRing(const std::string & name, 
-                         const SCT_FwdModule * module, 
+                         SCT_FwdModule * module, 
                          int iWheel,
                          int iRing,
-                         int ec)
-  : SCT_UniqueComponentFactory(name), 
+                         int ec,
+                         InDetDD::SCT_DetectorManager* detectorManager,
+                         const SCT_GeometryManager* geometryManager,
+                         SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iWheel(iWheel),
     m_iRing(iRing),
     m_endcap(ec),
@@ -52,8 +55,8 @@ void
 SCT_FwdRing::getParameters()
 {
   
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
-  const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
+  const SCT_GeneralParameters * generalParameters = m_geometryManager->generalParameters();
     
   m_safety       = generalParameters->safety();
   
@@ -71,7 +74,7 @@ SCT_FwdRing::getParameters()
   m_identifier = m_iRing;
   
   // Set numerology
-  detectorManager()->numerology().setNumPhiModulesForDiskRing(m_iWheel,m_iRing,m_numModules);
+  m_detectorManager->numerology().setNumPhiModulesForDiskRing(m_iWheel,m_iRing,m_numModules);
 
 }
 
@@ -152,10 +155,9 @@ SCT_FwdRing::preBuild()
   // We want the center in z to be at the module mid plane. So we shift the volume.
   double envelopeShift = -m_ringSide * (0.5 * m_thickness - m_thicknessOuter);
 
-  SCT_MaterialManager materials;
   const GeoTube * tmpShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
   const GeoShape & ringEnvelopeShape = (*tmpShape <<  GeoTrf::Translate3D(0, 0, envelopeShift));
-  GeoLogVol * ringLog = new GeoLogVol(getName(), &ringEnvelopeShape, materials.gasMaterial());
+  GeoLogVol * ringLog = new GeoLogVol(getName(), &ringEnvelopeShape, m_materials->gasMaterial());
 
   return ringLog;
 }
@@ -163,7 +165,7 @@ SCT_FwdRing::preBuild()
 
 
 GeoVPhysVol * 
-SCT_FwdRing::build(SCT_Identifier id) const
+SCT_FwdRing::build(SCT_Identifier id)
 {
 
   // Physical volume for the half ring
@@ -235,7 +237,7 @@ SCT_FwdRing::build(SCT_Identifier id) const
     ring->add(modulePV);
 
     // Store alignable transform
-    detectorManager()->addAlignableTransform(1, id.getWaferId(), moduleTransform, modulePV);  
+    m_detectorManager->addAlignableTransform(1, id.getWaferId(), moduleTransform, modulePV);  
 
     // Add the moduleServices (contains the cooling block)
     // In principle this should also be rotated by the stereo angle (although one
@@ -280,11 +282,15 @@ SCT_FwdRing::makeModuleServices()
   // to add more things to it later. We call it module services.
   
   // Cooling blocks for the upper Modules
-  m_coolingBlockHiMain = new SCT_FwdCoolingBlock("CoolingBlkHiMain",SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::MAIN);
-  m_coolingBlockHiSec  = new SCT_FwdCoolingBlock("CoolingBlkHiSec", SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::SECONDARY);
+  m_coolingBlockHiMain = new SCT_FwdCoolingBlock("CoolingBlkHiMain",SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::MAIN,
+                                                 m_detectorManager, m_geometryManager, m_materials);
+  m_coolingBlockHiSec  = new SCT_FwdCoolingBlock("CoolingBlkHiSec", SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::SECONDARY,
+                                                 m_detectorManager, m_geometryManager, m_materials);
   // Cooling blocks for the lower Modules
-  m_coolingBlockLoMain = new SCT_FwdCoolingBlock("CoolingBlkLoMain",SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::MAIN);
-  m_coolingBlockLoSec  = new SCT_FwdCoolingBlock("CoolingBlkLoSec", SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::SECONDARY);
+  m_coolingBlockLoMain = new SCT_FwdCoolingBlock("CoolingBlkLoMain",SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::MAIN,
+                                                 m_detectorManager, m_geometryManager, m_materials);
+  m_coolingBlockLoSec  = new SCT_FwdCoolingBlock("CoolingBlkLoSec", SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::SECONDARY,
+                                                 m_detectorManager, m_geometryManager, m_materials);
   
   double coolingBlkMainR = m_module->mainMountPointRadius();
   double coolingBlkSecR  = m_module->endModuleRadius(); // This is the end of the module. Align block with the end.
@@ -320,15 +326,14 @@ SCT_FwdRing::makeModuleServices()
   m_moduleServicesHiOuterZPos =  -(moduleServicesBaseToRingCenterHi - moduleServicesHiThickness);
   m_moduleServicesLoOuterZPos =  -(moduleServicesBaseToRingCenterLo - moduleServicesLoThickness);
   
-  SCT_MaterialManager materials;
   const GeoBox * moduleServicesHiShape = new GeoBox(0.5*moduleServicesHiLength    + m_safety,  
                                                     0.5*moduleServicesHiWidth     + m_safety, 
                                                     0.5*moduleServicesHiThickness + m_safety);
   const GeoBox * moduleServicesLoShape = new GeoBox(0.5*moduleServicesLoLength    + m_safety,
                                                     0.5*moduleServicesLoWidth     + m_safety, 
                                                     0.5*moduleServicesLoThickness + m_safety);
-  const GeoLogVol *  moduleServicesHiLog = new GeoLogVol("ModuleServicesHi", moduleServicesHiShape,  materials.gasMaterial());
-  const GeoLogVol *  moduleServicesLoLog = new GeoLogVol("ModuleServicesLo", moduleServicesLoShape,  materials.gasMaterial());
+  const GeoLogVol *  moduleServicesHiLog = new GeoLogVol("ModuleServicesHi", moduleServicesHiShape,  m_materials->gasMaterial());
+  const GeoLogVol *  moduleServicesLoLog = new GeoLogVol("ModuleServicesLo", moduleServicesLoShape,  m_materials->gasMaterial());
     
   m_moduleServicesHi = new GeoPhysVol(moduleServicesHiLog);
   m_moduleServicesLo = new GeoPhysVol(moduleServicesLoLog);

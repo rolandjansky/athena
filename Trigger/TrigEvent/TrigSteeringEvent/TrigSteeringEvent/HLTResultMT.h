@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSTEERINGEVENT_HLTResultMT_H
@@ -43,6 +43,9 @@ namespace HLT {
 
     /// Const-getter for stream tags
     const std::vector<eformat::helper::StreamTag>& getStreamTags() const;
+
+    /// Non-const-getter for stream tags needed by the result maker to remove disabled ROBs/SubDets
+    std::vector<eformat::helper::StreamTag>& getStreamTagsNonConst();
 
     /** @brief Replace the stored list of stream tags with the given one
      *

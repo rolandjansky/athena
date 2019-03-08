@@ -17,10 +17,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigit.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
@@ -115,17 +115,16 @@ StatusCode LArDigitFillerTool::book()
 {
   ATH_MSG_DEBUG( "in book()" );
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
+  m_hecId=idHelper->hec_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
 
 
   CHECK( m_cablingKey.initialize() );
-  StoreGateSvc* detStore = 0;
-  CHECK( service("DetectorStore", detStore) );
 
-  CHECK( detStore->retrieve(m_onlineHelper, "LArOnlineID") );
+  CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
 
   // CHECK(addVariable ("icell",m_cellIndex));

@@ -40,8 +40,8 @@ def LArADC2MeVCondAlgDefault():
 
         theADC2MeVCondAlg.UseFEBGainTresholds=False
     else: # not MC:
-        from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault
-        theADC2MeVCondAlg.FebConfigReader=LArFEBConfigReaderDefault()
+        from LArRecUtils.LArFebConfigCondAlgDefault import LArFebConfigCondAlgDefault
+        LArFebConfigCondAlgDefault()
 
 
     condSeq+=theADC2MeVCondAlg

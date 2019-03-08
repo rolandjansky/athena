@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags              import TriggerFlags
 from TriggerJobOpts.MuonSliceFlags            import MuonSliceFlags
 from TriggerJobOpts.EgammaSliceFlags          import EgammaSliceFlags
 from TriggerJobOpts.JetSliceFlags             import JetSliceFlags
 from TriggerJobOpts.CombinedSliceFlags        import CombinedSliceFlags
+from TriggerJobOpts.TestSliceFlags            import TestSliceFlags
+
+
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -50,8 +53,9 @@ class GenerateMenuMT:
         self.doJetChains         = True
         self.doMuonChains        = True
         self.doCombinedChains    = True
+        self.doTestChains   = True
 
-
+        
     def setTriggerConfigHLT(self):
         # setting the hlt menu configuration
         (HLTPrescales) = self.setupMenu()
@@ -68,9 +72,17 @@ class GenerateMenuMT:
             try:
                 import TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs                
             except:
-                log.exception('Problems when importing generateElectronChainDefs, disabling egamma chains.')
+                log.exception('Problems when importing generateElectronChainDefs, disabling Egamma chains.')
                 self.doEgammaChains = False
-                        
+
+        if self.doTestChains:
+            try:
+                import TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs  
+            except:
+                log.exception('Problems when importing generateTestChainDefs, disabling Test chains.')
+                self.doTestChains = False
+              
+
         listOfChainConfigs = []
         chainDicts = splitInterSignatureChainDict(chainDicts)  
       
@@ -79,11 +91,11 @@ class GenerateMenuMT:
             pp = pprint.PrettyPrinter(indent=4, depth=8)
             log.debug('dictionary is: %s', pp.pformat(chainDicts))
 
+        # Loop over all chainDicts and sending them off to their respective assembly code
         for chainDict in chainDicts:
             chainConfigs = None
             log.debug('Checking chainDict for chain %s' , chainDict['chainName'])
             
-
             if chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
                     log.debug("Try to get chain config")
@@ -91,8 +103,16 @@ class GenerateMenuMT:
                 except:
                     log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
                     continue
+
+            elif chainDict["signature"] == "Test" and self.doTestChains:
+                try:
+                    chainDefs = TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs.generateChainConfigs(chainDict)
+                except:
+                    log.exception('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    continue
+
             else:                
-                log.error('Chain %s ignored - either trigger signature is turned off or the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
+                log.error('Chain %s ignored - either trigger signature is turned off or chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
             
             log.debug('ChainConfigs  %s ' % chainConfigs)

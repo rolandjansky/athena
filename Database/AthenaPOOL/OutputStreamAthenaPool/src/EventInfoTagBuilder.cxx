@@ -35,12 +35,16 @@ StatusCode EventInfoTagBuilder::execute() {
   SG::ReadHandle<xAOD::EventInfo> h_evt(m_evtKey);
 
   /** create a EventInfo Tag and ask the tool to fill it */ 
-  auto attribList = std::make_unique<AthenaAttributeList>
-    ( m_tool->getAttributeList( *h_evt ) );
+  if (h_evt.isValid()) {
+    auto attribList = std::make_unique<AthenaAttributeList>
+      ( m_tool->getAttributeList( *h_evt ) );
 
-  /** record attribute list to SG */
-  SG::WriteHandle<AthenaAttributeList> wh(m_attributeListName);
-  ATH_CHECK( wh.record(std::move(attribList)) );
+    /** record attribute list to SG */
+    SG::WriteHandle<AthenaAttributeList> wh(m_attributeListName);
+    ATH_CHECK( wh.record(std::move(attribList)) );
+  } else {
+    ATH_MSG_WARNING("Did not find xAOD::EventInfo");
+  }
 
   ATH_MSG_DEBUG( "Finished " << name() );
 

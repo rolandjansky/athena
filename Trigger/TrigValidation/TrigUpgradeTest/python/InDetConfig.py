@@ -169,10 +169,10 @@ def TrigInDetCondConfig( flags ):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
   acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
 
-  from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+  from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
   acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
 
-  from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+  from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
   TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
   acc.addPublicTool(TrigSiPropertiesTool)
@@ -480,8 +480,8 @@ if __name__ == "__main__":
     acc.merge(TrigBSReadCfg(ConfigFlags))
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
-    from RegionSelector.RegSelConfig import RegSelConfig
-    rsc, regSel = RegSelConfig( ConfigFlags )
+    from RegionSelector.RegSelConfig import regSelCfg
+    rsc, regSel = regSelCfg( ConfigFlags )
     regSel.enableCalo = False # turn off calo, certainly a better way to do this...
     acc.merge( rsc )
     acc.addService(regSel)

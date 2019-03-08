@@ -5,8 +5,8 @@
 */
 
 
-#ifndef LARTIMETUNING
-#define LARTIMETUNING
+#ifndef LARCALIBUTILS_LARTIMETUNING_H
+#define LARCALIBUTILS_LARTIMETUNING_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArOFCTool.h"
@@ -18,9 +18,16 @@
 #include "GaudiKernel/Bootstrap.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArRawEvent/LArDigitContainer.h"
+#include "TBEvent/TBPhase.h"
+#include "LArRawConditions/LArGlobalTimeOffset.h"
+#include "LArRawConditions/LArFEBTimeOffset.h"
+#include "LArRawConditions/LArCellTimeOffset.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class LArTimeTuning : public AthAlgorithm
 {
@@ -28,17 +35,26 @@ class LArTimeTuning : public AthAlgorithm
 public:
 
   LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArTimeTuning();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  virtual ~LArTimeTuning();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode stop() override;
 
 private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnlineID* m_onlineHelper;
-  std::string m_DataLocation;
-  std::string m_globalTimeOffsetOut, m_febTimeOffsetOut, m_cellTimeOffsetOut;
+  SG::ReadHandleKey<LArDigitContainer> m_DataLocation
+    { this, "DataLocation", "FREE", "" };
+  SG::ReadHandleKey<TBPhase> m_tbPhaseReadKey
+    { this, "TBPhaseReadKey", "TBPhase", "" };
+  SG::WriteHandleKey<LArGlobalTimeOffset>  m_globalTimeOffsetOut
+    { this, "GlobalTimeOffsetOutKey", "GlobalTimeOffset", "" };
+  SG::WriteHandleKey<LArFEBTimeOffset>  m_febTimeOffsetOut
+    { this, "FebTimeOffsetOutKey", "FebTimeOffset", "" };
+  SG::WriteHandleKey<LArCellTimeOffset>  m_cellTimeOffsetOut
+    { this, "CellTimeOffsetOutKey", "CellTimeOffset", "" };
+  SG::WriteHandleKey<TBPhase>  m_tbPhaseWriteKey
+    { this, "TBPhaseWriteKey", "TBPhase", "" };
 
   short m_AdcCut;
   short m_AdcMax;

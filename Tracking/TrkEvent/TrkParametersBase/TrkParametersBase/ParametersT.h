@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -108,25 +108,25 @@ namespace Trk
     virtual ParametersType type() const override {return Trk::AtaSurface;}
 
     /** Returns charge of track */
-    virtual double charge() const override {return m_chargeDef.charge();}
+    virtual double charge() const override final {return m_chargeDef.charge();}
 
     /** Access method for the parameters */
-    virtual const AmgVector(DIM)& parameters() const final {return m_parameters;}
+    virtual const AmgVector(DIM)& parameters() const override final {return m_parameters;}
       
     /** Access method for the covariance matrix - 0 if no covariance matrix is given */
-    virtual const AmgSymMatrix(DIM)* covariance() const final {return m_covariance;}
+    virtual const AmgSymMatrix(DIM)* covariance() const override final {return m_covariance;}
     
     /** Access to the Surface method */
-    virtual const S& associatedSurface() const override {return *m_surface;}    
+    virtual const S& associatedSurface() const override final {return *m_surface;}    
   
     /** Test to see if there's a surface there. */
-    virtual bool hasSurface() const { return m_surface != nullptr; }
+    virtual bool hasSurface() const override final { return m_surface != nullptr; }
 
     /** Access method for the position */
-    virtual const Amg::Vector3D& position() const final {return m_position;}
+    virtual const Amg::Vector3D& position() const override final {return m_position;}
       
     /** Access method for the momentum */
-    virtual const Amg::Vector3D& momentum() const final {return m_momentum;}
+    virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
 
     /** Return the measurementFrame of the parameters */
     const Amg::RotationMatrix3D measurementFrame() const override;
@@ -138,7 +138,7 @@ namespace Trk
     template <class SURFACE_CNV, class ATA_SURFACE>
     friend class ::AtaSurfaceCnv_p1;
     
-    /** --- PRIVATE CONSTRUCTOR : for persistency purpose only */
+    /** --- Protected constructors : for persistency purpose only */
     ParametersT (const AmgVector(DIM)& parameters,
 		 const S* surface,
 		 AmgSymMatrix(DIM)* covariance = 0);

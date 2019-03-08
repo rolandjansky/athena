@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetOverlay/SCTOverlay.h"
+
+#include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -11,45 +13,36 @@
 namespace Overlay
 {
   // Specialize copyCollection() for the SCT
-  template<> void copyCollection(const InDetRawDataCollection<SCT_RDORawData> *input_coll, InDetRawDataCollection<SCT_RDORawData> *copy_coll)
-  {  
-    copy_coll->setIdentifier(input_coll->identify());
-    InDetRawDataCollection<SCT_RDORawData>::const_iterator firstData = input_coll->begin();
-    InDetRawDataCollection<SCT_RDORawData>::const_iterator lastData = input_coll->end();	
-    for ( ; firstData != lastData; ++firstData)
-    {	
-      const Identifier ident = (*firstData)->identify();
-      const unsigned int word = (*firstData)->getWord();
-      const SCT3_RawData* oldData = dynamic_cast<const SCT3_RawData*>(*firstData);	
-      std::vector<int> errorHit=oldData->getErrorCondensedHit();
-      SCT3_RawData *newData=new SCT3_RawData(ident, word, &errorHit);
-      copy_coll->push_back(newData);
+  template<>
+  std::unique_ptr<SCT_RDO_Collection> copyCollection(const IdentifierHash &hashId,
+                                                     const SCT_RDO_Collection *collection)
+  {
+    auto outputCollection = std::make_unique<SCT_RDO_Collection>(hashId);
+    outputCollection->setIdentifier(collection->identify());
+
+    for (const SCT_RDORawData *existingDatum : *collection) {
+      auto *oldDatum = dynamic_cast<const SCT3_RawData *>(existingDatum);
+      // Owned by the collection
+      auto *datumCopy = new SCT3_RawData(oldDatum->identify(),
+                                         oldDatum->getWord(),
+                                         &oldDatum->getErrorCondensedHit());
+      outputCollection->push_back(datumCopy);
     }
+
+    return outputCollection;
   }
 
-  // Specialize mergeCollectionsNew() for the SCT
-  template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *bkgCollection,
-                                      InDetRawDataCollection<SCT_RDORawData> *signalCollection,
-                                      InDetRawDataCollection<SCT_RDORawData> *outputCollection,
-                                      IDC_OverlayBase *tmp)
+  // Specialize mergeCollections() for the SCT
+  template<>
+  void mergeCollections(SCT_RDO_Collection *bkgCollection,
+                        SCT_RDO_Collection *signalCollection,
+                        SCT_RDO_Collection *outputCollection,
+                        IDC_OverlayBase *algorithm)
   {
     // We want to use the SCT_ID helper provided by SCTOverlay, thus the constraint
-    SCTOverlay *parent = dynamic_cast<SCTOverlay*>(tmp);
+    SCTOverlay *parent = dynamic_cast<SCTOverlay *>(algorithm);
     if (!parent) {
-      std::ostringstream os;
-      os << "mergeCollectionsNew<SCT_RDORawData>() called by a wrong parent algorithm?  Must be SCTOverlay.";
-      throw std::runtime_error(os.str());
-    }
-
-    // ----------------------------------------------------------------
-    // debug
-    static bool first_time = true;
-    if (first_time) {
-      first_time = false;
-      parent->msg(MSG::INFO) << "SCTOverlay::mergeCollectionsNew(): "
-                             << " SCT specific code is called for "
-                             << typeid(*bkgCollection).name()
-                             << endmsg;
+      throw std::runtime_error("mergeCollections<SCT_RDORawData>() called by a wrong parent algorithm? Must be SCTOverlay.");
     }
 
     // ----------------------------------------------------------------
@@ -70,39 +63,25 @@ namespace Overlay
     //
     // http://alxr.usatlas.bnl.gov/lxr/source/atlas/InnerDetector/InDetRecTools/SiClusterizationTool/src/SCT_ClusteringTool.cxx
 
-
-    // ----------------------------------------------------------------
     if (bkgCollection->identify() != signalCollection->identify()) {
-      std::ostringstream os;
-      os << "mergeCollectionsNew<SCT_RDORawData>(): collection Id mismatch";
-      parent->msg(MSG::FATAL) << os.str() << endmsg;
-      throw std::runtime_error(os.str());
+      throw std::runtime_error("mergeCollections<SCT_RDO_Collection>(): collection Id mismatch");
     }
 
     const Identifier idColl = parent->get_sct_id()->wafer_id(signalCollection->identifyHash());
-
-    // Empty the input collections and move RDOs to local vectors.
-    InDetRawDataCollection<SCT_RDORawData> bkg(bkgCollection->identifyHash());
-    bkg.setIdentifier(idColl);
-    bkgCollection->swap(bkg);
-
-    InDetRawDataCollection<SCT_RDORawData> sig(signalCollection->identifyHash());
-    sig.setIdentifier(idColl);
-    signalCollection->swap(sig);
 
     // Strip hit timing information for Next, Current, Previous and Any BCs
     // Prepare one more strip to create the last one. The additional strip has no hits.
     std::bitset<SCTOverlay::NumberOfStrips+1> stripInfo[SCTOverlay::NumberOfBitSets];
     // Process background and signal in the wafer
     for (unsigned source = SCTOverlay::BkgSource; source < SCTOverlay::NumberOfSources; source++) {
-      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdo;
-      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdoEnd;
+      SCT_RDO_Collection::const_iterator rdo;
+      SCT_RDO_Collection::const_iterator rdoEnd;
       if (source == SCTOverlay::BkgSource) { // background
-        rdo = bkg.begin();
-        rdoEnd = bkg.end();
+        rdo = bkgCollection->begin();
+        rdoEnd = bkgCollection->end();
       } else { // signal
-        rdo = sig.begin();
-        rdoEnd = sig.end();
+        rdo = signalCollection->begin();
+        rdoEnd = signalCollection->end();
       } 
       // Loop over all RDOs in the wafer
       for (; rdo!=rdoEnd; ++rdo) {
@@ -110,7 +89,7 @@ namespace Overlay
         if (!rdo3) {
           std::ostringstream os;
           const auto& elt = **rdo;
-          os << "mergeCollectionNew<SCT_RDORawData>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
+          os << "mergeCollection<SCT_RDO_Collection>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
              << "For the supplied datum  typeid(datum).name() = " << typeid(elt).name();
           throw std::runtime_error(os.str());
         }
@@ -171,15 +150,13 @@ namespace Overlay
         }
       }
     }
-  } // mergeCollectionsNew()
+  } // mergeCollections()
 } // namespace Overlay
 
 
 SCTOverlay::SCTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : IDC_OverlayBase(name, pSvcLocator),
-    m_sctId(nullptr)
+  : IDC_OverlayBase(name, pSvcLocator)
 {
-  
 }
 
 StatusCode SCTOverlay::initialize()
@@ -225,7 +202,7 @@ StatusCode SCTOverlay::execute()
     bkgContainerPtr = bkgContainer.cptr();
 
     ATH_MSG_DEBUG("Found background SCT RDO container " << bkgContainer.name() << " in store " << bkgContainer.store());
-    ATH_MSG_DEBUG("SCT Background = " << shortPrint(bkgContainer.cptr(), 50));
+    ATH_MSG_DEBUG("SCT Background = " << Overlay::debugPrint(bkgContainer.cptr(), 50));
   }
 
   SG::ReadHandle<SCT_RDO_Container> signalContainer(m_signalInputKey);
@@ -234,18 +211,19 @@ StatusCode SCTOverlay::execute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal SCT RDO container " << signalContainer.name() << " in store " << signalContainer.store());
-  ATH_MSG_DEBUG("SCT Signal     = " << shortPrint(signalContainer.cptr(), 50));
+  ATH_MSG_DEBUG("SCT Signal     = " << Overlay::debugPrint(signalContainer.cptr(), 50));
 
   // Creating output RDO container
   SG::WriteHandle<SCT_RDO_Container> outputContainer(m_outputKey);
   ATH_CHECK(outputContainer.record(std::make_unique<SCT_RDO_Container>(signalContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output SCT RDO container " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG("Recorded output SCT RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  if (outputContainer.isValid()) {
-    overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
-
-    ATH_MSG_DEBUG("SCT Result   = " << shortPrint(outputContainer.ptr(), 50));
-  }
+  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
+  ATH_MSG_DEBUG("SCT Result   = " << Overlay::debugPrint(outputContainer.ptr(), 50));
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;

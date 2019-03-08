@@ -110,8 +110,10 @@ if not 'InputDirectory' in dir():
             Year = 2016
         elif RunNumber < 342540:
             Year = 2017
-        else:
+        elif RunNumber < 367980:
             Year = 2018
+        else:
+            Year = 2019
 
 
         if 'RunStream' in dir():
@@ -297,15 +299,6 @@ tileInfoConfigurator.OutputLevel = OutputLevel
 
 from AthenaCommon.AppMgr import ToolSvc
 from TileConditions.TileCondToolConf import *
-if TileLasPulse:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','LAS')
-    ToolSvc += getTileCondToolOfcCool('COOL', 'LAS')
-elif TileCisPulse:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','CIS')
-    ToolSvc += getTileCondToolOfcCool('COOL', 'CIS')
-else:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
-    ToolSvc += getTileCondToolOfcCool('COOL', 'PHY')
 
 print tileInfoConfigurator
 

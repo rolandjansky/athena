@@ -34,11 +34,9 @@ using namespace std;
 TileMuId2DBAlg::TileMuId2DBAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator), 
   m_calo_id(0),
-  m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_noise(0.0),
   m_module(0)
 {
-  declareProperty("noiseTool",   m_noiseTool,"noise tool");
 }
 
 

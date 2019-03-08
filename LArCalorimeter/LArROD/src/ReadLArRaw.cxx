@@ -39,7 +39,7 @@
 // #include "LArRawUtils/LArRawRoISelector.h"
 //#include "LArRawUtils/LArTT_Selector.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 using namespace std ;
 
@@ -60,33 +60,18 @@ ReadLArRaw::ReadLArRaw(const std::string& name, ISvcLocator* pSvcLocator) :
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadLArRaw::initialize(){
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in initialize()" << endmsg;
+StatusCode ReadLArRaw::initialize()
+{
+  ATH_MSG_INFO( "in initialize()"  );
   
   ATH_CHECK(m_cablingKey.initialize());
 
-  StoreGateSvc* detStore;
-   if (service("DetectorStore", detStore).isFailure()) {
-     log << MSG::ERROR
-         << "Unable to access DetectoreStore" << endmsg; 
-     return StatusCode::FAILURE;
-   }
-
-// retrieve OnlineID helper from detStore
-   if (detStore->retrieve(m_onlineID, "LArOnlineID").isFailure()) {
-      log << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-   }
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
 
 // retrieve helpers for identifier
-  const DataHandle<CaloIdManager> caloIdMgr;
-  if (detStore->retrieve(caloIdMgr).isFailure()) {
-      log << MSG::FATAL << "Could not get CaloIdManager " << endmsg;
-      return StatusCode::FAILURE;
-  } 
-  m_larem_id   = caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_larem_id   = idHelper->em_idHelper();
 
 
 
@@ -103,16 +88,9 @@ StatusCode ReadLArRaw::initialize(){
 
 StatusCode ReadLArRaw::execute() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endmsg;
-  const DataHandle<LArRawChannelContainer> LArRaw ;
-  //  StatusCode sc_read = StoreGate::retrieve( LArRaw, string( "LArRawChannelContainer" ) ) ;
-  StatusCode sc_read = StoreGate::instance().retrieve( LArRaw, m_ChannelContainerName ) ;
-
-  if ( !sc_read.isSuccess() ) {
-    log << MSG::FATAL << "Could not find event" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG( "in execute()"  );
+  const LArRawChannelContainer* LArRaw ;
+  ATH_CHECK( evtStore()->retrieve (LArRaw, m_ChannelContainerName) );
 
 
  int emax= 0; 
@@ -139,19 +117,18 @@ StatusCode ReadLArRaw::execute() {
      emax=it1->energy() ; 
      maxId =ch_id;
      //  use LArOnlineID methods
-     log << MSG::VERBOSE
-	 << "--barrel_ec : " << m_onlineID->barrel_ec(ch_id) 
-	 << " Pos_neg : " << m_onlineID->pos_neg(ch_id)
-	 << " FeedThrough no. : " << m_onlineID->feedthrough(ch_id)
-	 << " slot no. : " << m_onlineID->slot(ch_id)
-	 << " channel no. : " << m_onlineID->channel(ch_id)
-	 << endmsg;
+     ATH_MSG_VERBOSE( "--barrel_ec : " << m_onlineID->barrel_ec(ch_id) 
+                      << " Pos_neg : " << m_onlineID->pos_neg(ch_id)
+                      << " FeedThrough no. : " << m_onlineID->feedthrough(ch_id)
+                      << " slot no. : " << m_onlineID->slot(ch_id)
+                      << " channel no. : " << m_onlineID->channel(ch_id)
+                      );
      
-     log << MSG::DEBUG << "Energy = " << it1->energy() << "; Time = " 
-	 << it1->time()
-	 << "; Chi-Square = " << it1->quality() << endmsg ;
+     ATH_MSG_DEBUG( "Energy = " << it1->energy() << "; Time = " 
+                    << it1->time()
+                    << "; Chi-Square = " << it1->quality()  );
    }     
-   log <<MSG::DEBUG<< " Channel with max energy , maxID =  "<< emax<<" "<<maxId.getString() <<endmsg; 
+   ATH_MSG_DEBUG( " Channel with max energy , maxID =  "<< emax<<" "<<maxId.getString()  );
  }
 
  return StatusCode::SUCCESS;
@@ -161,10 +138,9 @@ StatusCode ReadLArRaw::execute() {
 
 StatusCode ReadLArRaw::finalize() {
 
-  MsgStream log(msgSvc(), name());
   if (m_outFile.is_open()) 
     m_outFile.close();
-  log << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO( "in finalize()"  );
 
   return StatusCode::SUCCESS;
 }

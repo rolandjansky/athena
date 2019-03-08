@@ -22,7 +22,6 @@ Use a Tshaper raw conditions - reusing existing class instead of writing new
 
 #include "LArRawConditions/LArOFCBinComplete.h"
 
-#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h" 
 
 

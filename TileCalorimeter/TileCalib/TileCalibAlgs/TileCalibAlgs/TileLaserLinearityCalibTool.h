@@ -68,7 +68,8 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
 
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
-  ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
+  ToolHandle<TileCondToolEmscale>  m_tileToolEmscale{this,
+    "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
 
   // Parameter which will end up in the ROOTuple
   //

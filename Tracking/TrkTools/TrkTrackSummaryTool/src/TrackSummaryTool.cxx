@@ -272,6 +272,13 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     information[Trk::numberOfRpcPhiHoles] =0;
     information[Trk::numberOfTgcEtaHoles] =0;
     information[Trk::numberOfTgcPhiHoles] =0;
+    // New Small Wheel
+    information[Trk::numberOfStgcEtaHits] =0;
+    information[Trk::numberOfStgcPhiHits] =0;
+    information[Trk::numberOfMmHits] =0;    
+    information[Trk::numberOfStgcEtaHoles] =0;
+    information[Trk::numberOfStgcPhiHoles] =0;
+    information[Trk::numberOfMmHoles] =0;
   }
 
   std::bitset<numberOfDetectorTypes> hitPattern;
@@ -585,12 +592,17 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
     information [numberOfSCTDeadSensors]       = -1;
     information [numberOfTRTHoles]             = -1;
     information [numberOfTRTDeadStraws]        = -1;
+    // NOTE: Eta holes was used twice instead of Phi holes
     information [numberOfCscEtaHoles]          = -1;
-    information [numberOfCscEtaHoles]          = -1;    
+    information [numberOfCscPhiHoles]          = -1;    
     information [numberOfRpcEtaHoles]          = -1;
-    information [numberOfRpcEtaHoles]          = -1;    
+    information [numberOfRpcPhiHoles]          = -1;    
     information [numberOfTgcEtaHoles]          = -1;
-    information [numberOfTgcEtaHoles]          = -1;    
+    information [numberOfTgcPhiHoles]          = -1;
+    // New Small Wheel
+    information [numberOfStgcEtaHoles]         = -1;
+    information [numberOfStgcPhiHoles]         = -1; 
+    information [numberOfMmHoles]              = -1;
     return;
   }
   else
@@ -617,13 +629,17 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
     {
 // now do Muon hole search. It works completely differently to the above, so we need to make this all a bit more general
 // and probably more efficient. But this hopefully works for now! EJWM
-      information [numberOfMdtHoles]          = 0;
+      information [numberOfMdtHoles]             = 0;
       information [numberOfCscEtaHoles]          = 0;
       information [numberOfCscPhiHoles]          = 0;    
       information [numberOfRpcEtaHoles]          = 0;
       information [numberOfRpcPhiHoles]          = 0;    
       information [numberOfTgcEtaHoles]          = 0;
-      information [numberOfTgcPhiHoles]          = 0;    
+      information [numberOfTgcPhiHoles]          = 0;
+      // New Small Wheel
+      information [numberOfStgcEtaHoles]         = 0;
+      information [numberOfStgcPhiHoles]         = 0;  
+      information [numberOfMmHoles] = 0;        
       m_muonTool->searchForHoles(track,information,Trk::muon) ;
     }
   }

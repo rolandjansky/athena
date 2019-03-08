@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@ namespace Trk
     static constexpr double INVALID=std::numeric_limits<double>::quiet_NaN();
     static constexpr double INVALID_P(10e9);
     static constexpr double INVALID_QOP(10e-9);
-    static const Amg::Vector2D INVALID_POSITION(INVALID,INVALID);
 
     template<typename T>
     int sgn(const T& val)
@@ -76,8 +75,8 @@ namespace Trk
   // Constructor with local arguments - uses global <-> local for parameters
   template<int DIM,class T,class S>
   ParametersT<DIM,T,S>::ParametersT(const AmgVector(DIM)& parameters,
-				    const S& surface,
-				    AmgSymMatrix(DIM)* cov):
+                                    const S& surface,
+                                    AmgSymMatrix(DIM)* cov):
     ParametersBase<DIM,T>(),
     m_parameters(parameters),
     m_covariance(cov),
@@ -133,7 +132,7 @@ namespace Trk
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
     if(not ok)
-      lPosition = INVALID_POSITION;
+      lPosition = Amg::Vector2D (INVALID,INVALID);
 
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], momentum().phi(),
@@ -174,7 +173,7 @@ namespace Trk
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
     if (not ok)
-      lPosition = INVALID_POSITION;
+      lPosition = Amg::Vector2D (INVALID,INVALID);
     
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   
@@ -278,52 +277,7 @@ namespace Trk
     }
   }
 
-// PROTECTED Constructor with local arguments - persistency only, ownership of surface given
-  template <int DIM,class T,class S>
-  Trk::ParametersT<DIM,T,S>::ParametersT(const AmgVector(DIM)& pars,
-					 const S* surface,
-					 AmgSymMatrix(DIM)* cov) :
-    ParametersBase<DIM,T>(),
-    m_parameters(pars),
-    m_covariance(cov),
-    m_surface(surface)
-  {
-    float qop = m_parameters[Trk::qOverP];
-    // decide the sign of the charge
-    if (qop<0.) m_chargeDef.setCharge(-1);
-
-    double p=0.0;
-    if (qop!=0.) {
-      p = fabs(1./qop);
-    } else {
-      // qop is unphysical. No momentum measurement.
-      p = INVALID_P;
-      qop = INVALID_QOP;
-    }
-    // fill momentum & then position using the surface
-    m_momentum = Amg::Vector3D(p*cos(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
-			       p*sin(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
-			       p*cos(m_parameters[Trk::theta]));
-    if (m_surface)
-      m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
-    else {
-      m_momentum.setZero();
-      m_position.setZero();
-    }
-  }
-  
-  template <int DIM,class T,class S>
-  Trk::ParametersT<DIM,T,S>::ParametersT(const Amg::Vector3D& pos,
-					 const Amg::Vector3D& mom,
-					 AmgSymMatrix(DIM)* cov):
-    m_parameters(),
-    m_covariance(cov),
-    m_position(pos),
-    m_momentum(mom),
-    m_surface(0),
-    m_chargeDef()
-  {}
-  
+ 
   /** equality operator */
   template<int DIM,class T,class S>
   bool ParametersT<DIM,T,S>::operator==(const ParametersBase<DIM,T>& rhs) const
@@ -383,17 +337,17 @@ namespace Trk
   ParametersT<DIM,T,S>::ParametersT():
     ParametersBase<DIM,T>(),
     m_parameters(),
-    m_covariance(0),
+    m_covariance(nullptr),
     m_position(),
     m_momentum(),
-    m_surface(0),
+    m_surface(nullptr),
     m_chargeDef()
   {}  
 
   // protected update function
   template<int DIM,class T,class S>
   void ParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-					      AmgSymMatrix(DIM)* updatedCovariance)
+                                              AmgSymMatrix(DIM)* updatedCovariance)
   {
     // valid to use != here, because value is either copied or modified,
     bool updatePosition = (updatedParameters[Trk::loc1] != m_parameters[Trk::loc1]) || (updatedParameters[Trk::loc2] != m_parameters[Trk::loc2]);
@@ -406,17 +360,17 @@ namespace Trk
     // update the covariance
     if (updatedCovariance){
       if (updatedCovariance != m_covariance)
-	delete m_covariance;
+        delete m_covariance;
       m_covariance = updatedCovariance;
     }
     //position or momentum update needed
     if (updatePosition){
       if(m_surface)
-	m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
+        m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
       else
       {
-	m_momentum.setZero();
-	m_position.setZero();
+        m_momentum.setZero();
+        m_position.setZero();
       }
     } 
     // momentum update is needed    
@@ -429,4 +383,53 @@ namespace Trk
       m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),p*sin(phi)*sin(theta),p*cos(theta));
     }
   }
+
+//special C-tor used by the curvilinear parameters  
+  template <int DIM,class T,class S>
+  Trk::ParametersT<DIM,T,S>::ParametersT(const Amg::Vector3D& pos,
+					 const Amg::Vector3D& mom,
+					 AmgSymMatrix(DIM)* cov):
+    m_parameters(),
+    m_covariance(cov),
+    m_position(pos),
+    m_momentum(mom),
+    m_surface(nullptr),
+    m_chargeDef()
+  {}
+ 
+  // Protected Constructor with local arguments - persistency only, ownership of surface given
+  template <int DIM,class T,class S>
+  Trk::ParametersT<DIM,T,S>::ParametersT(const AmgVector(DIM)& pars,
+                                         const S* surface,
+                                         AmgSymMatrix(DIM)* cov) :
+    ParametersBase<DIM,T>(),
+    m_parameters(pars),
+    m_covariance(cov),
+    m_surface(surface)
+  {
+    float qop = m_parameters[Trk::qOverP];
+    // decide the sign of the charge
+    if (qop<0.) m_chargeDef.setCharge(-1);
+
+    double p=0.0;
+    if (qop!=0.) {
+      p = fabs(1./qop);
+    } else {
+      // qop is unphysical. No momentum measurement.
+      p = INVALID_P;
+      qop = INVALID_QOP;
+    }
+    // fill momentum & then position using the surface
+    m_momentum = Amg::Vector3D(p*cos(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
+			       p*sin(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
+			       p*cos(m_parameters[Trk::theta]));
+    if (m_surface)
+      m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
+    else {
+      m_momentum.setZero();
+      m_position.setZero();
+    }
+  }
+ 
+  
 } // end of namespace Trk
