@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
 #include <iostream>
 
-const char *MuonEtaPhiRIO_OnTrackErrorScaling::s_names[MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes]={
+const char* const MuonEtaPhiRIO_OnTrackErrorScaling::s_names[MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes]={
     "Phi",
     "Eta"
   };

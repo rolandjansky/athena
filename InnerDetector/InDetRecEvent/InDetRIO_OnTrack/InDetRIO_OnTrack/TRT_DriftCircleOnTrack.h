@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@
 // for ElementLink to IdentifiableContainer PixelClusterContainer
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "AthLinks/ElementLink.h"
+
+#include <atomic>
 
 namespace Trk {
   class Surface;
@@ -156,13 +158,13 @@ namespace InDet{
       void setGlobalPosition(Amg::Vector3D& loc3Dframe) const;   
  
       /** global position to be cached */
-      mutable const Amg::Vector3D*     m_globalPosition;
+      mutable std::atomic<const Amg::Vector3D*> m_globalPosition; // This may be replaced by CachedUniquePtr
       
       /**local angle to be written out */     
-      mutable float                           m_localAngle;
+      mutable std::atomic<float> m_localAngle;
       
       /**local position along wire to be written out*/
-      mutable float                           m_positionAlongWire;
+      mutable std::atomic<float> m_positionAlongWire;
       
       /** the contained RIO (PRD, PrepRawData) - TRT_DriftCircle in this case */
 //       mutable const InDet::TRT_DriftCircle*  m_rio;
