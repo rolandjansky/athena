@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import MeV
+from AthenaCommon.Constants import VERBOSE
 
 def caloTopoCoolFolderCfg(configFlags):
     result=ComponentAccumulator()
@@ -267,7 +268,7 @@ def CaloTopoClusterCfg(configFlags):
     theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
 
     # maker tools
-    TopoMaker = CaloTopoClusterMaker("TopoMaker")
+    TopoMaker = CaloTopoClusterMaker("TopoMaker")#,OutputLevel=VERBOSE)
         
     TopoMaker.CellsName = "AllCalo"
     TopoMaker.CalorimeterNames=["LAREM",
@@ -333,8 +334,10 @@ def CaloTopoClusterCfg(configFlags):
     # EnergyCut                     = 500*MeV,
         
 
-    CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")
-    CaloTopoCluster.ClustersOutputName="CaloTopoCluster"
+    CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")#,OutputLevel=VERBOSE)
+    CaloTopoCluster.ClustersOutputName="CaloTopoClusters"
+    if configFlags.Calo.TopoCluster.doTopoClusterLocalCalib:
+        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
     
@@ -364,16 +367,15 @@ if __name__=="__main__":
     from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    log.setLevel(DEBUG)
+    #log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = ["myESD-data.pool.root"]
-    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
+#    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    #cfg=ComponentAccumulator()
     cfg=MainServicesSerialCfg() 
     cfg.merge(PoolReadCfg(ConfigFlags))
     
@@ -386,14 +388,28 @@ if __name__=="__main__":
     cfg.addEventAlgo(topoAlg,sequenceName="AthAlgSeq")
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    cfg.merge(OutputStreamCfg(ConfigFlags,"ESD", ItemList=["xAOD::CaloClusterContainer#"+theKey,
-                                                            "xAOD::CaloClusterAuxContainer#"+theKey+"Aux.",
-                                                            "CaloClusterCellLinkContainer#"+theKey+"_links"]))
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD", ItemList=["xAOD::CaloClusterContainer#CaloCalTopoClusters*",#+theKey,
+                                                           "xAOD::CaloClusterAuxContainer#*CaloCalTopoClusters*Aux.",#+theKey+"Aux.",
+                                                           # "CaloClusterCellLinkContainer#"+theKey+"_links"
+                                                           ]))
+    cfg.getEventAlgo("OutputStreamxAOD").ForceRead=True
 
+    from AthenaServices.AthenaServicesConf import ThinningSvc, ThinningOutputTool
+    cfg.addService(ThinningSvc())
+    tot = ThinningOutputTool("Thin_xAOD",ThinningSvc = cfg.getService("ThinningSvc"))
+    cfg.getEventAlgo("OutputStreamxAOD").HelperTools += [tot]
+
+    from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
+    theNegativeEnergyCaloClustersThinner = ThinNegativeEnergyCaloClustersAlg(
+        "ThinNegativeEnergyCaloClustersAlg",
+        CaloClustersKey=theKey,
+        ThinNegativeEnergyCaloClusters = True,
+        )
+    cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
   
-    cfg.getService("StoreGateSvc").Dump=True
+#    cfg.getService("StoreGateSvc").Dump=True
 
-    cfg.run()
+    cfg.run(10)
     #f=open("CaloTopoCluster.pkl","w")
     #cfg.store(f)
     #f.close()
