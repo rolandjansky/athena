@@ -167,19 +167,19 @@ class SCTCalibWriteTool : public AthAlgTool {
 
       // would it make sense to change the strings to properties?
       // that would be a fairly simple fix
-      static std::string s_separator;
-      static std::string s_defectFolderName;
-      static std::string s_deadStripFolderName;
-      static std::string s_deadChipFolderName;
-      static std::string s_effFolderName;
-      static std::string s_noFolderName;
-      static std::string s_RawOccuFolderName;
-      static std::string s_BSErrFolderName;
-      static std::string s_LAFolderName;
+      static const std::string s_separator;
+      static const std::string s_defectFolderName;
+      static const std::string s_deadStripFolderName;
+      static const std::string s_deadChipFolderName;
+      static const std::string s_effFolderName;
+      static const std::string s_noFolderName;
+      static const std::string s_RawOccuFolderName;
+      static const std::string s_BSErrFolderName;
+      static const std::string s_LAFolderName;
 
       // cache for the Collections, access by foldername
       mutable std::mutex m_mutex;
-      mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap;
+      mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
       CondAttrListCollection*      m_attrListColl;
       CondAttrListCollection*      m_attrListColl_deadStrip;
       CondAttrListCollection*      m_attrListColl_deadChip;

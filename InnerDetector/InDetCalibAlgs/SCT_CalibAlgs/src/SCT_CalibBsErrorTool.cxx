@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,6 @@ const static string detectorNames[] = { "negativeEndcap", "barrel", "positiveEnd
 const static int  n_BSErrorType = 15;
 const static int firstBSErrorType = 0;
 const static int lastBSErrorType = 14;
-static int MAXHASH(0);
 
 SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::string& name, const IInterface* parent) :
    base_class(type, name, parent),
@@ -46,7 +45,8 @@ SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::s
    m_scterr_eta(0),
    m_scterr_phi(0),
    m_scterr_side(0),
-   m_scterr_type(0)
+   m_scterr_type(0),
+   m_maxHash(0)
 {
 }
 
@@ -56,7 +56,7 @@ SCT_CalibBsErrorTool::initialize() {
    if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endmsg, StatusCode::FAILURE;
    if ( m_bytestreamErrorsTool.retrieve().isFailure()) return msg( MSG::ERROR) << "Unable to retrieve BS Error Tool" << endmsg, StatusCode::FAILURE;
    //
-   MAXHASH=m_pSCTHelper->wafer_hash_max();
+   m_maxHash=m_pSCTHelper->wafer_hash_max();
    m_waferItrBegin  = m_pSCTHelper->wafer_begin();
    m_waferItrEnd  = m_pSCTHelper->wafer_end();
 
@@ -161,7 +161,7 @@ SCT_CalibBsErrorTool::fillBsErrorsForWafer(const Identifier & waferId, const int
    int iWaferHash = (int) m_pSCTHelper->wafer_hash( waferId );
    const string osWafer=formatPosition(waferId, m_pSCTHelper,".");
    //--- Protection for wrong waferID
-   if ( iWaferHash < 0 || iWaferHash >= MAXHASH ) {
+   if ( iWaferHash < 0 || iWaferHash >= m_maxHash ) {
       msg( MSG::WARNING ) << "WaferHash " << iWaferHash << " is out of range : [ bec.layer.eta.phi.side, BSErrorType ] = [ " << osWafer << ", " << type << " ]" << endmsg;
    } else {
       if (msgLvl(MSG::DEBUG)) msg( MSG::DEBUG ) << "BSError : [ bec.layer.eta.phi.side, Type ] = [ " << osWafer<< ", " << type << " ]"<< endmsg;
