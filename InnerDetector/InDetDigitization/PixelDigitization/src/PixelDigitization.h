@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "PileUpTools/PileUpToolBase.h"
-
+class PixelDigitizationTool;
 class PixelDigitization : public AthAlgorithm {
 
 public:
@@ -88,7 +88,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-  ToolHandle<IPileUpTool> m_pixelDigitizationTool;
+  ToolHandle<PixelDigitizationTool> m_pixelDigitizationTool{this, "DigitizationTool", "PixelDigitizationTool", "PixelDigitizationTool name"};
 };
 	
 #endif // PIXELDIGITIZATION_PIXELDIGITIZATION_H

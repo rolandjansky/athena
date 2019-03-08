@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -16,10 +16,8 @@
 // Constructor with parameters:
 PixelDigitization::PixelDigitization(const std::string &name,
                                      ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_pixelDigitizationTool("PixelDigitizationTool")
+  AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("DigitizationTool",        m_pixelDigitizationTool, "PixelDigitizationTool Name");
 }
 
 PixelDigitization::~PixelDigitization() { }
