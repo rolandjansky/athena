@@ -6,7 +6,6 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
 import copy

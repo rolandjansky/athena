@@ -14,8 +14,8 @@ log = logging.getLogger('HLTCFConfig_newJO')
 log.setLevel( VERBOSE )
 
 
-def connectStepToFilter(chainStep, filter):
-    filter_output = filter.getOutputList()
+def connectStepToFilter(chainStep, filterNode):
+    filter_output = filterNode.getOutputList()
     if len(filter_output) == 0:
         raise ValueError('ERROR: no filter outputs are set')
 
@@ -27,7 +27,7 @@ def connectStepToFilter(chainStep, filter):
     for nseq, sequence in enumerate(chainStep.sequences):
         output = filter_output[nseq]
         log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", output,
-                  sequence.name, filter.Alg.name(), sequence.seed)
+                  sequence.name, filterNode.Alg.name(), sequence.seed)
         sequence.connectToFilter(output)
 
 
