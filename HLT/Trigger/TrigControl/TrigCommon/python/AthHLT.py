@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Utilities used in athenaHLT.py
 #
@@ -23,8 +23,20 @@ class CondDB:
 
 @memoize
 def get_sor_params(run_number):
+   import cPickle as pickle
+   cool_cache = 'AthHLT.sor.pkl'
 
-   log.info('Reading SOR record for run %s from COOL' % run_number)
+   try:
+      # Try to load the SOR record from the file cache
+      d = pickle.load(open(cool_cache, 'rb'))
+      if d['RunNumber'] != run_number:
+         raise Exception('Cache does not contain current run')
+      log.info('Reading cached SOR record for run %s from %s' % (run_number, cool_cache))
+      return d
+   except Exception as e:
+      d = {}
+      log.verbose('Could not read SOR reacord from cache: %s' % e)
+      log.info('Reading SOR record for run %s from COOL' % run_number)
 
    from CoolConvUtilities import AtlCoolLib
    cdb = CondDB(run_number)
@@ -41,7 +53,13 @@ def get_sor_params(run_number):
       return None        # This can happen for unknown run numbers
 
    payload = sor.payload()
-   return {k: payload[k] for k in payload}
+   d = {k: payload[k] for k in payload}
+   try:
+      pickle.dump(d, open(cool_cache, 'wb'))
+   except Exception:
+      log.info('Could not store SOR record in cache %s' % cool_cache)
+
+   return d
 
 
 #
