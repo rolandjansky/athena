@@ -18,7 +18,7 @@ namespace CP {
             m_measurement(ref_tool.measurement()),
             m_syst_name(syst_name),
             m_is_up(syst_type_bitmap & EffiCollection::UpVariation),
-            m_is_lowpt(syst_type_bitmap & EffiCollection::CentralLowPt ||  syst_type_bitmap & EffiCollection::CaloLowPt),
+            m_is_lowpt(syst_type_bitmap & EffiCollection::JPsiAnalysis),
             m_respond_to_kineDepSyst(syst_type_bitmap & EffiCollection::PtDependent),
             m_seperateBinSyst(syst_type_bitmap & EffiCollection::UnCorrelated),
             m_sf(),
@@ -118,7 +118,8 @@ namespace CP {
         syst_loader(m_mc_eff,"MC_Eff");
         
         /// Thus far there're no kinematic dependent systematics for low-pt
-        if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
+        if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central()) ||
+        (file == ref_tool.filename_Calo() && ref_tool.filename_Calo() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
         /// As well  as for the high-eta  range.
        
         /// Load the pt_dependent systematics if needed
@@ -145,7 +146,7 @@ namespace CP {
         if(!m_sf_KineDepsys->initialize()){    
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         }
-        m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);            
+       // m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);            
     }
     EfficiencyScaleFactor::EfficiencyScaleFactor(const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string &file, 

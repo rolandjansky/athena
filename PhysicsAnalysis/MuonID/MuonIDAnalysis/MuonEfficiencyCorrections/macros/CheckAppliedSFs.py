@@ -165,7 +165,7 @@ def getArgParser():
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
     parser.add_argument('--noComparison', help='do not plot comparison to old release', action='store_true', default=False)
-    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=100)
+    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=200)
     return parser
 if __name__ == "__main__":    
     Options = getArgParser().parse_args()
@@ -279,8 +279,9 @@ if __name__ == "__main__":
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
         if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
-        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
-        for H in Histos: H.fill()
+        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 or math.fabs(tree.Muon_eta) < 0.1: continue
+        for H in Histos: 
+            if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
         
     print "INFO: Histograms filled"
     pu = PlotUtils()
