@@ -33,11 +33,13 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     AthAlgTool(t, n, p),
     m_decoder("Muon::RpcROD_Decoder/RpcROD_Decoder", this),
     m_AllowCreation(false),
-    m_robDataProvider ("ROBDataProviderSvc",n)
+    m_robDataProvider ("ROBDataProviderSvc",n),
+    m_WriteOutRpcSectorLogic(true)
 {
     declareInterface<IMuonRawDataProviderTool>(this);
     declareProperty("Decoder",     m_decoder);
-    declareProperty ("RpcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the RPC container");
+    declareProperty("RpcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the RPC container");
+    declareProperty("WriteOutRpcSectorLogic", m_WriteOutRpcSectorLogic, "Turn on/off RpcSectorLogic writing");
 }
 
 
@@ -58,6 +60,13 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     }
 
     ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
+
+    // We should only turn off the sector logic when running with cached data a la trigger mode
+    if(!m_rdoContainerCacheKey.key().empty() && m_WriteOutRpcSectorLogic){
+      ATH_MSG_FATAL("Cannot write out RpcSectorLogic while running with cached RpcPad containers" 
+        " as the RpcSectorLogic is not cached at the same time and the written containers will desync." 
+        " Please turn off RpcSectorLogic writing when running with cached bytestream container");
+    }
 
     if (m_decoder.retrieve().isFailure())
     {
@@ -154,11 +163,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
         }
     } 
     else has_bytestream = true;
-    //{
-    //    msg(MSG::FATAL) << "Cannot get the job configuration" << endmsg;
-  //return StatusCode::FAILURE;
-    //}
-    
     
     // register the container only when the imput from ByteStream is set up     
     m_activeStore->setStore( &*evtStore() ); 
@@ -232,78 +236,85 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<IdentifierHa
 }
 // the old one 
 StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
-                                  const std::vector<IdentifierHash>& collections)
+  const std::vector<IdentifierHash>& collections)
 {
  //CALLGRIND_START_INSTRUMENTATION
     // retrieve the container through the MuonRdoContainerManager becasue
     // if the MuonByteStream CNV has to be used, the container must have been
     // registered there!
-    m_activeStore->setStore( &*evtStore() );
-      
-    if(m_AllowCreation == false)
-    {
-        ATH_MSG_WARNING( "Container create disabled due to byte stream");
-        
+  m_activeStore->setStore( &*evtStore() );
+
+  if(m_AllowCreation == false)
+  {
+    ATH_MSG_WARNING( "Container create disabled due to byte stream");
+
         return StatusCode::SUCCESS; // Maybe it should be false to stop the job
                                     // because the convert method should not
                                     // have been called .... but this depends
                                     // on the user experience
-    }
+  }
 
-    SG::WriteHandle<RpcPadContainer> rdoContainerHandle(m_containerKey);
-    if (rdoContainerHandle.isPresent())
-      return StatusCode::SUCCESS;
+  SG::WriteHandle<RpcPadContainer> rdoContainerHandle(m_containerKey);
+  if (rdoContainerHandle.isPresent())
+    return StatusCode::SUCCESS;
 
 
-    // Split the methods to have one where we use the cache and one where we just setup the container
-    const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
-    if(!externalCacheRDO){
-      ATH_CHECK( rdoContainerHandle.record(std::make_unique<RpcPadContainer> (padMaxIndex) ) );
-      ATH_MSG_DEBUG( "Created RpcPadContainer" );
-    }
-    else{
-      SG::UpdateHandle<RpcPad_Cache> update(m_rdoContainerCacheKey);
-      ATH_CHECK(update.isValid());
-      ATH_CHECK(rdoContainerHandle.record (std::make_unique<RpcPadContainer>( update.ptr() )));
-      ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
-    }
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
+    ATH_CHECK( rdoContainerHandle.record(std::make_unique<RpcPadContainer> (padMaxIndex) ) );
+    ATH_MSG_DEBUG( "Created RpcPadContainer" );
+  }
+  else{
+    SG::UpdateHandle<RpcPad_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<RpcPadContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+
+  RpcPadContainer* pad = rdoContainerHandle.ptr();
+
+  SG::WriteHandle<RpcSectorLogicContainer> logicHandle(m_sec);
+  auto logic = std::make_unique<RpcSectorLogicContainer>();
   
-    RpcPadContainer* pad = rdoContainerHandle.ptr();
- 
-    SG::WriteHandle<RpcSectorLogicContainer>    logicHandle(m_sec);
-    auto logic = std::make_unique<RpcSectorLogicContainer>();
-    
-    for (ROBFragmentList::const_iterator itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
+  // Reset to a nullptr (logic.get() will pass this through to decoder)
+  if(!m_WriteOutRpcSectorLogic) logic.reset();
+
+  for (ROBFragmentList::const_iterator itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
+  {
+    //convert only if data payload is delivered
+    if ( (**itFrag).rod_ndata()!=0 )
     {
-        //convert only if data payload is delivered
-        if ( (**itFrag).rod_ndata()!=0 )
-        {
-            std::vector<IdentifierHash> coll =
-                                      to_be_converted(**itFrag,collections);
-      
-            if (m_decoder->fillCollections(**itFrag, *pad, coll, logic.get()).isFailure())
-                {
-                    // store the error conditions into the StatusCode and continue
-                }
-        }
-        else
-        {
-	  if(msgLvl(MSG::DEBUG))
-            {
-                uint32_t sourceId= (**itFrag).source_id();
-                msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
+      std::vector<IdentifierHash> coll = to_be_converted(**itFrag,collections);
+
+      if (m_decoder->fillCollections(**itFrag, *pad, coll, logic.get()).isFailure())
+      {
+        // store the error conditions into the StatusCode and continue
+      }
+    }
+    else
+    {
+     if(msgLvl(MSG::DEBUG))
+     {
+        uint32_t sourceId= (**itFrag).source_id();
+        msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
         << " is delivered with an empty payload" << MSG::dec 
         << endmsg;
-            }
-            // store the error condition into the StatusCode and continue
-        }
+      }
+      // store the error condition into the StatusCode and continue
     }
-    // Unsure about this at the moment
-    //ATH_CHECK( rdoContainerHandle.record (std::move (pad)) );
+  }
+  // Unsure about this at the moment
+  //ATH_CHECK( rdoContainerHandle.record (std::move (pad)) );
+  ATH_MSG_DEBUG("After processing, number of collections in container : " << pad-> numberOfCollections() );
+  if(m_WriteOutRpcSectorLogic){
+    ATH_MSG_DEBUG("Writing out RpcSectorLogicContainer");
     ATH_CHECK( logicHandle.record (std::move (logic)) );
-    //in presence of errors return FAILURE
-//CALLGRIND_STOP_INSTRUMENTATION
-    return StatusCode::SUCCESS;
+  }
+
+  //in presence of errors return FAILURE
+  //CALLGRIND_STOP_INSTRUMENTATION
+  return StatusCode::SUCCESS;
 }
 
 

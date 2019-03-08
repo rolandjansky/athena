@@ -38,7 +38,7 @@ Muon::RpcROD_Decoder::RpcROD_Decoder ( const std::string& type, const std::strin
 														      m_decodeSL(false),
 														      //m_byteStreamErrSvc("RPC_ByteStreamErrorSvc",name),
 														      m_cabling(0),
-														      m_pRpcIdHelper(0) //,m_bench("RpcROD_Decoder")
+														      m_pRpcIdHelper(0) //,m_bench("RpcROD_Decoder"),
 {
     declareInterface< IRpcROD_Decoder  >( this );
     declareProperty("SpecialROBNumber",m_specialROBNumber=-1);

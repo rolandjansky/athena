@@ -72,6 +72,8 @@ private:
 
     /// RPC container cache key
     SG::UpdateHandleKey<RpcPad_Cache> m_rdoContainerCacheKey ;
+    /// Turn on/off RpcSectorConfig writing
+    bool m_WriteOutRpcSectorLogic;
 
     
 };

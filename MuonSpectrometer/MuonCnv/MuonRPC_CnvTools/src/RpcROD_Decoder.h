@@ -400,6 +400,9 @@ namespace Muon
       return StatusCode::FAILURE;  // error in fragment
     }
     
+    if(RPC_SECTORLOGIC == nullptr){
+      ATH_MSG_DEBUG("RPC_SECTORLOGIC is null, so we will skip decoding the sector logic information");
+    }
     
     // get the pointer to the data
     BS data;
@@ -517,7 +520,7 @@ namespace Muon
           ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
         }
         else{
-          ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+          ATH_MSG_DEBUG(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
 
 		      // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
           RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
@@ -547,22 +550,20 @@ namespace Muon
 	    //for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
       for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
 	    {
-	      // add collection into IDC using RpcPadCache functions
-        
+	      // Get the write handle again, but note that lock.alreadyPresent() will be true BUT we have already checked 
+        // for this hash that it was not present before processing, and we still need to attach to the container
         RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( ((*it).second)->identifyHash() );
+        
+        // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
+        StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>((*it).second)));
 
-	      if ( !lock.alreadyPresent() )
-	      {
-          // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-          StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>( (*it).second ) );
-
-		      if(status_lock != StatusCode::SUCCESS)
-		      {
-		        ATH_MSG_ERROR("Failed to add RPC PAD collection to container" );
-		        //report the error condition
-		      }
-          else 
-            ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
+		    if(status_lock != StatusCode::SUCCESS)
+		    {
+		      ATH_MSG_ERROR("Failed to add RPC PAD collection to container" );
+		      //report the error condition
+		    }
+        else{
+          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
         }
       }
       return cnv_sc;
@@ -571,12 +572,16 @@ namespace Muon
     std::vector<IdentifierHash>::const_iterator it = collections.begin();
     for( ; it!=collections.end(); ++it)
     {
-      RpcPadContainer::const_iterator itColl = rdoIdc.indexFind(*it);
-      if (itColl == rdoIdc.end())
-      {
-        msg(MSG::VERBOSE) << " Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) << endmsg;
-        
-        // create new collection
+      // IDC_WriteHandle
+      RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( (*it) );
+
+      if(lock.alreadyPresent() ){
+        ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
+      }
+      else{
+        ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+
+        // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
         RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
         
         //convert collection - note case3 will never be used due to statement above
@@ -596,14 +601,18 @@ namespace Muon
           ATH_MSG_VERBOSE("Error into the RPC fillCollections decoding");
         }
         
+        // Here need to implement writing for all the other fill methods
+        // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
+        StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>( coll ) ) );
+
         // add collection into IDC
-        if (rdoIdc.addCollection(coll, *it).isFailure())
+        if(status_lock != StatusCode::SUCCESS)
         {
-          msg(MSG::ERROR) << "Failed to add RPC PAD collection to container" << endmsg;
+          ATH_MSG_ERROR("Failed to add RPC PAD collection to container");
           //report the error condition
         }
         else
-          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(*it)<<" to the RpcPad Container | size = "<<coll->size());
+          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(*it)<<" to the RpcPad Container | size = " << coll->size());
       }
     }
     return cnv_sc;
@@ -619,6 +628,10 @@ namespace Muon
   RpcROD_Decoder::fillCollection_v302(BS data, const uint32_t data_size,
                                       RpcPad& v, const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer ) const 
   {
+    bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
+    if(skipSectorLogicDecoding)
+      ATH_MSG_DEBUG("Skip SectorLogic decoding, so SLROC.decodeFragment is not being processed");
+
 
     /* for (unsigned int i = 0; i<1000; ++i) { */
     /*   //std::cout<<" aaa "<<std::endl; */
@@ -758,14 +771,16 @@ namespace Muon
       isPadPreFooter=false;
       isPadFooter   =false;
       isSLHeader    =false;
-      isSLSubHeader    =false;
+      isSLSubHeader =false;
       isSLFooter    =false;
       uint32_t currentWord = p[i];
       
       
       RXROS.decodeFragment(currentWord,recField);
       PDROS.decodeFragment(currentWord,recField);
-      SLROS.decodeFragment(currentWord,recField);
+      if(!skipSectorLogicDecoding){
+        SLROS.decodeFragment(currentWord,recField);
+      }
       
       if (RXROS.isHeader()) {
         isRXHeader=true;
@@ -791,6 +806,14 @@ namespace Muon
         isSLFragment=false;
       } else if (SLROS.isSubHeader() && isSLFragment) {
         isSLSubHeader=true;
+      }
+
+      // The SLROS functions still return values (based on default values)
+      if(skipSectorLogicDecoding){
+        isSLHeader    = false;
+        isSLSubHeader = false;
+        isSLFragment  = false;
+        isSLFooter    = false;
       }
       
       
@@ -1209,7 +1232,7 @@ namespace Muon
                 uint16_t channel = matrixROS.channel();
                 firedChan = new RpcFiredChannel(bcid,time,ijk,channel);
                 
-		ATH_MSG_VERBOSE (
+		            ATH_MSG_VERBOSE (
                 "Adding a fired channel, bcid=" << bcid << " time=" 
                 << " ijk=" << ijk << " channel=" << channel);
                 
@@ -1258,7 +1281,10 @@ namespace Muon
   RpcROD_Decoder::fillCollection_v301(BS data, const uint32_t data_size,
                                       RpcPad& v, const uint16_t& subDetector, RpcSectorLogicContainer* sectorLogicContainer ) const
   {
-    
+    bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
+    if(skipSectorLogicDecoding)
+      ATH_MSG_DEBUG("Skip SectorLogic decoding, so SLROC.decodeFragment is not being processed");
+
     // unpack the 32 bits words into 16 bits 
     // no ROD header and footer 
     std::vector<uint16_t> p = get16bits_v301(data,data_size,0,0);
@@ -1291,8 +1317,7 @@ namespace Muon
     bool foundPad=false;
     
     
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "The offline ID request for conversion is " 
-    << m_pRpcIdHelper->show_to_string(thisPadOfflineId) << endmsg;
+    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_pRpcIdHelper->show_to_string(thisPadOfflineId) );
     
     
     bool isSLHeader    =false;
@@ -1344,7 +1369,9 @@ namespace Muon
       
       RXROS.decodeFragment(currentWord,recField);
       PDROS.decodeFragment(currentWord,recField);
-      SLROS.decodeFragment(currentWord,recField);
+      if(!skipSectorLogicDecoding){
+        SLROS.decodeFragment(currentWord,recField);
+      }
       
       if (RXROS.isHeader() && !isSLFragment) isRXHeader=true;
       else if (RXROS.isFooter() && !isSLFragment) isRXFooter=true;
@@ -1354,26 +1381,33 @@ namespace Muon
       else if (PDROS.isFooter() && !isSLFragment) isPadFooter=true;
       else if (SLROS.isHeader()) isSLHeader=true;
       else if (SLROS.isFooter()) isSLFooter=true;
+
+      // The SLROS functions still return values (based on default values)
+      if(skipSectorLogicDecoding){
+        isSLHeader    = false;
+        isSLFragment  = false;
+        isSLFooter    = false;
+      }
       
       //#ifndef NVERBOSE
       if (msgLvl(MSG::VERBOSE))
-	{
-	  msg(MSG::VERBOSE) <<" RX Header: "<<isRXHeader
-			    <<" RX Footer: "<<isRXFooter
-			    <<endmsg;
-	  msg(MSG::VERBOSE) <<" Pad Header: "<<isPadHeader
-			    <<" Pad SubHeader: "<<isPadSubHeader
-			    <<" Pad PreFooter: "<<isPadPreFooter
-			    <<" Pad Footer: "<<isPadFooter
-			    <<endmsg;
-	  msg(MSG::VERBOSE) <<" isPADFragment: "<<isPADFragment
-			    <<endmsg;
-	  msg(MSG::VERBOSE) <<" SL Header: "<<isSLHeader
-			    <<" SL Footer: "<<isSLFooter
-			    <<endmsg;
-	  msg(MSG::VERBOSE) <<" isSLFragment: "<<isSLFragment
-			    <<endmsg;
-	}
+      {
+       msg(MSG::VERBOSE) <<" RX Header: "<<isRXHeader
+       <<" RX Footer: "<<isRXFooter
+       <<endmsg;
+       msg(MSG::VERBOSE) <<" Pad Header: "<<isPadHeader
+       <<" Pad SubHeader: "<<isPadSubHeader
+       <<" Pad PreFooter: "<<isPadPreFooter
+       <<" Pad Footer: "<<isPadFooter
+       <<endmsg;
+       msg(MSG::VERBOSE) <<" isPADFragment: "<<isPADFragment
+       <<endmsg;
+       msg(MSG::VERBOSE) <<" SL Header: "<<isSLHeader
+       <<" SL Footer: "<<isSLFooter
+       <<endmsg;
+       msg(MSG::VERBOSE) <<" isSLFragment: "<<isSLFragment
+       <<endmsg;
+     }
       //#endif   
       
       if(isRXHeader) { 
@@ -1398,39 +1432,39 @@ namespace Muon
         
         // Check the Sector Logic Fragment      
         if(foundSL && msgLvl(MSG::VERBOSE)) 
-	  {
+        {
           //#ifndef NVERBOSE
           msg(MSG::VERBOSE) <<"SectorLogicReadOut checkFragment: "
           << myRPC.SLFragment()->checkFragment()<<endmsg;
           msg(MSG::VERBOSE) << myRPC.SLFragment()<<endmsg;
           //#endif
-          }
+        }
         
         if(isSLHeader) SLBodyWords=0;
         
         // Decode the sector logic footer
         else if(isSLFooter ) {
-          
+
           //#ifndef NVERBOSE
           if (SLindex>1) {
             msg(MSG::ERROR) << "More than 2 SL fragments in sector " << sector << endmsg;
           }
           //#endif
           
-	  if (msgLvl(MSG::VERBOSE))
-	    {
-	      //#ifndef NVERBOSE
-	      msg(MSG::VERBOSE) <<" Number of data words in SectorLogicReadOut= "
-				<<SLBodyWords<<endmsg;   
-	      msg(MSG::VERBOSE) <<" TEST SL: "<<foundSL<<endmsg;
-	      //#endif  
-          
-	      //#ifndef NVERBOSE
-	      // Print out a raw dump of the SL fragment 
-	      for(unsigned short j=0; j<SLBodyWords; j++) {
-		msg(MSG::VERBOSE) <<" SL data word "<<j<<" : "<<std::hex<<SLBuff[j]<<MSG::dec<<endmsg;
-	      }
-	  }
+          if (msgLvl(MSG::VERBOSE))
+          {
+	          //#ifndef NVERBOSE
+            msg(MSG::VERBOSE) <<" Number of data words in SectorLogicReadOut= "
+            <<SLBodyWords<<endmsg;   
+            msg(MSG::VERBOSE) <<" TEST SL: "<<foundSL<<endmsg;
+	          //#endif  
+
+	          //#ifndef NVERBOSE
+	          // Print out a raw dump of the SL fragment 
+            for(unsigned short j=0; j<SLBodyWords; j++) {
+              msg(MSG::VERBOSE) <<" SL data word "<<j<<" : "<<std::hex<<SLBuff[j]<<MSG::dec<<endmsg;
+            }
+          }
           //#endif
           
           // Found the sector logic footer, the sector logic fragment 
@@ -1465,12 +1499,12 @@ namespace Muon
                 uint16_t ptid  = sectorLogic->ptid(ilink,igate);
                 //#ifndef NVERBOSE
                 ATH_MSG_VERBOSE ("SL: pt for link=" << ilink 
-				 << " gate=" << igate << "  is: " << ptid);
+				        << " gate=" << igate << "  is: " << ptid);
                 //#endif
                 if (ptid != 0) {  
                   //#ifndef NVERBOSE
                   ATH_MSG_VERBOSE ("SL: found an hit for link=" << ilink
-				   << " gate=" << igate);
+				          << " gate=" << igate);
                   //#endif
                   uint16_t cmadd = sectorLogic->cmadd(ilink,igate);
                   
@@ -1495,9 +1529,9 @@ namespace Muon
               
             }
             
-	    if (msgLvl(MSG::VERBOSE)){
-            msg(MSG::VERBOSE) << "Size of sector 55: " << sl2->size() << endmsg;
-            msg(MSG::VERBOSE) << "Size of sector 56: " << sl1->size() << endmsg;
+	          if (msgLvl(MSG::VERBOSE)){
+              msg(MSG::VERBOSE) << "Size of sector 55: " << sl2->size() << endmsg;
+              msg(MSG::VERBOSE) << "Size of sector 56: " << sl1->size() << endmsg;
             }
             // flag the two sectors as decoded
             //bool setSector1 = sectorLogicContainer->setSector(56,0);
@@ -1643,12 +1677,12 @@ namespace Muon
         isPadFooter ? isPADFragment=false : isPADFragment=true; 
         
         //#ifndef NVERBOSE
-	if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE) <<" current word "<<std::hex<<currentWord<<MSG::dec<<endmsg;
-        
-        msg(MSG::VERBOSE) <<" ==isPADFragment= "<<isPADFragment<<endmsg;
-        msg(MSG::VERBOSE) <<" calling pushword: "<<std::hex<<currentWord<<MSG::dec<<endmsg;
-	}
+        if (msgLvl(MSG::VERBOSE)) {
+          msg(MSG::VERBOSE) <<" current word "<<std::hex<<currentWord<<MSG::dec<<endmsg;
+
+          msg(MSG::VERBOSE) <<" ==isPADFragment= "<<isPADFragment<<endmsg;
+          msg(MSG::VERBOSE) <<" calling pushword: "<<std::hex<<currentWord<<MSG::dec<<endmsg;
+        }
         //#endif
         
         int foundCM = 0;
@@ -1697,7 +1731,7 @@ namespace Muon
                 firedChan = new RpcFiredChannel(bcid,time,ijk,channel);
                 //#ifndef NVERBOSE
                 ATH_MSG_VERBOSE ("Adding a fired channel, bcid=" << bcid << " time=" 
-				 << " ijk=" << ijk << " channel=" << channel);
+				        << " ijk=" << ijk << " channel=" << channel);
                 //#endif
                 
                 // add the fired channel to the matrix
@@ -1709,8 +1743,8 @@ namespace Muon
                 firedChan = new RpcFiredChannel(bcid,time,ijk,threshold,overlap);
                 //#ifndef NVERBOSE
                 ATH_MSG_VERBOSE ("Adding a fired channel, bcid=" << bcid << " time=" 
-				 << " ijk=" << ijk << " overlap=" << overlap 
-				 << " threshold=" << threshold);
+				        << " ijk=" << ijk << " overlap=" << overlap 
+				        << " threshold=" << threshold);
                 //#endif
                 
                 // add the fired channel to the matrix
@@ -1741,7 +1775,10 @@ namespace Muon
   RpcROD_Decoder::fillCollection_v300(BS data, const uint32_t data_size,
                                       RpcPad& v, const uint16_t& subDetector, RpcSectorLogicContainer* sectorLogicContainer ) const 
   {
-    
+    bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
+    if(skipSectorLogicDecoding)
+      ATH_MSG_DEBUG("Skip SectorLogic decoding, so SLROC.decodeFragment is not being processed");
+
     //#ifndef NVERBOSE
     if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE) << "**********Decoder dumping the words******** " << endmsg;
@@ -1829,6 +1866,13 @@ namespace Muon
       else if (SLROS.isHeader()) isSLHeader=true;
       else if (SLROS.isFooter()) isSLFooter=true;
       
+      // The SLROS functions still return values (based on default values)
+      if(skipSectorLogicDecoding){
+        isSLHeader    = false;
+        isSLFragment  = false;
+        isSLFooter    = false;
+      }
+
       //#ifndef NVERBOSE
       if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE) <<" RX Header: "<<isRXHeader

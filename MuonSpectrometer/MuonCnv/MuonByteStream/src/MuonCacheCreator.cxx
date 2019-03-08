@@ -63,6 +63,7 @@ StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
   // Create the CSC cache container
   ATH_CHECK(createContainer(m_CscCacheKey,    m_cscIdHelper->module_hash_max(), ctx));
   // Create the RPC cache container
+  // Max should match 600 (hardcoded in RPC_RawDataProviderTool)
   ATH_CHECK(createContainer(m_RpcCacheKey,    m_rpcIdHelper->module_hash_max(), ctx));
   // Create the TGC cache container
   ATH_CHECK(createContainer(m_TgcCacheKey,    m_tgcIdHelper->module_hash_max(), ctx));
