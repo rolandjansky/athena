@@ -143,38 +143,13 @@ def setupMdtCondDB():
     from IOVDbSvc.CondDB import conddb
 
     if mdtCalibFlags.mdtCalibrationSource()=="MDT":
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix, className='CondAttrListCollection')
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix, className='CondAttrListCollection')
+        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
+        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
     else:
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["MDTCalibrationSource", mdtCalibFlags.mdtCalibrationSource()]
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
-
-    from AthenaCommon.AlgSequence import AthSequencer
-    from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MdtCalibDbAlg
-    condSequence = AthSequencer("AthCondSeq")
-    condSequence += MdtCalibDbAlg("MdtCalibDbAlg")
-
-    if conddb.isOnline and not conddb.isMC:
-        MdtCalibDbAlg.TubeFolder = "/MDT/T0"
-        MdtCalibDbAlg.RtFolder = "/MDT/RT"
-    else:
-        MdtCalibDbAlg.TubeFolder = "/MDT/T0" + mdt_folder_name_appendix
-        MdtCalibDbAlg.RtFolder = "/MDT/RT" + mdt_folder_name_appendix
-    MdtCalibDbAlg.RT_InputFiles = ["Muon_RT_default.data"]
-    if globalflags.DataSource == 'data':
-        MdtCalibDbAlg.defaultT0 = 40
-    elif globalflags.DataSource == 'geant4':
-        MdtCalibDbAlg.defaultT0 = 799
-    MdtCalibDbAlg.UseMLRt = mdtCalibFlags.useMLRt()
-    MdtCalibDbAlg.TimeSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
-    MdtCalibDbAlg.MeanCorrectionVsR = [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ]
-    MdtCalibDbAlg.PropagationSpeedBeta = mdtCalibFlags.mdtPropagationSpeedBeta()
-    MdtCalibDbAlg.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
-    MdtCalibDbAlg.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
-    MdtCalibDbAlg.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
-
 # end of function setupMdtCondDB()
 
 def MdtCalibDbTool(name="MdtCalibDbTool",**kwargs):
