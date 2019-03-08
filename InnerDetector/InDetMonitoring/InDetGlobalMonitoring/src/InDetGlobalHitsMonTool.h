@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalHitsMonTool.h
@@ -89,11 +89,8 @@ private:
     //---------- member variables ------------
    
     /// Updator
-    const Trk::IUpdator  *m_updator;  // updator for unbiased states
     PublicToolHandle<Trk::IUpdator>             m_iUpdator
        {this,"KalmanUpdator","Trk::KalmanUpdator",""};
-
-    int m_nTracks;
 
     ///The track collection
     const TrackCollection* m_tracks;
