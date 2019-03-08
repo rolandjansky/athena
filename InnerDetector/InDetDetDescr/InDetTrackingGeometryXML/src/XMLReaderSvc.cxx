@@ -73,11 +73,6 @@ StatusCode InDet::XMLReaderSvc::initialize()
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_INFO("XML helper initialized");
-
-  // WARNING: read components BEFORE materials
-  ATH_MSG_INFO("Reading Material templates");
-  parseFile(m_xml_materials.c_str(),"Materials","Component"); 
-  parseFile(m_xml_materials.c_str(),"Materials","Material");
   
   if(m_doPix) {
     // WARNING: read front-end chips BEFORE modules
