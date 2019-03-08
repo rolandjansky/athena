@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -119,7 +119,8 @@ namespace Trk{
     /**PrepRawData ID, not const because of DataPool*/
         Identifier m_clusId; 
     /**see derived classes for definition of meaning of LocalPosition*/
-        Amg::Vector2D m_localPos;
+        // Need to force proper alignment; otherwise cling gets it wrong.
+        alignas(16) Amg::Vector2D m_localPos;
     /**Stores the identifiers of the RDOs.*/
         std::vector<Identifier> m_rdoList; 
     /**See derived classes for definition of ErrorMatrix */
