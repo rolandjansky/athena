@@ -10,3 +10,6 @@ conddb.blockFolder("/TRT/Cond/Status");
 conddb.blockFolder("/TRT/Cond/StatusHT");
 conddb.blockFolder("/TRT/Cond/StatusPermanent");
 conddb.blockFolder("/LAR/Identifier/LArTTCellMapAtlas");
+conddb.blockFolder("/LAR/BadChannels/BadChannels");
+conddb.blockFolder("/LAR/BadChannels/MissingFEBs");
+conddb.blockFolder("/TRT/Cond/Status");
