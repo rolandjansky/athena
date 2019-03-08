@@ -35,8 +35,9 @@ def _createCfgFlags():
 
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
-    acf.addFlag("Beam.NumberOfCollisions",0) # former global.NumberOfCollisions
-    acf.addFlag('Beam.Type', 'collisions') # former global.BeamType
+    acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
+    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : (GetFileMD(prevFlags.Input.Files)["/Digitization/Parameters"]["numberOfCollisions"] if prevFlags.Input.isMC \
+                                                                   else (2. if prevFlags.Beam.Type=='collisions' else 0.))) # former global.NumberOfCollisions
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
