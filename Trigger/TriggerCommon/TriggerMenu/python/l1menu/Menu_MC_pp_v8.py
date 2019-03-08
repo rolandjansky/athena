@@ -1229,8 +1229,6 @@ def defineMenu():
 
         
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
-
-        # FTK items
         #['L1_J15_FTK', 'L1_J40_FTK', 'L1_J100_FTK', 'L1_4J15.0ETA25_FTK', 'L1_MU6_FTK', 'L1_TAU12IM_FTK']
         #25,29,30,31,36,42,49,50,59,68,73,82,86
         'L1_J15_FTK' : 25,
