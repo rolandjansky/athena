@@ -36,7 +36,7 @@ jetFlags.debug = 4
 
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecCalibrationFinder import jrcf
-# Calibration Configurarion file (nokw defined in offline code)
+# Calibration Configurarion file (now defined in offline code)
 #cfg_file = "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
 #jrcf.configDict["triggerNoPileup"] = cfg_file
 
