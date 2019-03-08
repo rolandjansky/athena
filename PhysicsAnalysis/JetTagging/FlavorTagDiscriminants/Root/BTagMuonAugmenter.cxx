@@ -10,22 +10,23 @@
 namespace FlavorTagDiscriminants {
 
   BTagMuonAugmenter::BTagMuonAugmenter( std::string muonAssociationName, float muonMinDR, float muonMinpT ):
-    dec_muon_isMatch("muon_isMatch"),
-    dec_muon_pt("muon_pt"),
-    dec_muon_dR("muon_dR"),
-    dec_muon_eta("muon_eta"),
-    dec_muon_phi("muon_phi"),
-    dec_muon_qOverPratio("muon_qOverPratio"),
-    dec_muon_mombalsignif("muon_mombalsignif"),
-    dec_muon_scatneighsignif("muon_scatneighsignif"),
-    dec_muon_pTrel("muon_pTrel"),
-    dec_muon_ip3d_d0("muon_ip3d_d0"),
-    dec_muon_ip3d_z0("muon_ip3d_z0"),
-    dec_muon_ip3d_d0_significance("muon_ip3d_d0_significance"),
-    dec_muon_ip3d_z0_significance("muon_ip3d_z0_significance"),
-    dec_muon_ip3d_sigma_d0("muon_ip3d_sigma_d0"),
-    dec_muon_ip3d_sigma_z0("muon_ip3d_sigma_z0"),
-    dec_muon_ip3d_grade("muon_ip3d_grade")
+    dec_muon_isDefaults("SoftMuonTagger_isDefaults"),
+    dec_muon_pt("SoftMuonTagger_muon_pt"),
+    dec_muon_dR("SoftMuonTagger_muon_dR"),
+    dec_muon_eta("SoftMuonTagger_muon_eta"),
+    dec_muon_phi("SoftMuonTagger_muon_phi"),
+    dec_muon_qOverPratio("SoftMuonTagger_muon_qOverPratio"),
+    dec_muon_mombalsignif("SoftMuonTagger_muon_mombalsignif"),
+    dec_muon_scatneighsignif("SoftMuonTagger_muon_scatneighsignif"),
+    dec_muon_pTrel("SoftMuonTagger_muon_pTrel"),
+    dec_muon_ip3d_d0("SoftMuonTagger_muon_ip3d_d0"),
+    dec_muon_ip3d_z0("SoftMuonTagger_muon_ip3d_z0"),
+    dec_muon_ip3d_d0_significance("SoftMuonTagger_muon_ip3d_d0_significance"),
+    dec_muon_ip3d_z0_significance("SoftMuonTagger_muon_ip3d_z0_significance"),
+    dec_muon_ip3d_sigma_d0("SoftMuonTagger_muon_ip3d_sigma_d0"),
+    dec_muon_ip3d_sigma_z0("SoftMuonTagger_muon_ip3d_sigma_z0"),
+    dec_muon_ip3d_grade("SoftMuonTagger_muon_ip3d_grade"),
+    dec_muon_link("SoftMuonTagger_muon_link")
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
@@ -45,7 +46,7 @@ namespace FlavorTagDiscriminants {
     float min_muon_dr = 10;
 
     //Future decorations
-    bool  muon_isMatch = 0;
+    char  muon_isDefaults = 1;
     float muon_pt = -1;
     float muon_dR = -1;
     float muon_eta = -1;
@@ -61,6 +62,7 @@ namespace FlavorTagDiscriminants {
     float muon_ip3d_sigma_d0 = -1;
     float muon_ip3d_sigma_z0 = -1;
     int   muon_ip3d_grade = -1;
+    ElementLink<xAOD::MuonContainer> muon_link;
 
 
     const xAOD::BTagging &btag = *jet.btagging();
@@ -104,7 +106,7 @@ namespace FlavorTagDiscriminants {
         if (dR < min_muon_dr) {
           min_muon_dr = dR;
           muon_index = imu;
-
+          muon_link = assocMuons.at( imu );
         }
       }
 
@@ -114,7 +116,7 @@ namespace FlavorTagDiscriminants {
         const xAOD::TrackParticle* MSMuTrack = *(smtMu->muonSpectrometerTrackParticleLink());
 
         //Get muon info
-        muon_isMatch = 1;
+        muon_isDefaults = 0;
         muon_dR = min_muon_dr;
         muon_pt = smtMu->p4().Pt();
         muon_eta = smtMu->p4().Eta();
@@ -143,7 +145,7 @@ namespace FlavorTagDiscriminants {
     }
 
     //Decorate btagging object
-    dec_muon_isMatch(btag) = muon_isMatch;
+    dec_muon_isDefaults(btag) = muon_isDefaults;
     dec_muon_pt(btag) = muon_pt;
     dec_muon_dR(btag) = muon_dR;
     dec_muon_eta(btag) = muon_eta;
@@ -159,6 +161,7 @@ namespace FlavorTagDiscriminants {
     dec_muon_ip3d_sigma_d0(btag) = muon_ip3d_sigma_d0;
     dec_muon_ip3d_sigma_z0(btag) = muon_ip3d_sigma_z0;
     dec_muon_ip3d_grade(btag) = muon_ip3d_grade;
+    dec_muon_link(btag) = muon_link;
 
   }
 

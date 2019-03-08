@@ -6,10 +6,11 @@
 #ifndef BTAG_MUON_AUGMENTER_H
 #define BTAG_MUON_AUGMENTER_H
 
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 #include "xAODJet/Jet.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -29,7 +30,7 @@ namespace FlavorTagDiscriminants {
     float m_muonMinpT;
 
     typedef SG::AuxElement AE;
-    AE::Decorator<bool>  dec_muon_isMatch;
+    AE::Decorator<char>  dec_muon_isDefaults;
     AE::Decorator<float> dec_muon_pt;
     AE::Decorator<float> dec_muon_dR;
     AE::Decorator<float> dec_muon_eta;
@@ -45,6 +46,7 @@ namespace FlavorTagDiscriminants {
     AE::Decorator<float> dec_muon_ip3d_sigma_d0;
     AE::Decorator<float> dec_muon_ip3d_sigma_z0;
     AE::Decorator<int>   dec_muon_ip3d_grade;
+    AE::Decorator< ElementLink<xAOD::MuonContainer> > dec_muon_link;
   };
 
 }
