@@ -129,6 +129,8 @@ JetConstituentModSequence::copyModForTrigger(const T& originals) const
     *theconstit= *orig_constit; // copies auxdata from one auxstore to the other
   }
   
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(constitCopy));}
+
   // Update the output container pointer
   m_trigOutputConstits = constitCopy;
   return StatusCode::SUCCESS;
