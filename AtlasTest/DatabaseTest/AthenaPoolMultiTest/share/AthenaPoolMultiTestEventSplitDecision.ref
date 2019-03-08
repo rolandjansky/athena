@@ -2,13 +2,13 @@ Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfi
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 Splitter1           DEBUG Property update for OutputLevel : new value = 2
 Splitter1            INFO in initialize()
-Splitter1           DEBUG input handles: 1
+Splitter1           DEBUG input handles: 3
 Splitter1           DEBUG output handles: 0
 Splitter1           DEBUG Data Deps for Splitter1
 Splitter2            INFO in initialize()
 Splitter3           DEBUG Property update for OutputLevel : new value = 2
 Splitter3            INFO in initialize()
-Splitter3           DEBUG input handles: 1
+Splitter3           DEBUG input handles: 3
 Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
@@ -32,7 +32,7 @@ Splitter3            INFO EventInfo event: 0 run: 0
 Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
 Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll2.root
-RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll2.root File version:61408
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll2.root File version:61600
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2
