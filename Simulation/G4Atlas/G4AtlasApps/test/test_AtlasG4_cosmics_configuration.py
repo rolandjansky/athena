@@ -113,7 +113,7 @@ class TestAtlasG4Cosmics(unittest.TestCase):
         ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
-        ath_alg_seqence_list = [ alg for alg in eval(ath_alg_seqence_as_str) if alg not in ignore_Algs ]
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
         actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[1] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now.
         expected_last_ath_alg_sequence_entry = "CosmicGenerator/CosmicGenerator"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
@@ -198,7 +198,8 @@ class TestAtlasG4Cosmics(unittest.TestCase):
     def test___BeamEffectsAlg_is_before_G4AtlasAlg_in_AthAlgSeq(self):
         ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
         actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[3] # Position 1 is the Sim Timer Alg, xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
