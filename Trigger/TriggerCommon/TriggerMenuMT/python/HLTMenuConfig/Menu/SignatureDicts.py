@@ -126,7 +126,9 @@ JetChainParts = {
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
-    'trkopt'       : []
+    'trkopt'       : [],
+    'hypoScenario' : ['simple', 'vbenf'],
+    'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
 # ---- Jet Dictinary of default Values ----
@@ -153,6 +155,8 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'trkopt'       : 'notrk',
+    'hypoScenario' : 'simple',
+    'smc'          : 'nosmc',
     }
 
 #==========================================================

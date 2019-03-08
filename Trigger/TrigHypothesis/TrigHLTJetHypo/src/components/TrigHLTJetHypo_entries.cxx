@@ -10,6 +10,11 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypo_SMC.h"
 #include "../TrigJetHypoAlgMT.h"
 #include "../TrigJetHypoToolConfig_EtaEt.h"
+#include "../TrigJetHypoToolConfig_simple.h"
+#include "../TrigJetHypoToolConfig_dijet.h"
+#include "../TrigJetNotToolMT.h"
+#include "../TrigJetAndToolMT.h"
+#include "../TrigJetOrToolMT.h"
 #include "../TrigJetHypoToolMT.h"
 
 DECLARE_COMPONENT( TrigHLTJetHypo2 )
@@ -19,7 +24,12 @@ DECLARE_COMPONENT( TrigEFDPhiMetJetAllTE )
 DECLARE_COMPONENT( TrigHLTJetHypo_Dijet )
 DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEta )
 DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEtaDPhi )
-DECLARE_COMPONENT( TrigHLTJetHypo_EtaEt )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_EtaEt )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_simple )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_dijet )
+DECLARE_COMPONENT( TrigJetNotToolMT)
+DECLARE_COMPONENT( TrigJetAndToolMT)
+DECLARE_COMPONENT( TrigJetOrToolMT)
 DECLARE_COMPONENT( TrigHLTJetHypo_SMC )
 DECLARE_COMPONENT( TrigHLTJetHypo_HT )
 DECLARE_COMPONENT( TrigHLTJetHypo_TLA )
