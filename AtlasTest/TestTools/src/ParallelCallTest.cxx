@@ -1,9 +1,18 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <vector>
+// tbb/machine/gcc_generic.h has spurious trailing semicolons after
+// the clz() functiosn (as of TBB 2019 U1).
+#if defined(__GNUC__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 #include "tbb/parallel_reduce.h"
 #include "tbb/blocked_range.h"
+#if defined(__GNUC__)
+# pragma GCC diagnostic pop
+#endif
 #include "TestTools/ParallelCallTest.h"
 #include <unistd.h>
 #include <fcntl.h>
