@@ -1087,6 +1087,13 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.0;
     if (overwrite || m_maxChiSqperNdf >= LOCAL_MAX_DOUBLE) m_maxChiSqperNdf = 6.0;
     break;
+  case CutLevel::ITkLoose:
+    setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 4.0;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
+    if (overwrite || m_minPt < 0.) m_minPt = 400.0;    
+    if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 2;
+    break;  
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");
     break;
@@ -1106,5 +1113,6 @@ InDet::InDetTrackSelectionTool::s_mapCutLevel =
     {"LooseTau", InDet::CutLevel::LooseTau},
     {"MinBias", InDet::CutLevel::MinBias},
     {"HILoose", InDet::CutLevel::HILoose},
-    {"HITight", InDet::CutLevel::HITight}
+    {"HITight", InDet::CutLevel::HITight},
+    {"ITkLoose", InDet::CutLevel::ITkLoose}
   };

@@ -41,6 +41,7 @@ bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr )
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
+bool passITkLoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 uint8_t getSum(const TrackParticle&, xAOD::SummaryType);
 void dumpTrack( const TrackParticle& );
@@ -79,6 +80,7 @@ int main( int argc, char* argv[] ) {
    FUNC_HELP( MinBias );
    FUNC_HELP( HILoose );
    FUNC_HELP( HITight );
+   FUNC_HELP( ITkLoose );
 #undef FUNC_HELP
 
    for (const auto& cutLevelPair : cutFuncs) {
@@ -369,6 +371,11 @@ bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx )
 
   if (trk.chiSquared() / trk.numberDoF() > 6.0) return false;
   
+  return true;
+}
+
+bool ITkLoose( const TrackParticle& trk, const xAOD::Vertex* vtx )
+{
   return true;
 }
 
