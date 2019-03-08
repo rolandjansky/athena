@@ -85,6 +85,9 @@ double BTagTrackAugmenter::d0Uncertainty(const xAOD::TrackParticle &track)
 double BTagTrackAugmenter::z0SinTheta(const xAOD::TrackParticle &track) const {
   return m_ip_z0(track);
 }
+double BTagTrackAugmenter::z0SinThetaUncertainty(const xAOD::TrackParticle &track) const {
+  return m_ip_z0(track);
+}
 
 void BTagTrackAugmenter::augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) {
   BTagSignedIP ip = get_signed_ip(track, jet);

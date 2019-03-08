@@ -22,13 +22,16 @@ namespace FlavorTagDiscriminants {
     BTagMuonAugmenterTool(const std::string& name);
     ~BTagMuonAugmenterTool();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode initialize() override;
+    StatusCode finalize() override;
 
     // returns 0 for success
-    int modifyJet(xAOD::Jet& jet) const;
+    int modifyJet(xAOD::Jet& jet) const override;
   private:
     std::unique_ptr<BTagMuonAugmenter> m_aug;
+    std::string m_muonAssociationName;
+    float m_muonMinDR;
+    float m_muonMinpT;
     // You'll probably have to add some accessors here
   };
 

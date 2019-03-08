@@ -11,10 +11,17 @@ namespace FlavorTagDiscriminants {
     m_aug(nullptr)
   {
     // you'll probably have to initialize some accessors here (or above)
+    declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
+    declareProperty("MuonMinDR", m_muonMinDR=0.4);
+    declareProperty("MuonMinpT", m_muonMinpT=4.0*1e3);
+
+
+
   }
   BTagMuonAugmenterTool::~BTagMuonAugmenterTool() {}
 
   StatusCode BTagMuonAugmenterTool::initialize() {
+    m_aug.reset(new BTagMuonAugmenter(m_muonAssociationName, m_muonMinDR, m_muonMinpT));
     return StatusCode::SUCCESS;
   }
   StatusCode BTagMuonAugmenterTool::finalize() {
