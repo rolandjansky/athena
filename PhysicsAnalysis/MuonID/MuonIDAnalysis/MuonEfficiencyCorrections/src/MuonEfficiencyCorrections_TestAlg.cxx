@@ -97,6 +97,8 @@ namespace CP {
 
         for (const auto& mu : *muons) {
             if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
+            // reject all loose muons
+            if (m_sel_tool->getQuality(*mu) > xAOD::Muon::Loose) continue;
             if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             if (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             m_test_helper->fillTree();
