@@ -46,6 +46,7 @@ def ExampleMonitoringConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of a algorithm
     exampleMonAlg.TriggerChain = ''
+    # exampleMonAlg.RandomHist = True
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -77,17 +78,18 @@ def ExampleMonitoringConfig(inputFlags):
 
     ### STEP 5 ###
     # Configure histograms
-    myGroup.defineHistogram('lumiPerBCID;lumiPerBCID', title='Luminosity;L/BCID;Events',
+    myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
                             path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
-    myGroup.defineHistogram('lb;lb', title='Luminosity Block;lb;Events',
+    myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
-    myGroup.defineHistogram('random;random', title='LB;x;Events',
+    myGroup.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1)
+    myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
+                            path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
-
-    anotherGroup.defineHistogram('lbWithFilter;lbWithFilter',title='Lumi;lb;Events',
+    anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)
-    anotherGroup.defineHistogram('run;run',title='Run Number;run;Events',
+    anotherGroup.defineHistogram('run',title='Run Number;run;Events',
                                  path='top',xbins=1000000,xmin=-0.5,xmax=999999.5)
 
     ### STEP 6 ###
