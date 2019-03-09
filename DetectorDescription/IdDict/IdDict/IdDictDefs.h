@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IdDictDefs_h__  
-#define __IdDictDefs_h__  
+#ifndef IDDICT_IDDICTDEFS_H
+#define IDDICT_IDDICTDEFS_H
  
 #include "Identifier/Range.h" 
 #include "Identifier/Identifier.h" 
@@ -63,8 +63,8 @@ public:
     void                  add_subdictionary_name  (const std::string& name);  
     void                  add_metadata            (const std::string& name, const std::string& value);
     void                  set_DTD_version         (const std::string& DTD_version);
-    void                  set_do_checks           (bool do_checks) const;
-    void                  set_do_neighbours       (bool do_neighbours) const;
+    void                  set_do_checks           (bool do_checks);
+    void                  set_do_neighbours       (bool do_neighbours);
     
     
     ///  Construct dictionary after parsing
@@ -259,13 +259,13 @@ public:
     /// in optimized compilation. One can switch or query this mode for
     /// any idHelper with the following methods:
     bool                do_checks       (void) const;
-    void                set_do_checks   (bool do_checks) const;
+    void                set_do_checks   (bool do_checks);
 
     /// Neighbour initialization is performed by default
     /// One can switch or query this mode for
     /// any idHelper with the following methods:
     bool                do_neighbours           (void) const;
-    void                set_do_neighbours       (bool do_neighbours) const;
+    void                set_do_neighbours       (bool do_neighbours);
 
     /// Access to file name
     std::string         file_name        (void) const;

@@ -17,6 +17,7 @@
 #define CALOIDENTIFIER_CALOCELL_BASE_ID_H
 
 
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/LArNeighbours.h"
@@ -71,10 +72,6 @@ public:
 
 
   int GetSubCaloName( const std::string SubCaloName ) const;
-
-  virtual bool do_checks(void) const override;
-
-  virtual void set_do_checks(bool do_checks) const override;
 
   /// Initialization from the identifier dictionary
   virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
@@ -413,6 +410,8 @@ private:
 
 #include "CaloIdentifier/CaloCell_Base_ID.icc"
 
+
+CLASS_DEF( CaloCell_Base_ID , 257140327 , 1 )
 
 
 #endif // not CALOIDENTIFIER_CALOCELL_BASE_ID_H
