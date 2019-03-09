@@ -65,7 +65,7 @@ namespace asg {
       /// Type of the metadata store object in Athena
       typedef ServiceHandle< StoreGateSvc > MetaStore_t;
       /// Type of the metadata store pointer in standalone mode
-      typedef ServiceHandle< StoreGateSvc >& MetaStorePtr_t;
+      typedef const ServiceHandle< StoreGateSvc >& MetaStorePtr_t;
 #else
 #   error "What environment are we in?!?"
 #endif // Environment selection
@@ -124,10 +124,17 @@ namespace asg {
       /// @}
 
    private:
+#ifdef ASGTOOL_STANDALONE
       /// Object accessing the input metadata store
       mutable MetaStore_t m_inputMetaStore;
       /// Object accessing the output metadata store
       mutable MetaStore_t m_outputMetaStore;
+#else
+      /// Object accessing the input metadata store
+      MetaStore_t m_inputMetaStore;
+      /// Object accessing the output metadata store
+      MetaStore_t m_outputMetaStore;
+#endif
 
       /// Flag helping to discover when the tool misses the opening of the first
       /// input file
