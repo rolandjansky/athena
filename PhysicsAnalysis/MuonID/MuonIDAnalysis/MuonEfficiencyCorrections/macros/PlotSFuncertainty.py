@@ -27,6 +27,7 @@ class SystDependency(object):
         self.__var_name  = "%s%s_%s_%s"%("" if len(calib) == 0 else calib+"_", wp,var_name, sys)
         self.__wp = wp
         self.__sys = sys
+        self.__calib = calib
         self.__nom_sf = test_tree.GetLeaf("%s%s_SF"%("" if len(calib) == 0 else "c%s_"%(calib), wp))
         self.__1up_sf = test_tree.GetLeaf("%s%s_SF__MUON_EFF_%s_%s__1up"%("" if len(calib) == 0 else "c%s_"%(calib), wp,KnownWPs[wp],sys))
         self.__1dn_sf = test_tree.GetLeaf("%s%s_SF__MUON_EFF_%s_%s__1down"%("" if len(calib) == 0 else "c%s_"%(calib), wp,KnownWPs[wp],sys))
@@ -69,7 +70,7 @@ class SystDependency(object):
     
     def get_wp(self): return self.__wp
     def get_sys(self): return self.__sys
-    
+    def get_calib(self): return self.__calib
   
 if __name__ == "__main__":
     Options = getArgParser().parse_args()
@@ -107,7 +108,7 @@ if __name__ == "__main__":
                     var_name = "pt", 
                     axis_title ="p_{T} #mu(%s) [GeV]"%(wp),
                     calib = calib, log_binning = True,
-                    bins =200 , bmin = 15, bmax = 10000,
+                    bins = 100, bmin = 15, bmax = 3000,
                     wp =wp, sys = sys, test_tree = tree),
             SystDependency(
                     var_name = "eta", 
@@ -124,19 +125,18 @@ if __name__ == "__main__":
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
+        if i > 0 and i % 5000 == 0: 
+            print "INFO: %d/%d events processed"%(i, tree.GetEntries())          
         if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
         for H in Histos:  
              if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
         
-    print "INFO: Histograms filled"
-    pu = PlotUtils()
-    pu.Size = 18
-
+    print "INFO: Histograms filled"  
     dummy = ROOT.TCanvas("dummy", "dummy", 800, 600)
     dummy.SaveAs("%s/AllSystDep%s.pdf[" % (Options.outDir, bonusname))
     for H in Histos:
-        can = ROOT.TCanvas("sf_dep_%s"%(H.name()),"SFCheck",1000,600)
+        pu = PlotUtils(status = Options.label)
+        pu.Prepare1PadCanvas(H.name())
        
         nom = H.get_nom_H1().TH1()
         up = H.get_1dn_H1().TH1()
@@ -144,26 +144,32 @@ if __name__ == "__main__":
         
         up.SetLineColor(ROOT.kRed)
         dn.SetLineColor(ROOT.kBlue)
-                    
+                            
         up.Divide(nom)
         dn.Divide(nom)
         
                     
-        up.Draw("HIST")
-        dn.Draw("HISTSAME")
-        up.SetTitle("1UP")
-        dn.SetTitle("1DOWN")
-        
-        up.SetMinimum(0.01)     
-        up.SetMaximum(2)
-     
-        up.GetYaxis().SetTitle("Ratio to nominal")
+        up.SetTitle("+1#sigma %s"%("systematic" if H.get_sys() == "SYS" else "statistics"))
+        dn.SetTitle("-1#sigma %s"%("systematic" if H.get_sys() == "SYS" else "statistics"))
        
-        pu.DrawLegend([(up,'L'),(dn,'L')], 0.3, 0.75, 0.9, 0.9)          
-        pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(H.get_wp(), H.get_sys()))
-       # pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
-        can.SaveAs("%s/SysCheck%s%s.pdf"%(Options.outDir, H.name(),bonusname))
-        can.SaveAs("%s/AllSystDep%s.pdf" % (Options.outDir, bonusname))
+        nom.GetYaxis().SetTitle("Ratio to nominal")
+        pu.drawStyling(nom, min([up.GetMinimum(0.8), dn.GetMinimum(0.8)])*0.8, 
+                            max([up.GetMaximum(), dn.GetMaximum()])*1.1, TopPad = False)
+        
+        up.Draw("SAMEHIST")
+        dn.Draw("HISTSAME")
+       
+        pu.CreateLegend(0.7, 0.8, 0.9, 0.9)
+        pu.AddToLegend([up, dn])
+        
+        pu.DrawAtlas(0.2, 0.9)
+        pu.DrawSqrtS(0.2, 0.85)
+        pu.DrawTLatex(0.2,0.8, "%s, %s"%(H.get_wp(), H.get_calib()))
+        
+        pu.DrawLegend()
+     
+        pu.saveHisto("%s/SysCheck%s%s"%(Options.outDir, H.name(),bonusname) ,["pdf"])
+        pu.saveHisto("%s/AllSystDep%s" % (Options.outDir, bonusname),["pdf"])
 
     dummy.SaveAs("%s/AllSystDep%s.pdf]" % (Options.outDir, bonusname))
         

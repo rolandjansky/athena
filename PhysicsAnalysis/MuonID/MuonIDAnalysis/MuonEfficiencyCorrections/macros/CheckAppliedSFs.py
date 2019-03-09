@@ -28,6 +28,16 @@ class ReleaseComparer(object):
         self.__old_weight = 1. if not weight_old else test_tree.GetLeaf(weight_old)
         self.__new_weight = 1. if not weight_new else test_tree.GetLeaf(weight_new)
         
+        self.__quality_branch = test_tree.GetLeaf("Muon_quality")
+        if branch_old.find("HighPt") != -1 : self.__quality_branch = test_tree.GetLeaf("Muon_isHighPt")
+        if branch_old.find("LowPt")  != -1 : self.__quality_branch = test_tree.GetLeaf("Muon_isLowPt")
+        
+        self.__min_quality = 0 if branch_old.find("HighPt") != -1 and branch_old.find("LowPt") != -1 else 1
+        self.__max_quality = 2 
+        if branch_old.find("Medium") != -1:  self.__max_quality = 1
+        if branch_old.find("Tight") != -1:   self.__max_quality = 0
+        
+        
         self.__var_name = var_name
         self.__old_histo = DiagnosticHisto(
                                     name = "%s_%s"%(name_old_rel, var_name),
@@ -40,7 +50,10 @@ class ReleaseComparer(object):
                                     bins = bins, bmin = bmin, bmax = bmax, 
                                     bin_width = bin_width, bdir = bdir, log_binning = log_binning)
                 
+    def pass_cut(self):
+        return self.__min_quality >= self.__quality_branch .GetValue() and self.__quality_branch.GetValue() <= self.__max_quality
     def fill(self):
+        if not self.pass_cut(): return
         self.__old_histo.fill(value = self.__old_branch.GetValue(), weight= self.get_old_weight())
         self.__new_histo.fill(value = self.__new_branch.GetValue(), weight= self.get_new_weight())
     def get_old_histo(self): 
@@ -88,7 +101,7 @@ class SystematicComparer(ReleaseComparer):
         ReleaseComparer.__init__(self,
                                  var_name = var_name,
                                  axis_title = axis_title,
-                                 bins = bins, bmin = 1.e-4, bmax = 0.15,
+                                 bins = bins, bmin = 5.e-4, bmax = 0.15,
                                  name_old_rel =name_old_rel, 
                                  name_new_rel =name_new_rel,
                                  test_tree = test_tree,
@@ -130,14 +143,14 @@ def getArgParser():
     parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="SFTest.root")
     parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
-    parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
+    parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="Internal")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
     parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down", "MUON_EFF_RECO_SYS__1up" ])
     parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","DataEff","MCEff"])
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
     parser.add_argument('--noComparison', help='do not plot comparison to old release', action='store_true', default=False)
-    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=200)
+    parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=50)
     return parser
 
 def getCalibReleasesAndWP(tree):
@@ -251,48 +264,63 @@ if __name__ == "__main__":
     
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
-        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 : continue
+        if i > 0 and i % 2500 == 0: 
+            print "INFO: %d/%d events processed"%(i, tree.GetEntries())
+            
+        if  math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 : continue        
         for H in Histos: 
-            if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
+            H.fill()
         
     print "INFO: Histograms filled"
-    pu = PlotUtils()
-    pu.Size = 18
+   
+    
     
     if len(calibReleases)==2:
 
         dummy = ROOT.TCanvas("dummy", "dummy", 800, 600)
         dummy.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf[" % (Options.outDir, bonusname))
-        
-        can = ROOT.TCanvas("calibcomparison%s"%(bonusname),"SFCheck",1000,600)
-        can.SetLogy()
+       
         for comp in Histos:
             comp.finalize()
             histoCR1 = comp.get_old_histo().TH1()
             histoCR2 = comp.get_new_histo().TH1()
             
+            pu = PlotUtils(status = Options.label)
+            pu.Prepare1PadCanvas(comp.name())
+            pu.GetCanvas().SetLogy()
+            if comp.get_old_histo().has_log_binnnig(): pu.GetCanvas().SetLogx()
+            
+            histoCR1.GetYaxis().SetTitle("Fraction of muons")
+         
+            pu.drawStyling(histoCR1, 1, max([histoCR1.GetMaximum(),histoCR2.GetMaximum()]) *1.e3, TopPad = False)
             histoCR1.SetTitle("%s, Mean: %.8f"%(calibReleases[0],histoCR1.GetMean()))
             histoCR2.SetTitle("%s, Mean: %.8f"%(calibReleases[1],histoCR2.GetMean()))
                         
-            histoCR1.Draw("HIST")
-            histoCR1.SetMinimum(0.01)
-            histoCR1.SetMaximum(max(histoCR1.GetMaximum(), histoCR2.GetMaximum()) *1.e2)
-                    
-            histoCR1.GetYaxis().SetTitle("Fraction of muons")
+            histoCR1.Draw("sameHIST")
             histoCR2.SetLineColor(ROOT.kRed)
             histoCR2.SetMarkerColor(ROOT.kRed)
             histoCR2.SetLineStyle(9)
             histoCR2.Draw("sameHIST")
-            pu.DrawLegend([(histoCR1,'L'),(histoCR2,'L')], 0.3, 0.75, 0.9, 0.9)
+            pu.CreateLegend(0.2, 0.7, 0.6, 0.8,18)
+            
+            pu.AddToLegend([histoCR1, histoCR2])
+           
             variationDrawn = "Nominal"
             if "STAT" in comp.name(): variationDrawn = "|Stat-Nominal|/Nominal"
             elif "SYS" in comp.name(): variationDrawn = "|Sys-Nominal|/Nominal"
+            type_drawn = "Scale factor"
+            if comp.name().split("_")[1] == "DataEff": type_drawn = "data efficiency"
+            elif comp.name().split("_")[1] == "MCEff": type_drawn = "MC efficiency"
             pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
-            pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
-            pu.DrawTLatex(0.55, 0.6, comp.name().split("_")[1])
-            can.SaveAs("%s/AppliedSFCheck_%s%s.pdf"%(Options.outDir, comp.name(),bonusname))
-            can.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf" % (Options.outDir, bonusname))
+            pu.DrawTLatex(0.55, 0.85, "WP: %s, %s"%(comp.name().split("_")[0],variationDrawn))
+            pu.DrawTLatex(0.55, 0.9, type_drawn)
+            
+            pu.DrawAtlas(0.2, 0.9)
+            pu.DrawSqrtS(0.2, 0.85)
+            
+            pu.DrawLegend()
+            pu.saveHisto("%s/AppliedSFCheck_%s%s"%(Options.outDir, comp.name(),bonusname), ["pdf"])
+            pu.saveHisto("%s/AllAppliedSFCheckPlots%s" % (Options.outDir, bonusname), ["pdf"])
 
         dummy.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf]" % (Options.outDir, bonusname))
         
