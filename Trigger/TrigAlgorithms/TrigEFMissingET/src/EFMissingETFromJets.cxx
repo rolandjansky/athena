@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -17,6 +17,7 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "JetEvent/JetCollection.h"
 #include "JetEvent/Jet.h"
@@ -113,7 +114,12 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
   ATH_MSG_DEBUG( "num of jets: " << MHTJetsVec.size() );
 
  //--- fetching the topo. cluster component
- float upperlim[4] = {m_etacut,0,5,-m_etacut}; float lowerlim[4] = {0,-m_etacut,m_etacut,-5};
+ float upperlim[4] = {m_etacut,0,5,-m_etacut};
+ float lowerlim[4] = {0,-m_etacut,m_etacut,-5};
+
+ static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& acc_ePerSample ATLAS_THREAD_SAFE =
+   *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
+ static const xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t> acc_uncalibrated("JetConstitScaleMomentum");
 
  for(int i = 0; i < 5; i++) {
 
@@ -125,9 +131,6 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
     float scale = 1.;
     if (m_applyTileGap3Correction) {
       // get the uncalibrated energy and tile gap 3 fractions
-      static const xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& acc_ePerSample =
-        *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
-      static xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t> acc_uncalibrated("JetConstitScaleMomentum");
       const std::vector<float>& eInSampling = acc_ePerSample.getAttribute(*aJet);
       float e_tileGap3 = eInSampling.at(CaloSampling::TileGap3);
       scale = 1 - e_tileGap3/acc_uncalibrated.getAttribute(*aJet).E();

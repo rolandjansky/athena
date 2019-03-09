@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 800798 2017-03-16 17:29:50Z jburr $
 ################################################################################
 # Package: TrigEFMissingET
 ################################################################################
@@ -21,7 +20,6 @@ atlas_depends_on_subdirs(
    Event/FourMomUtils
    GaudiKernel
    LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArTools
    Trigger/TrigAlgorithms/TrigT2CaloCommon
    Trigger/TrigEvent/TrigCaloEvent
    Trigger/TrigEvent/TrigMissingEtEvent
@@ -29,7 +27,6 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
-   PhysicsAnalysis/AnalysisCommon/PATCore
    Tools/PathResolver
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Control/CxxUtils
@@ -48,25 +45,17 @@ find_package( ROOT COMPONENTS Core Hist Matrix )
 find_package( tdaq-common COMPONENTS eformat )
 
 # Component(s) in the package:
-atlas_add_library( TrigEFMissingETLib
-   TrigEFMissingET/*.h src/*.cxx
-   PUBLIC_HEADERS TrigEFMissingET
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
-   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
-   AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
-   LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
-   LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
-   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} CxxUtils Identifier
-   EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   PathResolver PATCoreLib
-   TrigT1Interfaces )
-
 atlas_add_component( TrigEFMissingET
+   src/*.cxx
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel TrigEFMissingETLib ${FASTJET_LIBRARIES}  
-   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES}
-)
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES}
+   AthenaBaseComps CaloDetDescrLib CaloEvent CaloGeoHelpers
+   CaloIdentifier CxxUtils EventKernel GaudiKernel Identifier
+   JetEvent LArIdentifier PathResolver
+   TrigCaloEvent TrigInterfacesLib TrigMissingEtEvent TrigMuonEvent
+   TrigParticle TrigSteeringEvent TrigT1Interfaces TrigT2CaloCommonLib
+   TrigTimeAlgsLib xAODCaloEvent xAODEventInfo xAODJet xAODTrigMissingET )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
