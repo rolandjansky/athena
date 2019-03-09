@@ -138,10 +138,14 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
 }
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
-    if (m_globalPosition==nullptr) {
-        m_globalPosition = associatedSurface().localToGlobal(localParameters());
+    const Amg::Vector3D* ptr = m_globalPosition.load();
+    if(ptr) return *ptr;
+    const Amg::Vector3D* newptr = associatedSurface().localToGlobal(localParameters());
+    if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
+       return *newptr; //new object is now stored in m_globalPosition
     }
-    return (*m_globalPosition);
+    delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
+    return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
 }
 
 inline unsigned int CompetingSCT_ClustersOnTrack::numberOfContainedROTs() const {

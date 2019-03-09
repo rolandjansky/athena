@@ -29,7 +29,7 @@ Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack(const Trk::CompetingRIOsOnTrack&
     Trk::MeasurementBase(compROT)
 {
   m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
-  m_assignProb = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb.load()) : 0;
+  m_assignProb = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0;
   m_maxProbCalculated = compROT.m_maxProbCalculated;
 }
 
@@ -61,7 +61,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRI
       Trk::MeasurementBase::operator=(std::move(compROT));
 
       delete m_assignProb;
-      m_assignProb = compROT.m_assignProb.load();
+      m_assignProb = compROT.m_assignProb;
       compROT.m_assignProb = nullptr;
 
       m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
@@ -141,9 +141,9 @@ Trk::CompetingRIOsOnTrack::indexOfMaxAssignProb() const {
         // No, so work it out.
         double maxAssgnProb = 0;
         for (unsigned int i=0; i<numberOfContainedROTs(); i++) {
-            if (m_assignProb.load()->operator[](i) >= maxAssgnProb) {
+            if (m_assignProb->operator[](i) >= maxAssgnProb) {
                 m_indexMaxAssignProb=i;
-                maxAssgnProb = m_assignProb.load()->operator[](i);
+                maxAssgnProb = m_assignProb->operator[](i);
             }
         }
         //m_maxProbCalculated = true;
@@ -178,7 +178,7 @@ MsgStream& Trk::CompetingRIOsOnTrack::dump( MsgStream& out ) const
       out <<"  "<<std::setw(10)<< this->rioOnTrack(i).localParameters()[Trk::locY]
           <<"  "<< 1/this->rioOnTrack(i).localCovariance()(Trk::locY,Trk::locY)<<"  ";
     else out << "                         ";
-    out <<"  "<< m_assignProb.load()->at(i)
+    out <<"  "<< m_assignProb->at(i)
         << (m_indexMaxAssignProb == i ? " **|":"   |");
   }
 /*  out << std::resetiosflags(std::ios::right)<<std::resetiosflags(std::ios::adjustfield)
@@ -213,7 +213,7 @@ std::ostream& Trk::CompetingRIOsOnTrack::dump( std::ostream& out ) const
       out << "  "<<std::setw(10)<< this->rioOnTrack(i).localParameters()[Trk::locY]
           <<"  "<< 1/this->rioOnTrack(i).localCovariance()(Trk::locY,Trk::locY)<<"  ";
     else out << "                         ";
-    out << "  " << m_assignProb.load()->at(i)
+    out << "  " << m_assignProb->at(i)
         << (m_indexMaxAssignProb == i ? " **|":"   |");
   }
 //   out << std::resetiosflags(std::ios::right)<<std::resetiosflags(std::ios::adjustfield)

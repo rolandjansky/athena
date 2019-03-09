@@ -106,7 +106,7 @@ namespace InDet {
     //! private method to clear the Trk::RIO_OnTrack vector
     void                               clearChildRotVector();
     //! The surface to which the competingROTs parameters are expressed to
-    mutable std::atomic<const Trk::Surface*> m_associatedSurface;
+    const Trk::Surface* m_associatedSurface;
 
     //! The global Position
     mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
