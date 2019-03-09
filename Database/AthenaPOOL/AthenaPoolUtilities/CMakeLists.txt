@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaKernel
    Control/AthContainers
+   Control/CxxUtils
    Database/AthenaPOOL/DBDataModel
    Database/PersistentDataModel )
 
