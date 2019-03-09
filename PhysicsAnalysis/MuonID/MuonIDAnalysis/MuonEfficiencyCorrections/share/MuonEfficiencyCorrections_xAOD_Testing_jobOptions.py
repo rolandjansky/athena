@@ -30,7 +30,7 @@ WPs = [
         "Loose", 
         "Medium", 
         "Tight", 
-   #     "HighPt",
+        "HighPt",
          # track-to-vertex-association WPs
     #     "TTVA",
          # BadMuon veto SFs

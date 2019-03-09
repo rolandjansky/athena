@@ -126,34 +126,6 @@ KnownWPs = {
     "BadMuonVeto_HighPt" : "BADMUON",
     }
 
-def GetProbeMatchFromType(Type,WP):
-    probe = ""
-    match = ""
-    if Type == "Reco":
-        probe = "CaloProbes"
-        if WP == "Medium": match = "MediumMuons"
-        elif WP == "Loose": match = "LooseMuons_noCaloTag"
-        elif WP == "Tight": match = "TightMuons"
-        elif WP == "HighPt": match = "HighPtMuons"
-    elif Type == "TTVA":
-        probe = "LooseProbes_noProbeIP"
-        match = "MediumMuons"
-    elif Type == "BadMuonVeto":
-        if WP == "HighPt":
-            probe = "HighPtMuons"
-            match = "HighPtMuons_PassVeto"
-    return probe,match
-
-def GetTypeAndWP(options,histo):
-    Type = 'UNKNOWN'
-    WP = 'UNKNOWN'
-    for itype in options.SFType:
-        if '_%s'%(itype) in histo:
-            WP = itype.replace('Reco','').replace('Iso','',1).replace('TTVA','').replace('BadMuonVeto','')
-            Type = itype.replace(WP,'')
-    return Type,WP
-
-
 def getArgParser():
     parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="SFTest.root")
@@ -167,24 +139,15 @@ def getArgParser():
     parser.add_argument('--noComparison', help='do not plot comparison to old release', action='store_true', default=False)
     parser.add_argument('-n', '--nBins', help='specify number of bins for histograms', type=int, default=200)
     return parser
-if __name__ == "__main__":    
-    Options = getArgParser().parse_args()
 
-    if not os.path.exists(Options.InputFile):
-        print 'ERROR: File %s does not exist!'%Options.InputFile
-        sys.exit(1)
-    infile  = ROOT.TFile(Options.InputFile)
-    
-    tree = infile.Get("MuonEfficiencyTest")
+def getCalibReleasesAndWP(tree):
     branchesInFile = [key.GetName() for key in tree.GetListOfBranches()]
     calibReleases = []
-    allWPs = []
-    for wp in KnownWPs.iterkeys():
-        if not wp in allWPs: allWPs.append(wp)
+    allWPs = set([wp for wp in KnownWPs.iterkeys() ])
     WPs = []
     for i in branchesInFile:
-        if not i.startswith("c"): continue
         if not i.endswith("SF"): continue
+        if not i.startswith("c"): continue
         calibCand = i[1:-3]
         beststr = ""
         for wp in allWPs:
@@ -194,8 +157,19 @@ if __name__ == "__main__":
         if len(beststr) > 0:
             if not beststr[1:] in WPs: WPs.append(beststr[1:])
             if not calibCand.replace(beststr,"") in calibReleases: calibReleases.append(calibCand.replace(beststr,""))
+    print "INFO: Found the following working points: %s"%(", ".join(WPs))
+    return calibReleases, WPs
+if __name__ == "__main__":    
+    Options = getArgParser().parse_args()
+
+    if not os.path.exists(Options.InputFile):
+        print 'ERROR: File %s does not exist!'%Options.InputFile
+        sys.exit(1)
+    infile  = ROOT.TFile(Options.InputFile)
     
-    print "INFO: Found the following working points: %s"%(",".join(WPs))
+    tree = infile.Get("MuonEfficiencyTest")
+    calibReleases, WPs = getCalibReleasesAndWP(tree)
+    
     if len(calibReleases)==2: print "INFO: Found the following calibration releases to compare: %s"%(",".join(calibReleases))
     
     if len(Options.WP)>0:
@@ -218,7 +192,6 @@ if __name__ == "__main__":
 
     Histos = []
     
-    #for CR in calibReleases:
     for wp in WPs:
         for t in Options.SFConstituent:
             corrType = "Scale Factor"
@@ -279,7 +252,7 @@ if __name__ == "__main__":
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
         if i % 2500 == 0: print "INFO: %d/%d events processed"%(i, tree.GetEntries())
-        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 or math.fabs(tree.Muon_eta) < 0.1: continue
+        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 : continue
         for H in Histos: 
             if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
         

@@ -146,7 +146,7 @@ namespace CP {
         if(!m_sf_KineDepsys->initialize()){    
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         }
-       // m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);            
+        m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);            
     }
     EfficiencyScaleFactor::EfficiencyScaleFactor(const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string &file, 
