@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,7 +23,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 
-class CaloIdManager;
+class CaloCell_ID;
+class CaloCell_SuperCell_ID;
 
 class CaloSuperCellIDTool
   : public extends1<AthAlgTool, ICaloSuperCellIDTool>
@@ -154,7 +155,8 @@ private:
   std::vector< std::vector<Identifier> > m_fcal_fromSuperCell;
 
   /// Entry point for calorimeter ID helpers.
-  const CaloIdManager* m_calo_id_manager;
+  const CaloCell_ID* m_cell_helper;
+  const CaloCell_SuperCell_ID* m_sc_helper;
 };
 
 
