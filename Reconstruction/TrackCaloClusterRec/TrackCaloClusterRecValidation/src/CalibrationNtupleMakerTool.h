@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_CALIBRATIONNTUPLEMAKERTOOL_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_CALIBRATIONNTUPLEMAKERTOOL_H
@@ -7,6 +7,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "xAODJet/JetContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <vector>
 
@@ -87,6 +89,8 @@ private:
   std::vector < double >*                      m_eTrue;
   std::vector < double >*                      m_mTrue;
   
+  // EventInfo
+  SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
   
 };
 
