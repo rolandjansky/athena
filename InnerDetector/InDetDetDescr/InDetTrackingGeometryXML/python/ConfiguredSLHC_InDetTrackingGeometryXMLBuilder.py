@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 ######################################################
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 # ConfiguredSLHC_InDetTrackingGeometryXML module
 #
 # it inherits from StagedTrackingGeometryBuilderConf and performs 
@@ -66,11 +66,12 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         isRingLayout       = XMLReaderFlags.isRingLayout()
         splitBarrelLayers  = XMLReaderFlags.splitBarrelLayers()
         InnerLayers        = XMLReaderFlags.InnerLayerIndices()
+        InnerDisks         = XMLReaderFlags.InnerDiskIndices()
         doPix              = XMLReaderFlags.doPix()
         doSCT              = XMLReaderFlags.doSCT()
         readXMLfromDB      = XMLReaderFlags.readXMLfromDB()
         
-        print "TrackingXML endcap layer  ",isRingLayout," ",splitBarrelLayers," ",InnerLayers
+        print "TrackingXML endcap layer  ",isRingLayout," ",splitBarrelLayers," ",InnerLayers, " - ", InnerDisks
 
         # PIXEL building
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__LayerProviderXML
@@ -115,6 +116,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
 
 
         startLayer = 0
+        startEndcap = 0
         if splitBarrelLayers:
             endLayer = InnerLayers[-1]
             # Pixel layer provider
@@ -128,7 +130,16 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
             PixelFirstLayerProvider.ModuleProvider = InDetModuleProvider
             PixelFirstLayerProvider.PixelBarrelBuilder = InDetBarrelBuilder
             PixelFirstLayerProvider.PixelEndcapBuilder = InDetEndcapBuilder
-           #####startLayer += 1
+             
+            if (len(InnerDisks)>0):
+                endEndcap = InnerDisks[-1]
+                PixelFirstLayerProvider.startEndcap = startEndcap
+                PixelFirstLayerProvider.endEndcap   = endEndcap
+                startEndcap = endEndcap + 1
+            else:
+                PixelFirstLayerProvider.startEndcap = startLayer
+                PixelFirstLayerProvider.endEndcap   = endLayer
+            
             startLayer = endLayer + 1
             ToolSvc += PixelFirstLayerProvider
             PixelFirstLayerBinning = 2
@@ -147,6 +158,14 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
             PixelLayerProvider.doSCT = False
             PixelLayerProvider.startLayer = startLayer
             PixelLayerProvider.endLayer = 4
+
+            if (len(InnerDisks)>0):
+                PixelLayerProvider.startEndcap = startEndcap
+                PixelLayerProvider.endEndcap   = 32
+            else:
+                PixelLayerProvider.startEndcap = startLayer
+                PixelLayerProvider.endEndcap   = 4
+
             PixelLayerProvider.ModuleProvider = InDetModuleProvider
             PixelLayerProvider.PixelBarrelBuilder = InDetBarrelBuilder
             PixelLayerProvider.PixelEndcapBuilder = InDetEndcapBuilder
@@ -299,6 +318,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         # add to SvcMgr
         ServiceMgr += AtlasEnvelopeSvc
         
+
         # the tracking geometry builder
         InDet__StagedTrackingGeometryBuilder.__init__(self,namePrefix+name,\
                                                       BeamPipeBuilder           = BeamPipeBuilder,\

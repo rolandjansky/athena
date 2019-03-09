@@ -21,8 +21,9 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetTrackingGeometryUtils
-			                    Tools/PathResolver
-			                    DetectorDescription/GeoModelXml
+			  Tools/PathResolver
+			  DetectorDescription/GeoModelXml
+			  DetectorDescription/GeoModel/GeoModelInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkGeometryAlpine )
 

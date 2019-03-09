@@ -135,7 +135,8 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     // Compute transform
     double dR      = staveTmp->b_rshift; // module center translation w.r.t layer radius
     double xshift  = 0.;                 // shift along x-axis
-    double zpos    = zstart_plain+zstep*imod;
+    double zoffset = (iphi%2==0) ? 0.5*staveTmp->b_zoffset : -0.5*staveTmp->b_zoffset;
+    double zpos    = zstart_plain+zstep*imod + zoffset;
     double tilt    = ztiltstave + staveTmp->b_tilt; // tilt around z-axis
     double stereo  = 0.;                            // stereo angle
     double rot     = 0.;                            // module angle w.r.t stave plane - none on the central module z=0
@@ -338,10 +339,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
 		    << ilayer << " iphi = " << iphi << " phi = " << phi << " ieta = " << ieta );
     
       // Transformation
-      double zpos   = zoffsetstave - staveTmp->alp_pos[i] - Dz;
+      double zoffset = (iphi%2==0) ? 0.5*staveTmp->alp_zoffset : -0.5*staveTmp->alp_zoffset;
+      double zpos   = zoffsetstave - staveTmp->alp_pos[i] - Dz + zoffset;
       double tilt   = ztiltstave + staveTmp->alp_tilt ; // stave tilt around z-axis
       double rot    = alpha;                            // module angle w.r.t stave plan
-      dR +=  staveTmp->alp_rshift;                      // module center translation w.r.t layer radius 
+      double roffset = (iphi%2==0) ? 0.5*staveTmp->alp_roffset : -0.5*staveTmp->alp_roffset;
+      dR +=  staveTmp->alp_rshift + roffset;  // module center translation w.r.t layer radius 
       double stereo = 0.;                               // stereo angle
       double xshift = 0.;                               // shift along x-axis
 
@@ -370,7 +373,7 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
 		    << ilayer << " iphi = " << iphi << " phi = " << phi << " ieta = " << ieta );
 
       // Transformation
-      zpos  = zoffsetstave + staveTmp->alp_pos[i] + Dz; 
+      zpos  = zoffsetstave + staveTmp->alp_pos[i] + Dz + zoffset; 
       rot   = -alpha;   // module angle w.r.t stave plane
 
       transform = m_moduleProvider->getTransform(R,dR,xshift,zpos,tilt,stereo,rot,phi);

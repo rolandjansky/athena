@@ -21,8 +21,7 @@ namespace InDet {
     inline void Print() {
       std::cout << "-----Trk Material Template '" << name  << "' Thickness = " << thickness <<" [mm]"<< std::endl;
       for(unsigned int i=0;i<components.size();i++) 
-	std::cout << "     Component '" << components[i] << "' fraction = " << fractions[i]; 
-      std::cout << std::endl;       
+	std::cout << "     Component '" << components[i] << "' fraction = " << fractions[i]; std::cout << std::endl;       
       std::cout <<"     Averaged: X0 = " << X0 << "  L0 = " << L0 << " A = " << A 
 		<< " Z = " << Z << " rho = "   << density <<  " [gram/mm^3]" << std::endl; 
     }
@@ -104,7 +103,12 @@ namespace InDet {
 
   class StaveTmp {
   public:
-    StaveTmp() {  layer = b_modn = 0; support_material = "DefaultPixelStaveMaterial"; active_halflength = support_halflength = b_gap = b_tilt = b_angle = b_stereoI = b_stereoO = b_stereoSep = b_rshift = trans_tilt = trans_angle = trans_gap = alp_tilt = alp_angle = alp_rshift = alp_radialTilt = 0; rMax = -99999; rMin = 99999; double_sided = b_sameAngle = false;}
+    StaveTmp() {  layer = b_modn = 0; support_material = "DefaultPixelStaveMaterial"; 
+      active_halflength = support_halflength = b_gap = b_tilt = b_angle = 
+      b_stereoI = b_stereoO = b_stereoSep = b_rshift = b_zoffset = trans_tilt = 
+      trans_angle = trans_gap = alp_tilt = alp_angle = alp_rshift =
+      alp_zoffset = alp_roffset = alp_radialTilt = 0; 
+      rMax = -99999; rMin = 99999; double_sided = b_sameAngle = false;}
     ~StaveTmp() {}
 
     inline void Print() {
@@ -112,7 +116,8 @@ namespace InDet {
       std::cout << "     Support halfLength = " << support_halflength << " [mm] material = '" << support_material <<"'" << std::endl;
       std::cout << "     Barrel modules parameters:"                  << std::endl;
       std::cout << "        #modules = "  << b_modn << " type = '" << b_type << "'  gap = " << b_gap 
-		<< " [mm] tilt = "<< b_tilt << " [rad] angle =  " << b_angle << " [rad] rshift = " << b_rshift  << std::endl;
+		<< " [mm] tilt = "<< b_tilt << " [rad] angle =  " << b_angle << " [rad] rshift = " << b_rshift <<
+		" [mm] z offset = " << b_zoffset << " [mm]"<< std::endl;
       std::cout << "        stereo angle inner/outer = " << b_stereoI << "/" << b_stereoO << " [rad]" 
 		<< " double-sided = " << double_sided <<  " apply same angle = " << b_sameAngle << std::endl;
       std::cout << "        radius min/max = " << rMin << "/" << rMax << " [mm] "<< std::endl;
@@ -125,7 +130,9 @@ namespace InDet {
       if(alp_pos.size()>0){
 	std::cout << "     Alpine modules parameters:"        << std::endl;
 	std::cout << "        #modules = "  << alp_pos.size() << " type = '" << alp_type 
-		  << " tilt = " << alp_tilt << " [rad] angle = " << alp_angle << " [rad] rshift = " << alp_rshift <<" [degree] radial tilt = "<< alp_radialTilt << std::endl;
+		  << " tilt = " << alp_tilt << " [rad] angle = " << alp_angle << " [rad] rshift = " << alp_rshift 
+		  << " [mm] z offset = " << alp_zoffset << " [mm] r offset = " << alp_roffset << " [mm] radial tilt = "
+		  << alp_radialTilt << " [rad] "<< std::endl;
       }
     }
 
@@ -144,6 +151,7 @@ namespace InDet {
     double b_stereoO;
     double b_stereoSep;
     double b_rshift;
+    double b_zoffset;
     bool double_sided;
     bool b_sameAngle;
     std::string b_type;
@@ -159,6 +167,8 @@ namespace InDet {
     double alp_tilt;
     double alp_angle;
     double alp_rshift;
+    double alp_zoffset;
+    double alp_roffset;
     double alp_radialTilt;
     // Cylindrical envelop
     double active_halflength;
