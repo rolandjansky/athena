@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -81,7 +81,7 @@ public:
 
 
   /// Store a new value to the element.
-  void store (pointer_t elt) const;
+  void store (pointer_t elt);
 
   
   /// Return the current value of the element.
