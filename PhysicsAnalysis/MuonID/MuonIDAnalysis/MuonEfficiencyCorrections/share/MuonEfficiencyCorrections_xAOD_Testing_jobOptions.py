@@ -18,6 +18,7 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.MuonSelectionTool = GetSelectionTool()
 alg.DefaultRelease="cSummer2018"
 alg.ValidationRelease="cWinter2019"
 ## Select 30 GeV muons for the high-pt WP only
@@ -30,7 +31,7 @@ WPs = [
         "Loose", 
         "Medium", 
         "Tight", 
-        "HighPt",
+        "HighPt",       
          # track-to-vertex-association WPs
     #     "TTVA",
          # BadMuon veto SFs
