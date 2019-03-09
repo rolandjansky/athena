@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -61,12 +61,12 @@ public:
     /// in optimized compilation. One can switch or query this mode for
     /// any idHelper with the following methods:
     virtual bool		do_checks	(void) const = 0;
-    virtual void		set_do_checks	(bool do_checks) const = 0;
+    virtual void		set_do_checks	(bool do_checks) = 0;
     /// Neighbour initialization is performed by default
     /// One can switch or query this mode for
     /// any idHelper with the following method:
     virtual bool		do_neighbours   	(void) const = 0;
-    virtual void		set_do_neighbours	(bool do_neighbours) const = 0;
+    virtual void		set_do_neighbours	(bool do_neighbours) = 0;
 
     // setting pointer to the MessageSvc
     virtual void                setMessageSvc  (IMessageSvc* msgSvc) = 0;
