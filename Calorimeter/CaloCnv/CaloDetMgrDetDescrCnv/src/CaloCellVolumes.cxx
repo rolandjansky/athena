@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetMgrDetDescrCnv/CaloCellVolumes.h"
 
 #include "Identifier/Identifier.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -30,16 +29,15 @@ struct CaloCellVolume_Compare
 };
 
 
-CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
-  m_svcLocator(svcLocator)
+CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator,
+                                 const CaloCell_ID* calocell_id)
+  : m_calocell_id (calocell_id),
+    m_svcLocator(svcLocator)
 {
   // default values for tube spacings
   m_fcalTubeSpacings[1] = 7.5;
   m_fcalTubeSpacings[2] = 8.179;
   m_fcalTubeSpacings[3] = 9.;
-
-  // Get Id Helper
-  m_calocell_id = CaloIdManager::instance()->getCaloCell_ID();
 
   //Get pointers to the IGeoModelSvc and IRDBAccessSvc
   IGeoModelSvc* geoModelSvc = 0;
