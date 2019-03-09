@@ -202,8 +202,6 @@ def makeInDetAlgs( whichSignature='' ):
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
-                                                      #Adding the suffix to flagged conditions
-                                                      #SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = "EMViewRoIs"
@@ -258,13 +256,6 @@ def makeInDetAlgs( whichSignature='' ):
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   viewAlgs.append(theTrackParticleCreatorAlg)
 
-  
- # #Run over all alg and suffix to CondData
- # for alg in viewAlgs: 
- #     if  alg.properties().has_key("SCT_FlaggedCondData"):
- #       #Changing the suffix of FlaggedConditionData
- #        alg.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
- # #Need to call it on inside tools
 
 
   return (viewAlgs, eventAlgs)
