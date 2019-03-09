@@ -9,9 +9,9 @@ HAMMERCLOUD_FILE = "mc15_13TeV.423202.Pythia8B_A14_CTEQ6L1_Jpsie3e13.merge.AOD.e
 PROJECTS = ["AthAnalysis", "AthDerivation", "AthSimulation", "Athena", "AnalysisBase"]
 
 XAODCHECKER_TURLS = {
-  "ROOT"  : "root://lcg-lrz-rootd.grid.lrz.de:1094/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1", # LRZ-LMU,
-  "DAVS"  : "davs://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1",   # LRZ-LMU
-  "HTTPS" : "https://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1",  # LRZ-LMU
+  "ROOT"  : "root://lcg-lrz-rootd.grid.lrz.de:1094/pnfs/lrz-muenchen.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1", # LRZ-LMU,
+  "DAVS"  : "davs://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1",   # LRZ-LMU
+  "HTTPS" : "https://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/data18_13TeV/e6/c2/DAOD_MUON0.14316152._000001.pool.root.1",  # LRZ-LMU
 }
 
 RECO_TF_TURLS = {
