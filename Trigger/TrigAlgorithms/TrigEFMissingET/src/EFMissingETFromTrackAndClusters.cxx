@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -747,7 +747,7 @@ double EFMissingETFromTrackAndClusters::findMinPt(std::vector<fastjet::PseudoJet
 }
 
 // Reweights clusters (when calo isn't split)
-void EFMissingETFromTrackAndClusters::RunClusters(std::vector<xAOD::CaloCluster> clust) const
+void EFMissingETFromTrackAndClusters::RunClusters(std::vector<xAOD::CaloCluster> clust)
 {
     vector<fastjet::PseudoJet> clustPJ;
 
@@ -763,7 +763,7 @@ void EFMissingETFromTrackAndClusters::RunClusters(std::vector<xAOD::CaloCluster>
     m_minPt = findMinPt(&clustSK);
 }
 
-void EFMissingETFromTrackAndClusters::RunSplitClusters(std::vector<xAOD::CaloCluster> clust) const
+void EFMissingETFromTrackAndClusters::RunSplitClusters(std::vector<xAOD::CaloCluster> clust)
 {
     vector<fastjet::PseudoJet> clustPJ_ECal;
     vector<fastjet::PseudoJet> clustPJ_HCal;

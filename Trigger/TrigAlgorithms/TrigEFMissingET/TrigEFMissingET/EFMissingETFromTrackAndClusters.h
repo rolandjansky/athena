@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFMISSINGET_EFMissingETFromTrackAndClusters_H
@@ -79,8 +79,8 @@ public:
 
     int calculateWeight(xAOD::CaloCluster cl) const;
     int calculateSplitWeight(xAOD::CaloCluster cl) const;
-    void RunClusters(std::vector<xAOD::CaloCluster> m_clust) const;
-    void RunSplitClusters(std::vector<xAOD::CaloCluster> m_clust) const;
+    void RunClusters(std::vector<xAOD::CaloCluster> m_clust);
+    void RunSplitClusters(std::vector<xAOD::CaloCluster> m_clust);
 
 
 
@@ -112,9 +112,9 @@ private:
     float m_rapmax;
     float m_rapminApplied;
     float m_rapmaxApplied;
-    mutable double m_minPt;
-    mutable double m_minPtECal;
-    mutable double m_minPtHCal;
+    double m_minPt;
+    double m_minPtECal;
+    double m_minPtHCal;
 
 
    float m_deltaR;
