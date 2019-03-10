@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_ForwardModuleParameters_H
@@ -14,7 +14,7 @@ class SCT_ForwardModuleParameters {
 public:
 
   // Constructor 
-  SCT_ForwardModuleParameters();
+  SCT_ForwardModuleParameters(SCT_DataBase* rdb);
 
   // Sensor
   // For Inner module there is only one sensor,

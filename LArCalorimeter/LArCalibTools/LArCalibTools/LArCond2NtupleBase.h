@@ -42,6 +42,8 @@ class LArCond2NtupleBase : public AthAlgorithm {
   //StatusCode initializeBase(const std::string& path, const std::string& name);
   bool fillFromIdentifier(const HWIdentifier& id); //returns true if connected
 
+  const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey() const;
+
  private:
   bool m_initialized;
 

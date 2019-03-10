@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdPPConnector.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_FwdPPConnector::SCT_FwdPPConnector(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_FwdPPConnector::SCT_FwdPPConnector(const std::string & name,
+                                       InDetDD::SCT_DetectorManager* detectorManager,
+                                       const SCT_GeometryManager* geometryManager,
+                                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +29,7 @@ SCT_FwdPPConnector::SCT_FwdPPConnector(const std::string & name)
 void 
 SCT_FwdPPConnector::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
         
   m_materialName= parameters->fwdPPConnectorMaterial();
   m_thickness   = parameters->fwdPPConnectorThickness();
@@ -37,11 +40,8 @@ SCT_FwdPPConnector::getParameters()
 GeoVPhysVol * 
 SCT_FwdPPConnector::build() 
 {
-
-  SCT_MaterialManager materials;
-
   const GeoBox * pPConnectorShape = new GeoBox(0.5 * m_deltaR, 0.5 * m_rphi, 0.5 * m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, pPConnectorShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, pPConnectorShape->volume());
   const GeoLogVol * pPConnectorLog = new GeoLogVol(getName(), pPConnectorShape, m_material);
 
   GeoPhysVol * pPConnector = new GeoPhysVol(pPConnectorLog);

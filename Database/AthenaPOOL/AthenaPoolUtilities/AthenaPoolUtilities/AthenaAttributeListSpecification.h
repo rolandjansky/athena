@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLUTILITIES_ATHENAATTRIBUTELISTSPECIFICATION_H
@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <atomic>
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -131,7 +132,7 @@ protected:
 
 private:
   /// The reference counter
-  mutable int m_counter;
+  mutable std::atomic<int> m_counter;
 
   /// The specifications
   std::vector< AthenaAttributeSpecification* > m_attributeSpecifications;
@@ -286,8 +287,7 @@ AthenaAttributeListSpecification::release() const
   //std::cerr << "Before decrement " << std::endl;
   //std::cerr << "AthenaAttributeListSpecification release called "
   //          << "with counter = " << m_counter << std::endl;
-  --m_counter;
-  if ( m_counter == 0 ) delete this;
+  if (--m_counter == 0) delete this;
 }
 
 inline void

@@ -137,12 +137,6 @@ inline const InDet::PixelClusterOnTrack& CompetingPixelClustersOnTrack::rioOnTra
         return * m_containedChildRots->operator[](indx);
 }
 
- inline const Amg::Vector3D& CompetingPixelClustersOnTrack::globalPosition() const {
-    if (m_globalPosition)
-        return (*m_globalPosition.load());
-    m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return (*m_globalPosition.load());
-}
 
 inline unsigned int CompetingPixelClustersOnTrack::numberOfContainedROTs() const {
     return m_containedChildRots->size();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_INTERLINK_H
@@ -21,7 +21,10 @@ class SCT_InterLink : public SCT_SharedComponentFactory
 {
 
 public:
-  SCT_InterLink(const std::string & name);
+  SCT_InterLink(const std::string & name,
+                InDetDD::SCT_DetectorManager* detectorManager,
+                const SCT_GeometryManager* geometryManager,
+                SCT_MaterialManager* materials);
   ~SCT_InterLink();
 
 public:

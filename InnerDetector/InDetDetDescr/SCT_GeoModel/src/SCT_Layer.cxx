@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -49,8 +49,11 @@ inline double sqr(double x) {return x * x;}
 
 SCT_Layer::SCT_Layer(const std::string & name,
                      int iLayer,
-                     const SCT_Module * module)
-  : SCT_UniqueComponentFactory(name), 
+                     SCT_Module * module,
+                     InDetDD::SCT_DetectorManager* detectorManager,
+                     const SCT_GeometryManager* geometryManager,
+                     SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iLayer(iLayer), 
     m_module(module)
 {
@@ -69,7 +72,7 @@ SCT_Layer::~SCT_Layer()
   delete m_skiAux;
   delete m_skiPowerTape;
   delete m_supportCyl;
-  if(m_includeFSI) {
+  if (m_includeFSI) {
     delete m_endJewel;
     delete m_scorpion;
     delete m_fibreMask;
@@ -79,8 +82,8 @@ SCT_Layer::~SCT_Layer()
 void
 SCT_Layer::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+  const SCT_GeneralParameters * generalParameters = m_geometryManager->generalParameters();
     
   m_safety       = generalParameters->safety();
   m_radius       = parameters->radius(m_iLayer);
@@ -95,7 +98,7 @@ SCT_Layer::getParameters()
   m_cylinderLength = parameters->cylinderLength();
 
   m_includeFSI = parameters->includeFSI();
-  if(m_includeFSI) {
+  if (m_includeFSI) {
     m_nRepeatEndJewel = parameters->fsiEndJewelNRepeat(m_iLayer);
     m_phiEndJewel = parameters->fsiEndJewelPhi(m_iLayer);
     m_zEndJewel = parameters->fsiEndJewelZ(m_iLayer);
@@ -105,8 +108,8 @@ SCT_Layer::getParameters()
   }
 
   // Set numerology
-  detectorManager()->numerology().setNumPhiModulesForLayer(m_iLayer,m_skisPerLayer);
-  detectorManager()->numerology().setNumEtaModulesForLayer(m_iLayer,parameters->modulesPerSki());
+  m_detectorManager->numerology().setNumPhiModulesForLayer(m_iLayer,m_skisPerLayer);
+  m_detectorManager->numerology().setNumEtaModulesForLayer(m_iLayer,parameters->modulesPerSki());
 
 }
 
@@ -120,30 +123,32 @@ SCT_Layer::preBuild()
   std::string layerNumStr = intToString(m_iLayer);
 
   // Build the Flanges
-  m_flange     = new SCT_Flange("Flange"+layerNumStr, m_iLayer);
+  m_flange     = new SCT_Flange("Flange"+layerNumStr, m_iLayer, m_detectorManager, m_geometryManager, m_materials);
   
   // Build the SupportCyl
-  m_supportCyl = new SCT_SupportCyl("SupportCyl"+layerNumStr, m_iLayer, m_cylinderLength);
+  m_supportCyl = new SCT_SupportCyl("SupportCyl"+layerNumStr, m_iLayer, m_cylinderLength,
+                                    m_detectorManager, m_geometryManager, m_materials);
 
   // Build the FSI end jewel, scorpion and fibre mask
   // Mask runs between scorpions and flange in z - must be built after these
-  if(m_includeFSI) {
-    m_endJewel   = new SCT_FSIEndJewel("FSIEndJewel"+layerNumStr);
-    m_scorpion   = new SCT_FSIScorpion("FSIScorpion"+layerNumStr);
+  if (m_includeFSI) {
+    m_endJewel = new SCT_FSIEndJewel("FSIEndJewel"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
+    m_scorpion = new SCT_FSIScorpion("FSIScorpion"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
     double length_mask = 0.5*m_cylinderLength - m_flange->length() - m_zScorpion - 0.5*m_scorpion->length();
-    m_fibreMask = new SCT_FSIFibreMask("FSIFibreMask"+layerNumStr, m_iLayer, length_mask);
+    m_fibreMask = new SCT_FSIFibreMask("FSIFibreMask"+layerNumStr, m_iLayer, length_mask,
+                                       m_detectorManager, m_geometryManager, m_materials);
   }
   else {
-    m_endJewel = 0;
-    m_scorpion = 0;
-    m_fibreMask = 0;
+    m_endJewel = nullptr;
+    m_scorpion = nullptr;
+    m_fibreMask = nullptr;
   }
 
   //
   // Calculations for making active layer components - called ski.
   // This is the modules + doglegs + cooling blocks + coolingpipe 
   // 
-  double divisionAngle  = 360 * Gaudi::Units::degree / m_skisPerLayer;
+  double divisionAngle  = 360. * Gaudi::Units::degree / m_skisPerLayer;
 
   // We define here the first module(id = 0) as the nearest module to phi = 0 with positive phi.
   // We allow slightly negative in case of rounding errors.
@@ -155,7 +160,8 @@ SCT_Layer::preBuild()
 
   // Make the ski
   // The ski length is now reduced to m_activeLength to make room for the cooling inlet/outlet volumes
-  m_ski = new SCT_Ski("Ski"+layerNumStr, m_module, m_stereoSign, m_tilt, m_activeLength);
+  m_ski = new SCT_Ski("Ski"+layerNumStr, m_module, m_stereoSign, m_tilt, m_activeLength,
+                      m_detectorManager, m_geometryManager, m_materials);
 
   //
   // Make SkiAux -  This is the brackets, harness and power tape.
@@ -163,10 +169,12 @@ SCT_Layer::preBuild()
   // Bracket is placed at edge of division. 
   // -tiltSign * (r*divisionAngle/2 - bracket_width/2)
   // Works for both +ve and -ve tilt.
-  m_bracket = new SCT_Bracket("Bracket"+layerNumStr);
+  m_bracket = new SCT_Bracket("Bracket"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
 
-  m_harness = new SCT_Harness("Harness"+layerNumStr, m_cylinderLength);
-  m_skiPowerTape = new SCT_SkiPowerTape("SkiPowerTape"+layerNumStr, m_ski, m_cylinderLength);
+  m_harness = new SCT_Harness("Harness"+layerNumStr, m_cylinderLength,
+                              m_detectorManager, m_geometryManager, m_materials);
+  m_skiPowerTape = new SCT_SkiPowerTape("SkiPowerTape"+layerNumStr, m_ski, m_cylinderLength,
+                                        m_detectorManager, m_geometryManager, m_materials);
 
   int tiltSign = (m_tilt < 0) ? -1 : +1;
   
@@ -185,17 +193,22 @@ SCT_Layer::preBuild()
                             m_outerRadiusOfSupport,
                             bracketOffset, 
                             powerTapeOffset,
-                            divisionAngle);
+                            divisionAngle,
+                            m_detectorManager,
+                            m_geometryManager,
+                            m_materials);
 
   // Build the clamp: we cannot do this until we have the dimensions of SkiAux
-  m_clamp = new SCT_Clamp("Clamp"+layerNumStr, m_iLayer, m_skiAux->outerRadius());
+  m_clamp = new SCT_Clamp("Clamp"+layerNumStr, m_iLayer, m_skiAux->outerRadius(),
+                          m_detectorManager, m_geometryManager, m_materials);
 
   // Build the volume representing the cooling inlets, outlet and U-bends.
   // We cannot do this until we have the dimensions of the clamp
   double coolingInnerRadius = m_clamp->outerRadius();
   double clearance = 1*Gaudi::Units::mm;
   double coolingLength = 0.5*m_cylinderLength - 0.5*m_activeLength - clearance;
-  m_coolingEnd = new SCT_CoolingEnd("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength);
+  m_coolingEnd = new SCT_CoolingEnd("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength,
+                                    m_detectorManager, m_geometryManager, m_materials);
 
   //
   //  Calculate the envelopes.
@@ -235,13 +248,12 @@ SCT_Layer::preBuild()
   //
   // Make envelope for layer; length is now same as support cylinder
   //
-  SCT_MaterialManager materials;
   double length = m_cylinderLength;
   //  double length = m_layerLength;
   //  if (m_iLayer == 0) {length = m_cylinderLength + m_safety;}
   const GeoTube * layerEnvelopeTube = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * length);
 
-  GeoLogVol * layerLog = new GeoLogVol(getName(), layerEnvelopeTube, materials.gasMaterial());
+  GeoLogVol * layerLog = new GeoLogVol(getName(), layerEnvelopeTube, m_materials->gasMaterial());
 
 
   // Check for overlap.
@@ -253,11 +265,8 @@ SCT_Layer::preBuild()
 }
 
 GeoVPhysVol * 
-SCT_Layer::build(SCT_Identifier id) const
+SCT_Layer::build(SCT_Identifier id)
 {
-
-  SCT_MaterialManager materials;
-
   // We make this a fullPhysVol for alignment code.
   GeoFullPhysVol * layer = new GeoFullPhysVol(m_logVolume);
 
@@ -269,7 +278,7 @@ SCT_Layer::build(SCT_Identifier id) const
   // Make envelope for active layer
   //
   const GeoTube * activeLayerEnvelopeShape = new GeoTube(m_innerRadiusActive, m_outerRadiusActive, 0.5 * m_cylinderLength);
-  GeoLogVol * activeLayerLog = new GeoLogVol(getName()+"Active", activeLayerEnvelopeShape, materials.gasMaterial());
+  GeoLogVol * activeLayerLog = new GeoLogVol(getName()+"Active", activeLayerEnvelopeShape, m_materials->gasMaterial());
   GeoPhysVol * activeLayer = new GeoPhysVol(activeLayerLog);
 
   for (int iSki = 0; iSki < m_skisPerLayer; iSki++){
@@ -311,7 +320,7 @@ SCT_Layer::build(SCT_Identifier id) const
   //
   const GeoTube * auxLayerEnvelopeShape = new GeoTube(m_skiAux->innerRadius(), m_skiAux->outerRadius(),
                                                       0.5*m_skiAux->length());
-  GeoLogVol * auxLayerLog = new GeoLogVol(getName()+"Aux", auxLayerEnvelopeShape, materials.gasMaterial());
+  GeoLogVol * auxLayerLog = new GeoLogVol(getName()+"Aux", auxLayerEnvelopeShape, m_materials->gasMaterial());
   GeoPhysVol * auxLayer = new GeoPhysVol(auxLayerLog);
 
   for (int iSki = 0; iSki < m_skisPerLayer; iSki++){
@@ -331,7 +340,7 @@ SCT_Layer::build(SCT_Identifier id) const
   //
   const GeoTube * supportLayerTube = new GeoTube(m_innerRadius, m_outerRadiusOfSupport, 0.5 * m_cylinderLength); 
   GeoLogVol * supportLayerLog = new GeoLogVol(getName()+"Support", supportLayerTube, 
-                                              materials.gasMaterial());
+                                              m_materials->gasMaterial());
   GeoPhysVol * supportLayer = new GeoPhysVol(supportLayerLog);
   
   // Position flanges. One at each end.
@@ -374,7 +383,7 @@ SCT_Layer::build(SCT_Identifier id) const
   }
 
   // Extra Material
-  InDetDD::ExtraMaterial xMat(geometryManager()->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_geometryManager->distortedMatManager());
   xMat.add(supportLayer, "SCTLayer"+intToString(m_iLayer));
 
 

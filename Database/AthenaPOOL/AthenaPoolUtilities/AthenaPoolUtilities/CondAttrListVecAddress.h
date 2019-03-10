@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_CONDATTRLISTVECADDRESS_H
@@ -46,7 +46,7 @@ public:
     virtual ~CondAttrListVecAddress();
 
     /// Access to CondAttrListVec
-    CondAttrListVec*  attrListVec    () const;
+    CondAttrListVec*  attrListVec    ();
 
     /// Add CondAttrListVec
     void                  setAttrListVec (CondAttrListVec* attrListVec);
@@ -117,7 +117,7 @@ CondAttrListVecAddress::~CondAttrListVecAddress()
 }
 
 inline CondAttrListVec*
-CondAttrListVecAddress::attrListVec    () const
+CondAttrListVecAddress::attrListVec    ()
 {
     return m_attrListVec;
 }

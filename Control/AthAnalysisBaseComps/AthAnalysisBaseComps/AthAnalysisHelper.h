@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisHelper.h 
@@ -229,6 +229,12 @@ public:
   ///evt = ROOT.POOL.TEvent()
   ///...
   ///ROOT.AAH.retrieveMetadata("/Folder","key",evt.inputMetaStore())
+  static std::string retrieveMetadata(const std::string& folder, const std::string& key, const ServiceHandle<StoreGateSvc>& inputMetaStore) {
+    std::string out("");
+    StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore);
+    if(result.isFailure()) { std::cout << "ERROR: Could not retrieve IOVMetadata with folder " << folder << " and key " << key << std::endl; }
+    return out;
+  }
   static std::string retrieveMetadata(const std::string& folder, const std::string& key, ServiceHandle<StoreGateSvc>& inputMetaStore) {
     std::string out("");
     StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore);
@@ -250,7 +256,7 @@ public:
    
    
    ///implemenation where you pass it a particular store instead
-  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, ServiceHandle<StoreGateSvc>& inputMetaStore) {
+  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, const ServiceHandle<StoreGateSvc>& inputMetaStore) {
       const IOVMetaDataContainer* cont = 0;
       if( inputMetaStore->retrieve(cont,folder).isFailure()) return StatusCode::FAILURE;
    
@@ -280,7 +286,7 @@ public:
 
   ///retrieve metadata, for a specified IOVTime and a specific channel, unless the channel is -1, in which case we take the first available channel
   ///channels have to be unsigned int, so can use -1 to signal 'take whatever first channel is (it isn't always 0)'
-  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, ServiceHandle<StoreGateSvc>& inputMetaStore, const IOVTime& time, int channel=-1) {
+  template<typename T> static StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, const ServiceHandle<StoreGateSvc>& inputMetaStore, const IOVTime& time, int channel=-1) {
       const IOVMetaDataContainer* cont = 0;
       if( inputMetaStore->retrieve(cont,folder).isFailure()) return StatusCode::FAILURE;
    

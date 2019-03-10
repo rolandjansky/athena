@@ -30,16 +30,16 @@ namespace Trk
   class Mode3dFromFsmw1dFinder : public AthAlgTool, virtual public IMode3dFinder
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     //default constructor due to Athena interface
       Mode3dFromFsmw1dFinder(const std::string& t, const std::string& n, const IInterface*  p);
       
       //destructor
       virtual ~Mode3dFromFsmw1dFinder();
-      
-      inline void setPriVtxPosition( double vx, double vy )
+
+      inline virtual void setPriVtxPosition( double vx, double vy ) override
       {
         m_Xprivtx = vx ;
         m_Yprivtx = vy ;
@@ -47,18 +47,18 @@ namespace Trk
       } ;
 
       //obtain the 3d-mode (position) from a list of positions (distribution in space)
-      virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const;
+      virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const override;
 
       //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-      virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const;
+      virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const override;
       
-      const std::vector<int> & AcceptedCrossingPointsIndices() const ;
+      virtual const std::vector<int> & AcceptedCrossingPointsIndices() const override;
 
       // Passing some middle result to outside world, useless unless to monitor the tool
-      unsigned int Modes1d( std::vector<float> &, std::vector<float> &, 
-                            std::vector<float> &, std::vector<float> & ) ;
+      virtual unsigned int Modes1d( std::vector<float> &, std::vector<float> &, 
+                                    std::vector<float> &, std::vector<float> & ) const override;
       
-      inline void getCorrelationDistance( double &cXY, double &cZ )
+      inline virtual void getCorrelationDistance( double &cXY, double &cZ ) override
       { cXY = m_correXY ; cZ = m_correZ ; return ; }
 
   private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAATTRLISTADDRESS_H
@@ -48,7 +48,7 @@ public:
     AthenaAttrListAddress& operator= (const AthenaAttrListAddress& copy) = delete;
 
     /// Access to AttributeList
-    AthenaAttributeList*  attrList    () const;
+    AthenaAttributeList*  attrList    ();
 
     /// Add AttributeList
     void                  setAttrList (AthenaAttributeList* attrList);
@@ -107,7 +107,7 @@ AthenaAttrListAddress::~AthenaAttrListAddress()
 
 
 inline AthenaAttributeList*
-AthenaAttrListAddress::attrList    () const
+AthenaAttrListAddress::attrList    ()
 {
     return m_attrList;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_GeneralParameters_H
@@ -17,7 +17,7 @@ class SCT_GeneralParameters {
 
 public:
 
-  SCT_GeneralParameters();
+  SCT_GeneralParameters(SCT_DataBase* rdb);
   ~SCT_GeneralParameters();
   //Explicitly disallow copy, assignment to appease coverity
   SCT_GeneralParameters(const SCT_GeneralParameters &) = delete;

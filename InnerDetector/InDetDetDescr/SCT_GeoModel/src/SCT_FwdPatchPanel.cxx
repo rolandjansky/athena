@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdPatchPanel.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_FwdPatchPanel::SCT_FwdPatchPanel(const std::string & name, int type)
-  : SCT_SharedComponentFactory(name), m_type(type)
+SCT_FwdPatchPanel::SCT_FwdPatchPanel(const std::string & name, int type,
+                                     InDetDD::SCT_DetectorManager* detectorManager,
+                                     const SCT_GeometryManager* geometryManager,
+                                     SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_type(type)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +30,7 @@ SCT_FwdPatchPanel::SCT_FwdPatchPanel(const std::string & name, int type)
 void 
 SCT_FwdPatchPanel::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
         
   m_materialName= parameters->fwdPatchPanelMaterial(m_type);
   m_thickness   = parameters->fwdPatchPanelThickness(m_type);
@@ -38,11 +42,8 @@ SCT_FwdPatchPanel::getParameters()
 GeoVPhysVol * 
 SCT_FwdPatchPanel::build() 
 {
-
-  SCT_MaterialManager materials;
-
   const GeoBox * patchPanelShape = new GeoBox(0.5 * m_deltaR, 0.5 * m_rphi, 0.5 * m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, patchPanelShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, patchPanelShape->volume());
   const GeoLogVol * patchPanelLog = new GeoLogVol(getName(), patchPanelShape, m_material);
 
 

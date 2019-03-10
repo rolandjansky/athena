@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDO_DECODER_H
 #define MUONCSC_CNVTOOLS_CSCRDO_DECODER_H
 
-#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"        
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "CscCalibTools/ICscCalibTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -30,27 +30,26 @@ class CscRawData;
    * BNL January 24 2004
    */
 namespace Muon {
-  
-  class CscRDO_Decoder : virtual public ICSC_RDO_Decoder, public AthAlgTool {
-    
+
+  class CscRDO_Decoder : public extends<AthAlgTool, ICSC_RDO_Decoder> {
+
   public:
-    
-    /** constructor 
+
+    /** constructor
      */
     CscRDO_Decoder(const std::string& type, const std::string& name,
                    const IInterface* parent ) ;
-    
-    /** destructor 
-     */
-    ~CscRDO_Decoder(); 
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize() { return StatusCode::SUCCESS; }
 
-    void getDigit(const CscRawData * rawData, Identifier& moduleId, 
-                  Identifier& channelId, double& adc, double& time) const;
-    Identifier stationIdentifier(const CscRawData* rawData) const;
-    Identifier channelIdentifier(const CscRawData * rawData, int j) const;
+    /** destructor
+     */
+    virtual ~CscRDO_Decoder() = default;
+
+    virtual StatusCode initialize() override final;
+
+    virtual void getDigit(const CscRawData * rawData, Identifier& moduleId,
+                  Identifier& channelId, double& adc, double& time) const override final;
+    virtual Identifier stationIdentifier(const CscRawData* rawData) const override final;
+    virtual Identifier channelIdentifier(const CscRawData * rawData, int j) const override final;
 
   private:
     std::string m_detdescr;
@@ -68,6 +67,3 @@ namespace Muon {
 
 
 #endif  // MUONCSC_CNVTOOL_CSCRDO_DECODER_H
-
-
-

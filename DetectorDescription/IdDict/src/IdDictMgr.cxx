@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/DetectorDescription/IdDict/src/IdDictMgr.cxx,v 1.43 2008-12-09 09:49:43 dquarrie Exp $  
@@ -144,12 +144,11 @@ bool IdDictMgr::do_checks               () const
 }
 
 void		
-IdDictMgr::set_do_checks	(bool do_checks) const
+IdDictMgr::set_do_checks	(bool do_checks)
 {
     m_do_checks = do_checks;
-    dictionary_map::const_iterator it; 
-    for (it = m_dictionaries.begin (); it != m_dictionaries.end (); ++it) { 
-	const IdDictDictionary* d = (*it).second; 
+    for (const auto& p : m_dictionaries) {
+        IdDictDictionary* d = p.second; 
 	d->set_do_checks(do_checks);
     } 
 }
@@ -160,12 +159,11 @@ bool IdDictMgr::do_neighbours               () const
 }
 
 void		
-IdDictMgr::set_do_neighbours	(bool do_neighbours) const
+IdDictMgr::set_do_neighbours	(bool do_neighbours)
 {
     m_do_neighbours = do_neighbours;
-    dictionary_map::const_iterator it; 
-    for (it = m_dictionaries.begin (); it != m_dictionaries.end (); ++it) { 
-	const IdDictDictionary* d = (*it).second; 
+    for (const auto& p : m_dictionaries) {
+        IdDictDictionary* d = p.second; 
 	d->set_do_neighbours(do_neighbours);
     } 
 }
@@ -2129,7 +2127,7 @@ IdDictDictionary::do_checks	(void) const
 }
 
 void		
-IdDictDictionary::set_do_checks	(bool do_checks) const
+IdDictDictionary::set_do_checks	(bool do_checks)
 {
     m_do_checks = do_checks;
 }
@@ -2141,7 +2139,7 @@ IdDictDictionary::do_neighbours	(void) const
 }
 
 void		
-IdDictDictionary::set_do_neighbours	(bool do_neighbours) const
+IdDictDictionary::set_do_neighbours	(bool do_neighbours)
 {
     m_do_neighbours = do_neighbours;
 }

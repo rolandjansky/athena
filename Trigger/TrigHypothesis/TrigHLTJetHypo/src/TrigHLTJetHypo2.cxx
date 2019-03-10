@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -55,7 +55,7 @@ using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
 using std::chrono::microseconds;
 
-float GeV = 1000.;
+const float GeV = 1000.;
 
 enum class HypoStrategy{EtaEt, HT, TLA, DijetMassDEta, singlemass};
 

@@ -32,8 +32,8 @@ namespace Trk
   class Mode3dTo1dFinder : public AthAlgTool, virtual public IMode3dFinder
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     //default constructor due to Athena interface
       Mode3dTo1dFinder(const std::string& t, const std::string& n, const IInterface*  p);
@@ -42,19 +42,19 @@ namespace Trk
       virtual ~Mode3dTo1dFinder();
             
       //obtain the 3d-mode (position) from a list of positions (distribution in space)
-      virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const;
+      virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const override;
 
       //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-      virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const;
+      virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const override;
      
 
       //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
-      virtual void setPriVtxPosition( double, double );
+      virtual void setPriVtxPosition( double, double ) override;
       virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
-				   std::vector<float> &, std::vector<float> &);
+				   std::vector<float> &, std::vector<float> &) const override;
 
-      virtual const std::vector<int> & AcceptedCrossingPointsIndices() const;
-      virtual void getCorrelationDistance( double &cXY, double &cZ );
+      virtual const std::vector<int> & AcceptedCrossingPointsIndices() const override;
+      virtual void getCorrelationDistance( double &cXY, double &cZ ) override;
       
   private:
       

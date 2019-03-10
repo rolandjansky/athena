@@ -1,37 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_GeometryManager.h"
 
+#include "InDetGeoModelUtils/DistortedMaterialManager.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiCommonItems.h"
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
 #include "SCT_GeoModel/SCT_BarrelModuleParameters.h"
+#include "SCT_GeoModel/SCT_DataBase.h"
 #include "SCT_GeoModel/SCT_ForwardParameters.h"
 #include "SCT_GeoModel/SCT_ForwardModuleParameters.h"
 #include "SCT_GeoModel/SCT_GeneralParameters.h"
-#include "InDetGeoModelUtils/DistortedMaterialManager.h"
 #include "SCT_GeoModel/SCT_GeoModelAthenaComps.h"
 
+SCT_GeometryManager::SCT_GeometryManager(SCT_DataBase* rdb)
+  : m_athenaComps{rdb->athenaComps()},
+    m_rdb{rdb}
+{
+  // This class uses reference counting. Should not be delete'd in destructor.
+  m_commonItems = new InDetDD::SiCommonItems(m_athenaComps->getIdHelper());
 
-SCT_GeometryManager::SCT_GeometryManager()
-  : m_athenaComps(0),
-    m_commonItems(0),
-    m_barrelParameters(0),
-    m_barrelModuleParameters(0),
-    m_forwardParameters(0),
-    m_forwardModuleParameters(0),
-    m_generalParameters(0),
-    m_distortedMatManager(0)
-{}
+  m_barrelParameters = std::make_unique<SCT_BarrelParameters>(m_rdb);
+  m_barrelModuleParameters = std::make_unique<SCT_BarrelModuleParameters>(m_rdb);
+  m_forwardParameters = std::make_unique<SCT_ForwardParameters>(m_rdb);
+  m_forwardModuleParameters = std::make_unique<SCT_ForwardModuleParameters>(m_rdb);
+  m_generalParameters = std::make_unique<SCT_GeneralParameters>(m_rdb);
+  m_distortedMatManager = std::make_unique<InDetDD::DistortedMaterialManager>();
+}
 
 SCT_GeometryManager::~SCT_GeometryManager()
 {
-  delete m_barrelParameters;
-  delete m_barrelModuleParameters;
-  delete m_forwardParameters;
-  delete m_forwardModuleParameters;
-  delete m_generalParameters;
-  delete m_distortedMatManager;
 }
 
 //
@@ -55,81 +55,53 @@ SCT_GeometryManager::athenaComps() const
   return m_athenaComps;
 }
   
-void 
-SCT_GeometryManager::setAthenaComps(const SCT_GeoModelAthenaComps * athenaComps)
-{
-  m_athenaComps = athenaComps;
-}
-
-
 //
 // SiCommonItems which are passed to SiDetectorElements.
 //
 
-InDetDD::SiCommonItems * 
+const InDetDD::SiCommonItems *
 SCT_GeometryManager::commonItems() const
 {
   return m_commonItems;
 }
 
-
-void 
-SCT_GeometryManager::setCommonItems(InDetDD::SiCommonItems * commonItems)
-{
-  m_commonItems = commonItems;
-}
-
 const SCT_BarrelParameters * 
 SCT_GeometryManager::barrelParameters() const
 {    
-  if (!m_barrelParameters) {
-    m_barrelParameters = new SCT_BarrelParameters; 
-  }
-  return m_barrelParameters;
+  return m_barrelParameters.get();
 }
 
 const SCT_BarrelModuleParameters * 
 SCT_GeometryManager::barrelModuleParameters() const
 {    
-  if (!m_barrelModuleParameters) {
-    m_barrelModuleParameters = new SCT_BarrelModuleParameters;
-  }      
-  return m_barrelModuleParameters;
+  return m_barrelModuleParameters.get();
 }
 
 
 const SCT_ForwardModuleParameters * 
 SCT_GeometryManager::forwardModuleParameters() const
 {    
-  if (!m_forwardModuleParameters) {
-    m_forwardModuleParameters = new SCT_ForwardModuleParameters;
-  }    
-  return m_forwardModuleParameters;
+  return m_forwardModuleParameters.get();
 }
 
 
 const SCT_ForwardParameters * 
 SCT_GeometryManager::forwardParameters() const
 {    
-  if (!m_forwardParameters) {
-    m_forwardParameters = new SCT_ForwardParameters;
-  }
-  return m_forwardParameters;
+  return m_forwardParameters.get();
 }
 
 
 const SCT_GeneralParameters * 
 SCT_GeometryManager::generalParameters() const
 {    
-  if (!m_generalParameters) m_generalParameters = new SCT_GeneralParameters;
-  return m_generalParameters;
+  return m_generalParameters.get();
 }
 
 const InDetDD::DistortedMaterialManager * 
 SCT_GeometryManager::distortedMatManager() const
 {    
-  if (!m_distortedMatManager) m_distortedMatManager = new InDetDD::DistortedMaterialManager;
-  return m_distortedMatManager;
+  return m_distortedMatManager.get();
 }
 
 SCT_GeometryManager&
@@ -138,12 +110,13 @@ SCT_GeometryManager::operator=(const SCT_GeometryManager& right) {
     m_options = right.m_options;
     m_athenaComps = right.m_athenaComps;
     m_commonItems = right.m_commonItems;
-    m_barrelParameters = nullptr;
-    m_barrelModuleParameters = nullptr;
-    m_forwardParameters = nullptr;
-    m_forwardModuleParameters = nullptr;
-    m_generalParameters = nullptr;
-    m_distortedMatManager = nullptr;
+    m_rdb = right.m_rdb;
+    m_barrelParameters.reset(new SCT_BarrelParameters(m_rdb));
+    m_barrelModuleParameters.reset(new SCT_BarrelModuleParameters(m_rdb));
+    m_forwardParameters.reset(new SCT_ForwardParameters(m_rdb));
+    m_forwardModuleParameters.reset(new SCT_ForwardModuleParameters(m_rdb));
+    m_generalParameters.reset(new SCT_GeneralParameters(m_rdb));
+    m_distortedMatManager.reset(new InDetDD::DistortedMaterialManager());
   }
   return *this;
 }
@@ -152,10 +125,11 @@ SCT_GeometryManager::SCT_GeometryManager(const SCT_GeometryManager& right) {
   m_options = right.m_options;
   m_athenaComps = right.m_athenaComps;
   m_commonItems = right.m_commonItems;
-  m_barrelParameters = nullptr;
-  m_barrelModuleParameters = nullptr;
-  m_forwardParameters = nullptr;
-  m_forwardModuleParameters = nullptr;
-  m_generalParameters = nullptr;
-  m_distortedMatManager = nullptr;
+  m_rdb = right.m_rdb;
+  m_barrelParameters.reset(new SCT_BarrelParameters(m_rdb));
+  m_barrelModuleParameters.reset(new SCT_BarrelModuleParameters(m_rdb));
+  m_forwardParameters.reset(new SCT_ForwardParameters(m_rdb));
+  m_forwardModuleParameters.reset(new SCT_ForwardModuleParameters(m_rdb));
+  m_generalParameters.reset(new SCT_GeneralParameters(m_rdb));
+  m_distortedMatManager.reset(new InDetDD::DistortedMaterialManager());
 }

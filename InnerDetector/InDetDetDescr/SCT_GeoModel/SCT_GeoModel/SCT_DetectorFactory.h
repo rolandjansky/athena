@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_DETECTORFACTORY_H 
@@ -10,9 +10,11 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 class GeoPhysVol;
+class SCT_DataBase;
 class SCT_GeometryManager;
-class SCT_Options;
 class SCT_GeoModelAthenaComps;
+class SCT_MaterialManager;
+class SCT_Options;
 
 class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase  
 { 
@@ -38,6 +40,8 @@ class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase
 
   InDetDD::SCT_DetectorManager *m_detectorManager;
   SCT_GeometryManager *m_geometryManager;
+  SCT_DataBase* m_db;
+  SCT_MaterialManager* m_materials;
   bool m_useDynamicAlignFolders;
 
 }; 
