@@ -221,6 +221,8 @@ class TileAANtuple : public AthAlgorithm {
     float m_las_PMT_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbPmts];
 
     // LASERII
+    bool m_qdctimeout;
+    bool m_tdctimeout;
     int m_daqtype;
     int m_chan[32];                   // Mean value for monitoring diodes, PMTs, phocal, CIS
     float m_chan_Ped[32];             // Corresponding pedestal values

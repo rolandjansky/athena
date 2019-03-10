@@ -105,6 +105,8 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_las_ReqAmp(0)
 , m_las_MeasAmp(0)
 , m_las_Temperature(0)
+, m_qdctimeout(0)
+, m_tdctimeout(0)
 , m_daqtype(0)
 , m_sampleFlt()
 , m_gainFlt()
@@ -587,6 +589,8 @@ StatusCode TileAANtuple::storeLaser() {
   else                      msg(MSG::DEBUG) << "LASERI VERSION IS "  << laserObj->getVersion() << endreq;
   
   if(laserObj->isLASERII()){
+    m_qdctimeout = laserObj->getQDCTimeout();
+    m_tdctimeout = laserObj->getTDCTimeout();
     m_daqtype = laserObj->getDaqType();
     // RETRIEVE SIGNAL IN ADC COUNTS
     for(int i=0; i<14; ++i){
@@ -1786,6 +1790,8 @@ void TileAANtuple::LASER_addBranch(void) {
       
       ATH_MSG_DEBUG("LASERII BRANCHING..");
       
+      m_ntuplePtr->Branch(Form("LASER_QDCTIMEOUT"),&(m_qdctimeout),Form("LASER_QDCTIMEOUT/O"));
+      m_ntuplePtr->Branch(Form("LASER_TDCTIMEOUT"),&(m_tdctimeout),Form("LASER_TDCTIMEOUT/O"));
       m_ntuplePtr->Branch(Form("LASER_DAQTYPE"),&(m_daqtype),Form("LASER_DAQTYPE/I"));
       for(int chan=0;chan<32;++chan){
         m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[chan%2],channames[chan/2]),&(m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[chan%2],channames[chan/2]));
