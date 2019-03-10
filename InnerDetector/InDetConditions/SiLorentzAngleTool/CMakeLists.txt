@@ -1,9 +1,9 @@
 ################################################################################
-# Package: SiLorentzAngleSvc
+# Package: SiLorentzAngleTool
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( SiLorentzAngleSvc )
+atlas_subdir( SiLorentzAngleTool )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Eigen )
 
 # Component(s) in the package:
-atlas_add_component( SiLorentzAngleSvc
+atlas_add_component( SiLorentzAngleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
@@ -37,11 +37,11 @@ atlas_add_component( SiLorentzAngleSvc
 
 # Run tests:
 atlas_add_test( TestSCTLorentzAngle
-                SCRIPT athena.py --threads=5 SiLorentzAngleSvc/testSCTLorentzAngle.py 
+                SCRIPT athena.py --threads=5 SiLorentzAngleTool/testSCTLorentzAngle.py 
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 
 # Install files from the package:
-atlas_install_headers( SiLorentzAngleSvc )
+atlas_install_headers( SiLorentzAngleTool )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

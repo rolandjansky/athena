@@ -101,8 +101,8 @@ topSequence.InDetSCTRawDataProvider.ProviderTool.Decoder.OutputLevel = INFO
 topSequence.InDetSCTEventFlagWriter.OutputLevel = DEBUG
 
 # Set up SCT clsutering
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",

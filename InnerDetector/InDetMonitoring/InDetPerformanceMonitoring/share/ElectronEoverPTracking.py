@@ -20,7 +20,7 @@ topSequence = AlgSequence()
 ###############################################################################
 ###############################################################################
 # SiLorentzAngleTool
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 #
 # load SCT ROT creator, we overwrite the defaults for it

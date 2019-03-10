@@ -116,12 +116,12 @@ def TrigInDetCondConfig( flags ):
   acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
 
 
-  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+  from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
   acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                       SiConditionsTool = sctSiliconConditionsTool,
                                       UseMagFieldSvc = True,
                                       UseMagFieldDcs = False))
-  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+  from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
   SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
   SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
   acc.addPublicTool(SCTLorentzAngleTool)
@@ -177,13 +177,13 @@ def TrigInDetCondConfig( flags ):
 
   acc.addPublicTool(TrigSiPropertiesTool)
 
-  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+  from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
   acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
                                           SiPropertiesTool=TrigSiPropertiesTool,
                                           UseMagFieldSvc = True,
                                           UseMagFieldDcs = False))
 
-  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+  from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
   TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
   acc.addPublicTool(TrigPixelLorentzAngleTool)

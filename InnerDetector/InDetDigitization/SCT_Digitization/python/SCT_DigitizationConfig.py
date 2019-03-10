@@ -54,7 +54,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
         ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
     ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
     kwargs.setdefault("FixedTime", -999)

@@ -17,7 +17,7 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 

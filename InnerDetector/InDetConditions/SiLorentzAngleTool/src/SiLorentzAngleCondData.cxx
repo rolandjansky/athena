@@ -7,7 +7,7 @@
  * @author Susumu.Oda@cern.ch
 **/
 
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 
 #include <limits>
 

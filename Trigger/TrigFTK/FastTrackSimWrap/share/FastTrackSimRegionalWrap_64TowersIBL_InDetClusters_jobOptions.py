@@ -32,7 +32,7 @@ FTKSGInput.ReadTruthTracks = True
 ToolSvc += FTKSGInput
 
 # SiLorentzAngleTool for SCT
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKClusterConverterTool

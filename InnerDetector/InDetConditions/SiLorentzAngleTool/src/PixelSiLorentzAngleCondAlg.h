@@ -14,7 +14,7 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 

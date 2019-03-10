@@ -4,29 +4,29 @@
 
 /**
 
-@page SiLorentzAngleSvc_page SiLorentzAngleSvc Package
+@page SiLorentzAngleTool_page SiLorentzAngleTool Package
 
 @authors Grant Gorfine
 
-@section SiLorentzAngleSvc_SiLorentzAngleSvcIntro Introduction
+@section SiLorentzAngleTool_SiLorentzAngleToolIntro Introduction
 
 Service for providing Lorentz angle (and the corresponding shift of the measurement)
 for each detector element. 
 
-@section SiLorentzAngleSvc_SiLorentzAngleSvcUsage Usage Notes
+@section SiLorentzAngleTool_SiLorentzAngleToolUsage Usage Notes
 
 A python module has been provided for easy setup.
 To load simply include the following in your job options.
 
 @verbatim
-  from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+  from SiLorentzAngleTool.LorentzAngleSvcSetup import lorentzAngleSvc
 @endverbatim
 
 This will setup both pixel and SCT. If you only want to setup them up separately you can do
 
 @verbatim
-  from SiLorentzAngleSvc.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-  from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
+  from SiLorentzAngleTool.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
+  from SiLorentzAngleTool.SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
 @endverbatim
 
 
@@ -91,7 +91,7 @@ or
 Alternatively, you can also access the services by:
 
 @verbatim
-  from SiLorentzAngleSvc.LorentzAngleSvcSetup import PixelLorentzAngleSvc,SCTLorentzAngleSvc
+  from SiLorentzAngleTool.LorentzAngleSvcSetup import PixelLorentzAngleSvc,SCTLorentzAngleSvc
   PixelLorentzAngleSvc.OutputLevel = VERBOSE
   SCTLorentzAngleSvc.OutputLevel = VERBOSE
 @endverbatim
@@ -99,10 +99,10 @@ Alternatively, you can also access the services by:
 or 
 
 @verbatim
-  from SiLorentzAngleSvc.PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
+  from SiLorentzAngleTool.PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
   PixelLorentzAngleSvc.OutputLevel = VERBOSE
 
-  from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvc
+  from SiLorentzAngleTool.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvc
   SCTLorentzAngleSvc.OutputLevel = VERBOSE
 @endverbatim
 
