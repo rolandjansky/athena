@@ -247,8 +247,8 @@ class TileAANtuple : public AthAlgorithm {
 
       short m_rodBCID[N_ROS][N_MODULES] = {{0}};
       short m_fragSize[N_ROS][N_MODULES] = {{0}};
-      uint16_t m_dmuMask[N_ROS][N_MODULES][2] = {{0}};
-      uint16_t m_slinkCRC[N_ROS][N_MODULES][2] = {{0}};
+      uint16_t m_dmuMask[N_ROS][N_MODULES][2] = {{{0}}};
+      uint16_t m_slinkCRC[N_ROS][N_MODULES][2] = {{{0}}};
 
       uint32_t m_DMUheader[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
       short m_DMUbcid[N_ROS2][N_MODULES][N_DMUS] = {{{0}}};
@@ -295,8 +295,8 @@ class TileAANtuple : public AthAlgorithm {
       float m_pedDsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
       float m_chi2Dsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-      float m_eMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{0}}};
-      float m_tMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{0}}};
+      float m_eMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      float m_tMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
       float m_chi2MF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
       float m_pedMF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
