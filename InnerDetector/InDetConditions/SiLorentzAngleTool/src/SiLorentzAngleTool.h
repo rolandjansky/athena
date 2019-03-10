@@ -15,7 +15,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 //Gaudi Includes

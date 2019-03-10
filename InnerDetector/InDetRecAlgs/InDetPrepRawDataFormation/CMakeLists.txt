@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/TRT_DriftCircleTool
                           InnerDetector/InDetConditions/SCT_ConditionsData
-                          InnerDetector/InDetConditions/SiLorentzAngleSvc
                         )
 
 # Component(s) in the package:

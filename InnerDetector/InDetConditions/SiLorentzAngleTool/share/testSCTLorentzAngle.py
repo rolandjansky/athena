@@ -69,10 +69,10 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
-from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleTestAlg
+from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleTestAlg
 job += SCTSiLorentzAngleTestAlg(SCTLorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
 # Prepare EventSelector

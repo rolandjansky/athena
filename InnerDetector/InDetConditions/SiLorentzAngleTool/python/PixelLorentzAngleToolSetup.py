@@ -43,7 +43,7 @@ class PixelLorentzAngleToolSetup:
                                   ReadKey = "PixelSiliconPropertiesVector")
 
     if not hasattr(condSeq, "PixelSiLorentzAngleCondAlg"):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
                                             SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
                                             UseMagFieldSvc = True,
@@ -51,7 +51,7 @@ class PixelLorentzAngleToolSetup:
       pixelSiLorentzAngleCondAlg = condSeq.PixelSiLorentzAngleCondAlg
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
       ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
       pixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool
       # Pass the silicon conditions tool to the Lorentz angle tool

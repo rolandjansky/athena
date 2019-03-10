@@ -7,11 +7,11 @@ from AthenaCommon import CfgMgr
 def getSCTLorentzAngleTool(name="SCTLorentzAngleTool", **kwargs):
     kwargs.setdefault("DetectorName", "SCT")
     kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     return CfgMgr.SiLorentzAngleTool(name, **kwargs)
 
 def getPixelLorentzAngleTool(name="PixelLorentzAngleTool", **kwargs):
     kwargs.setdefault("DetectorName", "Pixel")
     kwargs.setdefault("SiLorentzAngleCondData","PixelSiLorentzAngleCondData")
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     return CfgMgr.SiLorentzAngleTool(name, **kwargs)

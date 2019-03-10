@@ -45,7 +45,7 @@ class SCTLorentzAngleToolSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+            from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                                 SiConditionsTool = sctSiliconConditionsTool,
