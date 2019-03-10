@@ -1,3 +1,5 @@
+
+
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaL1SelectorTool.h"
@@ -22,6 +24,7 @@ DECLARE_COMPONENT( Trig::TrigEgammaL2CaloRingerSelectorTool )
 DECLARE_COMPONENT( Trig::TrigEgammaEFCaloSelectorTool )   
 DECLARE_COMPONENT( Trig::TrigEgammaEFElectronSelectorTool )   
 DECLARE_COMPONENT( Trig::TrigEgammaEFPhotonSelectorTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaIsolationSelectorTool )   
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolTest ) 
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolAlg ) 
 DECLARE_COMPONENT( Trig::TrigEgammaIsolationSelectorTool ) 

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #ifndef TrigEgammaEFCaloSelectorTool_H
@@ -10,7 +10,10 @@
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+//#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+//#include "egammaInterfaces/IEMFourMomBuilder.h"
+//#include "egammaInterfaces/IEMShowerBuilder.h"
 #include <vector>
 
 namespace Trig{

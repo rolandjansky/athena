@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 /**********************************************************************
  * AsgTool: TrigEgammaEFCaloSelectorTool
@@ -12,11 +12,11 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
-#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
 #include <boost/dynamic_bitset.hpp>
+#include "PATCore/AcceptData.h"
 
 using namespace std;
 using namespace Trig;
@@ -108,35 +108,35 @@ bool TrigEgammaEFCaloSelectorTool::ApplyCaloPid(const xAOD::Egamma *eg, const st
   bool passSel=false;
   //float lhValue=0.0;
   //eg->passSelection(passSel,pidname);
-  
+  // If Alg becomes Reentrant this needs to change
   const EventContext ctx = Gaudi::Hive::currentContext();
 
   if (pidname == "Tight") {
-    passTool = (bool) m_electronCaloIsEMTool[0]->accept(ctx, eg);
+    passTool = (bool)m_electronCaloIsEMTool[0]->accept(ctx,eg);
   }
   else if (pidname == "Medium") {
-    passTool = (bool) m_electronCaloIsEMTool[1]->accept(ctx, eg);
+    passTool = (bool)m_electronCaloIsEMTool[1]->accept(ctx,eg);
   }
   else if (pidname == "Loose") {
-    passTool = (bool) m_electronCaloIsEMTool[2]->accept(ctx, eg);
+    passTool = (bool)m_electronCaloIsEMTool[2]->accept(ctx,eg);
   }
   else if (pidname == "VLoose") {
-    passTool = (bool) m_electronCaloIsEMTool[3]->accept(ctx, eg);
+    passTool = (bool)m_electronCaloIsEMTool[3]->accept(ctx,eg);
   }
   else if (pidname == "LHTight") {
-    passTool = (bool) m_electronCaloLHTool[0]->accept(ctx, eg, avg_mu);
+    passTool = (bool)m_electronCaloLHTool[0]->accept(ctx,eg,avg_mu);
     //lhValue = m_electronCaloLHTool[0]->getTResult().getResult(0);
   }
   else if (pidname == "LHMedium") {
-    passTool = (bool) m_electronCaloLHTool[1]->accept(ctx, eg, avg_mu);
+    passTool = (bool)m_electronCaloLHTool[1]->accept(ctx,eg,avg_mu);
     //lhValue = m_electronCaloLHTool[1]->getTResult().getResult(0);
   }
   else if (pidname == "LHLoose") {
-    passTool = (bool) m_electronCaloLHTool[2]->accept(ctx, eg, avg_mu);
+    passTool = (bool)m_electronCaloLHTool[2]->accept(ctx,eg,avg_mu);
     //lhValue = m_electronCaloLHTool[2]->getTResult().getResult(0);
   }
   else if (pidname == "LHVLoose") {
-    passTool = (bool) m_electronCaloLHTool[3]->accept(ctx, eg, avg_mu);
+    passTool = (bool)m_electronCaloLHTool[3]->accept(ctx,eg,avg_mu);
     //lhValue = m_electronCaloLHTool[3]->getTResult().getResult(0);
   }
   else {

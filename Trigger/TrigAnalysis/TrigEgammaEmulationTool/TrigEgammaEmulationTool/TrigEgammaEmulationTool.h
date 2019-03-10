@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #ifndef TrigEgammaEmulationTool_H
@@ -9,8 +9,6 @@
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
-#include "PATCore/AcceptInfo.h"
-#include "PATCore/AcceptData.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
@@ -40,28 +38,30 @@ class TrigEgammaEmulationTool
 
     //****************************************************************************** 
     TrigEgammaEmulationTool(const std::string& myname);
-    virtual ~TrigEgammaEmulationTool() {};
+    ~TrigEgammaEmulationTool() {};
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
+    StatusCode initialize() override;
+    StatusCode execute() override;
+    StatusCode finalize() override;
 
     //execute all emulators
-    virtual asg::AcceptData executeTool( const std::string &) override;
-    virtual asg::AcceptData executeTool( const HLT::TriggerElement *, const std::string &) override;
-    virtual const asg::AcceptInfo& getAccept() const override {return m_accept;}
-    
-    virtual bool EventWiseContainer() override;
-    virtual bool isPassed(const std::string&) override;
-    virtual bool isPassed(const std::string&, const std::string&) override;
+    asg::AcceptData executeTool( const std::string &) override;
+    asg::AcceptData executeTool( const HLT::TriggerElement *, const std::string &) override;
+    const asg::AcceptInfo& getAccept() const override{return m_accept;};
 
-    
+    bool EventWiseContainer() override;
+    bool isPassed(const std::string&) override;
+    bool isPassed(const std::string&, const std::string&) override;
+
     /* Experimental methods */
-    virtual void ExperimentalAndExpertMethods() override {m_experimentalAndExpertMethods=true;};
+    void ExperimentalAndExpertMethods() override {m_experimentalAndExpertMethods=true;};
     
-    virtual void match( const xAOD::Egamma *, const HLT::TriggerElement *&) override;
-    virtual const HLT::TriggerElement* getTEMatched() override {return m_teMatched;};
+    void match( const xAOD::Egamma *, const HLT::TriggerElement *&) override;
 
+    const HLT::TriggerElement* getTEMatched() override {return m_teMatched;};
+
+    // expert usage
+    bool emulationL2Calo(const xAOD::TrigEMCluster *emCluster,  std::string pidname) override;
 
   private:
 
@@ -71,6 +71,7 @@ class TrigEgammaEmulationTool
 
     /* Retrieve features from trigger element */ 
     template<class T> const T* getFeature(const HLT::TriggerElement* te, const std::string key="");
+    template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
     /* Set trigInfo into the map*/
     void setTrigInfo(const std::string );
     /*! get trigInfo obj */
@@ -88,12 +89,12 @@ class TrigEgammaEmulationTool
     bool                                          m_doL2ElectronFex;
     bool                                          m_doEFCaloPid;       
     bool                                          m_doRinger;
+    bool                                          m_doRingerBelow15GeV;
     bool                                          m_experimentalAndExpertMethods;
     std::string                                   m_offElContKey; 
     std::vector<std::string>                      m_trigList;
     std::vector<std::string>                      m_supportingTrigList;
     std::map<std::string, Trig::Info>             m_trigInfo;
-
     asg::AcceptInfo                               m_accept;
     StoreGateSvc                                 *m_storeGate;
     ToolHandle<Trig::TrigDecisionTool>            m_trigdec;
@@ -127,6 +128,17 @@ class TrigEgammaEmulationTool
           return NULL;
       return ( (m_trigdec->ancestor<T>(te)).cptr() );
   }
+
+  template<class T>
+  bool
+  TrigEgammaEmulationTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
+      if ( te == NULL ) return false;
+      if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
+          return false;
+      return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
+  }
+
+
 //************************************************************************************************
 
 }//namespace

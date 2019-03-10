@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 ///Local include(s)
 #include "TrigMultiVarHypo/TrigL2CaloRingerHypo.h"
@@ -11,6 +11,7 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 
+#include "TrigMultiVarHypo/tools/procedures/Thresholds.h"
 ///std include(s)
 #include <new>
 #include <cmath>
@@ -25,7 +26,7 @@ TrigL2CaloRingerHypo::TrigL2CaloRingerHypo(const std::string& name, ISvcLocator*
   declareProperty("CalibPath"         , m_calibPath = ""                      );
   declareProperty("HltFeature"        , m_hlt_feature = "TrigRingerNeuralFex" );  
   
-  m_useNoActivationFunctionInTheLastLayer=false;
+  m_removeOutputTansigTF=false;
   m_doPileupCorrection=false;
   m_lumiCut=50;
 }
@@ -34,29 +35,31 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
 {
   if(!m_calibPath.empty()){
     if(!m_reader.retrieve(m_calibPath, m_cutDefs)){
-      msg() << MSG::ERROR << "Can not retrieve the information from " << m_calibPath << endmsg;
+      ATH_MSG_ERROR("Can not retrieve the information from " << m_calibPath);
       return HLT::BAD_JOB_SETUP;
     }
     // retrieve metadata
-    m_useNoActivationFunctionInTheLastLayer = m_reader.useNoActivationFunctionInTheLastLayer();
+    m_removeOutputTansigTF = m_reader.removeOutputTansigTF();
     m_doPileupCorrection = m_reader.doPileupCorrection();
     m_lumiCut  = m_reader.lumiCut();
   }
-  msg() << MSG::INFO << "Using the activation function in the last layer? " <<  (m_useNoActivationFunctionInTheLastLayer ? "No":"Yes")  << endmsg;
-  msg() << MSG::INFO << "Using pileup correction?                         " <<  (m_doPileupCorrection ? "Yes":"No")  << endmsg;
-  msg() << MSG::INFO << "Using lumi threshold equal: "  <<  m_lumiCut << endmsg;
+  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (!m_removeOutputTansigTF ? "Yes":"No") );
+  ATH_MSG_INFO("Using pileup correction?                         " <<  (m_doPileupCorrection ? "Yes":"No") );
+  ATH_MSG_INFO("Using lumi threshold equal:                      "  <<  m_lumiCut); 
+  ATH_MSG_INFO( "TrigL2CaloRingerHypo initialization completed successfully." );
   
-  msg() << MSG::INFO <<  "TrigL2CaloRingerHypo initialization completed successfully."  << endmsg;
+  ///Monitoring hitograms
+  if(doTiming()){
+    m_totalTimer    = addTimer("Total");
+  }///Only if time is set on python config
+
 
   return HLT::OK;
 }
 //!===============================================================================================
 HLT::ErrorCode TrigL2CaloRingerHypo::hltFinalize() {  
   
-  for(unsigned i=0; i<m_cutDefs.size();++i){
-    if(m_cutDefs[i])  delete m_cutDefs[i];
-  } 
-  msg() << MSG::INFO <<  "TrigL2CaloRingerHypo finalization completed successfully."  << endmsg;
+  ATH_MSG_INFO( "TrigL2CaloRingerHypo finalization completed successfully." );
   return HLT::OK;
 }
 //!===============================================================================================
@@ -65,15 +68,19 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   pass = false;
 
+  if(doTiming())  m_totalTimer->start();
+  
   if (m_acceptAll){
     pass = true;
-    msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"  << endmsg;
+    ATH_MSG_DEBUG( "AcceptAll property is set: taking all events"  );
+    if(doTiming())  m_totalTimer->stop();
     return HLT::OK;
   }
 
   const xAOD::TrigRNNOutput* rnnOutput = get_rnnOutput(outputTE);
   if(!rnnOutput){
-    msg() << MSG::WARNING <<  "There is no xAO::TrigRNNOutput into the TriggerElement."  << endmsg;
+    ATH_MSG_WARNING( "There is no xAO::TrigRNNOutput into the TriggerElement." );
+    if(doTiming())  m_totalTimer->stop();
     return HLT::OK;
   }
 
@@ -83,11 +90,13 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
   if(ringerShape){
     emCluster = ringerShape->emCluster();
     if(!emCluster){
-      msg() << MSG::WARNING <<  "There is no link to xAOD::TrigEMCluster into the Ringer object."  << endmsg;
+      ATH_MSG_WARNING( "There is no link to xAOD::TrigEMCluster into the Ringer object." );
+      if(doTiming())  m_totalTimer->stop();
       return HLT::OK;
     }
   }else{
-    msg() << MSG::WARNING <<  "There is no xAOD::TrigRingerRings link into the rnnOutput object."  << endmsg;
+    ATH_MSG_WARNING( "There is no xAOD::TrigRingerRings link into the rnnOutput object." );
+    if(doTiming())  m_totalTimer->stop();
     return HLT::OK;
   }
 
@@ -97,7 +106,8 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   ///Et threshold
   if(et < m_emEtCut*1e-3){
-    msg() << MSG::DEBUG <<  "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3  << endmsg;
+    ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3 );
+    if(doTiming())  m_totalTimer->stop();
     return HLT::OK;
   }
 
@@ -106,7 +116,8 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     // TODO: Maybe this will expanded for future...
     // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
     if(rnnOutput->rnnDecision().size() != 3){
-      msg() << MSG::INFO <<  "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!"  << endmsg;
+      ATH_MSG_INFO( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
+      if(doTiming())  m_totalTimer->stop();
       return HLT::OK;
     }
 
@@ -133,20 +144,20 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
               threshold = m_cutDefs[i]->threshold();
             }
 
-            if(m_useNoActivationFunctionInTheLastLayer)
+            if(m_removeOutputTansigTF)
               output=rnnOutput->rnnDecision().at(2);
             else
               output=rnnOutput->rnnDecision().at(1);
 
             if(output >= threshold){
-              msg() << MSG::DEBUG <<  "Event information:"  << endmsg;
-              msg() << MSG::DEBUG <<  "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax()  << endmsg;
-              msg() << MSG::DEBUG <<  "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax()  << endmsg;
-              msg() << MSG::DEBUG <<  "   " << m_cutDefs[i]->mumin() << "< Mu ("<<avgmu<<") " << " <=" << m_cutDefs[i]->mumax()  << endmsg;
-              msg() << MSG::DEBUG <<  "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold()  << endmsg;
+              ATH_MSG_DEBUG( "Event information:" );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etmin()  << " < Et ("<<et<<") GeV " << " <=" << m_cutDefs[i]->etmax() );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etamin() << " < |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->mumin()  << " < Mu ("<<avgmu<<")  " << " <=" << m_cutDefs[i]->mumax() );
+              ATH_MSG_DEBUG( "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() );
               pass=true;
             }else{
-              msg() << MSG::DEBUG <<  "Event reproved by discriminator threshold"  << endmsg;
+              ATH_MSG_DEBUG( "Event reproved by discriminator threshold" );
             }///Threshold condition
             
             break;
@@ -155,11 +166,12 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
       }///Loop over mu
     }///Loop over cutDefs
   }else{
-    msg() << MSG::DEBUG <<  "There is no discriminator. Event approved by Et threshold."  << endmsg;
+    ATH_MSG_DEBUG( "There is no discriminator. Event approved by Et threshold." );
     ///Only for EtCut
     pass=true; 
   }///protection
 
+  if(doTiming())  m_totalTimer->stop();
   return HLT::OK;
 }
 //!===============================================================================================
