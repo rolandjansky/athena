@@ -331,10 +331,6 @@ def setupMenu():
         ['j450_lcw_sub',                'L1_J120', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
         ['j450_lcw_nojcalib',           'L1_J120', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
 
-        # SoftKiller central jet triggers
-        ['j35_sktc_lcw_nojcalib',       'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j35_sktc_em_nojcalib',        'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-
         # Standard forward jet triggers
         ['j15_320eta490',               'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j25_320eta490',               'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
