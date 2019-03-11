@@ -55,12 +55,12 @@ namespace FSR {
       /// Get the Ok/Error as a return value
       
       virtual CP::CorrectionCode getFsrPhoton(const xAOD::IParticle* part, FsrCandidate& candidate,
-                                              const xAOD::PhotonContainer* photons = 0,
-                                              const xAOD::ElectronContainer* electrons = 0) = 0;
+                                              const xAOD::PhotonContainer* photons,
+                                              const xAOD::ElectronContainer* electrons) = 0;
 
       virtual std::vector<FsrCandidate>* getFsrCandidateList(const xAOD::IParticle* part,
-                                                             const xAOD::PhotonContainer* photons = 0,
-                                                             const xAOD::ElectronContainer* electrons = 0) = 0;
+                                                             const xAOD::PhotonContainer* photons,
+                                                             const xAOD::ElectronContainer* electrons) = 0;
 
       virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part,
                                                                 const xAOD::PhotonContainer* photons ) = 0;

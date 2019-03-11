@@ -20,7 +20,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
+   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PRIVATE
    Control/AthenaBaseComps
    Event/xAOD/xAODCore
@@ -34,7 +36,7 @@ atlas_add_library( FsrUtilsLib
    FsrUtils/*.h Root/*.cxx
    PUBLIC_HEADERS FsrUtils
    LINK_LIBRARIES AsgTools xAODMuon xAODEgamma PATInterfaces
-   IsolationSelectionLib )
+   IsolationSelectionLib IsolationCorrectionsLib ElectronPhotonFourMomentumCorrectionLib)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( FsrUtils
@@ -49,7 +51,7 @@ if( XAOD_STANDALONE )
    atlas_add_executable( FsrPhotonToolTester
       util/FsrPhotonToolTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODMuon xAODCore
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODMuon xAODCore 
       FsrUtilsLib )
 endif()
 

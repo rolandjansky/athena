@@ -8,95 +8,115 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "IsolationSelection/IsolationSelectionTool.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 
 // Local include(s):
 #include "FsrUtils/IFsrPhotonTool.h"
 
+namespace CP
+{
+    class IIsolationSelectionTool;
+    class IIsolationCorrectionTool;
+    class IIsolationCloseByCorrectionTool;
+    class IEgammaCalibrationAndSmearingTool;
+}
+
 namespace FSR {
 
-   /// Implementation for the "FSR" provider tool
-   ///
-   /// @author Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
-   ///
-   /// $Date: 2014-07-18 $
+    /// Implementation for the "FSR" provider tool
+    ///
+    /// @author Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
+    ///
+    /// $Date: 2014-07-18 $
 
-   class FsrPhotonTool : public virtual IFsrPhotonTool,
-                         public asg::AsgTool {
+    class FsrPhotonTool : public virtual IFsrPhotonTool,
+                          public asg::AsgTool {
 
-      /// Create a proper constructor for Athena
-      ASG_TOOL_CLASS( FsrPhotonTool, FSR::IFsrPhotonTool )
+        /// Create a proper constructor for Athena
+        ASG_TOOL_CLASS( FsrPhotonTool, FSR::IFsrPhotonTool )
 
-   public:
-      /// Create a constructor for standalone usage
-      FsrPhotonTool( const std::string& name );
+        public:
+        /// Create a constructor for standalone usage
+        FsrPhotonTool( const std::string& name );
 
-      /// @name Function(s) implementing the asg::IAsgTool interface
-      /// @{
+        /// Create a destructor
+        ~FsrPhotonTool();
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
+        /// @name Function(s) implementing the asg::IAsgTool interface
+        /// @{
 
-      /// @}
+        /// Function initialising the tool
+        virtual StatusCode initialize();
 
-      /// @name Function(s) implementing the IFsrPhotonTool interface
-      /// @{
+        /// @}
 
-      /// Get the "FSR candidate" as a return value for a muon (collinar and far FSR)
-      virtual CP::CorrectionCode getFsrPhoton(const xAOD::IParticle* part, FsrCandidate& candidate,
-                                              const xAOD::PhotonContainer* photons = 0,
-                                              const xAOD::ElectronContainer* electrons = 0);
+        /// @name Function(s) implementing the IFsrPhotonTool interface
+        /// @{
 
-      /// Find ALL FSR candidates for a given particle (electron or muon)
-      ///   providing newly calibrated photon and electron containers
-      virtual std::vector<FsrCandidate>* getFsrCandidateList(const xAOD::IParticle* part,
-                                                             const xAOD::PhotonContainer* photons = 0,
-                                                             const xAOD::ElectronContainer* electrons = 0);
+        /// Get the "FSR candidate" as a return value for a muon (collinar and far FSR)
+        virtual CP::CorrectionCode getFsrPhoton(const xAOD::IParticle* part, FsrCandidate& candidate,
+                                                const xAOD::PhotonContainer* photons,
+                                                const xAOD::ElectronContainer* electrons);
 
-      /// Find and Return ALL FAR FSR candidates
-      virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part,
-                                                                const xAOD::PhotonContainer* photons_cont);
+        /// Find ALL FSR candidates for a given particle (electron or muon)
+        ///   providing newly calibrated photon and electron containers
+        virtual std::vector<FsrCandidate>* getFsrCandidateList(const xAOD::IParticle* part,
+                                                               const xAOD::PhotonContainer* photons,
+                                                               const xAOD::ElectronContainer* electrons);
 
-      /// Find and Return ALL NEAR FSR candidates
-      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::Muon* part,
-                                                                const xAOD::PhotonContainer* photons_cont,
-                                                                const xAOD::ElectronContainer* electrons_cont);
+        /// Find and Return ALL FAR FSR candidates
+        virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part,
+                                                                  const xAOD::PhotonContainer* photons_cont);
 
-      /// @}
-   private:
-      /// Need for the FSR search
-      std::vector<FsrCandidate>* sortFsrCandidates( std::vector< std::pair <const xAOD::IParticle*, double> > FsrCandList,
-                                                     std::string option="ET");
-      bool isOverlap(const xAOD::Electron_v1* electron, std::vector< std::pair <const xAOD::IParticle*, double> > phfsr,
-    		  unsigned int nofPhFsr);
-      double deltaR(float muonEta, float muonPhi, float phEta, float phPhi) const;
-      double deltaPhi(float phi1, float phi2) const;
-      static bool compareEt(FsrCandidate c1, FsrCandidate c2) { return (c1.Et > c2.Et); }
+        /// Find and Return ALL NEAR FSR candidates
+        virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::Muon* part,
+                                                                   const xAOD::PhotonContainer* photons_cont,
+                                                                   const xAOD::ElectronContainer* electrons_cont);
 
-      //const xAOD::PhotonContainer* m_photons;
-      //const xAOD::ElectronContainer* m_electrons;
+        /// @}
+    private:
+        /// Need for the FSR search
+        std::vector<FsrCandidate>* sortFsrCandidates( std::vector< std::pair <const xAOD::IParticle*, double> > FsrCandList,
+                                                      std::string option="ET");
+        bool isOverlap(const xAOD::Electron_v1* electron, std::vector< std::pair <const xAOD::IParticle*, double> > phfsr,
+                       unsigned int nofPhFsr);
+        double deltaR(float muonEta, float muonPhi, float phEta, float phPhi) const;
+        double deltaPhi(float phi1, float phi2) const;
+        static bool compareEt(FsrCandidate c1, FsrCandidate c2) { return (c1.Et > c2.Et); }
 
-      double m_high_et_min;
-      double m_overlap_el_ph;
-      double m_overlap_el_mu;
+        //const xAOD::PhotonContainer* m_photons;
+        //const xAOD::ElectronContainer* m_electrons;
 
-      double m_far_fsr_drcut;
-      double m_far_fsr_etcut;
-      std::string m_far_fsr_isoWorkingPoint;
+        double m_high_et_min;
+        double m_overlap_el_ph;
+        double m_overlap_el_mu;
 
-      double m_drcut;
-      double m_etcut;
-      double m_f1cut;
-      double m_topo_drcut;
-      double m_topo_f1cut;
+        double m_far_fsr_drcut;
+        double m_far_fsr_etcut;
+        std::string m_far_fsr_isoWorkingPoint;
+
+        double m_drcut;
+        double m_etcut;
+        double m_f1cut;
+        double m_topo_drcut;
+        double m_topo_f1cut;
 
 
-      std::vector<FsrCandidate> m_fsrPhotons;
-      FsrCandidate::FsrType     m_fsr_type;
+        std::vector<FsrCandidate> m_fsrPhotons;
+        FsrCandidate::FsrType     m_fsr_type;
 
-      ToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
+        ToolHandle<CP::IIsolationSelectionTool>           m_isoSelTool;
+        ToolHandle<CP::IIsolationCorrectionTool>          m_isoCorrTool;
+        ToolHandle<CP::IIsolationCloseByCorrectionTool>   m_isoCloseByCorrTool;
+        std::string                                       m_energyRescalerName;
+        ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_energyRescaler;
 
-   }; // class FsrPhotonTool
+        xAOD::PhotonContainer*    m_photonContainer;
+        xAOD::PhotonAuxContainer* m_photonAuxContainer;
+        xAOD::Photon*             m_photon;
+        
+    }; // class FsrPhotonTool
 
 } // namespace FSR
 
