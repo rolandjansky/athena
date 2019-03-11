@@ -79,17 +79,15 @@ class RoRSeqFilter
 /**
  * @brief Applies generic filter to input container, keeping only the decision objects with at least 
  * one affirmative decision from the previous Stage. Considering only decisions from chains utilising this filter.
- * @param input Reference to input container of decision objects.
  * @param inputKey Storegate key of input, needed to link newly created decision objects to their parents.
  * @param output Writeable output container to store copies of decision objects which pass the filter.
  * @return The number of decision objects which passed the filter.
  *
- * Produced a deep-copy of all Decision objects in the input container which possess a positive decision from
+ * Produced a selective copy of all Decision objects in the input container which possess a positive decision from
  * at least one of the chains which this filter algorithm is configured for. This new object is linked to its 
  * parent and stored in the output collection. It will form the starting point for the next Step. 
  **/
   size_t copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
-                      const std::string& inputKey,
                       TrigCompositeUtils::DecisionContainer& output) const;
 
 }; 

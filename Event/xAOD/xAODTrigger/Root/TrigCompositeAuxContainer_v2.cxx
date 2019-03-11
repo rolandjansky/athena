@@ -18,6 +18,8 @@ namespace xAOD {
       AUX_VARIABLE( linkColKeys );
       AUX_VARIABLE( linkColIndices );
       AUX_VARIABLE( linkColClids );
+
+      AUX_VARIABLE( decisions );
    }
 
 } // namespace xAOD
