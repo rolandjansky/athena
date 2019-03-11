@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,16 +46,9 @@ PixelModuleDesign::PixelModuleDesign(const double thickness,
   m_readoutScheme(circuitsPerColumn,circuitsPerRow,
 		  cellColumnsPerCircuit,cellRowsPerCircuit,
 		  diodeColumnsPerCircuit,diodeRowsPerCircuit),
-  m_bounds(0),
+  m_bounds(),
   m_is3D(is3D)
 {
-  //  m_bounds = new Trk::RectangleBounds(0.5*width(), 0.5*length());
-}
-
-// Destructor:
-PixelModuleDesign::~PixelModuleDesign()
-{
-  delete m_bounds;
 }
 
 // Returns distance to nearest detector edge 
@@ -231,7 +224,7 @@ PixelModuleDesign::bounds() const
 {
   // We create on demand as width and length are 0 when PixeModuleDesign first gets
   // created.
-  if (!m_bounds) m_bounds = new Trk::RectangleBounds(0.5*width(), 0.5*length());
+  if (not m_bounds) m_bounds.set(std::make_unique<Trk::RectangleBounds>(0.5*width(), 0.5*length()));
   return *m_bounds;
 }
 

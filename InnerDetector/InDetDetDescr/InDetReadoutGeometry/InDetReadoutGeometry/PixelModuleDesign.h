@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@
 #include "InDetReadoutGeometry/PixelReadoutScheme.h"
 
 // Other includes
+#include "CxxUtils/CachedUniquePtr.h"
 #include "InDetIdentifier/PixelID.h"
 
 namespace Trk{
@@ -77,7 +78,7 @@ namespace InDetDD {
 			bool is3D=false);
     
       // Destructor:
-      virtual ~PixelModuleDesign();
+      virtual ~PixelModuleDesign() = default;
       
       ///////////////////////////////////////////////////////////////////
       // Const methods:
@@ -238,7 +239,7 @@ namespace InDetDD {
     private:
       PixelDiodeMap m_diodeMap;
       PixelReadoutScheme m_readoutScheme;
-      mutable Trk::RectangleBounds * m_bounds;
+      CxxUtils::CachedUniquePtr<Trk::RectangleBounds> m_bounds;
       bool m_is3D;
     
     };

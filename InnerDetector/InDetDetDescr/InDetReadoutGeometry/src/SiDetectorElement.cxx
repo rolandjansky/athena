@@ -63,7 +63,7 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_firstTime(true),
   m_isStereo(false),
   m_mutex(),
-  m_surface(nullptr),
+  m_surface{},
   m_surfaces{},
   m_geoAlignStore(geoAlignStore)
 {
@@ -86,7 +86,7 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_hitDepth = m_design->depthAxis();
   ///
   
-  commonConstructor();
+ commonConstructor();
 }
 
 void
@@ -137,13 +137,10 @@ SiDetectorElement::commonConstructor()
 // Destructor:
 SiDetectorElement::~SiDetectorElement()
 {
-  delete m_surface;
-
   // The design is reference counted so that it will not be deleted until the last element is deleted.
   m_design->unref();
 
   m_commonItems->unref();
-
 }
 
 void 
@@ -792,9 +789,7 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
 const Trk::Surface & 
 SiDetectorElement::surface() const
 {
-  if (!m_surface) {
-    m_surface = new Trk::PlaneSurface(*this);
-  }
+  if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
   return *m_surface;
 }
   
