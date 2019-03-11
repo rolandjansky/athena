@@ -10,23 +10,23 @@
 namespace FlavorTagDiscriminants {
 
   BTagMuonAugmenter::BTagMuonAugmenter( std::string muonAssociationName, float muonMinDR, float muonMinpT ):
-    dec_muon_isDefaults("SoftMuonTagger_isDefaults"),
-    dec_muon_pt("SoftMuonTagger_muon_pt"),
-    dec_muon_dR("SoftMuonTagger_muon_dR"),
-    dec_muon_eta("SoftMuonTagger_muon_eta"),
-    dec_muon_phi("SoftMuonTagger_muon_phi"),
-    dec_muon_qOverPratio("SoftMuonTagger_muon_qOverPratio"),
-    dec_muon_mombalsignif("SoftMuonTagger_muon_mombalsignif"),
-    dec_muon_scatneighsignif("SoftMuonTagger_muon_scatneighsignif"),
-    dec_muon_pTrel("SoftMuonTagger_muon_pTrel"),
-    dec_muon_ip3d_d0("SoftMuonTagger_muon_ip3d_d0"),
-    dec_muon_ip3d_z0("SoftMuonTagger_muon_ip3d_z0"),
-    dec_muon_ip3d_d0_significance("SoftMuonTagger_muon_ip3d_d0_significance"),
-    dec_muon_ip3d_z0_significance("SoftMuonTagger_muon_ip3d_z0_significance"),
-    dec_muon_ip3d_sigma_d0("SoftMuonTagger_muon_ip3d_sigma_d0"),
-    dec_muon_ip3d_sigma_z0("SoftMuonTagger_muon_ip3d_sigma_z0"),
-    dec_muon_ip3d_grade("SoftMuonTagger_muon_ip3d_grade"),
-    dec_muon_link("SoftMuonTagger_muon_link")
+    dec_muon_isDefaults("softMuon_isDefaults"),
+    dec_muon_pt("softMuon_pt"),
+    dec_muon_dR("softMuon_dR"),
+    dec_muon_eta("softMuon_eta"),
+    dec_muon_phi("softMuon_phi"),
+    dec_muon_qOverPratio("softMuon_qOverPratio"),
+    dec_muon_mombalsignif("softMuon_momentumBalanceSignificance"),
+    dec_muon_scatneighsignif("softMuon_scatteringNeighbourSignificance"),
+    dec_muon_pTrel("softMuon_pTrel"),
+    dec_muon_ip3d_d0("softMuon_ip3dD0"),
+    dec_muon_ip3d_z0("softMuon_ip3dZ0"),
+    dec_muon_ip3d_d0_significance("softMuon_ip3dD0Significance"),
+    dec_muon_ip3d_z0_significance("softMuon_ip3dZ0Significance"),
+    dec_muon_ip3d_sigma_d0("softMuon_ip3dD0Uncertainty"),
+    dec_muon_ip3d_sigma_z0("softMuon_ip3dZ0Uncertainty"),
+    dec_muon_ip3d_grade("softMuon_ip3dGrade"),
+    dec_muon_link("softMuon_link")
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
