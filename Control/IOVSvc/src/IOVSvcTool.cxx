@@ -37,7 +37,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 #include "IOVSvc/IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"

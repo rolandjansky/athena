@@ -15,6 +15,8 @@
 // Barcode
 #include "BarcodeInterfaces/IBarcodeSvc.h"
 
+// HMPL
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 /** Constructor **/
 ISF::ParticleHelper::ParticleHelper(const std::string& t, const std::string& n, const IInterface* p) :
@@ -44,7 +46,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle(double x, double y, double
                                                       double pTime,
                                                       const ISFParticle &parent,
                                                       Barcode::ParticleBarcode bc,
-                                                      TruthBinding* tBinding) const {
+                                                      TruthBinding* tBinding,
+						      const HepMcParticleLink * partLink) const {
   return new ISF::ISFParticle( Amg::Vector3D(x,y,z),
                                Amg::Vector3D(px,py,pz),
                                pMass,
@@ -53,7 +56,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle(double x, double y, double
                                pTime,
                                parent,
                                bc,
-                               tBinding);
+                               tBinding,
+			       partLink);
 }
 
 
@@ -66,7 +70,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const Amg::Vector3D& x,
                                                        double pTime,
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
-                                                       TruthBinding* tBinding) const {
+                                                       TruthBinding* tBinding,
+						       const HepMcParticleLink * partLink) const {
   return new ISF::ISFParticle( x,
                                p,
                                pMass,
@@ -75,7 +80,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const Amg::Vector3D& x,
                                pTime,
                                parent,
                                bc,
-                               tBinding);
+                               tBinding,
+			       partLink);
 }
 
 /** Create a new particle */
@@ -87,7 +93,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const HepGeom::Point3D<do
                                                        double pTime,
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
-                                                       TruthBinding* tBinding) const {
+                                                       TruthBinding* tBinding,
+						       const HepMcParticleLink * partLink) const {
   return createParticle( pos.x(), pos.y(), pos.z(),
                          mom.x(), mom.y(), mom.z(),
                          pMass,
@@ -96,7 +103,8 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const HepGeom::Point3D<do
                          pTime,
                          parent,
                          bc,
-                         tBinding );
+                         tBinding,
+			 partLink);
 }
 
 /** Returns the Particle Stack, should register truth */
@@ -113,7 +121,8 @@ ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIs
                                origIsp.timeStamp()+deltaTime,
                                origIsp,
                                origIsp.barcode(),
-                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr);
+                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr,
+			       origIsp.getParticleLink() ? new HepMcParticleLink(*origIsp.getParticleLink()) : nullptr);
 }
 
 /** Returns the Particle Stack, should register truth */
@@ -130,7 +139,8 @@ ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIs
                                origIsp.timeStamp()+deltaTime,
                                origIsp,
                                origIsp.barcode(),
-                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr);
+                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr,
+			       origIsp.getParticleLink() ? new HepMcParticleLink(*origIsp.getParticleLink()) : nullptr);
 }
 
 

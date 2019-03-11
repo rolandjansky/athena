@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArRawChannelContByteStreamCnv.h"
@@ -34,7 +34,7 @@
 
 
 LArRawChannelContByteStreamCnv::LArRawChannelContByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc), m_log(NULL),
+  Converter(storageType(), classID(),svcloc), m_log(NULL),
   m_tool(NULL),m_ByteStreamEventAccess(0),m_rdpSvc(0),m_storeGate(0),m_contSize(0)
 {}
 

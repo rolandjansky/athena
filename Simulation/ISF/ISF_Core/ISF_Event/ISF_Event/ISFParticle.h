@@ -25,6 +25,8 @@
 // CHLEP classes
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+// Common classes
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 namespace ISF {
 
@@ -56,7 +58,8 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                TruthBinding* truth = nullptr,
+                const HepMcParticleLink * partLink = nullptr );
 
     /** CLHEP-compatible constructor */
     ISFParticle(const HepGeom::Point3D<double>& pos,
@@ -67,7 +70,8 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                TruthBinding* truth = nullptr,
+                const HepMcParticleLink * partLink = nullptr );
 
     /** this constructor should only be used for event read-in */
     ISFParticle(const Amg::Vector3D& pos,
@@ -79,7 +83,8 @@ namespace ISF {
                 const DetRegionSvcIDPair &origin,
                 int bcid,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                TruthBinding* truth = nullptr,
+                const HepMcParticleLink * partLink = nullptr );
 
     /** Copy constructor */
     ISFParticle(const ISFParticle& isfp);
@@ -152,6 +157,8 @@ namespace ISF {
 
     /** set a new barcode */
     void setBarcode(Barcode::ParticleBarcode bc);
+    /** set a new barcode and update the HepMcParticleLink  */
+    void setBarcodeAndUpdateHepMcParticleLink(Barcode::ParticleBarcode bc);
 
     /** bunch-crossing identifier */
     int getBCID() const;
@@ -162,6 +169,10 @@ namespace ISF {
     /** pointer to the simulation truth - optional, can be 0 */
     TruthBinding* getTruthBinding() const;
     void          setTruthBinding(TruthBinding *truth);
+
+    /** HepMcParticleLink accessors */
+    inline const HepMcParticleLink* getParticleLink() const {return  m_partLink;};
+    inline void setParticleLink(const HepMcParticleLink* partLink) {m_partLink=partLink;};
 
     /** return the particle order (eg used to assure ID->Calo->MS simulation order) */
     ParticleOrder  getOrder() const;
@@ -188,6 +199,7 @@ namespace ISF {
     TruthBinding*                m_truth;
     ParticleOrder                m_order;                 //!< particle simulation order
     mutable ParticleUserInformation *m_userInfo;          //!< user information stored with the ISFParticle
+    const HepMcParticleLink*     m_partLink;
   };
 
   // Overload of << operator for MsgStream for debug output

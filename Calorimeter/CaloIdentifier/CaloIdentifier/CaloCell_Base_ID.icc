@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,27 +20,38 @@ inline  Identifier
 CaloCell_Base_ID::region_id   	(const int subCalo, 
 				 const int barec_or_posneg, 
                                  const int sampling_or_fcalmodule, 
-                                 const int region_or_dummy ) const
+                                 const int region_or_dummy,
+                                 bool checks) const
 {
   Identifier result(0);  // this returns a pixel identifier [2.1.-2.0.0]
   if( subCalo == LAREM ) {
-    return m_emHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy);
+    return m_emHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, checks);
   } 
   else if( subCalo == LARHEC ) {
-    return m_hecHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy);
+    return m_hecHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, checks);
   } 
   else if( subCalo == LARFCAL ) {
-    return m_fcalHelper->module_id(barec_or_posneg, sampling_or_fcalmodule);
+    return m_fcalHelper->module_id(barec_or_posneg, sampling_or_fcalmodule, checks);
   } 
   else if( subCalo == LARMINIFCAL ) {
-    return m_minifcalHelper->module_id(barec_or_posneg, sampling_or_fcalmodule);
+    return m_minifcalHelper->module_id(barec_or_posneg, sampling_or_fcalmodule, checks);
   } 
   else if( subCalo == TILE ) {
-    return m_tileHelper->region_id(barec_or_posneg, sampling_or_fcalmodule);
+    return m_tileHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, checks);
   } 
   else {
     return(result);
   }
+}
+
+inline  Identifier  
+CaloCell_Base_ID::region_id   	(const int subCalo, 
+				 const int barec_or_posneg, 
+                                 const int sampling_or_fcalmodule, 
+                                 const int region_or_dummy ) const
+{
+  return region_id (subCalo, barec_or_posneg, sampling_or_fcalmodule,
+                    region_or_dummy, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -50,27 +61,40 @@ CaloCell_Base_ID::cell_id (const int subCalo,
                            const int sampling_or_fcalmodule,
                            const int region_or_dummy,
                            const int eta,
-                           const int phi) const
+                           const int phi,
+                           bool checks) const
 {
   Identifier result(0);
   if( subCalo == LAREM ) {
-    return m_emHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
+    return m_emHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi, checks);
   } 
   else if( subCalo == LARHEC ) {
-    return m_hecHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
+    return m_hecHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi, checks);
   } 
   else if( subCalo == LARFCAL ) {
-    return m_fcalHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, eta, phi);
+    return m_fcalHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, eta, phi, checks);
   } 
   else if( subCalo == LARMINIFCAL ) {
-    return m_minifcalHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
+    return m_minifcalHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi, checks);
   } 
   else if( subCalo == TILE ) {
-    return m_tileHelper->cell_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
+    return m_tileHelper->cell_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi, checks);
   } 
   else {
     return(result);
   }
+}
+
+inline Identifier 
+CaloCell_Base_ID::cell_id (const int subCalo, 
+                           const int barec_or_posneg, 
+                           const int sampling_or_fcalmodule,
+                           const int region_or_dummy,
+                           const int eta,
+                           const int phi) const
+{
+  return cell_id (subCalo, barec_or_posneg, sampling_or_fcalmodule,
+                  region_or_dummy, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -104,25 +128,35 @@ inline Identifier
 CaloCell_Base_ID::cell_id (const Identifier regionId,
                            const int eta,
                            const int phi,
-                           int depth) const 
+                           int depth,
+                           bool checks) const 
 {
   Identifier result(0);
   if(m_emHelper->is_lar_em(regionId)) {
-    return m_emHelper->channel_id(regionId,eta,phi);
+    return m_emHelper->channel_id(regionId,eta,phi,checks);
   } 
   else if(m_emHelper->is_lar_hec(regionId)) {
-    return m_hecHelper->channel_id(regionId,eta,phi);
+    return m_hecHelper->channel_id(regionId,eta,phi,checks);
   } 
   else if(m_emHelper->is_lar_minifcal(regionId)) {
     // must do minifcal before fcal because miniFCAL IS FCAL
-    return m_minifcalHelper->channel_id(regionId, depth,eta,phi);
+    return m_minifcalHelper->channel_id(regionId, depth,eta,phi,checks);
   } 
   else if(m_emHelper->is_lar_fcal(regionId)) {
-    return m_fcalHelper->channel_id(regionId,eta,phi);
+    return m_fcalHelper->channel_id(regionId,eta,phi,checks);
   } 
   else {
     return(result);
   }
+}
+
+inline Identifier 
+CaloCell_Base_ID::cell_id (const Identifier regionId,
+                           const int eta,
+                           const int phi,
+                           int depth) const
+{
+  return cell_id (regionId, eta, phi, depth, do_checks());
 }
 
 //----------------------------------------------------------------------------

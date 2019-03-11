@@ -101,9 +101,6 @@ CpByteStreamV2Tool::~CpByteStreamV2Tool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode CpByteStreamV2Tool::initialize()
 {

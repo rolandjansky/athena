@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamCnvSvc/ByteStreamOutputSvc.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
 #include "StoreGate/StoreGate.h"
 #include "EventInfo/EventInfo.h"
@@ -19,9 +20,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include <algorithm>
-
-/// External definitions
-long ByteStream_StorageType=0x43;
 
 /// Standard constructor
 ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLocator)

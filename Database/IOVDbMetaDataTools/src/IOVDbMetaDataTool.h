@@ -87,9 +87,6 @@ public:
     /// processed
     StatusCode endInputFile(const SG::SourceID&) {return this->endInputFile();}
 
-    /// Function called when the tool should write out its metadata
-    StatusCode metaDataStop(const SG::SourceID&) {return this->metaDataStop();}
-
     /// Incident service handle listening for BeginInputFile and EndInputFile.
     void handle(const Incident& incident);
 

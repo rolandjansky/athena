@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
@@ -216,15 +216,6 @@ StatusCode TileDetectorTool::initIds()
 
 StatusCode TileDetectorTool::createElements()
 {
-  // ----------------- Fill in the readout part of detector manager -----------
-  const TileID* tileID = m_manager->get_id();
-  const TileHWID* tileHWID = m_manager->get_hwid();
-  bool do_checks = tileID->do_checks();
-
-  tileID->set_do_checks(true);
-  m_manager->create_elements();
-  tileID->set_do_checks(do_checks);
-  tileHWID->set_do_checks(false);
-
+  m_manager->create_elements(true);
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,24 +18,8 @@ namespace InDet{
     m_pTRTHelper(nullptr),
     m_pix_idHelper(nullptr),
     m_sct_idHelper(nullptr),
-    m_rioContainerCacheKey(""),
-    m_SCTclusterContainerCacheKey(""),
-    m_PIXclusterContainerCacheKey(""),
-    m_PIXSpacePointCacheKey(""),
-    m_SCTSpacePointCacheKey(""),
-
-    m_SCTRDOCacheKey(""), m_PixRDOCacheKey(""),
-    m_disableTRT(false), m_disableWarning(false)
+    m_disableWarningCheck(false)
     {
-        declareProperty("TRT_DriftCircleKey", m_rioContainerCacheKey);
-        declareProperty("SCT_ClusterKey"    , m_SCTclusterContainerCacheKey);
-        declareProperty("Pixel_ClusterKey"  , m_PIXclusterContainerCacheKey);
-        declareProperty("SpacePointCachePix"  , m_PIXSpacePointCacheKey);
-        declareProperty("SpacePointCacheSCT"  , m_SCTSpacePointCacheKey);
-        declareProperty("SCTRDOCacheKey", m_SCTRDOCacheKey);
-        declareProperty("disableTRT"  , m_disableTRT);
-        declareProperty("PixRDOCacheKey", m_PixRDOCacheKey);
-        declareProperty("DisableViewWarning", m_disableWarning);
     }
 
 
@@ -47,8 +31,7 @@ namespace InDet{
         ATH_CHECK( m_SCTSpacePointCacheKey.initialize(!m_SCTSpacePointCacheKey.key().empty()) );
         ATH_CHECK( m_SCTRDOCacheKey.initialize(!m_SCTRDOCacheKey.key().empty()) );
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
-        ATH_CHECK( m_condKey5.initialize() );
-        if(!m_disableTRT) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
+        if (!m_disableTRT.value()) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
         ATH_CHECK(detStore()->retrieve(m_pix_idHelper, "PixelID"));
         return StatusCode::SUCCESS;
@@ -66,15 +49,15 @@ namespace InDet{
     StatusCode CacheCreator::execute (const EventContext& ctx) const
     {
 
-        if(!m_disableWarning){
-          if(isInsideView(ctx)){
+        if (!m_disableWarningCheck and !m_disableWarning.value()){
+          if (isInsideView(ctx)){
             ATH_MSG_ERROR("CacheCreator is running inside a view, this is probably a misconfiguration");
             return StatusCode::FAILURE;
           }
-          m_disableWarning = true; //only check once
+          m_disableWarningCheck = true; //only check once
         }
 
-        if(!m_disableTRT) ATH_CHECK(createContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
+        if (!m_disableTRT.value()) ATH_CHECK(createContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
         
         ATH_CHECK(createContainer(m_SCTclusterContainerCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
         

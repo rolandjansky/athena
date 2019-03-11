@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -177,12 +177,15 @@ int CaloNeighbourRegion::getId(ExpandedIdentifier& id, Identifier &rID, const Ra
   }
   else if ( m_calo_id->is_tile(id) ) {
     subCalo = CaloCell_ID::TILE;
+    ExpandedIdentifier::element_type sampl = 0;
+    if (id.fields() > TILESAMPL)
+      sampl = id[TILESAMPL];
     rID = m_calo_id->cell_id(subCalo,
 			     id[TILESECTION],
 			     id[SIDE],
 			     id[TILEPHI],
 			     id[TILEETA],
-			     id[TILESAMPL]);
+			     sampl);
   }
   else {
     std::cout << "CaloNeighbours::get_id ERROR: " << (std::string)id << " is not in the LAr or Tile calorimeters" << std::endl;

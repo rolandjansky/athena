@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -8,15 +8,10 @@
 #include "InDetTrkRoiMaker.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-// can use standard TrigRoiDescriptor for this now
-// #include "TrigSteeringEvent/TrigSuperRoi.h"
-// #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
-const char* InDetTrkRoiMaker::s_scanModeNames[InDetTrkRoiMaker::kNumberOfModes] = { "FullScan", "SeededScan", "HybridScan" };
 
 namespace {
   inline std::string quote( const std::string& s ) { return "\"" + s + "\""; }

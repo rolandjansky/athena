@@ -16,7 +16,7 @@ def jetMenuSequence():
      
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
-    from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
+    from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
@@ -25,4 +25,4 @@ def jetMenuSequence():
     return  MenuSequence( Sequence    = JetAthSequence,
                           Maker       = InputMakerAlg,
                           Hypo        = hypo,
-                          HypoToolGen = trigJetHypoToolFromName )
+                          HypoToolGen = trigJetHypoToolFromDict )

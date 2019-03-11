@@ -43,6 +43,7 @@ class IAlgorithm;
 class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
+class IJobOptionsSvc;
 class IROBDataProviderSvc;
 class IScheduler;
 class ITHistSvc;
@@ -116,9 +117,6 @@ private:
 
   // ------------------------- Helper methods ----------------------------------
 
-  /// Check if running in partition
-  bool validPartition() const;
-
   /// Read DataFlow configuration properties
   void updateDFProps();
 
@@ -130,6 +128,9 @@ private:
 
   // Update internally kept data from new sor
   void updateMetadataStore(const coral::AttributeList & sor_attrlist) const;
+
+  /// Set magnetic field currents from ptree
+  StatusCode updateMagField(const boost::property_tree::ptree& pt) const;
 
   /// Clear per-event stores
   StatusCode clearTemporaryStores();
@@ -168,6 +169,7 @@ private:
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
+  ServiceHandle<IJobOptionsSvc>      m_jobOptionsSvc;
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
@@ -186,17 +188,6 @@ private:
   SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
   // ------------------------- Other properties --------------------------------------
-  Gaudi::Property<std::string> m_jobOptionsType{
-    this, "JobOptionsType", "NONE", "'NONE' or 'DB'"};
-
-  Gaudi::Property<std::string> m_applicationName{
-    this, "ApplicationName", "None",
-    "Application Name (='None' or 'athenaHLT' for simulated data, 'HLTMPPU-xx' in online environment)"};
-
-  Gaudi::Property<std::string> m_partitionName{
-    this, "PartitionName", "None",
-    "Partition Name (='None' for offline, real partition name in online environment)"};
-
   Gaudi::Property<std::string> m_schedulerName{
     this, "SchedulerSvc", "AvalancheSchedulerSvc", "Name of the scheduler"};
 
@@ -205,12 +196,6 @@ private:
 
   Gaudi::Property<std::vector<std::string> > m_topAlgNames{
     this, "TopAlg", {}, "List of top level algorithms names"};
-
-  Gaudi::Property<std::vector<uint32_t>> m_enabledROBs{
-    this, "enabledROBs", {}, "list of all enabled ROBs which can be retrieved"};
-
-  Gaudi::Property<std::vector<uint32_t>> m_enabledSubDetectors{
-    this, "enabledSubDetectors", {}, "list of enabled Subdetectors"};
 
   Gaudi::Property<float> m_hardTimeout{
     this, "HardTimeout", 10*60*1000/*=10min*/, "Hard event processing timeout in milliseconds"};
@@ -230,14 +215,17 @@ private:
     this, "AlgErrorDebugStreamName", "HLTError",
     "Debug stream name for events with HLT algorithm errors"};
 
+  Gaudi::Property<std::string> m_sorPath{
+    this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
+
+  Gaudi::Property<bool> m_setMagFieldFromPtree{
+    this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
   SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
     this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
-
-  Gaudi::Property<std::string> m_sorPath{
-    this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
@@ -274,11 +262,12 @@ private:
   std::atomic<bool> m_runEventTimer;
   /// Counter of framework errors
   int m_nFrameworkErrors;
-};
+  /// Application name
+  std::string m_applicationName;
+  /// Worker ID
+  std::string m_workerId;
 
-//==============================================================================
-inline bool HltEventLoopMgr::validPartition() const {
-  return (m_partitionName.value()!="None" && m_partitionName.value()!="NONE");
-}
+
+};
 
 #endif // TRIGSERVICES_HLTEVENTLOOPMGR_H

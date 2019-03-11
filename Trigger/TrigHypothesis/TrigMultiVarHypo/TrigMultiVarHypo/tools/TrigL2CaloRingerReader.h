@@ -7,18 +7,19 @@
 //#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
 #include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
 #include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
+
+#include "AsgTools/AsgMessaging.h"
 #include "PathResolver/PathResolver.h"
-#include "GaudiKernel/MsgStream.h"
 #include <vector>
 #include <string>
 #include "TTree.h"
 #include "TFile.h"
 
-class TrigL2CaloRingerReader{
+class TrigL2CaloRingerReader : public asg::AsgMessaging {
 
   public:
     /* constructor */
-    TrigL2CaloRingerReader( std::string );
+    TrigL2CaloRingerReader(const std::string& name);
     /* destructor */
     ~TrigL2CaloRingerReader();
     /* use this methods to retrieve the tools from the archieve */
@@ -36,27 +37,16 @@ class TrigL2CaloRingerReader{
     bool  doPileupCorrection(){return m_doPileupCorrection;};
     /* return the threshold lumi */
     int lumiCut(){return m_lumiCut;};
-    /* use this to set the messenger stream output */
-    void setMsgStream( MsgStream &msg ){
-       m_log = new MsgStream(msg);
-    }
-
 
   private:
     // Use this to retrieve all branch values
     template <class T>
     void InitBranch(TTree* fChain, std::string branch_name, T* param);
-    // msg output 
-    MsgStream& msg() const{
-       return (*m_log);
-    }
-    
+
     std::string m_name;
     
     int m_version;
     
-    MsgStream *m_log;
-
     // archieve variables holder
     int  m_lumiCut;
     bool m_useEtaVar;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_RESPONSE_MDT_RESPONSE_H
@@ -39,13 +39,9 @@ class MDT_Response {
   void SetIntegrationWindow(double win);
   void SetRtParameters(int npar,double *par);
   
-  /** set random engine, in addition the ownership can be taken from MDT_Response if the engine is managed
-      up stream */
-  void SetRandomEngine( CLHEP::HepRandomEngine* ran, bool hasOwnership = true);
-
   // get functions
-  bool   GetSignal();        // processes hit, returns true if amplifier passed threshold
-  bool   GetSignal(double ParticleCharge,double ParticleGamma);         // processes hit, returns true if amplifier passed threshold
+  bool   GetSignal(CLHEP::HepRandomEngine *rndmEngine);        // processes hit, returns true if amplifier passed threshold
+  bool   GetSignal(double ParticleCharge,double ParticleGamma,CLHEP::HepRandomEngine *rndmEngine);         // processes hit, returns true if amplifier passed threshold
  
   // acces to amplifier
   double DriftTime() const;
@@ -55,23 +51,22 @@ class MDT_Response {
   double AdcResponse() const; 
   double Charge() const;
   double V_r(double r);
-  double DoStep();
+  double DoStep(CLHEP::HepRandomEngine *rndmEngine) const;
   double DampingFactor(double x);
   double PropagationDelay(double x);
   double RtoT(double r);
-  double Diffusion(double r);
-  double SigmaDiffusion(double r);
-  int    GenerateQ();
+  double Diffusion(double r, CLHEP::HepRandomEngine *rndmEngine) const;
+  double SigmaDiffusion(double r) const;
+  int    GenerateQ(CLHEP::HepRandomEngine *rndmEngine) const;
 
   const double* RtParameters() const;
  private:
   void   InitTubeParameters();
   void   InitClusters(double timewindow, double binsize);
-  void   InitRandom();
   void   InitRt();
   void   InitdEdxTable(); 
-  void   DoStepping();
-  void   DoStepping(double ParticleCharge,double ParticleGamma); 
+  void   DoStepping(CLHEP::HepRandomEngine *rndmEngine);
+  void   DoStepping(double ParticleCharge,double ParticleGamma, CLHEP::HepRandomEngine *rndmEngine); 
   void   Reset();
 
   double     m_radius;              // radius of the tube
@@ -103,10 +98,6 @@ class MDT_Response {
   Amplifier  m_amplifier;           // amplifier
   clusterVec m_clusters;            // produced clusters
 
-  CLHEP::HepRandomEngine*  m_ranEngine;
-
-  bool              m_hasOwnership;
-
   double m_t0;
 };
 
@@ -120,23 +111,23 @@ void MDT_Response::SetSegment(double r, double x)
 }
 
 inline
-double MDT_Response::DoStep()
+double MDT_Response::DoStep(CLHEP::HepRandomEngine *rndmEngine) const
 {
-  return (-1./m_clusterDensity)*log( CLHEP::RandFlat::shoot(m_ranEngine) );
+  return (-1./m_clusterDensity)*log( CLHEP::RandFlat::shoot(rndmEngine) );
 }
 
 inline   
-int MDT_Response::GenerateQ()
+int MDT_Response::GenerateQ(CLHEP::HepRandomEngine *rndmEngine) const
 {
-  double v = CLHEP::RandFlat::shoot(m_ranEngine);
+  double v = CLHEP::RandFlat::shoot(rndmEngine);
   double p;
   if(v<0.08){
-    p = CLHEP::RandPoisson::shoot(m_ranEngine,13.);
+    p = CLHEP::RandPoisson::shoot(rndmEngine,13.);
   }else if(v<0.28){
-    double v1 = CLHEP::RandFlat::shoot(m_ranEngine);
+    double v1 = CLHEP::RandFlat::shoot(rndmEngine);
     p = (1./(v1+1.e-7));
   }else{
-    p = 1+CLHEP::RandPoisson::shoot(m_ranEngine,0.05);
+    p = 1+CLHEP::RandPoisson::shoot(rndmEngine,0.05);
   }
   return (int)p;
 }
@@ -167,19 +158,19 @@ double MDT_Response::V_r(double r)
 } 
 
 inline   
-double MDT_Response::Diffusion(double r)
+double MDT_Response::Diffusion(double r, CLHEP::HepRandomEngine *rndmEngine) const
 {
   // Smearing with maximum of three sigma 
   double sigma = SigmaDiffusion(r);
-  double t = CLHEP::RandGaussZiggurat::shoot(m_ranEngine,0.,sigma); 
+  double t = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.,sigma); 
   if(fabs(t) > 3*sigma) {
-    t = Diffusion(r);
+    t = Diffusion(r, rndmEngine);
   }
   return t;
 }
 
 inline   
-double MDT_Response::SigmaDiffusion(double r)
+double MDT_Response::SigmaDiffusion(double r) const
 {
   return m_difSmearing*r/m_radius;
 }
@@ -236,18 +227,6 @@ inline void MDT_Response::SetRtParameters(int npar,double *par)
 inline const double* MDT_Response::RtParameters() const
 {
   return m_rtParameters;
-}
-
-inline void MDT_Response::SetRandomEngine( CLHEP::HepRandomEngine* ran, bool hasOwnership)
-{
-  if( !ran ){
-    std::cout << "MDT_Response::SetRandomEngine ERROR <got null pointer> " << std::endl;
-    std::cout << "   keeping old engine " << std::endl;
-  }else{
-    if( m_ranEngine ) delete m_ranEngine;
-    m_ranEngine = ran;
-  }
-  m_hasOwnership = hasOwnership;
 }
 
 #endif

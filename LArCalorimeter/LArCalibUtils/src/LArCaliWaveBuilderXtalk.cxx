@@ -9,7 +9,6 @@
 
 #include "LArRawConditions/LArWaveHelper.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "TString.h"

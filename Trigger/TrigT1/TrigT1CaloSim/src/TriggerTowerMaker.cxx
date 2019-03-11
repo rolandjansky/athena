@@ -32,7 +32,6 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 // Utilities
-#include "EventInfoUtils/EventIDFromStore.h"
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
 
@@ -2822,13 +2821,8 @@ void LVL1::TriggerTowerMaker::digitize()
 void LVL1::TriggerTowerMaker::preProcess()
 {
   // Pedestal Correction: Get the BCID number
-  unsigned int eventBCID=0;
-  const EventIDBase* evid = EventIDFromStore( evtStore() );
-  if( evid ) {
-    eventBCID = evid->bunch_crossing_id();
-  }else{
-    ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
-  }
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  unsigned int eventBCID = ctx.eventID().bunch_crossing_id();
  
   // Iterator for the InternalTriggerTower map
   std::map<int, InternalTriggerTower*>::iterator it;

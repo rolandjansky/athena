@@ -18,7 +18,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 # see details at https://svnweb.cern.ch/trac/atlasoff/browser/DataQuality/GoodRunsListsUser/trunk/share/GoodRunsListsUser_default_data.py#L13
-#seq = AthSequencer("AthFilterSeq") 
+#seq = AthSequencer("AthMasterSeq") 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import glob

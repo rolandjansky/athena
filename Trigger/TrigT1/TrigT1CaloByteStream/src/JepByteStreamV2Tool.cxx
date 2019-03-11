@@ -105,9 +105,6 @@ JepByteStreamV2Tool::~JepByteStreamV2Tool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode JepByteStreamV2Tool::initialize()
 {

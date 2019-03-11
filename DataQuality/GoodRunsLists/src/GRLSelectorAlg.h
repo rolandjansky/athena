@@ -12,9 +12,9 @@
 
 ///Author: will buttinger
 ///To use this alg in your joboptions:
-///filterseq = CfgMgr.AthSequencer("AthFilterSeq")
+///masterseq = CfgMgr.AthSequencer("AthMasterSeq")
 ///ToolSvc += CfgMgr.GoodRunsListSelectionTool("myGRLTool",GoodRunsListVec=["my.grl.xml"])
-///filterseq += CfgMgr.GRLSelectorAlg(Tool=ToolSvc.myGRLTool)
+///masterseq += CfgMgr.GRLSelectorAlg(Tool=ToolSvc.myGRLTool)
 
 
 class GRLSelectorAlg: public ::AthAlgorithm { 

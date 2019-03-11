@@ -1,0 +1,609 @@
+{
+    "name": "Topo_pp_vX",
+    "version": "1",
+    "outputs": [
+        {
+            "algName": "INVM_AJ_HighMass",
+            "algId": 0,
+            "clock": 0,
+            "firstBit": 0,
+            "fpga": 0,
+            "board": 0,
+            "triggerLines": "900INVM9999-AJ30s6-AJ20s6,800INVM9999-AJ30s6-AJ20s6,700INVM9999-AJ30s6-AJ20s6,500INVM9999-AJ30s6-AJ20s6"
+        },
+        {
+            "algName": "INVM_AJ_LowMass",
+            "algId": 1,
+            "clock": 0,
+            "firstBit": 4,
+            "fpga": 0,
+            "board": 0,
+            "triggerLines": "400INVM9999-AJ30s6-AJ20s6,300INVM9999-AJ30s6-AJ20s6,200INVM9999-AJ30s6-AJ20s6,100INVM9999-AJ30s6-AJ20s6"
+        },
+        {
+            "algName": "INVM_NFF",
+            "algId": 93,
+            "clock": 1,
+            "firstBit": 12,
+            "fpga": 1,
+            "board": 0,
+            "triggerLines": "600INVM9999-J30s6-AJ20s6,500INVM9999-J30s6-AJ20s6,400INVM9999-J30s6-AJ20s6,200INVM9999-J30s6-AJ20s6"
+        }     
+    ],
+    "TopoConfig": {},
+    "sortingAlgorithms": [
+        {
+            "algId": 15,
+            "name": "AJs",
+            "output": "AJs",
+            "type": "JetSort",
+            "fixedParameters": {
+                "inputs": [
+                    {
+                        "name": "JetTobArray",
+                        "value": "JetTobArray"
+                    }
+                ],
+                "outputs": {
+                    "name": "TobArrayOut",
+                    "value": "AJs"
+                },
+                "generics": [
+                    {
+                        "name": "InputWidth",
+                        "value": ":InputWidthJET:"
+                    },
+                    {
+                        "name": "InputWidth1stStage",
+                        "value": ":InputWidth1stStageSortJET:"
+                    },
+                    {
+                        "name": "OutputWidth",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "JetSize",
+                        "value": "2"
+                    },
+                    {
+                        "name": "DoEtaCut",
+                        "value": "0"
+                    }
+                ]
+            },
+            "variableParameters": {
+                "parameters": [
+                    {
+                        "name": "MinEta",
+                        "pos": 0,
+                        "value": 0
+                    },
+                    {
+                        "name": "MaxEta",
+                        "pos": 1,
+                        "value": 49
+                    }
+                ]
+            }
+        },
+        {
+            "algId": 17,
+            "name": "Js",
+            "output": "Js",
+            "type": "JetSort",
+            "fixedParameters": {
+                "inputs": [
+                    {
+                        "name": "JetTobArray",
+                        "value": "JetTobArray"
+                    }
+                ],
+                "outputs": {
+                    "name": "TobArrayOut",
+                    "value": "Js"
+                },
+                "generics": [
+                    {
+                        "name": "InputWidth",
+                        "value": ":InputWidthJET:"
+                    },
+                    {
+                        "name": "InputWidth1stStage",
+                        "value": ":InputWidth1stStageSortJET:"
+                    },
+                    {
+                        "name": "OutputWidth",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "JetSize",
+                        "value": "2"
+                    },
+                    {
+                        "name": "DoEtaCut",
+                        "value": "1"
+                    }
+                ]
+            },
+            "variableParameters": {
+                "parameters": [
+                    {
+                        "name": "MinEta",
+                        "pos": 0,
+                        "value": 0
+                    },
+                    {
+                        "name": "MaxEta",
+                        "pos": 1,
+                        "value": 31
+                    }
+                ]
+            }
+        }
+    ],
+    "decisionAlgorithms": [
+        {
+            "algId": 0,
+            "name": "INVM_AJ_HighMass",
+            "type": "InvariantMassInclusive1",
+            "fixedParameters": {
+                "inputs": [
+                    {
+                        "name": "Tob",
+                        "position": 0,
+                        "value": "AJs"
+                    }
+                ],
+                "outputs": {
+                    "bits": 4,
+                    "name": "Results",
+                    "Bit": [
+                        {
+                            "name": "900INVM9999-AJ30s6-AJ20s6",
+                            "selection": 0
+                        },
+                        {
+                            "name": "800INVM9999-AJ30s6-AJ20s6",
+                            "selection": 1
+                        },
+                        {
+                            "name": "700INVM9999-AJ30s6-AJ20s6",
+                            "selection": 2
+                        },
+                        {
+                            "name": "500INVM9999-AJ30s6-AJ20s6",
+                            "selection": 3
+                        }
+                    ]
+                },
+                "generics": [
+                    {
+                        "name": "InputWidth",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "MaxTob",
+                        "value": "6"
+                    },
+                    {
+                        "name": "NumResultBits",
+                        "value": "4"
+                    }
+                ]
+            },
+            "variableParameters": {
+                "parameters": [
+                    {
+                        "name": "MinET1",
+                        "pos": 0,
+                        "selection": "0",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 1,
+                        "selection": "0",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 2,
+                        "selection": "0",
+                        "value": 810000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 3,
+                        "selection": "0",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 4,
+                        "selection": "1",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 5,
+                        "selection": "1",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 6,
+                        "selection": "1",
+                        "value": 640000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 7,
+                        "selection": "1",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 8,
+                        "selection": "2",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 9,
+                        "selection": "2",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 10,
+                        "selection": "2",
+                        "value": 490000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 11,
+                        "selection": "2",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 12,
+                        "selection": "3",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 13,
+                        "selection": "3",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 14,
+                        "selection": "3",
+                        "value": 250000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 15,
+                        "selection": "3",
+                        "value": 99980001
+                    }
+                ]
+            }
+        },
+        {
+            "algId": 1,
+            "name": "INVM_AJ_LowMass",
+            "type": "InvariantMassInclusive1",
+            "fixedParameters": {
+                "inputs": [
+                    {
+                        "name": "Tob",
+                        "position": 0,
+                        "value": "AJs"
+                    }
+                ],
+                "outputs": {
+                    "bits": 4,
+                    "name": "Results",
+                    "Bit": [
+                        {
+                            "name": "400INVM9999-AJ30s6-AJ20s6",
+                            "selection": 0
+                        },
+                        {
+                            "name": "300INVM9999-AJ30s6-AJ20s6",
+                            "selection": 1
+                        },
+                        {
+                            "name": "200INVM9999-AJ30s6-AJ20s6",
+                            "selection": 2
+                        },
+                        {
+                            "name": "100INVM9999-AJ30s6-AJ20s6",
+                            "selection": 3
+                        }
+                    ]
+                },
+                "generics": [
+                    {
+                        "name": "InputWidth",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "MaxTob",
+                        "value": "6"
+                    },
+                    {
+                        "name": "NumResultBits",
+                        "value": "4"
+                    }
+                ]
+            },
+            "variableParameters": {
+                "parameters": [
+                    {
+                        "name": "MinET1",
+                        "pos": 0,
+                        "selection": "0",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 1,
+                        "selection": "0",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 2,
+                        "selection": "0",
+                        "value": 160000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 3,
+                        "selection": "0",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 4,
+                        "selection": "1",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 5,
+                        "selection": "1",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 6,
+                        "selection": "1",
+                        "value": 90000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 7,
+                        "selection": "1",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 8,
+                        "selection": "2",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 9,
+                        "selection": "2",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 10,
+                        "selection": "2",
+                        "value": 40000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 11,
+                        "selection": "2",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 12,
+                        "selection": "3",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 13,
+                        "selection": "3",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 14,
+                        "selection": "3",
+                        "value": 10000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 15,
+                        "selection": "3",
+                        "value": 99980001
+                    }
+                ]
+            }
+        },
+        {
+            "algId": 93,
+            "name": "INVM_NFF",
+            "type": "InvariantMassInclusive2",
+            "fixedParameters": {
+                "inputs": [
+                    {
+                        "name": "Tob1",
+                        "position": 0,
+                        "value": "Js"
+                    },
+                    {
+                        "name": "Tob2",
+                        "position": 1,
+                        "value": "AJs"
+                    }
+                ],
+                "outputs": {
+                    "bits": 4,
+                    "name": "Results",
+                    "Bit": [
+                        {
+                            "name": "600INVM9999-J30s6-AJ20s6",
+                            "selection": 0
+                        },
+                        {
+                            "name": "500INVM9999-J30s6-AJ20s6",
+                            "selection": 1
+                        },
+                        {
+                            "name": "400INVM9999-J30s6-AJ20s6",
+                            "selection": 2
+                        },
+                        {
+                            "name": "200INVM9999-J30s6-AJ20s6",
+                            "selection": 3
+                        }
+                    ]
+                },
+                "generics": [
+                    {
+                        "name": "InputWidth1",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "InputWidth2",
+                        "value": ":OutputWidthSortJET:"
+                    },
+                    {
+                        "name": "MaxTob1",
+                        "value": "6"
+                    },
+                    {
+                        "name": "MaxTob2",
+                        "value": "6"
+                    },
+                    {
+                        "name": "NumResultBits",
+                        "value": "4"
+                    }
+                ]
+            },
+            "variableParameters": {
+                "parameters": [
+                    {
+                        "name": "MinET1",
+                        "pos": 0,
+                        "selection": "0",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 1,
+                        "selection": "0",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 2,
+                        "selection": "0",
+                        "value": 360000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 3,
+                        "selection": "0",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 4,
+                        "selection": "1",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 5,
+                        "selection": "1",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 6,
+                        "selection": "1",
+                        "value": 250000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 7,
+                        "selection": "1",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 8,
+                        "selection": "2",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 9,
+                        "selection": "2",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 10,
+                        "selection": "2",
+                        "value": 160000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 11,
+                        "selection": "2",
+                        "value": 99980001
+                    },
+                    {
+                        "name": "MinET1",
+                        "pos": 12,
+                        "selection": "3",
+                        "value": 30
+                    },
+                    {
+                        "name": "MinET2",
+                        "pos": 13,
+                        "selection": "3",
+                        "value": 20
+                    },
+                    {
+                        "name": "MinMSqr",
+                        "pos": 14,
+                        "selection": "3",
+                        "value": 40000
+                    },
+                    {
+                        "name": "MaxMSqr",
+                        "pos": 15,
+                        "selection": "3",
+                        "value": 99980001
+                    }
+                ]
+            }
+        }	
+    ]
+}

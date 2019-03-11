@@ -1,0 +1,29 @@
+Py:Athena            INFO executing ROOT6Setup
+ApplicationMgr       INFO Application Manager Configured successfully
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr       INFO Application Manager Started successfully
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+TrigConfMsgAlg       INFO Next message is printed via TrigConfMessaging:
+TrigConfMsgAlg       INFO An INFO message
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
+TrigConfMsgAlg       INFO Next message is printed via TrigConfMessaging:
+TrigConfMsgAlg       INFO An INFO message
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
+ApplicationMgr       INFO Application Manager Stopped successfully
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

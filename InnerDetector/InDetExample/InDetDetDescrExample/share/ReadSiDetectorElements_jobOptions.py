@@ -60,11 +60,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Pixel
 #
 # Load DCS service
-from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-pixelDCSConditionsToolSetup.setup()
-pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
-from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
 pixelSiPropertiesToolSetup.setup()
 pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
@@ -87,7 +83,7 @@ sctLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
 sctSiliconConditionsTool = sctLorentzAngleToolSetup.sctSiliconConditionsTool
 
 # Silicon properties tool
-from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
 sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
 sct_SiPropertiesToolSetup.setSiliconTool(sctSiliconConditionsTool)
 sct_SiPropertiesToolSetup.setup()

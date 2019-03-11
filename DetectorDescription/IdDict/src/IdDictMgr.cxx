@@ -409,7 +409,7 @@ IdDictRegion* IdDictDictionary::find_region (const std::string& region_name) con
   return find_region (region_name, "");
 }
 
-IdDictRegion* IdDictDictionary::find_region (const std::string& region_name, const std::string group_name) const
+IdDictRegion* IdDictDictionary::find_region (const std::string& region_name, const std::string& group_name) const
 { 
   for (size_t i = 0; i < m_regions.size (); ++i) 
     { 
@@ -492,7 +492,7 @@ void IdDictDictionary::resolve_references (const IdDictMgr& idd)
  
 typedef std::vector <IdDictRegion*> RV; 
  
-static void compute_bits (const RV& regions, size_t level, const std::string group)
+static void compute_bits (const RV& regions, size_t level, const std::string& group)
 { 
  
     //
@@ -931,7 +931,7 @@ IdDictRegion* IdDictDictionary::find_region(const ExpandedIdentifier& id) const
   return find_region (id, "");
 }
 
-IdDictRegion* IdDictDictionary::find_region(const ExpandedIdentifier& id, const std::string group_name) const
+IdDictRegion* IdDictDictionary::find_region(const ExpandedIdentifier& id, const std::string& group_name) const
 {
     // Find first region that matches id
 
@@ -1127,8 +1127,8 @@ MultiRange IdDictDictionary::build_multirange () const
 } 
 
 MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_id,
-					       const Range prefix,
-					       std::string last_field) const
+					       const Range& prefix,
+					       const std::string& last_field) const
 {
     MultiRange result; 
 
@@ -1194,8 +1194,8 @@ MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_
 
 MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_id,
 					       const std::string& group_name,
-					       const Range prefix,
-					       std::string last_field) const 
+					       const Range& prefix,
+					       const std::string& last_field) const 
 {
     MultiRange result; 
 

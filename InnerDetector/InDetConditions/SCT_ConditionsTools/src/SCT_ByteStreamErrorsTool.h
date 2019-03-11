@@ -30,6 +30,7 @@
 #include "GaudiKernel/EventContext.h"
 
 ///STL includes
+#include <atomic>
 #include <map>
 #include <mutex>
 #include <vector>
@@ -90,17 +91,17 @@ private:
 
   BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
 
-  mutable std::vector<std::set<IdentifierHash> > m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES]; // Used by getErrorSet, addError, resetSets
+  mutable std::vector<std::set<IdentifierHash>> m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES] ATLAS_THREAD_SAFE; // Used by getErrorSet, addError, resetSets
 
-  mutable std::vector<std::map<Identifier, unsigned int> > m_tempMaskedChips;
-  mutable std::vector<std::map<Identifier, unsigned int> > m_abcdErrorChips;
+  mutable std::vector<std::map<Identifier, unsigned int>> m_tempMaskedChips ATLAS_THREAD_SAFE;
+  mutable std::vector<std::map<Identifier, unsigned int>> m_abcdErrorChips ATLAS_THREAD_SAFE;
 
   // Mutex to protect the contents.
-  mutable std::mutex m_mutex;
+  mutable std::recursive_mutex m_mutex;
   // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE;
 
-  mutable unsigned int m_nRetrievalFailure;
+  mutable std::atomic_uint m_nRetrievalFailure;
 
   StatusCode fillData(const EventContext& ctx) const;
 

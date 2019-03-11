@@ -39,10 +39,11 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 
 #include "AthenaHiveEventLoopMgr.h"
 
@@ -664,7 +665,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
            << endmsg;
 
     // FIXME!!! Fire BeginRun "Incident"
-    m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,*evtContext));
+    m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,*evtContext));
 
   }
 
@@ -705,7 +706,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   resetTimeout(Athena::Timeout::instance(*evtContext));
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
-    //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
+    //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"BeginEvent",*evtContext));
 
 
     CHECK( m_conditionsCleaner->event (*evtContext, true) );
@@ -1110,8 +1111,22 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext& ctx){
     // Retrieve the Event object
     sc = eventStore()->retrieve(pEvent);
     if( !sc.isSuccess() ) {
-      error() << "Unable to retrieve Event root object" << endmsg;
-      return -1;
+      // Try to get the xAOD::EventInfo
+      const xAOD::EventInfo* pXEvent{nullptr};
+      sc = eventStore()->retrieve(pXEvent);
+      if( !sc.isSuccess() ) {
+	error() << "Unable to retrieve Event root object" << endmsg;
+	return -1;
+      }
+      // Build the old-style Event Info object for those clients that still need it
+      std::unique_ptr<EventInfo> pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(pXEvent))
+									      , new EventType(eventTypeFromxAOD(pXEvent)));
+      pEvent = pEventPtr.get();
+      sc = eventStore()->record(std::move(pEventPtr),"");
+      if( !sc.isSuccess() )  {
+	error() << "Error declaring event data object" << endmsg;
+	return -1;
+      }
     }
 
     m_pEvent = pEvent;

@@ -8,6 +8,7 @@ atlas_subdir( TrigDbHltUpload )
 
 # External dependencies:
 find_package( Oracle )
+find_package( cx_Oracle )
 
 # Install files from the package:
 atlas_install_scripts( share/ConvertHLTSetup_txt2xml.py

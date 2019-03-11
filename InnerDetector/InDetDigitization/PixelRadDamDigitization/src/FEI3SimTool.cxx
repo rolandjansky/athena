@@ -106,7 +106,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       }
 
       if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
+      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim, &msg()); }
     } 
     else {
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);

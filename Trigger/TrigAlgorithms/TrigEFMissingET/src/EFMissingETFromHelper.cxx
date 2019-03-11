@@ -7,10 +7,13 @@
 NAME:     EFMissingETFromHelper.cxx
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Gabriel Gallardo, Manfredi Ronzani
-CREATED:  September 27, 2018
+AUTHORS:  Diego Casadei
+CREATED:  March 12, 2008
 
-PURPOSE:  Updates TrigMissingET using TrigEFMissingETHelper info for AthenaMT.
+UPDATERS: Gabriel Gallardo, Manfredi Ronzani
+DATE:     January 25, 2019
+
+PURPOSE:  Updates TrigMissingET using TrigEFMissingEtHelper info for AthenaMT.
 
 Components are left uncorrected when saved into
 TrigMissingET as auxiliary information.
@@ -28,6 +31,75 @@ TrigMissingET as auxiliary information.
 #include <string>
 
 using CxxUtils::strformat;
+
+void EFMissingETFromHelper::ComponentCopier::addHelperCompToMET(unsigned char helper_i)
+{
+  TrigEFMissingEtComponent* metComp = m_helper->GetComponent(helper_i);
+
+  float ex =            metComp->m_ex;
+  float ey =            metComp->m_ey;
+  float ez =            metComp->m_ez;
+  float sumE =          metComp->m_sumE;
+  float sumEt =         metComp->m_sumEt;
+  float c0 =            metComp->m_calib0;
+  float c1 =            metComp->m_calib1;
+  // short status =        metComp->m_status;
+  short sumOfSigns =    metComp->m_sumOfSigns;
+  // unsigned short Ntot = metComp->m_usedChannels;
+
+  m_met->setEx(       m_met->ex() + sumOfSigns * c0 + c1 * ex );
+  m_met->setEy(       m_met->ey() + sumOfSigns * c0 + c1 * ey );
+  m_met->setEz(       m_met->ez() + sumOfSigns * c0 + c1 * ez );
+  m_met->setSumE(   m_met->sumE() + sumOfSigns * c0 + c1 * sumE );
+  m_met->setSumEt( m_met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+  return;
+}
+
+void EFMissingETFromHelper::ComponentCopier::setMETCompFromHelper(unsigned char met_i, unsigned char helper_i)
+{
+  TrigEFMissingEtComponent* metComp = m_helper->GetComponent(helper_i);
+
+  m_met->setNameOfComponent(       met_i, metComp->m_name           );
+  m_met->setExComponent(           met_i, metComp->m_ex             );
+  m_met->setEyComponent(           met_i, metComp->m_ey             );
+  m_met->setEzComponent(           met_i, metComp->m_ez             );
+  m_met->setSumEtComponent(        met_i, metComp->m_sumEt          );
+  m_met->setSumEComponent(         met_i, metComp->m_sumE           );
+  m_met->setCalib0Component(       met_i, metComp->m_calib0         );
+  m_met->setCalib1Component(       met_i, metComp->m_calib1         );
+  m_met->setStatusComponent(       met_i, metComp->m_status         );
+  m_met->setSumOfSignsComponent(   met_i, metComp->m_sumOfSigns     );
+  m_met->setUsedChannelsComponent( met_i, metComp->m_usedChannels   );
+  return;
+}
+
+void EFMissingETFromHelper::ComponentCopier::addMETCompWithHelper(unsigned char met_i, unsigned char met_add_i, unsigned char helper_i)
+{
+  TrigEFMissingEtComponent* metComp = m_helper->GetComponent(helper_i);
+
+  m_met->setExComponent(              met_i, metComp->m_ex           + m_met->exComponent(           met_add_i ) );
+  m_met->setEyComponent(              met_i, metComp->m_ey           + m_met->eyComponent(           met_add_i ) );
+  m_met->setEzComponent(              met_i, metComp->m_ez           + m_met->ezComponent(           met_add_i ) );
+  m_met->setSumEtComponent(           met_i, metComp->m_sumEt        + m_met->sumEtComponent(        met_add_i ) );
+  m_met->setSumEComponent(            met_i, metComp->m_sumE         + m_met->sumEComponent(         met_add_i ) );
+  m_met->setSumOfSignsComponent(      met_i, metComp->m_sumOfSigns   + m_met->sumOfSignsComponent(   met_add_i ) );
+  m_met->setUsedChannelsComponent(    met_i, metComp->m_usedChannels + m_met->usedChannelsComponent( met_add_i ) );
+  m_met->setStatusComponent(          met_i, metComp->m_status       | m_met->statusComponent(       met_add_i ) );
+  m_met->setCalib0Component(          met_i, metComp->m_calib0 );
+  m_met->setCalib1Component(          met_i, metComp->m_calib1 );
+  return;
+}
+
+void EFMissingETFromHelper::ComponentCopier::setHelperFromMET()
+{
+  m_helper->SetEx(     m_met->ex()     );
+  m_helper->SetEy(     m_met->ey()     );
+  m_helper->SetEz(     m_met->ez()     );
+  m_helper->SetSumEt(  m_met->sumEt( ) );
+  m_helper->SetSumE(   m_met->sumE()   );
+  return;
+}
+// ----------------------- //
 
 EFMissingETFromHelper::EFMissingETFromHelper(const std::string& type,
     const std::string& name,
@@ -69,8 +141,6 @@ StatusCode EFMissingETFromHelper::finalize()
   return StatusCode::SUCCESS;
 }
 
-
-
 StatusCode EFMissingETFromHelper::execute()
 {
   return StatusCode::SUCCESS;
@@ -95,6 +165,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     return StatusCode::FAILURE;
   }
 
+  ComponentCopier copier = ComponentCopier(met, metHelper);
+
   ATH_MSG_DEBUG( "Found this info in the helper class: " << metHelper->getFormattedValues() );
 
   if(m_timersvc)
@@ -102,11 +174,11 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   met->setFlag( metHelper->GetStatus() );
 
-  unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
-  unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
-  if (elem!=42) {
-    ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
-  }
+  uint comp = met->getNumberOfComponents(); // final no. of aux. compon.
+  uint nHelperComp = metHelper->GetElements(); // no. of transient aux. compon.
+  if (nHelperComp != static_cast<unsigned char>(TrigEFMissingEtComponent::ComponentSize)) {
+    ATH_MSG_WARNING( "Found " << nHelperComp << " aux components in the transient helper class.  Not supported!" );
+  } else ATH_MSG_DEBUG( "Found " << nHelperComp << " aux components in the transient helper class" );
 
   bool skipAuxInfo=false;
   bool save9comp=false;
@@ -140,313 +212,148 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
       skipAuxInfo=true;
   }
+      ATH_MSG_DEBUG( "Found " << comp << " aux components in TrigMissingET." );
 
   // Initialize EDM by setting all components to zero
   met->setEx(0.); met->setEy(0.); met->setEz(0.);
   met->setSumE(0.); met->setSumEt(0.);
 
   // take info from *metHelper and update *met
-  for (unsigned char  i=0; i<elem; ++i) { // loop over transient components
-    TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
-
-    float ex =            metComp->m_ex;
-    float ey =            metComp->m_ey;
-    float ez =            metComp->m_ez;
-    float sumE =          metComp->m_sumE;
-    float sumEt =         metComp->m_sumEt;
-    float c0 =            metComp->m_calib0;
-    float c1 =            metComp->m_calib1;
-    short status =        metComp->m_status;
-    short sumOfSigns =    metComp->m_sumOfSigns;
-    unsigned short Ntot = metComp->m_usedChannels;
+  for (uint helper_i=0; helper_i<nHelperComp; ++helper_i) { // loop over transient components
 
     // basic info - DK calibration
-    if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+    if (helper_i < nHelperComp-18){  
+      ATH_MSG_DEBUG( "skip muon or Had Topo granular or EM Topo correction for all quantities" );
+      copier.addHelperCompToMET(helper_i);
     }
 
-    if(save9comp && i == 24) { // Save summed HAD MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+    if(save9comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCLCW) ) { 
+      ATH_MSG_DEBUG( "Save summed HAD MET" );
+      copier.addHelperCompToMET(helper_i);
     }
 
-    if( (save2comp || save6comp) && i == 34) { // Save JET MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+    if( (save2comp || save6comp) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::JET)) { 
+      ATH_MSG_DEBUG( "Save JET MET" );
+      copier.addHelperCompToMET(helper_i);
     }
 
-    if(save3comp && i == 39) { // Save PUC MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+    if(save3comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCPUC)) { 
+      ATH_MSG_DEBUG( "Save PUC MET" );
+      copier.addHelperCompToMET(helper_i);
     }
 
     if (skipAuxInfo) continue;
 
     // auxiliary info - uncorrected
-    if (comp == unsigned(elem-17) && i < 24) { // finest granularity
-      met->setNameOfComponent( i, metComp->m_name );
-      met->setExComponent(     i, ex );
-      met->setEyComponent(     i, ey );
-      met->setEzComponent(     i, ez );
-      met->setSumEtComponent(  i, sumEt );
-      met->setSumEComponent(   i, sumE );
-      met->setCalib0Component( i, c0 );
-      met->setCalib1Component( i, c1 );
-      met->setStatusComponent(          i, status );
-      met->setSumOfSignsComponent(      i, sumOfSigns );
-      met->setUsedChannelsComponent(    i, Ntot );
-    } else if(comp == unsigned(elem-17) && i == 41) { // save muons
-      met->setNameOfComponent( i-17, metComp->m_name );
-      met->setExComponent(     i-17, ex );
-      met->setEyComponent(     i-17, ey );
-      met->setEzComponent(     i-17, ez );
-      met->setSumEtComponent(  i-17, sumEt );
-      met->setSumEComponent(   i-17, sumE );
-      met->setCalib0Component( i-17, c0 );
-      met->setCalib1Component( i-17, c1 );
-      met->setStatusComponent(          i-17, status );
-      met->setSumOfSignsComponent(      i-17, sumOfSigns );
-      met->setUsedChannelsComponent(    i-17, Ntot );
+    if (comp == unsigned(nHelperComp-17) && helper_i < 24) { 
+      ATH_MSG_DEBUG( "finest granularity");
+      copier.setMETCompFromHelper(helper_i, helper_i);
+    } else if(comp == unsigned(nHelperComp-17) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
+      ATH_MSG_DEBUG( "save muons");
+      copier.setMETCompFromHelper(helper_i-17, helper_i);
     } else if (save6comp) {
-      if (i>=34 && i < 39) { // Central and Forward Jets
-        met->setNameOfComponent( i-34, metComp->m_name );
-        met->setExComponent(     i-34, ex );
-        met->setEyComponent(     i-34, ey );
-        met->setEzComponent(     i-34, ez );
-        met->setSumEtComponent(  i-34, sumEt );
-        met->setSumEComponent(   i-34, sumE );
-        met->setCalib0Component( i-34, c0 );
-        met->setCalib1Component( i-34, c1 );
-        met->setStatusComponent(          i-34, status );
-        met->setSumOfSignsComponent(      i-34, sumOfSigns );
-        met->setUsedChannelsComponent(    i-34, Ntot );
+      if (helper_i>=34 && helper_i < 39) { 
+        ATH_MSG_DEBUG( "Central and Forward Jets");
+        copier.setMETCompFromHelper(helper_i-34, helper_i);
       }
-      if (i==41) { // Muons
-        met->setNameOfComponent( 5, metComp->m_name );
-        met->setExComponent(     5, ex );
-        met->setEyComponent(     5, ey );
-        met->setEzComponent(     5, ez );
-        met->setSumEtComponent(  5, sumEt );
-        met->setSumEComponent(   5, sumE );
-        met->setCalib0Component( 5, c0 );
-        met->setCalib1Component( 5, c1 );
-        met->setStatusComponent(          5, status );
-        met->setSumOfSignsComponent(      5, sumOfSigns );
-        met->setUsedChannelsComponent(    5, Ntot );
+      if (helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
+        ATH_MSG_DEBUG( "Muons");
+        copier.setMETCompFromHelper(5, helper_i);
       }
 
     } else if (save9comp) {
-      if (i > 24 && i < 29 ) { // HAD scale quantities
-      met->setNameOfComponent( i-25, metComp->m_name );
-      met->setExComponent(     i-25, ex );
-      met->setEyComponent(     i-25, ey );
-      met->setEzComponent(     i-25, ez );
-      met->setSumEtComponent(  i-25, sumEt );
-      met->setSumEComponent(   i-25, sumE );
-      met->setCalib0Component( i-25, c0 );
-      met->setCalib1Component( i-25, c1 );
-      met->setStatusComponent(          i-25, status );
-      met->setSumOfSignsComponent(      i-25, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25, Ntot );
-      } else if( i > 29 && i < 34) {     // EM scale quantities
-      met->setNameOfComponent( i-25-1, metComp->m_name );
-      met->setExComponent(     i-25-1, ex );
-      met->setEyComponent(     i-25-1, ey );
-      met->setEzComponent(     i-25-1, ez );
-      met->setSumEtComponent(  i-25-1, sumEt );
-      met->setSumEComponent(   i-25-1, sumE );
-      met->setCalib0Component( i-25-1, c0 );
-      met->setCalib1Component( i-25-1, c1 );
-      met->setStatusComponent(          i-25-1, status );
-      met->setSumOfSignsComponent(      i-25-1, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-1, Ntot );
-      } else if( i == 41) {    // Muon
-      met->setNameOfComponent( i-25-8, metComp->m_name );
-      met->setExComponent(     i-25-8, ex );
-      met->setEyComponent(     i-25-8, ey );
-      met->setEzComponent(     i-25-8, ez );
-      met->setSumEtComponent(  i-25-8, sumEt );
-      met->setSumEComponent(   i-25-8, sumE );
-      met->setCalib0Component( i-25-8, c0 );
-      met->setCalib1Component( i-25-8, c1 );
-      met->setStatusComponent(          i-25-8, status );
-      met->setSumOfSignsComponent(      i-25-8, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-8, Ntot );
+      if (helper_i > 24 && helper_i < 29 ) { 
+        ATH_MSG_DEBUG( "HAD scale quantities" );
+        copier.setMETCompFromHelper(helper_i-25, helper_i);
+      } else if( helper_i > 29 && helper_i < 34) {     
+        ATH_MSG_DEBUG( "EM scale quantities" );
+        copier.setMETCompFromHelper(helper_i-25-1, helper_i);
+      } else if( helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) {    
+        ATH_MSG_DEBUG( "Muon" );
+        copier.setMETCompFromHelper(helper_i-25-8, helper_i);
       }
     } else if (save5comp) {
-      switch (i) {
-        case 0: case 1: case 2: case 3: // LAr, barrel
-          met->setExComponent(     0, ex         + met->exComponent(1)    );
-          met->setEyComponent(     0, ey         + met->eyComponent(1)    );
-          met->setEzComponent(     0, ez         + met->ezComponent(1)    );
-          met->setSumEtComponent(  0, sumEt      + met->sumEtComponent(1) );
-          met->setSumEComponent(   0, sumE       + met->sumEComponent(1)  );
-          met->setSumOfSignsComponent(      0, sumOfSigns + met->sumOfSignsComponent(1)     );
-          met->setUsedChannelsComponent(    0, Ntot       + met->usedChannelsComponent(1)   );
-          met->setStatusComponent(          0, status     | met->statusComponent(1)         );
-          met->setCalib0Component( 0, c0 );
-          met->setCalib1Component( 0, c1 );
+      switch (static_cast<TrigEFMissingEtComponent::Component>(helper_i)) {
+        case TrigEFMissingEtComponent::PreSamplB: case TrigEFMissingEtComponent::EMB1: 
+        case TrigEFMissingEtComponent::EMB2:      case TrigEFMissingEtComponent::EMB3: 
+          ATH_MSG_DEBUG("LAr, barrel");
+          copier.addMETCompWithHelper(0, 1, helper_i);
           break;
-        case 4: case 5: case 6: case 7: // LAr, end-cap
-        case 21:                        // + FCalEM
-          met->setExComponent(     1, ex         + met->exComponent(2)    );
-          met->setEyComponent(     1, ey         + met->eyComponent(2)    );
-          met->setEzComponent(     1, ez         + met->ezComponent(2)    );
-          met->setSumEtComponent(  1, sumEt      + met->sumEtComponent(2) );
-          met->setSumEComponent(   1, sumE       + met->sumEComponent(2)  );
-          met->setSumOfSignsComponent(      1, sumOfSigns + met->sumOfSignsComponent(2)     );
-          met->setUsedChannelsComponent(    1, Ntot       + met->usedChannelsComponent(2)   );
-          met->setStatusComponent(          1, status     | met->statusComponent(2)         );
-          met->setCalib0Component( 1, c0 );
-          met->setCalib1Component( 1, c1 );
+        case TrigEFMissingEtComponent::PreSamplE: case TrigEFMissingEtComponent::EME1: 
+        case TrigEFMissingEtComponent::EME2: case TrigEFMissingEtComponent::EME3: 
+          ATH_MSG_DEBUG("LAr, end-cap");
+          /* FALLTHROUGH */
+        case TrigEFMissingEtComponent::FCalEM:                        
+          ATH_MSG_DEBUG("+ FCalEM");
+          copier.addMETCompWithHelper(1, 2, helper_i);
           break;
-        case 12: case 13: case 14: // Tile, barrel +
-        case 18: case 19: case 20: // Tile, extended barrel
-          met->setExComponent(     2, ex         + met->exComponent(3)    );
-          met->setEyComponent(     2, ey         + met->eyComponent(3)    );
-          met->setEzComponent(     2, ez         + met->ezComponent(3)    );
-          met->setSumEtComponent(  2, sumEt      + met->sumEtComponent(3) );
-          met->setSumEComponent(   2, sumE       + met->sumEComponent(3)  );
-          met->setSumOfSignsComponent(      2, sumOfSigns + met->sumOfSignsComponent(3)     );
-          met->setUsedChannelsComponent(    2, Ntot       + met->usedChannelsComponent(3)   );
-          met->setStatusComponent(          2, status     | met->statusComponent(3)         );
-          met->setCalib0Component( 2, c0 );
-          met->setCalib1Component( 2, c1 );
+        case TrigEFMissingEtComponent::TileBar0: case TrigEFMissingEtComponent::TileBar1: case TrigEFMissingEtComponent::TileBar2: 
+          ATH_MSG_DEBUG("Tile, barrel +");
+          /* FALLTHROUGH */
+        case TrigEFMissingEtComponent::TileExt0: case TrigEFMissingEtComponent::TileExt1: case TrigEFMissingEtComponent::TileExt2: 
+          ATH_MSG_DEBUG("Tile, extended barrel");
+          copier.addMETCompWithHelper(2, 3, helper_i);
           break;
-        case 24: case 25: case 26: case 27: case 28:
-        case 29: case 30: case 31: case 32: case 33:
-        case 34: case 35: case 36: case 37: case 38:
-        case 39: case 40 :             // Topo. cluster elements or jets - do nothing.
+        case TrigEFMissingEtComponent::TCLCW: 
+        case TrigEFMissingEtComponent::TCLCWB1: case TrigEFMissingEtComponent::TCLCWB2: 
+        case TrigEFMissingEtComponent::TCLCWE1: case TrigEFMissingEtComponent::TCLCWE2:
+        case TrigEFMissingEtComponent::TCEM:  
+        case TrigEFMissingEtComponent::TCEMB1:  case TrigEFMissingEtComponent::TCEMB2:  
+        case TrigEFMissingEtComponent::TCEME1:  case TrigEFMissingEtComponent::TCEME2:
+        case TrigEFMissingEtComponent::JET:   
+        case TrigEFMissingEtComponent::JETB1:   case TrigEFMissingEtComponent::JETB2:   
+        case TrigEFMissingEtComponent::JETE1:   case TrigEFMissingEtComponent::JETE2:
+        case TrigEFMissingEtComponent::TCPUC: case TrigEFMissingEtComponent::TCPUCUnc:             
+          ATH_MSG_DEBUG("Topo. cluster elements or jets - do nothing.");
           break;
-        case 41: // muons
-          met->setExComponent(     4, ex );
-          met->setEyComponent(     4, ey );
-          met->setEzComponent(     4, ez );
-          met->setSumEtComponent(  4, sumEt );
-          met->setSumEComponent(   4, sumE  );
-          met->setCalib0Component( 4, c0 );
-          met->setCalib1Component( 4, c1 );
-          met->setStatusComponent(          4, status );
-          met->setSumOfSignsComponent(      4, sumOfSigns );
-          met->setUsedChannelsComponent(    4, Ntot );
+        case TrigEFMissingEtComponent::Muons: 
+          ATH_MSG_DEBUG("muons");
+          copier.setMETCompFromHelper(4, helper_i);
           break;
-        default: // Hadr. end-cap + Tile gap + FCalHad
-          met->setExComponent(     3, ex         + met->exComponent(4)    );
-          met->setEyComponent(     3, ey         + met->eyComponent(4)    );
-          met->setEzComponent(     3, ez         + met->ezComponent(4)    );
-          met->setSumEtComponent(  3, sumEt      + met->sumEtComponent(4) );
-          met->setSumEComponent(   3, sumE       + met->sumEComponent(4)  );
-          met->setSumOfSignsComponent(      3, sumOfSigns + met->sumOfSignsComponent(4)     );
-          met->setUsedChannelsComponent(    3, Ntot       + met->usedChannelsComponent(4)   );
-          met->setStatusComponent(          3, status     | met->statusComponent(4)         );
-          met->setCalib0Component( 3, c0 );
-          met->setCalib1Component( 3, c1 );
+        default: 
+          ATH_MSG_DEBUG("Hadr. end-cap + Tile gap + FCalHad");
+          copier.addMETCompWithHelper(3, 4, helper_i);
       }
     } else if (save3comp) {
-      switch (i) {
-        case 39: // Corrected MET
-          met->setNameOfComponent( 0, metComp->m_name );
-          met->setExComponent(     0, ex );
-          met->setEyComponent(     0, ey );
-          met->setEzComponent(     0, ez );
-          met->setSumEtComponent(  0, sumEt );
-          met->setSumEComponent(   0, sumE );
-          met->setCalib0Component( 0, c0 );
-          met->setCalib1Component( 0, c1 );
-          met->setStatusComponent(          0, status );
-          met->setSumOfSignsComponent(      0, sumOfSigns );
-          met->setUsedChannelsComponent(    0, Ntot );
+      switch (static_cast<TrigEFMissingEtComponent::Component>(helper_i)) {
+        case TrigEFMissingEtComponent::TCPUC: 
+          ATH_MSG_DEBUG( "Corrected MET" );
+          copier.setMETCompFromHelper(0, helper_i);
           break;
-        case 40: // Original MET
-          met->setNameOfComponent( 1, metComp->m_name );
-          met->setExComponent(     1, ex );
-          met->setEyComponent(     1, ey );
-          met->setEzComponent(     1, ez );
-          met->setSumEtComponent(  1, sumEt );
-          met->setSumEComponent(   1, sumE );
-          met->setCalib0Component( 1, c0 );
-          met->setCalib1Component( 1, c1 );
-          met->setStatusComponent(          1, status );
-          met->setSumOfSignsComponent(      1, sumOfSigns );
-          met->setUsedChannelsComponent(    1, Ntot );
+        case TrigEFMissingEtComponent::TCPUCUnc: 
+          ATH_MSG_DEBUG( "Original MET" );
+          copier.setMETCompFromHelper(1, helper_i);
           break;
-        case 41: // Muons
-          met->setNameOfComponent( 2, metComp->m_name );
-          met->setExComponent(     2, ex );
-          met->setEyComponent(     2, ey );
-          met->setEzComponent(     2, ez );
-          met->setSumEtComponent(  2, sumEt );
-          met->setSumEComponent(   2, sumE );
-          met->setCalib0Component( 2, c0 );
-          met->setCalib1Component( 2, c1 );
-          met->setStatusComponent(          2, status );
-          met->setSumOfSignsComponent(      2, sumOfSigns );
-          met->setUsedChannelsComponent(    2, Ntot );
+        case TrigEFMissingEtComponent::Muons: 
+          ATH_MSG_DEBUG( "Muons" );
+          copier.setMETCompFromHelper(2, helper_i);
+        default:
+        ;
       }
-    } else if (save2comp) { // Jets + muons only
-      if (i==34) { // Jets
-        met->setNameOfComponent( 0, metComp->m_name );
-        met->setExComponent(     0, ex );
-        met->setEyComponent(     0, ey );
-        met->setEzComponent(     0, ez );
-        met->setSumEtComponent(  0, sumEt );
-        met->setSumEComponent(   0, sumE );
-        met->setCalib0Component( 0, c0 );
-        met->setCalib1Component( 0, c1 );
-        met->setStatusComponent(          0, status );
-        met->setSumOfSignsComponent(      0, sumOfSigns );
-        met->setUsedChannelsComponent(    0, Ntot );
+    } else if (save2comp) { 
+      switch(static_cast<TrigEFMissingEtComponent::Component>(helper_i)){
+        case TrigEFMissingEtComponent::JET:
+          ATH_MSG_DEBUG( "Jets+Mu only: Jets");
+          copier.setMETCompFromHelper(0, helper_i);
+          break;
+        case TrigEFMissingEtComponent::Muons:
+          ATH_MSG_DEBUG( "Jets+Mu only: Muons");
+          copier.setMETCompFromHelper(1, helper_i);
+          break;
+        default:
+        ;
       }
-      if (i==41) { // Muons
-        met->setNameOfComponent( 1, metComp->m_name );
-        met->setExComponent(     1, ex );
-        met->setEyComponent(     1, ey );
-        met->setEzComponent(     1, ez );
-        met->setSumEtComponent(  1, sumEt );
-        met->setSumEComponent(   1, sumE );
-        met->setCalib0Component( 1, c0 );
-        met->setCalib1Component( 1, c1 );
-        met->setStatusComponent(          1, status );
-        met->setSumOfSignsComponent(      1, sumOfSigns );
-        met->setUsedChannelsComponent(    1, Ntot );
-      }
-    } else if (save1comp) { // muons only
-      if (i==41) { // REPLACE WITH A TEST OVER COMP. NAME
-        met->setNameOfComponent( 0, metComp->m_name );
-        met->setExComponent(     0, ex );
-        met->setEyComponent(     0, ey );
-        met->setEzComponent(     0, ez );
-        met->setSumEtComponent(  0, sumEt );
-        met->setSumEComponent(   0, sumE );
-        met->setCalib0Component( 0, c0 );
-        met->setCalib1Component( 0, c1 );
-        met->setStatusComponent(          0, status );
-        met->setSumOfSignsComponent(      0, sumOfSigns );
-        met->setUsedChannelsComponent(    0, Ntot );
+    } else if (save1comp) { 
+      if (helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { // REPLACE WITH A TEST OVER COMP. NAME
+        ATH_MSG_DEBUG("Muons only");
+        copier.setMETCompFromHelper(0, helper_i);
       }
     }
 
   } // loop over transient components
 
   // also update transient helper class, for monitoring
-  metHelper->SetEx(     met->ex()     );
-  metHelper->SetEy(     met->ey()     );
-  metHelper->SetEz(     met->ez()     );
-  metHelper->SetSumEt(  met->sumEt( ) );
-  metHelper->SetSumE(   met->sumE()   );
+  copier.setHelperFromMET();
 
   if(m_timersvc)
     m_glob_timer->stop(); // total time
@@ -472,40 +379,32 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     ATH_MSG_DEBUG( message );
   }
 
-  unsigned int Nc = met->getNumberOfComponents();
+  if(msgLvl(MSG::DEBUG)){
+    unsigned int nMetComp = met->getNumberOfComponents();
 
-  if (Nc > 0) {
-    if(msgLvl(MSG::DEBUG)){
-        s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        ATH_MSG_DEBUG( s );
-     }
-   }
+    s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+      s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+    ATH_MSG_DEBUG( s );
 
-   for(uint j = 0; j < Nc; j++) {
+    for(uint j = 0; j < nMetComp; j++) 
+    {
+    	const char* name =               met->nameOfComponent(j).c_str();
+    	const short status =             met->statusComponent(j);
+    	const unsigned short usedChan =  met->usedChannelsComponent(j);
+    	const short sumOfSigns =         met->sumOfSignsComponent(j);
+    	const float calib0 =             met->calib0Component(j);
+    	const float calib1 =             met->calib1Component(j);
+    	const float ex =                 met->exComponent(j);
+    	const float ey =                 met->eyComponent(j);
+    	const float ez =                 met->ezComponent(j);
+    	const float sumE =               met->sumEComponent(j);
+    	const float sumEt =              met->sumEtComponent(j);
 
-	const char* name =               met->nameOfComponent(j).c_str();
-	const short status =             met->statusComponent(j);
-	const unsigned short usedChan =  met->usedChannelsComponent(j);
-	const short sumOfSigns =         met->sumOfSignsComponent(j);
-	const float calib0 =             met->calib0Component(j);
-	const float calib1 =             met->calib1Component(j);
-	const float ex =                 met->exComponent(j);
-	const float ey =                 met->eyComponent(j);
-	const float ez =                 met->ezComponent(j);
-	const float sumE =               met->sumEComponent(j);
-	const float sumEt =              met->sumEtComponent(j);
-
-     if(msgLvl(MSG::DEBUG)){
-        message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
-        ATH_MSG_DEBUG( message );
-      }
-
+      message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+       name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
+      ATH_MSG_DEBUG( message );
     }
-
-
-
+  }
   return StatusCode::SUCCESS;
 }
 

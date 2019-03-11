@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -85,14 +85,10 @@ StatusCode CaloLCWeightTool::initialize()
 
   ATH_MSG_INFO( "Initializing " << name()  );
 
-  // callback for conditions data
-  ATH_CHECK( detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
-                                dynamic_cast<IClusterCellWeightTool*>(this),
-                                m_data,m_key) );
-  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
+  ATH_CHECK( m_key.initialize() );
 
   // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
+  ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
    
   //---- retrieve the noisetool ----------------
@@ -103,11 +99,35 @@ StatusCode CaloLCWeightTool::initialize()
     ATH_MSG_INFO(  "Noise Tool retrieved"  );
   } 
  
+  m_sampnames.reserve(CaloSampling::Unknown);
+  for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
+     m_sampnames.push_back(CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
+  }
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
 {
+  const CaloLocalHadCoeff* data(0);
+  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
+  data = *rch;
+  if(data==0) {
+    ATH_MSG_ERROR("Unable to access conditions object");
+    return StatusCode::FAILURE;
+  }
+  // this is not super effective, but try to put is here first, and optimize later
+  std::vector<int> isAmpMap(CaloSampling::Unknown,-1);
+  for (int iArea=0;iArea<data->getSizeAreaSet();iArea++) {
+    for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
+      if ( m_sampnames[iSamp] == data->getArea(iArea)->getTitle() ) {
+        ATH_MSG_DEBUG("Found Area for Sampling " << CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
+        isAmpMap[iSamp] = iArea;
+        break;
+      }
+    }
+  }
+
   double eEM = theCluster->e();
 
   std::vector<float> vars(5);
@@ -139,7 +159,7 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
       // check calo and sampling index for current cell
       Identifier myId = itrCell->ID();
       CaloCell_ID::CaloSample theSample = CaloCell_ID::CaloSample(m_calo_id->calo_sample(myId));
-      if ( m_isampmap[theSample] >= 0 ) {
+      if ( isAmpMap[theSample] >= 0 ) {
 	double sigma =  m_noiseTool->getNoise(*itrCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
 	double energy = fabs(itrCell->e());
 	double ratio = 0;
@@ -158,7 +178,7 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
 	    double abseta = fabs(itrCell->eta());
 	    double log10edens = log10(density);
 	    double log10cluse = log10(eEM);
-	    const CaloLocalHadCoeff::LocalHadDimension *logeDim = m_data->getArea(m_isampmap[theSample])->getDimension(3);
+	    const CaloLocalHadCoeff::LocalHadDimension *logeDim = data->getArea(isAmpMap[theSample])->getDimension(3);
 	    double lemax = logeDim->getXmax()-0.5*logeDim->getDx();
 	    if ( log10cluse > lemax ) log10cluse = lemax;
 
@@ -172,16 +192,16 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
             double wData(0);
 
             // accessing coefficients (non-interpolated)
-            int iBin = m_data->getBin(m_isampmap[theSample],vars);
+            int iBin = data->getBin(isAmpMap[theSample],vars);
             if ( iBin >= 0 ) {
-              const CaloLocalHadCoeff::LocalHadCoeff * pData = m_data->getCoeff(iBin);
+              const CaloLocalHadCoeff::LocalHadCoeff * pData = data->getCoeff(iBin);
               if ( pData && (*pData)[CaloLocalHadDefs::BIN_ENTRIES] > 10 ) {
                 isDataOK = true;
                 wData = (*pData)[CaloLocalHadDefs::BIN_WEIGHT];
               }
               if(m_interpolate) {
                 // accesing interpolated coefficients
-                bool isa = hp.Interpolate(m_data, m_isampmap[theSample], vars, parint, m_interpolateDimensions);
+                bool isa = hp.Interpolate(data, isAmpMap[theSample], vars, parint, m_interpolateDimensions);
                 if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > 10) {
                   isDataOK = true;
                   wData = parint[CaloLocalHadDefs::BIN_WEIGHT];
@@ -230,34 +250,5 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
 CaloLCWeightTool::~CaloLCWeightTool()
 {
 }
-
-StatusCode CaloLCWeightTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
-{
-  ATH_MSG_DEBUG("Callback invoked for " 
-		<< keys.size() << " keys");
-  
-  for (std::list<std::string>::const_iterator itr=keys.begin(); 
-       itr!=keys.end(); ++itr) {
-    std::string key = *itr;
-    ATH_MSG_DEBUG("key = " << key);
-    if(key==m_key) {
-      ATH_MSG_DEBUG("retrieve CaloLocalHadCoeff ");
-      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
-      // setup the index map
-      m_isampmap.resize(CaloSampling::Unknown,-1);
-      for (int iArea=0;iArea<m_data->getSizeAreaSet();iArea++) {
-	for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
-	  if ( CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp) == m_data->getArea(iArea)->getTitle() ) {
-	    ATH_MSG_DEBUG("Found Area for Sampling " << CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
-	    m_isampmap[iSamp] = iArea;
-	    break;
-	  }
-	}
-      }
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
 
 

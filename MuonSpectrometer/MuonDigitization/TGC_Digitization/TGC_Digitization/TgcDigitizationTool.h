@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H 
@@ -11,13 +11,12 @@
  * @author John Chapman, Yoji Hasegawa, Susumu Oda
  */
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -38,7 +37,7 @@ namespace MuonGM{
   class MuonDetectorManager;
 }
 
-class TgcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class TgcDigitizationTool : public PileUpToolBase {
 public:
   TgcDigitizationTool(const std::string& type, 
 		      const std::string& name,
@@ -69,27 +68,18 @@ public:
   volume of a chamber. */
   virtual StatusCode processAllSubEvents() override final;
 
-  /** Used by TGCDigitizer. Just calls processAllSubEvents - leaving
-      for back-compatibility (IMuonDigitizationTool) */
-  virtual StatusCode digitize() override final;
-
   /** Finalize */
   virtual StatusCode finalize() override final;
-  /** accessors */
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
 
 private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
-  /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
+  /** Core part of digitization used by processAllSubEvents and mergeEvent */
   StatusCode digitizeCore();
 
 protected:  
   PileUpMergeSvc *m_mergeSvc; // Pile up service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  std::string m_rndmEngineName;// name of random engine
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
 private:
   TgcHitIdHelper*                    m_hitIdHelper;

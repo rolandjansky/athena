@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
@@ -23,27 +23,6 @@ def makeSummary(name, flatDecisions):
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary
-
-
-def makeStreamESD(name, flatDecisions):
-    """ Creates output stream for given decisions """
-    import AthenaPoolCnvSvc.WriteAthenaPool
-    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-    StreamESD = createOutputStream(name,"myESD.pool.root",True)
-    StreamESD.OutputLevel=3
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.remove( StreamESD )
-    def addTC(name):   
-        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-    for tc in flatDecisions:
-        addTC( tc )
-
-    addTC("HLTSummary")
-    log.debug("ESD file content: ")
-    log.debug( StreamESD.ItemList  )
-    return StreamESD
 
 
 def createStepRecoNode(name, seq_list, dump=False):
@@ -106,7 +85,28 @@ def createCFTree(CFseq):
 
 
 
-def makeHLTTree(HLTChains):
+def makeHLTTree(HLTChains, triggerConfigHLT = None):
+
+    # Check if triggerConfigHLT exits, if yes, derive information from this
+    # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely 
+    allChainDicts = []  
+    allChainConfigs = []
+    if triggerConfigHLT:
+        log.info("Obtaining chain dictionaries and configuration from triggerConfigHLT")
+        allChainConfigs = triggerConfigHLT.allChainConfigs
+        allChainDicts = triggerConfigHLT.allChainDicts
+    else:
+        log.info("No triggerConfigHLT was passed, only relying on HLTChains now")
+        log.info("Creating necessary chainDict info now")
+        allChainConfigs = HLTChains
+        # call dictfrom chain name maybe here once to obtain list of dictionaries for all chains
+        # loop over HLT Chains
+        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+        decodeChainName = DictFromChainName.DictFromChainName()
+        for chain in allChainConfigs:
+            chainDict = decodeChainName.getChainDict(chain.name)
+            allChainDicts.append(chainDict)
+
     """ creates the full HLT tree"""
 
     # lock flags
@@ -138,16 +138,13 @@ def makeHLTTree(HLTChains):
     hltTop +=  steps
     
     # make CF tree
-    finalDecisions = decisionTree_From_Chains(steps, HLTChains)
+
+    finalDecisions = decisionTree_From_Chains(steps, allChainConfigs, allChainDicts)
+    EnabledChainNames = [c.name for c in allChainConfigs]
     
-    # make Final Summary
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()    
-    #edmCreator.TrigCompositeContainer = flatDecisions
-    #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
     # add signature monitor
@@ -160,7 +157,6 @@ def makeHLTTree(HLTChains):
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
     monAcc.appendToGlobals()    
     hltTop += monAlg
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)
     
     topSequence += hltTop
 
@@ -203,7 +199,7 @@ def matrixDisplay( allSeq ):
 
         
 
-def decisionTree_From_Chains(HLTNode, chains):
+def decisionTree_From_Chains(HLTNode, chains, allDicts):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
 
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
@@ -215,11 +211,13 @@ def decisionTree_From_Chains(HLTNode, chains):
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
     NSTEPS = len(chainWithMaxSteps.steps)
 
+    # add chains to multiplicity map (new step here, as this was originally in the __init__ of Chain class
+
     #loop over chains to configure hypotools
     # must be done after all chains are created, to avoid conflicts 
     log.debug("Loop over chains to decode hypo tools")
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        chain.decodeHypoToolConfs(allDicts) 
 
     finalDecisions = [] # needed for monitor
     allSeq_list = []
@@ -332,7 +330,7 @@ def decisionTree_From_Chains(HLTNode, chains):
     return finalDecisions
 
 
-def generateDecisionTree(HLTNode, chains):
+def generateDecisionTree(HLTNode, chains, allChainDicts):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -343,7 +341,7 @@ def generateDecisionTree(HLTNode, chains):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        chain.decodeHypoToolConfs(allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)

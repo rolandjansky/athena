@@ -14,7 +14,7 @@ class ExampleMonitorAlgorithm : public AthMonitorAlgorithm {
 public:
     ExampleMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~ExampleMonitorAlgorithm();
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
 	Gaudi::Property<bool> m_doRandom {this,"RandomHist",false};

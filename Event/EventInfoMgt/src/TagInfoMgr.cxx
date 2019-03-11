@@ -35,6 +35,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollAddress.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
 #include "CxxUtils/make_unique.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 // Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
@@ -55,6 +56,7 @@ TagInfoMgr::TagInfoMgr(const std::string &name,
         m_iovDbSvc("IOVDbSvc", name),
         m_metaDataTool("IOVDbMetaDataTool"),
         m_isFirstBeginRun(true),
+        m_conditionsRun(EventIDBase::UNDEFNUM),
         m_newFileIncidentSeen(false),
         m_lastIOVRange(IOVRange(IOVTime(),IOVTime())),
         m_log(msgSvc(), name)
@@ -487,7 +489,7 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "entering fillMetaData" << endmsg;
 
     // Get run number for IOV
-    unsigned int runNumber = 0;
+    EventIDBase::number_type runNumber = 0;
     const EventIDBase* evid = EventIDFromStore( m_storeGate );
     if( evid ) {
        runNumber = evid->run_number();
@@ -495,8 +497,13 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
        // For simulation, we may be in the initialization phase and
        // must get the run number from the event selector
        if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
+          // For HLT use the conditionsRun retrieved from the first BeginRun incident
+          if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+             runNumber = m_conditionsRun;
+          } else {
              m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
              return (StatusCode::FAILURE);
+          }
        }
     }
     // Copy tags to AttributeList
@@ -672,25 +679,30 @@ TagInfoMgr::handle(const Incident& inc) {
         // reset flags 
         m_newFileIncidentSeen = false;
 
+        // get conditionsRun from the Context - can be used if no EventID in the SG (for HLT) 
+        m_conditionsRun = inc.context().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+
         // Print out EventInfo
         // can't use a ref here!
         const EventIDBase eventID =  inc.context().eventID();
 
         if (m_log.level() <= MSG::DEBUG) {
-            m_log << MSG::DEBUG << "handle: BeginRun incident - Event info: " << endmsg;
-            m_log << MSG::DEBUG << "handle: Event ID: ["
+            m_log << MSG::DEBUG << "handle: First BeginRun incident - Event ID: ["
                   << eventID.run_number()   << ","
                   << eventID.event_number() << ":"
-                  << eventID.time_stamp() << "] "
-                  << endmsg;
+                  << eventID.time_stamp() << "] ";
+            if( m_conditionsRun != EventIDBase::UNDEFNUM ) {
+               m_log << MSG::DEBUG <<"conditionsRun = " << m_conditionsRun;
+            }
+            m_log << MSG::DEBUG << endmsg;
         }
-        
+
         // For the moment, we must set IOVDbSvc into the BeginRun
         // state to be able to access TagInfo from the file meta data
 
         // create IOV time from current event coming in with BeginRun incident
-        unsigned int run = eventID.run_number();
-        unsigned int lb  = eventID.lumi_block();
+        EventIDBase::number_type  run = eventID.run_number();
+        EventIDBase::number_type  lb  = eventID.lumi_block();
         IOVTime curTime;
         curTime.setRunEvent(run, lb);
 
@@ -744,7 +756,7 @@ TagInfoMgr::handle(const Incident& inc) {
             if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle: Requested IOVDbSvc to register callback" << endmsg;
         }
     }
-    else if (inc.type() == "BeginRun") {
+    else if (inc.type() == IncidentType::BeginRun) {
         // For subsequent BeginRuns, check whether the /TagInfo folder
         // exists, and if so return. We only treat the case where
         // TagInfo is coming in with each event. In this case we fill

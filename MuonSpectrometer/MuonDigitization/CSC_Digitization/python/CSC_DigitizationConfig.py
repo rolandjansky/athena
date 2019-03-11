@@ -26,12 +26,7 @@ def getCscRange(name="CscRange", **kwargs):
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 
-def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    cscRndm = kwargs.setdefault("RndmEngine", "CSC_Digitization")
-    
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(cscRndm, 49261510, 105132394)
+def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the CSC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 
@@ -50,10 +45,14 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
 
     return CfgMgr.CscDigitizationTool(name, **kwargs)
 
-def Csc_OverlayDigitizationTool(name="Csc_OverlayDigitizationTool",**kwargs):
+def getCscOverlayDigitizationTool(name="CscOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
     if not overlayFlags.isDataOverlay():
         kwargs.setdefault("CSCSimDataCollectionOutputName",overlayFlags.evtStore()+"+CSC_SDO")
-    return CscDigitizationTool(name,**kwargs)
+    return CfgMgr.CscDigitizationTool(name,**kwargs)
+
+def getCscOverlayDigitBuilder(name="CscOverlayDigitBuilder", **kwargs):
+    kwargs.setdefault("DigitizationTool","CscOverlayDigitizationTool")
+    return CfgMgr.CscDigitBuilder(name,**kwargs)

@@ -29,14 +29,6 @@ StatusCode SCT_RawDataToxAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-// define accessors used by execute method; defining them once means fewer
-// string comparisons.
-static SG::AuxElement::Accessor<int> bec_acc("bec");
-static SG::AuxElement::Accessor<int> layer_acc("layer");
-static SG::AuxElement::Accessor<int> phi_module_acc("phi_module");
-static SG::AuxElement::Accessor<int> eta_module_acc("eta_module");
-static SG::AuxElement::Accessor<int> side_acc("side");
-
 StatusCode SCT_RawDataToxAOD::execute(const EventContext& ctx) const {
   SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerName, ctx);
 
@@ -56,11 +48,11 @@ StatusCode SCT_RawDataToxAOD::execute(const EventContext& ctx) const {
       xrdo->setIdentifier(id.get_compact());
       xrdo->setWord(rdo->getWord());
       // setting additional decorations based on identifier
-      bec_acc(*xrdo) = m_SCTHelper->barrel_ec(id);
-      layer_acc(*xrdo) = m_SCTHelper->layer_disk(id);
-      phi_module_acc(*xrdo) = m_SCTHelper->phi_module(id);
-      eta_module_acc(*xrdo) = m_SCTHelper->eta_module(id);
-      side_acc(*xrdo) = m_SCTHelper->side(id);
+      xrdo->setBec(m_SCTHelper->barrel_ec(id));
+      xrdo->setLayer(m_SCTHelper->layer_disk(id));
+      xrdo->setPhi_module(m_SCTHelper->phi_module(id));
+      xrdo->setEta_module(m_SCTHelper->eta_module(id));
+      xrdo->setSide(m_SCTHelper->side(id));
     }
   }
   ATH_MSG_DEBUG(" recorded SCT_RawData objects: size " << xaod->size());

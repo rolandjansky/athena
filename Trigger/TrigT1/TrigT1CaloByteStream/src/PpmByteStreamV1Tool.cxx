@@ -110,9 +110,6 @@ PpmByteStreamV1Tool::~PpmByteStreamV1Tool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode PpmByteStreamV1Tool::initialize()
 {

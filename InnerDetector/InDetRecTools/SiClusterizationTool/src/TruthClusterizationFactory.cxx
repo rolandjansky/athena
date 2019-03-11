@@ -111,8 +111,8 @@ namespace InDet {
 	//Loop over all elements (pixels/strips) in the cluster
 	for (auto rdoIter :  rdos){
 		if (m_simDataCollection){
-			auto simDataIter = m_simDataCollection->find(rdoIter);
-			if (simDataIter != m_simDataCollection->end()){
+                       auto simDataIter = m_simDataCollection.load()->find(rdoIter);
+                       if (simDataIter != m_simDataCollection.load()->end()){
                 		crazycluster = false;
 				// get the SimData and count the individual contributions
 				auto simData = (simDataIter->second);

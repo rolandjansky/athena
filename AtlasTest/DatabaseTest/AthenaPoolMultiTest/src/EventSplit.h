@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventSplit.h
@@ -38,14 +38,16 @@ public:
   EventSplit(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~EventSplit();
   
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
   unsigned int m_l1bits;    /// level 1 bit mask 
   unsigned int m_l2bits;    /// level 2 bit mask 
-  SG::ReadHandleKey<xAOD::EventInfo> m_evt;
-  SG::ReadHandleKey<FauxTriggerMap> m_rftm;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt
+  { this, "EventInfo", "EventInfo", "" };
+  SG::ReadHandleKey<FauxTriggerMap> m_rftm
+  { this, "MultiTestTrigMap", "MultiTestTrigMap", "" };
 };
 #endif

@@ -135,6 +135,9 @@ namespace xAODMaker {
          case PileUpTimeEventIndex::HaloGas:
            type = xAOD::EventInfo::HaloGas;
            break;
+         case PileUpTimeEventIndex::HighPtMinimumBias:
+           type = xAOD::EventInfo::HighPtMinimumBias;
+           break;
          case PileUpTimeEventIndex::ZeroBias:
            type = xAOD::EventInfo::ZeroBias;
            break;

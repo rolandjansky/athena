@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
 	m_timeWindowLowerOffset(0),
 	m_timeWindowUpperOffset(0),
-	m_DiffMagSecondMuonHit (0),
 
 	// Strip Response
 	m_StripsResponseSimulation(0),
@@ -198,7 +197,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	declareProperty("UseTimeWindow",       m_useTimeWindow  =  true);
 	declareProperty("WindowLowerOffset",   m_timeWindowLowerOffset = -300.); // processBunchXing between -250 and 150 ns (look at config file)
 	declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
-	declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
 
 	// Constants vars for the MM_StripsResponseSimulation class
 	// qThreshold=2e, we accept a good strip if the charge is >=2e
@@ -376,7 +374,7 @@ StatusCode MM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
 	m_MMHitCollList.clear();
 
 	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>();
+		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
 	} else {
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -385,48 +383,47 @@ StatusCode MM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-  StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
-						  SubEventIterator bSubEvents,
-						  SubEventIterator eSubEvents) {
+StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
+	SubEventIterator bSubEvents,
+	SubEventIterator eSubEvents) {
 
-  ATH_MSG_DEBUG ( "MM_DigitizationTool::in processBunchXing()"  << bunchXing );
+	ATH_MSG_DEBUG ( "MM_DigitizationTool::in processBunchXing()"  << bunchXing );
 
-  typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
-  TimedHitCollList hitCollList;
+        typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
+        TimedHitCollList hitCollList;
 
-  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
-                                          bSubEvents, eSubEvents).isSuccess()) &&
-      hitCollList.size() == 0) {
-    ATH_MSG_ERROR("Could not fill TimedHitCollList");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE(hitCollList.size() << " GenericMuonSimHitCollection with key " <<
-                    m_inputObjectName << " found");
-  }
+        if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                                bSubEvents, eSubEvents).isSuccess()) &&
+            hitCollList.size() == 0) {
+          ATH_MSG_ERROR("Could not fill TimedHitCollList");
+          return StatusCode::FAILURE;
+        } else {
+          ATH_MSG_VERBOSE(hitCollList.size() << " MMSimHitCollection with key " <<
+                          m_inputObjectName << " found");
+        }
+      
+        TimedHitCollList::iterator iColl(hitCollList.begin());
+        TimedHitCollList::iterator endColl(hitCollList.end());
 
-  TimedHitCollList::iterator iColl(hitCollList.begin());
-  TimedHitCollList::iterator endColl(hitCollList.end());
+        // Iterating over the list of collections
+        for( ; iColl != endColl; iColl++){
+     
+          MMSimHitCollection *hitCollPtr = new MMSimHitCollection(*iColl->second);
+          PileUpTimeEventIndex timeIndex(iColl->first);
+     
+          ATH_MSG_DEBUG("MMSimHitCollection found with " << hitCollPtr->size() <<
+                        " hits");
+          ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                          << " index: " << timeIndex.index()
+                          << " type: " << timeIndex.type());
+     
+          m_timedHitCollection_MM->insert(timeIndex, hitCollPtr);
+          m_MMHitCollList.push_back(hitCollPtr);
+     
+        }
 
-  // Iterating over the list of collections
-  for( ; iColl != endColl; iColl++){
-
-    GenericMuonSimHitCollection *hitCollPtr = new GenericMuonSimHitCollection(*iColl->second);
-    PileUpTimeEventIndex timeIndex(iColl->first);
-
-    ATH_MSG_DEBUG("GenericMuonSimHitCollection found with " << hitCollPtr->size() <<
-                  " hits");
-    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
-                    << " index: " << timeIndex.index()
-                    << " type: " << timeIndex.type());
-
-    m_timedHitCollection_MM->insert(timeIndex, hitCollPtr);
-    m_MMHitCollList.push_back(hitCollPtr);
-
-  }
-
-  return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
 }
-
 
 /*******************************************************************************/
 StatusCode MM_DigitizationTool::getNextEvent() {
@@ -441,9 +438,9 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 	}
 
 	//  get the container(s)
-	typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
+	typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
 
-	//this is a list<info<time_t, DataLink<GenericMuonSimHitCollection> > >
+	//this is a list<info<time_t, DataLink<MMSimHitCollection> > >
 	TimedHitCollList hitCollList;
 
 	ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList) );
@@ -457,7 +454,7 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 	// create a new hits collection - Define Hit Collection
 	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>();
+		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
 	}else{
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -469,7 +466,7 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 	// loop on the hit collections
 	while(iColl != endColl) {
-		const GenericMuonSimHitCollection* tmpColl(iColl->second);
+		const MMSimHitCollection* tmpColl(iColl->second);
 		m_timedHitCollection_MM->insert(iColl->first, tmpColl);
 		ATH_MSG_DEBUG ( "MMSimHitCollection found with " << tmpColl->size() << " hits"  );
 		++iColl;
@@ -493,8 +490,8 @@ StatusCode MM_DigitizationTool::mergeEvent() {
 	}
 
 	// remove cloned one in processBunchXing......
-	std::list<GenericMuonSimHitCollection*>::iterator MMHitColl = m_MMHitCollList.begin();
-	std::list<GenericMuonSimHitCollection*>::iterator MMHitCollEnd = m_MMHitCollList.end();
+	std::list<MMSimHitCollection*>::iterator MMHitColl = m_MMHitCollList.begin();
+	std::list<MMSimHitCollection*>::iterator MMHitCollEnd = m_MMHitCollList.end();
 	while(MMHitColl!=MMHitCollEnd) {
 		delete (*MMHitColl);
 		++MMHitColl;
@@ -565,11 +562,11 @@ StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
 StatusCode MM_DigitizationTool::doDigitization() {
 
 
-	GenericMuonSimHitCollection* inputSimHitColl=nullptr;
+	MMSimHitCollection* inputSimHitColl=nullptr;
 
 	IdentifierHash detectorElementHash=0;
 
-	inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
+	inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
 	ATH_CHECK( m_storeGateService->record(inputSimHitColl,"InputMicroMegasHits") );
 
 	if( m_maskMultiplet == 3 ) {
@@ -587,8 +584,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 	v_stripDigitOutput.clear();
 
 	//iterate over hits and fill id-keyed drift time map
-	TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;
-	const GenericMuonSimHit* previousHit = nullptr;
+	TimedHitCollection< MMSimHit >::const_iterator i, e;
 
 	std::map<Identifier,int> hitsPerChannel;
 	int nhits = 0;
@@ -606,28 +602,17 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			//
 
 
-			TimedHitPtr<GenericMuonSimHit> phit = *i++;
+			TimedHitPtr<MMSimHit> phit = *i++;
 			m_eventTime = phit.eventTime();
-			const GenericMuonSimHit& hit(*phit);
+			const MMSimHit& hit(*phit);
 
-			if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-				Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-				ATH_MSG_DEBUG("Second hit from a muon: prev "
-								<<     previousHit->localPosition()
-								<< " current "
-								<<     hit.localPrePosition()
-								<< " diff "
-								<<     diff
-								);
-				if( diff.mag() < m_DiffMagSecondMuonHit ) continue;
-			}
 			m_n_hitPDGId = hit.particleEncoding();
 			m_n_hitDepositEnergy = hit.depositEnergy();
 			m_n_hitKineticEnergy = hit.kineticEnergy();
 
 			const Amg::Vector3D globalHitPosition = hit.globalPosition();
 
-			m_globalHitTime = hit.globalpreTime();
+			m_globalHitTime = hit.globalTime();
 			m_tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
 			m_bunchTime = m_globalHitTime - m_tofCorrection + m_eventTime;
 
@@ -650,16 +635,16 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			m_n_StrRespCharge.clear();
 			m_n_StrRespTime.clear();
 
-			const int hitID = hit.GenericId();
+			const int hitID = hit.MMId();
 			// the G4 time or TOF from IP
 			// double G4Time(hit.globalTime());
-			// see what are the members of GenericMuonSimHit
+			// see what are the members of MMSimHit
 
 			// convert sim id helper to offline id
 			MM_SimIdToOfflineId simToOffline(*m_idHelper);
 
 			//get the hit Identifier and info
-			int simId=hit.GenericId();
+			int simId=hit.MMId();
 			layerID = simToOffline.convert(simId);
 
 			// Read the information about the Micro Megas hit
@@ -689,18 +674,13 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 			// For collection of inputs to throw back in SG
 
-			GenericMuonSimHit* copyHit = new GenericMuonSimHit( hitID,
+			MMSimHit* copyHit = new MMSimHit( hitID,
 																m_globalHitTime+m_eventTime,
-																m_eventTime,
 																globalHitPosition,
-																hit.localPosition(),
-																hit.globalPrePosition(),
-																hit.localPrePosition(),
 																hit.particleEncoding(),
 																hit.kineticEnergy(),
 																hit.globalDirection(),
 																hit.depositEnergy(),
-																hit.StepLength(),
 																hit.trackNumber()
 																);
 
@@ -933,35 +913,35 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 
 			const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
-            // As of September 12 2018, to reduce the number of errors and warnings in MM digitization,
-            // we assign the strips in the dead regions stripNumber=1 (short term fix).
-            // The distToChannel validation breaks when we do this so we must add another if statement
-            // These changes should be reverted once we arrive to a proper solution for these dead strips
-            // Alexandre Laurier 12 Sept 2018
-			double distToChannelWithStripID;
-			double distToChannel;
-            if (stripNumber ==1){
-			    distToChannelWithStripID =0.; 
-			    distToChannel =0.; 
-            }
-            else{
-			    distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
-			    distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
-            }
-			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
-							<< (int)detectorElementHash
-							<< " "
-							<< m_idHelper->print_to_string(layerID)
-							<< " digitID: "
-							<< m_idHelper->print_to_string(digitID)
-							);
+                        // As of September 12 2018, to reduce the number of errors and warnings in MM digitization,
+                        // we assign the strips in the dead regions stripNumber=1 (short term fix).
+                        // The distToChannel validation breaks when we do this so we must add another if statement
+                        // These changes should be reverted once we arrive to a proper solution for these dead strips
+                        // Alexandre Laurier 12 Sept 2018
+	                    	double distToChannelWithStripID;
+	                    	double distToChannel;
+                        if (stripNumber ==1){
+	                    	    distToChannelWithStripID =0.; 
+	                    	    distToChannel =0.; 
+                        }
+                        else{
+	                    	    distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
+	                    	    distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
+                        }
+	                    	ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
+	                    					<< (int)detectorElementHash
+	                    					<< " "
+	                    					<< m_idHelper->print_to_string(layerID)
+	                    					<< " digitID: "
+	                    					<< m_idHelper->print_to_string(digitID)
+	                    					);
 
-			if ( fabs(distToChannelWithStripID - distToChannel) > mmChannelDesign->channelWidth(positionOnSurface)) {
-				ATH_MSG_WARNING( "Found: distToChannelWithStripID: " << distToChannelWithStripID << " != distToChannel: " << distToChannel  );
-				m_exitcode = 12;
-				if(m_writeOutputFile) m_ntuple->Fill();
-				continue;
-            }
+	                    	if ( fabs(distToChannelWithStripID - distToChannel) > mmChannelDesign->channelWidth(positionOnSurface)) {
+	                    		ATH_MSG_WARNING( "Found: distToChannelWithStripID: " << distToChannelWithStripID << " != distToChannel: " << distToChannel  );
+	                    		m_exitcode = 12;
+	                    		if(m_writeOutputFile) m_ntuple->Fill();
+	                    		continue;
+                        }
 
 			// Obtain Magnetic Field At Detector Surface
 			Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
@@ -1044,7 +1024,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			    		}
 			    	}
 			    }
-            }
+                        }
 
 
 			v_stripDigitOutput.push_back(stripDigitOutput);
@@ -1054,7 +1034,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			//
 			////////////////////////////////////////////////////////////////////
 
-			previousHit = &hit;
 
 		} // Hit Loop
 
@@ -1250,6 +1229,6 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	return stripDigitOutputAllHits;
 }
 /*******************************************************************************/
-bool MM_DigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const {
+bool MM_DigitizationTool::checkMMSimHit( const MMSimHit& /*hit*/ ) const {
 	return true;
 }

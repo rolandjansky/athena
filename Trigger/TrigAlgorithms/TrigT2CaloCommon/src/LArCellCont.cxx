@@ -11,7 +11,7 @@
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/ListItem.h"
 #include "EventInfo/EventInfo.h"
@@ -21,7 +21,7 @@
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_event(0), m_masker(NULL), m_badChanTool(NULL), m_corrBCIDref( corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(0), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_caloLumiBCIDTool(nullptr), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
 {}
 
 StatusCode
@@ -120,15 +120,16 @@ makeCell.initialize( roiMap, &LArCellCorrTools, 0 );
 sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
 bool doCellMasking = sc.isSuccess() && m_masker->isMaskingOn();
 
-if(!sc.isSuccess())	//not a critical error. LArCellCont can proceed as usual, without masking.
-	std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
+if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
+    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
+std::cout << "doCellMasking "<<doCellMasking<<std::endl;
 
-
-sc = toolSvc->retrieveTool("LArBadChanLegacyTool/MyBadChanTool", m_badChanTool);
+sc = toolSvc->retrieveTool("LArBadFebMasker", m_badFebMasker);
 bool toolAvailable = sc.isSuccess(); 
 
-if(!sc.isSuccess())	//not a critical error. LArCellCont can proceed as usual, without masking.
-	std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChanTool - no masking will be done." << std::endl;
+if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
+    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadFebMasker - no masking will be done." << std::endl;
+std::cout <<"toolAvailable "<<toolAvailable<<std::endl;
 
 std::vector<uint32_t> RobsFromMissingFeb;
 
@@ -172,10 +173,10 @@ m_hashSym.resize(onlineId->febHashMax());
 //for(std::vector<HWIdentifier>::const_iterator i=larFEBs.begin();i!=larFEBs.end();i++){
  for (unsigned iFeb=0;iFeb<onlineId->febHashMax();++iFeb) {
    const HWIdentifier febid=onlineId->feb_Id(IdentifierHash(iFeb));
-    if( (toolAvailable && (m_badChanTool->febMissing(febid)) ) || !toolAvailable ){
+    if( (toolAvailable && (m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
 	RobsFromMissingFeb.push_back( m_conv.getRobID( m_conv.getRodID( febid ) ) );
     }
-    if( (toolAvailable && !(m_badChanTool->febMissing(febid)) ) || !toolAvailable ){
+    if( (toolAvailable && !(m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
 	// get RodID associated with the collection
       HWIdentifier rodId = m_larCablingSvc->getReadoutModuleID(febid); 
 	unsigned int rodId32 = m_conv.getRodIDFromROM(rodId);

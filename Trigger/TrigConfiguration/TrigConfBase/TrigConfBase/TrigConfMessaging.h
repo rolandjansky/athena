@@ -1,7 +1,5 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFBASE_TRIGCONFMESSAGING_H
@@ -9,22 +7,23 @@
 
 /**
  * @file   TrigConfMessaging.h
- * @brief  Messaging base class for DetCommon (copy of AthMessaging)
- * @author Frank Winklmeier (original author Sebastien Binet)
+ * @brief  Messaging base class for TrigConf code shared with Lvl1 ( AthMessaging)
+ * @author Frank Winklmeier
  *
- * $Id$
  */
 
 #include <string>
+#include <boost/thread/tss.hpp>
 #include "TrigConfBase/MsgStream.h"
 #include "TrigConfBase/MsgStreamMacros.h"
 
-namespace TrigConf { 
+namespace TrigConf {
 
   /**
-   * Class to provide easy access to TrigConf::MsgStream within DetCommon
+   * Class to provide easy access to TrigConf::MsgStream for TrigConf classes
    *
-   * This is a copy&paste of AthMessaging and used in exactly the same way.
+   * This is a copy&paste of AthMessaging and used in exactly the same way but
+   * without introducing Gaudi/Athena dependencies.
    */
   class TrigConfMessaging { 
   public: 
@@ -33,7 +32,6 @@ namespace TrigConf {
      *  @param name Component name used in the messages
      */
     TrigConfMessaging (const std::string& name) :
-      m_msg(name),
       m_name(name)
     {}
 
@@ -48,7 +46,7 @@ namespace TrigConf {
     bool msgLvl (const MSGTC::Level lvl) const;
     
     /** The standard message stream.
-     *  Returns a reference to the default message stream
+     *  Returns a reference to the message stream
      *  May not be invoked before sysInitialize() has been invoked.
      */
     MsgStreamTC& msg() const;
@@ -59,21 +57,20 @@ namespace TrigConf {
      */
     MsgStreamTC& msg (const MSGTC::Level lvl) const;
 
-  private: 
-    TrigConfMessaging( const TrigConfMessaging& rhs ); //> not implemented
-    TrigConfMessaging& operator=( const TrigConfMessaging& rhs ); //> not implemented
+  private:
+    TrigConfMessaging() = delete;
+    TrigConfMessaging( const TrigConfMessaging& rhs ) = delete;
+    TrigConfMessaging& operator=( const TrigConfMessaging& rhs ) = delete;
 
-  private: 
-    
     /// MsgStreamTC instance (a std::cout like with print-out levels)
-    mutable MsgStreamTC m_msg;
+    mutable boost::thread_specific_ptr<MsgStreamTC> m_msg_tls;
     std::string m_name;
   }; 
 
   inline bool TrigConfMessaging::msgLvl (const MSGTC::Level lvl) const
   {
-    if (m_msg.level() <= lvl) {
-      m_msg << lvl;
+    if (msg().level() <= lvl) {
+      msg() << lvl;
       return true;
     }
     else {
@@ -83,12 +80,17 @@ namespace TrigConf {
 
   inline MsgStreamTC& TrigConfMessaging::msg() const 
   {
-    return m_msg;
+    MsgStreamTC* ms = m_msg_tls.get();
+    if (!ms) {
+      ms = new MsgStreamTC(m_name);
+      m_msg_tls.reset(ms);
+    }
+    return *ms;
   }
   
   inline MsgStreamTC& TrigConfMessaging::msg (const MSGTC::Level lvl) const 
   {
-    return m_msg << lvl;
+    return msg() << lvl;
   }
   
 } // namespace TrigConf

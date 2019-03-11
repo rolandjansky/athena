@@ -114,8 +114,8 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer3TGCHoles );
         AUX_VARIABLE( etaLayer4TGCHoles );
 
-	AUX_VARIABLE( cscEtaHits );
-	AUX_VARIABLE( cscUnspoiledEtaHits );
+        AUX_VARIABLE( cscEtaHits );
+        AUX_VARIABLE( cscUnspoiledEtaHits );
 
         // Isolation
         AUX_VARIABLE( etcone20 );

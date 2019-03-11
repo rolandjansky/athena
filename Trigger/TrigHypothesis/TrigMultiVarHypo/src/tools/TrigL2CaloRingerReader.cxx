@@ -10,9 +10,10 @@
 // Use this to find the absoluty path
 #include "PathResolver/PathResolver.h"
 
-TrigL2CaloRingerReader::TrigL2CaloRingerReader(std::string  name):m_name(name)
+TrigL2CaloRingerReader::TrigL2CaloRingerReader(const std::string& name) :
+  asg::AsgMessaging(name),
+  m_name(name)
 {
-  //m_log = new MsgStream(0, m_name);
   m_etaBins=nullptr;
   m_etBins=nullptr;
   m_thresholds=nullptr;

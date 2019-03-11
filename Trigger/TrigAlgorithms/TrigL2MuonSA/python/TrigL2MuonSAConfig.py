@@ -34,6 +34,11 @@ ToolSvc += tgcDataPreparator
 
 theDataPreparator.TGCDataPreparator = tgcDataPreparator
 
+cscDataPreparator = TrigL2MuonSA__CscDataPreparator()
+cscDataPreparator.DecodeBS = DetFlags.readRDOBS.CSC_on()
+ToolSvc += cscDataPreparator
+theDataPreparator.CSCDataPreparator = cscDataPreparator
+
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
 ToolSvc += theStationFitter

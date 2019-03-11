@@ -117,11 +117,13 @@ StatusCode RoRSeqFilter::execute() {
     }
   }
 
-  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") <<" creating "<< outputIndex<<" valid outDecisions DH");
+  setFilterPassed( passCounter != 0 );
+  ATH_MSG_DEBUG( "Filter " << ( filterPassed() ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
   for (auto output: outputHandles){
     if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
   }
-  setFilterPassed( passCounter != 0 );  
+
+  
   return StatusCode::SUCCESS;
 }
   

@@ -17,6 +17,8 @@
 #include "LumiBlockComps/ITrigLivefractionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <string>
 
 class LumiBlockTester: public AthAlgorithm {
@@ -30,7 +32,9 @@ class LumiBlockTester: public AthAlgorithm {
   ToolHandle<ILuminosityTool> m_lumiTool;
   ToolHandle<ITrigLivefractionTool> m_liveTool;
   ToolHandle<ILumiBlockMuTool> m_muTool;
-  
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+
 };
 
 #endif

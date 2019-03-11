@@ -34,6 +34,8 @@ recFlags.doLArg = True
 recFlags.doTile = True
 # do not run digitization
 DetFlags.digitize.all_setOff()
+DetFlags.simulate.all_setOff()
+DetFlags.overlay.all_setOff()
 
 recAlgsFlags.doEFlowJet = False
 

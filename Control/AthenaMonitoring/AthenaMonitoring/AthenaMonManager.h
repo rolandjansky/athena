@@ -14,6 +14,9 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;    // legacy (serial) DQ monitoring framework
+
 class ISvcLocator;
 class ITHistSvc;
 class ManagedMonitorToolBase;
@@ -27,7 +30,6 @@ class LWHist;
  * configuration variables and organizing the output data.  It provides
  * all the functionality and behaviour of AthenaMon.
  *
- * $Id: AthenaMonManager.h,v 1.21 2009-05-08 09:50:22 sschaetz Exp $
  *
  * @author Michael Wilson, CERN, January 2007
  */

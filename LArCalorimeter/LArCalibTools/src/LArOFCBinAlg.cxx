@@ -4,7 +4,7 @@
 
 #include "LArCalibTools/LArOFCBinAlg.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 //#include <ifstream>
 #include <fstream>
@@ -104,13 +104,11 @@ StatusCode LArOFCBinAlg::execute() {
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
      return StatusCode::FAILURE;
   }
-  const LArEM_Base_ID* emId;
-  const LArHEC_Base_ID* hecId;
-  const LArFCAL_Base_ID* fcalId;
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance();
-  emId=caloIdMgr->getEM_ID();
-  fcalId=caloIdMgr->getFCAL_ID();
-  hecId=caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_Base_ID* emId = idHelper->em_idHelper();
+  const LArHEC_Base_ID* hecId = idHelper->hec_idHelper();
+  const LArFCAL_Base_ID* fcalId = idHelper->fcal_idHelper();
 
   for (int gain=0;gain<3;++gain) {
     msg(MSG::INFO) << "Working on gain " << gain << endmsg;

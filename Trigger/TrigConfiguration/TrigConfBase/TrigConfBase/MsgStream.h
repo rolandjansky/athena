@@ -1,17 +1,13 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFBASE_MSGSTREAM_H
 #define TRIGCONFBASE_MSGSTREAM_H 1
 /**
  * @file   TrigConfBase/MsgStream.h
- * @brief  MsgStream for DetCommon
+ * @brief  MsgStream for TrigConf classes
  * @author Frank Winklmeier
- *
- * $Id$
  */
 
 #include <sstream>
@@ -36,19 +32,18 @@ namespace TrigConf {
   }
 
   /**
-   * MsgStreamTC class to be used in DetCommon equivalant to Gaudi's MsgStream
+   * MsgStreamTC class to be used in TrigConf equivalent to Gaudi's MsgStream
    *
    * The usage and behavior is identical to the default Gaudi message stream.
    * If the code is run within a Gaudi/Athena environment, the MsgStreamTC will
    * try to print its messages via the Gaudi MessageSvc. This is achieved via
-   * weak linking. In a non-Gaudi/Athena environemt ERS will be used.
+   * weak linking. In a non-Gaudi/Athena environment std::cout will be used.
    * The class can be used directly or better via inheriting from
    * TrigConf::TrigConfMessaging, which is the equivalent of AthMessaging.
    *
    * Main difference to Gaudi MsgStream:
    *   - OutputLevel cannot be configued via job options, instead the
-   *     gloabal OutputLevel of the MessageSvc is being used
-   *   - Only supports endmsg and not the the deprecated endmsg
+   *     global OutputLevel of the MessageSvc is being used
    */
   class MsgStreamTC : public std::ostringstream {
   public:

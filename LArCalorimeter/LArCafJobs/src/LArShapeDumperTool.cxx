@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumperTool.h"
 #include "LArRawEvent/LArDigit.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArElecCalib/ILArShape.h"
 
 #include "LArRawConditions/LArPhysWave.h"
@@ -44,10 +44,11 @@ StatusCode LArShapeDumperTool::initialize() {
   //ATH_MSG_DEBUG("in initialize()");
   ATH_CHECK(detStore()->retrieve(m_caloDetDescrMgr));
 
-  const CaloIdManager* caloIdMgr = CaloIdManager::instance() ;
-  m_emId   = caloIdMgr->getEM_ID();
-  m_hecId  = caloIdMgr->getHEC_ID();
-  m_fcalId = caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId   = idHelper->em_idHelper();
+  m_hecId  = idHelper->hec_idHelper();
+  m_fcalId = idHelper->fcal_idHelper();
 
   ATH_CHECK(detStore()->retrieve(m_onlineHelper, "LArOnlineID"));
 

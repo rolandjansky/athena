@@ -68,7 +68,7 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
       lastLink = &(trtHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
       persCont->m_mcEvtIndex.push_back(lastLink->eventIndex());
-      persCont->m_evtColl.push_back('a');
+      persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());
 
       if ( idx > 0 ) {
         persCont->m_nBC.push_back(idx - endBC);
@@ -481,7 +481,8 @@ void TRT_HitCollectionCnv_p4::persToTrans(const TRT_HitCollection_p4* persCont, 
         // - For charged particles kinEne is *zero*!
         //
 
-        transCont->Emplace( strawId, persCont->m_barcode[idxBC], persCont->m_id[idxId],
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), HepMcParticleLink::IS_INDEX );
+        transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );
         //

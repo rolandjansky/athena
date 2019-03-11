@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -12,6 +12,7 @@
 #include "xAODMuonAuxContainerCnv_v1.h"
 #include "xAODMuonAuxContainerCnv_v2.h"
 #include "xAODMuonAuxContainerCnv_v3.h"
+#include "xAODMuonAuxContainerCnv_v4.h"
 
 xAODMuonAuxContainerCnv::
 xAODMuonAuxContainerCnv( ISvcLocator* svcLoc )
@@ -34,11 +35,20 @@ xAODMuonAuxContainerCnv::createTransient() {
    static const pool::Guid v2_guid( "AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1" );
    static const pool::Guid v3_guid( "ECC65005-302B-4662-ACBA-D2CE5A0218B8" );
    static const pool::Guid v4_guid( "8251F481-EA4C-4852-AE72-BED87E6FD2FB" );
+   static const pool::Guid v5_guid( "9245FA19-1552-4BBB-8CC3-57224E57A466" );
 
    // Check which version of the container we're reading:
-   if( compareClassGuid( v4_guid ) ) {
+   if( compareClassGuid( v5_guid ) ) {
      // It's the latest version, read it directly:
      return poolReadObject< xAOD::MuonAuxContainer >();
+   }else if( compareClassGuid( v4_guid ) ) {
+     // Handle dynamic to aux conversion.
+     // The v4 converter:
+     static xAODMuonAuxContainerCnv_v4 converter;
+     std::unique_ptr< xAOD::MuonAuxContainer_v4 >
+       old( poolReadObject< xAOD::MuonAuxContainer_v4 >() );
+
+     return converter.createTransient( old.get(), msg() );
    }else if( compareClassGuid( v3_guid ) ) {
      // Handle dynamic to aux conversion.
      // The v3 converter:

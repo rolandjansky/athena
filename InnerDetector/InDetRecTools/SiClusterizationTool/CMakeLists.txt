@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
    PRIVATE
+   Control/CxxUtils
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AthenaPOOL/PoolSvc
    Database/APR/FileCatalog
@@ -50,9 +51,9 @@ atlas_add_library( SiClusterizationToolLib
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
-   Identifier EventPrimitives GaudiKernel InDetCondTools InDetSimData InDetIdentifier
+   Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
    InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
-   TrkParameters TrkNeuralNetworkUtilsLib PixelConditionsData
+   TrkParameters TrkNeuralNetworkUtilsLib CxxUtils PixelConditionsData
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities FileCatalog AtlasDetDescr
    TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib )
 

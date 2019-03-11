@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalPixelTool.cxx
@@ -22,7 +22,6 @@
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH2F.h"
-using namespace TMath;
 //Standard c++
 #include <string>
 //tracks
@@ -38,6 +37,8 @@ using namespace TMath;
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+
+using namespace TMath;
 
 InDetGlobalPixelTool::InDetGlobalPixelTool(
 					   const std::string & type, 
@@ -57,7 +58,6 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
     m_Pixel_track_bar_lay0_cluster_occupancy(0),
     m_Pixel_track_bar_lay1_cluster_occupancy(0),
     m_Pixel_track_bar_lay2_cluster_occupancy(0),
-    m_Pixel_track_Lvl1ID(0),
     m_Pixel_track_Lvl1A(0),
     m_Pixel_track_chi2(0),
     m_Pixel_track_qOverP(0),

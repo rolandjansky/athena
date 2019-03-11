@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
@@ -65,11 +65,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
 def commonPixelFastDigitizationConfig(name,**kwargs):
 
-    # Setup the DCS folders and tool used in the sctSiliconConditionsTool
-    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-    pixelDCSConditionsToolSetup.setup()
-
     kwargs.setdefault("ClusterMaker", "FastClusterMakerTool")
 
     # Import Digitization job properties
@@ -123,7 +118,7 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
     sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
-    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
     sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
     sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
     sct_SiPropertiesToolSetup.setup()

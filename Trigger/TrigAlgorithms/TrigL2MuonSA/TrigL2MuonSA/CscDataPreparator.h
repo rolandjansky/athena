@@ -94,6 +94,9 @@ namespace TrigL2MuonSA {
 
     // Region Selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;
+
+    // Tool handles for BS conversion and Rdo to Prep Data conversion
+    ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
     
     // CSC PrepDataProvider
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
@@ -106,6 +109,9 @@ namespace TrigL2MuonSA {
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{
 	this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};
 
+    // Flag to decide whether or not to run BS decoding
+    Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
+    
     bool m_use_RoIBasedDataAccess;
   };
   

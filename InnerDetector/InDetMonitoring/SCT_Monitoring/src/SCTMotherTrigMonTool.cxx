@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCTMotherTrigMonTool.cxx
@@ -12,8 +12,6 @@
 // Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
 #include "StoreGate/ReadHandle.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -25,8 +23,7 @@ SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string &type, const std::s
   : ManagedMonitorToolBase(type, name, parent),
   m_doTrigger(true),
   m_isStream(false),
-  m_firedTriggers(0),
-  m_eventInfoKey(std::string("ByteStreamEventInfo")) {
+  m_firedTriggers(0) {
   declareProperty("doTrigger", m_doTrigger);
 }
 
@@ -45,9 +42,9 @@ SCTMotherTrigMonTool::initialize() {
 // ---------------------------------------------------------
 StatusCode
 SCTMotherTrigMonTool::checkTriggers() {
-  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
   if (evtInfo.isValid()) {
-    m_firedTriggers = evtInfo->trigger_info()->level1TriggerType();
+    m_firedTriggers = evtInfo->level1TriggerType();
 
     return StatusCode::SUCCESS;
   }
@@ -76,15 +73,15 @@ SCTMotherTrigMonTool::isCalibrationNoise(const std::string &L1_Item) {
 
 bool
 SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
-  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
   if (evtInfo.isValid()) {
     m_isStream = false;
 
-    for (unsigned int i = 0; i < evtInfo->trigger_info()->streamTags().size(); ++i) {
-      ATH_MSG_DEBUG(" i " << i << " Stream-Name " << evtInfo->trigger_info()->streamTags()[i].name()
-                    << " type " << evtInfo->trigger_info()->streamTags()[i].type());
+    for (unsigned int i = 0; i < evtInfo->streamTags().size(); ++i) {
+      ATH_MSG_DEBUG(" i " << i << " Stream-Name " << evtInfo->streamTags()[i].name()
+                    << " type " << evtInfo->streamTags()[i].type());
 
-      if (evtInfo->trigger_info()->streamTags()[i].name().find(StreamName) != std::string::npos) {
+      if (evtInfo->streamTags()[i].name().find(StreamName) != std::string::npos) {
         m_isStream = true;
       }
     }

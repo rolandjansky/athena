@@ -36,6 +36,9 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
+// STL
+#include <mutex>
+
 class ISCT_Amp;
 class SCT_ID;
 
@@ -53,7 +56,7 @@ namespace CLHEP {
  * collected charges, also does cross-talk, offset
  * variation and gain variation, in a correlated way
  */
-class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
+class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
 
  public:
 
@@ -111,13 +114,14 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   short m_data_compression_mode;            //!< To set the data compression mode
   short m_data_readout_mode;                //!< To set the data read out mode
   bool m_useCalibData;                      //!< Flag to set the use of calibration data for noise, Gain,offset etc.
-  mutable int m_strip_max;                  //!< For SLHC studies
- 
-  mutable std::vector<float> m_Offset;      //!< generate offset per channel
-  mutable std::vector<float> m_GainFactor;  //!< generate gain per channel  (added to the gain per chip from calib data)
-  mutable std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
-  mutable std::vector<double> m_Analogue[3];  //!< To hold the noise and amplifier response
-  mutable std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold
+  mutable int m_strip_max ATLAS_THREAD_SAFE; //!< For SLHC studies
+
+  mutable std::recursive_mutex m_mutex;
+  mutable std::vector<float> m_Offset ATLAS_THREAD_SAFE; //!< generate offset per channel
+  mutable std::vector<float> m_GainFactor ATLAS_THREAD_SAFE; //!< generate gain per channel  (added to the gain per chip from calib data)
+  mutable std::vector<float> m_NoiseFactor ATLAS_THREAD_SAFE; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
+  mutable std::vector<double> m_Analogue[3] ATLAS_THREAD_SAFE;  //!< To hold the noise and amplifier response
+  mutable std::vector<int> m_StripHitsOnWafer ATLAS_THREAD_SAFE; //!< Info about which strips are above threshold
 
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr;        //!< Handle to SCT detector manager
   const SCT_ID*                       m_sct_id;           //!< Handle to SCT ID helper

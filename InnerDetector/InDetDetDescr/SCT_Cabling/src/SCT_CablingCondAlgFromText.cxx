@@ -59,7 +59,8 @@ namespace {
 // Constructor
 SCT_CablingCondAlgFromText::SCT_CablingCondAlgFromText(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc{"CondSvc", name}
+  m_condSvc{"CondSvc", name},
+  m_idHelper{nullptr}
 {
 }
 
@@ -73,6 +74,9 @@ SCT_CablingCondAlgFromText::initialize() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Reading cabling from " << m_source.value());
+
+  // SCT_ID
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
@@ -105,9 +109,6 @@ SCT_CablingCondAlgFromText::execute(const EventContext& ctx) const {
                   << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
-
-  const SCT_ID* idHelper{nullptr};
-  ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CablingData> writeCdo{std::make_unique<SCT_CablingData>()};
@@ -144,8 +145,8 @@ SCT_CablingCondAlgFromText::execute(const EventContext& ctx) const {
       dataLine.exceptions(std::ios_base::badbit|std::ios_base::failbit);
       try {
         dataLine>>rod>>Link>>barrelOrEndcap>>layer>>eta>>phi>>side>>std::hex>>robidFromfile>>std::dec>>sn;
-        offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
-        offlineIdHash = idHelper->wafer_hash(offlineId);
+        offlineId = m_idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
+        offlineIdHash = m_idHelper->wafer_hash(offlineId);
       } catch (const std::ios_base::failure&) {
         ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source.value()
                       << ", it may be badly formatted in the following line: \n" << inString);
@@ -166,8 +167,8 @@ SCT_CablingCondAlgFromText::execute(const EventContext& ctx) const {
       }
       if (link==disabledFibre) {
         ATH_MSG_DEBUG(sn << ": Disabled fibre encountered in text file. Will attempt to place identifier using the other fibre.");
-        offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
-        offlineIdHash = idHelper->wafer_hash(offlineId);
+        offlineId = m_idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
+        offlineIdHash = m_idHelper->wafer_hash(offlineId);
         disabledFibres.push_back(offlineIdHash);
         continue;
       }

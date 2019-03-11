@@ -1,7 +1,7 @@
 IOVDbSvc_test
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/IOVDbSvc_test.txt
+Initializing Gaudi ApplicationMgr using job opts user_path/athena/Database/IOVDbSvc/share/IOVDbSvc_test.txt
 JobOptionsSvc        INFO # =======> user_path/athena/Database/IOVDbSvc/share/../share/IOVDbSvc_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (2,1): IOVDbSvc.Folders = ["/key1", "/key2<extensible/>"]
@@ -33,17 +33,18 @@ Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All]
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbFolder          INFO Extensible folder /key2
-IOVDbSvc             INFO Initialised with 1 connections and 2 folders
+IOVDbSvc             INFO Initialised with 2 connections and 2 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
-IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy.db;dbname=OFLP200
+IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
-IOVDbSvc             INFO Disconnecting from sqlite://;schema=cooldummy.db;dbname=OFLP200
+IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
 test1
-IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy.db;dbname=OFLP200
-IOVDbSvc             INFO Disconnecting from sqlite://;schema=cooldummy.db;dbname=OFLP200
+IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
+IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 IOVDbFolder          INFO Increase cache length (step 1) for folder /key2 to 8589934590 at validityKey 85899345935
-IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy.db;dbname=OFLP200
-IOVDbSvc             INFO Disconnecting from sqlite://;schema=cooldummy.db;dbname=OFLP200
+IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
+IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
+

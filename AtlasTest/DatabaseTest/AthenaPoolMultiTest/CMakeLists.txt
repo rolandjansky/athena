@@ -61,6 +61,15 @@ athenapoolmultitest_run_test( AthenaPoolMultiTestBuildInput SplittableData_jo
 athenapoolmultitest_run_test( AthenaPoolMultiTestEventSplit EventSplit_jo
                               post_check_es
                               DEPENDS AthenaPoolMultiTestBuildInput )
+athenapoolmultitest_run_test( AthenaPoolMultiTestEventSplitDecision EventSplitDecision_jo
+                              post_check_es
+                              DEPENDS AthenaPoolMultiTestBuildInput )
+athenapoolmultitest_run_test( AthenaPoolMultiTestEventNoSplit EventNoSplit_jo
+                              post_check_es
+                              DEPENDS AthenaPoolMultiTestBuildInput )
+athenapoolmultitest_run_test( AthenaPoolMultiTestStreamSelect CheckStreamSelector_jo
+                              post_check_ss
+                              DEPENDS AthenaPoolMultiTestEventNoSplit )
 #athenapoolmultitest_run_test( AthenaPoolMultiTestCheckNull CheckNull_jo
 #                              post_check_cn
 #                              DEPENDS AthenaPoolMultiTestEventSplit )

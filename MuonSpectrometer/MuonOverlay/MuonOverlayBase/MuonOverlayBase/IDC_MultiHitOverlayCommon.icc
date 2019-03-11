@@ -1,0 +1,128 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Ketevi A. Assamagan, 2009
+
+#include <Identifier/Identifier.h>
+#include <Identifier/IdentifierHash.h>
+
+#include <set>
+
+namespace Overlay
+{
+
+template <class Datum>
+void mergeMultiHits(const std::vector<Datum *> &bkgHits,
+                    const std::vector<Datum *> &signalHits,
+                    std::vector<Datum *> &outputHits)
+{
+  outputHits.clear();
+  outputHits.insert(outputHits.end(), bkgHits.begin(), bkgHits.end());
+  outputHits.insert(outputHits.end(), signalHits.begin(), signalHits.end());
+}
+
+
+
+template <class Collection>
+void mergeMultiHitCollections(Collection *bkgCollection,
+                              Collection *signalCollection,
+                              Collection *outputCollection)
+{
+  typedef typename Collection::base_value_type Datum;
+  typedef typename Collection::size_type size_type;
+
+  /** this is the set of the all the hits treated
+      when all is done, it should be the union of signal and background hits */
+  std::set<Identifier> ids;
+
+  /** merge hits on the same channel */
+  size_type ibkg = 0;
+  while (ibkg < bkgCollection->size()) {
+    // collect all the background hits of a given Identifer id
+    std::vector<Datum *> vectBkg;
+    Datum *element = bkgCollection->at(ibkg);
+    if (!element) {
+      // element already processed, continue
+      ibkg++;
+      continue;
+    }
+
+    // Identify the element and check if we already processed it
+    Identifier id = element->identify();
+    if (!ids.insert(id).second) {
+      // this Id already treated -> move on
+      ibkg++;
+      continue;
+    }
+
+    // Swap out the element
+    Datum *tmpRdo{};
+    bkgCollection->swapElement(ibkg++, nullptr, tmpRdo);
+    vectBkg.push_back(tmpRdo);
+
+    // Process the rest with the same Identifier id
+    for (size_type i = ibkg; i < bkgCollection->size(); i++) {
+      Datum *element = bkgCollection->at(i);
+      if (!element) // already processed, continue
+        continue;
+      if (element->identify() == id) {
+        // Swap out the element
+        Datum *tmpRdo{};
+        bkgCollection->swapElement(i, nullptr, tmpRdo);
+        vectBkg.push_back(tmpRdo);
+      }
+    }
+
+    // Collect all the signal hits of the same Identifier id
+    std::vector<Datum *> vectSig;
+    for (size_type i = 0; i < signalCollection->size(); i++) {
+      Datum *element = signalCollection->at(i);
+      if (!element) // already processed, continue
+        continue;
+      if (element->identify() == id) {
+        Datum *tmpRdo{};
+        signalCollection->swapElement(i, nullptr, tmpRdo);
+        vectSig.push_back(tmpRdo);
+      }
+    }
+
+    /** now we have vectBkg and vectSig for same Id channels,
+        call the multi hit overlay and save the merged hits */
+    if (!vectSig.empty()) { // no need to merge hits if signal not empty
+      std::vector<Datum *> vect;
+      Overlay::mergeMultiHits(vectBkg, vectSig, vect);
+      for (Datum *element : vect)
+        outputCollection->push_back(element);
+    } else { // copy directly background if signal is empty
+      for (Datum *element : vectBkg)
+        outputCollection->push_back(element);
+    }
+  }
+
+  /** now there must be some hits in the signal collection that are not treated yet -
+      deal with those at this time. These should be the hit Ids that
+      are in the signal but not found in the background */
+  size_type isig = 0;
+  while (isig < signalCollection->size()) {
+    Datum *element = signalCollection->at(isig);
+    if (!element) {
+      // element already processed, continue
+      isig++;
+      continue;
+    }
+
+    Identifier id = element->identify();
+    if (!ids.insert(id).second) {
+      // this Id already treated -> move on
+      isig++;
+      continue;
+    }
+
+    Datum *tmpRdo{};
+    signalCollection->swapElement(isig++, 0, tmpRdo);
+    outputCollection->push_back(tmpRdo);
+  }
+}
+
+} // namespace Overlay

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARONLINEID_H
@@ -280,13 +280,6 @@ inline HWIdentifier LArOnlineID::calib_module_Id(int barrel_ec, int pos_neg,
   m_side_impl.pack       (pos_neg          , result);
   m_feedthrough_impl.pack(feedthrough      , result);
   m_slot_impl.pack       (slot             , result); 
-  /* Do checks */
-  /*
-  if(m_do_checks) 
-  {
-  calib_module_Id_checks ( barrel_ec, pos_neg, feedthrough, slot );
-  }
-  */
   return result;
 }
 
@@ -338,10 +331,6 @@ inline HWIdentifier LArOnlineID::calib_channel_Id( int barrel_ec, int pos_neg, i
   m_slot_impl.pack           (slot                 , result);
   m_channel_in_slot_impl.pack(channel              , result);
 
-  /* Do checks */
-  if(m_do_checks) {
-    //channel_Id_checks( barrel_ec, pos_neg, feedthrough, slot, channel );
-  }
   return result;
 }
 
@@ -355,10 +344,6 @@ inline HWIdentifier LArOnlineID::calib_channel_Id(const HWIdentifier feedthrough
   m_slot_impl.pack            (slot  , result);
   m_channel_in_slot_impl.pack (channel, result);
 
-  /* Do checks */
-  if(m_do_checks) {
-    //channel_Id_checks( feedthroughId, slot, channel );
-  }
   return result;
 }
 
@@ -370,10 +355,6 @@ inline HWIdentifier LArOnlineID::calib_channel_Id(const HWIdentifier febId, int 
   m_channel_in_slot_impl.reset(result);
   m_channel_in_slot_impl.pack (channel, result);
 
-  /* Do checks */
-  if(m_do_checks) {
-    //channel_Id_checks( febId, channel );
-  }
   return result;
 }
 inline HWIdentifier LArOnlineID::calib_channel_Id(IdentifierHash channelHashId) const

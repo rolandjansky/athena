@@ -3,98 +3,76 @@
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
-
 // Ketevi A. Assamagan <ketevi@bnl.gov>, March 2008
-
 // Piyali Banerjee <Piyali.Banerjee@cern.ch>, March 2011
 
-#include "RpcOverlay/RpcOverlay.h"
+#include <RpcOverlay/RpcOverlay.h>
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include <StoreGate/ReadHandle.h>
+#include <StoreGate/WriteHandle.h>
 
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonDigitContainer/RpcDigitContainer.h"
-
-#include <iostream>
-#include <typeinfo>
+#include <IDC_OverlayBase/IDC_OverlayHelpers.h>
 
 
 //================================================================
 RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  IDC_MultiHitOverlayBase(name, pSvcLocator)
+  IDC_MuonOverlayBase(name, pSvcLocator)
 {
 }
 
 //================================================================
-StatusCode RpcOverlay::overlayInitialize()
+StatusCode RpcOverlay::initialize()
 {
-  ATH_MSG_INFO("RpcOverlay initialized");
+  ATH_MSG_DEBUG("Initializing...");
 
-  /** access to the CSC Identifier helper */
-  ATH_CHECK(detStore()->retrieve(m_rpcHelper, "RPCIDHELPER"));
-  ATH_MSG_DEBUG(" Found the RpcIdHelper. ");
-
-  ATH_CHECK(m_mainInputDigitKey.initialize());
-  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_mainInputDigitKey );
-  ATH_CHECK(m_overlayInputDigitKey.initialize());
-  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_overlayInputDigitKey );
-  ATH_CHECK(m_outputDigitKey.initialize());
-  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputDigitKey );
+  ATH_CHECK(m_bkgInputKey.initialize());
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgInputKey );
+  ATH_CHECK(m_signalInputKey.initialize());
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalInputKey );
+  ATH_CHECK(m_outputKey.initialize());
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputKey );
 
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode RpcOverlay::overlayFinalize()
+StatusCode RpcOverlay::execute()
 {
-  ATH_MSG_INFO("RpcOverlay finalized");
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode RpcOverlay::overlayExecute() {
   ATH_MSG_DEBUG("RpcOverlay::execute() begin");
 
-  //----------------------------------------------------------------
 
-  SG::ReadHandle<RpcDigitContainer> dataContainer (m_mainInputDigitKey);
-  if (!dataContainer.isValid()) {
-    ATH_MSG_ERROR("Could not get data RPC container " << dataContainer.name() << " from store " << dataContainer.store());
+  SG::ReadHandle<RpcDigitContainer> bkgContainer (m_bkgInputKey);
+  if (!bkgContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get background RPC container " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("Found data RpcDigitContainer called " << dataContainer.name() << " in store " << dataContainer.store());
-  ATH_MSG_INFO("RPC Data     = "<<shortPrint(dataContainer.cptr()));
+  ATH_MSG_DEBUG("Found background RpcDigitContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
+  ATH_MSG_DEBUG("RPC Background = " << Overlay::debugPrint(bkgContainer.cptr()));
+  ATH_MSG_VERBOSE("RPC background has digit_size " << bkgContainer->digit_size());
 
-  ATH_MSG_VERBOSE("Retrieving MC  input RPC container");
-  SG::ReadHandle<RpcDigitContainer> mcContainer(m_overlayInputDigitKey);
-  if(!mcContainer.isValid() ) {
-    ATH_MSG_ERROR("Could not get overlay RPC container " << mcContainer.name() << " from store " << mcContainer.store());
+  SG::ReadHandle<RpcDigitContainer> signalContainer(m_signalInputKey);
+  if (!signalContainer.isValid() ) {
+    ATH_MSG_ERROR("Could not get signal RPC container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("Found overlay RpcDigitContainer called " << mcContainer.name() << " in store " << mcContainer.store());
-  ATH_MSG_INFO("RPC MC       = "<<shortPrint(mcContainer.cptr()));
+  ATH_MSG_DEBUG("Found signal RpcDigitContainer called " << signalContainer.name() << " in store " << signalContainer.store());
+  ATH_MSG_DEBUG("RPC Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
+  ATH_MSG_VERBOSE("RPC signal has digit_size " << signalContainer->digit_size());
 
-  ATH_MSG_VERBOSE("RPC data has digit_size "<<dataContainer->digit_size());
-
-  ATH_MSG_VERBOSE("RPC signal data has digit_size "<<mcContainer->digit_size());
-
-  SG::WriteHandle<RpcDigitContainer> outputContainer(m_outputDigitKey);
-  ATH_CHECK(outputContainer.record(std::make_unique<RpcDigitContainer>(dataContainer->size())));
+  SG::WriteHandle<RpcDigitContainer> outputContainer(m_outputKey);
+  ATH_CHECK(outputContainer.record(std::make_unique<RpcDigitContainer>(bkgContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output RpcDigitContainer called " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG("Recorded output RpcDigitContainer called " << outputContainer.name() << " in store " << outputContainer.store());
 
-  //Do the actual overlay
-  if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
-    this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
-  }
-  ATH_MSG_INFO("RPC Result   = "<<shortPrint(outputContainer.cptr()));
+  // Do the actual overlay
+  ATH_CHECK(overlayMultiHitContainer(bkgContainer.cptr(), signalContainer.cptr(), outputContainer.ptr()));
+  ATH_MSG_DEBUG("RPC Result     = " << Overlay::debugPrint(outputContainer.cptr()));
 
-  //----------------------------------------------------------------
+
   ATH_MSG_DEBUG("RpcOverlay::execute() end");
 
   return StatusCode::SUCCESS;
 }
-
-// EOF

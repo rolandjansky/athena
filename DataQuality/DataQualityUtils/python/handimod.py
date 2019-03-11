@@ -397,7 +397,7 @@ def makeColorFile( htmlDir, name, s, number, subname, assessIndex , color, runli
       else:
         h.write('<td class="' + sp[1] + '"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
       temp = s[y].rsplit(" title ")
-      sp = temp[0]  
+      sp = temp[0].split()
       makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare,jsRoot)
     y=y+1
     if y< number:
@@ -579,11 +579,11 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare,jsRoot ):
       cc+=2
       extra-=2
   k.write('</table>\n</td>\n')
-  jsonPath = htmlDir+'/'+sp[21]+".json" if sp[0] else ""
-  jsonFileCull.add(jsonPath)
+  jsonPath = htmlDir+'/'+subname+'/'+sp[0]+".json" if sp[0] else ""
+  if jsonPath: jsonFileCull.add(jsonPath)
   jsonFile = open(jsonPath,'r') if os.path.isfile(jsonPath) else "" 
   if subname == '.':
-    if(jsRoot and os.path.isfile(jsonPath)):
+    if((jsRoot & 2) and os.path.isfile(jsonPath)):
        jsonFile.seek(0)
        jsonStr = jsonFile.read()
        jsonStr = jsonStr.replace('\n','')
@@ -591,7 +591,7 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare,jsRoot ):
     else:
        k.write('<td><a href="toplevel.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
   else:
-      if(jsRoot and os.path.isfile(jsonPath)):
+      if((jsRoot & 2) and os.path.isfile(jsonPath)):
          jsonFile.seek(0)
          jsonStr = jsonFile.read()
          jsonStr = jsonStr.replace('\n','');
@@ -716,6 +716,7 @@ def stringAllDQAssessments( resultsFile ):
 
 def saveAllHistograms( resultsFile, location, drawRefs, run_min_LB ,jsRoot ):
   of = dqutils.HanOutputFile( resultsFile )
+  # sorry, need PNG, so override jsRoot == 2
   cnvType=1 if jsRoot==1 else 3
   nSaved = of.saveAllHistograms( location, drawRefs, run_min_LB ,cnvType)
   of.setFile('')

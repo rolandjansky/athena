@@ -82,9 +82,6 @@ RodHeaderByteStreamTool::~RodHeaderByteStreamTool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode RodHeaderByteStreamTool::initialize()
 {

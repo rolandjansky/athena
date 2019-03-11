@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigHLTResultByteStreamCnv_h
@@ -16,7 +16,6 @@
  *
  *
  * File and Version Information:
- * $Id: HLTResultByteStreamCnv.h,v 1.4 2009-02-26 16:29:25 tbold Exp $
  **********************************************************************************/
 
 #include <string>
@@ -37,9 +36,6 @@ class IAddressCreator;
 
 class MsgStream;
 
-
-// Externals
-extern unsigned char ByteStream_StorageType;
 
 namespace HLT {
 
@@ -85,8 +81,7 @@ namespace HLT {
     virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); //!< create RDO (HLTResult) from bytestream
     virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr); //!< create bytestream from RDOs (HLTResult)
 
-    // Storage type and class ID
-    static unsigned char storageType()     { return ByteStream_StorageType; } //!< used for the converter
+    static long storageType();    //!< storageType
     static const CLID& classID(); //!< CLID
 
     long repSvcType() const { return i_repSvcType(); } //!< return repSvcType

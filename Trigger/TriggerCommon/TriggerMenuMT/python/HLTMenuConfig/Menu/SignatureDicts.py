@@ -126,7 +126,9 @@ JetChainParts = {
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
-    'trkopt'       : []
+    'trkopt'       : [],
+    'hypoScenario' : ['simple', 'vbenf'],
+    'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
 # ---- Jet Dictinary of default Values ----
@@ -153,6 +155,8 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'trkopt'       : 'notrk',
+    'hypoScenario' : 'simple',
+    'smc'          : 'nosmc',
     }
 
 #==========================================================
@@ -184,9 +188,9 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550', ],
     'threshold'      : '',
-    'extra'          : ['noL1'],
+    'extra'          : ['noL1', 'Comb'],
     'IDinfo'         : [],
-    'isoInfo'        : [],
+    'isoInfo'        : ['ivar',],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'hypoInfo'       : [],
@@ -195,7 +199,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : [],
+    'addInfo'        : ['1step'],
     'overlapRemoval' : ['wOvlpRm',],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
@@ -256,8 +260,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['tracktwo',],
-    'selection'    : ['medium1',],
+    'preselection' : ['tracktwo', 'ptonly', ],
+    'selection'    : ['medium1', 'perf', ],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : [],
@@ -366,7 +370,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step'],
+    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
     'eventBuildType'  : AllowedEventBuildingIdentifiers,
     }
 # ---- Egamma Dictinary of default Values ----

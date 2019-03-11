@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -57,10 +57,13 @@ public:
 
   /** build a region identifier for a channel  */
   Identifier  region_id   	(int pos_neg, int sampling, int region ) const ;
+  Identifier  region_id   	(int pos_neg, int sampling, int region, bool checks) const;
 
   /** build a cell identifier for a channel  */
   Identifier  channel_id   	(int pos_neg, int sampling, int region,
-				 int eta,     int phi ) const ;
+				 int eta,     int phi ) const;
+  Identifier  channel_id   	(int pos_neg, int sampling, int region,
+				 int eta,     int phi, bool checks) const;
 				 
   /** build a cell identifier for a channel  <br>
       eta counting includes regions     */
@@ -88,6 +91,8 @@ public:
       -- valid for both kinds of channels */
   Identifier  channel_id   	(const Identifier regionId,
 				 int eta,       int phi ) const ;
+  Identifier  channel_id   	(const Identifier regionId,
+				 int eta,       int phi, bool checks) const;
 
   /** Test if the identifier represents a supercell. */
   bool        is_supercell    (const Identifier id)const;

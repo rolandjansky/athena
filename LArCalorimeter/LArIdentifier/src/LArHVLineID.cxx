@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArIdentifier/LArHVLineID.h"
@@ -190,34 +190,6 @@ int LArHVLineID::get_expanded_id  (const HWIdentifier& id,
   }
   return (0);
 }
-
-/*
-//=====================================================================================
-void LArHVLineID::hvlineId_checks( int part, int canline, int cannode, int line) const throw(LArOnlID_Exception)
-//=====================================================================================
-{  
-  MsgStream log(m_msgSvc, "LArHVLineID" );
-  // Fill expanded id
-  ExpandedIdentifier id(calo_exp());
-  id << part << canline << cannode << line;
-  if( id.last_error () != ExpandedIdentifier::none) {
-    char * lStr = new char[200];
-    std::string errorMessage ;
-    sprintf(lStr,"Error in LArHVLineID::hvline_id(field values), did not build, partition: %d, canline: %d, can node: %d, hv line: %d ", partition, canline, cannode , line );
-    errorMessage += std::string(lStr);
-    delete[] lStr ;
-    LArOnlID_Exception except(errorMessage , 2);
-    throw except ;   
-  }  
-  if (!m_full_atlas_highvoltage_range.match(id)) { 
-    std::string errorMessage = "[LArHVLineID]::hv_lineId() result is not OK: ID, range = "
-      + std::string(id) + " , " + (std::string)m_full_atlas_highvoltage_range;
-    LArOnlID_Exception except(errorMessage , 2);
-    throw except ;   
-  }
-}
-*/
-
 
 
 //=============================================================================

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalNoiseOccupancyMonTool.cxx
@@ -110,7 +110,7 @@ InDetGlobalNoiseOccupancyMonTool::InDetGlobalNoiseOccupancyMonTool(
    m_SCT_TRT_NO(0),
    m_SCT_PIX_NO(0),
    m_PIX_TRT_NO(0),
-   m_PIX_SCT_TRT_NO(0),
+   //m_PIX_SCT_TRT_NO(0),
    m_TRT_SCTvTRT_PIX_10evt(0),
    m_TRT_SCTvSCT_PIX_10evt(0),
    m_TRT_PIXvSCT_PIX_10evt(0),
@@ -1143,20 +1143,17 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
     int barrel_ec = barrel_ec_sel;
     int nStripsCntr = 0;
 
-    // IDhelper do checks on components.  Like strips.
-    m_sctID->set_do_checks(do_checks_flg);
-
     Identifier rdoId;
     int layer_disk_max = 0;
     if(barrel_ec_sel == 0)
     {
 	layer_disk_max = 3;
-	rdoId= m_sctID->strip_id(barrel_ec, 0, 0, -6, 0, 0); // start point for barrel
+	rdoId= m_sctID->strip_id(barrel_ec, 0, 0, -6, 0, 0, do_checks_flg); // start point for barrel
     }
     else if(barrel_ec_sel == -2 || barrel_ec_sel == 2)
     {
 	layer_disk_max = 8;
-	rdoId = m_sctID->strip_id(barrel_ec, 0, 0, 0, 0, 0); // start point for ec
+	rdoId = m_sctID->strip_id(barrel_ec, 0, 0, 0, 0, 0, do_checks_flg); // start point for ec
     }
 
     for(int layerItr = 0 ; layerItr <= layer_disk_max ; layerItr++) // 3 layer_disk for Barrel
@@ -1171,7 +1168,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
 		    int strip_max_m = m_sctID->strip_max(rdoId);
 		    for(int stripItr = 0 ; stripItr <= strip_max_m ; stripItr++) // strips
 		    {
-			rdoId = m_sctID->strip_id(barrel_ec, layerItr, phiItr, etaItr, sideItr, stripItr);
+			rdoId = m_sctID->strip_id(barrel_ec, layerItr, phiItr, etaItr, sideItr, stripItr, do_checks_flg);
 			nStripsCntr++;
 		    }
 		}
@@ -1180,7 +1177,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
     }
   
     // Start point for the positive part.  Good for barrel and ec.
-    rdoId = m_sctID->strip_id(barrel_ec, 0, 0, 1, 0, 0);
+    rdoId = m_sctID->strip_id(barrel_ec, 0, 0, 1, 0, 0, do_checks_flg);
     for(int layerItr = 0 ; layerItr <= layer_disk_max ; layerItr++) // 3 layer_disk for Barrel
     {
 	for(int phiItr = 0 ; phiItr <= m_sctID->phi_module_max(rdoId) ; phiItr++) // phi modules
@@ -1193,7 +1190,7 @@ int InDetGlobalNoiseOccupancyMonTool::GetSCTCounts(int barrel_ec_sel, bool do_ch
 		    int strip_max_m = m_sctID->strip_max(rdoId);
 		    for(int stripItr = 0 ; stripItr <= strip_max_m ; stripItr++) // strips
 		    {
-			rdoId = m_sctID->strip_id(barrel_ec, layerItr, phiItr, etaItr, sideItr, stripItr);
+			rdoId = m_sctID->strip_id(barrel_ec, layerItr, phiItr, etaItr, sideItr, stripItr, do_checks_flg);
 			//m_sctID->print(rdoId);
 			nStripsCntr++;
 		    }
@@ -1228,27 +1225,24 @@ int InDetGlobalNoiseOccupancyMonTool::GetPixelCounts(int barrel_ec_sel, bool do_
     int barrel_ec = barrel_ec_sel;
     int nPixelCntr = 0;
 
-    // IDhelper do checks on components.  Like strips.
-    m_pixelID->set_do_checks(do_checks_flg);
-
     Identifier rdoId;
     int layer_disk_max = 0;
     if(barrel_ec_sel == 0)
     {
 	layer_disk_max = 2;
-	rdoId= m_pixelID->pixel_id(barrel_ec, 0, 0, 0, 0, 0); // start point for barrel
+	rdoId= m_pixelID->pixel_id(barrel_ec, 0, 0, 0, 0, 0, do_checks_flg); // start point for barrel
     }
     else if(barrel_ec_sel == -2 || barrel_ec_sel == 2)
     {
 	layer_disk_max = 2;
-	rdoId = m_pixelID->pixel_id(barrel_ec, 0, 0, 0, 0, 0); // start point for ec
+	rdoId = m_pixelID->pixel_id(barrel_ec, 0, 0, 0, 0, 0, do_checks_flg); // start point for ec
     }
 
     for(int layerItr = 0 ; layerItr <= layer_disk_max ; layerItr++) // 3 layer_disk for Barrel
     {
-	int eta_module_min = m_pixelID->eta_module_min( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0) );
-	int phi_module_max = m_pixelID->phi_module_max( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0) );
-	int eta_module_max = m_pixelID->eta_module_max( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0) );
+       int eta_module_min = m_pixelID->eta_module_min( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0, do_checks_flg) );
+	int phi_module_max = m_pixelID->phi_module_max( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0, do_checks_flg) );
+	int eta_module_max = m_pixelID->eta_module_max( m_pixelID->pixel_id(barrel_ec, layerItr, 0, 0, 0, 0, do_checks_flg) );
 	for(int phiItr = 0 ; phiItr <= phi_module_max ; phiItr++) // phi modules
 	{
 	    for(int etaItr = eta_module_min; etaItr <= eta_module_max; etaItr++) // eta modules

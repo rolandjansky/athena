@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*- header for JetFitterTag
@@ -72,54 +72,27 @@ namespace Analysis {
     */
     void setOrigin(const xAOD::Vertex*);
       
-    virtual StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);   
+    virtual StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag);   
     
   private:      
 
-    // int augment_with_svinfoplus(JetFitterGenericTagInfo* tag_info, 
-    // 				const xAOD::Jet& jet_with_sv1); 
-    // int augment_with_ipinfoplus(JetFitterGenericTagInfo* tag_info, 
-    // 				const xAOD::Jet& jet_with_ipinfo); 
-    // void get_tagger_weights(IJetFitterTagInfo* generic_vars, 
-    // 			    const xAOD::BTagging&); 
-    // double get_simple_tagger_weights(IJetFitterTagInfo* generic_vars, 
-    // 				     const xAOD::BTagging&); 
-    // std::vector<double> get_likelihood_vector(const xAOD::BTagging&, 
-    // 					      const std::string&) const; 
-    /** This switch is needed to indicate what to do. 
-	The algorithm can be run to produce reference histograms from the
-	given MC files (m_runModus=0) or to work in analysis mode
-	(m_runModus=1) where already made reference histograms are read.
-    */ 
-    
     std::string    m_runModus;          
 
     /** for reference mode: */
 
     bool m_doForcedCalib;
     std::string m_ForcedCalibName;
-    // std::string m_svx_tagger_name; 
     std::string m_ipinfo_tagger_name; 
     std::string m_secVxFinderName;
     std::string m_xAODBaseName;
 
-    // bool m_store_only_base_object; 
-
-    // the GenericTagInfo object will have some duplicate info, 
-    // by default it's removed at the end of the tagging step
-    // bool m_save_temporary_variables; 
-
     // skip light jets with heavy flavor in this cone
     double m_jetPtMinRef; // min cut on jet pT for reference
 
-    // std::vector<std::string> m_supplementalTaggers; 
-    // std::vector<std::string> m_multiweightSupplementalTaggers; 
     std::vector<std::string> m_jetCollectionList; // 
     std::vector<std::string> m_hypothese; // hypotheses: b | c | u
-    // std::map<std::string, std::vector<double> > m_proxy_likelihoods; 
 
     ToolHandle<IJetFitterNtupleWriter> m_ntupleWriter;
-    // ToolHandle<IJetFitterVariablesFactory> m_variablesFactory;
     ToolHandle<IJetFitterClassifierTool> m_classifier;
     
 

@@ -32,9 +32,9 @@ void CompetingRIOsOnTrackCnv_p1::persToTrans( const Trk::CompetingRIOsOnTrack_p1
 
     // find max assignment index again
   double maxAssgnProb = 0;
-  unsigned int max = transObj->m_assignProb->size();
+  unsigned int max = transObj->m_assignProb.load()->size();
   typedef std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > t_probVec;
-  t_probVec& tProbVec = *(const_cast<t_probVec*>(transObj->m_assignProb));
+  t_probVec& tProbVec = *(const_cast<t_probVec*>(transObj->m_assignProb.load()));
   for (unsigned int i=0; i<max; i++) {
     if ( tProbVec[i] >= maxAssgnProb) {
       transObj->m_indexMaxAssignProb=i;
@@ -51,6 +51,6 @@ void CompetingRIOsOnTrackCnv_p1::transToPers( const Trk::CompetingRIOsOnTrack * 
     EigenHelpers::eigenMatrixToVector(pMat.values, transObj->m_localCovariance, "CompetingRIOsOnTrackCnv_p1");
     persObj->m_localErrorMatrix = toPersistent( &m_errorMxCnv, &pMat, log ); 
 
-    persObj->m_assignProb.assign (transObj->m_assignProb->begin(),
-                                  transObj->m_assignProb->end());
+    persObj->m_assignProb.assign (transObj->m_assignProb.load()->begin(),
+                                  transObj->m_assignProb.load()->end());
 }

@@ -221,6 +221,9 @@ private:
     /// Flag to identify the first BeginRun incident
     bool                           m_isFirstBeginRun;
 
+    /// conditionsRun from the first BeginRun incident (HLT)
+    EventIDBase::number_type       m_conditionsRun;
+
     /// Flag to identify a new file incident
     bool                           m_newFileIncidentSeen;
 

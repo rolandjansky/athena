@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@
  * base class in the correct way.
  */
 RecCTPByteStreamCnv::RecCTPByteStreamCnv( ISvcLocator* svcloc )
-  : Converter( ByteStream_StorageType, classID(), svcloc ),
+  : Converter( storageType(), classID(), svcloc ),
     m_tool( "RecCTPByteStreamTool" ), m_srcIdMap( 0 ),
     m_robDataProvider( "ROBDataProviderSvc", "RecCTPByteStreamCnv" ) {
 
@@ -50,6 +50,10 @@ const CLID& RecCTPByteStreamCnv::classID() {
 
   return ClassID_traits< CTP_RIO >::ID();
 
+}
+
+long RecCTPByteStreamCnv::storageType() {
+  return ByteStreamAddress::storageType();
 }
 
 /**

@@ -31,6 +31,7 @@
 
 #include <math.h>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // legacy trigger code
 
 RoILArEMCellContMaker::RoILArEMCellContMaker(const std::string & type, const std::string & name,
 	 const IInterface* parent): IAlgToolEFCalo(type, name, parent),

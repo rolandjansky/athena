@@ -34,7 +34,7 @@ if( XAOD_STANDALONE )
 else()
    set( sources Root/MsgLevel.cxx Root/AsgTool.cxx Root/AsgMetadataTool.cxx
       Root/AsgMessaging.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx
-      Root/MessageCheck.cxx Root/UnitTest.cxx src/*.cxx )
+      Root/MessageCheck.cxx src/*.cxx )
 endif()
 
 # Component(s) in the package:

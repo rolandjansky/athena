@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,6 +19,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloUtils/CaloTowerStore.h"
+class CaloDetDescrManager;
 
 
 class CaloTowerStoreTestAlg
@@ -33,9 +34,15 @@ public:
 
 
   /** 
+   * @brief Standard Gaudi initialize method.
+   */
+  virtual StatusCode initialize() override;
+
+
+  /** 
    * @brief Standard Gaudi execute method.
    */
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
 
   typedef std::vector<std::pair<unsigned, double> > test_tow_t;
@@ -43,6 +50,8 @@ public:
   void dump_tows (const test_tows_t& t);
 
 private:
+  const CaloDetDescrManager* m_caloDDM;
+
   void iterate_full (const CaloTowerStore& store,
                      test_tows_t& tows);
   void iterate_subseg (const CaloTowerStore& store,

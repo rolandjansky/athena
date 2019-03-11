@@ -6,10 +6,6 @@
 
 #include "LumiBlockComps/LuminosityTool.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 #include "CoolKernel/IObject.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -69,6 +65,8 @@ StatusCode
 LuminosityTool::initialize()
 {
   ATH_MSG_DEBUG("LuminosityTool::initialize() begin");
+
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   ATH_MSG_INFO("LuminosityTool::initialize() registering " << m_lumiFolderName);
 
@@ -206,16 +204,16 @@ LuminosityTool::lbLuminosityPerBCIDVector() {
 float
 LuminosityTool::lbLuminosityPerBCID() {
 
-  const EventInfo* eventInfo;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot access event info " );
-    return 0.;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);  
+  // check is only useful for serial running; remove when MT scheduler used
+  if(!eventInfo.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_eventInfoKey.key());
+    return 0;
   }
 
-  float lumi = lbLuminosityPerBCID(eventInfo->event_ID()->bunch_crossing_id());
+  float lumi = lbLuminosityPerBCID(eventInfo->bcid());
 
-  ATH_MSG_DEBUG( "From DB, LB " << eventInfo->event_ID()->lumi_block() << " bcid " << eventInfo->event_ID()->bunch_crossing_id() << " -> " << lumi << " ub-1 s-1" );
+  ATH_MSG_DEBUG( "From DB, LB " << eventInfo->lumiBlock() << " bcid " << eventInfo->bcid() << " -> " << lumi << " ub-1 s-1" );
 
   return lumi;
 }

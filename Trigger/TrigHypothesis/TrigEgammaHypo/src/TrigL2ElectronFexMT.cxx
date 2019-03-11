@@ -203,7 +203,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
 	}
           else{
               ATH_MSG_VERBOSE("REGTEST: TrigElectron: cluster index = " << clusEL.index() <<
-				      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
+				      " eta = " << etaAtCalo << " phi = " << phiAtCalo);
  
 
               xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();

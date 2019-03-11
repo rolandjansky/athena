@@ -99,6 +99,8 @@ public:
   int getShutter() const;
   int getInterlock() const;
   int getAlarm() const;
+  bool getQDCTimeout() const;
+  bool getTDCTimeout() const;
   
   void setLaser(const int Counter,
                 const int diodeCurrOrd,
@@ -143,6 +145,9 @@ public:
               const int alarm);
   
   void setDaqType(const unsigned int daqtype);
+  
+  void setTimeouts(const bool qdc, const bool tdc);
+
   enum daqType {daqPedestal=0x10, daqAlpha, daqLed, daqLinearity, daqLaser}; 
 
   
@@ -161,6 +166,8 @@ private:
   std::vector<TileLaserPmt> m_pmtsHG;
   std::vector<std::vector<TileLasCalib> > m_lascalib;
   TileLaserPLC m_plc;
+  bool m_qdctimeout; 
+  bool m_tdctimeout;
   
   int m_daqtype;
   // DAQ TYPES ARE RELEVANT FOR LASERII
@@ -296,6 +303,17 @@ inline int TileLaserObject::getAlarm() const
 {
   return m_plc.getAlarm();
 }
+
+inline bool TileLaserObject::getQDCTimeout() const
+{
+  return m_qdctimeout;
+}
+
+inline bool TileLaserObject::getTDCTimeout() const
+{
+  return m_tdctimeout;
+}
+
 
 inline int TileLaserObject::getDaqType() const
 {

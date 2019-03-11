@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOLCWEIGHTTOOL_H
@@ -24,6 +24,7 @@
 #include "GaudiKernel/ToolHandle.h" 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCell_ID;
 class CaloDetDescrManager;
@@ -40,8 +41,6 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
   virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
   virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
-
   CaloLCWeightTool(const std::string& type, 
 		   const std::string& name,
 		   const IInterface* parent);
@@ -49,7 +48,7 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
 
   /**
    * @brief name of the key for had cell weights */
-  std::string m_key;
+  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_key;
 
   /**
    * @brief minimal signal/elec_noise ratio for a cell to be weighted
@@ -67,20 +66,13 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
    * the cases EM and HAD. */
   bool  m_useHadProbability;
 
-  /**
-   * @brief data object containing the hadronic weights
-   *
-   * This object contains the actual data used for calibration. */
-
-  const DataHandle<CaloLocalHadCoeff> m_data;
 
   /**
-   * @brief map to indices inside the data for individual samplings
+   * @brief vector of names of individual samplings
    *
-   * Since not all samplings might have weighting coefficients this map
-   * holds the index (for valid) or -1 (for invalid) for each sampling. */
+   * needed to not call many times CaloSamplingHelper::getSamplingName */
 
-  std::vector<int> m_isampmap;
+  std::vector<std::string> m_sampnames;
 
   /**
    * @brief interpolate correction coefficients */

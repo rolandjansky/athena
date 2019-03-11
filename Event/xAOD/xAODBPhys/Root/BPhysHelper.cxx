@@ -32,7 +32,7 @@ typedef std::vector<MuonLink> MuonLinkVector;
 /*****************************************************************************/
 #define GET_PV( name )                                          \
 {                                                               \
-  static SG::AuxElement::Accessor<VertexLink> pvLinkAcc(name);  \
+  static const SG::AuxElement::Accessor<VertexLink> pvLinkAcc(name);  \
   if(!pvLinkAcc.isAvailable(*m_b)) {                            \
     return 0;                                                   \
   }                                                             \
@@ -45,7 +45,7 @@ typedef std::vector<MuonLink> MuonLinkVector;
 /*****************************************************************************/
 #define SET_PV( name, pv, vertexContainer )                       \
 {                                                                 \
-  static SG::AuxElement::Decorator<VertexLink> pvLinkDecor(name); \
+  static const SG::AuxElement::Decorator<VertexLink> pvLinkDecor(name); \
   VertexLink vertexLink;                                          \
   if(pv) {                                                        \
   vertexLink.setElement(pv);                                      \
@@ -58,28 +58,28 @@ typedef std::vector<MuonLink> MuonLinkVector;
 /*****************************************************************************/
 #define GET_FLOAT(name)                                    \
 {                                                          \
-  static SG::AuxElement::Accessor<float> floatAcc(name);   \
+  static const SG::AuxElement::Accessor<float> floatAcc(name);   \
   if(!floatAcc.isAvailable(*m_b)) return -9999999.;        \
   return floatAcc(*m_b);                                   \
 }
 /*****************************************************************************/
 #define SET_FLOAT( name, val)                              \
 {                                                          \
-  static SG::AuxElement::Decorator<float> floatDec(name);  \
+  static const SG::AuxElement::Decorator<float> floatDec(name);  \
   floatDec(*m_b) = val;                                    \
   return true;                                             \
 }
 /*****************************************************************************/
 #define GET_INT(name)                                  \
 {                                                      \
-  static SG::AuxElement::Accessor<int> intAcc(name);   \
+  static const SG::AuxElement::Accessor<int> intAcc(name);   \
   if(!intAcc.isAvailable(*m_b)) return -9999999;       \
   return intAcc(*m_b);                                 \
 }
 /*****************************************************************************/
 #define SET_INT( name, val)                            \
 {                                                      \
-  static SG::AuxElement::Decorator<int> intDec(name);  \
+  static const SG::AuxElement::Decorator<int> intDec(name);  \
   intDec(*m_b) = val;                                  \
   return true;                                         \
 }
@@ -284,9 +284,9 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<float>& px,
   m_cachedRefTracks.clear();
   
   // create decorators
-  static SG::AuxElement::Decorator< std::vector<float> > refTrackPxDeco("RefTrackPx");
-  static SG::AuxElement::Decorator< std::vector<float> > refTrackPyDeco("RefTrackPy");
-  static SG::AuxElement::Decorator< std::vector<float> > refTrackPzDeco("RefTrackPz");
+  static const SG::AuxElement::Decorator< std::vector<float> > refTrackPxDeco("RefTrackPx");
+  static const SG::AuxElement::Decorator< std::vector<float> > refTrackPyDeco("RefTrackPy");
+  static const SG::AuxElement::Decorator< std::vector<float> > refTrackPzDeco("RefTrackPz");
   
   // store the elements:
   refTrackPxDeco(*m_b) = px;
@@ -466,7 +466,7 @@ bool xAOD::BPhysHelper::setMuons(const std::vector<const xAOD::Muon*>& muons,
   m_cachedMuons.clear();
   
   // Create muon links decorator 
-  static SG::AuxElement::Decorator<MuonLinkVector> muonLinksDecor("MuonLinks"); 
+  static const SG::AuxElement::Decorator<MuonLinkVector> muonLinksDecor("MuonLinks"); 
   
   // create tmp vector of muon links
   MuonLinkVector muonLinks;
@@ -548,7 +548,7 @@ bool xAOD::BPhysHelper::setPrecedingVertices(const std::vector<const xAOD::Verte
   m_cachedPrecedingVertices.clear();
   
   // Create preceding vertex links decorator 
-  static SG::AuxElement::Decorator<VertexLinkVector> precedingVertexLinksDecor("PrecedingVertexLinks"); 
+  static const SG::AuxElement::Decorator<VertexLinkVector> precedingVertexLinksDecor("PrecedingVertexLinks"); 
   
   // create tmp vector of preceding vertex links
   VertexLinkVector precedingVertexLinks;
@@ -629,7 +629,7 @@ bool xAOD::BPhysHelper::setCascadeVertices(const std::vector<const xAOD::Vertex*
   m_cachedCascadeVertices.clear();
   
   // Create cascade vertex links decorator 
-  static SG::AuxElement::Decorator<VertexLinkVector> cascadeVertexLinksDecor("CascadeVertexLinks"); 
+  static const SG::AuxElement::Decorator<VertexLinkVector> cascadeVertexLinksDecor("CascadeVertexLinks"); 
   
   // create tmp vector of cascade vertex links
   VertexLinkVector cascadeVertexLinks;
@@ -982,9 +982,9 @@ bool xAOD::BPhysHelper::cacheRefTracks()
   m_cachedRefTracks.clear();
   
   // Create auxiliary branches accessors 
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
+  static const SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
+  static const SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
+  static const SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
   
   // check if branches are available:
   if(!refTrackPxAcc.isAvailable(*m_b) || 
@@ -1026,7 +1026,7 @@ bool xAOD::BPhysHelper::cacheMuons()
   m_cachedMuons.clear();
   
   // Create auxiliary branches accessors 
-  static SG::AuxElement::Accessor<MuonLinkVector> muonLinksAcc("MuonLinks"); 
+  static const SG::AuxElement::Accessor<MuonLinkVector> muonLinksAcc("MuonLinks"); 
   
   // check if branch exists
   if(!muonLinksAcc.isAvailable(*m_b)) {
@@ -1071,7 +1071,7 @@ bool xAOD::BPhysHelper::cachePrecedingVertices()
   m_cachedPrecedingVertices.clear();
   
   // Create auxiliary branches accessors 
-  static SG::AuxElement::Accessor<VertexLinkVector> precedingVertexLinksAcc("PrecedingVertexLinks"); 
+  static const SG::AuxElement::Accessor<VertexLinkVector> precedingVertexLinksAcc("PrecedingVertexLinks"); 
   
   // check if branch exists
   if(!precedingVertexLinksAcc.isAvailable(*m_b)) {
@@ -1116,7 +1116,7 @@ bool xAOD::BPhysHelper::cacheCascadeVertices()
   m_cachedCascadeVertices.clear();
   
   // Create auxiliary branches accessors 
-  static SG::AuxElement::Accessor<VertexLinkVector> cascadeVertexLinksAcc("CascadeVertexLinks"); 
+  static const SG::AuxElement::Accessor<VertexLinkVector> cascadeVertexLinksAcc("CascadeVertexLinks"); 
   
   // check if branch exists
   if(!cascadeVertexLinksAcc.isAvailable(*m_b)) {

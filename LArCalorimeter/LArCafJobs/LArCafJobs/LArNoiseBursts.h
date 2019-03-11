@@ -30,7 +30,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 //#include "LArElecCalib/ILArHVTool.h"
 
 // Trigger
@@ -55,7 +55,6 @@ class LArOnlineIDStrHelper;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-//class CaloIdManager;
 //class CaloDetDescrManager;
 
 class TileTBID;
@@ -113,7 +112,6 @@ class LArNoiseBursts : public AthAlgorithm  {
    const LArEM_ID* m_LArEM_IDHelper;
    const LArFCAL_ID* m_LArFCAL_IDHelper;
    const LArHEC_ID*  m_LArHEC_IDHelper;
-   const CaloIdManager*  m_caloIdMgr;
    const CaloDetDescrManager* m_calodetdescrmgr;
 
    // Electrons

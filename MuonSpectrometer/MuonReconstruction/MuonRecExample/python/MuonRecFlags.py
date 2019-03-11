@@ -419,7 +419,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
         setDefault(self.useTGCPriorNextBC,True)
-        setDefault(self.doMuonIso,False)
+        setDefault(self.doMuonIso,True)
 
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
             setDefault(self.doSegmentT0Fit,True)

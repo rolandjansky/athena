@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,6 +11,8 @@
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "Identifier/IdentifierHash.h"
+
+#include <atomic>
 
 class SiClusterOnTrackCnv_p1;
 
@@ -101,7 +103,7 @@ namespace InDet {
       /** The IdentifierHash - probably not used*/
       IdentifierHash                      m_idDE;
       /** The global position */
-      mutable const Amg::Vector3D*  m_globalPosition;
+      mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
       bool m_isbroad;
   };
 

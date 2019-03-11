@@ -9,26 +9,29 @@ from AthenaCommon.Constants import VERBOSE,DEBUG
 
 ####################################################################################################
 
-def TrigBjetEtHypoToolFromName_j( name, conf ):
+def TrigBjetEtHypoToolFromDict_j( chainDict ):
+
     from AthenaCommon.Constants import DEBUG
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
+    name    = chainDict['chainName']
+    chainPart = chainDict['chainParts'][0]
     
-    default_conf = { 'threshold' : '0',
-                     'multiplicity' : '1',
-                     'gscThreshold' : '0',
-                     'bTag' : 'offperf',
-                     'bConfig' : 'EF',
-                     'minEta' : '0',
-                     'maxEta' : '320',
-                     'L1' : None }
+    conf_dict = { 'threshold' : chainPart['threshold'],
+                  'multiplicity' : '1',
+                  'gscThreshold' : '0',
+                  'bTag' : 'offperf',
+                  'bConfig' : 'EF',
+                  'minEta' : chainPart['etaRange'].split('eta')[0],
+                  'maxEta' : chainPart['etaRange'].split('eta')[1],
+                  'L1' : None }
     
-    chain = conf
-    match = re_Bjet.match( chain )
-    conf_dict = match.groupdict()
+    # chain = conf
+    # match = re_Bjet.match( chain )
+    # conf_dict = match.groupdict()
 
-    for k, v in default_conf.items():
-        if k not in conf_dict: conf_dict[k] = v
-        if conf_dict[k] == None: conf_dict[k] = v
+    # for k, v in default_conf.items():
+    #     if k not in conf_dict: conf_dict[k] = v
+    #     if conf_dict[k] == None: conf_dict[k] = v
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
     tool = TrigBjetEtHypoTool( name )
@@ -41,26 +44,40 @@ def TrigBjetEtHypoToolFromName_j( name, conf ):
     print "TrigBjetEtHypoToolFromName_j: name = %s, cut_j = %s "%(name,tool.EtThreshold)
     return tool
 
-def TrigBjetEtHypoToolFromName_gsc( name, conf ):
+def TrigBjetEtHypoToolFromName_j( name, conf ):
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    
+    decoder = DictFromChainName()        
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict['chainName'] = name # override
+	
+    return TrigBjetEtHypoToolFromDict_j( decodedDict )
+    
+
+def TrigBjetEtHypoToolFromDict_gsc( chainDict ):
     from AthenaCommon.Constants import DEBUG
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
-    
-    default_conf = { 'threshold' : '0',
-                     'multiplicity' : '1',
-                     'gscThreshold' : '0',
-                     'bTag' : 'offperf',
-                     'bConfig' : 'EF',
-                     'minEta' : '0',
-                     'maxEta' : '320',
-                     'L1' : None }
-    
-    chain = conf
-    match = re_Bjet.match( chain )
-    conf_dict = match.groupdict()
 
-    for k, v in default_conf.items():
-        if k not in conf_dict: conf_dict[k] = v
-        if conf_dict[k] == None: conf_dict[k] = v
+    name    = chainDict['chainName']
+    chainPart = chainDict['chainParts'][0]
+
+    
+    conf_dict = { 'threshold' : '0',
+                  'multiplicity' : '1',
+                  'gscThreshold' : '0' if 'gscThreshold' not in chainPart else chainPart['gscThreshold'].replace('gsc',''),
+                  'bTag' : 'offperf',
+                  'bConfig' : 'EF',
+                  'minEta' : chainPart['etaRange'].split('eta')[0],
+                  'maxEta' : chainPart['etaRange'].split('eta')[1],
+                  'L1' : None }
+    
+    # chain = conf
+    # match = re_Bjet.match( chain )
+    # conf_dict = match.groupdict()
+
+    # for k, v in default_conf.items():
+    #     if k not in conf_dict: conf_dict[k] = v
+    #     if conf_dict[k] == None: conf_dict[k] = v
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
     tool = TrigBjetEtHypoTool( name )
@@ -72,6 +89,16 @@ def TrigBjetEtHypoToolFromName_gsc( name, conf ):
 
     print "TrigBjetEtHypoToolFromName_gsc: name = %s, cut_j = %s "%(name,tool.EtThreshold)
     return tool
+
+def TrigBjetEtHypoToolFromName_gsc( name, conf ):
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    
+    decoder = DictFromChainName()        
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict['chainName'] = name # override
+
+    return TrigBjetEtHypoToolFromDict_gsc( decodedDict )
+    
     
 ####################################################################################################
 

@@ -1,194 +1,74 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// Generic overlaying code for Identifiable Containers.
-//
-// Andrei Gaponenko <agaponenko@lbl.gov>, 2006-2009
+/// Generic overlaying code for Identifiable Containers.
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+/// @author Tadej Novak
+/// @author Andrei Gaponenko <agaponenko@lbl.gov>, 2006-2009
 
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
- 
+#include <string>
+#include <typeinfo>
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "AthContainers/DataVector.h"
+namespace Overlay
+{
 
-#include <sstream>
+template <class Datum, class Alg>
+void mergeChannelData(Datum &/* baseDatum */,
+                      const Datum &/* additionalDatum */,
+                      Alg */* algorithm */)
+{
+  throw std::logic_error("Merging of data on the same channel is not implemented for "
+                 + std::string(typeid(Datum).name()));
+}
 
-namespace Overlay {
-  
-  template<class IDC_Container> 
-  std::string shortPrint(const IDC_Container *container, unsigned maxprint) {
-    std::ostringstream os;
-    if(container) {
-      for(unsigned i=0; i<maxprint; i++) {
-	typename IDC_Container::const_iterator p = container->indexFind(i);
-	if(p != container->end()) {
-	  os<<" "<< (*p)->size();
-	}
-	else {
-	  os<<" *";
-	}
-      }
-    }
-    else {
-      os<<"(NULL)";
-    }
-    return os.str();
+
+template <class Collection, class Alg>
+void mergeCollections(Collection *bkgCollection,
+                      Collection *signalCollection,
+                      Collection *outputCollection,
+                      Alg *algorithm)
+{
+  if (bkgCollection->identify() != signalCollection->identify()) {
+    throw std::runtime_error("mergeCollections<>(): collection Id mismatch");
   }
 
+  typedef typename Collection::base_value_type Datum;
+  typedef typename Collection::size_type size_type;
 
-  //================================================================
-  template<class IDC_Container, class OvlAlg>
-  void overlayContainerNew(const IDC_Container *dataContainer,
-			const IDC_Container *mcContainer,
-                        IDC_Container *outputContainer,       
-			OvlAlg *parent)
-  {
-   typedef typename IDC_Container::base_value_type Collection;
-   std::cout<<"start overlayContainer"<<std::endl;
-   if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
+  // Merge by copying ptrs from background and signal to output collection
+  size_type ibkg = 0, isig = 0;
+  while ((ibkg < bkgCollection->size()) || (isig < signalCollection->size())) {
+    // The Datum that goes to the output at the end of this step.
+    Datum *tmp{};
 
-   //There are some use cases where this is empty
-   if(dataContainer != nullptr){
-   /** Add data from the data container to the output one */
-      typename IDC_Container::const_iterator p_data = dataContainer->begin();
-      typename IDC_Container::const_iterator p_data_end = dataContainer->end();
-
-      for(; p_data != p_data_end; ++p_data) {
-         IdentifierHash hashId = p_data.hashId();
-         auto coll_data = std::make_unique<Collection>(hashId); 
-         copyCollection(*p_data,coll_data.get());
-   
-         if ( outputContainer->addCollection(coll_data.release(), p_data.hashId()).isFailure() ) {
-            parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId   ()<<endmsg; //" collectionNo "<<collectionNo<<endmsg; 
-         } 
+    if (isig == signalCollection->size()) {
+      // just copy the remaining background digits
+      bkgCollection->swapElement(ibkg++, nullptr, tmp);
+    } else if (ibkg == bkgCollection->size()) {
+      // just copy the remaining signal digits
+      signalCollection->swapElement(isig++, nullptr, tmp);
+    } else {
+      // Need to decide which one goes first.
+      // See comments in TRTDigitization.cxx about the assumption that id1<id2
+      // <=> hash1<hash2
+      if (signalCollection->at(isig)->identify() < bkgCollection->at(ibkg)->identify()) {
+        signalCollection->swapElement(isig++, nullptr, tmp);
+      } else if (bkgCollection->at(ibkg)->identify() < signalCollection->at(isig)->identify()) {
+        bkgCollection->swapElement(ibkg++, nullptr, tmp);
+      } else {
+        // The hits are on the same channel.
+        Datum *tmpBkg{};
+        bkgCollection->swapElement(ibkg++, nullptr, tmpBkg);
+        signalCollection->swapElement(isig++, nullptr, tmp);
+        Overlay::mergeChannelData(*tmp, *tmpBkg, algorithm);
+        delete tmpBkg;
       }
-   }
+    }
 
-   /** Add data from the ovl container to the output one */
-   typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
-   typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
-
-   for(; p_ovl != p_ovl_end; ++p_ovl) {
- 
-      IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
-      auto coll_ovl = std::make_unique<Collection>(coll_id);	
-      copyCollection(*p_ovl,coll_ovl.get());
-
-      /** The newly created stuff will go to the output EventStore SG */
-      auto coll_out = std::make_unique<Collection>(coll_id);
-      coll_out->setIdentifier((*p_ovl)->identify());
-
-      /** Look for the same ID in the main StoreGate EventStore */ 
-      typename IDC_Container::const_iterator q = outputContainer->indexFind( coll_id );
-      if( q != outputContainer->end() ) {
-      /**Need to merge the collections
-         Retrieve q */
-         std::unique_ptr <Collection> coll_data ((Collection *) *q);
-         mergeCollectionsNew(coll_data.get(),coll_ovl.get(),coll_out.get(),parent);
-
-         outputContainer->removeCollection(p_ovl.hashId());
-         if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
-      	    parent->msg(MSG::WARNING) << "overlay addCollection failed " << endmsg; 
-         }
-      }
-    else {
-       /** Copy the complete collection from ovl to output, 
-           hopefully preserving the "most derived" type of its raw data */ 
-       if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
-       	  parent->msg(MSG::WARNING) << "add mc Collection failed " << endmsg; 
-      }
-    }   
-   }
-  }
-
-
-  //================================================================
-  template<class IDC_Container, class OvlAlg>
-  void overlayContainer(const IDC_Container *dataContainer,
-			const IDC_Container *mcContainer,
-			IDC_Container *outputContainer,	      
-			OvlAlg *parent)
-  {
-    typedef typename IDC_Container::base_value_type Collection;
-    typedef typename Collection::base_value_type Datum;		
- 
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainer<>() begin"<<endmsg; }
-    
-    // The  MC signal container should typically be smaller than
-    // dataContainer, because the latter contains all the noise,
-    // min bias and pile up.   Thus we firstly copy data collection to the 
-    // output and then merge with MC inputs.
-
-    /** Add data from the data container to the output one */
-    typename IDC_Container::const_iterator p_data = dataContainer->begin();
-    typename IDC_Container::const_iterator p_data_end = dataContainer->end();
- 
-    for(; p_data != p_data_end; ++p_data) {
-       IdentifierHash hashId = p_data.hashId();
-       Identifier ident = p_data->identify();	
-       auto coll_data = std::make_unique<Collection>(ident, hashId);	
-      
-       typename Collection::const_iterator firstData = p_data->begin();
-       typename Collection::const_iterator lastData = p_data->end();    
-       for (; firstData != lastData; ++firstData) {		       
-          Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
-          coll_data->push_back(newData);
-       }	
-   
-       if ( outputContainer->addCollection(coll_data.release(), p_data.hashId()).isFailure() ) {
-          parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; 
-      }
-    }     
-
-    /** Add data from the ovl container to the output one */
-    typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
-    typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
-
-    for(; p_ovl != p_ovl_end; ++p_ovl) {
-       IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
-       Identifier elemId = p_ovl->identify();
-       auto coll_ovl = std::make_unique<Collection>(elemId, coll_id);	
-     
-       typename Collection::const_iterator firstData = p_ovl->begin();
-       typename Collection::const_iterator lastData = p_ovl->end();    
-       for (; firstData != lastData; ++firstData) {		       
-          Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
-          coll_ovl->push_back(newData);
-    }	
-   	
-       /** The newly created stuff will go to the output EventStore SG */
-       auto coll_out = std::make_unique<Collection>(elemId, coll_id);	    
-     
-       /** Look for the same ID in the main StoreGate EventStore */ 
-       typename IDC_Container::const_iterator q = outputContainer->indexFind(coll_id);
-       if( q != outputContainer->end() ) {
-       /** Need to merge the collections
-           Retrieve q */
-
-          std::unique_ptr <Collection> coll_data ((Collection *) *q);
-          parent->mergeCollections(coll_data.get(),coll_ovl.get(),coll_out.get());
-
-          outputContainer->removeCollection(p_ovl.hashId());
-          if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
-	     parent->msg(MSG::WARNING) << "overlay addCollection failed " << endmsg; 
-          }
-       }
-       else {
-       /** Copy the complete collection from ovl to output, 
-           hopefully preserving the "most derived" type of its raw data */ 
-           if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
-              parent->msg(MSG::WARNING) << "add mc Collection failed " << endmsg; 
-           }  
-       }   
-    }  
- }
+    outputCollection->push_back(tmp);
+  } // <= while
+}
 
 } // namespace Overlay
-
-//================================================================

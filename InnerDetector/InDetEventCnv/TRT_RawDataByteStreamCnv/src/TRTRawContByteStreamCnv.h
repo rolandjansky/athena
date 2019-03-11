@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAMCNV_TRTRAWCONTRAWEVENTCNV_H
@@ -10,6 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
 #include "TRT_RawDataByteStreamCnv/ITRTRawContByteStreamTool.h"
 
@@ -21,9 +22,6 @@ class TRTRawContByteStreamTool ;
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
 
-// Externals 
-extern long ByteStream_StorageType;
-
 // the converter for writing BS from TRT Raw Data
 
 class TRTRawContByteStreamCnv: public Converter {
@@ -33,19 +31,19 @@ class TRTRawContByteStreamCnv: public Converter {
   typedef TRT_RDO_Container       TRTRawContainer; 
 
   //! Storage type and class ID
-  virtual long repSvcType() const { return ByteStream_StorageType;}
-  static  long storageType() { return ByteStream_StorageType; }
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static  long storageType()      { return ByteStreamAddress::storageType(); }
   static const CLID& classID()    { return ClassID_traits<TRTRawContainer>::ID(); }
   
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
   //! create Obj is not used !
-  virtual StatusCode createObj(IOpaqueAddress* /* pAddr */, DataObject*& /* pObj */)
+  virtual StatusCode createObj(IOpaqueAddress* /* pAddr */, DataObject*& /* pObj */) override
     { return StatusCode::FAILURE;}
 
   //! this creates the RawEvent fragments for the TRT
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
 private: 
   // for BS infrastructure

@@ -73,7 +73,7 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         m_containedChildRots = compROT.m_containedChildRots;
         compROT.m_containedChildRots = nullptr;
 
-        m_globalPosition = compROT.m_globalPosition;
+        m_globalPosition = compROT.m_globalPosition.load();
         compROT.m_globalPosition = nullptr;
     }
     return (*this);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,6 @@ namespace Trk
    @author andreas.salzburger@cern.ch
   */
 
-
   template<int DIM,class T, class S>
   class CurvilinearParametersT : public ParametersT<DIM,T,S>
   {
@@ -80,7 +79,7 @@ namespace Trk
     CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&&); 
    
     /** Destructor */
-    virtual ~CurvilinearParametersT() = default;
+    virtual ~CurvilinearParametersT()=default;
                  
     /** Assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(const CurvilinearParametersT<DIM,T,S>&);
@@ -89,22 +88,18 @@ namespace Trk
     CurvilinearParametersT<DIM,T,S> &operator=(CurvilinearParametersT<DIM,T,S>&&);
 
     /** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override final;
 
     /** Pseudo constructor */             
-    virtual CurvilinearParametersT<DIM,T,S>* clone() const override {return new CurvilinearParametersT<DIM,T,S>(*this);}
+    virtual CurvilinearParametersT<DIM,T,S>* clone() const override final 
+    {return new CurvilinearParametersT<DIM,T,S>(*this);}
                  
     /** Return the ParametersType enum */
-    virtual ParametersType type() const override {return Trk::Curvilinear;}
+    virtual ParametersType type() const override
+    {return Trk::Curvilinear;}
     
-    /** Access to the Surface method */
-    virtual const S& associatedSurface() const override;
-
-    /** Test to see if there's a surface there. */
-    virtual bool hasSurface() const override { return true; }
-
     /** Return the measurementFrame of the parameters */
-    virtual const Amg::RotationMatrix3D measurementFrame() const override;
+    virtual const Amg::RotationMatrix3D measurementFrame() const override final;
 
     /**Dumps relevant information about the track parameters into the ostream.*/
     virtual MsgStream& dump(MsgStream& out) const override;

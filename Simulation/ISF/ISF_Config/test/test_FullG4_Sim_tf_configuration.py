@@ -102,21 +102,23 @@ class TestFullG4(unittest.TestCase):
 
 
     def test___SimKernel_is_at_end_of_AthAlgSeq(self):
-        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
 
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[-1]
+        actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[-1]
         expected_last_ath_alg_sequence_entry = "ISF::SimKernel/ISF_Kernel_FullG4"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
 
 
     def test___BeamEffectsAlg_is_before_SimKernel_in_AthAlgSeq(self):
-        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[1] #Position 0 should be the timer alg
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
+        actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[1] #Position 0 should be the timer alg
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)

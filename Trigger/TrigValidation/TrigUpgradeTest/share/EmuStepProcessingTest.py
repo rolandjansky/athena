@@ -15,7 +15,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
 
-
+# add chain names in Menu/MenuChains.py
 
 # 4 events
 
@@ -31,10 +31,11 @@ data['msmu']  = [';',
                  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;',
                  'eta:-1.7,phi:-0.2,pt:9500,pt2:8500;']
 
+#data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_e5v22 HLT_g5',
 data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
-                'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
-                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
-                'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
+                'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5 HLT_e5_v3',
+                'HLT_mu8 HLT_mu8_1step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
+                'HLT_mu20 HLT_mu8 HLT_mu8_1step HLT_2mu8 HLT_e8' ]
 
 
 data['l1emroi'] = [ ';',
@@ -100,7 +101,7 @@ if doMuon:
 
     MuChains  = [
         Chain(name='HLT_mu20', Seed="L1_MU10",      ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu", [muStep2] )]) ,
-        Chain(name='HLT_mu81step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
+        Chain(name='HLT_mu8_1step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
         Chain(name='HLT_mu8',  Seed="L1_MU6",       ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu",  [muStep2] ) ] )
         ]
 
@@ -115,16 +116,18 @@ if doElectron:
     from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, elStep2MenuSequence, gammStep1MenuSequence
     # electron
     elStep1 = elStep1MenuSequence("v1")
-    elStep2 = elStep2MenuSequence("v1")
-    elStep2v2 = elStep2MenuSequence("v2")
+    elStep2 = elStep2MenuSequence("v1","v1")
+    elStep2v2 = elStep2MenuSequence("v2","v2")
+    elStep2v3 = elStep2MenuSequence("v2","v3")
     # gamma
     gammStep1 = gammStep1MenuSequence("v1")
     
     ElChains  = [
-        Chain(name='HLT_e5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_e20' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v2_em",  [elStep2v2]) ] ),
-        Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_g5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
+        Chain(name='HLT_e5'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_e5_v2', Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v2_em",  [elStep2v2]) ] ),
+        Chain(name='HLT_e5_v3', Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v3_em",  [elStep2v3]) ] ),
+        Chain(name='HLT_e8'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_g5'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
         ]
 
     HLTChains += ElChains
@@ -136,7 +139,7 @@ if doCombo:
     from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, muStep1MenuSequence, elStep2MenuSequence, muStep2MenuSequence
     elStep1 = elStep1MenuSequence("v1")
     muStep1 = muStep1MenuSequence("v1")
-    elStep2 = elStep2MenuSequence("v1")
+    elStep2 = elStep2MenuSequence("v1","v1")
     muStep2 = muStep2MenuSequence("v1")
 
     

@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( cx_Oracle )
 
 # Component(s) in the package:
 atlas_add_library( TrigHLTMonitoringLib

@@ -8,61 +8,55 @@
 //
 // Ketevi A. Assamagan <ketevi@bnl.gov>, March 2008
 
-#ifndef CSCOVERLAY_H
-#define CSCOVERLAY_H
+#ifndef CSCOVERLAY_CSCOVERLAY_H
+#define CSCOVERLAY_CSCOVERLAY_H
 
-#include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonOverlayBase/MuonOverlayBase.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 
-#include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include <vector>
+#include <string>
 #include <map>
 
 class CscIdHelper;
 
-namespace std { template<typename _Tp> class auto_ptr; }
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
-class CscOverlay : public MuonOverlayBase  {
+class CscOverlay : public AthAlgorithm {
 public:
-  
+
   CscOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */  
-  virtual StatusCode overlayInitialize();
-  virtual StatusCode overlayExecute();
-  virtual StatusCode overlayFinalize();
+  /** Framework implemenrtation for the event loop */
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+
+private:
 
   /** given 2 container of data - zero bias real data and the simulation,
       do the merging */
-  void overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
-  void overlayContainer(std::auto_ptr<CscRawDataContainer>& data, const CscRawDataContainer* mc) {
-    this->overlayContainer(data.get(), mc);
-  }
+  StatusCode overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
 
-  /** if the 2 container do overlay, 
+  /** if the 2 container do overlay,
       loop over the container and do the overlap collection by collection */
-  void mergeCollections(CscRawDataCollection *out_coll, const CscRawDataCollection *orig_coll, 
-                                   const CscRawDataCollection *ovl_coll);
-  
-private:
+  void mergeCollections(CscRawDataCollection *out_coll, const CscRawDataCollection *orig_coll,
+                        const CscRawDataCollection *ovl_coll, CLHEP::HepRandomEngine* rndmEngine);
 
-  /** get the data in one SPU of a chamber */ 
+  /** get the data in one SPU of a chamber */
   void spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data);
 
   /** data in one gas lauer */
-  uint32_t stripData ( const std::vector<const CscRawData*>& data, 
+  uint32_t stripData ( const std::vector<const CscRawData*>& data,
                        const unsigned int numSamples,
                        std::map< int,std::vector<uint16_t> >& samples,
                        uint32_t& hash,
@@ -73,11 +67,12 @@ private:
       between zero bias data and simulation. If there is no overlap, simply
       copy the data */
   std::vector<CscRawData*> overlay( const std::map< int,std::vector<uint16_t> >& sigSamples,
-                        const std::map< int,std::vector<uint16_t> >& ovlSamples,
-                        const uint32_t address,
-                        const uint16_t spuID, 
-                        const uint16_t collId,
-                        const uint32_t hash );
+                                    const std::map< int,std::vector<uint16_t> >& ovlSamples,
+                                    const uint32_t address,
+                                    const uint16_t spuID,
+                                    const uint16_t collId,
+                                    const uint32_t hash,
+                                    CLHEP::HepRandomEngine *rndmEngine);
 
   //Whether the data needs to be fliped by 49-strip for bug#56002
   bool needtoflip(const int address) const;
@@ -86,26 +81,20 @@ private:
   void copyCscRawDataCollectionProperties(const CscRawDataCollection& sourceColl, CscRawDataCollection& outColl) const;
 
   // ----------------------------------------------------------------
- 
+
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  SG::ReadHandleKey<CscRawDataContainer> m_inputDataRDOKey{this,"InputDataRDOKey","OriginalEvent_SG+CSCRDO",""};
-  SG::ReadHandleKey<CscRawDataContainer> m_inputOverlayRDOKey{this,"InputOverlayRDOKey","BkgEvent_0_SG+CSCRDO",""};
-  SG::WriteHandleKey<CscRawDataContainer> m_outputContainerKey{this,"OutputContainerKey","StoreGateSvc+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_bkgInputKey{this,"BkgInputKey","OriginalEvent_SG+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_signalInputKey{this,"SignalInputKey","BkgEvent_0_SG+CSCRDO",""};
+  SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","StoreGateSvc+CSCRDO",""};
 
 
-  const CscIdHelper   * m_cscHelper;
-  ToolHandle<ICscCalibTool> m_cscCalibTool;
-  ToolHandle<IMuonDigitizationTool> m_digTool;
-  ToolHandle<IMuonDigitizationTool> m_rdoTool2;
-  ToolHandle<IMuonDigitizationTool> m_rdoTool4;
-  ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
+  const CscIdHelper   * m_cscHelper{nullptr};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
+  PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
 
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
-
+  ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service
 };
 
-#endif/*CScOVERLAY_H*/
+#endif/*CSCOVERLAY_CSCOVERLAY_H*/

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TgcDigitMaker.h
@@ -58,7 +58,7 @@ class TgcDigitMaker {
      readFileOfTimeJitter() reads and sets the parameters for
      intrinsic time response of TGC from timejitter.dat.
   */
-  StatusCode initialize(CLHEP::HepRandomEngine* m_rndmEngine);
+  StatusCode initialize();
 
   /**
      A single hit can be digitized in the two directions
@@ -83,7 +83,8 @@ class TgcDigitMaker {
      will be included in future, too.
   */
   TgcDigitCollection* executeDigi(const TGCSimHit* hit,
-				  const double globalHitTime);
+				  const double globalHitTime,
+                                  CLHEP::HepRandomEngine* rndmEngine);
 
   //Declaring the Message method for further use
   MsgStream& msg(const MSG::Level lvl) const ;
@@ -115,12 +116,12 @@ class TgcDigitMaker {
      Calculates intrinsic time response according to incident angle of
      a track based on time response parameters
   */
-  float timeJitter(const Amg::Vector3D) const;
+  float timeJitter(const Amg::Vector3D, CLHEP::HepRandomEngine* rndmEngine) const;
 
   /**
      Determines whether a hit is detected or not.
   */
-  bool efficiencyCheck(const int isStrip) const;
+  bool efficiencyCheck(const int isStrip, CLHEP::HepRandomEngine* rndmEngine) const;
   bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const int isStrip, const double energyDeposit) const;
 
   uint16_t bcTagging(const double digittime, const int isStrip) const;
@@ -139,7 +140,7 @@ class TgcDigitMaker {
   /** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, int isStrip) const;
   void randomCrossTalk(const Identifier elemId, const int gasGap, const int isStrip, const int channel, 
-		       const float posInStrip, const double digitTime);
+		       const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine);
   /** Method to check a chamber is dead or active */
   bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int gasGap);
   /** Method to get time window offset */
@@ -171,7 +172,6 @@ class TgcDigitMaker {
   std::vector<std::vector<float> > m_vecAngle_Time;
 
   TgcDigitCollection* m_digits;
-  CLHEP::HepRandomEngine* m_engine;
   TgcHitIdHelper* m_hitIdHelper;
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager;

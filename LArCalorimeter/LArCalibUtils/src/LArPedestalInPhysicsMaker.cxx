@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,7 +25,6 @@
 //#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
-#include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -101,6 +100,7 @@ StatusCode LArPedestalInPhysicsMaker::initialize()
 StatusCode LArPedestalInPhysicsMaker::execute()
 //---------------------------------------------------------------------------
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   int write=0;
   if (m_keylist.size()==0) {
     ATH_MSG_ERROR ( "Key list is empty! No containers to process!" );
@@ -108,15 +108,8 @@ StatusCode LArPedestalInPhysicsMaker::execute()
   } 
 
   // Retrieve EventInfo
-  const DataHandle<xAOD::EventInfo> thisEventInfo;
-  StatusCode sc=evtStore()->retrieve(thisEventInfo);
-  int eventnumber=0;
-  if (sc!=StatusCode::SUCCESS)
-    ATH_MSG_WARNING ( "No EventInfo object found!" );
-  else {
-    if(m_run==0) m_run=thisEventInfo->runNumber();
-    eventnumber=thisEventInfo->eventNumber();
-  }
+  if(m_run==0) m_run = ctx.eventID().run_number();
+  int eventnumber = ctx.eventID().event_number();
 
 //  // Retrieve the TBScintillators
 // const TBScintillatorCont * theTBScint;
@@ -166,7 +159,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 
   //Retrieve the TBTriggerPatternUnit
   const TBTriggerPatternUnit* theTBTriggerPatternUnit;
-  sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
+  StatusCode sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
   unsigned int trigger=1;
 
   if (sc.isFailure()) {

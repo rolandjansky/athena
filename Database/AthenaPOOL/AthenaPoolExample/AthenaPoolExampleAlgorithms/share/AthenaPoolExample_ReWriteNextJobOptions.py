@@ -11,7 +11,6 @@
 # 2. Writes SimplePoolFile4.root file with ExampleTracks using ReWriteData algorithm
 # ------------------------------------------------------------
 # Expected output file (20 events):
-# -rw-r--r--  1 gemmeren zp 11395 Aug  5 17:34 SimplePoolCollection4.root
 # -rw-r--r--  1 gemmeren zp 27536 Aug  5 17:34 SimplePoolFile4.root
 # ------------------------------------------------------------
 # File:SimplePoolFile4.root
@@ -82,7 +81,7 @@ topSequence += MagicWriteTag
 #---   Secondary Write portion  ----- Don't change it !!!
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile4.root" , True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile4.root" )
 Stream1.ItemList += [ "ExampleTrackContainer#MyTracks" ]
 #Stream1.ExtendProvenanceRecord = FALSE;
 #Stream1.WritingTool.ProvenanceTags = []
@@ -95,20 +94,6 @@ from AthenaPoolServices.AthenaRootStreamerSvcConf import AthenaRootStreamerSvc
 StreamerSvc = AthenaRootStreamerSvc()
 StreamerSvc.Streamers  += [ "ExampleHitStreamer_p0" ]
 svcMgr += StreamerSvc
-
-#--------------------------------------------------------------
-# Event Collection Registration
-#--------------------------------------------------------------
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-TagTool = RegistrationStreamTagTool("TagTool")
-
-from RegistrationServices.RegistrationServicesConf import RegistrationStream
-RegStream1 = RegistrationStream( "RegStream1" , CollectionType="ExplicitROOT" , Tool=TagTool )
-RegStream1.WriteInputDataHeader = False
-RegStream1.OutputCollection = "SimplePoolCollection4.root"
-RegStream1.ItemList += [ "DataHeader#Stream1" ]
-RegStream1.ItemList += [ "TagAthenaAttributeList#" + MagicWriteTag.Key ]
-topSequence += RegStream1
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -126,8 +111,6 @@ topSequence.ReWriteData.OutputLevel = 2
 Stream1.OutputLevel = 2
 Stream1.WritingTool.OutputLevel = 3
 Stream1.HelperTools[0].OutputLevel = 3
-RegStream1.OutputLevel = 2
-RegStream1.Tool.OutputLevel = 3
 
 #
 # End of job options file

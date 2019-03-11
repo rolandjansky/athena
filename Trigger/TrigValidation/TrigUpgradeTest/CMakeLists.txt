@@ -68,7 +68,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
    SCRIPT test/test_egamma_run_data.sh
    PROPERTIES TIMEOUT 1000   
-   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Payload size after inserting"
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Fragment size"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
    )
 
@@ -138,8 +138,8 @@ atlas_add_test( jetMenu
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
-   SCRIPT test/test_full_menu.sh
-   EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+   SCRIPT test/test_full_menu_build.sh
+   POST_EXEC_SCRIPT "trig-art-result-parser.sh fullMenu.log \"athena CheckLog RegTest RootComp\""
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
    )
@@ -174,8 +174,8 @@ atlas_add_test( EmuStepProcessing
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
-   SCRIPT test/test_newJO.sh
-   EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
+   SCRIPT test/test_newJO_build.sh
+   POST_EXEC_SCRIPT "trig-art-result-parser.sh NewJO.log \"Configuration athena CheckLog RegTest RootComp\""
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
    )
@@ -194,6 +194,14 @@ atlas_add_test( pebTest
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_pebTest
    EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_"
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_dataScoutingTest )
+atlas_add_test( dataScoutingTest
+   SCRIPT test/test_dataScouting.sh
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_dataScoutingTest
+   EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|ROBFragments with IDs|{module.*words}|TriggerSummary.*HLT_"
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
@@ -235,7 +243,8 @@ atlas_add_test( met_menu
    	EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" 	   
     PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu 
     )
+
 atlas_install_joboptions( share/*.py )
-atlas_install_data( share/*.ref )
+atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/test* )
+atlas_install_scripts( test/exec*.sh test/test*.sh )

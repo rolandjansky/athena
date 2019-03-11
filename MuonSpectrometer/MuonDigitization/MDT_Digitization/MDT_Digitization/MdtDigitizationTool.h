@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class MdtDigitizationTool
@@ -53,11 +53,11 @@
 #include <vector>
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"
+#include "MDT_Digitization/IMDT_DigitizationTool.h"
 
 //Outputs
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -73,7 +73,6 @@ class PileUpMergeSvc;
 
 class MdtIdHelper;
 class MdtHitIdHelper;
-class IAtRndmGenSvc;
 
 class MdtCalibrationDbSvc;
 
@@ -96,12 +95,10 @@ class MdtCalibrationDbSvc;
   -DSL----------------------------------------------------------------------------
 
 */
-class IMDT_DigitizationTool;
 class MuonSimDataCollection;
-class IMDTConditionsSvc;
 
 
-class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class MdtDigitizationTool : public PileUpToolBase {
   
  public:
   MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
@@ -126,14 +123,6 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   all the required SubEvents. */
   virtual StatusCode processAllSubEvents() override final;
 
-  /** Just calls processAllSubEvents - leaving for back-compatibility
-      (IMuonDigitizationTool) */
-  StatusCode digitize() override final;
-
-  /** accessors */
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
-
   struct GeoCorOut {
   GeoCorOut( double sSag, double sTrack, Amg::Vector3D lp, double lSag ) : sagSign(sSag), trackingSign(sTrack), localPosition(lp), localSag(lSag) {}
     double sagSign;            // sign indicating wether the particle passed above or below the wire
@@ -142,21 +131,17 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
     double localSag;
   };
   
-  // + TWIN TUBE
-  // accessors
-  ServiceHandle<IAtRndmGenSvc> getTwinRndmSvc() const { return m_twinRndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getTwinRndmEngine() const { return m_twinRndmEngine; } // Random number engine used 
-  
  private:
-  int                       digitizeTime(double time, bool isHPTDC) const;
+  CLHEP::HepRandomEngine*   getRandomEngine(const std::string& streamName) const;
+  int                       digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine *rndmEngine) const;
   double                    minimumTof(Identifier DigitId) const;
   
   bool                      insideMatchingWindow(double time) const;
   bool                      insideMaskWindow(double time) const;
   bool                      checkMDTSimHit(const MDTSimHit& hit) const;
   
-  bool                      handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit);
-  bool                      createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+  bool                      handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CLHEP::HepRandomEngine *twinRndmEngine, CLHEP::HepRandomEngine *toolRndmEngine);
+  bool                      createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer, CLHEP::HepRandomEngine *rndmEngine);
 
   // calculate local hit position in local sagged wire frame, also returns whether the hit passed above or below the wire
   GeoCorOut correctGeometricalWireSag( const MDTSimHit& hit, const Identifier& id, const MuonGM::MdtReadoutElement* element ) const ;
@@ -264,15 +249,7 @@ protected:
   SG::WriteHandleKey<MdtDigitContainer> m_outputObjectKey{this,"OutputObjectName","MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDOKey{this,"OutputSDOName","MDT_SDO","WriteHandleKey for Output MuonSimDataCollection"};
 
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
-    
-  // + TWIN TUBE
-  ServiceHandle <IAtRndmGenSvc> m_twinRndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_twinRndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_twinRndmEngineName;// name of random engine
-  // - TWIN TUBE    
+  ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
   ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
   ServiceHandle<IMDTConditionsSvc> m_pSummarySvc;

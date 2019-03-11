@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_GETMESSAGESVC_H
@@ -9,7 +9,6 @@
 /** @file getMessageSvc.h
  *  @brief singleton-like access to IMessageSvc via open function and helper
  *
- *  $Id: getMessageSvc.h,v 1.6 2008-07-14 22:10:14 calaf Exp $
  *  @author Paolo Calafiura - Atlas collaboration
    */
 #include <cassert>
@@ -31,8 +30,8 @@ namespace Athena {
    *             The default is to be lazy and don't create anything.
    *  @param quiet : do not print warning if MessagesSvc cannot be found (default false)
    *
-   *  Also used via weak-linking from DetCommon code (see e.g. TrigConf::MsgStream in DetCommon)
-   *  DO NOT MODIFY THE SIGNATURE OF THESE METHODS WITHOUT UPDATING THE DETCOMMON SIDE !!!
+   *  Also used via weak-linking from TrigConf code (see e.g. TrigConfBase/Root/MsgStream.cxx)
+   *  DO NOT MODIFY THE SIGNATURE OF THESE METHODS WITHOUT UPDATING THE TRIGCONF SIDE !!!
    */
   IMessageSvc* getMessageSvc( bool quiet=false );
   IMessageSvc* getMessageSvc( const Options::CreateOptions o, bool quiet=false );
@@ -44,12 +43,12 @@ namespace Athena {
   //@{
   /** Wrappers for some of the IMessageSvc methods
    *  These can be used from libraries without explicit Gaudi dependency via weak linking.
-   *  (see e.g. TrigConf::MsgStream in DetCommon)
+   *  (see e.g. TrigConf::MsgStream in TrigConfBase)
    *
-   *  DO NOT MODIFY THE SIGNATURE OF THESE METHODS WITHOUT UPDATING THE DETCOMMON SIDE !!!
+   *  DO NOT MODIFY THE SIGNATURE OF THESE METHODS WITHOUT UPDATING THE TRIGCONF SIDE !!!
    */
   void reportMessage(IMessageSvc* ims, const std::string &source, int type, const std::string &message);
-  int outputLevel(IMessageSvc* ims, const std::string &source);
+  int outputLevel(const IMessageSvc* ims, const std::string &source);
   void setOutputLevel(IMessageSvc* ims, const std::string &source, int level);
   //@}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -279,7 +279,7 @@ namespace Analysis
   }
 
 
-  StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode SoftMuonTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
@@ -289,7 +289,7 @@ namespace Analysis
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */
-    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
+    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
     ATH_MSG_DEBUG( "#BTAG# Jet properties : eta = "<<jeteta
 		   <<" phi = "<<jetphi
 		   <<" pT  = "<<jetpt/1.e3 
@@ -430,7 +430,7 @@ namespace Analysis
     
 
       // muon selection here:
-      float dR = jetToTag.p4().DeltaR(tmpMuon->p4());
+      float dR = jetToTag->p4().DeltaR(tmpMuon->p4());
       if(dR>=0.4) continue;
     
 
@@ -457,7 +457,7 @@ namespace Analysis
       tmpMuon->parameter(scatNeighSignif, xAOD::Muon::scatteringNeighbourSignificance);
       ATH_MSG_DEBUG("#BTAG# scatNeighSignif= "<< scatNeighSignif );
       TLorentzVector myjet, mymu;
-      myjet.SetPtEtaPhiM(jetToTag.pt(),jetToTag.eta(),jetToTag.phi(),0);
+      myjet.SetPtEtaPhiM(jetToTag->pt(),jetToTag->eta(),jetToTag->phi(),0);
       mymu.SetPtEtaPhiM(tmpMuon->pt(),tmpMuon->eta(),tmpMuon->phi(),0);
       float pTrel      =myjet.Vect().Perp(mymu.Vect()); // VD: everything MUST be in MeV
       float qOverPratio=(*pMuIDTrack)->qOverP()/(*pMuMSTrack)->qOverP();
@@ -495,7 +495,7 @@ namespace Analysis
 			       position.z() - PVposition.z() );
 	jet_mu_sv_Lxy=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2));
 	jet_mu_sv_L3d=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2)+pow(PvSvDir(2,0),2));
-	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag.pt(),jetToTag.eta(),jetToTag.phi());
+	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag->pt(),jetToTag->eta(),jetToTag->phi());
 	TVector3 PvSvDIR; PvSvDIR.SetXYZ(position.x() - PVposition.x(),position.y() - PVposition.y(),position.z() - PVposition.z());
 	jet_mu_sv_dR=deltaR(jetDir.Eta(),PvSvDIR.Eta(),jetDir.Phi(),PvSvDIR.Phi());
 	TLorentzVector tlv;
@@ -555,8 +555,8 @@ namespace Analysis
     BTag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
 
     // #2: Set necessary MVA-input variables
-    m_pt     = jetToTag.pt();
-    m_absEta = fabs(jetToTag.eta());
+    m_pt     = jetToTag->pt();
+    m_absEta = fabs(jetToTag->eta());
 
     /*** Retrieving soft muon variables ***/
     m_sm_dR=jet_mu_dRmin_dR;

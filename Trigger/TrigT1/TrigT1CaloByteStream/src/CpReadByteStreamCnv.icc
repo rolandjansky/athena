@@ -27,7 +27,7 @@ namespace LVL1BS {
 
 template <typename Container>
 CpReadByteStreamCnv<Container>::CpReadByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("CpReadByteStreamCnv"),
       m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
@@ -48,11 +48,14 @@ const CLID& CpReadByteStreamCnv<Container>::classID()
   return ClassID_traits<Container>::ID();
 }
 
+template <typename Container>
+long CpReadByteStreamCnv<Container>::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 template <typename Container>
 StatusCode CpReadByteStreamCnv<Container>::initialize()

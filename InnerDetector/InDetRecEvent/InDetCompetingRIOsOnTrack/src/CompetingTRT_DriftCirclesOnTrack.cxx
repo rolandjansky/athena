@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,12 +27,12 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
 // copy constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) :
   Trk::CompetingRIOsOnTrack(compROT),
-  m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+  m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*(compROT.m_globalPosition.load())) : 0),
   m_containedChildRots(0),
-  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface) {
+  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface.load()) {
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
-    m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
+    m_associatedSurface = (!compROT.m_associatedSurface.load()->associatedDetectorElement()) ? compROT.m_associatedSurface.load()->clone() : compROT.m_associatedSurface.load();
   } else {
     m_associatedSurface = 0;
   }
@@ -77,17 +77,17 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     delete m_containedChildRots;
     delete m_globalPosition;
     // delete surface if not owned by detElement
-    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
+    if (m_associatedSurface && !m_associatedSurface.load()->associatedDetectorElement())
       delete m_associatedSurface;
     m_containedChildRots = new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
     if (compROT.m_associatedSurface) {
       // copy only if surface is not one owned by a detector Element
-      m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
+      m_associatedSurface = (!compROT.m_associatedSurface.load()->associatedDetectorElement()) ? compROT.m_associatedSurface.load()->clone() : compROT.m_associatedSurface.load();
     } else {
       m_associatedSurface = 0;
     }
     m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
-    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
+    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
       m_containedChildRots->push_back((*rotIter)->clone());
@@ -97,7 +97,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
 
 InDet::CompetingTRT_DriftCirclesOnTrack::~CompetingTRT_DriftCirclesOnTrack() {
   // delete surface if not owned by detElement
-  if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
+  if (m_associatedSurface && !m_associatedSurface.load()->associatedDetectorElement())
     delete m_associatedSurface;
   delete m_globalPosition;
   clearChildRotVector();
@@ -162,15 +162,15 @@ const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() c
     
   // FIXME: introduce a special function in base class, which returns the sum of assignment probabilities
   double assgnProbSum = 0.;
-  std::vector<AssignmentProb>::const_iterator assgnProbIter = m_assignProb->begin();
-  for (; assgnProbIter != m_assignProb->end(); ++assgnProbIter) {
+  std::vector<AssignmentProb>::const_iterator assgnProbIter = m_assignProb.load()->begin();
+  for (; assgnProbIter != m_assignProb.load()->end(); ++assgnProbIter) {
     assgnProbSum += (*assgnProbIter);
   }
 
   Amg::Vector3D globalPos(0.,0.,0.);
   if (assgnProbSum > 0.) {
     std::vector< const InDet::TRT_DriftCircleOnTrack* >::const_iterator rotIter = m_containedChildRots->begin();
-    assgnProbIter = m_assignProb->begin();
+    assgnProbIter = m_assignProb.load()->begin();
     for (; rotIter != m_containedChildRots->end(); ++rotIter, ++assgnProbIter) {
       globalPos += ( ((*assgnProbIter)/assgnProbSum) * ((*rotIter)->globalPosition()) );
     }

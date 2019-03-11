@@ -49,9 +49,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         if 'etcut' in self.chainName:            
             myStepNames += ["Step1_etcut"]
             myStepNames += ["Step2_etcut"]            
-            for step in myStepNames: 
+            for step in myStepNames:
                 chainSteps += [self.getEtCutStep(step)]
-            log.debug("chainSteps are: ", chainSteps )
         else:
             raise RuntimeError("Chain configuration unknown for chain: " + self.chainName )
             

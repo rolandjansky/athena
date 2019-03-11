@@ -17,5 +17,5 @@ RECURSIVE              = YES
 SOURCE_BROWSER         = YES
 INLINE_SOURCES         = YES
 GENERATE_LATEX         = NO
-DOT_PATH               = @GRAPHVIZ_DIR@/bin
+DOT_PATH               = @GRAPHVIZ_LCGROOT@/bin
 HAVE_DOT               = YES

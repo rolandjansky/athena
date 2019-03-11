@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
@@ -18,16 +18,21 @@
 
 template< typename TOOL> 
 CollectionByteStreamCnv< TOOL>::CollectionByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc), m_robDataProvider(0), m_tool(0)
+   Converter(storageType(), classID(), svcloc), m_robDataProvider(0), m_tool(0)
 {
 
 
 }
 
-template< typename TOOL> 
+template< typename TOOL>
 const CLID& CollectionByteStreamCnv<TOOL>::classID(){
  return ClassID_traits<COLLECTION>::ID() ;
 } 
+
+template< typename TOOL>
+long CollectionByteStreamCnv<TOOL>::storageType(){
+ return ByteStreamAddress::storageType();
+}
 
 template< typename TOOL> 
 StatusCode

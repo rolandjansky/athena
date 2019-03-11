@@ -27,10 +27,9 @@ namespace Trk
 StraightLineIntersector::StraightLineIntersector (const std::string&	type,
 						  const std::string&	name, 
 						  const IInterface*	parent)
-    :	AthAlgTool		(type, name, parent),
+    :	base_class		(type, name, parent),
 	m_countExtrapolations	(0)
 {
-    declareInterface<Trk::IIntersector>(this);
 }
 
 StraightLineIntersector::~StraightLineIntersector (void)
@@ -61,7 +60,7 @@ StraightLineIntersector::finalize()
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectSurface(const Surface&	surface,
 					  const TrackSurfaceIntersection*	trackIntersection,
-					  const double      	qOverP)
+					  const double      	qOverP) const
 {
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
     if (plane)		return intersectPlaneSurface(*plane,trackIntersection,qOverP);
@@ -86,7 +85,7 @@ StraightLineIntersector::intersectSurface(const Surface&	surface,
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 						const TrackSurfaceIntersection*	trackIntersection,
-						const double      	/*qOverP*/)
+						const double      	/*qOverP*/) const
 {
   auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
   ++m_countExtrapolations;
@@ -103,7 +102,7 @@ StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& surface,
 						     const TrackSurfaceIntersection*	trackIntersection,
-						     const double      		/*qOverP*/)
+						     const double      		/*qOverP*/) const
 {
   auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
   ++m_countExtrapolations;
@@ -120,7 +119,7 @@ StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& 
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
 						   const TrackSurfaceIntersection*		trackIntersection,
-						   const double      		/*qOverP*/)
+						   const double      		/*qOverP*/) const
 {
   auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
   ++m_countExtrapolations;
@@ -137,7 +136,7 @@ StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surfac
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
 					       const TrackSurfaceIntersection*	trackIntersection,
-					       const double      	/*qOverP*/)
+					       const double      	/*qOverP*/) const
 {
   auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
   ++m_countExtrapolations;
@@ -153,7 +152,7 @@ StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
 					       const TrackSurfaceIntersection*	trackIntersection,
-					       const double      	/*qOverP*/)
+					       const double      	/*qOverP*/) const
 {
   auto isect = std::make_unique<TrackSurfaceIntersection> (*trackIntersection);
   ++m_countExtrapolations;

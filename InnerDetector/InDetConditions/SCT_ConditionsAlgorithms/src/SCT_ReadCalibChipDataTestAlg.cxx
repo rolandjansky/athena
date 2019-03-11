@@ -12,7 +12,6 @@
 
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
-#include "StoreGate/ReadHandle.h"
 
 // Include Gaudi stuff
 
@@ -42,9 +41,6 @@ StatusCode SCT_ReadCalibChipDataTestAlg::initialize() {
 
   // Get the SCT_ReadCaliChipDataSvc
   ATH_CHECK(m_ReadCalibChipDataTool.retrieve());
-
-  // Read Handle
-  ATH_CHECK(m_currentEventKey.initialize());
 
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibChipDataTestAlg::initialize()
@@ -96,16 +92,10 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
   // Print where you are
   ATH_MSG_DEBUG("in execute()");
 
-  // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey, ctx};
-  if (not currentEvent.isValid()) {
-    ATH_MSG_FATAL("Could not get event info");
-    return StatusCode::FAILURE;
-  }
   ATH_MSG_DEBUG("Current Run.Event,Time: "
-                << "[" << currentEvent->runNumber()
-                << "." << currentEvent->eventNumber()
-                << "," << currentEvent->timeStamp()
+                << "[" << ctx.eventID().run_number()
+                << "." << ctx.eventID().event_number()
+                << "," << ctx.eventID().time_stamp()
                 << "]");
 
   //Test Chip Data ConditionsSummary

@@ -307,7 +307,7 @@ os.system('pool_insertFileToCatalog /afs/ipp-garching.mpg.de/home/g/gdp/public/C
 # -----------------------------
 if doLAr:
     theApp.Dlls += [ "TBRec" ]
-    from AthenaCommon.AppMgr import athFilterSeq
+    from AthenaCommon.AppMgr import athMasterSeq
     if not doSim:
         #
         from TBRec.TBRecConf import TBEventStreamer
@@ -331,17 +331,17 @@ if doLAr:
         ToolSvc += EventTypeSelector
         EventInfoStreamer.ToolNames += [ EventTypeSelector ]
         EventInfoStreamer.OutputLevel = ERROR
-        athFilterSeq += EventInfoStreamer
+        athMasterSeq += EventInfoStreamer
         #
         from TBRec.TBRecConf import TBXCryYTableRead
         TBXCryYTableRead = TBXCryYTableRead()
         TBXCryYTableRead.FileName = "xcryo_ytable.txt" 
-        athFilterSeq += TBXCryYTableRead
+        athMasterSeq += TBXCryYTableRead
         #
         from TBRec.TBRecConf import TBPhaseRec
         TBPhaseRec = TBPhaseRec()
         include( "TBRec/H6PhaseRec_jobOptions.py" )
-        athFilterSeq += TBPhaseRec
+        athMasterSeq += TBPhaseRec
         #
         PhaseStreamer = TBEventStreamer("PhaseStreamer")
         from TBRec.TBRecConf import TBPhaseStreamerTool
@@ -350,7 +350,7 @@ if doLAr:
         GuardCut.Guard = 11.0
         ToolSvc += GuardCut
         PhaseStreamer.ToolNames += [ GuardCut ]
-        athFilterSeq  += PhaseStreamer
+        athMasterSeq  += PhaseStreamer
         #
 
 if doBeamDetectors:
@@ -375,27 +375,27 @@ if doBeamDetectors:
 
         ToolSvc += BitSelector 
         BeamStreamer.ToolNames +=  [ BitSelector ]
-        athFilterSeq += BeamStreamer
+        athMasterSeq += BeamStreamer
         #
         from TBRec.TBRecConf import TBBPCRec
         TBBPCRec =  TBBPCRec()
         include( "TBRec/H6BPCRec_jobOptions.py" )
-        athFilterSeq += TBBPCRec
+        athMasterSeq += TBBPCRec
         #   
         from TBRec.TBRecConf import TBScintillatorRec
         TBScintRec =  TBScintillatorRec("TBScintRec")
         include( "TBRec/H6ScintRec_jobOptions.py" )
-        athFilterSeq += TBScintRec
+        athMasterSeq += TBScintRec
         #
         from TBRec.TBRecConf import TBTailCatcherRec
         TBTailCatcherRec = TBTailCatcherRec()
         include( "TBRec/H6TailCatcherRec_jobOptions.py" )
-        athFilterSeq += TBTailCatcherRec
+        athMasterSeq += TBTailCatcherRec
         #
         from TBRec.TBRecConf import TBMWPCRec
         TBMWPCRec = TBMWPCRec()
         include( "TBRec/H6MWPCRec_jobOptions.py" )
-        athFilterSeq += TBMWPCRec
+        athMasterSeq += TBMWPCRec
         #
         from TBRec.TBRecConf import TBPlaneTrackingAlgo
         TBPlaneTrackingAlgo = TBPlaneTrackingAlgo()
@@ -404,7 +404,7 @@ if doBeamDetectors:
             TBPlaneTrackingAlgo.CalibFileName = "BPCAlignment_2004TB_RunI.txt"
         else:
             TBPlaneTrackingAlgo.CalibFileName = "BPCAlignment_2004TB_RunII.txt"
-        athFilterSeq += TBPlaneTrackingAlgo    
+        athMasterSeq += TBPlaneTrackingAlgo    
 
 if doBeamQuality:
 #    if doMon:
@@ -448,8 +448,8 @@ if doBeamQuality:
     TBBeamQuality.CheckTrackReco = True
     
   #topSequence += TBBeamQuality
-  from AthenaCommon.AppMgr import athFilterSeq
-  athFilterSeq  += TBBeamQuality
+  from AthenaCommon.AppMgr import athMasterSeq
+  athMasterSeq  += TBBeamQuality
 
 # -----------------------------
 # LAr detectors
@@ -707,7 +707,7 @@ if doDMSplit:
    DMContSplit.InputDMContainer = "LArCalibrationHitDeadMaterial"
    DMContSplit.OutputDM_Calo = "LArCalibrationHitDeadMaterial_Calo"
    DMContSplit.OutputDM_Leak = "LArCalibrationHitDeadMaterial_Leakage"
-   athFilterSeq += DMContSplit
+   athMasterSeq += DMContSplit
 
 # -----------------------------
 # TB clusters
@@ -863,7 +863,7 @@ if doMakeTopoCluster:
         TBBeamQualityClus.CheckVetoScint = False
         TBBeamQualityClus.CheckClusters = True
         TBBeamQualityClus.CheckTrackReco = False
-#        from AthenaCommon.AppMgr import athFilterSeq
+#        from AthenaCommon.AppMgr import athMasterSeq
         topSequence += TBBeamQualityClus
 
 if doMakeEMTopoCluster:

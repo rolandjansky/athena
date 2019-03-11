@@ -29,6 +29,8 @@
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include <atomic>
+
 class IPixelCalibSvc;
 template <class T> class ServiceHandle;
 class Identifier;
@@ -142,6 +144,10 @@ private:
 
   //  mutable MsgStream m_log;
   bool m_calibrateCharge;
+  mutable std::atomic_bool m_issueErrorA;
+  mutable std::atomic_bool m_forceErrorStrategy1A;
+  mutable std::atomic_bool m_issueErrorB;
+  mutable std::atomic_bool m_forceErrorStrategy1B;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
