@@ -501,7 +501,7 @@ def CaloTopoClusterCfg(configFlags):
     theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
 
     # maker tools
-    TopoMaker = CaloTopoClusterMaker("TopoMaker")#,OutputLevel=VERBOSE)
+    TopoMaker = CaloTopoClusterMaker("TopoMaker")
         
     TopoMaker.CellsName = "AllCalo"
     TopoMaker.CalorimeterNames=["LAREM",
@@ -567,15 +567,10 @@ def CaloTopoClusterCfg(configFlags):
     # EnergyCut                     = 500*MeV,
         
 
-<<<<<<< HEAD
     CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")
-    CaloTopoCluster.ClustersOutputName="CaloTopoCluster"
-=======
-    CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")#,OutputLevel=VERBOSE)
     CaloTopoCluster.ClustersOutputName="CaloTopoClusters"
     if configFlags.Calo.TopoCluster.doTopoClusterLocalCalib:
         CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
->>>>>>> master-CaloTopoClusterCfg-v3
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
     
