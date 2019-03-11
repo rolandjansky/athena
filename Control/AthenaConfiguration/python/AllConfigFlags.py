@@ -70,6 +70,8 @@ def _createCfgFlags():
     acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
     acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
     acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
+    acf.addFlag("GeoModel.Type", "UNDEFINED") # Geometry type in {ITKLoI, ITkLoI-VF, etc...}
+    acf.addFlag("GeoModel.IBLLayout", "UNDEFINED") # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
@@ -94,6 +96,8 @@ def _createCfgFlags():
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
     acf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
 
+#Random engine Flags:
+    acf.addFlag("Random.Engine", "dSFMT") # Random service used in {"dSFMT", "Ranlux64", "Ranecu"}
 
     def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
