@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -74,7 +74,7 @@ class TilePulseShape;
 
 class TileHWID;
 class TileInfo;
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 
 class TH1F;
 class TFile;
@@ -114,8 +114,7 @@ private:
     SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
         "TileRawChannelContainer", "TrueAmp", "Output Tile raw channel container key"};
     
-    CLHEP::HepRandomEngine * m_pHRengine; //!< Random number generator engine to use
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
+    ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
 
     
     //Parameters

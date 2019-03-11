@@ -31,7 +31,9 @@
 #include "AthenaKernel/ITriggerTime.h"
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // Gaudi includes
 #include "GaudiKernel/SystemOfUnits.h"
@@ -69,8 +71,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     , m_tileTBID(0)
     , m_tileInfo(0)
     , m_tileMgr(0)
-    , m_pHRengine(0)
-    , m_rndmSvc("AtRndmGenSvc",name)
     , m_hits(0)
     , m_hits_DigiHSTruth(0)
     , m_mbtsOffset(0)
@@ -91,7 +91,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     declareProperty("MaxHitTime", m_maxHitTime,           "All sub-hits with time above m_maxHitTime will be ignored");
     declareProperty("PhotostatWindow", m_photoStatisticsWindow, "Sum up energy in [-m_photoStatWindow,+m_photoStatWindow] and use it for photostatistics");
     declareProperty("PhotostatType", m_photoElectronStatistics,          "Method to apply photostatistics (default=2)");
-    declareProperty("RndmSvc", m_rndmSvc,                 "Random Number Service used in TileHitVecToCnt");
     declareProperty("SkipNoHit",m_skipNoHit,              "Skip events with no Tile hits (default=false)");
     declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false, "Pileup and/or noise added by overlaying random events (default=false)");
     declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true, "DigiTruth reconstruction");
@@ -104,8 +103,7 @@ StatusCode TileHitVecToCntTool::initialize() {
 
   bool error = false;
 
-  CHECK(m_rndmSvc.retrieve());
-  m_pHRengine = m_rndmSvc->GetEngine("Tile_HitVecToCnt");
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   // retrieve Tile detector manager, TileID helper and TileInfo from det store
 
@@ -377,6 +375,9 @@ StatusCode TileHitVecToCntTool::prepareEvent(unsigned int /*nInputEvents*/) {
 
   ATH_MSG_DEBUG("TileHitVecToCntTool prepareEvent finished");
 
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -556,7 +557,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
   return;
 }
 
-void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont) {
+void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont, CLHEP::HepRandomEngine * engine) {
 
   TileHitVecConstIterator inpItr = inputHits->begin();
   TileHitVecConstIterator end = inputHits->end();
@@ -673,7 +674,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
             }
           }
           ATH_MSG_DEBUG("Minimal time in input event " << avtime);
-          double shift = RandFlat::shoot(m_pHRengine, m_triggerTime, 0.0);
+          double shift = RandFlat::shoot(engine, m_triggerTime, 0.0);
           ATH_MSG_DEBUG("Minimal time after random shift " << shift);
           avtime -= shift; // subtracting negative shift value here
 
@@ -760,6 +761,9 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
   ATH_MSG_DEBUG("Inside TileHitVecToCntTool processBunchXing" << bunchXing);
   //  setFilterPassed(true);
 
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  CLHEP::HepRandomEngine * engine = *rngWrapper;
+
   SubEventIterator iEvt(bSubEvents);
   if (m_rndmEvtOverlay && bunchXing != 0) iEvt = eSubEvents; // in overlay skip all events except BC=0
 
@@ -789,7 +793,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
           } else {
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
             this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
-            //if( m_doDigiTruth && iEvt == bSubEvents) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_signalHits);
+            //if( m_doDigiTruth && iEvt == bSubEvents) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_signalHits, engine);
           }
         } else if (m_pileUp) { // pileup code
           bool isSignal = false;
@@ -805,8 +809,8 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
 	  ATH_MSG_ERROR(" Tile Hit container not found for event key " << hitVectorName);
 	}
 
-			  this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits);
-        if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
+	this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits, engine);
+        if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
       } // to pile-up or not
 
     } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -830,6 +834,9 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   /* zero all counters and sums */
   int nHit(0);
   double eHitTot(0.0);
+
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  CLHEP::HepRandomEngine * engine = *rngWrapper;
 
   std::vector<std::string>::const_iterator hitVecNamesItr = m_hitVectorNames.begin();
   std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
@@ -860,7 +867,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
             const TileHitVector* inputHits = &(*(iCont->second));
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
             this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
-            if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
+            if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
           }
         }
       } else if (m_pileUp) {  // pileup code
@@ -886,8 +893,8 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
         ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
         continue; // continue to the next hit vector
       }
-      this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits);
-      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
+      this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits, engine);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
     }
 
   } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -960,6 +967,9 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //photoelectron statistics.
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
+
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  CLHEP::HepRandomEngine * engine = *rngWrapper;
   
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
   TileHitNonConstContainer::iterator endColl_DigiHSTruth;
@@ -990,7 +1000,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
         //channel_id = m_cabling->s2h_channel_id(pmt_id);
       }
 
-			double scaleFactor = applyPhotoStatistics(ehit, pmt_id);
+      double scaleFactor = applyPhotoStatistics(ehit, pmt_id, engine);
       pHit->scale(scaleFactor);
 
       if(m_doDigiTruth){
@@ -1071,7 +1081,7 @@ StatusCode TileHitVecToCntTool::finalize() {
 
 }
 
-double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_id) {
+double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine * engine) {
   // pmt_sample = 0-3 for normal cells 4 for inner MBTS, 5 for outer MBTS, 6 for E4'
   int pmt_sample =
       (m_tileTBID->is_tiletb(pmt_id)) ? TileID::SAMP_X + m_tileTBID->channel(pmt_id) : m_tileID->sample(pmt_id);
@@ -1081,19 +1091,19 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
   switch (m_photoElectronStatistics) {
     case 2:
       if (pe > 20.0) {
-        RndmPois = std::max(0.0, RandGaussQ::shoot(m_pHRengine, pe, sqrt(pe))); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
+        RndmPois = std::max(0.0, RandGaussQ::shoot(engine, pe, sqrt(pe))); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
         pe_scale = RndmPois / pe;
       } else { // pe<=20
 
         if (pe > 0.) {
           double singleMEAN = 1.0;  //Parameterization of monoelectron spectra
           double singleSIGMA = 1.0;
-          RndmPois = RandPoissonT::shoot(m_pHRengine, pe);
+          RndmPois = RandPoissonT::shoot(engine, pe);
 
           if (RndmPois > 0) {
             pe_scale = 0;
             for (int i = 0; i < RndmPois; i++)
-              pe_scale += 1 / (1.08332) * std::max(0., RandGaussQ::shoot(m_pHRengine, singleMEAN, singleSIGMA)); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
+              pe_scale += 1 / (1.08332) * std::max(0., RandGaussQ::shoot(engine, singleMEAN, singleSIGMA)); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
 
             pe_scale /= RndmPois;
           } else
@@ -1104,7 +1114,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 
     case 0:
       if (pe > 0.0) {
-        RndmPois = RandPoissonT::shoot(m_pHRengine, pe);
+        RndmPois = RandPoissonT::shoot(engine, pe);
         pe_scale = RndmPois / pe;
       }
       break;
@@ -1112,7 +1122,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
     case 1:
       if (pe > 0.0) {
         if (pe > 10.0) {
-          RndmPois = std::max(0.0, RandGaussQ::shoot(m_pHRengine, pe, sqrt(pe))); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
+          RndmPois = std::max(0.0, RandGaussQ::shoot(engine, pe, sqrt(pe))); // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
         } else {
           int nn = std::max(10, (int) (pe * 10.0));
           double * ProbFunc = new double[nn];
@@ -1121,7 +1131,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
             ProbFunc[i] = ProbFunc[i - 1] * pe / i;
           }
           RandGeneral* RandG = new RandGeneral(ProbFunc, nn, 0);
-          RndmPois = RandG->shoot(m_pHRengine) * nn;
+          RndmPois = RandG->shoot(engine) * nn;
           //here RndmPois is continuously distributed random value obtained from Poisson
           //distribution by approximation.
           delete RandG;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -35,7 +35,8 @@
 #include "AthAllocators/DataPool.h"
 #include "PathResolver/PathResolver.h"
 //Random number service
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -60,10 +61,7 @@ using CLHEP::RandFlat;
 TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_tileHWID(0),
-  m_tileInfo(0),
-  m_pHRengine(0),
-  m_rndmSvc("AtRndmGenSvc", name)
-
+  m_tileInfo(0)
 {
 	m_rChUnit = TileRawChannelUnit::ADCcounts;
 	m_rChType = TileFragHash::Default;
@@ -205,8 +203,6 @@ StatusCode TileDigitsFromPulse::initialize() {
 	if (!m_rndmSvc.retrieve().isSuccess()) {
 		ATH_MSG_FATAL("Could not initialize find Random Number Service.");
 		return StatusCode::FAILURE;
-	} else {
-		m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
 	}
 	if (m_chanNoise)
 		m_gaussNoise = kFALSE; //Make sure channel noise overrides gaussian noise.
@@ -222,6 +218,10 @@ StatusCode TileDigitsFromPulse::initialize() {
 StatusCode TileDigitsFromPulse::execute() {
 
 	ATH_MSG_DEBUG("in execute()");
+
+	// Prepare RNG service
+	ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+	rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
 
 	// Create new container for digits
 	auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true,
@@ -321,8 +321,8 @@ StatusCode TileDigitsFromPulse::execute() {
 							double Hfn1 = m_tileToolNoiseSample->getHfn1(drawerIdx, channel, gain);
 							double Hfn2 = m_tileToolNoiseSample->getHfn2(drawerIdx, channel, gain);
 							double Norm = m_tileToolNoiseSample->getHfnNorm(drawerIdx, channel, gain);
-							RandGaussQ::shootArray(m_pHRengine, samples.size(), Rndm, 0.0, 1.0);
-							RandFlat::shootArray(m_pHRengine, 1, Rndm_dG, 0.0, 1.0);
+							RandGaussQ::shootArray(*rngWrapper, samples.size(), Rndm, 0.0, 1.0);
+							RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
 							for (unsigned int js = 0; js < samples.size(); ++js) {
 								//using the same gaussian(sigma) for all samples in one channel in one event
 								if (Rndm_dG[0] < Norm)
