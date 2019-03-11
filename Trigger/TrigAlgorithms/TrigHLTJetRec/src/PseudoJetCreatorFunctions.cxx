@@ -153,6 +153,14 @@ namespace PseudoJetCreatorFunctions{
     }
   };
 
+  ////////////Ghost version////////////////////
+  class GhostParticleMomentumGetter: public IMomentumGetter {
+    virtual xAOD::IParticle::FourMom_t  
+    operator()(const xAOD::IParticle* ip) const override {
+      return ip->p4()*1e-40; // momentum scaled to near zero.
+    }
+  };
+
   ////////////////////////////////
   // MomentumGetter Factory
 
@@ -164,6 +172,13 @@ namespace PseudoJetCreatorFunctions{
     }
 
     return std::make_unique<IParticleMomentumGetter>();
+  }
+
+  ////////////Ghost version////////////////////
+  std::unique_ptr<IMomentumGetter> 
+  make_ghostmomentumGetter(){
+
+    return std::make_unique<GhostParticleMomentumGetter>();
   }
   
   ////////////////////////////////
@@ -248,6 +263,19 @@ namespace PseudoJetCreatorFunctions{
 
     
     auto momentumGetter = make_momentumGetter(iptype);
+
+    return IParticlesToPseudoJets(ips, 
+                                  rejecter,
+                                  std::move(momentumGetter));
+  }
+
+  ////////////////Ghost version////////////////////////////
+  std::vector<PseudoJet> 
+  createGhostPseudoJets(const xAOD::IParticleContainer* ips,
+                   ToolHandle<IIParticleRejectionTool>& rejecter){
+
+    
+    auto momentumGetter = make_ghostmomentumGetter();
 
     return IParticlesToPseudoJets(ips, 
                                   rejecter,

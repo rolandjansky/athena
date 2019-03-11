@@ -119,6 +119,8 @@ private:  // methods
                         const std::vector<const xAOD::TrackParticle*>&,
                         const jet::TrackVertexAssociation*) const;
 
+protected:
+  bool m_isTrigger;  
 };
 
 

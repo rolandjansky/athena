@@ -296,6 +296,7 @@ class JetSequencesBuilder(object):
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
         elif ftkopt == 'ftkrefit':
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
+            alias = 'ftkrefittracking'
         ftkalgo_list = []
 
         for seq in ftksequence_list:
