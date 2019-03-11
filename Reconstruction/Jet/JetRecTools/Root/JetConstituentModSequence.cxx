@@ -96,12 +96,15 @@ int JetConstituentModSequence::execute() const {
     return 1;
   }
 
-  std::vector<CaloClusterChangeSignalState*> signalStateList;
+  // Handle the change of calibration differently in the trigger in R21, as
+  // needing to deep copy costs a lot more memory
+  // Add clusters to the list to register a change of state
+  // They are restored to original state when the list goes out of scope
+  CaloClusterChangeSignalStateList signalStateList;
   if(m_trigger && m_isEMTrigger){
     xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (modifiedCont); // Get CaloCluster container
     for(xAOD::CaloCluster* cl : *clust) {
-      CaloClusterChangeSignalState *clusterChanger = new CaloClusterChangeSignalState (cl, xAOD::CaloCluster::State(0));
-      signalStateList.push_back(clusterChanger);
+      signalStateList.add(cl, xAOD::CaloCluster::UNCALIBRATED);
     }
   }
 
@@ -112,12 +115,6 @@ int JetConstituentModSequence::execute() const {
     if(t->process(modifiedCont).isFailure()){
       ATH_MSG_WARNING("Failure in modifying constituents " << m_outputContainer );
       return 1;
-    }
-  }
-
-  if(m_trigger && m_isEMTrigger){
-    for(unsigned int i=0; i<signalStateList.size(); i++){
-      delete signalStateList[i];
     }
   }
   
