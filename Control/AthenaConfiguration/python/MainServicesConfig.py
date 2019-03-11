@@ -29,9 +29,9 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq'),parentName='AthAlgEvtSeq') 
+    cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
     cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
-    cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
 
     #Set up incident firing:
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
