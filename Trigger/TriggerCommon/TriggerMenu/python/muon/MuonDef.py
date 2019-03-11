@@ -31,7 +31,6 @@ from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
                                              TrigMuonEFTrackIsolationMultiHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
                                              TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig,
-                                             TrigMuonEFCombinerDiMuonMassHypoConfig,
                                              TrigMuonEFCaloIsolationHypoConfig)
 
 from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
@@ -434,28 +433,19 @@ class L2EFChain_mu(L2EFChainDef):
       muon_name = 'mu'
       mass_low = 0.
       mass_high = 0.
-      hypocut = '0GeV_0GeV'
       if '20invm60' in self.chainPart['addInfo']:
         mass_low = 20.
         mass_high = 60.
-        hypocut = '20GeV_60GeV'
       elif '10invm60' in self.chainPart['addInfo']:
         mass_low = 10.
         mass_high = 60.
-        hypocut = '10GeV_60GeV'
       elif '0invm60' in self.chainPart['addInfo']:
         mass_low = 0.
         mass_high = 60.
-        hypocut = '0GeV_60GeV'
       elif '20invm80' in self.chainPart['addInfo']:
         mass_low = 20.
         mass_high = 80.
-        hypocut = '20GeV_80GeV'
       dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
-      if  '0invm60' in self.chainPart['addInfo']: invm=  '0invm60'
-      if '10invm60' in self.chainPart['addInfo']: invm= '10invm60'
-      if '20invm60' in self.chainPart['addInfo']: invm= '20invm60'
-      if '20invm80' in self.chainPart['addInfo']: invm= '20invm80'
       theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DimuonMass", dimuon_name)
       theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = mass_low
       theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = mass_high
