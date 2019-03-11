@@ -139,7 +139,7 @@ atlas_add_test( jetMenu
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
    SCRIPT test/test_full_menu_build.sh
-   POST_EXEC_SCRIPT "trig-art-result-parser.sh fullMenu.log \"athena CheckLog RegTest RootComp\""
+   POST_EXEC_SCRIPT "trig-art-result-parser.sh fullMenu.log \"athena CheckLog RegTest\""
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
    )
@@ -175,7 +175,7 @@ atlas_add_test( EmuStepProcessing
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
    SCRIPT test/test_newJO_build.sh
-   POST_EXEC_SCRIPT "trig-art-result-parser.sh NewJO.log \"Configuration athena CheckLog RegTest RootComp\""
+   POST_EXEC_SCRIPT "trig-art-result-parser.sh NewJO.log \"Configuration athena CheckLog RegTest\""
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
    )
