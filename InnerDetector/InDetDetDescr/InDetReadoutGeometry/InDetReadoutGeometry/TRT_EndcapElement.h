@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/TRT_EndcapCode.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapDescriptor.h"
+#include <atomic>
 
 class TRT_ID;
 
@@ -125,9 +126,6 @@ namespace InDetDD {
       const TRT_EndcapDescriptor *m_descriptor;
       const TRT_EndcapElement    *m_nextInZ;
       const TRT_EndcapElement    *m_previousInZ;
-    
-      mutable Trk::Surface       * m_surface;
-    
   };
   
 }

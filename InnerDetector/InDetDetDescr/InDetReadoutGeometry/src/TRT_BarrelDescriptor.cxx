@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/TRT_BarrelDescriptor.h"
@@ -17,17 +17,9 @@ TRT_BarrelDescriptor::TRT_BarrelDescriptor()
     m_innerTubeRadius(2*CLHEP::mm), // FIXME: Hardwired for now!!
     m_f(NULL),
     m_o(0),
-    m_bounds(0)
-
+    m_bounds()
 {
 }
-
-
-TRT_BarrelDescriptor::~TRT_BarrelDescriptor()
-{
-  delete m_bounds;
-}
-
 
 void TRT_BarrelDescriptor::addStraw(double xPos, double yPos) {
 
@@ -45,7 +37,7 @@ void TRT_BarrelDescriptor::setStrawTransformField(const GeoXF::Function *xf, siz
 const Trk::SurfaceBounds & 
 TRT_BarrelDescriptor::strawBounds() const
 {
-  if (!m_bounds) m_bounds = new Trk::CylinderBounds(m_innerTubeRadius, 0.5*m_length);
+  if (not m_bounds) m_bounds.set(std::make_unique<Trk::CylinderBounds>(m_innerTubeRadius, 0.5*m_length));
   return *m_bounds;
 }
 
