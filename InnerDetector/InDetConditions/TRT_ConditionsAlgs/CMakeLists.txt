@@ -10,8 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
-                          PRIVATE
                           InnerDetector/InDetConditions/TRT_ConditionsData
+                          PRIVATE
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
 		          Database/AthenaPOOL/AthenaPoolUtilities

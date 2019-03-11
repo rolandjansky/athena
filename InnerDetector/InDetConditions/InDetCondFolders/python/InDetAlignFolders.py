@@ -79,8 +79,6 @@ if DetFlags.TRT_on() and ((not DetFlags.simulate.TRT_on()) or DetFlags.overlay.T
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
             condSeq += TRTAlignCondAlg
-
-
 if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
 
     if not hasattr(condSeq, "SCT_AlignCondAlg"):

@@ -347,8 +347,7 @@ if DetFlags.haveRIO.TRT_on():
 
 		# Added for run2. Clean the unsed ones!!!
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
-
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector",className='CondAttrListVec')
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
        conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors")
 
@@ -388,6 +387,28 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTStrawStatusSummarySvc
     InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
+
+    # Straw status tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                            isGEANT4 = useOldStyle)
+    # Alive straws algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
+    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      isGEANT4 = useOldStyle)
+    # HT probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
+    TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
+
+    # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawCondAlg"):
+        condSeq += TRTStrawCondAlg
+
+    # Condition algorithms for Pid
+    if not hasattr(condSeq, "TRTHTCondAlg"):
+        condSeq += TRTHTCondAlg
+
     
     # Services which only run on raw data
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):

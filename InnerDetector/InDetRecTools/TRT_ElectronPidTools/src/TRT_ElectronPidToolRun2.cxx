@@ -1,5 +1,6 @@
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +10,6 @@
 
 #include "TRT_ElectronPidTools/BaseTRTPIDCalculator.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidToolRun2.h"
-#include "TRT_ElectronPidTools/TRT_ElectronPidToolRun2_HTcalculation.h"
 
 // StoreGate, Athena, and Database stuff:
 #include "Identifier/Identifier.h"
@@ -18,6 +18,8 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
+#include "StoreGate/ReadCondHandle.h"
+
 // Tracking:
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -45,7 +47,7 @@
 //#define TRTDBG ATH_MSG_INFO("To line "<<__LINE__);
 //#define TRTDBG 0;
 
-#include "TRT_ElectronPidToolRun2_HTcalculation.cxx"
+//#include "TRT_ElectronPidToolRun2_HTcalculation.cxx"
 
 
 /*****************************************************************************\
@@ -60,10 +62,9 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
   m_minTRThits(5),
-  m_HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
   m_LocalOccTool(),
-  m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n)
+  m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this)
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
@@ -71,7 +72,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
-  declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
+  declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
   declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
 }
 
@@ -81,9 +82,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
-{
-  delete &m_HTcalc;
-}
+{}
 
 /*****************************************************************************\
 |*%%%  Initialisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -97,21 +96,15 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   // Get the TRT Identifier-helper:
   CHECK (detStore()->retrieve(m_trtId, "TRT_ID"));
 
-  // Register callback function for cache updates - HT:
-  const DataHandle<CondAttrListVec> aptr;;
-  if (StatusCode::SUCCESS == detStore()->regFcn(&InDet::TRT_ElectronPidToolRun2::update,this, aptr, "/TRT/Calib/PID_vector" )) {
-    ATH_MSG_DEBUG ("Registered callback for TRT_ElectronPidToolRun2 - HT.");
-  } else {
-    ATH_MSG_ERROR ("Callback registration failed for TRT_ElectronPidToolRun2 - HT! ");
-  }
-
   /* Get the TRT_ToT_dEdx tool */
   CHECK( m_TRTdEdxTool.retrieve() );
 
   CHECK( m_LocalOccTool.retrieve() );
 
-  CHECK( m_TRTStrawSummarySvc.retrieve() );
-  if ( !m_TRTStrawSummarySvc.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc);
+  ATH_CHECK( m_HTReadKey.initialize() );
+
+  CHECK( m_TRTStrawSummaryTool.retrieve() );
+  if ( !m_TRTStrawSummaryTool.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummaryTool);
 
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -127,18 +120,6 @@ StatusCode InDet::TRT_ElectronPidToolRun2::finalize()
 {
   return AthAlgTool::finalize();
 }
-
-/* Jared - remove ToTcalc
-double InDet::TRT_ElectronPidToolRun2::GetD(double R_Track)const {
-  R_Track=fabs(R_Track);
-  if(R_Track>2.) return 0;
-  return 2. * sqrt( 4. - R_Track * R_Track );
-}
-
-double InDet::TRT_ElectronPidToolRun2::GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer)const {
-  return -999.99; //ToTcalc.GetToT( bitpattern, HitZ, HitR, BEC, Layer, Strawlayer);
-}
-*/
 
 // Kept for backward compatibility.
 // See TRT_ElectronPidTools-01-00-28 for the full (commented) code.
@@ -163,7 +144,14 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 std::vector<float>
 InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
-  //ATH_MSG_INFO("started electronProbabaility");
+ // Get the probability calculator
+ SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
+ HTcalculator* HTcalc = const_cast<HTcalculator*>(*readHandle);
+ // make sure some calibration is available
+ if(HTcalc==nullptr) ATH_MSG_WARNING ("  No Pid calibration from the DB.");
+ HTcalc->checkInitialization();
+
+
   //Initialize the return vector
   std::vector<float> PIDvalues(5);
   float & prob_El_Comb      = PIDvalues[0] = 0.5;
@@ -172,7 +160,6 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   float & prob_El_Brem      = PIDvalues[3] = 0.5;
   float & occ_local         = PIDvalues[4] = 0.0;
 
-  //  float & dEdx              = PIDvalues[2] = 0.0;
   float dEdx = 0.0;
 
   // Check for perigee:
@@ -227,6 +214,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   unsigned int nTRThits     = 0;
   unsigned int nTRThitsHTMB = 0;
 
+
   // Check for track states:
   const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = track.trackStateOnSurfaces();
   if (not recoTrackStates) {
@@ -249,7 +237,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
-    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false; 
+    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false;
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;
@@ -332,8 +320,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
     // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
     int GasType=0; // Xenon is default
-    if (!m_TRTStrawSummarySvc.empty()) {
-      int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
+    if (!m_TRTStrawSummaryTool.empty()) {
+      int stat = m_TRTStrawSummaryTool->getStatusHT(DCid);
       if       ( stat==2 || stat==3 ) { GasType = 0; } // Xe
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
       else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
@@ -357,8 +345,10 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
     // Then call pHT functions with these values:
     // ------------------------------------------
-    double pHTel = m_HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
-    double pHTpi = m_HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+
+
+    double pHTel = HTcalc->getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+    double pHTpi = HTcalc->getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
       ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local);
@@ -402,13 +392,13 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   */
 
   // Jared - ToT Implementation
-  dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits 
+  dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits
   double usedHits = m_TRTdEdxTool->usedHits( &track, true, false);
   prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
-  double limProbHT = m_HTcalc.Limit(prob_El_HT); 
-  double limProbToT = m_HTcalc.Limit(prob_El_ToT); 
+  double limProbHT = HTcalc->Limit(prob_El_HT); 
+  double limProbToT = HTcalc->Limit(prob_El_ToT); 
   
   // Calculate the combined probability, assuming no correlations (none are expected).
   prob_El_Comb = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
@@ -418,34 +408,9 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
   //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
      
-  return PIDvalues;  
+  return PIDvalues;
 }
 
-/* ----------------------------------------------------------------------------------- */
-// Callback function to update constants from database: 
-/* ----------------------------------------------------------------------------------- */
-
-StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
-
-  ATH_MSG_DEBUG ("Updating constants for the TRT_ElectronPidToolRun2! ");
-
-  // Callback function to update HT onset parameter cache when condDB data changes:
-  for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-    ATH_MSG_DEBUG("IOVCALLBACK for key " << *key << " number " << I);
-
-	// NEW reading from DB
-  StatusCode sc = StatusCode::SUCCESS;
-  ATH_MSG_INFO("HT Calculator : Reading vector format");
-
-  const DataHandle<CondAttrListVec> channel_values;
-  if (StatusCode::SUCCESS == detStore()->retrieve(channel_values, "/TRT/Calib/PID_vector" )){
-        sc = m_HTcalc.ReadVectorDB(        channel_values  );
-  } else {
-        ATH_MSG_ERROR ("Problem reading condDB object. HT Calculator.");
-  }
-
-  return sc;
-}
 
 /*****************************************************************************\
 |*%%%  TRT straw address check, done once per hit.  %%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -503,12 +468,13 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
   }
-  //return m_HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
-  // FIXME
-  return 1.0;//m_HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
+
+  return 1.0;
 }
 
 
 double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const {
-   return m_HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
+    SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
+    bool hasTrackPar=true;
+    return (*readHandle)->getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy, hasTrackPar );
 }

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -29,6 +30,7 @@
 
 // ReadHandle
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //STL includes
 #include <sstream>
@@ -45,18 +47,17 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   base_class(t,n,p),
   m_TRTHelper(nullptr),
-  m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
-  m_driftFunctionTool("TRT_DriftFunctionTool")  
+  m_CalDbTool("TRT_CalDbTool",this),    
+  m_StrawStatusSummaryTool("TRT_StrawStatusSummaryTool",this)
 {
-  //declareProperty("isData", m_DATA = true);
- declareProperty("TRTStrawSummarySvc",   m_TRTStrawStatusSummarySvc);
  declareProperty("isTrigger",            m_isTrigger = false);
  declareProperty("includeT0Shift",       m_T0Shift = true);
  declareProperty("LowGate",              m_lowGate  = 14.0625*CLHEP::ns);
  declareProperty("HighGate",             m_highGate = 42.1875*CLHEP::ns);
  declareProperty("LowWideGate",          m_lowWideGate  = 20.3125*CLHEP::ns);
  declareProperty("HighWideGate",        m_highWideGate = 54.6875*CLHEP::ns);
- declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
+ declareProperty("TRTCalDbTool", m_CalDbTool);
+ declareProperty("TRTStrawStatusSummaryTool", m_StrawStatusSummaryTool);
 }
 
 // =======================================================================
@@ -70,20 +71,23 @@ StatusCode TRT_LocalOccupancy::initialize()
   // The TRT helper: 
   CHECK( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
 
+  // access to t0 and straw status
   if (m_T0Shift) {
-    CHECK( m_driftFunctionTool.retrieve() );
+    CHECK( m_CalDbTool.retrieve());
   }
   else { //use wider validity gate if no T0 shift
     m_lowGate  = m_lowWideGate ;
     m_highGate = m_highWideGate ;
   }  
-  CHECK ( m_TRTStrawStatusSummarySvc.retrieve() );
+  CHECK( m_StrawStatusSummaryTool.retrieve());
+
   
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   //Initlalize ReadHandleKey
   ATH_CHECK( m_trt_rdo_location.initialize() );
   ATH_CHECK( m_trt_driftcircles.initialize() );
+  ATH_CHECK( m_strawReadKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -209,8 +213,8 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
         Identifier  rdo_id  = (*r)->identify    ()                          ;
         
         //Check if straw is OK
-        if((m_TRTStrawStatusSummarySvc->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
-            || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
+        if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
+            || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
           continue;
         }
 
@@ -231,8 +235,7 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
             if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
           } 
           if(!(tdcvalue==0 || tdcvalue==24)) {
-            double dummy_rawrad=0. ; bool dummy_isOK=true;
-            m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
+            t0 =  m_CalDbTool->getT0(rdo_id);
           }
         }
 
@@ -243,7 +246,11 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
     }
   }
 
-  int*  straws = m_TRTStrawStatusSummarySvc->getStwTotal();
+  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
+  const TRTCond::AliveStraws* strawCounts{*strawHandle};
+
+
+  int*  straws = strawCounts->getStwTotal();
     
             
   occResults[-1] = (double)hitCounter[-1]/(double)straws[1];
@@ -288,8 +295,8 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 	      if (!*r)                                continue;
 	      Identifier   rdo_id  = (*r)->identify    ()                          ;
 	      
-	      if((m_TRTStrawStatusSummarySvc->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
-		 || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
+	      if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
+		 || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
 		continue;
 	      }
 
@@ -314,9 +321,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 		    if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
 		  } 
 		if(!(tdcvalue==0 || tdcvalue==24)) {
-		  double dummy_rawrad=0. ; bool dummy_isOK=true;
-		  m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
-		  //	  double dummy_radius = m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
+                  t0 =  m_CalDbTool->getT0(rdo_id);
 		}
 	      }
 
@@ -518,9 +523,13 @@ TRT_LocalOccupancy::makeData() const
     ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
   }
 
+
   // count live straws
-  data->m_stw_total 		=  m_TRTStrawStatusSummarySvc->getStwTotal();
-  data->m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal();
+  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
+  const TRTCond::AliveStraws* strawCounts{*strawHandle};
+
+  data->m_stw_total 		=  strawCounts->getStwTotal();
+  data->m_stw_local 		=  strawCounts->getStwLocal();
   
   // Calculate Occs:
   for (int i=0; i<NTOTAL; ++i) {
@@ -550,9 +559,11 @@ std::unique_ptr<TRT_LocalOccupancy::OccupancyData>
 TRT_LocalOccupancy::makeDataTrigger() const
 {
   auto data = std::make_unique<OccupancyData>();
+  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
+  const TRTCond::AliveStraws* strawCounts{*strawHandle};
 
-  data->m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal();
-  data->m_stw_wheel 		=  m_TRTStrawStatusSummarySvc->getStwWheel();
+  data->m_stw_local 		=  strawCounts->getStwLocal();
+  data->m_stw_wheel 	        =  strawCounts->getStwWheel();
 
   for (int i=0; i<5; ++i){
     for (int j=0; j<NLOCALPHI; ++j){

@@ -943,20 +943,20 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() \
             and not InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
 
-        isMC = False
-        if globalflags.DataSource == "geant4" :
-            isMC = True
-
-        from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
-        InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(       name   = "InDetTRT_DriftFunctionTool",
-                                                                  IsMC   = isMC )
-        ToolSvc += InDetTRT_DriftFunctionTool
+        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+        InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
+                                          isGEANT4=(globalflags.DataSource == 'geant4'))
+        # Straw status DB Tool
+        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+        InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                                    isGEANT4=(globalflags.DataSource == 'geant4'))
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(	  name 				="InDet_TRT_LocalOccupancy",
-                                                                  isTrigger			= False, 
-                                                                  TRTDriftFunctionTool          = InDetTRT_DriftFunctionTool
-        )
+                                                                  isTrigger			= False,
+                                                                  TRTCalDbTool = InDetTRTCalDbTool,
+                                                                  TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool )
+
         ToolSvc += InDetTRT_LocalOccupancy
         if (InDetFlags.doPrintConfigurables()):
          print InDetTRT_LocalOccupancy
@@ -964,7 +964,9 @@ if InDetFlags.loadSummaryTool():
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
         InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
                                                                   TRT_LocalOccupancyTool 	= InDetTRT_LocalOccupancy,
+                                                                  TRTStrawSummaryTool     	= InDetTRTStrawStatusSummaryTool,
                                                                   isData = (globalflags.DataSource == 'data'))
+
 
 
         ToolSvc += InDetTRT_ElectronPidTool

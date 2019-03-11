@@ -11,7 +11,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/Identifier
-                          GaudiKernel )
+                          GaudiKernel 
+                          PRIVATE
+                          Tracking/TrkEvent/TrkEventPrimitives)
+ 
+
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -21,7 +25,7 @@ atlas_add_library( TRT_ConditionsData
                    src/*.cxx
                    PUBLIC_HEADERS TRT_ConditionsData
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions Identifier GaudiKernel
+                   LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions Identifier GaudiKernel TrkEventPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( TRT_ConditionsDataDict

@@ -531,6 +531,30 @@ class TRTConditionsServicesSetup:
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
+    # Straw status tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                            isGEANT4 = self._isMC)
+    # Alive straws algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
+    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      isGEANT4 = self._isMC)
+
+    # HT probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
+    TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawCondAlg"):
+        condSeq += TRTStrawCondAlg
+    # Condition algorithms for Pid
+    if not hasattr(condSeq, "TRTHTCondAlg"):
+        condSeq += TRTHTCondAlg
+
 
 
     from AthenaCommon.GlobalFlags import globalflags
