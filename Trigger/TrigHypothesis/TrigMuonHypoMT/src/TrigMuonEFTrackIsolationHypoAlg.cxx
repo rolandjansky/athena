@@ -71,7 +71,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
 
   std::vector<TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo> toolInput;
   size_t counter = 0;
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) {
     // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
     auto roiEL = roiInfo.link;
@@ -105,7 +105,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     newd -> setObjectLink( "roi", roiEL );
     newd -> setObjectLink( "view", viewEL );
 
-    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
 
 
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

@@ -120,7 +120,7 @@ decisionObjectsToRecord = []
 for d in decisionObjects:
     decisionObjectsToRecord.extend([
         "xAOD::TrigCompositeContainer_v1#%s" % d,
-        "xAOD::TrigCompositeAuxContainer_v2#%s.decisions" % d
+        "xAOD::TrigCompositeAuxContainer_v2#%s." % d
     ])
 
 ##########################################
