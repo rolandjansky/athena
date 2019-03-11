@@ -13,7 +13,7 @@ namespace FlavorTagDiscriminants {
     // you'll probably have to initialize some accessors here (or above)
     declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
     declareProperty("MuonMinDR", m_muonMinDR=0.4);
-    declareProperty("MuonMinpT", m_muonMinpT=4.0*1e3);
+    declareProperty("MuonMinpT", m_muonMinpT=4*1e3);
 
 
 

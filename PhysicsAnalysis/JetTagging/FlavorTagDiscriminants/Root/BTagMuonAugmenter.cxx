@@ -25,7 +25,6 @@ namespace FlavorTagDiscriminants {
     dec_muon_ip3d_z0_significance("softMuon_ip3dZ0Significance"),
     dec_muon_ip3d_sigma_d0("softMuon_ip3dD0Uncertainty"),
     dec_muon_ip3d_sigma_z0("softMuon_ip3dZ0Uncertainty"),
-    dec_muon_ip3d_grade("softMuon_ip3dGrade"),
     dec_muon_link("softMuon_link")
   {
     // you probably have to initialize something here
@@ -61,7 +60,6 @@ namespace FlavorTagDiscriminants {
     float muon_ip3d_z0_significance = -1;
     float muon_ip3d_sigma_d0 = -1;
     float muon_ip3d_sigma_z0 = -1;
-    int   muon_ip3d_grade = -1;
     ElementLink<xAOD::MuonContainer> muon_link;
 
 
@@ -136,7 +134,6 @@ namespace FlavorTagDiscriminants {
         muon_ip3d_z0 = muon_ip.ip3d_signed_z0;
         muon_ip3d_d0_significance = muon_ip.ip3d_signed_d0_significance;
         muon_ip3d_z0_significance = muon_ip.ip3d_signed_z0_significance;
-        muon_ip3d_grade = muon_ip.ip3d_grade;
         muon_ip3d_sigma_d0 = btag_track_aug.d0Uncertainty(*IDMuTrack);
         muon_ip3d_sigma_z0 = btag_track_aug.z0SinThetaUncertainty(*IDMuTrack);
 
@@ -160,7 +157,6 @@ namespace FlavorTagDiscriminants {
     dec_muon_ip3d_z0_significance(btag) = muon_ip3d_z0_significance;
     dec_muon_ip3d_sigma_d0(btag) = muon_ip3d_sigma_d0;
     dec_muon_ip3d_sigma_z0(btag) = muon_ip3d_sigma_z0;
-    dec_muon_ip3d_grade(btag) = muon_ip3d_grade;
     dec_muon_link(btag) = muon_link;
 
   }

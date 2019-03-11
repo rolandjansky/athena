@@ -21,8 +21,6 @@ namespace FlavorTagDiscriminants {
     BTagMuonAugmenter(std::string muonAssociationName, float muonMinDR, float muonMinpT);
     ~BTagMuonAugmenter();
     BTagMuonAugmenter(BTagMuonAugmenter&&);
-    void setMuonAssociation(std::string mu_assoc) { m_muonAssociationName = mu_assoc; }
-    void setMinPtMinDR(float min_pt, float min_dr) { m_muonMinpT = min_pt; m_muonMinDR = min_dr; }
     void augment(const xAOD::Jet& jet) const;
   private:
     // You'll probably have to add some accessors here
@@ -47,7 +45,6 @@ namespace FlavorTagDiscriminants {
     AE::Decorator<float> dec_muon_ip3d_z0_significance;
     AE::Decorator<float> dec_muon_ip3d_sigma_d0;
     AE::Decorator<float> dec_muon_ip3d_sigma_z0;
-    AE::Decorator<int>   dec_muon_ip3d_grade;
     AE::Decorator< ElementLink<xAOD::MuonContainer> > dec_muon_link;
   };
 
