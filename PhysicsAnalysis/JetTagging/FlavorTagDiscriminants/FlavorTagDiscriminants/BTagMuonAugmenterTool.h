@@ -25,8 +25,8 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
     StatusCode finalize() override;
 
-    void setMuonAssociation(std::string mu_assoc) { m_muonAssociationName = mu_assoc; }
-    void setMinPtMinDR(float min_pt, float min_dr) { m_muonMinpT = min_pt; m_muonMinDR = min_dr; }
+    void setMuonAssociation(std::string mu_assoc) { m_aug->setMuonAssociation(mu_assoc); }
+    void setMinPtMinDR(float min_pt, float min_dr) { m_aug->setMinPtMinDR(min_pt, min_dr); }
 
     // returns 0 for success
     int modifyJet(xAOD::Jet& jet) const override;
