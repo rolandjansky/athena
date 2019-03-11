@@ -56,6 +56,7 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
   std::string getClusterCalib() const {return m_clusterCalib;}
   std::string getSecondaryLabel() const {return m_secondarylabel;}
   bool secondaryLabelisEmpty() const { return m_secondarylabel == ""; }
+  bool secondaryLabelisTracks() const { return m_secondarylabel.find("Track") != std::string::npos; }
 
   // functions and variables for secondary(associated) pseudojets
   /*
@@ -84,6 +85,10 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
  
   HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
                                    const InputContainer*&);
+
+  template<typename ghostInputContainer>
+  HLT::ErrorCode getGhostInputContainer(const HLT::TriggerElement*,
+                                  const ghostInputContainer*&);
 
  // IJetBuildTool - offline code to transform pseudojets to xAOD jets
  // ToolHandle<IJetBuildTool> m_jetbuildTool;
