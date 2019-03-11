@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef GEOPIXELRINGECRING_H
 #define GEOPIXELRINGECRING_H
 
@@ -63,7 +62,6 @@ class GeoPixelRingECRingRef  {
 
   ServiceHandle<IPixelModuleSvc> m_pixelModuleSvc;
   ServiceHandle<IPixelDesignSvc> m_pixelDesignSvc;
-
 };
 
 #endif

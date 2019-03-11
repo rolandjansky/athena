@@ -53,6 +53,8 @@ class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
   GeoPhysVol *m_endcapFoam;
   GeoPhysVol *m_transFoam;
 
+  double m_CurlyMaterialFudge;
+
 };
 
 

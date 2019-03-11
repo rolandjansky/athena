@@ -33,7 +33,7 @@ class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAl
   
   GeoVPhysVol* getPhysVol() const { return m_physVol; }
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_layerSvcRegions; }
- 
+  
  private:
 
   GeoVPhysVol* m_physVol;
@@ -51,6 +51,7 @@ class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAl
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
   ToolHandle<IPixelLayerValidationTool> m_validationTool;
   bool                                  m_validationMode;
+  
 };
 
 #endif

@@ -32,7 +32,7 @@ class GeoPixelLayerPlanarRefTool : virtual public IGeoPixelLayerTool, public Ath
   
   GeoVPhysVol* getPhysVol() const { return m_physVol; }
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_layerSvcRegions; }
-
+  
  private:
 
   GeoVPhysVol* m_physVol;
@@ -48,6 +48,7 @@ class GeoPixelLayerPlanarRefTool : virtual public IGeoPixelLayerTool, public Ath
   std::vector<InDetDD::TubeZone*> m_layerSvcRegions;
 
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
+  
 };
 
 #endif

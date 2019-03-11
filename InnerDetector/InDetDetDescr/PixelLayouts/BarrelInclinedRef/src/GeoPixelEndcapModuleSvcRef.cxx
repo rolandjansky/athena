@@ -44,6 +44,8 @@ void GeoPixelEndcapModuleSvcRef::preBuild()
   m_svcRouting = staveDBHelper.getSvcRoutingPos()=="inner" ? -1. : 1.;
 
   msg(MSG::DEBUG) <<"Local support width "<<m_FoamBaseWidth<<endreq;
+
+  m_CurlyMaterialFudge = staveDBHelper.getCurlyMaterialFudge();
   
   buildFoamModules();
 }
@@ -83,7 +85,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
     double foam1y = yShift,                        foam1x = -0.5*modZ;
     double foam2y = yShift-modH*m_svcRouting,      foam2x =  0.5*modZ ;
     double foam3y = yShift-modH*m_svcRouting,      foam3x = -0.5*modZ + m_FoamBaseThick;
-    double foam4y = yShift,                        foam4x = -0.5*modZ + m_FoamBaseThick;
+    double foam4y = yShift,                        foam4x = -0.5*modZ + m_MountainEdge; //m_FoamBaseThick;
     // Construct global object 2D envelope
     shapeBrep->addVertex(foam1x,foam1y);
     shapeBrep->addVertex(foam2x,foam2y);
@@ -135,7 +137,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
     else {  // first time this material is required, check the base material first 
       std::ostringstream baseMatName;  
       baseMatName << inclinedSupportMaterialNameBase <<"_Fixed_Weight";  
-      GeoMaterial* baseMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolume(baseMatName.str(), 1.));  // define base material
+      GeoMaterial* baseMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolume(baseMatName.str(), 1.,"",m_CurlyMaterialFudge));  // define base material
 
       double matVolume = shapeBrep->volume();
       double density = baseMat->getDensity()/matVolume;

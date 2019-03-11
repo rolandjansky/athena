@@ -15,6 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "PixelInterfaces/IPixelServicesTool.h"
 
+
 namespace InDet{
   class StaveTmp;
 }
@@ -33,6 +34,7 @@ class GeoPixelLadderPlanarRef : public PixelGeoBuilder {
  public:
   GeoPixelLadderPlanarRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, HepGeom::Transform3D trf);
   virtual GeoVPhysVol* Build();
+  GeoVPhysVol* BuildPigtail();
   virtual void preBuild();
 
   double thickness() const {return m_thickness;}

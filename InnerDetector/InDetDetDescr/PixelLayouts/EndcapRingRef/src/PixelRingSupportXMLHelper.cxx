@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelLayoutUtils/DBXMLUtils.h"
@@ -81,6 +79,29 @@ double PixelRingSupportXMLHelper::getRingSupportThickness(int iSupport) const
   return v[index];
 }
 
+int PixelRingSupportXMLHelper::getRingSupportNSectors(int iSupport) const
+{
+  std::vector<int> v = getVectorInt("PixelRingSupportGeo",m_ringGeoIndex,"nsectors");
+  if (v.size()<1) return 1;
+  int index = (v.size()==1)? 0 : iSupport;
+  return v[index];
+}
+
+double PixelRingSupportXMLHelper::getRingSupportSPhi(int iSupport) const
+{
+  std::vector<double> v = getVectorDouble("PixelRingSupportGeo",m_ringGeoIndex,"sphi");
+  if (v.size()<1) return 0.;
+  int index = (v.size()==1)? 0 : iSupport;
+  return v[index];
+}
+
+double PixelRingSupportXMLHelper::getRingSupportDPhi(int iSupport) const
+{
+  std::vector<double> v = getVectorDouble("PixelRingSupportGeo",m_ringGeoIndex,"dphi");
+  if (v.size()<1) return 360.;
+  int index = (v.size()==1)? 0 : iSupport;
+  return v[index];
+}
 
 std::string PixelRingSupportXMLHelper::getRingSupportMaterial(int iSupport) const
 {
@@ -97,6 +118,8 @@ int PixelRingSupportXMLHelper::getNbLayerSupport(int layer)
   if(!m_bXMLfileExist) return 0;
 
   int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  if(layerIndex < 0) return 0;
+
   std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
   m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, ringGeoName) : -1;
 
@@ -111,6 +134,8 @@ std::vector<int> PixelRingSupportXMLHelper::getNbLayerSupportIndex(int layer)
   if(!m_bXMLfileExist) return layers;
 
   int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  if (layerIndex < 0) return layers;
+
   std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
    
   // using the first name support to get the layer index

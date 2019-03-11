@@ -40,6 +40,7 @@ class GeoPixelBarrelInclRefTool : virtual public IGeoPixelBarrelTool, public Ath
   
   virtual GeoVPhysVol* buildBarrel(const PixelGeoBuilderBasics*);
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_barrelSvcRegions; }
+  
  private:
 
   ToolHandle<IPixelServicesTool> m_IDserviceTool;
@@ -55,6 +56,7 @@ class GeoPixelBarrelInclRefTool : virtual public IGeoPixelBarrelTool, public Ath
   std::vector<InDetDD::TubeZone*> m_barrelSvcRegions;
 
   const GeoShape *addShape(const GeoShape* lastShape, const GeoShape* nextShape, const HepGeom::Transform3D & trans);
+  
 };
 
 #endif

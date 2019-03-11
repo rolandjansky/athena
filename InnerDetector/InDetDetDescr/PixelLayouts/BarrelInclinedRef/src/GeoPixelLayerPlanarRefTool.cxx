@@ -1,4 +1,5 @@
 #include "BarrelInclinedRef/GeoPixelLayerPlanarRefTool.h"
+#include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
@@ -47,12 +48,6 @@ StatusCode GeoPixelLayerPlanarRefTool::initialize()
   if (sc.isFailure()) return sc;
   ATH_MSG_INFO("GeoPixelLayerPlanarRefTool initialize() successful in " << name());
 
-//   sc = m_IDserviceTool.retrieve(); 
-//   if (sc.isFailure()){
-//     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
-//     return sc;
-//   }
-//   msg(MSG::INFO) << "Service builder tool retrieved: " << endreq;
 
   if (m_xmlReader.retrieve().isSuccess()){
     ATH_MSG_DEBUG("ITkXMLReader successfully retrieved " << m_xmlReader );
@@ -102,7 +97,7 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 {
   // Switch to prebuild
   if(!m_bPreBuild ||iLayer!=m_layer) preBuild(basics,iLayer);
-
+  
   //
   // create a barrel layer
   //
@@ -132,11 +127,11 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
   std::vector<InDet::StaveTmp *> staveTmp = m_xmlReader->getPixelStaveTemplate(m_layer);
   GeoPixelLadderPlanarRef pixelLadder(basics, staveTmp[0], m_layer, transRadiusAndTilt); 
   ComputeLayerThickness(pixelLadder, ladderTilt, layerRadius);
-
-  // Register the number of stave defined for the layer
+  
   basics->getDetectorManager()->numerology().setNumPhiModulesForLayer(m_layer,nSectors);
-
+  
   GeoFullPhysVol* layerPhys = 0;
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, basics);
 
   // Loop over the sectors and place everything
   //
@@ -145,13 +140,32 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 
     // Build ladder
     pixelLadder.setSector(ii);
+    
     GeoVPhysVol *ladderPhys=pixelLadder.Build();
-
+    GeoVPhysVol *pigtailPhys=pixelLadder.BuildPigtail();
+    
     if(ii==0){
 
       double safety = 0.01 * CLHEP::mm;
       double rmin =  layerRadius-m_layerThicknessN - safety;
       double rmax =  layerRadius+m_layerThicknessP + safety;
+      //enlarge the rmax to ensure pigtails are included
+      if(pigtailPhys != 0){
+	InDet::BarrelLayerTmp *lp1 = m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1);
+	double lp1_radius = lp1->radius;
+	double lp1_tilt = lp1->stave_tilt;	
+	HepGeom::Transform3D lp1_xform = HepGeom::TranslateX3D(lp1_radius)*HepGeom::RotateZ3D(lp1_tilt);
+	std::vector<InDet::StaveTmp *> lp1_stave = m_xmlReader->getPixelStaveTemplate(m_layer+1);
+	GeoPixelLadderPlanarRef lp1_ladder(basics, lp1_stave[0], m_layer+1, lp1_xform); 
+		
+	double lp1_thickN = lp1_ladder.thicknessN();
+	double lp1_halfWidth = lp1_ladder.width()/2;
+
+	HepGeom::Point3D<double> lp1_lowerCorner(-lp1_thickN, lp1_halfWidth, 0);
+	lp1_lowerCorner = HepGeom::TranslateX3D(lp1_radius) * HepGeom::RotateZ3D(std::abs(lp1_tilt)) * lp1_lowerCorner;
+
+	rmax = lp1_lowerCorner.perp() - safety;
+      }
       double ladderLength = pixelLadder.envLength() + 4*basics->epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
 
       // Now make the layer envelope
@@ -174,14 +188,31 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
     // Place the active ladders
     //
     std::ostringstream nameTag; 
-    nameTag << "Ladder" << ii;
+    nameTag << "LadderL" << m_layer << "_" << ii;
     GeoNameTag * tag = new GeoNameTag(nameTag.str());
     GeoTransform* xform = new GeoTransform(ladderTransform);
     layerPhys->add(tag);
     layerPhys->add(new GeoIdentifierTag(ii) );
     layerPhys->add(xform);
     layerPhys->add(ladderPhys);   //pixelLadder->Build());
-
+    //for pigtail
+    if(pigtailPhys!=0){
+      double pigtailAngle = staveDBHelper.getPigtailAngle(ii);
+      double pigtailDR = staveDBHelper.getPigtailDR();
+      double safety = 0.01 * CLHEP::mm;
+      
+      HepGeom::Transform3D transRadiusAndTiltAndPgAngle = HepGeom::TranslateX3D(layerRadius +m_layerThicknessP +pigtailDR*.5 +safety) * HepGeom::RotateZ3D(ladderTilt+pigtailAngle*CLHEP::deg);
+      HepGeom::Transform3D pigtailTransform = HepGeom::RotateZ3D(phiOfSector) * transRadiusAndTiltAndPgAngle;
+      
+      std::ostringstream nameTagPg;
+      nameTagPg << "PigtailL" << m_layer << "_" << ii;
+      GeoNameTag * tagPg = new GeoNameTag(nameTagPg.str());
+      GeoTransform* xformPg = new GeoTransform(pigtailTransform);
+      layerPhys->add(tagPg);
+      layerPhys->add(new GeoIdentifierTag(ii) );
+      layerPhys->add(xformPg);
+      layerPhys->add(pigtailPhys);
+    }
   }
 
 
@@ -229,7 +260,7 @@ void GeoPixelLayerPlanarRefTool::ComputeLayerThickness(const GeoPixelLadderPlana
 
   m_layerThicknessN = layerRadius - ladderLowerCorner.perp();
   m_layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
-  
+
   //  msg(MSG::DEBUG)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
   //  msg(MSG::DEBUG)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
 
@@ -242,4 +273,3 @@ void GeoPixelLayerPlanarRefTool::ComputeLayerThickness(const GeoPixelLadderPlana
   }
 
 }
-

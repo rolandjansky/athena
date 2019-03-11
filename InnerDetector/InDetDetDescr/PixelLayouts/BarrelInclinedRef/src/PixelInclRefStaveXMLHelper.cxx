@@ -3,6 +3,8 @@
 #include "PathResolver/PathResolver.h"
 #include "PixelLayoutUtils/DBXMLUtils.h"
 
+#include "CLHEP/Evaluator/Evaluator.h"
+
 PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
@@ -88,6 +90,28 @@ double PixelInclRefStaveXMLHelper::getStaveSupportThick() const
   return getDouble("PixelStaveGeo", m_layerIndices, "LadderThickness");
 }
 
+//for pigtail
+std::string PixelInclRefStaveXMLHelper::getPigtailMaterial(int shapeIndex) const
+{
+  std::vector<std::string> vec = getVectorString("PixelStaveGeo", m_layerIndices, "PigtailMaterialGeo");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return "";
+}
+
+double PixelInclRefStaveXMLHelper::getPigtailAngle(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "PigtailAngle");
+if (vec.size() != 0) return vec.at(shapeIndex);
+return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getPigtailDR(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "PigtailDR");
+if (vec.size() != 0) return vec.at(shapeIndex);
+return 0.0;
+}
+
 std::string PixelInclRefStaveXMLHelper::getStaveSupportMaterial(int shapeIndex) const
 {
   std::vector<std::string> vec = getVectorString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
@@ -104,6 +128,42 @@ std::string PixelInclRefStaveXMLHelper::getStaveSupportCornerMaterial(int shapeI
   //return getString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
 }
 
+std::string PixelInclRefStaveXMLHelper::getStaveSupportEOSMaterial(int shapeIndex) const
+{
+  std::vector<std::string> vec = getVectorString("PixelStaveGeo", m_layerIndices, "StaveSupportEOSMaterialGeo");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return "";
+}
+
+double PixelInclRefStaveXMLHelper::getMaterialFudge() const
+{
+  bool foundFudges=false;
+  std::vector<std::string> nodes = getNodeList("PixelStaveGeos");
+  for (unsigned int i=0; i<nodes.size(); i++) {
+    if (nodes[i]=="MaterialFudgeFactors") foundFudges=true;
+  }
+  HepTool::Evaluator eval;
+  if (foundFudges) {
+    std::vector<std::string> fudges = getNodeList("MaterialFudgeFactors");
+    for (unsigned int i=0; i<fudges.size(); i++) {
+      eval.setVariable(fudges[i].c_str(),getDouble("MaterialFudgeFactors",0,fudges[i].c_str()));
+    }
+  }
+  //
+  double theFudge = 1.;
+  std::string fudgeString = getString("PixelStaveGeo", m_layerIndices, "MaterialFudge", 0, "1.");
+  theFudge = eval.evaluate(fudgeString.c_str());
+  if (eval.status() != HepTool::Evaluator::OK) {
+    std::cerr << "PixelInclRefStaveXMLHelper: Error processing CLHEP Evaluator expression. Error name " <<
+      eval.error_name() << std::endl << "Message: ";
+    eval.print_error();
+    std::cerr << fudgeString << std::endl;
+    std::cerr << std::string(eval.error_position(), '-') << '^' << '\n';
+    std::cerr << "Exiting program.\n";
+    exit(999); // Should do better...
+  }
+  return theFudge;
+}
 
 double PixelInclRefStaveXMLHelper::getServiceOffsetX() const
 {
@@ -135,6 +195,39 @@ double PixelInclRefStaveXMLHelper::getMountainWidth() const
   return getDouble("PixelStaveGeo", m_layerIndices, "MountainWidth", 0.0, 0.7);
 }
 
+double PixelInclRefStaveXMLHelper::getCurlyMaterialFudge() const
+{
+  bool foundFudges=false;
+  bool foundCurlyFudge=false;
+  std::vector<std::string> nodes = getNodeList("PixelStaveGeos");
+  for (unsigned int i=0; i<nodes.size(); i++) {
+    if (nodes[i]=="MaterialFudgeFactors") foundFudges=true;
+    if (nodes[i]=="CurlyMaterialFudge") foundCurlyFudge=true;
+  }
+  double theFudge = 1.;
+  if (!foundCurlyFudge) return theFudge;
+  //
+  HepTool::Evaluator eval;
+  if (foundFudges) {
+    std::vector<std::string> fudges = getNodeList("MaterialFudgeFactors");
+    for (unsigned int i=0; i<fudges.size(); i++) {
+      eval.setVariable(fudges[i].c_str(),getDouble("MaterialFudgeFactors",0,fudges[i].c_str()));
+    }
+  }
+  //
+  std::string fudgeString = getString("PixelStaveGeos", m_layerIndices, "CurlyMaterialFudge", 0, "1.");
+  theFudge = eval.evaluate(fudgeString.c_str());
+  if (eval.status() != HepTool::Evaluator::OK) {
+    std::cerr << "PixelInclRefStaveXMLHelper: Error processing CLHEP Evaluator expression. Error name " <<
+      eval.error_name() << std::endl << "Message: ";
+    eval.print_error();
+    std::cerr << fudgeString << std::endl;
+    std::cerr << std::string(eval.error_position(), '-') << '^' << '\n';
+    std::cerr << "Exiting program.\n";
+    exit(999); // Should do better...
+  }
+  return theFudge;
+}
 
 
 std::string PixelInclRefStaveXMLHelper::getStaveSupportType() const

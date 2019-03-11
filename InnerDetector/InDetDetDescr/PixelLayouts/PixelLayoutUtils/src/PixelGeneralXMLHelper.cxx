@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
- 
-
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelGeoModel/PixelGeoBuilder.h"
@@ -101,6 +98,56 @@ std::vector<double> PixelGeneralXMLHelper::getBarrelRadiusList() const
 std::vector<double> PixelGeneralXMLHelper::getBarrelHalfLengthList() const
 {
   return getVectorDouble("PixelBarrelEnvelope", 0, "HalfLengthList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportZOffsetList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "ZOffsetList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportThicknessList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "ThicknessList");
+}
+
+std::vector<std::string> PixelGeneralXMLHelper::getBarrelSupportMaterialList() const
+{
+  return getVectorString("PixelBarrelSupport", 0, "MaterialList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportRminInnerList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "RminInnerList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportRmaxInnerList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "RmaxInnerList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportRminOuterList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "RminOuterList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportRmaxOuterList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "RmaxOuterList");
+}
+
+std::vector<int> PixelGeneralXMLHelper::getBarrelSupportNSectorsList() const
+{
+  return getVectorInt("PixelBarrelSupport", 0, "NSectorsList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportSPhiList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "SPhiList");
+}
+
+std::vector<double> PixelGeneralXMLHelper::getBarrelSupportDPhiList() const
+{
+  return getVectorDouble("PixelBarrelSupport", 0, "DPhiList");
 }
 
 double PixelGeneralXMLHelper::getEndcapRMin() const

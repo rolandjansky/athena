@@ -54,6 +54,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   double width     = staveDBHelper.getStaveSupportWidth();
   double length    = staveDBHelper.getStaveSupportLength();
   std::string matName = staveDBHelper.getStaveSupportMaterial();
+  double matFudge = staveDBHelper.getMaterialFudge();
   double xOffset = staveDBHelper.getServiceOffsetX();
   double yOffset = staveDBHelper.getServiceOffsetY();
   if(m_barrelTilt<0) yOffset=-yOffset;
@@ -72,7 +73,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   if(m_barrelZMax<0) {
 
     GeoBox * shape = new GeoBox(0.5*thickness, 0.5*width, 0.5*length);
-    const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume());
+    const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume(),"",matFudge);
     GeoLogVol* logVol = new GeoLogVol("StaveSupport",shape,material);
     
     m_thicknessP =  xOffset + 0.5*thickness;
@@ -135,7 +136,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   lastShape = addShape(lastShape, lat_box, latC_trf);
 
   double shapeVolume = middle_box->volume() + 2.0*( eos_box->volume() + lat_box->volume());
-  const GeoMaterial* material = matMgr()->getMaterialForVolume(matName, shapeVolume );
+  const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shapeVolume,"",matFudge);
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",lastShape,material);
   
   m_thicknessP =  xOffset_stave + 0.5*thickness;

@@ -39,9 +39,10 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
   // New longeron with corners
   // Access XML file
   PixelInclRefStaveXMLHelper staveDBHelper(m_innerLayer, getBasics());
-  std::string matNameWall   = staveDBHelper.getStaveSupportMaterial(m_staveShapeIndex);
-  std::string matNameCorner = staveDBHelper.getStaveSupportCornerMaterial(m_staveShapeIndex);
-
+  std::string matNameBrlWall   = staveDBHelper.getStaveSupportMaterial(m_staveShapeIndex);
+  std::string matNameBrlCorner = staveDBHelper.getStaveSupportCornerMaterial(m_staveShapeIndex);
+  std::string matNameEos       = staveDBHelper.getStaveSupportEOSMaterial   (m_staveShapeIndex);
+  double matFudge = staveDBHelper.getMaterialFudge();
 
   double eosBaseWidth    = staveDBHelper.getBaseWidthAtEOS(m_staveShapeIndex);
   double eosTopWidth     = staveDBHelper.getTopWidthAtEOS(m_staveShapeIndex);
@@ -71,11 +72,24 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
   halfBarrelRadius += (m_staveType == INNER) ? brlStepHighR : brlStepLowR;
   double halfBarrelWidth  = 0.5*brlWidth;
  
+  double eosCornerThickness = cornerThickness;
+  if (eosCornerThickness > halfEosRadius) eosCornerThickness = 0.6;
 
+  // No idea what this correction does...
+  double shapeCorr = (halfBarrelWidth + (eosBaseWidth + eosTopWidth)*0.25)*0.5;
+  shapeCorr = radialMidpoint - sqrt(radialMidpoint*radialMidpoint - shapeCorr*shapeCorr);
+  radialMidpoint -= shapeCorr;
+  double safety = 0.25;
+  radialMidpoint += (m_staveType == INNER) ? safety : -safety;
+
+  halfBarrelRadius += (m_staveType == INNER) ? shapeCorr : -shapeCorr;
+  halfEosRadius += (m_staveType == INNER) ? shapeCorr : -shapeCorr;
+  
   // Construct an envelope volume - offset to enclose inner/outer stave
+  // Length of volume = envelope length minus a 0.05mm safety factor
   double envelopeWidth  = std::max(std::max(eosTopWidth, eosBaseWidth), brlWidth);
   double envelopeOffset = (m_staveType == INNER) ? halfBarrelRadius/2.0 : -halfBarrelRadius/2.0;
-  GeoBox* longeronEnvelope = new GeoBox(halfBarrelRadius/2.0, envelopeWidth/2.0,  brlZMax+eosLength);
+  GeoBox* longeronEnvelope = new GeoBox(halfBarrelRadius/2.0, envelopeWidth/2.0, (staveDBHelper.getStaveSupportLength() * 0.5) - 0.05);
   const GeoShape* envelopeShape = &((*longeronEnvelope) << HepGeom::Translate3D(envelopeOffset, 0.0, 0.0));
   GeoLogVol* longeronLogVol = new GeoLogVol("Longeron", envelopeShape, matMgr()->getMaterial("special::Ether"));
   m_physVol = new GeoPhysVol(longeronLogVol);
@@ -135,33 +149,33 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
 
     eosWall1->addVertex(0.0,                                                (0.5*eosBaseWidth) - outerOffsetMid);
     eosWall1->addVertex(0.0,                                                (0.5*eosBaseWidth) - outerOffsetMid - fabs(wallThickness/sin(eosShellAngle)) );
-    eosWall1->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle), (0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
-    eosWall1->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle), (0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle));
+    eosWall1->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle), (0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
+    eosWall1->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle), (0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle));
 
-    eosWall2->addVertex(halfEosRadius - wallThickness,     -((0.5*eosTopWidth) - cornerThickness - wallThickness*cos(eosShellAngle)));
-    eosWall2->addVertex(halfEosRadius,                     -((0.5*eosTopWidth) - cornerThickness));
-    eosWall2->addVertex(halfEosRadius,                      (0.5*eosTopWidth) - cornerThickness);
-    eosWall2->addVertex(halfEosRadius - wallThickness,      (0.5*eosTopWidth) - cornerThickness - wallThickness*cos(eosShellAngle));
+    eosWall2->addVertex(halfEosRadius - wallThickness,     -((0.5*eosTopWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle)));
+    eosWall2->addVertex(halfEosRadius,                     -((0.5*eosTopWidth) - eosCornerThickness));
+    eosWall2->addVertex(halfEosRadius,                      (0.5*eosTopWidth) - eosCornerThickness);
+    eosWall2->addVertex(halfEosRadius - wallThickness,      (0.5*eosTopWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle));
 
-    eosWall3->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle), -((0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle)));
-    eosWall3->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle), -((0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle))  );
+    eosWall3->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle), -((0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle)));
+    eosWall3->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle), -((0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle))  );
     eosWall3->addVertex(0.0,                                                -((0.5*eosBaseWidth) - outerOffsetMid - fabs(wallThickness/sin(eosShellAngle))) );
     eosWall3->addVertex(0.0,                                                -((0.5*eosBaseWidth) - outerOffsetMid));
 
 
-    eosCorner1->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle),   (0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
+    eosCorner1->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle),   (0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
     eosCorner1->addVertex(halfEosRadius - wallThickness,                        (0.5*eosTopWidth) - ((wallThickness/sin(eosShellAngle)) + wallThickness/tan(eosShellAngle)  )  );
-    eosCorner1->addVertex(halfEosRadius - wallThickness,                        (0.5*eosTopWidth) - cornerThickness - wallThickness*cos(eosShellAngle));
-    eosCorner1->addVertex(halfEosRadius,                                        (0.5*eosTopWidth) - cornerThickness);
+    eosCorner1->addVertex(halfEosRadius - wallThickness,                        (0.5*eosTopWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle));
+    eosCorner1->addVertex(halfEosRadius,                                        (0.5*eosTopWidth) - eosCornerThickness);
     eosCorner1->addVertex(halfEosRadius,                                        (0.5*eosTopWidth));
-    eosCorner1->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle),   (0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle));
+    eosCorner1->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle),   (0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle));
 
-    eosCorner2->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle),   -((0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle)));
+    eosCorner2->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle),   -((0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle)));
     eosCorner2->addVertex(halfEosRadius,                                        -((0.5*eosTopWidth)));
-    eosCorner2->addVertex(halfEosRadius,                                        -((0.5*eosTopWidth) - cornerThickness));
-    eosCorner2->addVertex(halfEosRadius - wallThickness,                        -((0.5*eosTopWidth) - cornerThickness - wallThickness*cos(eosShellAngle)));
+    eosCorner2->addVertex(halfEosRadius,                                        -((0.5*eosTopWidth) - eosCornerThickness));
+    eosCorner2->addVertex(halfEosRadius - wallThickness,                        -((0.5*eosTopWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle)));
     eosCorner2->addVertex(halfEosRadius - wallThickness,                        -((0.5*eosTopWidth) - ((wallThickness/sin(eosShellAngle)) + wallThickness/tan(eosShellAngle)  )  ));
-    eosCorner2->addVertex(halfEosRadius - cornerThickness*sin(eosShellAngle),   -((0.5*eosTopWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  ));
+    eosCorner2->addVertex(halfEosRadius - eosCornerThickness*sin(eosShellAngle),   -((0.5*eosTopWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  ));
 
 
   }
@@ -200,35 +214,35 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
     brlCorner2->addVertex(-halfBarrelRadius +cornerThickness, -(halfBarrelWidth));
 
     // eos walls
-    eosWall1->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle));
-    eosWall1->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle) - fabs(wallThickness/sin(eosShellAngle))  );
+    eosWall1->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle));
+    eosWall1->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle) - fabs(wallThickness/sin(eosShellAngle))  );
     eosWall1->addVertex(0.0,                                                 0.5*eosBaseWidth - outerOffsetMid - wallThickness/sin(eosShellAngle));
     eosWall1->addVertex(0.0,                                                 0.5*eosBaseWidth - outerOffsetMid);
 
-    eosWall2->addVertex((-1.0*halfEosRadius) + wallThickness,      (0.5*eosBaseWidth) - cornerThickness - wallThickness*cos(eosShellAngle));
-    eosWall2->addVertex((-1.0*halfEosRadius),                      (0.5*eosBaseWidth) - cornerThickness);
-    eosWall2->addVertex((-1.0*halfEosRadius),                     -((0.5*eosBaseWidth) - cornerThickness));
-    eosWall2->addVertex((-1.0*halfEosRadius) + wallThickness,     -((0.5*eosBaseWidth) - cornerThickness - wallThickness*cos(eosShellAngle)));
+    eosWall2->addVertex((-1.0*halfEosRadius) + wallThickness,      (0.5*eosBaseWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle));
+    eosWall2->addVertex((-1.0*halfEosRadius),                      (0.5*eosBaseWidth) - eosCornerThickness);
+    eosWall2->addVertex((-1.0*halfEosRadius),                     -((0.5*eosBaseWidth) - eosCornerThickness));
+    eosWall2->addVertex((-1.0*halfEosRadius) + wallThickness,     -((0.5*eosBaseWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle)));
 
     // As eos wall 1, but flipped y-coord and order reversed
     eosWall3->addVertex(0.0,                                                         -((0.5*eosBaseWidth) - outerOffsetMid));
     eosWall3->addVertex(0.0,                                                         -((0.5*eosBaseWidth) - outerOffsetMid - wallThickness/sin(eosShellAngle)));
-    eosWall3->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle) - fabs(wallThickness/sin(eosShellAngle))  ));
-    eosWall3->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle)));
+    eosWall3->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle) - fabs(wallThickness/sin(eosShellAngle))  ));
+    eosWall3->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle)));
 
-    eosCorner1->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle));
+    eosCorner1->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle));
     eosCorner1->addVertex((-1.0*halfEosRadius),                                        (0.5*eosBaseWidth));
-    eosCorner1->addVertex((-1.0*halfEosRadius),                                        (0.5*eosBaseWidth) - cornerThickness);
-    eosCorner1->addVertex((-1.0*halfEosRadius) + wallThickness,                        (0.5*eosBaseWidth) - cornerThickness - wallThickness*cos(eosShellAngle));
+    eosCorner1->addVertex((-1.0*halfEosRadius),                                        (0.5*eosBaseWidth) - eosCornerThickness);
+    eosCorner1->addVertex((-1.0*halfEosRadius) + wallThickness,                        (0.5*eosBaseWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle));
     eosCorner1->addVertex((-1.0*halfEosRadius) + wallThickness,                        (0.5*eosBaseWidth) - ((wallThickness/sin(eosShellAngle)) + wallThickness/tan(eosShellAngle)  )  );
-    eosCorner1->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
+    eosCorner1->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   (0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  );
 
-    eosCorner2->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  ));
+    eosCorner2->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle) - wallThickness/sin(eosShellAngle)  ));
     eosCorner2->addVertex((-1.0*halfEosRadius) + wallThickness,                        -((0.5*eosBaseWidth) - ((wallThickness/sin(eosShellAngle)) + wallThickness/tan(eosShellAngle)  )  ));
-    eosCorner2->addVertex((-1.0*halfEosRadius) + wallThickness,                        -((0.5*eosBaseWidth) - cornerThickness - wallThickness*cos(eosShellAngle)));
-    eosCorner2->addVertex((-1.0*halfEosRadius),                                        -((0.5*eosBaseWidth) - cornerThickness));
+    eosCorner2->addVertex((-1.0*halfEosRadius) + wallThickness,                        -((0.5*eosBaseWidth) - eosCornerThickness - wallThickness*cos(eosShellAngle)));
+    eosCorner2->addVertex((-1.0*halfEosRadius),                                        -((0.5*eosBaseWidth) - eosCornerThickness));
     eosCorner2->addVertex((-1.0*halfEosRadius),                                        -((0.5*eosBaseWidth)));
-    eosCorner2->addVertex((-1.0*halfEosRadius) + cornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - cornerThickness*cos(eosShellAngle)));
+    eosCorner2->addVertex((-1.0*halfEosRadius) + eosCornerThickness*sin(eosShellAngle),   -((0.5*eosBaseWidth) - eosCornerThickness*cos(eosShellAngle)));
   }
 
   
@@ -238,25 +252,52 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
   // Compute total volume for material density
   std::string suffix = (m_staveType == INNER) ? "INNER" : "OUTER";
 
-  double wallVolume = brlWall1->volume() + brlWall2->volume() + brlWall3->volume() + (2.0*(eosWall1->volume() + eosWall2->volume() + eosWall3->volume()));
-  const GeoMaterial* wallMaterial = matMgr()->getMaterialForVolume(matNameWall, wallVolume, matNameWall+suffix);
+  double brlWallVolume = brlWall1->volume() + brlWall2->volume() + brlWall3->volume();
+  const GeoMaterial* brlWallMaterial = matMgr()->getMaterialForVolume(matNameBrlWall, brlWallVolume, matNameBrlWall+suffix, matFudge);
 
-  double cornerVolume = brlCorner1->volume() + brlCorner2->volume() + 2.0*(eosCorner1->volume() + eosCorner2->volume());
-  const GeoMaterial* cornerMaterial = matMgr()->getMaterialForVolume(matNameCorner, cornerVolume, matNameCorner+suffix);
-    
+  double brlCornerVolume = brlCorner1->volume() + brlCorner2->volume();
+  const GeoMaterial* brlCornerMaterial = matMgr()->getMaterialForVolume(matNameBrlCorner, brlCornerVolume, matNameBrlCorner+suffix, matFudge);
+
+  double eosVolume = 2.0*(eosWall1->volume() + eosWall2->volume() + eosWall3->volume()  + eosCorner1->volume() + eosCorner2->volume());
+  
+   
   // Logival and physical volumes of all solids
-  GeoLogVol* brlWall1LogVol   = new GeoLogVol("brlWall1",   brlWall1,   wallMaterial);
-  GeoLogVol* brlWall2LogVol   = new GeoLogVol("brlWall2",   brlWall2,   wallMaterial);
-  GeoLogVol* brlWall3LogVol   = new GeoLogVol("brlWall3",   brlWall3,   wallMaterial);
-  GeoLogVol* brlCorner1LogVol = new GeoLogVol("brlCorner1", brlCorner1, cornerMaterial);
-  GeoLogVol* brlCorner2LogVol = new GeoLogVol("brlCorner2", brlCorner2, cornerMaterial);  
+  GeoLogVol* brlWall1LogVol   = new GeoLogVol("brlWall1",   brlWall1,   brlWallMaterial);
+  GeoLogVol* brlWall2LogVol   = new GeoLogVol("brlWall2",   brlWall2,   brlWallMaterial);
+  GeoLogVol* brlWall3LogVol   = new GeoLogVol("brlWall3",   brlWall3,   brlWallMaterial);
+  GeoLogVol* brlCorner1LogVol = new GeoLogVol("brlCorner1", brlCorner1, brlCornerMaterial);
+  GeoLogVol* brlCorner2LogVol = new GeoLogVol("brlCorner2", brlCorner2, brlCornerMaterial);  
 
-  GeoLogVol* eosWall1LogVol   = new GeoLogVol("eosWall1",   eosWall1,   wallMaterial);
-  GeoLogVol* eosWall2LogVol   = new GeoLogVol("eosWall2",   eosWall2,   wallMaterial);
-  GeoLogVol* eosWall3LogVol   = new GeoLogVol("eosWall3",   eosWall3,   wallMaterial);
-  GeoLogVol* eosCorner1LogVol = new GeoLogVol("eosCorner1", eosCorner1, cornerMaterial);
-  GeoLogVol* eosCorner2LogVol = new GeoLogVol("eosCorner2", eosCorner2, cornerMaterial);
+  GeoLogVol* eosWall1LogVol;
+  GeoLogVol* eosWall2LogVol;
+  GeoLogVol* eosWall3LogVol;
+  GeoLogVol* eosCorner1LogVol;
+  GeoLogVol* eosCorner2LogVol;
 
+  if(matNameEos!=""){
+    
+
+    const GeoMaterial* eosMaterial = matMgr()->getMaterialForVolume(matNameEos, eosVolume, matNameEos+suffix, matFudge);
+  
+    eosWall1LogVol   = new GeoLogVol("eosWall1",   eosWall1,   eosMaterial);
+    eosWall2LogVol   = new GeoLogVol("eosWall2",   eosWall2,   eosMaterial);
+    eosWall3LogVol   = new GeoLogVol("eosWall3",   eosWall3,   eosMaterial);
+    eosCorner1LogVol = new GeoLogVol("eosCorner1", eosCorner1, eosMaterial);
+    eosCorner2LogVol = new GeoLogVol("eosCorner2", eosCorner2, eosMaterial);
+  
+  }
+  else{
+
+    ATH_MSG_DEBUG("###########################################################################");
+    ATH_MSG_DEBUG("##Using approximations EOS material##");
+   ATH_MSG_DEBUG("###########################################################################");
+
+    eosWall1LogVol   = new GeoLogVol("eosWall1",   eosWall1,   brlWallMaterial);
+    eosWall2LogVol   = new GeoLogVol("eosWall2",   eosWall2,   brlWallMaterial);
+    eosWall3LogVol   = new GeoLogVol("eosWall3",   eosWall3,   brlWallMaterial);
+    eosCorner1LogVol = new GeoLogVol("eosCorner1", eosCorner1, brlCornerMaterial);
+    eosCorner2LogVol = new GeoLogVol("eosCorner2", eosCorner2, brlCornerMaterial);
+  }
 
   GeoPhysVol* brlWall1PhysVol   = new GeoPhysVol(brlWall1LogVol);
   GeoPhysVol* brlWall2PhysVol   = new GeoPhysVol(brlWall2LogVol);

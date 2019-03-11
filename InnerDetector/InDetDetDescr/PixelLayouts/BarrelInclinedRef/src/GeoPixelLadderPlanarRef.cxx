@@ -31,6 +31,9 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "PathResolver/PathResolver.h"
 
+#include "InDetTrackingGeometryXML/XMLReaderSvc.h"
+
+
 using std::max;
 
 GeoPixelLadderPlanarRef::GeoPixelLadderPlanarRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, 
@@ -151,7 +154,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   //  double staveYoffset = staveTrf.getTranslation().y();
 
   m_length = 2.*m_staveTmp->support_halflength;
-
+  
   double thicknessN_tot = m_barrelModule->Thickness()*.5+.5;
   double thicknessP_tot = m_barrelModule->Thickness()*.5+fabs(staveXoffset)+thicknessN+thicknessP+m_moduleSvcThickness;
 
@@ -176,6 +179,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   getBasics()->getDetectorManager()->numerology().setNumEtaModulesForLayer(m_layer,m_barrelModuleNumber);
 
+
   // ----------------------------------------------------------------------------
   // Ladder max size
   // ----------------------------------------------------------------------------
@@ -187,6 +191,53 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
 
 }
 
+//build pigtail
+GeoVPhysVol* GeoPixelLadderPlanarRef::BuildPigtail() {
+
+  //define volume for pigtails for each stave
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
+  std::string matNamePigtail= staveDBHelper.getPigtailMaterial();
+  if(matNamePigtail == "nopg") return 0;
+  double delta = 0.75;
+  double anglePigtail = staveDBHelper.getPigtailAngle(m_sector)*CLHEP::deg;
+  double lengthPigtail = staveDBHelper.getPigtailDR()/cos(anglePigtail);
+  const double safety = 0.01*CLHEP::mm;
+  GeoBox * boxPigtail = new GeoBox(lengthPigtail*.5+safety,m_moduleSvcThickness*.5, m_length*.5);
+  
+  const GeoMaterial* air = matMgr()->getMaterial("std::Air");
+  GeoLogVol* m_thePigtail= new GeoLogVol("Pigtail",boxPigtail,air);
+  GeoPhysVol* pigtailPhys = new GeoPhysVol(m_thePigtail);
+  //
+  // Place the barrel pigtail
+  //------------------------------------------------------
+  
+  double xposShift = 0.;
+  double yposShift = 0.;
+  
+  for(int ii = 0; ii < m_barrelModuleNumber; ii++)
+    {
+      double xpos = 0.;
+      //double ypos = 0.;
+      double zpos = m_barrelModuleDZ*(ii - .5*(m_barrelModuleNumber-1));
+      
+      GeoBox * pgBox = new GeoBox(lengthPigtail*.5,m_moduleSvcThickness*.5, m_barrelModule->Width()*delta*.5);  
+      double pgVolume = pgBox->volume();
+      const GeoMaterial* pgMaterial = matMgr()->getMaterialForVolume(matNamePigtail, pgVolume, "");
+  
+      GeoLogVol* pgLog = new GeoLogVol("ModuleSvc",pgBox,pgMaterial);
+      GeoPhysVol* pgPhys = new GeoPhysVol(pgLog);
+  
+      double z_pg=zpos;
+      CLHEP::Hep3Vector pigtailpos(xpos+xposShift,yposShift,z_pg);
+      CLHEP::HepRotation pg_rm;
+      GeoAlignableTransform* xform_pg = new GeoAlignableTransform(HepGeom::TranslateX3D(xpos)*HepGeom::Transform3D(pg_rm,pigtailpos));
+      pigtailPhys->add(xform_pg);
+      
+      pigtailPhys->add(pgPhys);
+    }
+  
+  return pigtailPhys;
+}
 
 GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
 
@@ -263,7 +314,7 @@ GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
       getBasics()->getDetectorManager()->addAlignableTransform(0,idwafer,xform,modulePhys);
 
       // Place the stave service scaled vs the number of modules (on the top of the stave support...)
-      if(m_IDserviceTool->svcRouteAuto()){
+      if(m_IDserviceTool->svcRouteAuto() && m_staveSupport->getSvcRoutingPos() != "none"){
 	GeoBox * svcBox = new GeoBox(m_moduleSvcThickness*.5-0.001, m_barrelModule->Width()*.5, m_barrelModule->Length()*.5);
 	std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nbSvcModule);   // material name stored in PixelServicesTool (material are built there)
 	std::ostringstream wg_matName;  
@@ -296,7 +347,7 @@ GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
 	      GeoBox * svcBox = new GeoBox(m_moduleSvcThickness*.5-0.001, m_barrelModule->Width()*.5, length*.5);
 	      std::ostringstream wg_matName;  
 	      wg_matName<<matName<<"_wgL"<<m_layer<<"M"<<prefix;
-	      msg(MSG::INFO)<<"Barrel module material : "<<wg_matName.str()<<"   / secter : "<<m_sector<<endreq;
+	      msg(MSG::DEBUG)<<"Barrel module material : "<<wg_matName.str()<<"   / sector : "<<m_sector<<endreq;
 	      GeoMaterial* svcMat = 0;   // do not redefine material if already done for sector 0
 	      if(m_sector==0)
 		svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), length ,wg_matName.str()));  // define material
