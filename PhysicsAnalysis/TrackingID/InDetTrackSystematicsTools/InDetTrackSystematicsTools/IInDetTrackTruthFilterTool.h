@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHFILTERTOOL_H
@@ -32,8 +32,12 @@ namespace InDet {
     virtual void prepare() = 0; // not sure if/why this function is necessary - felix
     virtual StatusCode finalize() = 0;
 
+    //"standard" accept method - relies on truth information to determine if a track is a fake and should be considered for dropping to give the systematic variation on fakes
     virtual bool accept(const xAOD::TrackParticle* track) const = 0;
-      
+    
+    //This is a version of the accept method that takes a value of mu (i.e. mean interactions per crossing) in order to calculate a probability that a givent track at that mu is a fake, and so should be considered for being dropped for the fake systematic variation - this version does not rely on truth information
+    virtual bool accept(const xAOD::TrackParticle* track, float mu) const = 0;
+
     // implement the CP::ISystematicTool interface
       
     /// returns: whether the tool is affected by the systematic
