@@ -30,9 +30,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "LArRawConditions/LArCalibParams.h"
 
 static const InterfaceID IID_ILArRodDecoder
@@ -129,6 +126,7 @@ LArRodDecoder::initialize()
  }
  m_doBadChanMasking = m_badChannelMasker->isMaskingOn();
   
+ ATH_CHECK( m_evt.initialize() );
 
  std::vector<std::string>::const_iterator it = m_LArCellCorrNames.begin(); 
  std::vector<std::string>::const_iterator it_end = m_LArCellCorrNames.end();
@@ -653,13 +651,12 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
       return;
       }
     //2st step, get Event number
-    const DataHandle<EventInfo> thisEventInfo;
-    sc=evtStore()->retrieve(thisEventInfo);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot read EventID from StoreGate");
+    SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+    if (!evt.isValid()) {
+      ATH_MSG_ERROR("Cannot get EventInfo");
       return; //Return empty container. 
     }
-    const unsigned eventNb=thisEventInfo->event_ID()->event_number(); 
+    const unsigned eventNb=evt->eventNumber();
     const std::vector<HWIdentifier>* calibChannelIDs;
     do { //Loop over all FEBs in this ROD
       
