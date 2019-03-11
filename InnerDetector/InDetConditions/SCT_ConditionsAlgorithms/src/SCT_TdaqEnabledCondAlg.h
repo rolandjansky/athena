@@ -9,6 +9,7 @@
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
+#include "SCT_Cabling/SCT_OnlineId.h"
 #include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -34,6 +35,8 @@ class SCT_TdaqEnabledCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey{this, "WriteKey", "SCT_TdaqEnabledCondData", "Key of output (derived) conditions data"};
   ServiceHandle<ICondSvc> m_condSvc; 
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
+
+  SCT_OnlineId m_onlineId;
 
   static const unsigned int s_NRODS;
   static const unsigned int s_modulesPerRod;
