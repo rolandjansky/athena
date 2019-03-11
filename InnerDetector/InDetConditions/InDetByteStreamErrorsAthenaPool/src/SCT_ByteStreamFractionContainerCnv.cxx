@@ -20,7 +20,7 @@ SCT_ByteStreamFractionContainerCnv::createPersistent(SCT_ByteStreamFractionConta
 SCT_ByteStreamFractionContainer*
 SCT_ByteStreamFractionContainerCnv::createTransient() {
   MsgStream log(msgSvc(), "SCT_ByteStreamFractionContainerCnv" );
-  static pool::Guid p1_guid("EB75984C-F651-4F40-BA1C-9C2A0A558A55");
+  const pool::Guid p1_guid("EB75984C-F651-4F40-BA1C-9C2A0A558A55");
   if( compareClassGuid(p1_guid) ) {
     /** using auto_ptr ensures deletion of the persistent object */
     std::auto_ptr< SCT_ByteStreamFractionContainer_p1 > col_vect( poolReadObject< SCT_ByteStreamFractionContainer_p1 >() );
