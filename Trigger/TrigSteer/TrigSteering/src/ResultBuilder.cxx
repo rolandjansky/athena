@@ -614,6 +614,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
   }
   
 
+#if 0
   //create xAOD::StreamTags
   std::vector < xAOD::EventInfo::StreamTag > xAODStreamTags;
   for (auto streamtag : m_uniqueStreams){
@@ -625,6 +626,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
   xAOD::EventInfo* xeventInfo = const_cast<xAOD::EventInfo*>(constxEventInfo);
   xeventInfo->setStreamTags(xAODStreamTags);
   ATH_MSG_VERBOSE("Updated xAOD::StreamTags into xAOD::EventInfo:");
+#endif
   
   
    return HLT::OK;
