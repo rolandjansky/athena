@@ -26,6 +26,7 @@ EFTauTopoHypo::EFTauTopoHypo(const std::string& name, ISvcLocator* pSvcLocator):
 	declareProperty("DRMin", m_dRmin = 0.);
         declareProperty("DRMax", m_dRmax = 10.);
 
+        declareMonitoredVariable("DROfProcessed", m_monDRall=-1.);
 	declareMonitoredVariable("DROfAccepted", m_monDR=-1.);
 	declareMonitoredVariable("CutCounter",   m_cutCounter=0);
 
@@ -47,7 +48,7 @@ HLT::ErrorCode EFTauTopoHypo::hltInitialize()
         msg() << MSG::INFO << " REGTEST: param DRMax " << m_dRmax <<endmsg;
 
         if(m_dRmax < m_dRmin){
-                msg() << MSG::ERROR << "EFPhotonTauHypo is uninitialized! " << endmsg;
+                msg() << MSG::ERROR << "EFTauTopoHypo is uninitialized! " << endmsg;
                 return HLT::BAD_JOB_SETUP;
         }
 	
@@ -64,6 +65,7 @@ HLT::ErrorCode EFTauTopoHypo::hltExecute(const HLT::TriggerElement* inputTE, boo
 {
 	pass = false;
 	m_dR = 0.;
+        m_monDRall = -1.;
 	m_monDR = -1.;
 	m_cutCounter = 0;
 
@@ -92,10 +94,16 @@ HLT::ErrorCode EFTauTopoHypo::hltExecute(const HLT::TriggerElement* inputTE, boo
           		return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       		}
 
+                m_cutCounter++;               
+                m_monDRall = m_dR;
+                if(m_dR<0.1){
+                     ATH_MSG_WARNING("EFTauTopoHypo: pair with dR "<<m_dR);
+                }
+
 		if( m_dR>=m_dRmin &&  m_dR<m_dRmax ){
                         m_monDR = m_dR;
                         m_cutCounter++;
-                        ATH_MSG_DEBUG("Good pair with mVis: " << m_dR);
+                        ATH_MSG_DEBUG("Good pair with dR: " << m_dR);
                         pass = true;
                         return HLT::OK;
                 }
