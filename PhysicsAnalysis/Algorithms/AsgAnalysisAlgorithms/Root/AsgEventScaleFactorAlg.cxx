@@ -25,7 +25,6 @@ namespace CP
     : AnaAlgorithm (name, pSvcLocator)
   {
     declareProperty ("efficiency", m_efficiency, "the decoration for the efficiency");
-    declareProperty ("outOfValidity", m_outOfValidity, "the decoration for the out of validity status");
   }
 
 
@@ -42,9 +41,7 @@ namespace CP
     m_systematicsList.addHandle (m_eventInfoHandle);
     m_systematicsList.addHandle (m_particleHandle);
     ANA_CHECK (m_systematicsList.initialize());
-
-    if (!m_outOfValidity.empty())
-      ANA_CHECK (makeSelectionAccessor (m_outOfValidity, m_outOfValidityAccessor));
+    ANA_CHECK (m_preselection.initialize());
 
     m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiency);
 
@@ -66,8 +63,7 @@ namespace CP
       float efficiency = 1;
       for (xAOD::IParticle *particle : *particles)
       {
-        bool valid = m_outOfValidityAccessor ? m_outOfValidityAccessor->getBool(*particle) : true;
-        if (valid)
+        if (m_preselection.getBool (*particle))
         {
           efficiency *= (*m_efficiencyAccessor) (*particle);
         }

@@ -34,7 +34,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     if dataType != 'data' and globalSF:
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
         alg.efficiency = 'jvt_efficiency'
-        alg.outOfValidity = 'no_jvt'
+        alg.preselection = 'no_jvt'
 
         seq.append( alg,
                     inputPropName = { 'jets' : 'particles',
@@ -44,7 +44,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
         alg.efficiency = 'fjvt_efficiency'
-        alg.outOfValidity= 'no_fjvt'
+        alg.preselection= 'no_fjvt'
 
         seq.append( alg,
                     inputPropName = { 'jets' : 'particles',

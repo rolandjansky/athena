@@ -10,6 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
@@ -48,6 +49,11 @@ namespace CP
     SysCopyHandle<xAOD::IParticleContainer> m_particleHandle {
       this, "particles", "", "the particle collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the decoration for the efficiency
   private:
     std::string m_efficiency;
@@ -55,14 +61,6 @@ namespace CP
     /// \brief the accessor for \ref m_efficiency
   private:
     std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
-
-    /// \brief the decoration for the out of validity status
-  private:
-    std::string m_outOfValidity;
-
-    /// \brief the accessor for \ref m_outOfValidity
-  private:
-    std::unique_ptr<ISelectionAccessor> m_outOfValidityAccessor;
   };
 }
 
