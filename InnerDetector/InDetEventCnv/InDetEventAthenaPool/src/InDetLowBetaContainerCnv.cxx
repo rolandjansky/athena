@@ -30,7 +30,7 @@ InDetLowBetaContainer_PERS *InDetLowBetaContainerCnv::createPersistent(InDet::In
 InDet::InDetLowBetaContainer *InDetLowBetaContainerCnv::createTransient() {
   ATH_MSG_DEBUG("InDetLowBetaContainerCnv::createTransient called");
 
-  static pool::Guid tlp1_guid("2EBE2034-8157-477B-B327-D37BE8A0317D");
+  const pool::Guid tlp1_guid("2EBE2034-8157-477B-B327-D37BE8A0317D");
 
   InDet::InDetLowBetaContainer *p_collection = 0;
   if (compareClassGuid(tlp1_guid)) {

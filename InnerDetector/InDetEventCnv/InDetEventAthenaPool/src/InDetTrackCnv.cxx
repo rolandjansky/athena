@@ -32,8 +32,8 @@ StatusCode InDetTrackCnv::initialize()
 void 
 InDetTrackCnv::readObjectFromPool( const std::string& token )
 {
-    static pool::Guid p2_guid( "4E3778E2-1497-4F10-8746-AA02319FAC83" );
-    static pool::Guid p1_guid( "8380F7AC-4A8F-4382-95A5-1234E43D3B08" );
+    const pool::Guid p2_guid( "4E3778E2-1497-4F10-8746-AA02319FAC83" );
+    const pool::Guid p1_guid( "8380F7AC-4A8F-4382-95A5-1234E43D3B08" );
 
    // set the POOL token which will be used for reading from POOL
    setToken( token );
