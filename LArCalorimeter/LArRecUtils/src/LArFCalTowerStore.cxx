@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,8 +20,7 @@ Updated:
 // include header files
 #include "Identifier/IdentifierHash.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -65,7 +64,9 @@ LArFCalTowerStore::~LArFCalTowerStore(){
 // Build LookUp Table //
 ////////////////////////
 
-bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
+bool LArFCalTowerStore::buildLookUp(const CaloCell_ID& cellIdHelper,
+                                    const CaloDetDescrManager& theManager,
+                                    CaloTowerContainer* theTowers)
 {
   ///////////////////////
   // Store Preparation //
@@ -80,19 +81,11 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
   MsgStream msg(theMsgSvc,"LArFCalTowerStore");
   
   // get cell id helper
-  const CaloCell_ID* cellIdHelper = (CaloIdManager::instance())->getCaloCell_ID();
-  const LArFCAL_ID* fcalIdHelper = (CaloIdManager::instance())->getFCAL_ID();
-
-  // get cell description manager
-  const CaloDetDescrManager* theManager = CaloDetDescrManager::instance();
-  if ( ! theManager->isInitialized() ){
-      msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!" << endmsg;
-      return false;
-    }
+  const LArFCAL_ID& fcalIdHelper = *cellIdHelper.fcal_idHelper();
 
   // find numerical ranges
   IdentifierHash firstIndex, lastIndex;
-  cellIdHelper->calo_cell_hash_range((int)CaloCell_ID::LARFCAL, firstIndex, lastIndex);
+  cellIdHelper.calo_cell_hash_range((int)CaloCell_ID::LARFCAL, firstIndex, lastIndex);
   m_indxOffset = (size_t)firstIndex;
   m_indxBound  = (size_t)lastIndex;
 
@@ -138,7 +131,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
 	  //std::cout<<"cell:"<<anIndex<<std::endl;
       
 	  // get cell geometry
-      const CaloDetDescrElement* theElement = theManager->get_element(cellIndex);
+      const CaloDetDescrElement* theElement = theManager.get_element(cellIndex);
       if (!theElement) {
         msg << MSG::ERROR<< "Can't find element for index " << cellIndex
             << endmsg;
@@ -151,7 +144,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
       double dyCell = theElement->dy();
 
       // get cell logical location
-      int thisModule = fcalIdHelper->module(theElement->identify());
+      int thisModule = fcalIdHelper.module(theElement->identify());
       // get cell splitting
       thisModule--;
       double theXBin   = dxCell / (double)m_ndxFCal[thisModule];

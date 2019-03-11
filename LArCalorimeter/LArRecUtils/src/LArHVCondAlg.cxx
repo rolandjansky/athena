@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LArHVCondAlg.h" 
@@ -12,7 +12,7 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArReadoutGeometry/EMBCell.h"
 #include "LArHV/LArHVManager.h"
@@ -62,6 +62,7 @@
 // constructor 
 LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthReentrantAlgorithm(name,pSvcLocator),
+    m_calodetdescrmgr(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),
@@ -81,11 +82,12 @@ LArHVCondAlg::~LArHVCondAlg()
 
 //initialize
 StatusCode LArHVCondAlg::initialize(){
-  ATH_CHECK(detStore()->retrieve(m_caloIdMgr));
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  m_larem_id   = idHelper->em_idHelper();
+  m_larhec_id   = idHelper->hec_idHelper();
+  m_larfcal_id   = idHelper->fcal_idHelper();
 
   ATH_CHECK(detStore()->retrieve(m_calodetdescrmgr));
 

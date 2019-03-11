@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCLUSTERREC_LARFCALTOWERBUILDERTOOL_H
@@ -28,6 +28,7 @@ class LArFCalTowerStore;
 
 class CaloTowerContainer;
 class CaloTower;
+class CaloDetDescrManager;
 
 class LArFCAL_ID;
 
@@ -96,7 +97,9 @@ private:
   // FCal only
   static CaloCell_ID::SUBCALO m_caloIndex;
 
+  const CaloCell_ID* m_cellIdHelper;
   const LArFCAL_ID* m_larFCalId;
+  const CaloDetDescrManager* m_theManager;
 
   LArFCalTowerStore m_cellStore;
 };
