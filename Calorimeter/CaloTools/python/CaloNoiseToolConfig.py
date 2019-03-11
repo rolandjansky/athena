@@ -1,3 +1,4 @@
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
@@ -75,7 +76,7 @@ def CaloNoiseToolCfg(configFlags):
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
                 result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL'))
                 log.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
-                caloNoiseToolDB.LumiFolderName = lumiFolder
+            caloNoiseToolDB.LumiFolderName = lumiFolder
 
 
         folders=[("LAR_OFL","/LAR/NoiseOfl/CellNoise"),
