@@ -372,11 +372,19 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = ["myESD-data.pool.root"]
 #    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
+    nThreads=1
+    ConfigFlags.Concurrency.NumThreads = nThreads
+    if nThreads>0:
+        ConfigFlags.Scheduler.ShowDataDeps = True
+        ConfigFlags.Scheduler.ShowDataFlow = True
+        ConfigFlags.Scheduler.ShowControlFlow = True
+        ConfigFlags.Concurrency.NumConcurrentEvents = nThreads
+
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg=MainServicesSerialCfg() 
+    cfg=MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
     theKey="CaloCalTopoClustersNew"
