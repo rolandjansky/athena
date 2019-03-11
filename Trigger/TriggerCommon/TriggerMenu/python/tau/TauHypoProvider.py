@@ -347,7 +347,6 @@ class TauHypoProvider:
         ('medium0', 200): [0,3, 200.0*GeV, 2, False],
         }
 
-# 'massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax'
     thresholdsEF_dikaon = {
         ('dikaon', 25):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5],
         ('dikaon', 35):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5], 
