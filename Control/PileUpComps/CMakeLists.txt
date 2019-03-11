@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/EventInfoUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODCnvInterfaces
-                          Event/xAOD/xAODEventInfoCnv
                           GaudiKernel )
 
 # External dependencies:
@@ -30,6 +29,6 @@ atlas_add_component( PileUpComps
                      LINK_LIBRARIES ${Boost_LIBRARIES}
                      ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel
                      PileUpToolsLib StoreGateLib SGtests EventInfo
-                     EventInfoUtils xAODEventInfo xAODEventInfoCnv GaudiKernel )
+                     EventInfoUtils xAODEventInfo GaudiKernel )
 
 
