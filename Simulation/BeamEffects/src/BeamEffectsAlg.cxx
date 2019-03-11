@@ -92,14 +92,21 @@ StatusCode Simulation::BeamEffectsAlg::patchSignalProcessVertex(HepMC::GenEvent&
         }
       else
         {
-          ATH_MSG_DEBUG("No signal_process_vertex found - using the first GenVertex in the event.");
-          HepMC::GenVertex *signalVertex = *(ge.vertices_begin());
-          ge.set_signal_process_vertex( signalVertex );
+          if (!ge.vertices_empty())
+            {
+              ATH_MSG_DEBUG("No signal_process_vertex found - using the first GenVertex in the event.");
+              HepMC::GenVertex *signalVertex = *(ge.vertices_begin());
+              ge.set_signal_process_vertex( signalVertex );
+            }
         }
       if( !ge.signal_process_vertex() ) // Insanity check
         {
-          ATH_MSG_ERROR("Failed to set signal_process_vertex for GenEvent!!");
-          return StatusCode::FAILURE;
+          if (!ge.vertices_empty())
+            {
+              ATH_MSG_ERROR("Failed to set signal_process_vertex for GenEvent!!");
+              return StatusCode::FAILURE;
+            }
+          ATH_MSG_WARNING("No signal_process_vertex found. Empty GenEvent!");
         }
     }
   else
