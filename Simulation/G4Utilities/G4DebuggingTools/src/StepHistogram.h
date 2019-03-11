@@ -21,7 +21,7 @@
 
 //Athena
 #include "AthenaBaseComps/AthMessaging.h"
-#include "G4DebuggingHelper.h"
+#include "G4DebuggingTools/G4DebuggingHelper.h"
 
 namespace G4UA{
   
