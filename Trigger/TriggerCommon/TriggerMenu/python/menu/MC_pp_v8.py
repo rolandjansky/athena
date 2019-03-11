@@ -300,6 +300,8 @@ def setupMenu():
         # ATR-19359
         ['tau20_mediumRNN_tracktwoMVA_L1TAU5',                   'L1_TAU5', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau20_mediumRNN_tracktwoMVA_L1TAU8',                   'L1_TAU8', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_mediumRNN_tracktwoMVA_L1TAU5',                   'L1_TAU5', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_mediumRNN_tracktwoMVA_L1TAU8',                   'L1_TAU8', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
 
         #ATR-19269
         ['tau0_perf_ptonly_L1TAU12',               'L1_TAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -360,18 +362,28 @@ def setupMenu():
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # ATR-19359
         # e+tau
-        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU5'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
-        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU8',    'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU8'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU5'], [PhysicsStream], ['RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU8',    'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU8'], [PhysicsStream], ['RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU5_03dRtt',  'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU5'], [PhysicsStream], ['RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',    'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU8'], [PhysicsStream], ['RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
         # mu+tau
-        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
-        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
-        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
-        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
-        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
-        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU5',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU8',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU5_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU5_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU5_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU5'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU5"]]],
+        ['mu20_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarmedium","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
         # VBF ditau
-        ['tau25_mediumRNN_tracktwoMVA_L1TAU5_tau20_mediumRNN_tracktwoMVA_L1TAU5_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU5', 'L1_TAU5','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA_L1TAU5", "tau20_mediumRNN_tracktwoMVA_L1TAU5","j70","j50_0eta490_invm900j50"]]],
-        ['tau25_mediumRNN_tracktwoMVA_L1TAU8_tau20_mediumRNN_tracktwoMVA_L1TAU8_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA_L1TAU8", "tau20_mediumRNN_tracktwoMVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mRNN_t2MVA_L1TAU5_tau20_mRNN_t2MVA_L1TAU5_j70_j50_0eta490_invm900j50', 'L1_MJJ-500-NFF', ['L1_TAU5', 'L1_TAU5','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU5", "tau20_mRNN_t2MVA_L1TAU5","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mRNN_t2MVA_L1TAU5_tau20_mRNN_t2MVA_L1TAU5_j70_j50_0eta490_invm900j50_03dRtt', 'L1_MJJ-500-NFF', ['L1_TAU5', 'L1_TAU5','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU5", "tau20_mRNN_t2MVA_L1TAU5","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mRNN_t2MVA_L1TAU8_tau20_mRNN_t2MVA_L1TAU8_j70_j50_0eta490_invm900j50', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU8", "tau20_mRNN_t2MVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mRNN_t2MVA_L1TAU8_tau20_mRNN_t2MVA_L1TAU8_j70_j50_0eta490_invm900j50_03dRtt', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU8", "tau20_mRNN_t2MVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
 
                    ]
 
@@ -472,23 +484,22 @@ ps_perform_list = [
     'j0_gsc0_boffperf_split_FTKRefit_L1RD0_FILLED',
 
     'xe50',
-    'tau35_perf_tracktwo_tau25_perf_tracktwo',
-    'tau160_idperf_tracktwo_L1TAU100',
     'tau160_idperf_tracktwo_L1TAU100',
     'tau160_idperf_tracktwoEF_L1TAU100',
     'tau160_idperf_tracktwoMVA_L1TAU100',
-    'tau160_perf_tracktwo_L1TAU100',
     'tau160_perf_tracktwo_L1TAU100',
     'tau160_perf_tracktwoEF_L1TAU100',
     'tau160_perf_tracktwoMVA_L1TAU100',
     'tau125_medium1_tracktwo',
     'tau160_idperf_track_L1TAU100',
-    'tau160_idperf_track_L1TAU100',
-    'tau160_perf_tracktwo_L1TAU100',
     'tau25_idperf_track',
     'tau25_medium1_tracktwo',
     'tau25_perf_tracktwo',
     'tau25_perf_tracktwo_L1TAU12',
+    'tau20_mediumRNN_tracktwoMVA_L1TAU5',
+    'tau20_mediumRNN_tracktwoMVA_L1TAU8',
+    'tau25_mediumRNN_tracktwoMVA_L1TAU5',
+    'tau25_mediumRNN_tracktwoMVA_L1TAU8',
     'tau35_medium1_tracktwoMVA_L1TAU12IM',
     'tau80_medium1_tracktwoMVA_L1TAU60',
     'e5_lhmedium_nod0',
