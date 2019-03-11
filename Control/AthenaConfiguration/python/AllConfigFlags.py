@@ -85,7 +85,9 @@ def _createCfgFlags():
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
     acf.addFlag("Calo.Noise.useCaloNoiseLumi",True)
-                
+
+#CaloCell flags
+    acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
 
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
