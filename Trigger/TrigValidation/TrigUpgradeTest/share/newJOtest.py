@@ -61,15 +61,6 @@ acc.merge( TrigInDetCondConfig( flags ) )
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
-topSequence = acc.getSequence("HLTTop")
-muonCacheCreatorName = "MuonCacheCreator"
-mcc = findAlgorithm( topSequence, muonCacheCreatorName )
-if mcc:
-    owner = findOwningSequence( topSequence, muonCacheCreatorName )
-    owner.remove( mcc )
-    top = acc.getSequence("AthAlgSeq")
-    top += mcc
-
 
 # from TrigUpgradeTest.TestUtils import applyMenu
 # applyMenu( acc.getEventAlgo( "L1Decoder" ) )
