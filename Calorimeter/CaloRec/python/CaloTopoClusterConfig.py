@@ -21,7 +21,8 @@ def CaloTopoClusterCfg(configFlags):
     result.merge(TileGMCfg(configFlags))
 
     #Get CaloNoiseTool
-    acc,theCaloNoiseTool=CaloNoiseToolCfg(configFlags)
+    acc=CaloNoiseToolCfg(configFlags)
+    theCaloNoiseTool=acc.getPublicTool("CaloNoiseTool")
     result.merge(acc)
 
     # maker tools
@@ -107,17 +108,19 @@ if __name__=="__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     log.setLevel(DEBUG)
 
-    ConfigFlags.Input.isMC = False
-    ConfigFlags.Input.Files = ["myESD.pool.root"]
-    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
+    #ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Files = ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Output.ESDFileName= "esdOut.pool.root"
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    #cfg=ComponentAccumulator()
+
+
     cfg=MainServicesSerialCfg() 
     cfg.merge(PoolReadCfg(ConfigFlags))
     

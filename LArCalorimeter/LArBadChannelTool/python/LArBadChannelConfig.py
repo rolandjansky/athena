@@ -5,7 +5,7 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArBadChannelCfg(configFlags):
 
-    result=LArOnOffIdMappingCfg(configFlags)[0]
+    result=LArOnOffIdMappingCfg(configFlags)
     
     if configFlags.Common.isOnline or configFlags.Input.isMC:
         foldername="/LAR/BadChannels/BadChannels"
@@ -48,7 +48,8 @@ def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,ToolName="L
     result=LArBadChannelCfg(configFlags)
      
     bcMasker=LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask, DoMasking=doMasking)
-    return result,bcMasker
+    result.setPrivateTools(bcMasker)
+    return result
                     
 
 
@@ -69,7 +70,8 @@ if __name__=="__main__":
     
     cfg.merge(LArBadChannelCfg(ConfigFlags))
     cfg.merge(LArBadFebCfg(ConfigFlags))
-    acc,privTool=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
+    acc=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
+    masker=acc.popPrivateTool()
     cfg.merge(acc)
     f=open("LArBCCondAlgos.pkl","w")
     cfg.store(f)

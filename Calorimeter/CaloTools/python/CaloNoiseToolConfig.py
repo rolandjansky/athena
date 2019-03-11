@@ -97,7 +97,7 @@ def CaloNoiseToolCfg(configFlags):
 
     result.addPublicTool(caloNoiseToolDB)
     
-    return result,caloNoiseToolDB
+    return result
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable

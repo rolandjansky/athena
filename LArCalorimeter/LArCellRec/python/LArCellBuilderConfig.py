@@ -5,11 +5,13 @@ from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool, LArCe
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
 
 def LArCellBuilderCfg(configFlags):
-    result=LArOnOffIdMappingCfg(configFlags)
+    result=ComponentAccumulator()
+    result.merge(LArOnOffIdMappingCfg(configFlags))
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
 
     theLArCellBuilder.addDeadOTX = False #Create flag? Requires bad-feb DB access
-    return result,theLArCellBuilder
+    result.setPrivateTools(theLArCellBuilder)
+    return result
 
 
 
@@ -26,20 +28,18 @@ def LArCellCorrectorCfg(configFlags):
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
         theNoiseMasker=LArCellNoiseMaskingTool()
         if configFlags.LAr.doCellNoiseMasking:
-            acc,cellNoiseMaskingTool= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
+            acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
+            theNoiseMasker.MaskingTool=acc.popPrivateTools()
             result.merge(acc)
-            theNoiseMasker.MaskingTool=cellNoiseMaskingTool
+
             pass
         if configFlags.LAr.doCellSporadicNoiseMasking:
-            acc,sporadicNoiseMaskingTool=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="SporadicNoiseMask")
+            acc=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="SporadicNoiseMask")
+            theNoiseMasker.MaskingSporadicTool=acc.popPrivateTools()
             result.merge(acc)
-            theNoiseMasker.MaskingSporadicTool=sporadicNoiseMaskingTool
             pass
         correctionTools.append(theNoiseMasker)
     #Many more tools to be added, eg HV correction
 
-    
-    return result,correctionTools
-        
-        
-        
+    result.setPrivateTools(correctionTools)
+    return result
