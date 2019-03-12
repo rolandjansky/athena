@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4CosmicFilter/G4CosmicOrFilter.h"
@@ -18,9 +18,7 @@ namespace G4UA
 
   G4CosmicOrFilter::G4CosmicOrFilter(const Config& config)
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >("MessageSvc"), "G4CosmicOrFilter"),
-      m_config(config), m_report(),
-      m_evtStore("StoreGateSvc/StoreGateSvc","G4CosmicOrFilter"),
-      m_detStore("StoreGateSvc/DetectorStore","G4CosmicOrFilter")
+      m_config(config), m_report()
   {
   }
 

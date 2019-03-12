@@ -1,18 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrackCaloClusterRecValidation/TrackCaloClusterRecValidationTool.h"
+#include "TrackCaloClusterRecValidationTool.h"
 //
 #include "xAODTruth/TruthParticle.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/PileUpEventInfo.h"
-#include "EventInfo/PileUpTimeEventIndex.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCore/ShallowCopy.h"
@@ -26,7 +18,6 @@
 #include <algorithm>
 #include <limits>
 #include <cmath> // to get std::isnan(), std::abs etc.
-// #include <functional> // to get std::plus
 #include <utility>
 #include <cstdlib> // to getenv
 #include <vector>
@@ -129,17 +120,19 @@ TrackCaloClusterRecValidationTool::initialize() {
     }
   }
   
+  ATH_CHECK( m_evt.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode
 TrackCaloClusterRecValidationTool::fillHistograms() {
-  
-  const EventInfo* info = nullptr;
-  if (evtStore()->retrieve(info).isFailure()){
+
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
     ATH_MSG_FATAL( "Unable to retrieve Event Info" );
   } 
-  float mcEventWeight = info->event_type()->mc_event_weight();
+  float mcEventWeight = evt->mcEventWeight();
   
   if (m_saveJetInfo) {
     ATH_MSG_DEBUG("Filling hists " << name() << "...");

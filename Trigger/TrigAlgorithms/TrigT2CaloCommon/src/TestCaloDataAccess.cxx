@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include "tbb/parallel_reduce.h"
@@ -96,6 +96,7 @@ public:
 
   // calculate reference quantities in the first call
   void firstCall() override { 
+    Gaudi::Hive::setCurrentContext (m_context);
     if ( m_roi.isFullscan() ) {
       struct timeval t1,t2;
       gettimeofday(&t1,NULL);
@@ -136,6 +137,7 @@ public:
   
   bool callAndCompare() const override {
 
+    Gaudi::Hive::setCurrentContext (m_context);
     LArTT_Selector<LArCellCont> sel;
     ConstDataVector<CaloCellContainer> col(SG::VIEW_ELEMENTS);
     double etSum  = 0;      

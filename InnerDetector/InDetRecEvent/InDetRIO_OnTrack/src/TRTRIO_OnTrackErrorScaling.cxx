@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetRIO_OnTrack/TRTRIO_OnTrackErrorScaling.h"
 #include <iostream>
 
-const char *TRTRIO_OnTrackErrorScaling::s_names[TRTRIO_OnTrackErrorScaling::kNParamTypes]={
+const char* const TRTRIO_OnTrackErrorScaling::s_names[TRTRIO_OnTrackErrorScaling::kNParamTypes]={
     "TRT Barrel",
     "TRT Endcap"
   };

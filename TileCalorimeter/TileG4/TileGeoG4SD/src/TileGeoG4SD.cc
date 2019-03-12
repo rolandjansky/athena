@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -65,7 +65,9 @@ G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
     return false;
   }
 
-  if ( !(m_calc->MakePmtEdepTime(aStep, hitData)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
+  double deltaTime(0);
+
+  if ( !(m_calc->MakePmtEdepTime(aStep, hitData, deltaTime)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
 
     if (verboseLevel >= 10)
       G4cout << "ProcessHits: wrong pmtID_up,pmtID_down,edep_up,edep_down,"
@@ -78,7 +80,7 @@ G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
     return false;
   }
 
-  if ( !(m_calc->ManageScintHit(hitData)) ) { //create or update hit object in the collection
+  if ( !(m_calc->ManageScintHit(hitData, deltaTime)) ) { //create or update hit object in the collection
 
     G4cout << "ProcessHits: TileHit can not be produced; pmtID_up,pmtID_down,edep_up,edep_down,"
            << "scin_Time_up,scin_Time_down:\t" << hitData.pmtID_up

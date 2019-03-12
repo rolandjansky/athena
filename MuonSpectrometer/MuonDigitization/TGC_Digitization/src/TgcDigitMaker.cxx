@@ -8,7 +8,7 @@
 // Y. HASEGAWA
 //-----------------------------------------------------
 
-#include "TGC_Digitization/TgcDigitMaker.h"
+#include "TgcDigitMaker.h"
 
 #include <iostream>
 #include <fstream>

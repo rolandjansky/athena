@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -18,8 +18,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_Bracket::SCT_Bracket(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_Bracket::SCT_Bracket(const std::string & name,
+                         InDetDD::SCT_DetectorManager* detectorManager,
+                         const SCT_GeometryManager* geometryManager,
+                         SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -29,10 +32,9 @@ SCT_Bracket::SCT_Bracket(const std::string & name)
 void
 SCT_Bracket::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;   
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
  
-  m_material  = materials.getMaterial(parameters->bracketMaterial());
+  m_material  = m_materials->getMaterial(parameters->bracketMaterial());
   m_thickness = parameters->bracketThickness();
   m_length    = parameters->bracketLength();
   m_width     = parameters->bracketWidth();
@@ -47,8 +49,7 @@ SCT_Bracket::build()
   // Length is in z-direction. 
 
   const GeoBox * bracketShape = new GeoBox(0.5*m_thickness, 0.5*m_width, 0.5*m_length);
-  const GeoLogVol *bracketLog = 
-    new GeoLogVol(getName(), bracketShape, m_material);
+  const GeoLogVol *bracketLog = new GeoLogVol(getName(), bracketShape, m_material);
   GeoPhysVol * bracket = new GeoPhysVol(bracketLog);
 
   return bracket;

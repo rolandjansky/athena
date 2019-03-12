@@ -222,6 +222,8 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
   index_type index, position;
   m_extBarcode.eventIndex (index, position);
   if (index == ExtendedBarCode::UNDEFINED) {
+    // Don't trip the assertion for a null link.
+    if (barcode() == 0) return 0;
     cptr();
     m_extBarcode.eventIndex (index, position);
     assert (index != ExtendedBarCode::UNDEFINED);

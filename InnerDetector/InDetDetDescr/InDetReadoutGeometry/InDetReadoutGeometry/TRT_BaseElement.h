@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,9 @@
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
+#include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
@@ -20,6 +23,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 
+#include <atomic>
+#include <mutex>
 #include <vector>
 
 namespace Trk {
@@ -214,6 +219,9 @@ namespace InDetDD {
     /** Helper method for cache dealing */
     void deleteCache() const;
 
+    void createStrawSurfaces() const;
+    void createStrawSurfacesCache() const;
+
   protected:
 
     Identifier                                          m_id;
@@ -222,15 +230,16 @@ namespace InDetDD {
     const TRT_Conditions*                               m_conditions;
     
     // Amg cache for the straw surfaces 
-    mutable std::vector<Trk::StraightLineSurface*>*     m_strawSurfaces;
-    mutable std::vector<SurfaceCache*>*                 m_strawSurfacesCache;
+    mutable std::atomic<std::vector<Trk::StraightLineSurface*>*> m_strawSurfaces;
+    mutable std::atomic<std::vector<SurfaceCache*>*> m_strawSurfacesCache;
     
     //!< helper element surface for the cache   
-    mutable SurfaceCache*                               m_surfaceCache;
+    CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
 
-    mutable Trk::Surface * m_surface;
-    mutable std::vector<const Trk::Surface*> m_surfaces;
+    CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
+    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
+    mutable std::mutex m_mutex;
   };
     
 }

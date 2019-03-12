@@ -241,7 +241,7 @@ private:
   /// "Event" context of current run (invalid event/slot)
   EventContext m_currentRunCtx;
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
-  size_t m_localEventNumber;
+  size_t m_localEventNumber{0};
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext;
   /// Vector of top level algorithms
@@ -261,7 +261,7 @@ private:
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer;
   /// Counter of framework errors
-  int m_nFrameworkErrors;
+  int m_nFrameworkErrors{0};
   /// Application name
   std::string m_applicationName;
   /// Worker ID

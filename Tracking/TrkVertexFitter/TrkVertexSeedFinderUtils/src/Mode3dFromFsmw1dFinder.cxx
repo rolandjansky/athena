@@ -716,7 +716,7 @@ const Amg::Vector3D Mode3dFromFsmw1dFinder::Mode2Seed( const VeVecIndices & phi,
 }
 
 unsigned int Mode3dFromFsmw1dFinder::Modes1d( std::vector<float> & phi, 
-                  std::vector<float> & radi, std::vector<float> & z, std::vector<float> & wght )
+                  std::vector<float> & radi, std::vector<float> & z, std::vector<float> & wght ) const
 {
   unsigned int min = 0 ;
 

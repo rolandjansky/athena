@@ -34,6 +34,11 @@ namespace PseudoJetCreatorFunctions{
   createPseudoJets(const xAOD::IParticleContainer*, 
                    xAOD::JetInput::Type,
                    ToolHandle<IIParticleRejectionTool>&);
+
+  // ghost version
+  std::vector<PseudoJet> 
+  createGhostPseudoJets(const xAOD::IParticleContainer*, 
+                   ToolHandle<IIParticleRejectionTool>&);
 }
 
 

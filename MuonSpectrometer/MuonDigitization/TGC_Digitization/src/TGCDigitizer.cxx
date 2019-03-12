@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TGC_Digitization/TGCDigitizer.h"
+#include "TGCDigitizer.h"
 #include "PileUpTools/IPileUpTool.h"
 
 

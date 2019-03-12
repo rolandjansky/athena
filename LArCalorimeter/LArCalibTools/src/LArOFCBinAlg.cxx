@@ -31,7 +31,6 @@ StatusCode LArOFCBinAlg::initialize() {
   //}
   m_ntTitle="Bin";
   m_ntpath=std::string("/NTUPLES/FILE1/OFCBINDIFF");
-  ATH_CHECK( m_cablingKey.initialize() );
   return LArCond2NtupleBase::initialize();
 }
 
@@ -98,10 +97,10 @@ StatusCode LArOFCBinAlg::execute() {
     msg(MSG::ERROR) << "Failed to register container with key " << m_outputContainer << " to StoreGate" << endmsg;
   }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{cablingKey()};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
-     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+      ATH_MSG_ERROR( "Do not have cabling mapping from key " << cablingKey().key() );
      return StatusCode::FAILURE;
   }
   const CaloCell_ID* idHelper = nullptr;

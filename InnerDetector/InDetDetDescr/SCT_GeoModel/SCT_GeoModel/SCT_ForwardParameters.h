@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_ForwardParameters_H
 #define SCT_GeoModel_SCT_ForwardParameters_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ class SCT_ForwardParameters {
 public:
 
   // Constructor and destructor 
-  SCT_ForwardParameters();
+  SCT_ForwardParameters(SCT_DataBase* rdb);
   ~SCT_ForwardParameters();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -181,7 +182,7 @@ private:
 
   SCT_DataBase * m_rdb;
 
-  mutable FSIHelper * m_fsiHelper;
+  std::unique_ptr<FSIHelper> m_fsiHelper;
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "CaloIdentifier/CaloCell_Base_ID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "AthenaKernel/errorcheck.h"
 #include "boost/format.hpp"
 
@@ -56,7 +55,8 @@ CaloSuperCellIDTool::CaloSuperCellIDTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : base_class (type, name, parent),
-    m_calo_id_manager (0)
+    m_cell_helper(nullptr),
+    m_sc_helper(nullptr)
 {
 }
 
@@ -67,7 +67,8 @@ CaloSuperCellIDTool::CaloSuperCellIDTool (const std::string& type,
 StatusCode CaloSuperCellIDTool::initialize()
 {
   CHECK( base_class::initialize() );
-  CHECK( detStore()->retrieve (m_calo_id_manager, "CaloIdManager") );
+  CHECK( detStore()->retrieve (m_cell_helper, "CaloCell_ID") );
+  CHECK( detStore()->retrieve (m_sc_helper, "CaloCell_SuperCell_ID") );
 
   initIDMap ();
 
@@ -80,33 +81,30 @@ StatusCode CaloSuperCellIDTool::initialize()
  */
 void CaloSuperCellIDTool::initIDMap ()
 {
-  const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-  const CaloCell_Base_ID* sc_helper = m_calo_id_manager->getCaloCell_SuperCell_ID();
-
   m_offlineIndex.clear();
   m_superCellIndex.clear();
   m_superCellIndexEnd.clear();
   m_idmap.clear();
 
   // One entry in the index tables for each region hash; -1 means no entry.
-  m_offlineIndex.resize (cell_helper->calo_region_hash_max(), -1);
-  m_superCellIndex.resize (sc_helper->calo_region_hash_max(), -1);
-  m_superCellIndexEnd.resize (sc_helper->calo_region_hash_max(), -1);
+  m_offlineIndex.resize (m_cell_helper->calo_region_hash_max(), -1);
+  m_superCellIndex.resize (m_sc_helper->calo_region_hash_max(), -1);
+  m_superCellIndexEnd.resize (m_sc_helper->calo_region_hash_max(), -1);
 
   // Loop over all offline regions.
-  for (const Identifier& cell_reg : cell_helper->reg_range()) {
-    if (cell_helper->is_em(cell_reg) ||
-        cell_helper->is_hec(cell_reg) ||
-        cell_helper->is_fcal(cell_reg))
+  for (const Identifier& cell_reg : m_cell_helper->reg_range()) {
+    if (m_cell_helper->is_em(cell_reg) ||
+        m_cell_helper->is_hec(cell_reg) ||
+        m_cell_helper->is_fcal(cell_reg))
     {
-      int sub_calo = cell_helper->sub_calo (cell_reg);
-      int pos_neg = cell_helper->pos_neg (cell_reg);
-      int sampling = cell_helper->sampling (cell_reg);
-      int cell_ietamin = cell_helper->eta_min (cell_reg); 
-      int cell_ietamax = cell_helper->eta_max (cell_reg);
-      float cell_etasize = cell_helper->etaGranularity(cell_reg);
-      float cell_phisize = cell_helper->phiGranularity(cell_reg);
-      float cell_etamin = cell_helper->eta0 (cell_reg);
+      int sub_calo = m_cell_helper->sub_calo (cell_reg);
+      int pos_neg = m_cell_helper->pos_neg (cell_reg);
+      int sampling = m_cell_helper->sampling (cell_reg);
+      int cell_ietamin = m_cell_helper->eta_min (cell_reg); 
+      int cell_ietamax = m_cell_helper->eta_max (cell_reg);
+      float cell_etasize = m_cell_helper->etaGranularity(cell_reg);
+      float cell_phisize = m_cell_helper->phiGranularity(cell_reg);
+      float cell_etamin = m_cell_helper->eta0 (cell_reg);
       float cell_etamax = cell_etamin +
         cell_etasize*(cell_ietamax - cell_ietamin + 1);
 
@@ -116,17 +114,17 @@ void CaloSuperCellIDTool::initIDMap ()
       // Find all overlapping supercell regions in the same sampling
       // and make table entries.  HEC supercells are summed
       // over samplings, so don't make sampling requirements there.
-      for (const Identifier& sc_reg : sc_helper->reg_range()) {
-        if (sc_helper->sub_calo (sc_reg) == sub_calo &&
-            sc_helper->pos_neg (sc_reg) == pos_neg &&
+      for (const Identifier& sc_reg : m_sc_helper->reg_range()) {
+        if (m_sc_helper->sub_calo (sc_reg) == sub_calo &&
+            m_sc_helper->pos_neg (sc_reg) == pos_neg &&
             (sub_calo == CaloCell_ID::LARHEC ||
-             sc_helper->sampling (sc_reg) == sampling))
+             m_sc_helper->sampling (sc_reg) == sampling))
         {
-          int sc_ietamin = sc_helper->eta_min (sc_reg);
-          int sc_ietamax = sc_helper->eta_max (sc_reg);
-          float sc_etasize = sc_helper->etaGranularity(sc_reg);
-          float sc_phisize = sc_helper->phiGranularity(sc_reg);
-          float sc_etamin = sc_helper->eta0 (sc_reg);
+          int sc_ietamin = m_sc_helper->eta_min (sc_reg);
+          int sc_ietamax = m_sc_helper->eta_max (sc_reg);
+          float sc_etasize = m_sc_helper->etaGranularity(sc_reg);
+          float sc_phisize = m_sc_helper->phiGranularity(sc_reg);
+          float sc_etamin = m_sc_helper->eta0 (sc_reg);
           float sc_etamax= sc_etamin + sc_etasize*(sc_ietamax - sc_ietamin + 1);
 
           // Find the overlap between the offline and supercell regions.
@@ -136,8 +134,8 @@ void CaloSuperCellIDTool::initIDMap ()
           if (etamin < etamax - 1e-4) {
             // There's overlap --- make a table entry.
             IDMapElt elt;
-            elt.m_cell_reg = cell_helper->calo_region_hash (cell_reg);
-            elt.m_sc_reg = sc_helper->calo_region_hash (sc_reg);
+            elt.m_cell_reg = m_cell_helper->calo_region_hash (cell_reg);
+            elt.m_sc_reg = m_sc_helper->calo_region_hash (sc_reg);
             elt.m_etadiv = int (sc_etasize * inv_cell_etasize + 0.1);
             elt.m_phidiv = int (sc_phisize * inv_cell_phisize + 0.1);
 
@@ -166,25 +164,25 @@ void CaloSuperCellIDTool::initIDMap ()
         }
       }
     }
-    else if (cell_helper->is_tile(cell_reg)) {
-      int section = cell_helper->section (cell_reg);
+    else if (m_cell_helper->is_tile(cell_reg)) {
+      int section = m_cell_helper->section (cell_reg);
       if (section != TileID::BARREL && section != TileID::EXTBAR)
         continue;
-      int sub_calo = cell_helper->sub_calo (cell_reg);
-      int side = cell_helper->side (cell_reg);
-      Identifier sc_reg = sc_helper->region_id (sub_calo, section, side, 0);
+      int sub_calo = m_cell_helper->sub_calo (cell_reg);
+      int side = m_cell_helper->side (cell_reg);
+      Identifier sc_reg = m_sc_helper->region_id (sub_calo, section, side, 0);
 
       IDMapElt elt;
-      elt.m_cell_reg = cell_helper->calo_region_hash (cell_reg);
-      elt.m_sc_reg = sc_helper->calo_region_hash (sc_reg);
+      elt.m_cell_reg = m_cell_helper->calo_region_hash (cell_reg);
+      elt.m_sc_reg = m_sc_helper->calo_region_hash (sc_reg);
       elt.m_etadiv = 1;
       elt.m_phidiv = 1;
       elt.m_cell_ieta_adj = 0;
       elt.m_sc_ieta_adj = 0;
-      elt.m_cell_ietamin = cell_helper->eta_min (cell_reg);
-      elt.m_cell_ietamax = cell_helper->eta_max (cell_reg);
-      elt.m_sc_ietamin = sc_helper->eta_min (sc_reg);
-      elt.m_sc_ietamax = sc_helper->eta_max (sc_reg);
+      elt.m_cell_ietamin = m_cell_helper->eta_min (cell_reg);
+      elt.m_cell_ietamax = m_cell_helper->eta_max (cell_reg);
+      elt.m_sc_ietamin = m_sc_helper->eta_min (sc_reg);
+      elt.m_sc_ietamax = m_sc_helper->eta_max (sc_reg);
       addMapEntry (elt);
     }
   }
@@ -195,21 +193,21 @@ void CaloSuperCellIDTool::initIDMap ()
     msg(MSG::DEBUG) << "CaloSuperCellIDTool mapping table:\n";
     msg(MSG::DEBUG) << "LArEM ----------------------------\n";
     for (const IDMapElt& elt : m_idmap) {
-      Identifier cell_reg = cell_helper->region_id (elt.m_cell_reg);
-      Identifier sc_reg = sc_helper->region_id (elt.m_sc_reg);
+      Identifier cell_reg = m_cell_helper->region_id (elt.m_cell_reg);
+      Identifier sc_reg = m_sc_helper->region_id (elt.m_sc_reg);
       msg(MSG::DEBUG) <<
         boost::format
           ("  %3d %d/%2d/%2d/%d %3d %d/%2d/%2d/%d %d %d %3d %3d %3d %3d %3d %3d\n") %
         (int)elt.m_cell_reg %
-        cell_helper->sub_calo(cell_reg) %
-        posneg_or_section (cell_helper, cell_reg) %
-        sampling_or_side (cell_helper, cell_reg) %
-        cell_helper->region(cell_reg) %
+        m_cell_helper->sub_calo(cell_reg) %
+        posneg_or_section (m_cell_helper, cell_reg) %
+        sampling_or_side (m_cell_helper, cell_reg) %
+        m_cell_helper->region(cell_reg) %
         (int)elt.m_sc_reg %
-        sc_helper->sub_calo(sc_reg) %
-        posneg_or_section (sc_helper, sc_reg) %
-        sampling_or_side (sc_helper, sc_reg) %
-        sc_helper->region(sc_reg) %
+        m_sc_helper->sub_calo(sc_reg) %
+        posneg_or_section (m_sc_helper, sc_reg) %
+        sampling_or_side (m_sc_helper, sc_reg) %
+        m_sc_helper->region(sc_reg) %
 
         elt.m_etadiv % elt.m_phidiv %
         elt.m_cell_ietamin % elt.m_cell_ietamax %
@@ -249,8 +247,8 @@ void CaloSuperCellIDTool::addMapEntry (const IDMapElt& elt)
  */
 void CaloSuperCellIDTool::initFCALIDMap ()
 {
-  const LArFCAL_Base_ID* sfcal_helper = m_calo_id_manager->getFCAL_SuperCell_ID();
-  const LArFCAL_Base_ID* fcal_helper = m_calo_id_manager->getFCAL_ID();
+  const LArFCAL_Base_ID* sfcal_helper = m_sc_helper->fcal_idHelper();
+  const LArFCAL_Base_ID* fcal_helper = m_cell_helper->fcal_idHelper();
 
   m_fcal_fromCell.clear();
   m_fcal_fromSuperCell.clear();
@@ -313,14 +311,10 @@ void CaloSuperCellIDTool::initFCALIDMap ()
 Identifier
 CaloSuperCellIDTool::offlineToSuperCellID (const Identifier& id) const
 {
-  const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-
-  if (cell_helper->is_em(id) || cell_helper->is_hec(id)) {
+  if (m_cell_helper->is_em(id) || m_cell_helper->is_hec(id)) {
     // Look for the first entry in the mapping table for this offline region.
-    const CaloCell_Base_ID* sc_helper   = m_calo_id_manager->getCaloCell_SuperCell_ID();
-
-    Identifier reg_id = cell_helper->region_id (id);
-    IdentifierHash rhash = cell_helper->calo_region_hash (reg_id);
+    Identifier reg_id = m_cell_helper->region_id (id);
+    IdentifierHash rhash = m_cell_helper->calo_region_hash (reg_id);
     assert (rhash < m_offlineIndex.size());
     int ndx = m_offlineIndex[rhash];
     if (ndx < 0)
@@ -328,7 +322,7 @@ CaloSuperCellIDTool::offlineToSuperCellID (const Identifier& id) const
     
     // Now search through all entries for this offline region to find one
     // that includes this cell.
-    int ieta = cell_helper->eta (id);
+    int ieta = m_cell_helper->eta (id);
     
     do {
       const IDMapElt& elt = m_idmap[ndx];
@@ -340,24 +334,24 @@ CaloSuperCellIDTool::offlineToSuperCellID (const Identifier& id) const
 		       elt.m_etadiv) +
 	  elt.m_sc_ietamin - elt.m_sc_ieta_adj;
 
-	return sc_helper->cell_id (sc_helper->region_id (elt.m_sc_reg),
+	return m_sc_helper->cell_id (m_sc_helper->region_id (elt.m_sc_reg),
 				   ieta_sc,
-				   cell_helper->phi(id) / elt.m_phidiv);
+				   m_cell_helper->phi(id) / elt.m_phidiv);
       }
       ++ndx;
     } while (ndx < (int)m_idmap.size() && m_idmap[ndx].m_cell_reg == rhash);
   }
 
-  else if (cell_helper->is_fcal(id)) {
-    const LArFCAL_ID* fcal_helper = m_calo_id_manager->getFCAL_ID();
+  else if (m_cell_helper->is_fcal(id)) {
+    const LArFCAL_ID* fcal_helper = m_cell_helper->fcal_idHelper();
     IdentifierHash cell_hash = fcal_helper->channel_hash(id);
     return m_fcal_fromCell[ cell_hash ];
   }
 
-  else if (cell_helper->is_tile(id)) {
-    int section = cell_helper->section (id);
-    int sample_offline = cell_helper->sample(id);
-    int tower = cell_helper->tower(id);
+  else if (m_cell_helper->is_tile(id)) {
+    int section = m_cell_helper->section (id);
+    int sample_offline = m_cell_helper->sample(id);
+    int tower = m_cell_helper->tower(id);
 
     // A couple special cases in the transition region.
     // cf. http://hep.uchicago.edu/atlas/tilecal/level1/geometry.html
@@ -392,13 +386,10 @@ CaloSuperCellIDTool::offlineToSuperCellID (const Identifier& id) const
     int sample_sc = sample_offline;
     if (sample_sc != TileID::SAMP_D) sample_sc = TileID::SAMP_A;
 
-    const CaloCell_Base_ID* sc_helper   =
-      m_calo_id_manager->getCaloCell_SuperCell_ID();
-
-    return sc_helper->cell_id (cell_helper->sub_calo(id),
+    return m_sc_helper->cell_id (m_cell_helper->sub_calo(id),
                                section,
-                               cell_helper->side(id),
-                               cell_helper->module(id),
+                               m_cell_helper->side(id),
+                               m_cell_helper->module(id),
                                tower,
                                sample_sc);
   }
@@ -415,14 +406,11 @@ std::vector<Identifier>
 CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
 {
   std::vector<Identifier> out;
-  const CaloCell_SuperCell_ID* sc_helper =  m_calo_id_manager->getCaloCell_SuperCell_ID();
 
   // Look for the first entry in the mapping table for this supercell region.
-  if (sc_helper->is_em (id) || sc_helper->is_hec (id)) {
-    const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-
-    Identifier reg_id = sc_helper->region_id (id);
-    IdentifierHash rhash = sc_helper->calo_region_hash (reg_id);
+  if (m_sc_helper->is_em (id) || m_sc_helper->is_hec (id)) {
+    Identifier reg_id = m_sc_helper->region_id (id);
+    IdentifierHash rhash = m_sc_helper->calo_region_hash (reg_id);
     assert (rhash < m_superCellIndex.size());
     int ndx = m_superCellIndex[rhash];
     if (ndx < 0)
@@ -433,7 +421,7 @@ CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
     
     // Now search through all entries for this supercell region to find one
     // that includes this supercell.
-    int ieta = sc_helper->eta (id);
+    int ieta = m_sc_helper->eta (id);
     
     for (; ndx < end; ++ndx) {
       const IDMapElt& elt = m_idmap[ndx];
@@ -446,37 +434,36 @@ CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
 	
 	int ieta0 = (ieta - elt.m_sc_ietamin + elt.m_sc_ieta_adj) * elt.m_etadiv +
 	  elt.m_cell_ietamin - elt.m_cell_ieta_adj;
-	Identifier cell_reg_id = cell_helper->region_id (elt.m_cell_reg);
+	Identifier cell_reg_id = m_cell_helper->region_id (elt.m_cell_reg);
 	int ieta = std::max (ieta0, elt.m_cell_ietamin);
 	int ietamax = std::min (ieta0 + elt.m_etadiv - 1, elt.m_cell_ietamax);
 	
 	// Add all matching cells to the output list.
-	int iphi0 = sc_helper->phi (id) * elt.m_phidiv;
+	int iphi0 = m_sc_helper->phi (id) * elt.m_phidiv;
 	for (; ieta <= ietamax; ++ieta) {
 	  for (int ip = 0; ip < elt.m_phidiv; ip++) {
-	    out.push_back(cell_helper->cell_id (cell_reg_id, ieta, iphi0+ip));
+	    out.push_back(m_cell_helper->cell_id (cell_reg_id, ieta, iphi0+ip));
 	  }
 	}
       }
     }
   }
 
-  else if ( sc_helper->is_fcal( id ) ) {
-    const LArFCAL_Base_ID* sfcal_helper = sc_helper->fcal_idHelper();
+  else if ( m_sc_helper->is_fcal( id ) ) {
+    const LArFCAL_Base_ID* sfcal_helper = m_sc_helper->fcal_idHelper();
     IdentifierHash sc_hash = sfcal_helper->channel_hash( id );
     out = m_fcal_fromSuperCell[ sc_hash ];
   }
 
-  else if (sc_helper->is_tile (id)) {
-    int module = sc_helper->module(id);
-    int tower = sc_helper->tower(id);
-    int sample = sc_helper->sample(id);
+  else if (m_sc_helper->is_tile (id)) {
+    int module = m_sc_helper->module(id);
+    int tower = m_sc_helper->tower(id);
+    int sample = m_sc_helper->sample(id);
     
-    const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-    const Tile_Base_ID* tile_helper = cell_helper->tile_idHelper();
+    const Tile_Base_ID* tile_helper = m_cell_helper->tile_idHelper();
 
-    Identifier reg_id = tile_helper->region_id (sc_helper->section(id),
-                                                sc_helper->side(id));
+    Identifier reg_id = tile_helper->region_id (m_sc_helper->section(id),
+                                                m_sc_helper->side(id));
 
     Identifier cell_id;
 
@@ -487,7 +474,7 @@ CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
     }
     if (tower == 9) {
       Identifier greg_id = tile_helper->region_id (TileID::GAPDET,
-                                                   sc_helper->side(id));
+                                                   m_sc_helper->side(id));
       if (tile_helper->cell_id (greg_id, module, 8, TileID::SAMP_D, cell_id))
         out.push_back (cell_id);
       if (sample == TileID::SAMP_A) {
@@ -523,21 +510,17 @@ CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
 std::vector<Identifier>
 CaloSuperCellIDTool::offlineToSuperCellRegion (const Identifier& reg_id) const
 {
-  const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-  const CaloCell_Base_ID* sc_helper =
-    m_calo_id_manager->getCaloCell_SuperCell_ID();
-
   std::vector<Identifier> out;
 
   // Look for the first entry in the mapping table for this offline region.
-  IdentifierHash rhash = cell_helper->calo_region_hash (reg_id);
+  IdentifierHash rhash = m_cell_helper->calo_region_hash (reg_id);
   assert (rhash < m_offlineIndex.size());
   int ndx = m_offlineIndex[rhash];
   while (ndx >= 0 &&
          ndx < (int)m_idmap.size() &&
          m_idmap[ndx].m_cell_reg == rhash)
   {
-    out.push_back (sc_helper->region_id (m_idmap[ndx].m_sc_reg));
+    out.push_back (m_sc_helper->region_id (m_idmap[ndx].m_sc_reg));
     ++ndx;
   }
 
@@ -555,20 +538,16 @@ CaloSuperCellIDTool::offlineToSuperCellRegion (const Identifier& reg_id) const
 std::vector<Identifier>
 CaloSuperCellIDTool::superCellToOfflineRegion (const Identifier& reg_id) const
 {
-  const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-  const CaloCell_Base_ID* sc_helper =
-    m_calo_id_manager->getCaloCell_SuperCell_ID();
-
   std::vector<Identifier> out;
 
   // Look for the first entry in the mapping table for this offline region.
-  IdentifierHash rhash = sc_helper->calo_region_hash (reg_id);
+  IdentifierHash rhash = m_sc_helper->calo_region_hash (reg_id);
   assert (rhash < m_superCellIndex.size());
   int ndx = m_superCellIndex[rhash];
   int end = m_superCellIndexEnd[rhash];
   for (; ndx < end; ++ndx) {
     if (m_idmap[ndx].m_sc_reg == rhash)
-      out.push_back (cell_helper->region_id (m_idmap[ndx].m_cell_reg));
+      out.push_back (m_cell_helper->region_id (m_idmap[ndx].m_cell_reg));
   }
 
   return out;

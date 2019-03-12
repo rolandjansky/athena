@@ -56,7 +56,7 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     # Tools with non-default configuration
     TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
     ShowerBuilderTool = TrigEMShowerBuilder,
-    
+                        
     # Set the isolation tools
     TrackIsolationTool = TrigTrackIsolationTool, 
     CaloCellIsolationTool = TrigCaloIsolationTool, 
@@ -75,7 +75,6 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     PhotonPIDBuilder = TrigPhotonPIDBuilder,
     
     # Tools with default configuration    
-#     VertexBuilderTool = EMVertexBuilder,
     ConversionBuilderTool = EMConversionBuilder.copyPublic("TrigEMConversionBuilder"),
     AmbiguityTool = EGammaAmbiguityTool.copyPublic("TrigEGammaAmbiguityTool"),
     FourMomBuilderTool = EMFourMomBuilder.copyPublic("TrigEMFourMomBuilder"),
@@ -87,4 +86,5 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     # Called after instantiation
     postInit = [configureTrigEgammaMonitoring],
 )
+
 

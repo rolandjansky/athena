@@ -363,7 +363,7 @@ namespace InDetDD {
     // Register the call back for this key and the corresponding level in
     // in the hierarchy.
     // DEPRECATED
-    void TRT_DetectorManager::addKey(const std::string & key, int level)
+    void TRT_DetectorManager::addKey ATLAS_NOT_THREAD_SAFE (const std::string & key, int level)
     {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << ", at level " << level 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,15 +7,9 @@
 // CalibrationNtupleMakerTool.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "TrackCaloClusterRecValidation/CalibrationNtupleMakerTool.h"
+#include "CalibrationNtupleMakerTool.h"
 
 #include "xAODJet/JetContainer.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 #include "xAODPFlow/TrackCaloClusterContainer.h"
 
 #include "xAODParticleEvent/IParticleLink.h"
@@ -88,6 +82,8 @@ StatusCode CalibrationNtupleMakerTool::initialize()
     ATH_MSG_FATAL( "Could not book the TTree object" );
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_evt.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -165,14 +161,12 @@ StatusCode CalibrationNtupleMakerTool::execute()
 {
   m_h_events->Fill(0);
   
-  const EventInfo* info = nullptr;
-  if (evtStore()->retrieve(info).isFailure()){
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
     ATH_MSG_FATAL( "Unable to retrieve Event Info" );
-    return StatusCode::FAILURE;
   } 
+  float ev_weight = evt->mcEventWeight();
 
-  float ev_weight = info->event_type()->mc_event_weight();
-  
   const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);  
   if (not truths) return StatusCode::FAILURE;
   
@@ -180,7 +174,7 @@ StatusCode CalibrationNtupleMakerTool::execute()
   if (not vertices) return StatusCode::FAILURE;
   
   // get mu
-  float mu= info->averageInteractionsPerCrossing();
+  float mu= evt->averageInteractionsPerCrossing();
   
   //get NPV
   float npv = 0.;

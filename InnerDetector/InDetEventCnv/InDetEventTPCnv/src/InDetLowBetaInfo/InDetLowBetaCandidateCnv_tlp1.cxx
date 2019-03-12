@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_tlp1.h"
@@ -16,7 +16,7 @@ void InDetLowBetaCandidateCnv_tlp1::setPStorage(InDetLowBetaCandidate_tlp1* stor
 }
 
 
-void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans(const InDetLowBetaCandidate_tlp1 *pers,
+void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans ATLAS_NOT_THREAD_SAFE (const InDetLowBetaCandidate_tlp1 *pers,
 											    InDet::InDetLowBetaCandidate *trans,
 											    MsgStream &msg) {
   setPStorage(const_cast<InDetLowBetaCandidate_tlp1*>(pers));

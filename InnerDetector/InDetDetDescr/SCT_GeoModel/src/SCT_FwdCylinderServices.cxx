@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdCylinderServices.h"
@@ -26,8 +26,12 @@
 SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
                                                  double rmin,
                                                  double rmax,
-                                                 double length)
-  : SCT_SharedComponentFactory(name), m_innerRadius(rmin), m_outerRadius(rmax), m_length(length)
+                                                 double length,
+                                                 InDetDD::SCT_DetectorManager* detectorManager,
+                                                 const SCT_GeometryManager* geometryManager,
+                                                 SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_innerRadius(rmin), m_outerRadius(rmax), m_length(length)
 {
   getParameters();
   m_physVolume = build(); 
@@ -41,36 +45,36 @@ SCT_FwdCylinderServices::~SCT_FwdCylinderServices()
 void
 SCT_FwdCylinderServices::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
 
   // Retrieve parameters for each service    
   for (int iType = 0; iType < parameters->fwdNumCylinderServiceTypes(); iType++) {
-    if(parameters->fwdCylinderServiceName(iType) == "CoolingPipe") {
+    if (parameters->fwdCylinderServiceName(iType) == "CoolingPipe") {
       m_coolingDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_coolingRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_coolingMaterialName = parameters->fwdCylinderServiceMaterial(iType);
     }
-    if(parameters->fwdCylinderServiceName(iType) == "LMT") {
+    if (parameters->fwdCylinderServiceName(iType) == "LMT") {
       m_lmtDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_lmtRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_lmtMaterialName = parameters->fwdCylinderServiceMaterial(iType);
     }
-    if(parameters->fwdCylinderServiceName(iType) == "LMTCooling") {
+    if (parameters->fwdCylinderServiceName(iType) == "LMTCooling") {
       m_lmtCoolingDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_lmtCoolingRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_lmtCoolingMaterialName = parameters->fwdCylinderServiceMaterial(iType);
     }
-    if(parameters->fwdCylinderServiceName(iType) == "Fibres") {
+    if (parameters->fwdCylinderServiceName(iType) == "Fibres") {
       m_fibreDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_fibreRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_fibreMaterialName = parameters->fwdCylinderServiceMaterial(iType);
     }
-    if(parameters->fwdCylinderServiceName(iType) == "NPipe") {
+    if (parameters->fwdCylinderServiceName(iType) == "NPipe") {
       m_nPipeDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_nPipeRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_nPipeMaterialName = parameters->fwdCylinderServiceMaterial(iType);
     }
-    if(parameters->fwdCylinderServiceName(iType) == "Rail") {
+    if (parameters->fwdCylinderServiceName(iType) == "Rail") {
       m_railDeltaR = parameters->fwdCylinderServiceDeltaR(iType);
       m_railRPhi = parameters->fwdCylinderServiceRPhi(iType);
       m_railMaterialName = parameters->fwdCylinderServiceMaterial(iType);
@@ -79,22 +83,22 @@ SCT_FwdCylinderServices::getParameters()
 
   // Retrieve angles for each service
   for (int iLoc = 0; iLoc < parameters->fwdNumCylinderServiceLocs(); iLoc++) {
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "CoolingPipe") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "CoolingPipe") {
       m_coolingLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "LMT") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "LMT") {
       m_lmtLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "LMTCooling") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "LMTCooling") {
       m_lmtCoolingLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "Fibres") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "Fibres") {
       m_fibreLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "NPipe") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "NPipe") {
       m_nPipeLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
-    if(parameters->fwdCylinderServiceLocName(iLoc) == "Rail") {
+    if (parameters->fwdCylinderServiceLocName(iLoc) == "Rail") {
       m_railLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
     }
   }
@@ -110,9 +114,8 @@ SCT_FwdCylinderServices::build()
 {
 
   // Make envelope for the services
-  SCT_MaterialManager materials;
   const GeoTube * cylinderShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
-  const GeoLogVol * cylinderLog = new GeoLogVol(getName(), cylinderShape, materials.gasMaterial());
+  const GeoLogVol * cylinderLog = new GeoLogVol(getName(), cylinderShape, m_materials->gasMaterial());
   GeoPhysVol * cylinder = new GeoPhysVol(cylinderLog);
 
   // Create All Services
@@ -132,7 +135,7 @@ SCT_FwdCylinderServices::build()
   const GeoCons* coolingShape = new GeoCons(coolingRmin, coolingRmin, coolingRmax1, coolingRmax2, 
                                             0.5 * m_length, 
                                             -0.5 * coolingDPhi * Gaudi::Units::radian, coolingDPhi * Gaudi::Units::radian);
-  const GeoLogVol * coolingLog = new GeoLogVol("CoolingPipe", coolingShape, materials.getMaterialForVolume(m_coolingMaterialName, coolingShape->volume()));
+  const GeoLogVol * coolingLog = new GeoLogVol("CoolingPipe", coolingShape, m_materials->getMaterialForVolume(m_coolingMaterialName, coolingShape->volume()));
   GeoPhysVol * coolingPipe = new GeoPhysVol(coolingLog);
 
   // Low Mass Tapes
@@ -142,7 +145,7 @@ SCT_FwdCylinderServices::build()
   double lmtDPhi = m_lmtRPhi / lmtRmin;
   const GeoCons* lmtShape = new GeoCons(lmtRmin, lmtRmin, lmtRmax1, lmtRmax2, 0.5 * m_length, 
                                         -0.5 * lmtDPhi * Gaudi::Units::radian, lmtDPhi * Gaudi::Units::radian);
-  const GeoLogVol * lmtLog = new GeoLogVol("LMT", lmtShape, materials.getMaterialForVolume(m_lmtMaterialName,lmtShape->volume()));
+  const GeoLogVol * lmtLog = new GeoLogVol("LMT", lmtShape, m_materials->getMaterialForVolume(m_lmtMaterialName,lmtShape->volume()));
   GeoPhysVol * lmt = new GeoPhysVol(lmtLog);
 
   // LMT Cooling: must be outside LMTs
@@ -152,7 +155,7 @@ SCT_FwdCylinderServices::build()
   double lmtLength = m_length - 2. * m_lmtCoolingZOffset;
   const GeoTubs* lmtCoolingShape = new GeoTubs(lmtCoolingRmin, lmtCoolingRmax, 0.5 * lmtLength, 
                                                -0.5 * lmtCoolingDPhi * Gaudi::Units::radian, lmtCoolingDPhi * Gaudi::Units::radian);
-  const GeoLogVol * lmtCoolingLog = new GeoLogVol("LMTCooling", lmtCoolingShape, materials.getMaterialForVolume(m_lmtCoolingMaterialName,lmtCoolingShape->volume()));
+  const GeoLogVol * lmtCoolingLog = new GeoLogVol("LMTCooling", lmtCoolingShape, m_materials->getMaterialForVolume(m_lmtCoolingMaterialName,lmtCoolingShape->volume()));
   GeoPhysVol * lmtCooling = new GeoPhysVol(lmtCoolingLog);
 
   // Fibres
@@ -162,7 +165,7 @@ SCT_FwdCylinderServices::build()
   double fibreDPhi = m_fibreRPhi / fibreRmin;
   const GeoCons* fibreShape = new GeoCons(fibreRmin, fibreRmin, fibreRmax1, fibreRmax2, 0.5 * m_length,
                                           -0.5 * fibreDPhi * Gaudi::Units::radian, fibreDPhi * Gaudi::Units::radian);
-  const GeoLogVol * fibreLog = new GeoLogVol("Fibres", fibreShape, materials.getMaterialForVolume(m_fibreMaterialName,fibreShape->volume()));
+  const GeoLogVol * fibreLog = new GeoLogVol("Fibres", fibreShape, m_materials->getMaterialForVolume(m_fibreMaterialName,fibreShape->volume()));
   GeoPhysVol * fibres = new GeoPhysVol(fibreLog);
 
   // N2 Pipe
@@ -171,7 +174,7 @@ SCT_FwdCylinderServices::build()
   double nPipeDPhi = m_nPipeRPhi / nPipeRmin;
   const GeoTubs* nPipeShape = new GeoTubs(nPipeRmin, nPipeRmax, 0.5 * m_length, 
                                           -0.5 * nPipeDPhi * Gaudi::Units::radian, nPipeDPhi * Gaudi::Units::radian);
-  const GeoLogVol * nPipeLog = new GeoLogVol("NPipe", nPipeShape, materials.getMaterialForVolume(m_nPipeMaterialName,nPipeShape->volume()));
+  const GeoLogVol * nPipeLog = new GeoLogVol("NPipe", nPipeShape, m_materials->getMaterialForVolume(m_nPipeMaterialName,nPipeShape->volume()));
   GeoPhysVol * nPipe = new GeoPhysVol(nPipeLog);
 
   // Rails: must be outside Cooling and N2 Pipes
@@ -180,7 +183,7 @@ SCT_FwdCylinderServices::build()
   double railDPhi = m_railRPhi / railRmin;
   const GeoTubs* railShape = new GeoTubs(railRmin, railRmax,
                                          0.5 * m_length, -0.5 * railDPhi * Gaudi::Units::radian, railDPhi * Gaudi::Units::radian);
-  const GeoLogVol * railLog = new GeoLogVol("Rail", railShape, materials.getMaterialForVolume(m_railMaterialName,railShape->volume()));
+  const GeoLogVol * railLog = new GeoLogVol("Rail", railShape, m_materials->getMaterialForVolume(m_railMaterialName,railShape->volume()));
   GeoPhysVol * rail = new GeoPhysVol(railLog);
 
   // Services are repeated for each quadrant
@@ -228,4 +231,3 @@ SCT_FwdCylinderServices::build()
   return cylinder;
   
 }
-

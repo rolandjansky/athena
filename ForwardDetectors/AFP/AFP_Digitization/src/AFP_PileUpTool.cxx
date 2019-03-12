@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "AFP_Digitization/AFP_PileUpTool.h"
 #include <algorithm>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
@@ -17,7 +15,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-//#include "AFP_G4_SD/AFP_SensitiveDetector.h" 
 
 AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 			       const std::string& name,

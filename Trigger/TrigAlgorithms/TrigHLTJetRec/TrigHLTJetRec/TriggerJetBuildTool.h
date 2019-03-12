@@ -42,6 +42,7 @@ class TriggerJetBuildTool :
 
   // Set EDM inputs for jet finding
   virtual void prime(const xAOD::IParticleContainer*) override;
+  virtual void primeGhost(const xAOD::IParticleContainer*, std::string ghostlabel) override;
 
   virtual int build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
   

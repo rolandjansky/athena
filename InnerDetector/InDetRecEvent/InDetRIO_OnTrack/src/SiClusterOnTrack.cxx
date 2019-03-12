@@ -84,8 +84,16 @@ InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTr
 
 const Amg::Vector3D& InDet::SiClusterOnTrack::globalPosition() const
 { 
-   if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
-   return (*m_globalPosition);
+  if (m_globalPosition==nullptr) {
+    const Amg::Vector3D* expected{nullptr};
+    const Amg::Vector3D* desired{associatedSurface().localToGlobal(localParameters())};
+    if (not m_globalPosition.compare_exchange_strong(expected, desired)) {
+      // This happens if more than one threads try to set m_globalPosition.
+      delete desired;
+      desired = nullptr;
+    }
+  }
+ return (*m_globalPosition);
 }
 
 MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const

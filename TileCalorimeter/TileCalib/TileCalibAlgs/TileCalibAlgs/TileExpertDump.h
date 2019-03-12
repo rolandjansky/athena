@@ -24,8 +24,8 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "TileIdentifier/TileEmscaleCalibOptions.h"
+#include "TileConditions/TileExpertToolEmscale.h"
 
-class TileExpertToolEmscale;
 class TileHWID;
 
 /**
@@ -69,7 +69,8 @@ class TileExpertDump: public AthAlgorithm {
       "EventInfo", "EventInfo", "EventInfo key"};
 
     //=== non-property members
-    ToolHandle<TileExpertToolEmscale> m_tileExpertToolEmscale;
+    ToolHandle<TileExpertToolEmscale> m_tileExpertToolEmscale{this,
+      "TileExpertToolEmscale","TileExpertToolEmscale", "Tile expert tool em scale"};
 
     const TileHWID* m_tileHWID;
 };

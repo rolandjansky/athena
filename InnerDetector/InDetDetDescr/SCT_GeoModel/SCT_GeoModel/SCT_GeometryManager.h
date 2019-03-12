@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_GeometryManager_H
@@ -7,13 +7,16 @@
 
 #include "SCT_GeoModel/SCT_Options.h"
 
-namespace InDetDD{
+#include <memory>
+
+namespace InDetDD {
   class SiCommonItems;
   class DistortedMaterialManager;
 }
 
 class SCT_BarrelParameters;
 class SCT_BarrelModuleParameters;
+class SCT_DataBase;
 class SCT_ForwardParameters;
 class SCT_ForwardModuleParameters; 
 class SCT_GeneralParameters;
@@ -24,7 +27,7 @@ class SCT_GeometryManager {
 public:
 
   // Constructor 
-  SCT_GeometryManager();
+  SCT_GeometryManager(SCT_DataBase* rdb);
 
   // Destructor 
   ~SCT_GeometryManager();
@@ -35,11 +38,9 @@ public:
 
   // Access to athena components
   const SCT_GeoModelAthenaComps * athenaComps() const;
-  void setAthenaComps(const SCT_GeoModelAthenaComps * athenaComps);
 
   // To be passed to detector element.
-  InDetDD::SiCommonItems * commonItems() const;
-  void setCommonItems(InDetDD::SiCommonItems * commonItems); 
+  const InDetDD::SiCommonItems * commonItems() const;
 
   const SCT_BarrelParameters          * barrelParameters() const;
   const SCT_BarrelModuleParameters    * barrelModuleParameters() const;
@@ -56,13 +57,14 @@ private:
   SCT_Options m_options;
   const SCT_GeoModelAthenaComps * m_athenaComps;
   InDetDD::SiCommonItems * m_commonItems;
+  SCT_DataBase* m_rdb;
  
-  mutable const SCT_BarrelParameters          * m_barrelParameters;
-  mutable const SCT_BarrelModuleParameters    * m_barrelModuleParameters;
-  mutable const SCT_ForwardParameters         * m_forwardParameters;
-  mutable const SCT_ForwardModuleParameters   * m_forwardModuleParameters;
-  mutable const SCT_GeneralParameters         * m_generalParameters;
-  mutable const InDetDD::DistortedMaterialManager  * m_distortedMatManager;
+  std::unique_ptr<SCT_BarrelParameters> m_barrelParameters;
+  std::unique_ptr<SCT_BarrelModuleParameters> m_barrelModuleParameters;
+  std::unique_ptr<SCT_ForwardParameters> m_forwardParameters;
+  std::unique_ptr<SCT_ForwardModuleParameters> m_forwardModuleParameters;
+  std::unique_ptr<SCT_GeneralParameters> m_generalParameters;
+  std::unique_ptr<InDetDD::DistortedMaterialManager> m_distortedMatManager;
 
 };
 

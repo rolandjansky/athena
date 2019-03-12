@@ -70,9 +70,42 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->updateCaloIterators();
 	
       } else {
+	// TT EM PART
+	for(int sampling=0;sampling<4;sampling++){
 	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	}
+	cdv->setHasCalo(CaloCell_ID::LAREM);
+	// TT HEC PART
+	for(int sampling=0;sampling<4;sampling++){
+	LArTT_Selector<LArCellCont> sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTHEC, sampling, sel ));
+	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	}
+	cdv->setHasCalo(CaloCell_ID::LARHEC);
+	// TILE PART
+	for(int sampling=0;sampling<4;sampling++){
+	TileCellCollection sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
+	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	}
+	cdv->setHasCalo(CaloCell_ID::TILE);
+	// TT FCAL EM PART
+	{
+	LArTT_Selector<LArCellCont> sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALEM, 0, sel ));
+	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	}
+	cdv->setHasCalo(CaloCell_ID::LARFCAL);
+	// TT FCAL HAD PART
+	for(int sampling=0;sampling<2;sampling++){
+	LArTT_Selector<LArCellCont> sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALHAD, sampling, sel ));
+	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	}
+	cdv->setHasCalo(CaloCell_ID::LARFCAL);
+	cdv->updateCaloIterators();
       }
       ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
       auto ss = cellContainer.record( std::move(cdv) );
@@ -92,11 +125,44 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cellContainerV->push_back( c.release()->asDataVector() );
 		
       } else {
-	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
-	int cc(0);
-	for( const auto cell : sel ) {c->push_back( cell ); cc++;}
+
+        // TT EM PART
+        for(int sampling=0;sampling<4;sampling++){
+        LArTT_Selector<LArCellCont> sel;
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
+        for( const auto cell : sel ) {c->push_back( cell ); }
+        }
+        c->setHasCalo(CaloCell_ID::LAREM);
+        // TT HEC PART
+        for(int sampling=0;sampling<4;sampling++){
+        LArTT_Selector<LArCellCont> sel;
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTHEC, sampling, sel ));
+        for( const auto cell : sel ) {c->push_back( cell ); }
+        }
+        c->setHasCalo(CaloCell_ID::LARHEC);
+        // TILE PART
+        for(int sampling=0;sampling<4;sampling++){
+        TileCellCollection sel;
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
+        for( const auto cell : sel ) {c->push_back( cell ); }
+        }
+        c->setHasCalo(CaloCell_ID::TILE);
+        // TT FCAL EM PART
+        {
+        LArTT_Selector<LArCellCont> sel;
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALEM, 0, sel ));
+        for( const auto cell : sel ) {c->push_back( cell ); }
+        }
+        c->setHasCalo(CaloCell_ID::LARFCAL);
+        // TT FCAL HAD PART
+        for(int sampling=0;sampling<2;sampling++){
+        LArTT_Selector<LArCellCont> sel;
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALHAD, sampling, sel ));
+        for( const auto cell : sel ) {c->push_back( cell ); }
+        }
+        c->setHasCalo(CaloCell_ID::LARFCAL);
+        c->updateCaloIterators();
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }

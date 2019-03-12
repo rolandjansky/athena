@@ -71,7 +71,7 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                                       std::move(matcher));
 
   /* apply cleaning and hypothesis alg */
-  ATH_MSG_DEBUG("hypo helper start... "
+  ATH_MSG_DEBUG("hypo helper start... " << m_chainName
                 << " no of jets ... " 
                 << jets->size() 
                 << "...");
@@ -88,7 +88,7 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
 
   // accumulateTime(steady_clock::now() - t);
   
-  ATH_MSG_DEBUG("hypo testing done chain  "
+  ATH_MSG_DEBUG("hypo testing done chain  " << m_chainName
                 << " no of input jets " << jets->size()
                 << " pass " << pass );
   
@@ -144,12 +144,12 @@ void TrigJetHypoToolMT::writeDebug(bool pass,
                                        const HypoJetVector& passedJets,
                                        const HypoJetVector& failedJets
                                        ) const{
-  ATH_MSG_INFO("Writing debug start...");
+  ATH_MSG_INFO("Writing debug start" << m_chainName << "...");
   
   if(pass){
-    ATH_MSG_DEBUG(" event passed");
+    ATH_MSG_DEBUG(m_chainName<< " event passed");
   } else {
-    ATH_MSG_DEBUG(" event failed");
+    ATH_MSG_DEBUG(m_chainName<< " event failed");
   }
 
   for (auto j :  passedJets) {

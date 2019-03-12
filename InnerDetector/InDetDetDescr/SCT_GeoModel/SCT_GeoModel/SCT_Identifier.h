@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_IDENTIFIER_H
@@ -12,16 +12,18 @@ class SCT_Identifier
 {
 public:
 
-  SCT_Identifier(int barrelEC = 0,
+  SCT_Identifier(const SCT_ID* idHelper,
+                 int barrelEC = 0,
 		 int layerDisk = 0, 
 		 int phiModule = 0,
 		 int etaModule = 0,
 		 int side = 0)
-    : m_barrelEC(barrelEC), 
-      m_layerDisk(layerDisk), 
-      m_phiModule(phiModule), 
-      m_etaModule(etaModule), 
-      m_side(side)
+    : m_idHelper{idHelper},
+      m_barrelEC{barrelEC},
+      m_layerDisk{layerDisk},
+      m_phiModule{phiModule},
+      m_etaModule{etaModule},
+      m_side{side}
   {};
 
 
@@ -40,20 +42,18 @@ public:
   void setSide(int i) {m_side = i;}
   int  getSide() const {return m_side;}
 
-  static void setIdHelper(const SCT_ID * idHelper) {s_idHelper = idHelper;}
-
   Identifier getWaferId();
 
   // For debugging purposes.
   void print();
 
 private:
+  const SCT_ID* m_idHelper;
   int m_barrelEC;
   int m_layerDisk;
   int m_phiModule;
   int m_etaModule;
   int m_side;
-  static const SCT_ID * s_idHelper;
 };
 
 #endif // SCT_GEOMODEL_SCT_IDENTIFIER_H

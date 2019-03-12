@@ -19,7 +19,6 @@ namespace Trk
     static constexpr double INVALID=std::numeric_limits<double>::quiet_NaN();
     static constexpr double INVALID_P(10e9);
     static constexpr double INVALID_QOP(10e-9);
-    static const Amg::Vector2D INVALID_POSITION(INVALID,INVALID);
 
     template<typename T>
     int sgn(const T& val)
@@ -133,7 +132,7 @@ namespace Trk
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
     if(not ok)
-      lPosition = INVALID_POSITION;
+      lPosition = Amg::Vector2D (INVALID,INVALID);
 
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], momentum().phi(),
@@ -174,7 +173,7 @@ namespace Trk
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
     if (not ok)
-      lPosition = INVALID_POSITION;
+      lPosition = Amg::Vector2D (INVALID,INVALID);
     
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   

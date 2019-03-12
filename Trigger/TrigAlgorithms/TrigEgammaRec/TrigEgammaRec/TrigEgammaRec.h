@@ -86,6 +86,8 @@ private:
 
   ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder;
   ToolHandle<IEMConversionBuilder> m_conversionBuilder;
+
+
   ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
   ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool;
@@ -112,12 +114,13 @@ private:
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; 
   // booleans to run specific parts of offline reconstruction
   bool m_doConversions;
+  bool m_doBremCollection;
   bool m_doTrackMatching;
   bool m_doTrackIsolation;
   bool m_doCaloCellIsolation;
   bool m_doTopoIsolation;
   bool m_useBremAssoc;
-  
+    
   // Allows delete
   EgammaRecContainer *m_eg_container; 
   // needed for monitoring to work

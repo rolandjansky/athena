@@ -397,5 +397,5 @@ EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>>
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
 EventSelector        INFO skipping event 20
-EventSelector        INFO Disconnecting input sourceID: 1493FAFB-462F-434F-9DE6-5F15E2EDEC31
+EventSelector        INFO Disconnecting input sourceID: EC48B5A6-FBBA-994F-B8BD-88D3E055817A
 ReadData             INFO in finalize()

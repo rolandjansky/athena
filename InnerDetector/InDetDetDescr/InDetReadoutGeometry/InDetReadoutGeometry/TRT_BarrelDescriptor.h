@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,8 +10,9 @@
 
 #ifndef TRT_BarrelDescriptor_h
 #define TRT_BarrelDescriptor_h 1
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
+#include "CxxUtils/CachedUniquePtr.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoXF.h"
 #include <vector>
 
@@ -92,7 +93,7 @@ namespace InDetDD {
 
     protected:
       
-      virtual ~TRT_BarrelDescriptor();
+      virtual ~TRT_BarrelDescriptor() = default;
       
     private:
       
@@ -108,8 +109,7 @@ namespace InDetDD {
       const GeoXF::Function *m_f;
       size_t                 m_o;
 
-      mutable Trk::CylinderBounds * m_bounds;
-
+      CxxUtils::CachedUniquePtr<Trk::CylinderBounds> m_bounds;
     };
 }
 #include "TRT_BarrelDescriptor.icc"

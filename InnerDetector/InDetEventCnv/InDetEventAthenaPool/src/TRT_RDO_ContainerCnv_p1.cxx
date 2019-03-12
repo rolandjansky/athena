@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006 
@@ -58,7 +58,7 @@ namespace {
 }
 
 //================================================================
-void TRT_RDO_ContainerCnv_p1::transToPers(const TRT_RDO_Container* trans, TRT_RDO_Container_p1* pers, MsgStream &log) {
+void TRT_RDO_ContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_RDO_Container* trans, TRT_RDO_Container_p1* pers, MsgStream &log) {
   // Copy objects from InDetRawDataContainer collections to simple vector
 
   unsigned null_count(0);

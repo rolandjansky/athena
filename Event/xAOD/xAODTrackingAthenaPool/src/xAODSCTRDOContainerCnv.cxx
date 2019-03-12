@@ -38,7 +38,7 @@ xAODSCTRDOContainerCnv::createPersistent( xAOD::SCTRawHitValidationContainer* tr
 
 xAOD::SCTRawHitValidationContainer* xAODSCTRDOContainerCnv::createTransient() {
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "BC8CE35A-5785-4F97-82B6-1E4A21A8C28F" );
+   const pool::Guid v1_guid( "BC8CE35A-5785-4F97-82B6-1E4A21A8C28F" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

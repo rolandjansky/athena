@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Hybrid.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_Hybrid::SCT_Hybrid(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_Hybrid::SCT_Hybrid(const std::string & name,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManage,
+                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManage, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -25,10 +28,8 @@ SCT_Hybrid::SCT_Hybrid(const std::string & name)
 void
 SCT_Hybrid::getParameters() 
 {
-  const SCT_BarrelModuleParameters * parameters = geometryManager()->barrelModuleParameters();
-  SCT_MaterialManager materials;
- 
-  m_material  = materials.getMaterial(parameters->hybridMaterial());
+  const SCT_BarrelModuleParameters * parameters = m_geometryManager->barrelModuleParameters();
+  m_material  = m_materials->getMaterial(parameters->hybridMaterial());
   m_thickness = parameters->hybridThickness();
   m_length    = parameters->hybridLength();
   m_width     = parameters->hybridWidth();

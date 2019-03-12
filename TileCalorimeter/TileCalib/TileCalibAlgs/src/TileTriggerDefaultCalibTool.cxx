@@ -26,7 +26,6 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
 //for the extended CISpar
 #include "TileIdentifier/TileTBFrag.h"
 
@@ -55,7 +54,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_tileHWID(nullptr)
   , m_tileID(nullptr)
   , m_tileCablingService(nullptr)
-  , m_tileToolEmscale("TileCondToolEmscale")
   , m_DACvalue(0)
   , m_charge(0)
   , m_ipmt(0)
@@ -63,7 +61,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_ipmtOld(0)
   , m_nEvtGlobal()
   , m_TileTriggerContainerID("")
-  , m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools")
   //, m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   , m_BCID(0)
   , m_trigType(0)
@@ -74,7 +71,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   declareProperty("NtupleID", m_ntupleID="h3000");
   declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
   

@@ -43,12 +43,11 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_TRTHelper(nullptr),
   m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
   m_driftFunctionTool("TRT_DriftFunctionTool")  
 {
- declareInterface<ITRT_LocalOccupancy>(this);
   //declareProperty("isData", m_DATA = true);
  declareProperty("TRTStrawSummarySvc",   m_TRTStrawStatusSummarySvc);
  declareProperty("isTrigger",            m_isTrigger = false);

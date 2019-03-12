@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetMgrDetDescrCnv/CaloMgrDetDescrCnv.h"
@@ -134,7 +134,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // --- --- Create CaloDetDescrManager object --- ---
 
   // Cell volumes
-  CaloCellVolumes cellVol (serviceLocator());
+  CaloCellVolumes cellVol (serviceLocator(), cell_id);
 
   // geometry layout
   caloMgr->set_lar_geometry(cellVol.layout());

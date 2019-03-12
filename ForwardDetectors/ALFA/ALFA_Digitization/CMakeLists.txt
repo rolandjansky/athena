@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools
-                          Event/EventInfo
                           ForwardDetectors/ALFA/ALFA_RawEv
                           ForwardDetectors/ALFA/ALFA_SimEv
                           GaudiKernel
@@ -30,7 +29,7 @@ atlas_add_component( ALFA_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo ALFA_RawEv ALFA_SimEv GaudiKernel HitManagement Identifier GeneratorObjects PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib ALFA_RawEv ALFA_SimEv GaudiKernel HitManagement Identifier GeneratorObjects PathResolver )
 
 # Install files from the package:
 atlas_install_headers( ALFA_Digitization )

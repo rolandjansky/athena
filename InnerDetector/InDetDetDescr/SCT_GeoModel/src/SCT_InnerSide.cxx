@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -37,8 +37,11 @@
 
 #include <cmath>
 
-SCT_InnerSide::SCT_InnerSide(const std::string & name) 
-  : SCT_UniqueComponentFactory(name),
+SCT_InnerSide::SCT_InnerSide(const std::string & name,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_hybrid(0),
     m_sensor(0)
 {
@@ -61,8 +64,8 @@ SCT_InnerSide::~SCT_InnerSide()
 void
 SCT_InnerSide::getParameters()
 {
-  const SCT_BarrelModuleParameters       * parameters = geometryManager()->barrelModuleParameters();
-  const SCT_GeneralParameters     * generalParameters = geometryManager()->generalParameters();
+  const SCT_BarrelModuleParameters       * parameters = m_geometryManager->barrelModuleParameters();
+  const SCT_GeneralParameters     * generalParameters = m_geometryManager->generalParameters();
 
   m_safety           = generalParameters->safety();
   m_hybridOffsetZ    = parameters->hybridOffsetZ();
@@ -73,11 +76,9 @@ SCT_InnerSide::getParameters()
 const GeoLogVol * 
 SCT_InnerSide::preBuild()
 {
-  SCT_MaterialManager materials;
-
   // Create child components
-  m_sensor             = new SCT_Sensor("BRLSensor");
-  m_hybrid             = new SCT_Hybrid("Hybrid");
+  m_sensor             = new SCT_Sensor("BRLSensor", m_detectorManager, m_geometryManager, m_materials);
+  m_hybrid             = new SCT_Hybrid("Hybrid", m_detectorManager, m_geometryManager, m_materials);
 
   //
   // Define constants for convenience.
@@ -163,7 +164,7 @@ SCT_InnerSide::preBuild()
 
   const GeoLogVol * InnerSideEnvelopeLog = new GeoLogVol("InnerSideEnvelope",
                                                          &InnerSideEnvelopeShape,
-                                                         materials.gasMaterial());
+                                                         m_materials->gasMaterial());
   // 28th Mar S.Mima modified
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
   //m_thickness = 0.5*t_sensor + hybridPosX + 0.5*t_ise2;
@@ -178,7 +179,7 @@ SCT_InnerSide::preBuild()
 
 
 GeoVPhysVol * 
-SCT_InnerSide::build(SCT_Identifier id) const
+SCT_InnerSide::build(SCT_Identifier id)
 {
   GeoFullPhysVol * innerSide = new GeoFullPhysVol(m_logVolume);
 

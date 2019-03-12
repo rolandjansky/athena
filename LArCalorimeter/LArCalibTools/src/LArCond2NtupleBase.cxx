@@ -373,3 +373,10 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
  return connected;
 }
+
+
+const SG::ReadCondHandleKey<LArOnOffIdMapping>&
+LArCond2NtupleBase::cablingKey() const
+{
+  return m_cablingKey;
+}

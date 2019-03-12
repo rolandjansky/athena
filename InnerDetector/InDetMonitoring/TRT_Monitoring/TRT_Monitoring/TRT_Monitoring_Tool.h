@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_MONITORING_TOOL_H
@@ -12,7 +12,6 @@
 // Data handles
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
-#include "EventInfo/EventInfo.h"
 #include "CommissionEvent/ComTime.h"
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -158,7 +157,6 @@ private:
 	SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
 	// NOTE: this property is not used anywhere, is it ok to change its name?
 	SG::ReadHandleKey<TrackCollection> m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
-	SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo", "Name of EventInfo object"};
 	SG::ReadHandleKey<xAOD::EventInfo> m_xAODEventInfoKey{this, "xAODEventInfo", "EventInfo", "Name of EventInfo object"};
 	SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName", "TRT_BCID", "Name of TRT BCID collection"};
 	SG::ReadHandleKey<ComTime> m_comTimeObjectKey{this, "ComTimeObjectName", "TRT_Phase", "Name of ComTime object"};

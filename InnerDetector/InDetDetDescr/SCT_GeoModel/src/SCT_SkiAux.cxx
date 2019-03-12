@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -38,17 +38,18 @@ calcMinMaxRatioS(double xCenter, double yCenter,
                  double & minRatio, double & maxRatio);
 
 SCT_SkiAux::SCT_SkiAux(const std::string & name,
-                       const SCT_Ski * ski,
-                       // 14th Aug 2005 S.Mima modified.
-                       //const SCT_Bracket * bracket,
-                       const SCT_Bracket * bracket,
-                       const SCT_Harness * harness,
-                       const SCT_SkiPowerTape * skiPowerTape,
+                       SCT_Ski * ski,
+                       SCT_Bracket * bracket,
+                       SCT_Harness * harness,
+                       SCT_SkiPowerTape * skiPowerTape,
                        double innerRadius,
                        double bracketPhiOffset, 
                        double powerTapePhiOffset,
-                       double divisionAngle) :
-  SCT_SharedComponentFactory(name), 
+                       double divisionAngle,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials) :
+  SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
   m_innerRadius(innerRadius), 
   m_bracketPhiOffset(bracketPhiOffset),
   m_powerTapePhiOffset(powerTapePhiOffset),
@@ -169,12 +170,10 @@ SCT_SkiAux::build()
   // Length is same as power tape length
   m_length = m_skiPowerTape->length();
 
-
-  SCT_MaterialManager materials;
   const GeoTubs * skiAuxShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, 
                                             m_sectorStartAngle, m_sectorAngle);
   const GeoLogVol *skiAuxLog = 
-    new GeoLogVol(getName(), skiAuxShape, materials.gasMaterial());
+    new GeoLogVol(getName(), skiAuxShape, m_materials->gasMaterial());
   GeoPhysVol * skiAux = new GeoPhysVol(skiAuxLog);
   //  std::cout << "SCT_SkiAux: m_sectorStartAngle = " <<  m_sectorStartAngle
   //            << ", m_sectorAngle = " << m_sectorAngle << std::endl;

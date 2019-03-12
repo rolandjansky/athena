@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TGC_Digitization/TgcDigitizationTool.h"
+#include "TgcDigitizationTool.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/RNGWrapper.h"
@@ -17,10 +17,7 @@
 
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
-#include "TGC_Digitization/TgcDigitMaker.h"
-
-// for the tool
-//#include "GaudiKernel/IToolSvc.h"
+#include "TgcDigitMaker.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IPileUpTool.h" // for SubEventIterator

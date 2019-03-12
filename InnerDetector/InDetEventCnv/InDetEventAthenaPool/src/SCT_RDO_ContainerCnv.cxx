@@ -143,12 +143,12 @@ SCT_RDO_Container_PERS* SCT_RDO_ContainerCnv::createPersistent(SCT_RDO_Container
 //================================================================
 SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
 
-  static pool::Guid   p0_guid("B82A1D11-3F86-4F07-B380-B61BA2DAF3A9"); // with SCT1_RawData
-  static pool::Guid   TP1_guid("DA76970C-E019-43D2-B2F9-25660DCECD9D"); // for t/p separated version with InDetRawDataContainer_p1
-  static pool::Guid   SCT_TP1_guid("8E13963E-13E5-4D10-AA8B-73F00AFF8FA8"); // for t/p separated version with SCT_RawDataContainer_p1
-  static pool::Guid   SCT_TP2_guid("D1258125-2CBA-476E-8578-E09D54F477E1"); // for t/p separated version with SCT_RawDataContainer_p2
-  static pool::Guid   SCT_TP3_guid("5FBC8D4D-7B4D-433A-8487-0EA0C870CBDB"); // for t/p separated version with SCT_RawDataContainer_p3
-  static pool::Guid   SCT_TP4_guid("6C7540BE-E85C-4777-BC1C-A9FF11460F54"); // for t/p separated version with SCT_RawDataContainer_p4
+  const pool::Guid   p0_guid("B82A1D11-3F86-4F07-B380-B61BA2DAF3A9"); // with SCT1_RawData
+  const pool::Guid   TP1_guid("DA76970C-E019-43D2-B2F9-25660DCECD9D"); // for t/p separated version with InDetRawDataContainer_p1
+  const pool::Guid   SCT_TP1_guid("8E13963E-13E5-4D10-AA8B-73F00AFF8FA8"); // for t/p separated version with SCT_RawDataContainer_p1
+  const pool::Guid   SCT_TP2_guid("D1258125-2CBA-476E-8578-E09D54F477E1"); // for t/p separated version with SCT_RawDataContainer_p2
+  const pool::Guid   SCT_TP3_guid("5FBC8D4D-7B4D-433A-8487-0EA0C870CBDB"); // for t/p separated version with SCT_RawDataContainer_p3
+  const pool::Guid   SCT_TP4_guid("6C7540BE-E85C-4777-BC1C-A9FF11460F54"); // for t/p separated version with SCT_RawDataContainer_p4
 
 #ifdef SCT_DEBUG
   ATH_MSG_DEBUG("createTransient(): main converter");

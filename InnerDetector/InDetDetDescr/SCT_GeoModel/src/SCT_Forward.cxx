@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Forward.h"
@@ -13,7 +13,6 @@
 #include "SCT_GeoModel/SCT_FwdWheel.h"
 #include "SCT_GeoModel/SCT_FwdModule.h"
 #include "SCT_GeoModel/SCT_FwdRing.h"
-#include "SCT_GeoModel/SCT_FwdRingCooling.h"
 #include "SCT_GeoModel/SCT_FwdSupportFrame.h"
 #include "SCT_GeoModel/SCT_FwdCoolingPipe.h"
 #include "SCT_GeoModel/SCT_FwdPowerTape.h"
@@ -37,8 +36,11 @@
 #include <sstream>
 #include <cmath>
 
-SCT_Forward::SCT_Forward(const std::string & name, int ec)
-  : SCT_UniqueComponentFactory(name), 
+SCT_Forward::SCT_Forward(const std::string & name, int ec,
+                         InDetDD::SCT_DetectorManager* detectorManager,
+                         const SCT_GeometryManager* geometryManager,
+                         SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_endcap(ec)
 {
   getParameters();
@@ -55,8 +57,8 @@ void
 SCT_Forward::getParameters()
 {
 
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
-  const SCT_ForwardModuleParameters * moduleParameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
+  const SCT_ForwardModuleParameters * moduleParameters = m_geometryManager->forwardModuleParameters();
     
   //m_numRingTypes = parameters->fwdNumRingTypes();
   m_numModuleTypes = moduleParameters->fwdModuleNumTypes();
@@ -84,7 +86,7 @@ SCT_Forward::getParameters()
 
 
   // Set numerology
-  detectorManager()->numerology().setNumDisks(m_numWheels);
+  m_detectorManager->numerology().setNumDisks(m_numWheels);
 
 
 }
@@ -98,35 +100,36 @@ SCT_Forward::preBuild()
 
   // We make all the module types here. There is a outer, middle, truncated middle and inner type module.
   for (int iModuleType = 0; iModuleType < m_numModuleTypes; iModuleType++){
-    m_modules.push_back(new SCT_FwdModule("FwdModule"+intToString(iModuleType), iModuleType));
+    m_modules.push_back(new SCT_FwdModule("FwdModule"+intToString(iModuleType), iModuleType,
+                                          m_detectorManager, m_geometryManager, m_materials));
   }
 
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
     // Build Wheels
     std::ostringstream name; name << "Wheel" << iWheel << ((m_endcap > 0) ? "A" : "C");
-    const SCT_FwdWheel * wheel = new SCT_FwdWheel(name.str(), iWheel, m_modules, m_endcap);
+    SCT_FwdWheel * wheel = new SCT_FwdWheel(name.str(), iWheel, m_modules, m_endcap,
+                                            m_detectorManager, m_geometryManager, m_materials);
     m_wheels.push_back(wheel);
   }
 
 
   // Make one end of the Forward tracker
   //  Tube envelope containing the forward
-  SCT_MaterialManager materials;
   const GeoTube * forwardEnvelopeShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
   const GeoLogVol * forwardLog = 
-    new GeoLogVol(getName(), forwardEnvelopeShape, materials.gasMaterial());
+    new GeoLogVol(getName(), forwardEnvelopeShape, m_materials->gasMaterial());
   
   return forwardLog;
 }
 
 GeoVPhysVol * 
-SCT_Forward::build(SCT_Identifier id) const
+SCT_Forward::build(SCT_Identifier id)
 {
   GeoFullPhysVol * forward = new GeoFullPhysVol(m_logVolume);
 
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
 
-    const SCT_FwdWheel * wheel = m_wheels[iWheel];
+    SCT_FwdWheel * wheel = m_wheels[iWheel];
     std::ostringstream wheelName; wheelName << "Wheel#" << iWheel;
     double zpos = wheel->zPosition() - zCenter();
     forward->add(new GeoNameTag(wheelName.str()));
@@ -138,13 +141,13 @@ SCT_Forward::build(SCT_Identifier id) const
     forward->add(wheelPV);
 
     // Store the alignable transform
-    detectorManager()->addAlignableTransform(2, id.getWaferId(), transform, wheelPV);
+    m_detectorManager->addAlignableTransform(2, id.getWaferId(), transform, wheelPV);
   }
 
   //
   // Place SupportFrame
   //
-  SCT_FwdSupportFrame supportFrame("SupportFrame");
+  SCT_FwdSupportFrame supportFrame("SupportFrame", m_detectorManager, m_geometryManager, m_materials);
   double supportFrameZPos = supportFrame.zPosition() - zCenter();
   forward->add(new GeoTransform(GeoTrf::TranslateZ3D(supportFrameZPos)));
   forward->add(supportFrame.getVolume());
@@ -157,7 +160,8 @@ SCT_Forward::build(SCT_Identifier id) const
     SCT_FwdCylinderServices cylinderServices("CylinderServices",
                                              supportFrame.outerRadius(),
                                              m_outerRadiusCylinderServices,
-                                             supportFrame.length());
+                                             supportFrame.length(),
+                                             m_detectorManager, m_geometryManager, m_materials);
     forward->add(new GeoTransform(GeoTrf::TranslateZ3D(supportFrameZPos)));
     forward->add(cylinderServices.getVolume());
 
@@ -188,7 +192,8 @@ SCT_Forward::build(SCT_Identifier id) const
     
         // Label Cooling pipe with W# at end of string  
         SCT_FwdCoolingPipe coolingPipe("OffDiskCoolingPipeW"+intToString(iWheel),
-                                       numPipes, rStart, startPos, endPos);  
+                                       numPipes, rStart, startPos, endPos,
+                                       m_detectorManager, m_geometryManager, m_materials);
       
         // Place the cooling pipes
         double coolingPipeZPos = coolingPipe.zPosition() - zCenter();
@@ -227,7 +232,8 @@ SCT_Forward::build(SCT_Identifier id) const
 
         // Label power tape with W# at end of string  
         SCT_FwdPowerTape powerTape("OffDiskPowerTapeW"+intToString(iWheel),
-                                   numModules, rStart, startPos, endPos);
+                                   numModules, rStart, startPos, endPos,
+                                   m_detectorManager, m_geometryManager, m_materials);
 
         // Place Power Tapes
         double powerTapeZPos = powerTape.zPosition() - zCenter();
@@ -245,14 +251,14 @@ SCT_Forward::build(SCT_Identifier id) const
   //
   for (int iElement = 0; iElement < m_numThermalShieldElements; iElement++){
     SCT_FwdThermalShieldElement thermalShieldElement("FwdThermalShieldElement"+intToString(iElement),
-                                                     iElement);
+                                                     iElement, m_detectorManager, m_geometryManager, m_materials);
     double elementZPos = thermalShieldElement.zPosition() - zCenter();
     forward->add(new GeoTransform(GeoTrf::TranslateZ3D(elementZPos)));
     forward->add(thermalShieldElement.getVolume());
   }
 
   // Extra Material
-  InDetDD::ExtraMaterial xMat(geometryManager()->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_geometryManager->distortedMatManager());
   xMat.add(forward, "SCTEndcap", zCenter());
   if (m_endcap > 0) {
     xMat.add(forward, "SCTEndcapA", zCenter());

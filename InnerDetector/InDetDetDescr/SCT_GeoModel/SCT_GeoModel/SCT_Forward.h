@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FORWARD_H
@@ -17,7 +17,10 @@ class SCT_Forward : public SCT_UniqueComponentFactory
 
 public:
   
-  SCT_Forward(const std::string & name, int ec);
+  SCT_Forward(const std::string & name, int ec,
+              InDetDD::SCT_DetectorManager* detectorManager,
+              const SCT_GeometryManager* geometryManager,
+              SCT_MaterialManager* materials);
   ~SCT_Forward();
 
   //
@@ -40,7 +43,7 @@ public:
   double length() const {return m_length;}
   double zCenter() const {return 0.5*(m_zMin+m_zMax);}
 
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
 
 
  
@@ -66,9 +69,9 @@ private:
   double m_outerRadiusCylinderServices;
 
   // Child detector elements
-  std::vector <const SCT_FwdWheel *> m_wheels;
+  std::vector <SCT_FwdWheel *> m_wheels;
 
-  std::vector <const SCT_FwdModule *> m_modules;
+  std::vector <SCT_FwdModule *> m_modules;
   
 };
 

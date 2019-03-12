@@ -7,6 +7,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
+
+
 ## def jetFSInputMaker( ):
 ##   """ Creates the jet inputMaker for FS"""
 ##   RoIs = jetCollections.L1RoIs

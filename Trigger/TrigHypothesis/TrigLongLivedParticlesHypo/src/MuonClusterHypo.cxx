@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -122,7 +122,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
         for(const xAOD::TrigComposite * compObj : *compCont) {
             if(msgLvl() <= MSG::DEBUG) {
-                msg() << MSG::DEBUG << "TrigComposite ptr = " << (void*)compObj << endmsg;
+                msg() << MSG::DEBUG << "TrigComposite ptr = " << (const void*)compObj << endmsg;
             }
             for(const std::string & collName : compObj->linkColNames()) {
                 if(msgLvl() <= MSG::DEBUG) {

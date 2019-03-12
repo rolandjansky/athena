@@ -15,11 +15,19 @@ class AtlasDetectorID;
 
 // Message Stream Member
 #include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "CxxUtils/checker_macros.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
-#include "InDetCondTools/ISiLorentzAngleTool.h"
+
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "CLHEP/Geometry/Transform3D.h"
+
+#include <mutex>
+
+// mutable Athena::MsgStreamMember issues warnings.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDetDD {
 
@@ -59,9 +67,10 @@ namespace InDetDD {
           mutable Athena::MsgStreamMember m_msg;
           
           const AtlasDetectorID* m_idHelper; 
-          mutable HepGeom::Transform3D m_solenoidFrame;
+          mutable HepGeom::Transform3D m_solenoidFrame ATLAS_THREAD_SAFE; // Guarded by m_mutex
           const ISiLorentzAngleTool *m_lorentzAngleTool;
-        
+
+          mutable std::mutex m_mutex;
     };
     
     
@@ -73,7 +82,10 @@ namespace InDetDD {
     
     inline const HepGeom::Transform3D & SiCommonItems::solenoidFrame() const
     {
+      std::lock_guard<std::mutex> lock{m_mutex};
       return m_solenoidFrame;
+      // This reference might be changed by setSolenoidFrame.
+      // However, it occurrs very rarely.
     }
     
     

@@ -36,7 +36,7 @@ class RT_Relation_DigiTool : public AthAlgTool,
 
   virtual MdtDigiToolOutput digitize(const MdtDigiToolInput& input,CLHEP::HepRandomEngine *rndmEngine) override final;
   
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   bool initializeTube();
 

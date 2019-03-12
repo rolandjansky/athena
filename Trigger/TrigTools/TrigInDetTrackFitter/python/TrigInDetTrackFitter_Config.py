@@ -68,7 +68,7 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         
         # SiLorentzAngleTool
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
         if InDetTrigFlags.doCommissioning() :

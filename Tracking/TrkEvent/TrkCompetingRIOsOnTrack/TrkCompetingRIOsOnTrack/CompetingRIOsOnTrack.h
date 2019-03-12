@@ -113,7 +113,7 @@ protected:
     mutable std::atomic_uint m_indexMaxAssignProb;
 
     //! assignment probabilities of the ROTs
-    mutable std::atomic<const std::vector<AssignmentProb>*> m_assignProb;
+    const std::vector<AssignmentProb>* m_assignProb;
 
     //! used to flag that the m_indexMaxAssignProb hasn't been calculated yet
     bool                            m_maxProbCalculated;
@@ -134,7 +134,7 @@ protected:
 inline CompetingRIOsOnTrack::AssignmentProb CompetingRIOsOnTrack::assignmentProbability(unsigned int indx) const {
     assert ( indx < numberOfContainedROTs() );
     if (indx < numberOfContainedROTs() )
-        return m_assignProb.load()->operator[](indx);
+        return m_assignProb->operator[](indx);
     return 0; // could consider throwing an exception here - EJWM
 }
 

@@ -25,7 +25,6 @@ class LArOFCBinAlg: public LArCond2NtupleBase {
 
 
  private:
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   std::string m_inputContainer;
   std::string m_outputContainer;
   std::string m_fileName;

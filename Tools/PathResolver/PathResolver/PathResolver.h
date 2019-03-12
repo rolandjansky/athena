@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PATHRESOLVER_PATHRESOLVER_H
@@ -8,6 +8,7 @@
 #include "AsgTools/AsgMessaging.h"
 
 #include <string>
+#include <atomic>
 
 
 class PathResolver
@@ -113,9 +114,7 @@ public:
          std::string& result );
 
 
-       static bool m_setLevel; //flag to say if the msg level has been set. This is so we can default to info
-
-
+       static std::atomic<MSG::Level> m_level;
 
        static bool msgLvl( const MSG::Level lvl ) { return asgMsg().msgLvl(lvl); }
        static MsgStream& msg() { return asgMsg().msg(); }
