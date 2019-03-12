@@ -53,9 +53,6 @@ class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   //@}
 
  private:
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_evtStore;
-
   const SCT_ID* m_pSCTHelper;
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;

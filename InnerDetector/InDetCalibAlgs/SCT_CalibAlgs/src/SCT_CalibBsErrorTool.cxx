@@ -37,9 +37,7 @@ static const int lastBSErrorType{14};
 
 SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_detStore{"DetectorStore", name},
-  m_evtStore{"StoreGateSvc", name},
-  m_pSCTHelper{0},
+  m_pSCTHelper{nullptr},
   m_scterr_bec{0},
   m_scterr_layer{0},
   m_scterr_eta{0},
@@ -53,7 +51,7 @@ SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::s
 StatusCode
 SCT_CalibBsErrorTool::initialize() {
   ATH_CHECK(service("THistSvc", m_thistSvc));
-  ATH_CHECK(m_detStore->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   ATH_CHECK(m_bytestreamErrorsTool.retrieve());
 
   m_maxHash = m_pSCTHelper->wafer_hash_max();
@@ -85,13 +83,15 @@ SCT_CalibBsErrorTool::book() {
   SCT_ID::const_id_iterator waferItrE{m_waferItrEnd};
   for (; waferItr not_eq waferItrE; ++waferItr) {
     Identifier waferId{*waferItr};
-    const int bec{m_pSCTHelper->barrel_ec( waferId )};
+    const int bec{m_pSCTHelper->barrel_ec(waferId)};
     const string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
     std::string histotitle{string{"SCT "} + detectorNames[bec2Index(bec)] + string{" BSErrors : plane "} + formattedPosition};
     const std::string name{pathRoot+detectorPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition};
     TH1F* hitmapHisto_tmp{new TH1F{TString{formattedPosition}, TString{histotitle}, n_BSErrorType, firstBSErrorType-0.5, lastBSErrorType+0.5}};
-    if (m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure()) ATH_MSG_ERROR("Error in booking BSErrors histogram");
-    m_phistoVector.push_back( hitmapHisto_tmp );
+    if (m_thistSvc->regHist(name.c_str(), hitmapHisto_tmp).isFailure()) {
+      ATH_MSG_ERROR("Error in booking BSErrors histogram");
+    }
+    m_phistoVector.push_back(hitmapHisto_tmp);
   }
   return result;
 }

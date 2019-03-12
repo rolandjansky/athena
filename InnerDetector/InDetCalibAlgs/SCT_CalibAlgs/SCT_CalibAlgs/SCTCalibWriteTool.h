@@ -64,14 +64,6 @@ public:
   static const InterfaceID& interfaceID();
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-  ///Manually get the data in the structure before proceding
-  virtual StatusCode fillData();
-
-  //I'm going to fill this from job options, so the callback version of fillData is not needed.
-  virtual StatusCode fillData(int& /*i */, std::list<std::string>& /*l*/) { //comment out unused parameters to prevent compiler warning
-    return StatusCode::FAILURE;
-  }
-
   std::string
   addDefect(const std::string& defectlist,const int defectBeginChannel,const int defectEndChannel) const;
 
@@ -82,36 +74,36 @@ public:
   createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
   StatusCode
-  createCondObjects( const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const std::string& defectType,const float threshold,const std::string& defectList ) const;
+  createCondObjects(const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
 
-  StatusCode createListStrip( const Identifier& wafer_id,
-                              const SCT_ID* m_sctId,
-                              const int samplesize,
-                              const std::string& defectType,
-                              const float threshold,
-                              const std::string& defectList ) const;
-
-  StatusCode createListChip( const Identifier& wafer_id,
+  StatusCode createListStrip(const Identifier& wafer_id,
                              const SCT_ID* m_sctId,
                              const int samplesize,
                              const std::string& defectType,
                              const float threshold,
-                             const std::string& defectList ) const;
+                             const std::string& defectList) const;
 
-  StatusCode createListEff( const Identifier& wafer_id,
+  StatusCode createListChip(const Identifier& wafer_id,
                             const SCT_ID* m_sctId,
                             const int samplesize,
-                            const float eff ) const;
+                            const std::string& defectType,
+                            const float threshold,
+                            const std::string& defectList) const;
 
-  StatusCode createListNO( const Identifier& wafer_id,
+  StatusCode createListEff(const Identifier& wafer_id,
                            const SCT_ID* m_sctId,
                            const int samplesize,
-                           const float noise_occ ) const;
+                           const float eff) const;
 
-  StatusCode createListRawOccu( const Identifier& wafer_id,
-                                const SCT_ID* m_sctId,
-                                const int samplesize,
-                                const float raw_occu ) const;
+  StatusCode createListNO(const Identifier& wafer_id,
+                          const SCT_ID* m_sctId,
+                          const int samplesize,
+                          const float noise_occ) const;
+
+  StatusCode createListRawOccu(const Identifier& wafer_id,
+                               const SCT_ID* m_sctId,
+                               const int samplesize,
+                               const float raw_occu) const;
 
   StatusCode createListBSErr(const Identifier& wafer_id,
                              const SCT_ID* m_sctId,
@@ -133,7 +125,7 @@ public:
                           const float fitParam_sigma,
                           const float err_sigma,
                           const float MCW,
-                          const float err_MCW ) const;
+                          const float err_MCW) const;
 
   StatusCode wrapUpNoisyChannel();
   StatusCode wrapUpDeadStrips();
@@ -147,15 +139,14 @@ public:
 private:
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
-  StatusCode registerIOV(const CLID& clid);
   int stringToInt(const std::string& s) const;
 
   StatusCode streamOutCondObjects(const std::string& foldername);
   StatusCode streamOutCondObjectsWithErrMsg(const std::string& foldername);
 
-  StatusCode registerCondObjects(const std::string& foldername,const std::string& tagname);
+  StatusCode registerCondObjects(const std::string& foldername,const std::string& tagname) const;
   StatusCode recordAndStream(const CondAttrListCollection* pCollection,const std::string& foldername, bool& flag);
-  StatusCode registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname);
+  StatusCode registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) const;
 
   coral::AttributeListSpecification* createBasicDbSpec(const bool capsFormat) const;
   void setBasicValues(coral::AttributeList& attrList, const Identifier& wafer_id, const int samplesize,const SCT_ID* m_sctId, const bool capsFormat) const;
@@ -208,7 +199,6 @@ private:
   IIOVRegistrationSvc*         m_regSvc;
   IAthenaOutputStreamTool*     m_streamer;
 
-  std::set<Identifier>         m_badIds;
   bool                         m_defectRecorded;
   bool                         m_deadStripRecorded;
   bool                         m_deadChipRecorded;

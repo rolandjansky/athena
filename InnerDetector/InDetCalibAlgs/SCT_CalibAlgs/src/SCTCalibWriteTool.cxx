@@ -59,30 +59,17 @@ SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string&
   AthAlgTool(type, name, parent),
   m_eventInfoKey{"ByteStreamEventInfo"},
   m_mutex{},
-  m_attrListColl{0},
-  m_attrListColl_deadStrip{0},
-  m_attrListColl_deadChip{0},
-  m_attrListColl_eff{0},
-  m_attrListColl_no{0},
-  m_attrListColl_RawOccu{0},
-  m_attrListColl_BSErr{0},
-  m_attrListColl_LA{0},
-  //boolean properties
-  m_writeCondObjs{true},
-  m_regIOV{true},
-  m_readWriteCool{true},
-  m_twoStepWriteReg{false},
-  m_manualiov{true},
-
+  m_attrListColl{nullptr},
+  m_attrListColl_deadStrip{nullptr},
+  m_attrListColl_deadChip{nullptr},
+  m_attrListColl_eff{nullptr},
+  m_attrListColl_no{nullptr},
+  m_attrListColl_RawOccu{nullptr},
+  m_attrListColl_BSErr{nullptr},
+  m_attrListColl_LA{nullptr},
   m_version{0},
-  m_beginRun{IOVTime::MINRUN},
-  m_endRun{IOVTime::MAXRUN},
-  m_streamName{"CondStreamTest"},
-
-  m_regSvc{0},
-  m_streamer{0},
-  m_badIds{},
-
+  m_regSvc{nullptr},
+  m_streamer{nullptr},
   m_defectRecorded{false},
   m_deadStripRecorded{false},
   m_deadChipRecorded{false},
@@ -91,18 +78,18 @@ SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string&
   m_RawOccuRecorded{false},
   m_BSErrRecorded{false},
   m_LARecorded{false},
-  m_pHelper{0}
+  m_pHelper{nullptr}
   {
-    declareProperty("WriteCondObjs",        m_writeCondObjs);
-    declareProperty("RegisterIOV",          m_regIOV);
-    declareProperty("ReadWriteCool",        m_readWriteCool);
-    declareProperty("TwoStepWriteReg",      m_twoStepWriteReg);
-    declareProperty("ManualIOV",            m_manualiov);
+    declareProperty("WriteCondObjs",        m_writeCondObjs=true);
+    declareProperty("RegisterIOV",          m_regIOV=true);
+    declareProperty("ReadWriteCool",        m_readWriteCool=true);
+    declareProperty("TwoStepWriteReg",      m_twoStepWriteReg=false);
+    declareProperty("ManualIOV",            m_manualiov=true);
 
-    declareProperty("BeginRun",             m_beginRun);
-    declareProperty("EndRun",               m_endRun);
+    declareProperty("BeginRun",             m_beginRun=IOVTime::MINRUN);
+    declareProperty("EndRun",               m_endRun=IOVTime::MAXRUN);
     //string properties:
-    declareProperty("StreamName",           m_streamName);
+    declareProperty("StreamName",           m_streamName="CondStreamTest");
     declareProperty("TagID4NoisyStrips",    m_tagID4NoisyStrips);
     declareProperty("TagID4DeadStrips",     m_tagID4DeadStrips);
     declareProperty("TagID4DeadChips",      m_tagID4DeadChips);
@@ -183,12 +170,6 @@ SCTCalibWriteTool::computeIstrip4moncond(const Identifier& elementId) const {
   unsigned int iiside{static_cast<unsigned int>(m_pHelper->side(elementId))};
   unsigned int iistrip{static_cast<unsigned int>(m_pHelper->strip(elementId))};
   return 768*iiside + iistrip;
-}
-
-StatusCode
-SCTCalibWriteTool::fillData() {
-  // this is a dummy function
-  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -586,7 +567,7 @@ SCTCalibWriteTool::wrapUpNoiseOccupancy() {
 StatusCode 
 SCTCalibWriteTool::wrapUpRawOccupancy() {
   if (recordAndStream(m_attrListColl_RawOccu, s_RawOccuFolderName, m_RawOccuRecorded).isFailure()) return StatusCode::FAILURE;
-  if( registerCondObjectsWithErrMsg(s_RawOccuFolderName, m_tagID4RawOccupancy).isFailure()) return StatusCode::FAILURE;
+  if (registerCondObjectsWithErrMsg(s_RawOccuFolderName, m_tagID4RawOccupancy).isFailure()) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -649,7 +630,7 @@ SCTCalibWriteTool::streamOutCondObjectsWithErrMsg(const std::string& foldername)
 ///////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::string& tagname) {
+SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::string& tagname) const {
   // Register the IOV DB with the conditions data written out
   if (m_readWriteCool) {
     // Can only write out AttrList's if this is NOT write and reg in two steps
@@ -696,7 +677,7 @@ SCTCalibWriteTool::registerCondObjects(const std::string& foldername,const std::
 ///////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) {
+SCTCalibWriteTool::registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) const {
   if (m_regIOV) {
     if (registerCondObjects(foldername,tagname).isFailure()) {
       ATH_MSG_ERROR("Could not register " << foldername);

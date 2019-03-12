@@ -79,7 +79,7 @@ ISCT_CalibHistoTool::setNumberOfLb(const int nLb) {
 }
 
 int
-ISCT_CalibHistoTool::numberOfLb() {
+ISCT_CalibHistoTool::numberOfLb() const {
   return m_nLb;
 }
 
@@ -89,6 +89,6 @@ ISCT_CalibHistoTool::setLbToMerge(const int nLbMerge) {
 }
 
 int
-ISCT_CalibHistoTool::LbToMerge() {
+ISCT_CalibHistoTool::LbToMerge() const {
   return m_nLbMerge;
 }
