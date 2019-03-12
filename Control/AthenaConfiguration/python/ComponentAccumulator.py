@@ -592,6 +592,7 @@ class ComponentAccumulator(object):
     def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
+        self._isMergable = True # this is CA we store, it is ok it is not mergable
         if useBootStrapFile:
             import glob
             # first load basics from the bootstrap-pickle
@@ -843,6 +844,27 @@ class ComponentAccumulator(object):
         sc1 = app.terminate()
         return sc1
 
+    def foreach_component(self, path):
+        """ Utility to set properties of components using wildcards
+        
+        Example:
+        forcomps(ca, "*/HLTTop/*/*Hypo*").OutputLevel=VERBOSE
+        
+        The compoments name & locations in the CF tree are translated into the unix like path. 
+        Components of matching path are taken under consideration in setting the property.
+        If the property is set succesfully an INFO message is printed. Else, a warning is printed.      
+        
+        The convention for path of nested components is as follows:
+        Sequencer - only the name is used in the path
+        Algorithm - full name - type/instance_name (aka full name) is used
+        PrivateTools - the name of the property + the type/instance_name are added
+        PublicTools - are located under ToolSvc/ and type/instance_name is used
+        Services - located under SvcMgr/ and type/instance_name is used
+        """
+        from AthenaConfiguration.PropSetterProxy import PropSetterProxy
+        self._isMergable=False
+        return PropSetterProxy(self, path)
+
 
 
 def CAtoGlobalWrapper(cfgmethod,flags):
@@ -852,94 +874,3 @@ def CAtoGlobalWrapper(cfgmethod,flags):
 
      result.appendToGlobals()
      return
-
-
-class PropSetterProxy(object):
-   __compPaths = {}
-   __scannedCA = None
-
-   def __init__(self, ca, path):      
-      self.__path = path
-      self.__findComponents( ca )
-
-      
-   def __setattr__(self, name, value):
-       if name.startswith("_PropSetterProxy"):
-           return super(PropSetterProxy, self).__setattr__(name, value)
-       
-       msg = logging.getLogger('foreach_component')
-       import fnmatch
-       for component_path, component in PropSetterProxy.__compPaths.iteritems():
-           if fnmatch.fnmatch( component_path, self.__path ):
-               if name in component.getProperties():
-                   try:
-                       setattr( component, name, value )
-                       msg.debug( "Set property: %s to value %s of component %s because it matched %s " % ( name, str(value), component_path, self.__path )   )
-                   except Exception, ex:
-                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s" % ( name, str(value), component_path, self.__path, str(ex) )   )
-                       pass
-               else:
-                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s" % ( name, component_path, self.__path )   )
-
-
-   def __findComponents(self, ca):
-       if ca is not PropSetterProxy.__scannedCA:
-           PropSetterProxy.__scannedCA = ca
-           PropSetterProxy.__compPaths = {}
-           def __add(path, comp):
-               if comp.getName() == "":
-                   return
-               PropSetterProxy.__compPaths[ path ] = comp
-
-
-           for svc in ca._services:
-               PropSetterProxy.__compPaths['SvcMgr/'+svc.getFullName()] = svc
-           for t in ca._publicTools:
-               PropSetterProxy.__compPaths['ToolSvc/'+t.getFullName()] = t
-           
-           def __nestAlg(startpath, comp): # it actually dives inside the algorithms and (sub) tools               
-               if comp.getName() == "":
-                   return
-               for name, value in comp.getProperties().iteritems():
-                   if isinstance( value, ConfigurableAlgTool ) or isinstance( value, PrivateToolHandle ):
-                       __add( startpath+"/"+name+"/"+value.getFullName(), value )
-                       __nestAlg( startpath+"/"+name+"/"+value.getName(), value )
-                   if isinstance( value, PrivateToolHandleArray):
-                       for toolIndex,t in enumerate(value):
-                           __add( startpath+"/"+name+"/"+t.getFullName(), t )
-                           __nestAlg( startpath+"/"+name+"/"+t.getName(), value[toolIndex] )
-                           
-               
-           def __nestSeq( startpath, seq ):
-               for c in seq.getChildren():
-                   if isSequence(c):
-                       __nestSeq( startpath+"/"+c.getName(), c )                       
-                   else: # the algorithm or tool
-                       __add( startpath+"/"+c.getFullName(),  c )
-                       __nestAlg( startpath+"/"+c.getFullName(), c )
-
-           __nestSeq("", ca._sequence)
-            
-            
-def foreach_component(componentAccumulator, path):
-   """ Utility to set properties of components using wildcards
-   
-   Example:
-   forcomps(ca, "*/HLTTop/*/*Hypo*").OutputLevel=VERBOSE
-      
-   The compoments name & locations in the CF tree are translated into the unix like path. 
-   Components of matching path are taken under consideration in setting the property.
-   If the property is set succesfully an INFO message is printed. Else, a warning is printed.      
-   
-   The convention for path of nested components is as follows:
-   Sequencer - only the name is used in the path
-   Algorithm - full name - type/instance_name (aka full name) is used
-   PrivateTools - the name of the property + the type/instance_name are added
-   PublicTools - are located under ToolSvc/ and type/instance_name is used
-   Services - located under SvcMgr/ and type/instance_name is used
-   """
-   componentAccumulator._isMergable=False
-   return PropSetterProxy(componentAccumulator, path)
-
-
-

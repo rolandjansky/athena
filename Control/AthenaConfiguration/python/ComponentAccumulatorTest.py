@@ -2,7 +2,7 @@
 
 # self test of ComponentAccumulator
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, foreach_component
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.CFElements import findSubSequence,findAlgorithm
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
@@ -106,9 +106,9 @@ class TestComponentAccumulator( unittest.TestCase ):
         logging.getLogger('foreach_component').setLevel(DEBUG)
         algo3 = self.acc.getEventAlgo("Algo3")        
         algo3.OutputLevel = INFO
-        foreach_component(self.acc, "*/Algo3").OutputLevel = DEBUG # restet to debug level
+        self.acc.foreach_component("*/Algo3").OutputLevel = DEBUG # restet to debug level
         self.assertEqual( algo3.OutputLevel, DEBUG, "wrong OutputLevel value for Algo3")
-        foreach_component(self.acc, "*sub2*/*").OutputLevel = INFO 
+        self.acc.foreach_component("*sub2*/*").OutputLevel = INFO 
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
