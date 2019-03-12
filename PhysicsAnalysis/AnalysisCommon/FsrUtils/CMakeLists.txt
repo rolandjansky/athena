@@ -42,7 +42,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( FsrUtils
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel xAODMuon
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel xAODMuon xAODEgamma
       FsrUtilsLib )
 endif()
 
