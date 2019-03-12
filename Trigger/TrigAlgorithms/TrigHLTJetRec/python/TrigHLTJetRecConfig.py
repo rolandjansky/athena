@@ -12,7 +12,8 @@ from GaudiKernel.Constants import (VERBOSE,
 
 import TrigHLTJetRecConf
 from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
-                                             IParticlePtEtaRejectionTool,)
+                                             IParticlePtEtaRejectionTool,
+                                             NonPositiveEnergyRejectionTool)
 
 # from JetRec.JetRecConf import JetRecTool
 # from JetRec.JetRecConf import (JetFromPseudojetMT,)
@@ -1103,6 +1104,31 @@ def _getIParticleNullRejectionTool(toolname, **kwds):
 
     return rejecter
 
+def _getNonPositiveEnergyRejectionTool(toolname, **kwds):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        rejecter = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorAll to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        rejecter = NonPositiveEnergyRejectionTool(
+            name=toolname, **kwds)
+        jtm += rejecter
+        rejecter = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getNonPositiveEnergyRectionTool '\
+            'Added rejecter "%s" to jtm' % toolname
+
+    return rejecter
+
 
 def _getIParticlePtEtaRejectionTool(toolname, **kwds):
 
@@ -1164,8 +1190,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iIParticleSelectorAll') 
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 
@@ -1245,8 +1271,8 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         # 3/18 IParticle selection moved to TriggerJetBuildTool
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iParticleSelectorAll')
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
         # Groomer builds jets from clusters and then grooms them
@@ -1263,7 +1289,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
             do_minimalist_setup=do_minimalist_setup,
             iParticleRejectionTool=iIParticleRejecter,
             name=name+'notrim',
-            do_substructure=do_substructure,
+            do_substructure=False, #do_substructure,
             OutputLevel=OutputLevel,
         )
         
@@ -1310,15 +1336,14 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
         self.OutputLevel = OutputLevel
         
-        self.OutputLevel = OutputLevel
         self.cluster_calib = cluster_calib
         # self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
         name = 'iIParticleEtaPtRejecter_%d_%d' % (int(10 * etaMaxCut),
                                                   int(ptMinCut))
         
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
 
         concrete_type = 'Jet'
 
@@ -1375,8 +1400,8 @@ class TrigHLTJetRecFromTriggerTower(
         #                                       int(ptMinCut)),
         #    **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
 
@@ -1534,6 +1559,8 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
 
         self.energyDensity = 0
 
+from JetRecTools.JetRecToolsConf import  (JetConstituentModSequence, SoftKillerWeightTool, ClusterAtEMScaleTool, VoronoiWeightTool)
+
 class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
     """Supply a specific grid configuration for SoftKiller"""
 
@@ -1549,12 +1576,43 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
 
         self.OutputLevel = OutputLevel
-        self.output_collection_label = output_collection_label
+        self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
-        # TODO create and configure offline SoftKiller tool here, pass it to our tool
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
         print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
 
+        # Temp hardcode enum value as this is code that will be dropped
+        xaodtype_calocluster = 1
+
+        modifiers = []
+        # We only want an EM tool if we are working with EM clusters
+        # The tool should be used before calling SoftKiller (prepend to list)
+        if cluster_calib == "EM":
+            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib, InputType=xaodtype_calocluster)
+            jtm.add(emTool)
+            self.emTool = emTool
+            modifiers.append(self.emTool)
+        
+        global jtm
+        skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5, InputType=xaodtype_calocluster)
+        jtm.add(skTool)
+        self.skWeightTool = skTool
+
+        voronoiTool = VoronoiWeightTool('voronoiTool'+name+'_'+cluster_calib, doSpread =  False, nSigma = 0, InputType=xaodtype_calocluster)
+        jtm.add(voronoiTool)
+        self.voronoiTool = voronoiTool
+        modifiers += [self.voronoiTool, self.skWeightTool]
+        
+        skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
+                                                 InputContainer = "CaloCalTopoClusters",
+                                                 OutputContainer = self.output_collection_label,
+                                                 InputType=xaodtype_calocluster,
+                                                 Trigger = True,
+                                                 Modifiers = modifiers
+                                                 )
+        jtm.add(skclustModSeq)
+        self.skclustModSeqTool = skclustModSeq
+        
         print "SK clusters from clusters"
 
 # Track Moment helper class                                                     

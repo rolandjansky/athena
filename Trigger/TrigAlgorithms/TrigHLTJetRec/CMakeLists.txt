@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/JetRec
+                          Reconstruction/Jet/JetRecTools
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigNavStructure
                           Trigger/TrigEvent/TrigParticle
