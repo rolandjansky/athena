@@ -218,8 +218,11 @@ namespace FSR {
    	farFsrCandList.clear();
    	farFsrCandList.reserve(photons_cont->size());
         // Save muon or electron of overlap removal for isolation
-        std::vector<const xAOD::IParticle*> parts(1);
-        parts[0] = part;
+        // std::vector<const xAOD::IParticle*> parts(1);
+        // parts[0] = part;
+
+        xAOD::IParticleContainer parts(SG::VIEW_ELEMENTS);
+        parts.push_back(const_cast<xAOD::IParticle*>(part));
    
    	ATH_MSG_DEBUG( "In getFarFsrCandidateList function : photon size = " << photons_cont->size());
    
