@@ -31,7 +31,6 @@
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 
-#include "EventInfo/TriggerInfo.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -470,11 +469,11 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   }
 
   int lvl1idATLAS(-1);
-  auto thisEventInfo = SG::makeHandle(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_eventxAODInfoKey);
   if(!(thisEventInfo.isValid())) {
     ATH_MSG_WARNING("No EventInfo object found");
   } else {
-    lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID()) & 0xf);
+    lvl1idATLAS = (int)((thisEventInfo->extendedLevel1ID()) & 0xf);
   }
 
   // retrieve Pixel RDO container from storegate
