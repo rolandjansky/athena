@@ -537,8 +537,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
   while(m_thpcsTGC->nextDetectorElement(i, e)) {
-//	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const sTGCSimHit*> > merged_SimHit;
-//      std::map< const sTGCSimHit*, int > SimHits;  //std::map container to associate if this hit came from the signal (0) or pileup (!0) simEvent
 	  int nhits = 0;
       ATH_MSG_VERBOSE("Next Detector Element");
 	  while(i != e){ //loop through the hits on this Detector Element
@@ -569,7 +567,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           int eventId = phit.eventId();
           std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
 		  int isSmall = stationName[2] == 'S';
-//		  int multiPlet = m_idHelper->multilayer(layid);
 		  int gasGap = m_idHelper->gasGap(layid);
           ATH_MSG_VERBOSE("Gas Gap " << gasGap );
 
@@ -630,39 +627,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
           ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
           
-//          const int pileupType = phit.pileupType();
-//          HepMcParticleLink trklink(hit.particleLink());
-//          if (m_needsMcEventCollHelper) {
-//            if(pileupType!=lastPileupType)        {
-//              currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
-//              lastPileupType=pileupType;
-//            }
-//            trklink.setEventCollection(currentMcEventCollection);
-//          }
-
-//          sTGCSimHit* wireHit = new sTGCSimHit(idHit, (hit.globalTime() + eventTime), G_HITONSURFACE_WIRE, hit.particleEncoding(), hit.globalDirection(), hit.depositEnergy() , trklink );
-//          SimHits[&hit] = eventId;  //Associate the sub event the hit came from
-          ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
-//	  } // end of while(i != e)
-
-    
         ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
     
-//    // Loop over the hits:
-//    int hitNum = 0;
-//    typedef std::map< const sTGCSimHit*, int >::iterator it_SimHits;
- 
-//        ATH_MSG_VERBOSE("Digitizing " << SimHits.size() << " hits.");
-        
-//    for(it_SimHits it_SimHit = SimHits.begin(); it_SimHit!=SimHits.end(); it_SimHit++ ) {
-//    	hitNum++;
-//    	double depositEnergy = it_SimHit->first->depositEnergy();
-//    	if(depositEnergy<0) {
-//    		msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
-//    		continue;
-//    	}
-//    	const sTGCSimHit temp_hit = *(it_SimHit->first);
-
     	const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(), 
     			 G_HITONSURFACE_WIRE,
 			     hit.particleEncoding(),
@@ -678,11 +644,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 		sTgcDigitCollection* digiHits = 0;
         
-//		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);  //Create all the digits for this particular Sim Hit
     	digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
 		if(!digiHits)
 			continue;
-        ATH_MSG_VERBOSE("...Check time 1: " << globalHitTime );
 
 		sTgcDigitCollection::const_iterator it_digiHits;
         ATH_MSG_VERBOSE("Hit produced " << digiHits->size() << " digits." );
@@ -698,7 +662,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			Identifier newDigitId = (*it_digiHits)->identify(); //This Identifier should be sufficient to determine which RE the digit is from
 			float newTime = (*it_digiHits)->time();
 			int newChannelType = m_idHelper->channelType((*it_digiHits)->identify());
-            ATH_MSG_VERBOSE("...Check time 2: " << newTime << "  channelType: " << newChannelType);
 
 			float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
 			float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
@@ -707,13 +670,11 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			else
 				newTime += timeJitterElectronicsPad;
 			uint16_t newBcTag = bcTagging(newTime+bunchTime, newChannelType);
-            ATH_MSG_VERBOSE("...Check time 3: " << newTime );
 
 			if(m_doToFCorrection)
 				newTime += bunchTime;
 			else
 				newTime += globalHitTime;
-            ATH_MSG_VERBOSE("...Check time 4: " << newTime );
 
 			float newCharge = -1.;
 			if(newChannelType==1)
@@ -726,9 +687,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 			bool isDead = 0;
 			bool isPileup = 0;
-//            ATH_MSG_VERBOSE("SimHits map second: " << it_SimHit->second << " newTime: " << newTime);
             ATH_MSG_VERBOSE("Hit is from the main signal subevent if eventId is zero, eventId = " << eventId << " newTime: " << newTime);
-//			if(it_SimHit->second!= 0)  //hit not from the main signal subevent
 			if(eventId != 0)  //hit not from the main signal subevent
 				  isPileup = 1;
                   
@@ -781,10 +740,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		} // end of loop digiHits
 		delete digiHits;
 		digiHits = 0;
-//    }// end of loop(merged_SimHit)
 	  } // end of while(i != e)
-//    SimHits.clear();
-  }//while(m_thpcsTGC->nextDetectorElement(i, e))
+  } //end of while(m_thpcsTGC->nextDetectorElement(i, e))
   
        /*********************
        * Process Pad Digits *
