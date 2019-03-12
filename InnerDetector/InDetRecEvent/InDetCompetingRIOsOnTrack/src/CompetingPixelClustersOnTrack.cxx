@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,19 +15,22 @@
 // default constructor
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
-        m_globalPosition(0),
+        m_globalPosition{},
         m_containedChildRots(0)
         {}
 
 // copy constructor
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(const InDet::CompetingPixelClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
-        m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+        m_globalPosition{},
         m_containedChildRots(0) {
     m_containedChildRots = new std::vector< const InDet::PixelClusterOnTrack* >;
     std::vector< const InDet::PixelClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
         m_containedChildRots->push_back((*rotIter)->clone());
+    }
+    if (compROT.m_globalPosition) {
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     }
 }
 
@@ -38,7 +41,7 @@ InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(
     )
     :
     Trk::CompetingRIOsOnTrack( assgnProb),
-    m_globalPosition(0),
+    m_globalPosition{},
     m_containedChildRots(childrots)
 {
   // initialize local position and error matrix
@@ -52,9 +55,11 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         // clear rots
         clearChildRotVector();
         delete m_containedChildRots;
-        delete m_globalPosition;
+        if (m_globalPosition) delete m_globalPosition.release().get();
         m_containedChildRots = new std::vector<const InDet::PixelClusterOnTrack*>;
-        m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
+        if (compROT.m_globalPosition) {
+            m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+        }
         std::vector<const InDet::PixelClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());
@@ -69,16 +74,15 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         // clear rots
         clearChildRotVector();
         delete m_containedChildRots;
-        delete m_globalPosition;
+        if (m_globalPosition) delete m_globalPosition.release().get();
         m_containedChildRots = compROT.m_containedChildRots;
         compROT.m_containedChildRots = nullptr;
-        m_globalPosition = compROT.m_globalPosition.exchange(nullptr, std::memory_order_relaxed);
+        m_globalPosition = std::move(compROT.m_globalPosition);
     }
     return (*this);
 }
 
 InDet::CompetingPixelClustersOnTrack::~CompetingPixelClustersOnTrack() {
-    delete m_globalPosition;
     clearChildRotVector();
     delete m_containedChildRots;
 }
@@ -95,7 +99,7 @@ MsgStream& InDet::CompetingPixelClustersOnTrack::dump( MsgStream& out ) const {
         << "] competing Pixel RIO_OnTrack objects" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<std::endl;
+  if (not m_globalPosition) out << "null pointer"<<std::endl;
   else out << *m_globalPosition<<endmsg;
   return out;
 }
@@ -106,7 +110,7 @@ std::ostream& InDet::CompetingPixelClustersOnTrack::dump( std::ostream& out ) co
         << "] competing Pixel RIO_OnTrack objects" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<std::endl;
+  if (not m_globalPosition) out << "null pointer"<<std::endl;
   else out << *m_globalPosition<<std::endl;
   return out;
 }
@@ -117,13 +121,8 @@ bool InDet::CompetingPixelClustersOnTrack::ROTsHaveCommonSurface(const bool) con
 }
 
 const Amg::Vector3D& InDet::CompetingPixelClustersOnTrack::globalPosition() const {
-    const Amg::Vector3D* ptr = m_globalPosition.load();
-    if(ptr) return *ptr;
-    const Amg::Vector3D* newptr = associatedSurface().localToGlobal(localParameters());
-    if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
-       return *newptr; //new object is now stored in m_globalPosition
+    if (not m_globalPosition) {
+        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
-    delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
-    return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
+    return *m_globalPosition;
 }
-

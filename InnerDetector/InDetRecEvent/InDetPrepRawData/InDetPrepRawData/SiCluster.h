@@ -19,12 +19,13 @@
 // Base class
 #include "TrkPrepRawData/PrepRawData.h"
 
+#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/Identifier.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" // cant be forward declared
 #include "TrkSurfaces/Surface.h"
 
-#include <atomic>
+#include <memory>
 
 class PixelClusterContainerCnv;
 class SCT_ClusterContainerCnv;
@@ -113,7 +114,7 @@ class SiCluster :   public Trk::PrepRawData {
 
 	private:
 	InDet::SiWidth m_width; //col, row, and width in mm
-	mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+	CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 	bool m_gangedPixel;
 	const InDetDD::SiDetectorElement* m_detEl;
 
@@ -134,14 +135,8 @@ inline const InDet::SiWidth&  SiCluster::width() const
 // return globalPosition:
 inline const Amg::Vector3D& SiCluster::globalPosition() const
 {
-  if (m_globalPosition==nullptr) {
-    const Amg::Vector3D* expected{nullptr};
-    const Amg::Vector3D* desired{m_detEl->surface(identify()).localToGlobal(localPosition())};
-    if (not m_globalPosition.compare_exchange_strong(expected, desired)) {
-      // This happens if more than one threads try to set m_globalPosition.
-      delete desired;
-      desired = nullptr;
-    }
+  if (not m_globalPosition) {
+    m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).localToGlobal(localPosition())));
   }
   return *m_globalPosition;
 }

@@ -12,6 +12,7 @@
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include <atomic>
 #include <iosfwd>
 
@@ -109,7 +110,7 @@ namespace InDet {
     const Trk::Surface* m_associatedSurface;
 
     //! The global Position
-    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     //! The vector of contained InDet::TRT_DriftCircleOnTrack objects
     std::vector<const InDet::TRT_DriftCircleOnTrack*>*   m_containedChildRots;
