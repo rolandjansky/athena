@@ -200,6 +200,7 @@ class AODFix_r210(AODFix_base):
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = containers )
 
+
     def egammaClusLinks_postSystemRec(self, topSequence):
         """This fixes the links to constituent clusters in egammaClusters
         JIRA: https://its.cern.ch/jira/browse/ATLASG-1460
@@ -207,6 +208,21 @@ class AODFix_r210(AODFix_base):
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_egammaClusLinks", 
                                               Containers = ["egammaClustersAux."] )
+
+    def btagTracking_postSystemRec(self, topSequence):
+        """
+        add the track augmenters before we add the main b-tagging tool
+        """
+        from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
+            Trk__TrackToVertexIPEstimator as IPEstimator)
+        from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
+        ipetool = IPEstimator(name="AODFixBTagIPETool")
+        ToolSvc += ipetool
+        topSequence += Analysis__BTagTrackAugmenterAlg(
+            name='AODFixBTagTrackAugmenter',
+            prefix='btag_',
+            TrackToVertexIPEstimator = ipetool)
+
 
     def btagging_postSystemRec(self, topSequence):
         """
@@ -237,17 +253,6 @@ class AODFix_r210(AODFix_base):
 
         BTagConf.doNotCheckForTaggerObstacles()
         from BTagging.BTaggingConf import Analysis__StandAloneJetBTaggerAlg as StandAloneJetBTaggerAlg
-
-        # add the track augmenters before we add the main b-tagging tool
-        from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
-            Trk__TrackToVertexIPEstimator as IPEstimator)
-        from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
-        ipetool = IPEstimator(name="AODFixBTagIPETool")
-        ToolSvc += ipetool
-        topSequence += Analysis__BTagTrackAugmenterAlg(
-            name='AODFixBTagTrackAugmenter',
-            prefix='btag_',
-            TrackToVertexIPEstimator = ipetool)
 
         btag = "BTagging_"
         AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
