@@ -86,29 +86,18 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
     return StatusCode::FAILURE;
   }
 
+    // Read keys in case of normal reconstruction/digitization
+  ATH_CHECK( m_statReadKey.initialize() );
+  ATH_CHECK( m_permReadKey.initialize() );
 
   if(!m_isGEANT4) {
   
-    // Read keys in case of normal reconstruction/digitization
-    ATH_CHECK( m_statReadKey.initialize() );
-    ATH_CHECK( m_permReadKey.initialize() );
     ATH_CHECK( m_statHTReadKey.initialize() );
   }
 
   if(m_isGEANT4) {
     // processing GEANT4 simulation - revert to old non-MT style cond access
 
-      msg(MSG::INFO) << "TRT_StrawStatusSummaryTool::initialize for simulation"  << endmsg;
-      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusG4,m_par_strawstatuscontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatuscontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-
-      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuspermanentG4,m_par_strawstatuspermanentcontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatuspermanentcontainerkey);
-        return StatusCode::FAILURE;
-      }
       if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatusHTcontainerkey);
         return StatusCode::FAILURE;

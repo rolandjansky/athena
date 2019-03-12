@@ -28,7 +28,7 @@ StatusCode TRTStrawCondAlg::initialize()
   ATH_CHECK ( m_strawStatus.retrieve() );
 
   // Read key
-  if(!m_isGEANT4) ATH_CHECK( m_strawReadKey.initialize() );
+  ATH_CHECK( m_strawReadKey.initialize() );
 
 
   // Register write handle
@@ -106,7 +106,7 @@ StatusCode TRTStrawCondAlg::execute(const EventContext& ctx) const
 
   //__________ Assign range of writeCdo to that of the ReadHandle___________ 
   EventIDRange rangeW;
-  if(!m_isGEANT4 ) {
+
     SG::ReadCondHandle<StrawStatusContainer> strawReadHandle{m_strawReadKey,ctx};
     const StrawStatusContainer* strawContainer{*strawReadHandle};
     if(strawContainer==nullptr) {
@@ -119,7 +119,7 @@ StatusCode TRTStrawCondAlg::execute(const EventContext& ctx) const
         ATH_MSG_ERROR("Failed to retrieve validity range for " << strawReadHandle.key());
         return StatusCode::FAILURE;
     }
-  }
+
 
 
   // Record  CDO

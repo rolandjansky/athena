@@ -104,9 +104,7 @@ class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSum
 
 
 inline const TRT_StrawStatusSummaryTool::StrawStatusContainer* TRT_StrawStatusSummaryTool::getStrawStatusContainer() const{
-  if(m_isGEANT4) {
-    return m_strawstatusG4.cptr();
-  }
+
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
   EventContext::ContextEvt_t event_id=event_context.evt();
@@ -127,9 +125,7 @@ inline const TRT_StrawStatusSummaryTool::StrawStatusContainer* TRT_StrawStatusSu
 }
 inline const TRT_StrawStatusSummaryTool::StrawStatusContainer* TRT_StrawStatusSummaryTool::getStrawStatusPermanentContainer() const{
 
-  if(m_isGEANT4) {
-    return m_strawstatuspermanentG4.cptr();
-  }
+
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
   EventContext::ContextEvt_t event_id=event_context.evt();
