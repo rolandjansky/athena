@@ -94,7 +94,6 @@ namespace FlavorTagDiscriminants {
         if ( !IDMuTrack || !MSMuTrack) continue;
 
         //Check quality of muon fit
-        const std::vector<float> &cov= (*IDMuTrack_link)->definingParametersCovMatrixVec();
         float momBalSignif0 = 0;
         thisMu->parameter(momBalSignif0, xAOD::Muon::momentumBalanceSignificance);
         if( momBalSignif0 == 0 ) continue;

@@ -13,7 +13,7 @@
 
 namespace FlavorTagDiscriminants {
 
-  class BTagMuonAugmenter;
+  // class BTagMuonAugmenter;
 
   class BTagMuonAugmenterTool : public asg::AsgTool, virtual public ISingleJetModifier
   {
@@ -23,7 +23,6 @@ namespace FlavorTagDiscriminants {
     ~BTagMuonAugmenterTool();
 
     StatusCode initialize() override;
-    StatusCode finalize() override;
 
     // returns 0 for success
     int modifyJet(xAOD::Jet& jet) const override;
