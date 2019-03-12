@@ -74,6 +74,11 @@ class AODFix_r210(AODFix_base):
                 self.phIso_postSystemRec(topSequence)
                 pass
 
+            # TODO: this should run whenever btagging runs, which
+            # means before the btagging fix, but also whenever we run
+            # derivations
+            self.btagTracking_postSystemRec(topSequence)
+
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
@@ -213,6 +218,7 @@ class AODFix_r210(AODFix_base):
         """
         add the track augmenters before we add the main b-tagging tool
         """
+        from AthenaCommon.AppMgr import ToolSvc
         from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
             Trk__TrackToVertexIPEstimator as IPEstimator)
         from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
@@ -220,7 +226,7 @@ class AODFix_r210(AODFix_base):
         ToolSvc += ipetool
         topSequence += Analysis__BTagTrackAugmenterAlg(
             name='AODFixBTagTrackAugmenter',
-            prefix='btag_',
+            prefix='btagIp_',
             TrackToVertexIPEstimator = ipetool)
 
 

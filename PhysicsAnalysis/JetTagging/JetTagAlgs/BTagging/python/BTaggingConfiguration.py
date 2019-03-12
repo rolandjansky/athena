@@ -410,7 +410,10 @@ class Configuration:
       btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName, preTagDL2JetToTrainingMap)
       return btagger[0]
 
-  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks", preTagDL2JetToTrainingMap={}):
+  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks",
+                           preTagDL2JetToTrainingMap={
+                               'AntiKt4EMPFlowJets': ['dev/flavtag/march2018/iprnn/antikt4emtopo/lwtnn-model.json']
+                           }):
       """Sets up JetBTaggerTool tools and adds them to the topSequence (one per jet collection). This function just updates
       the tool if such a tool already exists for the specified jet collections. This function should only be used for
       jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
@@ -509,6 +512,15 @@ class Configuration:
                       nnFile=nn_file)
                   ToolSvc += rnn
                   options['preBtagToolModifiers'].append(rnn)
+          else:
+              nn_file = (
+                  'dev/flavtag/march2018/iprnn/antikt4emtopo/lwtnn-model.json')
+              training_name = nn_file.replace('/','_').split('.')[0]
+              rnn = DL2Tool(
+                  name=training_name + self.GeneralToolSuffix(),
+                  nnFile=nn_file, schema='FEB_2019')
+              ToolSvc += rnn
+              options['preBtagToolModifiers'].append(rnn)
 
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
