@@ -513,18 +513,23 @@ namespace Muon
       for( ; it!=collections.end(); ++it)
       {
 
-        // Using RpcPadCache
-        RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( (*it) );
-
-        if(lock.alreadyPresent() ){
+        // Normally, we would get a write handle and put a lock, but we do not process the decoding in this loop
+        // Therefore, we just query the cache via the container and process the hashes which have not been decoded yet
+        // Note that this means different threads may decode the same data if processing simultaneously
+        // However, only one will be written to the cache using the lock
+        
+        bool alreadyPresent = rdoIdc.tryFetch( *it );
+        
+        if(alreadyPresent){
           ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
         }
         else{
-          ATH_MSG_DEBUG(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+          ATH_MSG_DEBUG ( "Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
 
 		      // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
           RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
           mapOfCollections[coll->identify()]=coll;
+          
 	      }// endif collection not found in the container 
 	    }//end loop over vector of hash id 
 
@@ -547,23 +552,26 @@ namespace Muon
 	    }
 
       // All un-decoded collections were decoded successfully, so they are passed back to the IDC
-	    //for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
       for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
 	    {
-	      // Get the write handle again, but note that lock.alreadyPresent() will be true BUT we have already checked 
-        // for this hash that it was not present before processing, and we still need to attach to the container
+	      // Get the WriteHandle for this hash but we need to then check if it has already been decoded and
+        // added to the event cache for this hash in a different view
         RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( ((*it).second)->identifyHash() );
         
-        // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-        StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>((*it).second)));
-
-		    if(status_lock != StatusCode::SUCCESS)
-		    {
-		      ATH_MSG_ERROR("Failed to add RPC PAD collection to container" );
-		      //report the error condition
-		    }
+        if(lock.alreadyPresent()){
+          ATH_MSG_DEBUG("RpcPad collection with hash " << (int)((*it).second)->identifyHash() << " was already decoded in a parallel view");
+        }
         else{
-          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
+          // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
+          StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>((*it).second) ) );
+
+          if(status_lock != StatusCode::SUCCESS)
+          {
+            ATH_MSG_ERROR("Failed to add RPC PAD collection to container with hash " << (int)((*it).second)->identifyHash() );
+          }
+          else{
+            ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
+          }
         }
       }
       return cnv_sc;
