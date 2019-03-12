@@ -60,12 +60,14 @@ void test1()
 
   cp1 = std::move(cp2);
   assert (cp1->m_x == 2);
+  // cppcheck-suppress accessMoved
   assert (!cp2);
   assert (P::s_count == 1);
 
   {
     const CxxUtils::CachedUniquePtr<P> cp3 (std::move (cp1));
     assert (cp3->m_x == 2);
+    // cppcheck-suppress accessMoved
     assert (!cp1);
     assert (P::s_count == 1);
   }
