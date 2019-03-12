@@ -71,9 +71,7 @@ namespace FlavorTagDiscriminants {
 
     if (assocMuons.size() > 0) {
       for (unsigned int imu = 0; imu < assocMuons.size(); imu++) {
-        if ( !assocMuons.at( imu ).isValid() ) continue;
         const xAOD::Muon* thisMu = *( assocMuons.at( imu ) );
-        if ( thisMu == 0 ) continue;
 
         //Check if it's an ID+MS muon
         if ( thisMu->muonType() != xAOD::Muon::Combined) continue;
