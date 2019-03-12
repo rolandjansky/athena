@@ -173,171 +173,154 @@ TBranch* RootTreeContainer::branch(const std::string& nam)  const  {
 }
 
 
-DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
-   RootDataPtr p(nullptr);
-   RootDataPtr user(&ent.objH);
-   const void* ptr = ent.objH ? ent.objH : ent.call->object();
-   RootDataPtr context(ptr);
-   DbStatus status = ent.call->start(DataCallBack::PUT, context.ptr, &user.ptr);
-   if ( status.isSuccess() ) {
-      //clear aux branches write marker
-      for( auto &descMapElem: m_auxBranchMap ) {
-         descMapElem.second.written = false;
-      }      
-      int icol;
-      int num_bytes = 0;
-      Branches::iterator k;
-      for(k=m_branches.begin(), icol=0; k !=m_branches.end(); ++k, ++icol) {
-         BranchDesc& dsc = (*k);
-         DbStatus sc = ent.call->bind( DataCallBack::PUT, dsc.column, icol, user.ptr, &p.ptr);
-         if ( sc.isSuccess() && sc.code() != DataCallBack::SKIP ) {
-            //gDebug = 0;
-            switch( dsc.column->typeID() ) {
-             case DbColumn::ANY:
-             case DbColumn::POINTER:
-                dsc.object            = p.ptr;
-                p.ptr                 = &dsc.object;
-                if( dsc.aux_iostore_IFoffset >= 0 ) {
-                   // cout << "---  write object IAuxStoreIO "<<endl;
-                   // DbPrint::setMsgVerbosity(coral::Debug);
-                   DbPrint log(m_name);
-                   log << DbPrintLvl::Debug << " SG::IAuxStoreIO* detected in " << dsc.branch->GetName() << DbPrint::endmsg;
-                   auto *store = reinterpret_cast<SG::IAuxStoreIO*>( (char*)dsc.object + dsc.aux_iostore_IFoffset );
-                   // cout << "---    store object= " <<hex << store <<dec << " in " << dsc.branch->GetName()  <<endl;
-                   // cout << "       obj=" << hex << dsc.object << dec << "  offset=" <<  dsc.aux_iostore_IFoffset << endl;
-                   log << DbPrintLvl::Debug << "       Attributes= " << store->getSelectedAuxIDs().size() << DbPrint::endmsg;
-                   for(SG::auxid_t id : store->getSelectedAuxIDs()) {
-                      BranchDesc&       newBrDsc( m_auxBranchMap[id] );
-                      if( !newBrDsc.branch ) {
-                         auto &reg = SG::AuxTypeRegistry::instance();
-                         // we have a new attribute, create a branch for it
-                         log << "   Creating branch for new dynamic attribute, Id=" << id << ": type="
-                             << SG::normalizedTypeinfoName( *(store->getIOType(id)) )
-                             << ", " << reg.getName(id) << DbPrint::endmsg;
-                         sc = addAuxBranch(reg.getName(id), store->getIOType(id), newBrDsc);
-                         if( !sc.isSuccess() )  {
-                            p.ptr = nullptr;  // trigger an Error
-                            break;
-                         }
-                         if( dsc.rows_written ) {
-                            // catch up with the rows written by other branches
-                            newBrDsc.object = nullptr;
-                            newBrDsc.branch->SetAddress( nullptr );
-                            for( size_t r=0; r<dsc.rows_written; ++r ) {
-                               num_bytes += newBrDsc.branch->BackFill();
-                            }
-                         }
-                      }
-                      newBrDsc.object = (void*)store->getIOData(id);
-                      newBrDsc.branch->SetAddress( newBrDsc.objectAddr() );
-                      newBrDsc.written = true;  // marking that branch address was set, even if Fill is delayed
-                      if( isBranchContainer() && !m_treeFillMode ) {
-                         size_t bytes_out = newBrDsc.branch->Fill();
-                         num_bytes += bytes_out;
+DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
+{
+   //clear aux branches write marker
+   for( auto &descMapElem: m_auxBranchMap ) {
+      descMapElem.second.written = false;
+   }      
+   int icol;
+   int num_bytes = 0;
+   Branches::iterator k;
+   for(k=m_branches.begin(), icol=0; k !=m_branches.end(); ++k, ++icol) {
+      BranchDesc& dsc = (*k);
+      RootDataPtr p( nullptr );
+      p.ptr = const_cast<void*>( action.dataAtOffset( dsc.column->offset() ) );
+      switch( dsc.column->typeID() ) {
+       case DbColumn::ANY:
+       case DbColumn::POINTER:
+          dsc.object            = p.ptr;
+          p.ptr                 = &dsc.object;
+          if( dsc.aux_iostore_IFoffset >= 0 ) {
+             // cout << "---  write object IAuxStoreIO "<<endl;
+             // DbPrint::setMsgVerbosity(coral::Debug);
+             DbPrint log(m_name);
+             log << DbPrintLvl::Debug << " SG::IAuxStoreIO* detected in " << dsc.branch->GetName() << DbPrint::endmsg;
+             auto *store = reinterpret_cast<SG::IAuxStoreIO*>( (char*)dsc.object + dsc.aux_iostore_IFoffset );
+             // cout << "---    store object= " <<hex << store <<dec << " in " << dsc.branch->GetName()  <<endl;
+             // cout << "       obj=" << hex << dsc.object << dec << "  offset=" <<  dsc.aux_iostore_IFoffset << endl;
+             log << DbPrintLvl::Debug << "       Attributes= " << store->getSelectedAuxIDs().size() << DbPrint::endmsg;
+             for(SG::auxid_t id : store->getSelectedAuxIDs()) {
+                BranchDesc&       newBrDsc( m_auxBranchMap[id] );
+                if( !newBrDsc.branch ) {
+                   auto &reg = SG::AuxTypeRegistry::instance();
+                   // we have a new attribute, create a branch for it
+                   log << "   Creating branch for new dynamic attribute, Id=" << id << ": type="
+                       << SG::normalizedTypeinfoName( *(store->getIOType(id)) )
+                       << ", " << reg.getName(id) << DbPrint::endmsg;
+                   if( ! addAuxBranch(reg.getName(id), store->getIOType(id), newBrDsc) .isSuccess() )  {
+                      p.ptr = nullptr;  // trigger an Error
+                      break;
+                   }
+                   if( dsc.rows_written ) {
+                      // catch up with the rows written by other branches
+                      newBrDsc.object = nullptr;
+                      newBrDsc.branch->SetAddress( nullptr );
+                      for( size_t r=0; r<dsc.rows_written; ++r ) {
+                         num_bytes += newBrDsc.branch->BackFill();
                       }
                    }
-                   store->selectAux( std::set<std::string>() );
                 }
-                dsc.rows_written++;
-                break;
-             case DbColumn::BLOB:
-                s_char_Blob.m_size    = p.blobSize();
-                s_char_Blob.m_buffer  = (unsigned char*)p.blobData();
-                dsc.object            = &s_char_Blob;
-                p.ptr                 = &dsc.object;
-                break;
-             case DbColumn::STRING:
-             case DbColumn::LONG_STRING:
-                p.cptr                = p.string();
-                break;
-             case DbColumn::NTCHAR:
-             case DbColumn::LONG_NTCHAR:
-                //case DbColumn::TOKEN: PvG not sure wether we should pass *char[]
-                p.ptr                 = p.deref();
-                break;
-             default:
-                break;
-            }
-            if ( nullptr == p.ptr )   {
-               DbPrint err( m_name);
-               err << DbPrintLvl::Error 
-                   << "[RootTreeContainer] Could not write an object" 
-                   << DbPrint::endmsg;
-               return Error;
-            }
-            //if (p.ptr != dsc.branch->GetAddress()) {
-            dsc.branch->SetAddress(p.ptr);
-            //}
-            if( isBranchContainer() && !m_treeFillMode ) {
-               num_bytes += dsc.branch->Fill();
-            }
-         }
+                newBrDsc.object = (void*)store->getIOData(id);
+                newBrDsc.branch->SetAddress( newBrDsc.objectAddr() );
+                newBrDsc.written = true;  // marking that branch address was set, even if Fill is delayed
+                if( isBranchContainer() && !m_treeFillMode ) {
+                   size_t bytes_out = newBrDsc.branch->Fill();
+                   num_bytes += bytes_out;
+                }
+             }
+             store->selectAux( std::set<std::string>() );
+          }
+          dsc.rows_written++;
+          break;
+       case DbColumn::BLOB:
+          s_char_Blob.m_size    = p.blobSize();
+          s_char_Blob.m_buffer  = (unsigned char*)p.blobData();
+          dsc.object            = &s_char_Blob;
+          p.ptr                 = &dsc.object;
+          break;
+       case DbColumn::STRING:
+       case DbColumn::LONG_STRING:
+          p.cptr                = p.string();
+          break;
+       case DbColumn::NTCHAR:
+       case DbColumn::LONG_NTCHAR:
+          //case DbColumn::TOKEN: PvG not sure wether we should pass *char[]
+          p.ptr                 = p.deref();
+          break;
+       default:
+          break;
       }
+      if ( nullptr == p.ptr )   {
+         DbPrint err( m_name);
+         err << DbPrintLvl::Error 
+             << "[RootTreeContainer] Could not write an object" 
+             << DbPrint::endmsg;
+         return Error;
+      }
+      //if (p.ptr != dsc.branch->GetAddress()) {
+      dsc.branch->SetAddress(p.ptr);
+      //}
+      if( isBranchContainer() && !m_treeFillMode ) {
+         num_bytes += dsc.branch->Fill();
+      }
+   }
 
-      // check if some AUX branches were not set
-      for( auto &descMapElem: m_auxBranchMap ) {
-         BranchDesc& dsc = descMapElem.second;
-         if( !dsc.written ) {
-            dsc.object = nullptr;
-            dsc.branch->SetAddress( nullptr );
-            // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
-            if( isBranchContainer() && !m_treeFillMode ) {
-               size_t bytes_out = dsc.branch->Fill();
-               num_bytes += bytes_out;
-            }
+   // check if some AUX branches were not set
+   for( auto &descMapElem: m_auxBranchMap ) {
+      BranchDesc& dsc = descMapElem.second;
+      if( !dsc.written ) {
+         dsc.object = nullptr;
+         dsc.branch->SetAddress( nullptr );
+         // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
+         if( isBranchContainer() && !m_treeFillMode ) {
+            size_t bytes_out = dsc.branch->Fill();
+            num_bytes += bytes_out;
          }
       }
+   }
       
-      if( !isBranchContainer() ) {
-         // Single Container per TTree - just Fill it now
-         num_bytes = m_tree->Fill();
-      } else if( m_treeFillMode ) {
-         // Multiple containers per TTree - mark TTree for later Fill at commit
-         // cout << "----- " << m_name << " : TTree=" << m_tree->GetName() << " : marking DIRTY " << endl;       
-         if( m_isDirty ) {
-            DbPrint log(m_name);
-            log << DbPrintLvl::Error << "Attempt to write to a Branch Container twice in the same transaction! "
-                << "This conflicts with TTree AUTO_FLUSH option. "
-                << DbPrint::endmsg;
-            m_ioBytes = -1;
-            return Error;
-         }
-         m_isDirty = true;
-         m_ioBytes = 0;  // no information per container available!
-         return ent.call->end(DataCallBack::PUT, context.ptr);
+   if( !isBranchContainer() ) {
+      // Single Container per TTree - just Fill it now
+      num_bytes = m_tree->Fill();
+   } else if( m_treeFillMode ) {
+      // Multiple containers per TTree - mark TTree for later Fill at commit
+      // cout << "----- " << m_name << " : TTree=" << m_tree->GetName() << " : marking DIRTY " << endl;       
+      if( m_isDirty ) {
+         DbPrint log(m_name);
+         log << DbPrintLvl::Error << "Attempt to write to a Branch Container twice in the same transaction! "
+             << "This conflicts with TTree AUTO_FLUSH option. "
+             << DbPrint::endmsg;
+         m_ioBytes = -1;
+         return Error;
       }
-      // else (branch container NOT in tree fill mode)
-      // do nothing, the branch was filled in the previous block already
+      m_isDirty = true;
+      m_ioBytes = 0;  // no information per container available!
+      return Success;
+   }
+   // else (branch container NOT in tree fill mode)
+   // do nothing, the branch was filled in the previous block already
     
-      for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
-         switch ( (*k).column->typeID() )    {
-          case DbColumn::BLOB:
-             s_char_Blob.release(false);
-             break;
-          default:
-             break;
-         }
+   for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
+      switch ( (*k).column->typeID() )    {
+       case DbColumn::BLOB:
+          s_char_Blob.release(false);
+          break;
+       default:
+          break;
       }
-      if ( num_bytes > 0 )  {
-         m_ioBytes = num_bytes;
-         m_rootDb->addByteCount(RootDatabase::WRITE_COUNTER, num_bytes);
-         return ent.call->end(DataCallBack::PUT, context.ptr);
-      }
-      DbPrint err( m_name);
-      err << DbPrintLvl::Error 
-          << "[RootTreeContainer] Could not write an object" 
-          << DbPrint::endmsg;
-      m_ioBytes = -1;
-      return Error;
    }
-   else {
-      DbPrint err( m_name);
-      err << DbPrintLvl::Error << "[RootTreeContainer] "
-          << "Could not start a callback sequence when writing an object" 
-          << DbPrint::endmsg;
+   if ( num_bytes > 0 )  {
+      m_ioBytes = num_bytes;
+      m_rootDb->addByteCount(RootDatabase::WRITE_COUNTER, num_bytes);
+      return Success;
    }
+   DbPrint err( m_name);
+   err << DbPrintLvl::Error 
+       << "[RootTreeContainer] Could not write an object" 
+       << DbPrint::endmsg;
    m_ioBytes = -1;
-   return status;
+   return Error;
 }
 
 /// Fetch refined object address. Default implementation returns identity

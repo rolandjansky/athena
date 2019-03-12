@@ -58,9 +58,9 @@ namespace pool  {
 
   protected:
     /// Destroy persistent object in the container
-    virtual DbStatus destroyObject(TransactionStack::value_type& entry);
+    virtual DbStatus destroyObject(ActionList::value_type&);
     /// Commit single entry to container
-    virtual DbStatus writeObject(TransactionStack::value_type& entry);
+    virtual DbStatus writeObject(ActionList::value_type&);
   public:
     /// Standard constructor
     RootKeyContainer();

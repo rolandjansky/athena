@@ -27,6 +27,7 @@ RootTreeIndexContainer::~RootTreeIndexContainer() {
    delete m_index; m_index = nullptr;
 }
 
+
 long long int RootTreeIndexContainer::nextRecordId()    {
    long long int s = m_index_multi;
    s = s << 32;
@@ -45,7 +46,8 @@ long long int RootTreeIndexContainer::nextRecordId()    {
    return s;
 }
 
-DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) {
+
+DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action) {
    long long int s = 0;
    if( isBranchContainer() ) {
       TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
@@ -66,10 +68,11 @@ DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) 
       if( isBranchContainer() && !m_treeFillMode ) m_index_ref->Fill();
    }
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
-   DbStatus status = RootTreeContainer::writeObject(ent);
+   DbStatus status = RootTreeContainer::writeObject(action);
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s + 1);
    return status;
 }
+
 
 DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    DbStatus status = RootTreeContainer::transAct(action);

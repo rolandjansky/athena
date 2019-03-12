@@ -43,32 +43,28 @@ namespace pool    {
   class DbContainerImp : virtual public IDbContainer
   {
   protected:
-    /// Transaction Fifo definition
-    class _Transaction {
-    public:
-      mutable DbObject*        objH;
-      DataCallBack*            call;
-      Token::OID_t             link;
-      AccessMode               action;
-      _Transaction()
-        : objH(0), call(0), action(NONE) {}
-      _Transaction(DbObject* o, 
-                   DataCallBack* c,
-                   const Token::OID_t& l,
-                   AccessMode    a) 
-      : objH(o), call(c), link(l), action(a) {}
-      _Transaction(const _Transaction& c)
-      : objH(c.objH), call(c.call), link(c.link), action(c.action) { c.objH = 0; }
-      _Transaction& operator= (const _Transaction& c) = delete;
-      ~_Transaction() {}
-      void assign(DbObject* o, DataCallBack* c, const Token::OID_t& l, AccessMode a) {
-        objH = o; call = c; link = l; action = a;
+
+    /// List of actions to execute at commit
+    struct _Action {
+      const void*         object;
+      const Shape*        shape;
+      Token::OID_t        link;
+      AccessMode          action;
+
+      _Action() : object(nullptr), shape(nullptr), action(NONE)   { }
+      _Action(const void* obj, const Shape* s, const Token::OID_t&  l, AccessMode a)
+            : object(obj), shape(s), link(l), action(a)   { }
+
+      const void*       dataAtOffset(size_t offset) {
+         return static_cast<const char*>(object) + offset;
       }
     };
-    typedef std::vector < _Transaction > TransactionStack;
+    
+    typedef std::vector< _Action > ActionList;
+    
   private:
     /// Transaction fifo storage for writing
-    TransactionStack      m_stack;
+    ActionList            m_stack;
     /// Current size of the transaction stack
     size_t                m_size;
     /// Number of objects to be written out during open transaction
@@ -97,16 +93,16 @@ namespace pool    {
     virtual bool updatesPending() const 
     { return m_size > 0;                                                      }
     /// Internal: get access to stack entry
-    TransactionStack::value_type* stackEntry(size_t which) 
+    ActionList::value_type* stackEntry(size_t which) 
     { return (which <= m_size) ? &(*(m_stack.begin()+which)) : 0;             }
     /// Destroy persistent object in the container; does not touch transient!
-    virtual DbStatus destroyObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus destroyObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Update persistent object in the container
-    virtual DbStatus updateObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus updateObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Commit single entry to container
-    virtual DbStatus writeObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus writeObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Execute object modification requests during a transaction
     virtual DbStatus commitTransaction();

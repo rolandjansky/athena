@@ -72,9 +72,7 @@ void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shap
   if ( m_stack.size() < m_size+1 )  {
     m_stack.resize(m_size+1024);
   }
-  DataCallBack* call = new pool::DbObjectCallBack();
-  call->setShape(shape);
-  (*(m_stack.begin()+m_size)).assign(objH.ptr(), call, objLink, pool::WRITE);
+  m_stack[m_size] = _Action( objH.ptr(), shape, objLink, pool::WRITE );
   m_stackType |= pool::WRITE;
   m_writeSize++;
   m_size++;
@@ -89,10 +87,7 @@ DbStatus DbContainerImp::allocate(DbContainer& cntH, const void* object, ShapeH 
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }
-    DataCallBack* call = new pool::DbObjectCallBack();
-    call->setObject(object);
-    call->setShape(shape);
-    (*(m_stack.begin()+m_size)).assign(0, call, oid, WRITE);
+    m_stack[m_size] = _Action( object, shape, oid, WRITE );
     m_stackType |= pool::WRITE;
     m_writeSize++;
     m_size++;
@@ -106,14 +101,8 @@ DbStatus DbContainerImp::free(void* ptr, DbContainer& cntH) {
   return DbHeap::free(ptr, &cntH);
 }
 
-/// Clear Transaction stack
+/// Reset action list
 DbStatus DbContainerImp::clearStack()   {
-  static Token::OID_t void_link(INVALID, INVALID);
-  for(size_t i=0; i < m_size; ++i )  {
-    _Transaction& t = *(m_stack.begin()+i);
-    delete t.call;
-    t.assign(0, 0, void_link, NONE);
-  }
   m_size = 0;
   m_writeSize = 0;
   m_stackType = NONE;
@@ -124,7 +113,7 @@ DbStatus DbContainerImp::clearStack()   {
 DbStatus DbContainerImp::commitTransaction() {
   DbStatus iret   = Success;
   DbStatus status = Success;
-  TransactionStack::iterator i = m_stack.begin();
+  ActionList::iterator i = m_stack.begin();
   for(size_t j=0; j < m_size; ++j, ++i )  {
     switch( (*i).action )  {
       case pool::DESTROY:
@@ -168,17 +157,13 @@ DbStatus
 DbContainerImp::save(const DbObjectHandle<DbObject>& objH)  {
   // Can only be done if no Transaction is ongoing...
   // i.e. exactly one object was allocated
-  TransactionStack::iterator it = m_stack.begin();
   if ( m_writeSize == 1 )   {
-    TransactionStack::value_type& entry = *it;
-    if ( entry.objH == objH.ptr() )   {
-      DbObjectHandle<DbObject> oH(entry.objH);
-      objH.oid() = oH.oid();
-      DbStatus status = writeObject(entry);
-      clearStack();
-      //DbHeap::free(objH.ptr(), 0);
-      return status;
-    }
+     if ( m_stack.begin()->object == objH.ptr() )   {
+        objH.oid() = m_stack.begin()->link;
+        DbStatus status = writeObject( *m_stack.begin() );
+        clearStack();
+        return status;
+     }
   }
   return Error;
 }
@@ -188,11 +173,8 @@ DbContainerImp::save(DbContainer& /* cntH */, const void* object, ShapeH shape, 
 {
   // Only possible if no open transaction, i.e. No object was allocated
   if ( m_stack.empty() )  {
-    DataCallBack* call = new pool::DbObjectCallBack();
-    call->setObject(object);
-    call->setShape(shape);
-    _Transaction ent(0, call, linkH, WRITE);
-    return writeObject(ent);
+     _Action act(object, shape, linkH, WRITE);
+     return writeObject( act );
   }
   return Error;
 }
@@ -205,10 +187,7 @@ DbContainerImp::update(DbContainer& /* cntH */, const void* object, ShapeH shape
       if ( m_stack.size() < m_size+1 )  {
         m_stack.resize(m_size+1024);
       }
-      DataCallBack* call = new pool::DbObjectCallBack();
-      call->setObject(object);
-      call->setShape(shape);
-      (*(m_stack.begin()+m_size)).assign(objH.ptr(), call, objH.oid(), pool::UPDATE);
+      m_stack[ m_size ] = _Action(objH.ptr(), shape, objH.oid(), pool::UPDATE);
       m_stackType |= pool::UPDATE;
       m_size++;
       return Success;
@@ -231,10 +210,7 @@ DbContainerImp::update(DbContainer& /* cntH */, const void* object, ShapeH shape
       if ( m_stack.size() < m_size+1 )  {
         m_stack.resize(m_size+1024);
       }
-      DataCallBack* call = new pool::DbObjectCallBack();
-      call->setObject(object);
-      call->setShape(shape);
-      (*(m_stack.begin()+m_size)).assign(0, call, linkH, pool::UPDATE);
+      m_stack[ m_size ] = _Action(object, shape, linkH, pool::UPDATE);
       m_stackType |= pool::UPDATE;
       m_size++;
       return Success;
@@ -275,7 +251,7 @@ DbStatus DbContainerImp::destroy(const Token::OID_t& linkH) {
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }
-    (*(m_stack.begin()+m_size)).assign(0, 0, linkH, DESTROY);
+    m_stack[ m_size ] = _Action(0, 0, linkH, DESTROY);
     m_stackType |= DESTROY;
     m_size++;
     return Success;

@@ -147,10 +147,10 @@ DbStatus RootKeyContainer::fetch(DbSelect& sel)   {
     // commit stack.
     lnk = sel.link();
     for(long long int i=0; i < stk_size; ++i)  {
-      TransactionStack::value_type* ent = stackEntry(size_t(i));
+      ActionList::value_type* ent = stackEntry(size_t(i));
       bool take_it = ent->link.second > lnk.second;
       if ( ent->action == WRITE && take_it )  {
-        ShapeH shape = ent->call->shape();
+        ShapeH shape = ent->shape;
         if ( shape )  {
           sel.setShapeID(shape->shapeID());
           sel.link() = ent->link;
@@ -202,7 +202,7 @@ DbStatus RootKeyContainer::load( DataCallBack* call,
 }
 
 /// Destroy persistent object in the container; does not touch transient!
-DbStatus RootKeyContainer::destroyObject(TransactionStack::value_type& entry) {
+DbStatus RootKeyContainer::destroyObject(ActionList::value_type& entry) {
   char txt[64];
   const Token::OID_t& lnkH = entry.link;
   // Does not work, because container size is changed...
@@ -283,42 +283,36 @@ DbStatus RootKeyContainer::loadObject( DataCallBack*   call,
   return Error;
 }
 
-DbStatus RootKeyContainer::writeObject(TransactionStack::value_type& ent)   {
+DbStatus RootKeyContainer::writeObject(ActionList::value_type& action)   {
    DbStatus status = Error;
-   DataCallBack* call = ent.call;
-   if ( m_dir && call )  {
+   if ( m_dir )  {
       char knam[64];
-      ::sprintf(knam, "_pool_valid_%08d", int(ent.link.second));
-      const DbTypeInfo* typ = (const DbTypeInfo*)call->shape();
+      ::sprintf(knam, "_pool_valid_%08d", int(action.link.second));
+      auto typ = static_cast<const DbTypeInfo*>(action.shape);
       if ( 0 == typ )   {
          DbPrint log(  m_name);
          log << DbPrintLvl::Error << "No type information present when writing an object!"
              << DbPrint::endmsg;
          return Error;
       }
-      else   {
-         RootDataPtr context(ent.objH ? ent.objH : ent.call->object());
+      else {
          TDirectory::TContext dirCtxt(m_dir);
-         if (typ->columns().size() == 1) {
-            RootDataPtr user(0), p(0);
-            status = call->start(DataCallBack::PUT, context.ptr, &user.ptr);
-            if ( status.isSuccess() ) {
-               const DbColumn* col = *(typ->columns().begin());
-               const std::string& typ_nam = col->typeName();
-               TClass*  cl  = TClass::GetClass(typ_nam.c_str());
-               if( !cl ) {
-                  DbPrint log(  m_name);
-                  log << DbPrintLvl::Error << "No handler for " << typ_nam
-                      << DbPrint::endmsg;
-                  return Error;
-               }
-               status = call->bind(DataCallBack::PUT,col,0,context.ptr,&p.ptr);
-               int nbyte = m_ioHandler->write(cl, knam, p.ptr, m_policy);
-               if ( nbyte > 1) {
-                  m_ioBytes = nbyte;
-                  m_rootDb->addByteCount(RootDatabase::WRITE_COUNTER, nbyte);
-                  return call->end(DataCallBack::PUT, context.ptr);
-               }
+         if( typ->columns().size() == 1 ) {
+            const DbColumn* col = *(typ->columns().begin());
+            const std::string& typ_nam = col->typeName();
+            TClass*  cl  = TClass::GetClass(typ_nam.c_str());
+            if( !cl ) {
+               DbPrint log(  m_name);
+               log << DbPrintLvl::Error << "No handler for " << typ_nam
+                   << DbPrint::endmsg;
+               return Error;
+            }
+            const void* p = action.dataAtOffset( col->offset() );
+            int nbyte = m_ioHandler->write(cl, knam, p, m_policy);
+            if ( nbyte > 1) {
+               m_ioBytes = nbyte;
+               m_rootDb->addByteCount(RootDatabase::WRITE_COUNTER, nbyte);
+               return Success;
             }
          }
          DbPrint err(m_name);

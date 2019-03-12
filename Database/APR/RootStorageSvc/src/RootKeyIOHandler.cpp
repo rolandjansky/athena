@@ -28,7 +28,7 @@ namespace pool {
 
   class Key : public TKey {
   public:
-    Key(const char *name, const char* title, TClass* cl, void* obj, int bsiz)    {
+    Key(const char *name, const char* title, TClass* cl, const void* obj, int bsiz)    {
       Int_t lbuf, nout, noutot, bufmax, nzip;
       SetName(name);
       SetTitle(title);
@@ -49,8 +49,9 @@ namespace pool {
 
       Streamer(*fBufferRef);         //write key itself
       fKeylen    = fBufferRef->Length();
-      fBufferRef->MapObject(obj, cl);    //register obj in map in case of self reference
-      cl->WriteBuffer(*fBufferRef, obj); //write object
+      auto _obj = const_cast<void*>(obj);
+      fBufferRef->MapObject(_obj, cl);    //register obj in map in case of self reference
+      cl->WriteBuffer(*fBufferRef, _obj); //write object
       lbuf       = fBufferRef->Length();
       fObjlen    = lbuf - fKeylen;
       Int_t cxlevel = gFile->GetCompressionLevel();
@@ -214,7 +215,7 @@ int pool::RootKeyIOHandler::destroy(const char* knam) const   {
 
 int pool::RootKeyIOHandler::write(TClass* cl,
                                   const char*   knam, 
-                                  void*         obj, 
+                                  const void*   obj, 
                                   int           opt,
                                   int           bsiz) const
 {
@@ -227,7 +228,7 @@ int pool::RootKeyIOHandler::write(TClass* cl,
 int pool::RootKeyIOHandler::write(TClass* cl,
                                   const char*   knam, 
                                   const char*   title,
-                                  void*         obj,
+                                  const void*   obj,
                                   int           opt,
                                   int           bsiz) const
 {

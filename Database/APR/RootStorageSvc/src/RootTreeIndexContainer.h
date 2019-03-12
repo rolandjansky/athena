@@ -54,7 +54,7 @@ namespace pool {
                                 DbAccessMode  mode);
       
       /// Commit single entry to container
-      virtual DbStatus writeObject(TransactionStack::value_type& entry);
+      virtual DbStatus writeObject(ActionList::value_type&);
 
       /// Execute Transaction action
       virtual DbStatus transAct(Transaction::Action action);

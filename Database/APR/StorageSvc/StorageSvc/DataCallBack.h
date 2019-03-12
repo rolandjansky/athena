@@ -28,7 +28,7 @@ namespace pool {
     */
   class DataCallBack {
   public:
-    enum DataType  {  PRIMITIVE = 0, OBJECT = 1, REFERENCE = 2, TOKEN = 3 };
+//    enum DataType  {  PRIMITIVE = 0, OBJECT = 1, REFERENCE = 2, TOKEN = 3 };
     enum CallType  {  GET = 1, PUT = 2  };
     enum           {  SKIP = 3          };       // Flag to indicate skipping a column.
 
