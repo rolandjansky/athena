@@ -38,6 +38,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/DL2HighLevel.cxx
   Root/DL2Tool.cxx
   Root/customGetter.cxx
+  Root/EDMSchemaEnums.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo PathResolver

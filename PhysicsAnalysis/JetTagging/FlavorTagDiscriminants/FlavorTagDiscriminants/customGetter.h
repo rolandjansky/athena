@@ -7,6 +7,8 @@
 // accessing methods like `pt` which have no name in the EDM, others
 // can't be stored in the edm directly for various reasons.
 
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+
 // EDM includes
 #include "xAODJet/Jet.h"
 
@@ -24,7 +26,7 @@ namespace FlavorTagDiscriminants {
     std::function<std::pair<std::string, std::vector<double>>(
       const xAOD::Jet&,
       const std::vector<const xAOD::TrackParticle*>&)>
-    customNamedSeqGetter(const std::string&);
+    customNamedSeqGetter(const std::string&, EDMSchema);
   }
 }
 

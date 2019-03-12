@@ -58,7 +58,8 @@ namespace FlavorTagDiscriminants {
                                        schema);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        track_getter.sequence_getters.push_back(get_seq_getter(input_cfg));
+        track_getter.sequence_getters.push_back(
+          get_seq_getter(input_cfg, schema));
       }
       m_track_getters.push_back(track_getter);
     }
@@ -286,11 +287,11 @@ namespace FlavorTagDiscriminants {
       }
     }
 
-    SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg) {
+    SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg, EDMSchema s) {
       switch (cfg.type) {
       case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
       case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-      case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
+      case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name, s);
       default: {
         throw std::logic_error("Unknown EDM type");
       }

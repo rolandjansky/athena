@@ -217,7 +217,7 @@ namespace FlavorTagDiscriminants {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
     TrackSortVar get_track_sort(SortOrder, EDMSchema);
     TrackSelect get_track_select(TrackSelection, EDMSchema);
-    SeqGetter get_seq_getter(const DL2TrackInputConfig&);
+    SeqGetter get_seq_getter(const DL2TrackInputConfig&, EDMSchema);
   }
 }
 #endif

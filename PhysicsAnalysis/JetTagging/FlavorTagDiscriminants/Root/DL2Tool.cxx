@@ -15,6 +15,7 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     declareProperty("nnFile", m_props.nnFile);
+    declareProperty("schema", m_props.schema);
   }
   DL2Tool::~DL2Tool() {}
 
@@ -22,7 +23,7 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_INFO("Initialize DL2 from: " + m_props.nnFile);
     std::string nn_path = PathResolverFindCalibFile(m_props.nnFile);
     ATH_MSG_INFO("Resolved NN to: " + nn_path);
-    m_dl2.reset(new DL2HighLevel(nn_path));
+    m_dl2.reset(new DL2HighLevel(nn_path, enumFromString(m_props.schema)));
     return StatusCode::SUCCESS;
   }
   StatusCode DL2Tool::finalize() {
