@@ -663,24 +663,26 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 //    	}
 //    	const sTGCSimHit temp_hit = *(it_SimHit->first);
 
-//    	const sTGCSimHit hit(temp_hit.sTGCId(), temp_hit.globalTime(), 
-//    			     temp_hit.globalPosition(),
-//			     temp_hit.particleEncoding(),
-//			     temp_hit.globalDirection(),
-//			     depositEnergy,
-//			     temp_hit.particleLink()
-//			     );
-//
+    	const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(), 
+    			 G_HITONSURFACE_WIRE,
+			     hit.particleEncoding(),
+			     hit.globalDirection(),
+			     hit.depositEnergy(),
+			     hit.particleLink()
+			     );
 
-    	float globalHitTime = hit.globalTime() + eventTime;
-    	float tof = hit.globalPosition().mag()/CLHEP::c_light;
+
+    	float globalHitTime = temp_hit.globalTime() + eventTime;
+    	float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
     	float bunchTime = globalHitTime - tof;
 
 		sTgcDigitCollection* digiHits = 0;
         
-		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+//		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+    	digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
 		if(!digiHits)
 			continue;
+        ATH_MSG_VERBOSE("...Check time 1: " << globalHitTime );
 
 		sTgcDigitCollection::const_iterator it_digiHits;
         ATH_MSG_VERBOSE("Hit produced " << digiHits->size() << " digits." );
@@ -696,6 +698,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			Identifier newDigitId = (*it_digiHits)->identify(); //This Identifier should be sufficient to determine which RE the digit is from
 			float newTime = (*it_digiHits)->time();
 			int newChannelType = m_idHelper->channelType((*it_digiHits)->identify());
+            ATH_MSG_VERBOSE("...Check time 2: " << newTime << "  channelType: " << newChannelType);
 
 			float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
 			float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
@@ -704,11 +707,13 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			else
 				newTime += timeJitterElectronicsPad;
 			uint16_t newBcTag = bcTagging(newTime+bunchTime, newChannelType);
+            ATH_MSG_VERBOSE("...Check time 3: " << newTime );
 
 			if(m_doToFCorrection)
 				newTime += bunchTime;
 			else
 				newTime += globalHitTime;
+            ATH_MSG_VERBOSE("...Check time 4: " << newTime );
 
 			float newCharge = -1.;
 			if(newChannelType==1)
@@ -727,6 +732,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			if(eventId != 0)  //hit not from the main signal subevent
 				  isPileup = 1;
                   
+            ATH_MSG_VERBOSE("...Check time 5: " << newTime );
             // Create a new digit with updated time and BCTag
             sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
 			IdentifierHash coll_hash;  //Hash defining the detector element
