@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // BuildH6HitCollections
@@ -120,13 +120,6 @@ namespace LArG4 {
         log << MSG::FATAL << "BuildH6HitCollections(): could not get Calo DM ID helper" << endmsg;
         throw GaudiException("Invalid Calo DM ID helper","LArGeoH62004Algs",StatusCode::FAILURE);
       }
-
-    // Debug: turn on all checks.
-    m_larEmID->set_do_checks(true);
-    m_larFcalID->set_do_checks(true);
-    m_larHecID->set_do_checks(true);
-    m_caloDmID->set_do_checks(true);
-
   }
 
   BuildH6HitCollections::~BuildH6HitCollections()

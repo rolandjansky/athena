@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_BarrelParameters_H
@@ -14,7 +14,7 @@ class SCT_BarrelParameters {
 public:
 
   // Constructor 
-  SCT_BarrelParameters();
+  SCT_BarrelParameters(SCT_DataBase* rdb);
 
   // Ski
   int    skiFirstStagger() const;

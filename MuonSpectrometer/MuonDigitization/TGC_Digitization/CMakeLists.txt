@@ -12,9 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
-                          Event/EventInfo
                           GaudiKernel
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
                           PRIVATE
@@ -39,10 +37,9 @@ atlas_add_component( TGC_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier EventInfo GaudiKernel MuonSimEvent HitManagement xAODEventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier GaudiKernel MuonSimEvent HitManagement xAODEventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver )
 
 # Install files from the package:
-atlas_install_headers( TGC_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )

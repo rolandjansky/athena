@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -343,6 +343,13 @@ class BFieldFromDCS(_modifier):
         conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
         svcMgr.AtlasFieldSvc.UseDCS = True
 
+class BFieldAutoConfig(_modifier):
+    """
+    Read field currents from configuration ptree (athenaHLT)
+    """
+    def postSetup(self):
+        if hasattr(svcMgr,'HltEventLoopMgr'): svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
+
 class allowCOOLUpdates(_modifier):
     """
     Enable COOL folder updates during the run
@@ -441,14 +448,6 @@ class useOnlineLumi(_modifier):
         from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
         ToolSvc += LuminosityToolOnline()
 
-        # This is needed for the correct functioning of LumiBlockMuTool
-        from LumiBlockComps.LumiBlockCompsConf import LumiBlockMuWriter        
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence += LumiBlockMuWriter("LumiBlockMuWriter",
-                                         LuminosityTool = ToolSvc.LuminosityTool)
-        
-        
 ###############################################################
 # Algorithm modifiers 
 ###############################################################

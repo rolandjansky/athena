@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_IPTAG_H
@@ -55,7 +55,7 @@ namespace Analysis {
 	ElementLink and persistency has to be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
       
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);    
+    StatusCode tagJet(const xAOD::Jet * jetToTag, xAOD::BTagging * BTag);    
 
     /** calculate individual track contribution to the three likelihoods: */
     void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,

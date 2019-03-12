@@ -11,4 +11,4 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ClassIDSvc           INFO  getRegistryEntries: read 2754 CLIDRegistry entries for module ALL
 test1
-HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
+HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 

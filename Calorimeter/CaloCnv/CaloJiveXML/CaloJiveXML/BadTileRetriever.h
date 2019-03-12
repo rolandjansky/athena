@@ -18,7 +18,6 @@
 
 class IToolSvc;
 
-class CaloIdManager;
 class Identifier;
 class CaloCellContainer;
 
@@ -63,7 +62,6 @@ namespace JiveXML{
       const std::string m_typeName;
 
       void calcTILELayerSub(Identifier&);
-      const CaloIdManager* m_calo_id_man;
       const CaloCell_ID*   m_calocell_id;
     
       std::string m_sgKey; 

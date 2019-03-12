@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: MuonTrackSummaryAccessors_v1.cxx 796148 2017-02-08 10:18:43Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -105,12 +103,38 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
-        DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
-        DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
-        DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
-        DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+        // New Small Wheel
+        // STGC
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHits );
 
-        DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHits );
+        
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHoles );
+        
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHoles );
+
+        // MM
+        DEFINE_ACCESSOR( uint8_t, MMHits );
+        DEFINE_ACCESSOR( uint8_t, MMHoles );
+        // Note: there is currently no MuonStationIndex for the two MM layers
+        // In the future it might be needed to add them in order to have 
+        // separate counters as follows
+        // DEFINE_ACCESSOR( uint8_t, Layer1MMHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer2MMHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer1MMHoles );
+        // DEFINE_ACCESSOR( uint8_t, Layer2MMHoles );
+
+
+	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+
+	DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, middleOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, extendedOutBoundsPrecisionHits );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTopBottomMonTool.h 
@@ -78,14 +78,12 @@ private:
     TH1F*  m_top_d0; 
     TH1F*  m_top_z0;
     TH1F*  m_top_phi; 
-    TH1F*  m_top_dphi; 
     TH1F*  m_top_eta;
     TH1F*  m_top_chi2;
   
     TH1F*  m_bottom_d0; 
     TH1F*  m_bottom_z0;
     TH1F*  m_bottom_phi;
-    TH1F*  m_bottom_dphi;
     TH1F*  m_bottom_eta;
     TH1F*  m_bottom_chi2;
 
@@ -93,14 +91,12 @@ private:
     TH1F*  m_top_d0_1trk; 
     TH1F*  m_top_z0_1trk;
     TH1F*  m_top_phi_1trk; 
-    TH1F*  m_top_dphi_1trk; 
     TH1F*  m_top_eta_1trk;
     TH1F*  m_top_chi2_1trk;
   
     TH1F*  m_bottom_d0_1trk; 
     TH1F*  m_bottom_z0_1trk;
     TH1F*  m_bottom_phi_1trk;
-    TH1F*  m_bottom_dphi_1trk;
     TH1F*  m_bottom_eta_1trk;
     TH1F*  m_bottom_chi2_1trk;
  

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_DIGITIZATION_TOOL_H
 #define AFP_DIGITIZATION_TOOL_H
 
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
 #include "PileUpTools/PileUpToolBase.h"
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM

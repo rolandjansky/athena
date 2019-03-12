@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /* Dear emacs, this is -*-c++-*- */
 #ifndef _RIO_OnTrackErrorScaling_H_
@@ -30,7 +30,7 @@ protected :
   /// @param n_paramter_sets the number of parameter sets
   /// @param param_names the names of the parameter sets
   /// @param n_paramters the number of parameters per set.
-  void checkParameters(const char *label, unsigned int n_paramter_sets, const char **param_names, unsigned int n_paramters) const;
+  void checkParameters(const char *label, unsigned int n_paramter_sets, const char* const* param_names, unsigned int n_paramters) const;
 private:
   std::vector<std::vector<double> > m_params;
 };

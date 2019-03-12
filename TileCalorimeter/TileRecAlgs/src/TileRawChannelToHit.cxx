@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -92,10 +92,6 @@ StatusCode TileRawChannelToHit::initialize() {
 //****************************************************************************
 
 StatusCode TileRawChannelToHit::execute() {
-
-  // disable checks for TileID and remember previous state
-  bool do_checks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
 
   /* zero all counters and sums */
   int nHit = 0;
@@ -200,8 +196,6 @@ StatusCode TileRawChannelToHit::execute() {
 
   ATH_MSG_VERBOSE( "TileHitVector container registered to the TES with name"
                    << m_hitVectorKey.key() );
-
-  m_tileID->set_do_checks(do_checks); // set back this flag to TileID
 
   return StatusCode::SUCCESS;
 }

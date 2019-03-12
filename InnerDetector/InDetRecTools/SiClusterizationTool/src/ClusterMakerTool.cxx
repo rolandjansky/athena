@@ -47,6 +47,10 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
                                    const std::string& n,
                                    const IInterface* p) :
   AthAlgTool(t,n,p),
+  m_issueErrorA(true),
+  m_forceErrorStrategy1A(false),
+  m_issueErrorB(true),
+  m_forceErrorStrategy1B(false),
   m_calibSvc("PixelCalibSvc", n)
 { 
   declareInterface<ClusterMakerTool>(this);
@@ -146,10 +150,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
          			           bool split,
                          double splitProb1,
                          double splitProb2) const{
-  static bool issueError = true;
-  static bool forceErrorStrategy1 = false;
-  if ( errorStrategy==2 && issueError ) {
-    issueError=false;
+  if ( errorStrategy==2 && m_issueErrorA ) {
+    m_issueErrorA=false;
   }
   
   const AtlasDetectorID* aid = element->getIdHelper();
@@ -159,7 +161,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   	return nullptr;
   }
   
-  if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
+  if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
   if (m_calibrateCharge) {
@@ -294,12 +296,10 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 	
  
   if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endmsg;
-  static bool issueError = true;
-  static bool forceErrorStrategy1 = false;
-  if ( errorStrategy==2 && issueError ) {
-    issueError=false;
+  if ( errorStrategy==2 && m_issueErrorB ) {
+    m_issueErrorB=false;
   }
-  if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
+  if ( errorStrategy==2 && m_forceErrorStrategy1B ) errorStrategy=1;
 
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));

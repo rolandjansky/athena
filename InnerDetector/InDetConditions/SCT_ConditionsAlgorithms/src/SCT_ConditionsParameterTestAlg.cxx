@@ -18,9 +18,6 @@
 // Include Athena stuff
 #include "Identifier/IdentifierHash.h"
 
-// Include Read Handle
-#include "StoreGate/ReadHandle.h"
-
 // Include STL stuff
 #include <string>
 #include <iostream>
@@ -40,9 +37,6 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize() {
   //
   ATH_CHECK(m_conditionsParameterTool.retrieve());
 
-  // Read Handle
-  ATH_CHECK(m_currentEventKey.initialize());
-  
   return StatusCode::SUCCESS;
 } // SCT_ConditionsParameterTestAlg::execute()
 
@@ -55,16 +49,10 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(const EventContext& ctx) cons
   StatusCode sc{StatusCode::SUCCESS, true};
   
   // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey, ctx};
-  if (not currentEvent.isValid()) {
-    ATH_MSG_WARNING("Could not get event info");
-    return sc;
-  }
-  //
   ATH_MSG_DEBUG("Current Run.Event,Time: "
-                << "[" << currentEvent->runNumber()
-                << "." << currentEvent->eventNumber()
-                << "," << currentEvent->timeStamp()
+                << "[" << ctx.eventID().run_number()
+                << "." << ctx.eventID().event_number()
+                << "," << ctx.eventID().time_stamp()
                 << "]");
   
   bool paramFilled{false};

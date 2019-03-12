@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigTrigFTKByteStreamCnv_h
@@ -12,9 +12,6 @@
  *
  * @brief  Gaudi bytestream Converter for the TrigFTK class
  *
- *
- * File and Version Information:
- * $Id:
  **********************************************************************************/
 
 #include "GaudiKernel/Converter.h"
@@ -24,15 +21,9 @@
 
 #include "TrigFTKByteStream/TrigFTKByteStreamTool.h"
 
-//#include <string>
-
 // forward declarations
 class IROBDataProviderSvc;
 class IByteStreamEventAccess;
-
-
-// Externals
-extern unsigned char ByteStream_StorageType;
 
 namespace FTK {
 
@@ -79,7 +70,7 @@ namespace FTK {
     virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr); //!< create bytestream from RDOs (TrigFTK)
 
     // Storage type and class ID
-    static unsigned char storageType()     { return ByteStream_StorageType; } //!< used for the converter
+    static unsigned char storageType()     { return ByteStreamAddress::storageType(); } //!< used for the converter
     static const CLID& classID(); //!< CLID
 
     long repSvcType() const { return i_repSvcType(); } //!< return repSvcType

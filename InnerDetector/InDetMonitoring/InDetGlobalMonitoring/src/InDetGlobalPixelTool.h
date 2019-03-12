@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalPixelTool.h
@@ -66,7 +66,6 @@ class InDetGlobalPixelTool : public InDetGlobalMotherMonTool
       TH2F*   m_Pixel_track_bar_lay0_cluster_occupancy;
       TH2F*   m_Pixel_track_bar_lay1_cluster_occupancy;
       TH2F*   m_Pixel_track_bar_lay2_cluster_occupancy;
-      TH1F*   m_Pixel_track_Lvl1ID;
       TH1F*   m_Pixel_track_Lvl1A;
       TH1F*   m_Pixel_track_chi2;  
       TH1F*   m_Pixel_track_qOverP;

@@ -247,14 +247,14 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
 
       // ToT and HT Corrections            
-      if (m_useToTCorrection && !isArgonStraw) {
-        rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id);     
+      if (m_useToTCorrection) {
+        rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id, isArgonStraw);     
       }  
-      if (m_useHTCorrection && !isArgonStraw &&
+      if (m_useHTCorrection &&
           ((!m_mask_first_HT_bit &&  (word & 0x04000000)) ||
            (!m_mask_middle_HT_bit && (word & 0x00020000)) ||
            (!m_mask_last_HT_bit &&   (word & 0x00000100)))) {
-         rawTime += m_driftFunctionTool->driftTimeHTCorrection(id);           
+         rawTime += m_driftFunctionTool->driftTimeHTCorrection(id, isArgonStraw);           
       }
 
       // calibrated data

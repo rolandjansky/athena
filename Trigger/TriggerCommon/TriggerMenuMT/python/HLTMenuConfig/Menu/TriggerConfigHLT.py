@@ -1,8 +1,8 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #########################################################################################
 #
 # TriggerConfigHLT class, providing basic functionality for assembling the menu
-#
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 #########################################################################################
 
@@ -55,7 +55,11 @@ class TriggerConfigHLT:
 
         log.info("Writing of config files needs to be implemented")
 
-
+__chainsDict = {}
+def getChainDictFromChainName(chainName, allChainDicts = None):
+    if __chainsDict == {}:
+        __chainsDict.update( [ (c['chainName'], c) for c in allChainDicts ] )
+    return __chainsDict[chainName]
 
 ##############################
 # this function was supposed to be part of the class but doesn't work for now
@@ -79,10 +83,6 @@ def getConfFromChainName(chainName, allChainDicts = None):
         if chainName == cDict["chainName"]:
             for cPart in cDict["chainParts"]:
                 cPName = cPart['chainPartName']
-                if "1step" in cPName:
-                    import re
-                    cPName=re.sub('1step', '', cPName)
-                    log.warning("Removing string 1step from hypoTool conf - this needs to be removed eventually")
                 if "HLT_" in cPName:
                     chainPartNames.append(cPName)
                 else:

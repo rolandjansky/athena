@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdRingCooling.h"
@@ -18,8 +18,12 @@
 
 inline double sqr(double x) {return x*x;}
 
-SCT_FwdRingCooling::SCT_FwdRingCooling(const std::string & name, int ringType)
-  : SCT_SharedComponentFactory(name), m_ringType(ringType)
+SCT_FwdRingCooling::SCT_FwdRingCooling(const std::string & name, int ringType,
+                                       InDetDD::SCT_DetectorManager* detectorManager,
+                                       const SCT_GeometryManager* geometryManager,
+                                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType(ringType)
 {
   getParameters();
   m_physVolume = build();
@@ -29,7 +33,7 @@ SCT_FwdRingCooling::SCT_FwdRingCooling(const std::string & name, int ringType)
 void 
 SCT_FwdRingCooling::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
     
   m_materialName= parameters->fwdRingCoolingMaterial(m_ringType);
   m_innerRadius = parameters->fwdRingCoolingInnerRadius(m_ringType);
@@ -41,10 +45,8 @@ SCT_FwdRingCooling::getParameters()
 GeoVPhysVol * 
 SCT_FwdRingCooling::build() 
 {
-  SCT_MaterialManager materials;
-
   const GeoTube * ringCoolingShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, ringCoolingShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, ringCoolingShape->volume());
   const GeoLogVol * ringCoolingLog = new GeoLogVol(getName(), ringCoolingShape, m_material);
 
   GeoPhysVol * ringCooling = new GeoPhysVol(ringCoolingLog);

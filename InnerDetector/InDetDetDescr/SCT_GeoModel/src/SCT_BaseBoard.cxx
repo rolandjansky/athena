@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_BaseBoard.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-SCT_BaseBoard::SCT_BaseBoard(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_BaseBoard::SCT_BaseBoard(const std::string & name,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -25,12 +28,10 @@ SCT_BaseBoard::SCT_BaseBoard(const std::string & name)
 void
 SCT_BaseBoard::getParameters() 
 {
-  const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
-  const SCT_BarrelModuleParameters * parameters = geometryManager()->barrelModuleParameters();
+  const SCT_GeneralParameters * generalParameters = m_geometryManager->generalParameters();
+  const SCT_BarrelModuleParameters * parameters = m_geometryManager->barrelModuleParameters();
 
-  SCT_MaterialManager materials;
- 
-  m_material  = materials.getMaterial(parameters->baseBoardMaterial());
+  m_material  = m_materials->getMaterial(parameters->baseBoardMaterial());
   m_safety    = generalParameters->safety();
   m_thickness = parameters->baseBoardThickness();
   m_width     = parameters->baseBoardWidth();

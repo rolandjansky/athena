@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,34 +21,31 @@ class Identifier;
 
 namespace Trk { class Track ; }
 
-  /** @class ITRT_LocalOccupancy 
+  /** @class ITRT_LocalOccupancy
       @author  Alejandro Alonso: <Alejandro.Alonso@cern.ch>
   */
 
 namespace InDet
 {
- /** Declaration of the interface ID ( interface id, major version, minor version) */
- static const InterfaceID IID_ITRT_LocalOccupancy("InDet::ITRT_LocalOccupancy", 1 , 0); 
 
   class ITRT_LocalOccupancy : virtual public IAlgTool {
   public:
-   /** AlgTool interface methods */
-   static const InterfaceID& interfaceID() ; 
 
    /** Virtual destructor */
    virtual ~ITRT_LocalOccupancy(){};
-   virtual StatusCode initialize() = 0;
-   virtual StatusCode finalize()   = 0;
 
-   /** Return the local occupancy for the sectors crossed by a given track */ 
+   /// Creates the InterfaceID and interfaceID() method
+   DeclareInterfaceID(ITRT_LocalOccupancy, 1, 0);
+
+   /** Return the local occupancy for the sectors crossed by a given track */
    virtual float LocalOccupancy( const Trk::Track& track) const = 0;
    virtual float LocalOccupancy(const double eta, const double phi) const = 0;
-    
+
    /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
    virtual std::map<int, double>  getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const  = 0;
-     
 
-   /** Return the global occupancy of the event*/ 
+
+   /** Return the global occupancy of the event*/
    virtual std::vector<float> GlobalOccupancy( ) const = 0 ;
 
    /* virtual int **getOccLocalWheel()   = 0; */
@@ -67,11 +64,7 @@ namespace InDet
    /* virtual int **getOccLocalPrivate() = 0; */
    /* virtual int **getHitLocalPrivate() = 0; */
    /* virtual int **getStwLocalPrivate() = 0; */
-  }; 
+  };
 
-  inline const InterfaceID& InDet::ITRT_LocalOccupancy::interfaceID()
-  { 
-    return IID_ITRT_LocalOccupancy;
-  }
 }
-#endif 
+#endif

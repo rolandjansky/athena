@@ -39,7 +39,7 @@
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "SiPropertiesTool/ISiPropertiesTool.h"
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h" // for ITHistSvc
@@ -68,7 +68,7 @@ namespace CLHEP {
 
 template <class HIT> class TimedHitPtr;
 
-class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
+class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
  public:
 
   /**  constructor */

@@ -36,6 +36,9 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include <fstream>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 #define DEBUG_ROI_VS_FULL false
 
 /**
@@ -257,6 +260,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   ToolHandle<Muon::IMuonRawDataProviderTool> m_mdtRawDataProvider;
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rpcRawDataProvider;
   ToolHandle<Muon::IMuonRawDataProviderTool> m_tgcRawDataProvider;
+  ToolHandle<Muon::IMuonRawDataProviderTool> m_cscRawDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
@@ -295,6 +299,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   Gaudi::Property< bool > m_decodeMdtBS { this, "DecodeMdtBS", true, "Flag to decide whether or not to run BS->RDO decoding for MTDs" };
   Gaudi::Property< bool > m_decodeRpcBS { this, "DecodeRpcBS", true, "Flag to decide whether or not to run BS->RDO decoding for RPCs" };
   Gaudi::Property< bool > m_decodeTgcBS { this, "DecodeTgcBS", true, "Flag to decide whether or not to run BS->RDO decoding for TGCs" };
+  Gaudi::Property< bool > m_decodeCscBS { this, "DecodeCscBS", true, "Flag to decide whether or not to run BS->RDO decoding for CSCs" };
 
   bool m_useCscData;
   bool m_useRpcData;

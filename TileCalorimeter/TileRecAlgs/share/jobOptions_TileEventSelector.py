@@ -204,7 +204,7 @@ if not ReadESD:
         include.block("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")
 
 if 'ForceTimeStamp' in dir():
-    include.block("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+    # include.block("LumiBlockComps/LumiBlockMuWriter_jobOptions.py") # this has been removed since not needed for xAOD::EventInfo
     include.block("RecBackgroundAlgs/RecBackground_jobOptions.py")
 
 
@@ -227,7 +227,7 @@ if not ReadESD:
 #import AthenaCommon.AlgSequence as acas
 #job = acas.AlgSequence()
 #
-#seq = acas.AthSequencer("AthFilterSeq")
+#seq = acas.AthSequencer("AthMasterSeq")
 #
 # example how to copy few events from input to output
 #

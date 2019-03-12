@@ -92,7 +92,7 @@ namespace LArG4 {
 	{
 	   // Calculate the identifier.
            G4StepPoint* pre_step_point = step->GetPreStepPoint();
-           G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
+           const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
            // Volume name 
            G4String hitVolume = theTouchable->GetVolume(0)->GetName();
 #ifdef DEBUG_HITS

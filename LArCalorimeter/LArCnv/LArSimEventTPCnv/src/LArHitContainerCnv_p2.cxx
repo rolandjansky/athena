@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSimEvent/LArHit.h"
@@ -8,7 +8,6 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 #include "AthenaPoolCnvSvc/Compressor.h"
 
@@ -16,7 +15,21 @@
 // author Ilija Vukotic
 
 #include "LArSimEventTPCnv/LArHitContainerCnv_p2.h"
-#include "map"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include <map>
+#include <stdexcept>
+
+
+LArHitContainerCnv_p2::LArHitContainerCnv_p2()
+  : m_cellIdHelper(nullptr)
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "LArHitContainerCnv_p2");
+  if (detStore->retrieve (m_cellIdHelper, "CaloCell_ID").isFailure()) {
+    throw std::runtime_error ("LArHitContainerCnv_p2: Can't get CaloCell_ID");
+  }
+}
+
 
 void LArHitContainerCnv_p2::transToPers(const LArHitContainer* transCont, LArHitContainer_p2* persCont, MsgStream &log) 
 {   //static int ev=0;
@@ -28,15 +41,12 @@ void LArHitContainerCnv_p2::transToPers(const LArHitContainer* transCont, LArHit
 	std::vector<float> tempE;	tempE.reserve(size);
 	std::vector<float> tempT;	tempT.reserve(size);
 	
-	const CaloCell_ID* cellIdHelper = (CaloIdManager::instance())->getCaloCell_ID();// getDM_ID 
-	
-
 	LArHitContainer::const_iterator it  = transCont->begin();
 	
 	std::multimap <unsigned int, unsigned int> map_hashPositions;// first hash ; second its position in container
 
 	for (unsigned int w=0;w<size;++w){
-                IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it)->cellID());
+                IdentifierHash hashId = m_cellIdHelper->calo_cell_hash((*it)->cellID());
 		map_hashPositions.insert(std::pair<unsigned int, int>((unsigned int)hashId, w));
 //		if (!ev) std::cout<<hashId<<"\t"<<((*it)->cellID())<<std::endl;
 		++it;
@@ -79,9 +89,6 @@ void LArHitContainerCnv_p2::persToTrans(const LArHitContainer_p2* persCont, LArH
 	transCont->setName(persCont->name() );
 	
 	
-	const CaloCell_ID* cellIdHelper = (CaloIdManager::instance())->getCaloCell_ID();// getDM_ID 
-	
-	
 	Compressor A;
 	std::vector<float> tempE;	tempE.reserve(cells);
 	std::vector<float> tempT;	tempT.reserve(cells);
@@ -92,7 +99,7 @@ void LArHitContainerCnv_p2::persToTrans(const LArHitContainer_p2* persCont, LArH
 	for (unsigned int i=0;i<cells;++i){
 		sum+= persCont->m_channelHash[i];
 		LArHit* trans=new LArHit
-                  (cellIdHelper->cell_id(sum),
+                  (m_cellIdHelper->cell_id(sum),
                    tempE[i],
                    tempE[i] != 0 ? (double)(tempT[i])/tempE[i] : 0);
 //		if(!dog) std::cout<<"Reading hash: "<< sum <<"\t E: "<< (double)tempE[i]<<"\t T: "<<(tempT[i]) <<std::endl;

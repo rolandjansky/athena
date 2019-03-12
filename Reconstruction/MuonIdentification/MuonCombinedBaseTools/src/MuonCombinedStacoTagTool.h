@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDSTACOTAGTOOL_H
@@ -14,6 +14,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include <vector>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -55,6 +56,7 @@ namespace MuonCombined {
     ToolHandle<Muon::MuonEDMPrinterTool>        m_printer;
     ToolHandle<MuonCombined::IMuonTrackTagTool> m_tagTool;
     ToolHandle<Trk::IExtrapolator>              m_extrapolator;
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool;
 
   };
 

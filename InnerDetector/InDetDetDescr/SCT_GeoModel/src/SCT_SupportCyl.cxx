@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_SupportCyl.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_SupportCyl::SCT_SupportCyl(const std::string & name, int iLayer, double length)
-  : SCT_SharedComponentFactory(name), m_iLayer(iLayer), m_length(length)
+SCT_SupportCyl::SCT_SupportCyl(const std::string & name, int iLayer, double length,
+                               InDetDD::SCT_DetectorManager* detectorManager,
+                               const SCT_GeometryManager* geometryManager,
+                               SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_iLayer(iLayer), m_length(length)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +30,7 @@ SCT_SupportCyl::SCT_SupportCyl(const std::string & name, int iLayer, double leng
 void 
 SCT_SupportCyl::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
        
   m_materialName = parameters->supportCylMaterial(m_iLayer);
   m_innerRadius = parameters->supportCylInnerRadius(m_iLayer);
@@ -38,16 +42,12 @@ GeoVPhysVol *
 SCT_SupportCyl::build() 
 {
   // Make the support cyliner. A simple tube.
-  SCT_MaterialManager materials;
-
   const GeoTube * supportCylShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, supportCylShape->volume());
-  if(!m_material) {m_material = materials.getMaterial(m_materialName);}
+  m_material = m_materials->getMaterialForVolume(m_materialName, supportCylShape->volume());
+  if (!m_material) m_material = m_materials->getMaterial(m_materialName);
   const GeoLogVol * supportCylLog = new GeoLogVol(getName(), supportCylShape, m_material);
 
   GeoPhysVol * supportCyl = new GeoPhysVol(supportCylLog);
 
   return supportCyl;
 }
-
-

@@ -52,38 +52,24 @@ void PixelClusterOnTrackCnv_p2::persToTrans( const InDet::PixelClusterOnTrack_p2
 
 
 void PixelClusterOnTrackCnv_p2::transToPers( const InDet::PixelClusterOnTrack *transObj, InDet::PixelClusterOnTrack_p2 *persObj, MsgStream &log ) {
+  if (transObj==nullptr or persObj==nullptr) return;
 
-    const Trk::RIO_OnTrack* tobj = static_cast<const Trk::RIO_OnTrack *>(transObj);
-    m_eventCnvTool->prepareRIO_OnTrack(const_cast<Trk::RIO_OnTrack *>(tobj));
-    //m_eventCnvTool->prepareRIO_OnTrack(const_cast<Trk::RIO_OnTrack *>(transObj));
-    persObj->m_id = transObj->identify().get_compact();
-    persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
-    Trk::ErrorMatrix pMat;
-    EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "PixelClusterOnTrackCnv_p2");
-    persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
+  persObj->m_id = transObj->identify().get_compact();
+  persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
+  Trk::ErrorMatrix pMat;
+  EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "PixelClusterOnTrackCnv_p2");
+  persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
+  persObj->m_idDE = transObj->idDE();
+  persObj->m_isbroad = transObj->isBroadCluster();
+  persObj->m_hasClusterAmbiguity = transObj->hasClusterAmbiguity();
+  persObj->m_isFake              = transObj->isFake();
+  persObj->m_energyLoss          = transObj->energyLoss();
 
-    persObj->m_idDE = transObj->idDE();
-    persObj->m_isbroad = transObj->isBroadCluster();
-
-    persObj->m_hasClusterAmbiguity = transObj->hasClusterAmbiguity();
-    persObj->m_isFake              = transObj->isFake();
-    persObj->m_energyLoss          = transObj->energyLoss();
-
-    if(!transObj->prepRawDataLink().dataID().empty()){
-      persObj->m_prdLink.m_contName          = transObj->prepRawDataLink().dataID();
-      persObj->m_prdLink.m_elementIndex     = transObj->prepRawDataLink().index();
-    }else{
-        persObj->m_prdLink.m_contName         = "";
-        persObj->m_prdLink.m_elementIndex     = 0;
-    }
-
-   //std::cout << "PixelClusterOnTrackCnv_p2::transToPers() "
-   //          << transObj->m_identifier
-   //          << " [" << transObj->m_rio.dataID() << "/" << transObj->m_rio.index() << "]"
-   //          << ": " << persObj->m_prdLink.m_contName
-   //          << " (" << persObj->m_prdLink.m_elementIndex
-   //          << ")" << std::endl;
-   //transObj->dump(std::cout) << std::endl;
+  const std::string pixelClusContName{"PixelClusters"};
+  ElementLink<InDet::PixelClusterContainer>::index_type hashAndIndex{0};
+  bool isFound{m_eventCnvTool->getHashAndIndex<InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(transObj, pixelClusContName, hashAndIndex)};
+  persObj->m_prdLink.m_contName = (isFound ? pixelClusContName : "");
+  persObj->m_prdLink.m_elementIndex = hashAndIndex;
 }
 
 StatusCode PixelClusterOnTrackCnv_p2::initialize(MsgStream &/*log*/) {

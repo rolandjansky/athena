@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -923,7 +923,6 @@ void MuonIdHelper::addStationID(Identifier& id, int stationName, int stationEta,
 	    << " Fields not appended " << endmsg;
   } else {
     exp_id << stationName << stationEta << stationPhi << technology;
-    assert (exp_id.last_error () == ExpandedIdentifier::none);
     get_id(exp_id, id);  // Fill output
   }
 }

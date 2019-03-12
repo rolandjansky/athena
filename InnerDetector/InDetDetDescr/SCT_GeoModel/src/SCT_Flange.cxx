@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Flange.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_Flange::SCT_Flange(const std::string & name, int iLayer)
-  : SCT_SharedComponentFactory(name), m_iLayer(iLayer)
+SCT_Flange::SCT_Flange(const std::string & name, int iLayer,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_iLayer(iLayer)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +30,7 @@ SCT_Flange::SCT_Flange(const std::string & name, int iLayer)
 void 
 SCT_Flange::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
     
   m_materialName    = parameters->flangeMaterial(m_iLayer);
   m_length      = parameters->flangeDeltaZ(m_iLayer);
@@ -47,11 +51,9 @@ GeoVPhysVol *
 SCT_Flange::build() 
 {
   // Make the flange. A simple tube.
-  SCT_MaterialManager materials;
-
   const GeoTube * flangeShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, flangeShape->volume());
-  if(!m_material) {m_material = materials.getMaterial(m_materialName);}
+  m_material = m_materials->getMaterialForVolume(m_materialName, flangeShape->volume());
+  if(!m_material) {m_material = m_materials->getMaterial(m_materialName);}
   const GeoLogVol * flangeLog = new GeoLogVol(getName(), flangeShape, m_material);
 
   GeoPhysVol * flange = new GeoPhysVol(flangeLog);

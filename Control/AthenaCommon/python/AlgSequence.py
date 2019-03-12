@@ -163,10 +163,11 @@ def dumpMasterSequence():
 
     # otherwise, manually do it...
     dumpSequence( AthSequencer ("AthMasterSeq"), indent=0 )
-    dumpSequence( AthSequencer ("AthFilterSeq"), indent=1 )
-    dumpSequence( AthSequencer ("AthBeginSeq"),  indent=2 )
-    dumpSequence( AthSequencer ("AthCondSeq"),   indent=3 )
-    dumpSequence( AlgSequence  ("TopAlg"),       indent=3 )
-    dumpSequence( AthSequencer ("AthEndSeq"),    indent=2 )
-    dumpSequence( AthSequencer ("AthOutSeq"),    indent=1 )
-    dumpSequence( AthSequencer ("AthRegSeq"),    indent=1 )
+    dumpSequence( AthSequencer ("athAlgEvtSeq"), indent=1 )
+    dumpSequence( AthSequencer ("athBeginSeq"),  indent=2 )
+    dumpSequence( AlgSequence  ("athAllAlgSeq"), indent=2 )
+    dumpSequence( AthSequencer ("athCondSeq"),   indent=3 )
+    dumpSequence( AthSequencer ("athAlgSeq"),    indent=3 )
+    dumpSequence( AthSequencer ("athEndSeq"),    indent=2 )
+    dumpSequence( AthSequencer ("athOutSeq"),    indent=1 )
+    dumpSequence( AthSequencer ("athRegSeq"),    indent=1 )

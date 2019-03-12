@@ -20,8 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/SCT_Cabling
-                          Event/EventInfo
-                          Event/xAOD/xAODEventInfo
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -35,7 +33,7 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier DetDescrConditions GeoModelUtilities GaudiKernel SCT_ConditionsData SCT_CablingLib EventInfo xAODEventInfo AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry TrkGeometry SCT_ConditionsToolsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier DetDescrConditions GeoModelUtilities GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry TrkGeometry SCT_ConditionsToolsLib )
 
 atlas_add_test( TestCalibChipRead
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibChipRead.py

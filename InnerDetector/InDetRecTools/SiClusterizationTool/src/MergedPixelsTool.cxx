@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -74,6 +74,7 @@ namespace InDet {
     m_splitOrigClusters(0),   
     m_splitProdClusters(0),   
     m_largeClusters(0),
+    m_printw(true),
     m_minToT({0,0,0,0,0,0,0})
     //m_detStore("DetectorStore", name),
     //m_idHelper(0)
@@ -786,10 +787,10 @@ PixelCluster* MergedPixelsTool::makeCluster
     if(m_posStrategy == 10 && !hasGanged  && etaRow>0 && etaCol > 0){
     // recFlag == 10 (CTB simulation)
     // use parametrization studied on CTB data by I. Reisinger (Dortmund)
-        static bool printw=true;
-        if (printw) {
+        if (m_printw) {
             ATH_MSG_ERROR("Detected position strategy = 10, this is an obsolete setting for CTB analysis and is not supported anymore since Athena 15.4.0"); 
-            ATH_MSG_ERROR("...reverting to default setting: position strategy = 0");        printw=false;
+            ATH_MSG_ERROR("...reverting to default setting: position strategy = 0");
+            m_printw=false;
         }
     } 
     // Endcap SR1 Cosmics

@@ -45,27 +45,27 @@ public:
 
   StatusCode initialize(); 
 
-  bool isInitialized(){ return m_initialized;} 
+  bool isInitialized() const { return m_initialized;}
 
   /** make a ROD SrcID for a HWIdentifier 
   */ 
-  uint32_t getRodID  (const HWIdentifier& hid); 
+  uint32_t getRodID  (const HWIdentifier& hid) const ;
 
   /** make a ROD SrcID for a COLLECTION_ID
   */ 
-  uint32_t getRodIDFromROM  (const COLLECTION_ID& hid); 
+  uint32_t getRodIDFromROM  (const COLLECTION_ID& hid) const;
 
   /** Make a ROB Source ID from a ROD source ID
   */ 
-  uint32_t getRobID  ( uint32_t rod_id); 
+  uint32_t getRobID  ( uint32_t rod_id) const;
 
   /** Make a ROS Source ID from a ROB source ID
   */ 
-  uint32_t getRosID  ( uint32_t rob_id); 
+  uint32_t getRosID  ( uint32_t rob_id) const;
 
   /** Make a SubDetector ID from ROS source ID 
   */
-  uint32_t getDetID  ( uint32_t ros_id); 
+  uint32_t getDetID  ( uint32_t ros_id) const;
 
 private: 
   bool m_initialized;

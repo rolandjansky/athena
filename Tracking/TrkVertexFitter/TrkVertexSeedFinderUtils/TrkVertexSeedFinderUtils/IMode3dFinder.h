@@ -45,7 +45,7 @@ namespace Trk
        virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const=0;       
 
        virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
-				    std::vector<float> &, std::vector<float> &) = 0 ;
+				    std::vector<float> &, std::vector<float> &) const = 0 ;
        virtual const std::vector<int> & AcceptedCrossingPointsIndices() const = 0 ;
        virtual void getCorrelationDistance( double &cXY, double &cZ ) = 0 ;
 

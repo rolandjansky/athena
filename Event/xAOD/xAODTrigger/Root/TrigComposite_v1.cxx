@@ -47,6 +47,9 @@ namespace xAOD {
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
                                       name, setName )
 
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::vector<TrigCompositeUtils::DecisionID>,
+                                      decisions, setDecisions )
+
    //
    /////////////////////////////////////////////////////////////////////////////
 
@@ -97,6 +100,10 @@ namespace xAOD {
     if (newName == "") {
       newName = name;
     }
+    if (newName == "self") {
+      if (s_throwOnCopyError) throw std::runtime_error("It does not make sense for the 'self' link to be in a collection. There can be only one.");
+      return false;
+    }
     const std::string mangledName = name + s_collectionSuffix;
     const std::string mangledNewName = newName + s_collectionSuffix;
     if (other.hasObjectLink(mangledName)) {
@@ -123,8 +130,8 @@ namespace xAOD {
   bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {
     bool didCopy = false;
     for (const std::string& name : other.linkColNames()) {
-      // Cannot copy any 'self' links as *this does not know its own location in its parent container
-      if (name == "self") continue;
+      // Cannot copy any 'self' link(s) as *this does not know its own location in its parent container
+      if (name == "self" || name == "self" + s_collectionSuffix) continue;
       // Check we don't have one (or more) entries with this raw name (raw = might be mangled).
       if (this->hasObjectLink(name)) continue;
       // Check if the link is for a single object or collection of objects by looking for the mangled suffix
@@ -173,6 +180,17 @@ namespace xAOD {
       return hasObjectLink( mangledName );
    }
 
+   bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const {
+      for (size_t i = 0; i < this->linkColNames().size(); ++i) {
+         if (this->linkColNames().at(i) != name) continue;
+         if (this->linkColKeys().at(i) != key) continue;
+         if (this->linkColIndices().at(i) != index) continue;
+         if (this->linkColClids().at(i) != clid) continue;
+         return true;
+      } 
+      return false;
+   }
+
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,
                            linkColNames )
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< uint32_t >,
@@ -209,7 +227,7 @@ namespace xAOD {
    void TrigComposite_v1::typelessSetObjectLink( const std::string& name, const uint32_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex ) {
 
      // Loop over collections
-     if ( endIndex - beginIndex > 1 ) {
+     if ( endIndex - beginIndex > 1 ) { // Adding a *collection* of links
 
        // Check uniqueness
        const std::string mangledName = name + s_collectionSuffix;
@@ -247,7 +265,7 @@ namespace xAOD {
          this->linkColClidsNC().push_back( clid );
        }
      }
-     else {
+     else { // Adding a *single* link
 
        // Check uniqueness
        if ( std::find( linkColNamesNC().begin(), linkColNamesNC().end(), name ) == linkColNamesNC().end() ) {
@@ -280,12 +298,19 @@ namespace xAOD {
 
 
 std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
-  os << "TrigComposite_v1 '" << tc.name() << "' link: name, key, index, CLID" << std::endl;
+  os << "TrigComposite_v1 name:'" << tc.name() << "'" << std::endl;
+  os << "  N Lnks:" << tc.linkColNames().size();
   for (size_t i=0; i<tc.linkColNames().size(); ++i){
-    os << tc.linkColNames()[i] << ", ";
-    os << tc.linkColKeys()[i] << ", ";
-    os << tc.linkColIndices()[i] << ", ";
-    os << tc.linkColClids()[i] << std::endl;
+    if (!i) os << std::endl;
+    os << "    Link Name:"  << tc.linkColNames()[i];
+    os << ", Key:"   << tc.linkColKeys()[i];
+    os << ", Index:" << tc.linkColIndices()[i];
+    os << ", CLID:"  << tc.linkColClids()[i];
+    if (i != tc.linkColNames().size() - 1) os << std::endl;
+  }
+  if (tc.decisions().size()) {
+    os << std::endl << "  N Decisions: '" << tc.decisions().size() << std::endl << "    ";
+    for (const TrigCompositeUtils::DecisionID id : tc.decisions()) os << id << ", ";
   }
   return os;
 }

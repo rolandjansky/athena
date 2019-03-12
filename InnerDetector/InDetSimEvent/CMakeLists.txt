@@ -9,6 +9,7 @@ atlas_subdir( InDetSimEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthAllocators
+                          Control/CxxUtils
                           Generators/GeneratorObjects
                           Simulation/HitManagement
                           
@@ -27,12 +28,12 @@ atlas_add_library( InDetSimEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel GeneratorObjects HitManagement StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel CxxUtils GeneratorObjects HitManagement StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} InDetIdentifier )
 
 atlas_add_dictionary( InDetSimEventDict
                       InDetSimEvent/InDetSimEventDict.h
                       InDetSimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators GeneratorObjects HitManagement StoreGateLib SGtests InDetIdentifier InDetSimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators CxxUtils GeneratorObjects HitManagement StoreGateLib SGtests InDetIdentifier InDetSimEvent )
 

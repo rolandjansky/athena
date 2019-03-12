@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //author Renato Febbraro
@@ -36,7 +36,7 @@
 
 
 TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
-  : Converter(ByteStream_StorageType, classID(), svcloc)
+  : Converter(storageType(), classID(), svcloc)
   , ::AthMessaging(msgSvc(), "TileLaserObjByteStreamCnv")
   , m_name("TileLaserObjByteStreamCnv")
   , m_robSvc("ROBDataProviderSvc", m_name)
@@ -48,6 +48,7 @@ TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
 
 const CLID& TileLaserObjByteStreamCnv::classID(){ return ClassID_traits<TileLaserObject>::ID();}
 
+long TileLaserObjByteStreamCnv::storageType() { return ByteStreamAddress::storageType(); }
 
 StatusCode TileLaserObjByteStreamCnv::initialize() {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //**************************************************************************
@@ -37,7 +37,8 @@
 // Athena includes
 #include "PileUpTools/PileUpToolBase.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+
 #include "AthenaKernel/ITriggerTime.h"
 
 // Gaudi includes
@@ -94,8 +95,8 @@ class TileHitVecToCntTool: public PileUpToolBase {
     StatusCode createContainers();
     void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
     void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot, bool isSignal = false);
-    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont);
-    double applyPhotoStatistics(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
+    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont, CLHEP::HepRandomEngine * engine);
+    double applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine * engine);    //!< Method to apply photostatistics effect
     void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
     void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
 
@@ -131,16 +132,12 @@ class TileHitVecToCntTool: public PileUpToolBase {
     const TileDetDescrManager* m_tileMgr;       //!< Pointer to TileDetDescrManager
     float m_nPhotoElectrons[7];                         //!< number of photo electrons per GeV in samplings
 
-    CLHEP::HepRandomEngine* m_pHRengine;       //!< Random number service to use
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;     //!< Random number generator engine to use
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use
 
     std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
     std::vector<TileHit*> m_allHits_DigiHSTruth;           //!< vector for all TileHits
     TileHitNonConstContainer* m_hits;          //!< pointer to hits container
     TileHitNonConstContainer* m_hits_DigiHSTruth;   //!< pointer to hits container
-
-    bool m_doChecks;                             //!< initial value of do_checks flag in TileID helper
-    bool m_doChecksTB;                          //!< initial value of do_checks flag in TileTBID helper
 
     int m_mbtsOffset;                           //<! index of first MBTS hit in m_allHits vector
     static const int N_SIDE = 2;

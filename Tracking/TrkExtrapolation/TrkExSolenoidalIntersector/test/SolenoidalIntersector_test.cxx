@@ -14,9 +14,11 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 #include "AthenaKernel/Units.h"
+#include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -283,6 +285,7 @@ void test_perigee (Trk::IIntersector& tool)
 int main()
 {
   std::cout << "SolenoidalIntersector_test\n";
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   ISvcLocator* svcloc = nullptr;
   Athena_test::initGaudi ("SolenoidalIntersector_test.txt", svcloc);
   ToolHandle<Trk::IIntersector> tool ("Trk::SolenoidalIntersector");
@@ -290,8 +293,6 @@ int main()
   ServiceHandle<MagField::IMagFieldSvc> field ("MagField::AtlasFieldSvc/AtlasFieldSvc", "test");
   Incident inc_br ("test", IncidentType::BeginRun);
   dynamic_cast<IIncidentListener*>(&*field)->handle (inc_br);
-  Incident inc_be ("test", IncidentType::BeginEvent);
-  dynamic_cast<IIncidentListener*>(&*tool)->handle (inc_be);
   
   test_plane (*tool);
   test_line (*tool);

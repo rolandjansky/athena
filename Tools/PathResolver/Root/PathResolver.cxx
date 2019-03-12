@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PathResolver/PathResolver.h"
@@ -19,6 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/filesystem.hpp>
+#include "CxxUtils/checker_macros.h"
 
 
 
@@ -30,14 +31,18 @@ namespace bf = boost::filesystem;
 using namespace std;
 
 
-static const char* path_separator = ",:";
-bool PathResolver::m_setLevel=false; 
+static const char* const path_separator = ",:";
+std::atomic<MSG::Level> PathResolver::m_level=MSG::INFO; 
 
 PathResolver::PathResolver() { }
 
 asg::AsgMessaging& PathResolver::asgMsg() {
-   if(!m_setLevel) setOutputLevel(MSG::INFO);
-   static asg::AsgMessaging asgMsg("PathResolver");
+#ifdef ASGTOOL_STANDALONE
+   static thread_local asg::AsgMessaging asgMsg("PathResolver");
+#else
+   static asg::AsgMessaging asgMsg ATLAS_THREAD_SAFE ("PathResolver");
+#endif
+   asgMsg.msg().setLevel (m_level);
    return asgMsg;
 }
 
@@ -55,8 +60,6 @@ bool
 PathResolver::PR_find( const std::string& logical_file_name, const string& search_list,
          PR_file_type file_type, PathResolver::SearchType search_type,
          string& result ) {
-
-   if(!m_setLevel) setOutputLevel(MSG::INFO);
 
    std::string trimmed_logical_file_name = logical_file_name;
    boost::algorithm::trim(trimmed_logical_file_name); //trim again for extra safety
@@ -113,18 +116,20 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
          }
       }
       std::string fileToDownload = addr + "/" + file.string();
-      //disable error output from root while attempting to download 
-      long errLevel = gErrorIgnoreLevel;
-      gErrorIgnoreLevel = kError+1;
+      //disable error output from root while attempting to download
+      // FIXME: Disabling errors now commented out because it is not
+      //        thread-safe.  Needs changes in ROOT.
+      //long errLevel = gErrorIgnoreLevel;
+      //gErrorIgnoreLevel = kError+1;
       if(!TFile::Cp(fileToDownload.c_str(),(locationToDownloadTo+"/"+file.string()).c_str())) {
          msg(MSG::DEBUG) <<"Unable to download file : " << fileToDownload << endmsg;
       } else {
          msg(MSG::INFO) <<"Successfully downloaded " << fileToDownload << endmsg;
          result = (locationToDownloadTo+"/"+file.string()).c_str();
-         gErrorIgnoreLevel=errLevel;
+         //gErrorIgnoreLevel=errLevel;
          return true;
       }
-      gErrorIgnoreLevel=errLevel;
+      //gErrorIgnoreLevel=errLevel;
    } else if(locationToDownloadTo=="." && itr->find("/afs/cern.ch/atlas/www/")==std::string::npos) { //don't let it ever download back to the www area!
       //prefer first non-pwd location for downloading to. But must be fully accessible. This should be the local InstallArea in cmt
      FILE *fp = std::fopen((*itr+"/._pathresolver_dummy").c_str(), "a+");
@@ -310,7 +315,7 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) {
+  if(logical_file_name.compare(0, 4, "dev/")==0) {
 #ifdef XAOD_ANALYSIS
     msg(MSG::WARNING)
 #else
@@ -332,7 +337,7 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) {
+  if(logical_file_name.compare(0, 4, "dev/")==0) {
 #ifdef XAOD_ANALYSIS
     msg(MSG::WARNING)
 #else
@@ -351,8 +356,7 @@ std::string PathResolver::find_calib_directory (const std::string& logical_file_
 }
 
 void PathResolver::setOutputLevel(MSG::Level level) {
-   m_setLevel=true;
-   asgMsg().msg().setLevel(level);
+   m_level = level;
 }
 
 

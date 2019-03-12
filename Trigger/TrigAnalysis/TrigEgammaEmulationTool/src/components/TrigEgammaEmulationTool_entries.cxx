@@ -24,4 +24,5 @@ DECLARE_COMPONENT( Trig::TrigEgammaEFElectronSelectorTool )
 DECLARE_COMPONENT( Trig::TrigEgammaEFPhotonSelectorTool )   
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolTest ) 
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolAlg ) 
+DECLARE_COMPONENT( Trig::TrigEgammaIsolationSelectorTool ) 
 

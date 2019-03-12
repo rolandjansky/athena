@@ -23,17 +23,6 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolIntegrator.h"
-#include "TileConditions/TileCondToolTiming.h"
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/TileCondToolNoiseRawChn.h"
-#include "TileConditions/TileCondToolOfcCool.h"
-#include "TileConditions/TileCondToolMuID.h"
-#include "TileConditions/TileCondToolAutoCr.h"
-
 #include "TH2.h"
 
 #include <iomanip>
@@ -44,16 +33,6 @@
 
 TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-    , m_tileBadChanTool("TileBadChanTool")
-    , m_tileToolEmscale("TileCondToolEmscale")
-    , m_tileToolIntegrator("TileCondToolIntegrator")
-    , m_tileToolTiming("TileCondToolTiming")
-    , m_tileToolPulseShape("TileCondToolPulseShape")
-    , m_tileToolNoiseSample("TileCondToolNoiseSample")
-    , m_tileToolAutoCr("TileCondToolAutoCr")
-    , m_tileToolNoiseRawChn("TileCondToolNoiseRawChn", this)
-    , m_tileToolOfcCool("TileCondToolOfcCool")
-    , m_tileToolMuID("TileCondToolMuID")
     , m_thistSvc(0)
     , m_tileHWID(0)
     , m_tileID(0)
@@ -65,15 +44,6 @@ TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
     , m_h_badCell(0)
 
 {
-  declareProperty("TileBadChanTool", m_tileBadChanTool);
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileCondToolIntegrator", m_tileToolIntegrator);
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolPulseShape", m_tileToolPulseShape);
-  declareProperty("TileCondToolOfcCool", m_tileToolOfcCool);
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
-  declareProperty("TileCondToolAutoCr", m_tileToolAutoCr);
-  declareProperty("TileCondToolNoiseRawChn", m_tileToolNoiseRawChn);
   declareProperty("AthenaIsOnline", m_isOnline = false, "Availability of COOL folders depends on Athena mode");
   declareProperty("PrintEmscale", m_printEmscale = false, "Switch on calibration chain printout");
   declareProperty("PrintEmscaleOnl", m_printEmscaleOnl = false, "Switch on online calibration chain printout");

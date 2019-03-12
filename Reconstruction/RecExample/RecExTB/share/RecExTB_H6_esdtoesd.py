@@ -147,8 +147,8 @@ if doBeamQuality:
   TBBeamQuality.CheckPrimaryTrack = True
   TBBeamQuality.ScintForPrimaryTrack = [6,7]
   TBBeamQuality.CheckVetoScint = True
-  from AthenaCommon.AppMgr import athFilterSeq
-  athFilterSeq  += TBBeamQuality
+  from AthenaCommon.AppMgr import athMasterSeq
+  athMasterSeq  += TBBeamQuality
   #from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
   #AthenaEventLoopMgr.FailureMode=2
 

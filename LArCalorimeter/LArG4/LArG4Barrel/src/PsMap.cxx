@@ -13,7 +13,6 @@ PsMap* PsMap::s_thePointer=nullptr;
 
 PsMap::PsMap()
 {
-  m_module=-1;
   m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
 
 #ifndef LARG4_STAND_ALONE
@@ -39,7 +38,6 @@ PsMap::PsMap()
     int code=imap;
     m_theMap[code]=cm;
   }
-  m_curr=0;
 
 }
 
@@ -58,10 +56,8 @@ void PsMap::Reset()
   }
 }
 
-void PsMap::SetMap(int module)
+CurrMap* PsMap::GetMap(int module) const
 {
-  if (m_module==module) return;
-  m_module=module;
   // module 0 and 1 have their own maps (code = 0 and 1)
   // module 2 and 3 have the same map (same geometry) with code 2
   // module 4 and 5 have the same map (same geometry) with code 3
@@ -69,11 +65,12 @@ void PsMap::SetMap(int module)
   int code = -1;
   if (module==0 || module==1) code=module;
   if (module > 1 && module < 8) code=(module-2)/2 + 2;
-  if (m_theMap.find(code) != m_theMap.end())
-    m_curr = m_theMap[code];
+  auto it = m_theMap.find(code);
+  if (it != m_theMap.end())
+    return  it->second; 
   else {
-    std::cout << " Code " << code << " not found in map ..." << std::endl;
-    m_curr=0;
+    std::cout << " Code " << module << " not found in map ..." << std::endl;
+    return nullptr;
   }
 }
 

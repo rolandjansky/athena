@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/TRT_EndcapDescriptor.h"
@@ -21,25 +21,15 @@ TRT_EndcapDescriptor::TRT_EndcapDescriptor():
   m_innerTubeRadius(2*CLHEP::mm),  // FIXME: Hardwired for now!!
   m_f(NULL),
   m_o(0),
-  m_bounds(0)
+  m_bounds()
 {
 
 }
-
-
-TRT_EndcapDescriptor::~TRT_EndcapDescriptor()
-{
-  delete m_bounds;
-}
-
-
 
 void TRT_EndcapDescriptor::setStrawTransformField(const GeoXF::Function *xf, size_t offsetInto) {
   m_f=xf;
   m_o=offsetInto;
 }
-
-
 
 unsigned int  &TRT_EndcapDescriptor::nStraws() {
   return m_nStraws;
@@ -64,7 +54,7 @@ double &  TRT_EndcapDescriptor::innerRadius() {
 const Trk::SurfaceBounds & 
 TRT_EndcapDescriptor::strawBounds() const
 {
-  if (!m_bounds) m_bounds = new Trk::CylinderBounds(m_innerTubeRadius, 0.5*m_strawLength);
+  if (not m_bounds) m_bounds.set(std::make_unique<Trk::CylinderBounds>(m_innerTubeRadius, 0.5*m_strawLength));
   return *m_bounds;
 }
 

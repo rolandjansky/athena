@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
 
 #include <stdio.h>
@@ -150,8 +150,9 @@ StatusCode LArMasterWaveBuilder::stop()
   }
   ATH_CHECK(  detStore()->retrieve(onlineHelper, "LArOnlineID") );
   
-  const CaloIdManager* caloIdMgr=CaloIdManager::instance();
-  emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  emId = idHelper->em_idHelper();
 
   msg() << MSG::INFO << "Check on ADC saturation: " ;
   if ( m_ADCsatur > 0 ) {

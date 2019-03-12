@@ -23,12 +23,13 @@
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloInterface/ICaloLumiBCIDTool.h"
+
 #include <vector>
 
 class EventInfo;
 //class StoreGateSvc;
 class ILArBadChannelMasker;
-class ILArBadChanTool;
+class ILArBadFebMasker;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -90,7 +91,7 @@ private:
 	/** Hash ID Identifier mapping to collection index. */
 	LArRodIdHash m_hash;
 	/** Hardware to Source ID conversion */
-	mutable Hid2RESrcID m_conv;
+	Hid2RESrcID m_conv;
 	/** FEB Hardware Identifier for second FEBs in a
 	    Collection */
 	std::vector<HWIdentifier> m_second;
@@ -104,9 +105,9 @@ private:
 	std::vector<DataVector<LArCell>*> m_vecs;
 
 	/** A tool to help mask cells */
-	ILArBadChannelMasker* m_masker;		
+	const ILArBadChannelMasker  *m_masker;
 	/** A tool to help mask febs */
-	ILArBadChanTool* m_badChanTool;		
+	const ILArBadFebMasker *m_badFebMasker;
 	/** List of Missing ROBs to be disabled at the RS */
 	std::vector<uint32_t> m_MissingROBs;
 	/** hash references to BCID */

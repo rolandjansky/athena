@@ -32,7 +32,7 @@
 namespace LVL1BS {
 
 RodHeaderByteStreamxAODCnv::RodHeaderByteStreamxAODCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "RodHeaderByteStreamxAODCnv"),
     m_name("RodHeaderByteStreamxAODCnv")
 {
@@ -45,11 +45,13 @@ const CLID& RodHeaderByteStreamxAODCnv::classID() {
   return ClassID_traits<xAOD::RODHeaderContainer>::ID();
 }
 
+long RodHeaderByteStreamxAODCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode RodHeaderByteStreamxAODCnv::initialize() {
   ATH_MSG_DEBUG(

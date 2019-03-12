@@ -58,7 +58,7 @@ public:
   unsigned int index() const;
   
   ///Is the rod in range?
-  static bool rodIdInRange(std::uint32_t r);
+  bool rodIdInRange(std::uint32_t r) const;
   
   ///constants for evaluating hash indices of the online id. The hashing formula is in 'index()'
   enum {

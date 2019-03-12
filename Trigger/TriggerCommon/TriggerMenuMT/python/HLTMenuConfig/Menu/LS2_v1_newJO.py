@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def get_flag_item(chainName, L1itemforchain, groups):
+def get_flag_item(chainName, L1itemsChainParts, groups):
     PhysicsStream = 'Main'
-    return [chainName, L1itemforchain, [], [PhysicsStream], groups, -1]
+    L1item = chainName.split('_')[-1].replace('L1', 'L1_')
+    return [chainName, L1item, [PhysicsStream], groups, -1]
 
 def setupMenu(flags):
     """ 
@@ -14,7 +15,7 @@ def setupMenu(flags):
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
-    # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep],
+    # ['chainName', [L1 items for chainParts], [stream], [groups], EBstep],
     #   OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
     #---------------------------------------------------------------------
 
@@ -26,24 +27,24 @@ def setupMenu(flags):
 
 
     flags.Trigger.menu.muon = [
-        get_flag_item('HLT_mu20', 'L1_MU20', ['RATE:SingleMuon', 'BW:Muon']),
-        get_flag_item('HLT_mu10', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
-        get_flag_item('HLT_mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+        get_flag_item('HLT_mu20_L1MU20', [], ['RATE:SingleMuon', 'BW:Muon']),
+        get_flag_item('HLT_mu10_L1MU10', [], ['RATE:SingleMuon', 'BW:Muon']),
+        get_flag_item('HLT_mu8_L1MU6', [], ['RATE:SingleMuon', 'BW:Muon'])
     ]
 
     flags.Trigger.menu.electron = [
-        get_flag_item('HLT_e3_etcut', 'L1_EM3', ['RATE:SingleElectron', 'BW:Electron']),
-        get_flag_item('HLT_e5_etcut', 'L1_EM3', ['RATE:SingleElectron', 'BW:Electron']),
-        get_flag_item('HLT_e7_etcut', 'L1_EM7', ['RATE:SingleElectron', 'BW:Electron'])
+        get_flag_item('HLT_e3_etcut_L1EM3', [], ['RATE:SingleElectron', 'BW:Electron']),
+        get_flag_item('HLT_e5_etcut_L1EM3', [], ['RATE:SingleElectron', 'BW:Electron']),
+        get_flag_item('HLT_e7_etcut_L1EM7', [], ['RATE:SingleElectron', 'BW:Electron'])
     ]
 
     flags.Trigger.menu.photon = [
-       get_flag_item('HLT_g10_etcut', 'L1_EM7', ['RATE:SinglePhoton', 'BW:Photon']),
-       get_flag_item('HLT_g15_etcut', 'L1_EM12', ['RATE:SinglePhoton', 'BW:Photon'])
+       get_flag_item('HLT_g10_etcut_L1EM7', [], ['RATE:SinglePhoton', 'BW:Photon']),
+       get_flag_item('HLT_g15_etcut_L1EM12', [], ['RATE:SinglePhoton', 'BW:Photon'])
     ]
 
     # flags.Trigger.menu.combined = [
-    #     get_flag_item('e8_mu8', 'L1_EM6_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+    #     get_flag_item('HLT_e8_mu8_L1EM6_MU6', [], ['RATE:SingleMuon', 'BW:Muon'])
     # ]
 
 

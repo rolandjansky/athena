@@ -1,14 +1,15 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef LARGAINTHRESHOLDS2NTUPLE
 #define LARGAINTHRESHOLDS2NTUPLE
 #include "LArCalibTools/LArCond2NtupleBase.h"
-#include "LArElecCalib/ILArFEBConfigReader.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArFebConfig.h"
 
 class LArGainThresholds2Ntuple : public LArCond2NtupleBase
 {
@@ -21,7 +22,8 @@ class LArGainThresholds2Ntuple : public LArCond2NtupleBase
   StatusCode finalize(){return StatusCode::SUCCESS;}
   StatusCode stop();
  private:
-  ToolHandle<ILArFEBConfigReader> m_febConfigReader;
+
+  SG::ReadCondHandleKey<LArFebConfig> m_configKey{this, "inputKey","LArFebConfig", "Input key for FEB config object"};
 
 };
 

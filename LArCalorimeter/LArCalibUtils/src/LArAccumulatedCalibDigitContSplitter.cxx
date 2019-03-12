@@ -7,7 +7,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 

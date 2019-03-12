@@ -34,9 +34,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
   m_onlyHitElements(false),
-  m_chargeTool(nullptr),
-  m_fesimTool(nullptr),
-  m_energyDepositionTool(nullptr),
   m_detID(nullptr),
   m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
@@ -45,9 +42,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_inputObjectName(""),
   m_createNoiseSDO(false)
 {
-  declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
-  declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
-  declareProperty("EnergyDepositionTool",   m_energyDepositionTool,       "Energy deposition tool");
   declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
   declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
   declareProperty("CreateNoiseSDO",   m_createNoiseSDO,  "Set create noise SDO flag");

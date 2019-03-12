@@ -47,13 +47,12 @@ print globalflags
 # --- switch on InnerDetector
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.SCT_setOn()
-DetFlags.ID_setOn()
+DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
 DetFlags.SCT_setOn()
-DetFlags.TRT_setOff()
 
 # ---- switch parts of ID off/on as follows
 #switch off tasks

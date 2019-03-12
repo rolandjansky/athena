@@ -25,6 +25,9 @@
 //STL includes
 #include <string>
 
+//Forward declarations
+class SCT_ID;
+
 /**
  *    @class SCT_CablingCondAlgFromText
  *    @brief Service which fill the SCT Cabling from plain text (a file).
@@ -47,6 +50,7 @@ private:
   SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions folder"};
   ServiceHandle<ICondSvc> m_condSvc;
 
+  const SCT_ID* m_idHelper;
 };//end of class
 
 #endif // SCT_CablingCondAlgFromText_H

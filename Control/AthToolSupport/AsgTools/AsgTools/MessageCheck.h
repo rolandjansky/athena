@@ -6,8 +6,8 @@
 
 
 
-#ifndef ASG_TOOLS__MESSAGE_CHECK_H
-#define ASG_TOOLS__MESSAGE_CHECK_H
+#ifndef ASGTOOLS_MESSAGE_CHECK_H
+#define ASGTOOLS_MESSAGE_CHECK_H
 
 /// \file MessageCheck.h
 /// \brief macros for messaging and checking status codes
@@ -83,6 +83,9 @@
 #include "AthenaBaseComps/AthMessaging.h"
 #endif
 
+#include "CxxUtils/checker_macros.h"
+#include <atomic>
+
 /// \brief for standalone code this creates a new message category
 ///
 /// The idea is that this provides a way to use the "standard"
@@ -121,7 +124,7 @@
   static MsgStream NAME (TITLE);
 #else
 #define ASG_TOOLS_MSG_STREAM(NAME,TITLE)			\
-  static MsgStream NAME (::asg::detail::getMessageSvcAthena(), TITLE);
+  static thread_local MsgStream NAME (::asg::detail::getMessageSvcAthena(), TITLE);
 #endif
 
 /// \brief the source code part of \ref ANA_MSG_SOURCE
@@ -134,9 +137,9 @@
   {						\
   namespace					\
     {						\
-  MSG::Level& msgLevel ()			\
+  std::atomic<MSG::Level>& msgLevel ()          \
     {						\
-  static MSG::Level level = MSG::INFO;		\
+  static std::atomic<MSG::Level> level ATLAS_THREAD_SAFE = MSG::INFO;      \
   return level;					\
     }						\
   }						\

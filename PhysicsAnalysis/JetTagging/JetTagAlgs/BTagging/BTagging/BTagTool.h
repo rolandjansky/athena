@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **************************************************************************
@@ -71,7 +71,7 @@ namespace Analysis
 
       /** Main routines specific to an ATHENA algorithm */
       StatusCode initialize();
-      StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
+      StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
       StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer);
       StatusCode finalize();
       void finalizeHistos();

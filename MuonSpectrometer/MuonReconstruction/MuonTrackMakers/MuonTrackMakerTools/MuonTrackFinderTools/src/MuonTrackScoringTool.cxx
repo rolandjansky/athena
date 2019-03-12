@@ -58,6 +58,10 @@ namespace Muon {
     m_summaryTypeScore[Trk::numberOfCscEtaHits]	= 5;
     m_summaryTypeScore[Trk::numberOfRpcPhiHits]	= 5;
     m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 5;
+    // New Small Wheel
+    m_summaryTypeScore[Trk::numberOfStgcPhiHits] = 5;
+    m_summaryTypeScore[Trk::numberOfStgcEtaHits] = 5;    
+    m_summaryTypeScore[Trk::numberOfMmHits] = 5;
   }
 
   MuonTrackScoringTool::~MuonTrackScoringTool()

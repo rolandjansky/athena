@@ -29,9 +29,9 @@
 //#include <Identifier/HWIdentifier.h>
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
-
 #include <math.h>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // legacy trigger code
 
 RoILArHadCellContMaker::RoILArHadCellContMaker(const std::string & type, const std::string & name,
 	 const IInterface* parent): IAlgToolEFCalo(type, name, parent),

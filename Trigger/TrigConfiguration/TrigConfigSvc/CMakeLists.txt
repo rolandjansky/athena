@@ -31,6 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( COOL COMPONENTS CoolKernel )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread PyROOT )
+find_package( cx_Oracle )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfigSvcLib

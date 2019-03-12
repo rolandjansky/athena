@@ -68,7 +68,7 @@ if do_grl and sample == 'data':
     ## here, the (default) top sequence is used:
     from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
     job = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
+    seq = AthSequencer("AthMasterSeq")
     
     ## GRL selector, dummy ntuple dumper
     from GoodRunsListsUser.GoodRunsListsUserConf import *

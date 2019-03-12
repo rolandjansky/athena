@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -79,9 +79,9 @@ class ITileCalculator : virtual public IService {
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const = 0;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const = 0;
+  virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData, double& deltaTime) const = 0;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  virtual G4bool ManageScintHit(TileHitData& hitData) const = 0;
+  virtual G4bool ManageScintHit(TileHitData& hitData, double deltaTime) const = 0;
   /// Used by FastCaloSimParamAction
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const = 0;
   ///

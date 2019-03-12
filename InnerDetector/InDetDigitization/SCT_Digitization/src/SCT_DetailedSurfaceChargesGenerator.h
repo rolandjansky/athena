@@ -21,7 +21,7 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "SiPropertiesTool/ISiPropertiesTool.h"
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"

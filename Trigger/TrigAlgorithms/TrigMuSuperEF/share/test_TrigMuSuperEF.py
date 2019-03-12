@@ -466,37 +466,40 @@ try:
         # MuonSpectrometer/MuonReconstruction/MuonRecExample/share/MuonRecOutputItemList_jobOptions.py.
         # To fix bug #79056: ERROR INCORRECT Object/count: Muon PRDs
         
-        while "Muon::CscPrepDataContainer#CSC_Clusters" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
-        while "Muon::CscPrepDataContainer#CSC_Clusters" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
-        while "Muon::CscPrepDataContainer#CSC_Clusters" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
-        while "Muon::CscStripPrepDataContainer#CSC_Measurements" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::CscStripPrepDataContainer#CSC_Measurements")
-        while "Muon::RpcPrepDataContainer#RPC_Measurements" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::RpcPrepDataContainer#RPC_Measurements")
-        while "Muon::TgcPrepDataContainer#TGC_Measurements" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_Measurements")
-        while "Muon::MdtPrepDataContainer#MDT_DriftCircles" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::MdtPrepDataContainer#MDT_DriftCircles")
+        from AthenaCommon.AppMgr import theApp
+        StreamESD = theApp.getOutputStream( "StreamESD" )
+
+        while "Muon::CscPrepDataContainer#CSC_Clusters" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
+        while "Muon::CscPrepDataContainer#CSC_Clusters" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
+        while "Muon::CscPrepDataContainer#CSC_Clusters" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::CscPrepDataContainer#CSC_Clusters")
+        while "Muon::CscStripPrepDataContainer#CSC_Measurements" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::CscStripPrepDataContainer#CSC_Measurements")
+        while "Muon::RpcPrepDataContainer#RPC_Measurements" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::RpcPrepDataContainer#RPC_Measurements")
+        while "Muon::TgcPrepDataContainer#TGC_Measurements" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_Measurements")
+        while "Muon::MdtPrepDataContainer#MDT_DriftCircles" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::MdtPrepDataContainer#MDT_DriftCircles")
         
-        while "Muon::TgcPrepDataContainer#TGC_MeasurementsPriorBC" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_MeasurementsPriorBC")
-        while "Muon::TgcPrepDataContainer#TGC_MeasurementsNextBC" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_MeasurementsNextBC")
+        while "Muon::TgcPrepDataContainer#TGC_MeasurementsPriorBC" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_MeasurementsPriorBC")
+        while "Muon::TgcPrepDataContainer#TGC_MeasurementsNextBC" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcPrepDataContainer#TGC_MeasurementsNextBC")
         
-        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollection" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollection")
-        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionPriorBC" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionPriorBC")
-        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionNextBC" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionNextBC")
+        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollection" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollection")
+        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionPriorBC" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionPriorBC")
+        while "Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionNextBC" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionNextBC")
         
-        while "Muon::RpcCoinDataContainer#RPC_triggerHits" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("Muon::RpcCoinDataContainer#RPC_triggerHits")
-        while "RpcSectorLogicContainer#RPC_SECTORLOGIC" in topSequence.StreamESD.ItemList:
-            topSequence.StreamESD.ItemList.remove("RpcSectorLogicContainer#RPC_SECTORLOGIC")
+        while "Muon::RpcCoinDataContainer#RPC_triggerHits" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("Muon::RpcCoinDataContainer#RPC_triggerHits")
+        while "RpcSectorLogicContainer#RPC_SECTORLOGIC" in StreamESD.ItemList:
+            StreamESD.ItemList.remove("RpcSectorLogicContainer#RPC_SECTORLOGIC")
         
 except:
     # still do a few things in case of error

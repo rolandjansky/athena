@@ -111,7 +111,7 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
     ATH_CHECK( m_adc2mevTool.retrieve() );
   } else {
     // pointer to detector manager:
-    m_calo_dd_man = CaloDetDescrManager::instance();
+    ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
     m_calo_id   = m_calo_dd_man->getCaloCell_ID();
     for (int i=0; i<30; i++) {
       m_adc2mev[i] = 0;
@@ -126,13 +126,8 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
   }
   
   // ***
-  
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  if (!m_emId) {
-    ATH_MSG_ERROR ( "Could not get lar EM ID helper" );
-    return StatusCode::FAILURE;
-  }
+
+  m_emId=m_calo_id->em_idHelper();
   
   // translate offline ID into online ID
   ATH_CHECK( m_cablingKey.initialize() );

@@ -54,7 +54,7 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadPixelClusterOnTrackToolFTK
   
 # SiLorentzAngleTool for SCT
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCELLCONTAINER_H
@@ -47,6 +47,7 @@ MODIFIED: David Rousseau: heavy modification to allow storing all
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "Identifier/IdentifierHash.h"
 #include "CxxUtils/PackedArray.h"
+#include "CxxUtils/CachedValue.h"
 #include "AthLinks/tools/findInContainer.h"
 
 
@@ -67,6 +68,9 @@ class CaloCellContainer : public DataVector<CaloCell>
 
  /** @brief type to be used for the internal lookup table, and to return list of cells */
   typedef std::vector<const CaloCell*> CellVector;
+  
+ /** @brief Return from non-const findCellVector. */
+  typedef std::vector<CaloCell*> MutableCellVector;
   
   /** @brief Main constructor */
   CaloCellContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
@@ -169,8 +173,12 @@ time this method of findCellVector is used */
   /** @brief fast find method given vector of identifier hash.
   Be careful that the order of cell return may not match the order 
   of the inputs, and that some cells may be missing */
-
   void findCellVector(const std::vector<IdentifierHash> & theVectorHash,CellVector & theCellVector) const;
+
+  /** @brief fast find method given vector of identifier hash.
+  Be careful that the order of cell return may not match the order 
+  of the inputs, and that some cells may be missing */
+  void findCellVector(const std::vector<IdentifierHash> & theVectorHash,MutableCellVector & theCellVector);
 
   
 
@@ -200,7 +208,6 @@ time this method of findCellVector is used */
 
 
  private:
-
   /** @brief get message service */
   IMessageSvc* msgSvc() const;
 
@@ -222,8 +229,25 @@ time this method of findCellVector is used */
   /** @brief order when container is complete */
   void orderWhenComplete();
 
+
+  /**
+   * @brief Look up a group of cells by IdentifierHash.
+   *        This is a templated version that can be instantiated for both
+   *        const and non-const versions.
+   * @param cont The container from which to fetch cells.
+   * @param theVectorHash Vector of desired IdentifierHash's.
+   * @param theCellVector Found cells will be appended to this vector.
+   */
+  template <class CONT, class VECT>
+  static void findCellVectorT(CONT& cont,
+                              const std::vector<IdentifierHash> & theVectorHash,
+                              VECT& theCellVector);
+
+  /** @brief Retrieve an initialized lookup table. */
+  const CxxUtils::PackedArray& getLookUpTable() const;
+
   /** @brief look up table of size HashIdentifiermax. */
-  CxxUtils::PackedArray m_lookUpTable;
+  CxxUtils::CachedValue<CxxUtils::PackedArray> m_lookUpTable;
 
   /** @brief true if size correspond to maximum hash. 
       only CaloCellContainerFinalizer tool is allowed to set this */
@@ -249,8 +273,6 @@ time this method of findCellVector is used */
   std::vector< CaloCellContainer::const_iterator > m_beginConstCalo,m_endConstCalo ;
   /** @brief non const iterators for the different calorimeters */
   std::vector< CaloCellContainer::iterator > m_beginCalo,m_endCalo;
- 
-  mutable int m_nWarningsToBePrinted ;
 };
 
 inline bool CaloCellContainer::hasTotalSize() const {

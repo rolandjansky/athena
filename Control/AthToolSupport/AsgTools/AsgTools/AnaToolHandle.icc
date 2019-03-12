@@ -6,6 +6,7 @@
 #define ASGTOOLS_ANATOOLHANDLE_ICC
 
 #include <AsgTools/MessageCheck.h>
+#include "CxxUtils/checker_macros.h"
 #include <assert.h>
 #include <cstdlib>
 
@@ -169,6 +170,8 @@ namespace asg
       /// \brief the shares we manage
     private:
       std::map<std::string,std::weak_ptr<AnaToolShare> > m_shared;
+      mutable std::recursive_mutex m_mutex;
+      typedef std::lock_guard<std::recursive_mutex> lock_t;
     };
 
 
@@ -977,7 +980,8 @@ namespace asg
   AnaToolHandle<T> ::
   get () const
   {
-    return const_cast<AnaToolHandle<T>*>(this)->get();
+    AnaToolHandle<T>* this_nc ATLAS_THREAD_SAFE = const_cast<AnaToolHandle<T>*>(this);
+    return this_nc->get();
   }
 
 

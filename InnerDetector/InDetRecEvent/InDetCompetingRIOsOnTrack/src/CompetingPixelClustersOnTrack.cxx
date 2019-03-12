@@ -72,9 +72,7 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         delete m_globalPosition;
         m_containedChildRots = compROT.m_containedChildRots;
         compROT.m_containedChildRots = nullptr;
-
-        m_globalPosition = compROT.m_globalPosition;
-        compROT.m_globalPosition = nullptr;
+        m_globalPosition = compROT.m_globalPosition.exchange(nullptr, std::memory_order_relaxed);
     }
     return (*this);
 }
@@ -116,5 +114,16 @@ std::ostream& InDet::CompetingPixelClustersOnTrack::dump( std::ostream& out ) co
 // Have all the contained ROTs a common associated surface?
 bool InDet::CompetingPixelClustersOnTrack::ROTsHaveCommonSurface(const bool) const {
     return true;
+}
+
+const Amg::Vector3D& InDet::CompetingPixelClustersOnTrack::globalPosition() const {
+    const Amg::Vector3D* ptr = m_globalPosition.load();
+    if(ptr) return *ptr;
+    const Amg::Vector3D* newptr = associatedSurface().localToGlobal(localParameters());
+    if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
+       return *newptr; //new object is now stored in m_globalPosition
+    }
+    delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
+    return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
 }
 

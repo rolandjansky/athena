@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4CosmicFilter/G4CosmicAndFilterTool.h"
 
 namespace G4UA
@@ -21,7 +20,7 @@ namespace G4UA
   G4CosmicAndFilterTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a G4CosmicAndFilter");
-    auto action = CxxUtils::make_unique<G4CosmicAndFilter>(m_config);
+    auto action = std::make_unique<G4CosmicAndFilter>(m_config);
     actionList.eventActions.push_back( action.get() );
     return action;
   }

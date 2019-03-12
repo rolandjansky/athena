@@ -479,7 +479,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     
     // cast baseCompROT to CompTRT_DConTrack:
 
-    const InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< const InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
+    InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
     if (!compROT) {
         ATH_MSG_ERROR("Given CompetingRIOsOnTrack is not a CompetingTRT_DriftCirclesOnTrack!");
         ATH_MSG_ERROR("Update of assignment probabilities aborted!!!");

@@ -33,7 +33,7 @@
 namespace LVL1BS {
 
 CpReadByteStreamV1V2Cnv::CpReadByteStreamV1V2Cnv( ISvcLocator* svcloc )
-    : Converter( ByteStream_StorageType, classID(), svcloc ),
+    : Converter( storageType(), classID(), svcloc ),
       m_name("CpReadByteStreamV1V2Cnv"),
       m_tool1("LVL1BS::CpByteStreamV1Tool/CpByteStreamV1Tool"),
       m_tool2("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool"),
@@ -53,11 +53,13 @@ const CLID& CpReadByteStreamV1V2Cnv::classID()
   return ClassID_traits<DataVector<LVL1::CPMTower> >::ID();
 }
 
+long CpReadByteStreamV1V2Cnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 StatusCode CpReadByteStreamV1V2Cnv::initialize()
 {

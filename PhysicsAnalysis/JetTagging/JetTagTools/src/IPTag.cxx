@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/IPTag.h"
@@ -380,7 +380,7 @@ namespace Analysis {
   }
 
 
-  StatusCode IPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode IPTag::tagJet(const xAOD::Jet * jetToTag, xAOD::BTagging* BTag) {
 
     ATH_MSG_VERBOSE("#BTAG# m_impactParameterView = " << m_impactParameterView );
     /** author to know which jet algorithm: */
@@ -395,14 +395,14 @@ namespace Analysis {
     // FF: Disable reference mode running for now
     if( m_runModus == "reference" ) {
       // here we require a jet selection:
-      if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
-	label = xAOD::jetFlavourLabel(&jetToTag);
+      if( jetToTag->pt()>m_jetPtMinRef && fabs(jetToTag->eta())<2.5 ) {
+	label = xAOD::jetFlavourLabel(jetToTag);
 	double deltaRtoClosestB = 999., deltaRtoClosestC = 999., deltaRtoClosestT = 999.;
     	double deltaRmin(0.);
-        if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+        if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
     	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
-	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
+	  jetToTag->getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
+	  jetToTag->getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
     	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
           deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
         } else {
@@ -437,12 +437,12 @@ namespace Analysis {
     
     if (m_SignWithSvx) {
       m_SVForIPTool->getDirectionFromSecondaryVertexInfo(SvxDirection,canUseSvxDirection,//output
-                                                         jetToTag,BTag,m_secVxFinderName,*m_priVtx);//input
+                                                         BTag,m_secVxFinderName,*m_priVtx);//input
     }
     
     // bad tracks from V0s, conversions, interactions:
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(TrkFromV0,//output
-                                                       jetToTag,BTag,m_secVxFinderName);//input
+                                                       BTag,m_secVxFinderName);//input
     if (TrkFromV0.size()!=0)  ATH_MSG_DEBUG("#BTAG# TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
 
     /** extract the TrackParticles from the jet and apply track selection: */
@@ -480,7 +480,7 @@ namespace Analysis {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
         if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
-          TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag.p4() );
+          TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag->p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
 	  bool tobeUsed = false;
           for(int i=0;i<nbPart;i++) {
@@ -515,7 +515,7 @@ namespace Analysis {
     ATH_MSG_VERBOSE("#BTAG# the z of the primary = " << m_priVtx->position().z());
 
     /** jet direction: */
-    Amg::Vector3D jetDirection(jetToTag.px(),jetToTag.py(),jetToTag.pz());
+    Amg::Vector3D jetDirection(jetToTag->px(),jetToTag->py(),jetToTag->pz());
     Amg::Vector3D unit = jetDirection.unit();
     if (m_SignWithSvx && canUseSvxDirection) {
       unit = SvxDirection.unit();

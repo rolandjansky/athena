@@ -1,12 +1,5 @@
-if hasattr(topSequence, 'StreamRDO'):
-    outStream = topSequence.StreamRDO
-else:
-    ## temporary back-compatibility
-    outStreams = AlgSequence( "Streams" )
-    if hasattr(outStreams, 'StreamRDO'):
-        outStream = outStreams.StreamRDO
-    else:
-        raise AttributeError("AthenaPoolOutputStream not found")
+from AthenaCommon.AppMgr import theApp
+outStream = theApp.getOutputStream( "StreamRDO" )
 
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.CfgGetter import getService, getPublicTool
@@ -83,7 +76,6 @@ if DetFlags.digitize.SCT_on():
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
     theSCT_FrontEnd = ToolSvc.SCT_FrontEnd
-    theSCT_FrontEnd.MaxStripsPerSide = 1280
     theSCT_FrontEnd.UseCalibData = False
 
     if not digitizationFlags.doXingByXingPileUp():

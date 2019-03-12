@@ -579,7 +579,6 @@ However, if you have a large scene, where you want to fly around in the scene, a
           </layout>
          </item>
         </layout>
-        <zorder></zorder>
        </widget>
       </item>
       <item>

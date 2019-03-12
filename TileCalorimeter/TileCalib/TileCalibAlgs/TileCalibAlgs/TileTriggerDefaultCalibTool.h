@@ -15,12 +15,12 @@
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/TileCondToolEmscale.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <string> 
 
 class TileCablingService;
-class TileCondToolEmscale;
 class CaloLVL1_ID;
 class TileHWID;
 class TileID;
@@ -59,7 +59,8 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileHWID* m_tileHWID;
   const TileID*   m_tileID;
   const TileCablingService* m_tileCablingService;
-  ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,  //!< main Tile Calibration tool
+    "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
@@ -107,7 +108,8 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
 
   std::string m_TileBeamContainerID;    //!< Name of the TileBeamElemContainer
   std::string m_TileTriggerContainerID; //!< Name of the TileTriggerContainer
-  ToolHandle<LVL1::IL1CaloTTIdTools > m_l1CaloTTIdTools;
+  ToolHandle<LVL1::IL1CaloTTIdTools > m_l1CaloTTIdTools{this,
+    "L1CaloTTIdTools", "LVL1::L1CaloTTIdTools/L1CaloTTIdTools", "L1Calo TTId tools"};
   //  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; 
 
   uint32_t m_BCID;         //!< BCID in LASTROD

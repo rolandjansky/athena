@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetRIO_OnTrack/SCTRIO_OnTrackErrorScaling.h"
 #include <iostream>
 
-const char *SCTRIO_OnTrackErrorScaling::s_names[SCTRIO_OnTrackErrorScaling::kNParamTypes]={
+const char * const SCTRIO_OnTrackErrorScaling::s_names[SCTRIO_OnTrackErrorScaling::kNParamTypes]={
     "SCT Barrel",
     "SCT Endcap"
-  };
+};
 
 namespace {
   inline double square(double a) { return a*a; }

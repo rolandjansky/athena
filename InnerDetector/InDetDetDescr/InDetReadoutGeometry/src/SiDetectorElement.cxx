@@ -22,7 +22,7 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Units/PhysicalConstants.h" // for M_PI
-#include "CLHEP/Units/SystemOfUnits.h" 
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
@@ -54,15 +54,17 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_id(id),
   m_design(design),
   m_commonItems(commonItems),
-  m_nextInEta(0),
-  m_prevInEta(0),
-  m_nextInPhi(0),
-  m_prevInPhi(0),
-  m_otherSide(0),
+  m_nextInEta(nullptr),
+  m_prevInEta(nullptr),
+  m_nextInPhi(nullptr),
+  m_prevInPhi(nullptr),
+  m_otherSide(nullptr),
   m_cacheValid(false),
   m_firstTime(true),
   m_isStereo(false),
-  m_surface(0),
+  m_mutex(),
+  m_surface{},
+  m_surfaces{},
   m_geoAlignStore(geoAlignStore)
 {
   //The following are fixes for coverity bug 11955, uninitialized scalars:
@@ -84,7 +86,7 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_hitDepth = m_design->depthAxis();
   ///
   
-  commonConstructor();
+ commonConstructor();
 }
 
 void
@@ -95,25 +97,25 @@ SiDetectorElement::commonConstructor()
   // Set booleans for wether we are pixel/sct barrel/endcap
   m_isPixel = getIdHelper()->is_pixel(m_id);
   if (!m_isPixel && !getIdHelper()->is_sct(m_id)){
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
   }
 
   // Set IdHash. Also set m_isBarrel.
-  m_isDBM=false; 
+  m_isDBM=false;
   if (isPixel()) {
     const PixelID* pixelId = dynamic_cast<const PixelID *>(getIdHelper());
-    if(pixelId){
+    if (pixelId) {
       m_isBarrel = pixelId->is_barrel(m_id);
       m_idHash = pixelId->wafer_hash(m_id);
 
-      if(pixelId->is_dbm(m_id)){
-	m_isBarrel=false; 
-	m_isDBM=true; 
+      if (pixelId->is_dbm(m_id)) {
+        m_isBarrel=false;
+        m_isDBM=true;
       } 
     }
   } else {
-    const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
-    if(sctId){
+    const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
+    if (sctId) {
       m_isBarrel = sctId->is_barrel(m_id);
       m_idHash = sctId->wafer_hash(m_id);
     }
@@ -135,18 +137,16 @@ SiDetectorElement::commonConstructor()
 // Destructor:
 SiDetectorElement::~SiDetectorElement()
 {
-  delete m_surface;
-
   // The design is reference counted so that it will not be deleted until the last element is deleted.
   m_design->unref();
 
   m_commonItems->unref();
-
 }
 
 void 
 SiDetectorElement::updateCache() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
   m_cacheValid = true;
 
@@ -157,7 +157,7 @@ SiDetectorElement::updateCache() const
 
   double radialShift = 0.;
   const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
+  if (testDesign) radialShift = testDesign->localModuleCentreRadius();
       
   HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
   m_centerCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * centerGeoModel;
@@ -177,7 +177,6 @@ SiDetectorElement::updateCache() const
     HepGeom::Vector3D<double>(0,1,0),
     HepGeom::Vector3D<double>(0,0,1)
   };
-
   
   static const HepGeom::Vector3D<double> & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
   static const HepGeom::Vector3D<double> & localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
@@ -187,23 +186,19 @@ SiDetectorElement::updateCache() const
   //For it to change would require extreme unrealistic misalignment changes.
   if (firstTimeTmp) {
     // Determine the unit vectors in global frame
-   
         
-    	const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
-    	const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
-    	const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+    const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
+    const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
+    const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
 
-    	HepGeom::Vector3D<double> globalDepthAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelDepthAxis);
-    	HepGeom::Vector3D<double> globalPhiAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelPhiAxis);
-	HepGeom::Vector3D<double> globalEtaAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelEtaAxis);
+    HepGeom::Vector3D<double> globalDepthAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelDepthAxis);
+    HepGeom::Vector3D<double> globalPhiAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelPhiAxis);
+    HepGeom::Vector3D<double> globalEtaAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelEtaAxis);
 
-
-
-        // unit radial vector
-        HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
+    // unit radial vector
+    HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
      
-        unitR.setMag(1.);
-
+    unitR.setMag(1.);
 
     HepGeom::Vector3D<double> nominalEta;
     HepGeom::Vector3D<double> nominalNormal;
@@ -222,11 +217,11 @@ SiDetectorElement::updateCache() const
     }   
 
     if (isBarrel() && !barrelLike) {      
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has endcap like orientation with barrel identifier." 
-						 << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has endcap like orientation with barrel identifier."
+                                                  << endmsg;
     } else if (!isBarrel() && barrelLike) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has barrel like orientation with endcap identifier."
-						 << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has barrel like orientation with endcap identifier."
+                                                  << endmsg;
     }
     
     if (barrelLike) {
@@ -234,7 +229,7 @@ SiDetectorElement::updateCache() const
       nominalNormal =  unitR;
     } else { // endcap like
       nominalNormal.setZ(-1);
-      nominalEta = unitR; 
+      nominalEta = unitR;
     }
 
     // Determine if axes are to have there directions swapped.
@@ -246,9 +241,9 @@ SiDetectorElement::updateCache() const
     m_depthDirection = true;
     if (depthDir < 0) {
       if (m_design->depthSymmetric()) {
-	m_depthDirection = false;
+        m_depthDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local depth axis." << endmsg;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local depth axis." << endmsg;
       }
     }
     if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -264,9 +259,9 @@ SiDetectorElement::updateCache() const
     m_phiDirection = true;
     if (phiDir < 0) {
       if (m_design->phiSymmetric()) {
-	m_phiDirection = false;
+        m_phiDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xPhi axis." << endmsg;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xPhi axis." << endmsg;
       }
     }
     
@@ -283,9 +278,9 @@ SiDetectorElement::updateCache() const
     m_etaDirection = true;
     if (etaDir < 0) {
       if (m_design->etaSymmetric()) {
-	m_etaDirection = false;
+        m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endmsg;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -311,15 +306,15 @@ SiDetectorElement::updateCache() const
                  t(0,2) * (t(1,0)*t(2,1) - t(1,1)*t(2,0));
     if (det < 0) {
       if (m_design->depthSymmetric()) {
-	if(msgLvl(MSG::DEBUG))  
-	  msg(MSG::DEBUG) << "Local frame is left-handed, Swapping depth axis to make it right handed." 
-			  << endmsg;
-	m_depthDirection = !m_depthDirection;
-	m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransform();
-	 m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
-	//m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
+        if (msgLvl(MSG::DEBUG))
+          msg(MSG::DEBUG) << "Local frame is left-handed, Swapping depth axis to make it right handed."
+                          << endmsg;
+        m_depthDirection = !m_depthDirection;
+        m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransform();
+        m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
+        //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
        } else {
-	 if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endmsg;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endmsg;
       }
     }
   }
@@ -327,8 +322,8 @@ SiDetectorElement::updateCache() const
   
   // Initialize various cached members
   // The unit vectors
-  m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
-  m_normal = Amg::Vector3D( m_normalCLHEP[0], m_normalCLHEP[1], m_normalCLHEP[2]);
+  HepGeom::Vector3D<double> normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
+  m_normal = Amg::Vector3D( normalCLHEP[0], normalCLHEP[1], normalCLHEP[2]);
   
 
   m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
@@ -337,7 +332,14 @@ SiDetectorElement::updateCache() const
   m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
   m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
 
-  getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
+  double minR, maxR, minZ, maxZ, minPhi, maxPhi;
+  getExtent(minR, maxR, minZ, maxZ, minPhi, maxPhi);
+  m_minR = minR;
+  m_maxR = maxR;
+  m_minZ = minZ;
+  m_maxZ = maxZ;
+  m_minPhi = minPhi;
+  m_maxPhi = maxPhi;
 
   // Determin isStereo
   if (firstTimeTmp) {
@@ -345,15 +347,15 @@ SiDetectorElement::updateCache() const
       double sinStereoThis = std::abs(sinStereo());
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
-	// If they happend to be equal then set side0 as axial and side1 as stereo.
-	const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
-        if(sctId){
-	  int side = sctId->side(m_id);
-	  m_isStereo = (side == 1);
-	}
+        // If they happend to be equal then set side0 as axial and side1 as stereo.
+        const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
+        if (sctId) {
+          int side = sctId->side(m_id);
+          m_isStereo = (side == 1);
+        }
       } else {
-	// set the stereo side as the one with largest absolute sinStereo. 
-	m_isStereo = (sinStereoThis > sinStereoOther);
+        // set the stereo side as the one with largest absolute sinStereo.
+        m_isStereo = (sinStereoThis > sinStereoOther);
       }
     } else {
       m_isStereo = false;
@@ -368,7 +370,7 @@ SiDetectorElement::transformHit() const
 {
   if (m_geoAlignStore) {
     const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
-    if(ptrXf) return *ptrXf;
+    if (ptrXf) return *ptrXf;
   }
   return getMaterialGeom()->getAbsoluteTransform();
 }
@@ -376,6 +378,7 @@ SiDetectorElement::transformHit() const
 const Amg::Transform3D &
 SiDetectorElement::transform() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_transform;
 }
@@ -383,12 +386,10 @@ SiDetectorElement::transform() const
 const HepGeom::Transform3D &
 SiDetectorElement::transformCLHEP() const
 {
-  //if (!m_cacheValid) updateCache();
-  //return m_transform;
   //stuff to get the CLHEP version of the local to global transform.
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_transformCLHEP;
-
 }
 
 const HepGeom::Transform3D 
@@ -396,7 +397,7 @@ SiDetectorElement::defTransformCLHEP() const
 {
   if (m_geoAlignStore) {
     const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
-    if(ptrXf) return Amg::EigenTransformToCLHEP(*ptrXf) * recoToHitTransform();
+    if (ptrXf) return Amg::EigenTransformToCLHEP(*ptrXf) * recoToHitTransform();
   }
   return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()) * recoToHitTransform();
 }  
@@ -436,7 +437,7 @@ SiDetectorElement::recoToHitTransform() const
   //static 
     
   const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
-					HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
+                                       HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
   
   // Swap direction of axis as appropriate
   CLHEP::Hep3Vector scale(1,1,1);
@@ -501,6 +502,7 @@ SiDetectorElement::isModuleFrame() const
 const Amg::Vector3D & 
 SiDetectorElement::center() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_center;
 }
@@ -508,6 +510,7 @@ SiDetectorElement::center() const
 const Amg::Vector3D & 
 SiDetectorElement::normal() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_normal;
 }
@@ -515,6 +518,7 @@ SiDetectorElement::normal() const
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::etaAxisCLHEP() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_etaAxisCLHEP;
 }
@@ -522,6 +526,7 @@ SiDetectorElement::etaAxisCLHEP() const
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::phiAxisCLHEP() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_phiAxisCLHEP;
 }
@@ -529,6 +534,7 @@ SiDetectorElement::phiAxisCLHEP() const
 const Amg::Vector3D & 
 SiDetectorElement::etaAxis() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_etaAxis;
 }
@@ -536,6 +542,7 @@ SiDetectorElement::etaAxis() const
 const Amg::Vector3D & 
 SiDetectorElement::phiAxis() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   return m_phiAxis;
 }
@@ -543,7 +550,7 @@ SiDetectorElement::phiAxis() const
 Amg::Vector2D
 SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const  // Will change order to phi,eta
 {
-  if (!m_cacheValid) updateCache(); 
+  if (!m_cacheValid) updateCache();
   if (!m_etaDirection) xEta = -xEta;
   if (!m_phiDirection) xPhi = -xPhi;
   return Amg::Vector2D(xPhi, xEta);
@@ -553,7 +560,7 @@ HepGeom::Point3D<double>
 SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> & hitPosition) const
 {
   // Equiv to transform().inverse * transformHit() * hitPosition
-  if (!m_cacheValid) updateCache(); 
+  if (!m_cacheValid) updateCache();
   double xDepth = hitPosition[m_hitDepth];
   double xPhi = hitPosition[m_hitPhi];
   double xEta = hitPosition[m_hitEta];
@@ -581,7 +588,7 @@ bool SiDetectorElement::isBarrel() const
 
 bool SiDetectorElement::isDBM() const 
 { 
-  return m_isDBM; 
+  return m_isDBM;
 } 
 
 bool SiDetectorElement::isBlayer() const
@@ -617,6 +624,7 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
 // compute sin(tilt angle) at center:
 double SiDetectorElement::sinTilt() const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // Tilt is defined as the angle between a refVector and the sensor normal.
@@ -647,13 +655,14 @@ double SiDetectorElement::sinTilt() const
 
 double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) const
 { 
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // It is assumed that the global position is already in the plane of the element.
 
   // tilt angle is not defined for the endcap
   if (isEndcap()) return 0;
- 
+  
   // Angle between normal and radial vector.
   //HepGeom::Vector3D<double> refVector(globalPos.x(), globalPos.y(), 0);
   //return (refVector.cross(m_normal)).z()/refVector.mag();
@@ -663,7 +672,7 @@ double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) con
 
 double SiDetectorElement::sinStereo() const
 {
-
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // Stereo is the angle between a refVector and a vector along the strip/pixel in eta direction.
@@ -711,6 +720,7 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
   // sinStereo =  (refVector cross stripAxis) . normal
   //
 
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   double sinStereo;
@@ -727,10 +737,8 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
     if (m_design->shape() != InDetDD::Trapezoid) {
       sinStereo = (globalPos.y() * m_etaAxis.x() - globalPos.x() * m_etaAxis.y()) / globalPos.perp();
     } else { // trapezoid      
-      // double radius   = m_center.perp(); // Really want nominal r.
       assert (minWidth() != maxWidth());
       double radius = width() * length() / (maxWidth() - minWidth());
-      // HepGeom::Vector3D<double> stripAxis = radius * m_etaAxis + globalPos - m_center;
       // Only need projection in xy plane.
       double stripAxisX  = globalPos.x() - m_center.x() + m_etaAxis.x()*radius;
       double stripAxisY  = globalPos.y() - m_center.y() + m_etaAxis.y()*radius;
@@ -758,7 +766,7 @@ SiDetectorElement::sinStereoLocal(const Amg::Vector2D &localPos) const
   double oneOverRadius = (maxWidth() - minWidth()) /  (width() * length());
   double x = localPos[distPhi];
   double y = localPos[distEta];
-  return -x*oneOverRadius / sqrt( (1+y*oneOverRadius)*(1+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );  
+  return -x*oneOverRadius / sqrt( (1+y*oneOverRadius)*(1+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );
 }
 
 
@@ -774,26 +782,25 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
   const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds=
     m_design->endsOfStrip(position);
   return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),
-					  globalPosition(localEnds.second));
+                                                 globalPosition(localEnds.second));
 }
 
 
 const Trk::Surface & 
 SiDetectorElement::surface() const
 {
-  if (!m_surface){
-    m_surface = new Trk::PlaneSurface(*this);
-  }
- return *m_surface;
+  if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
+  return *m_surface;
 }
   
 const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
 {
-    if (!m_surfaces.size()){
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    if (!m_surfaces.size()) {
         // get this surface
         m_surfaces.push_back(&surface());
         // get the other side surface
-        if (otherSide()){
+        if (otherSide()) {
             m_surfaces.push_back(&(otherSide()->surface()));
         }
     }
@@ -809,8 +816,8 @@ SiDetectorElement::bounds() const
   
 // Get min/max or r, z,and phi
 void SiDetectorElement::getExtent(double &rMin, double &rMax, 
-	       double &zMin, double &zMax, 
-	       double &phiMin, double &phiMax) const
+                                  double &zMin, double &zMax,
+                                  double &phiMin, double &phiMax) const
 {
 
   const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
@@ -818,17 +825,17 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
 
-  bool first = true; 
+  bool first = true;
 
   double phiOffset = 0.;
 
   double radialShift = 0.;
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+  if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
   const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
 
   for (int i = 0; i < 4; i++) {
 
-    if(testDesign) corners[i].transform(rShift);
+    if (testDesign) corners[i].transform(rShift);
 
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
@@ -843,9 +850,9 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
       // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg. 
       // This offset is later removed.
       if (phiPoint < -0.5 * M_PI) {
-	phiOffset = -0.5 * M_PI;
+        phiOffset = -0.5 * M_PI;
       } else if  (phiPoint > 0.5 * M_PI) {
-	phiOffset = 0.5 * M_PI;
+        phiOffset = 0.5 * M_PI;
       }
       phiMin = phiMax = phiPoint - phiOffset;
       rMin = rMax = rPoint;
@@ -854,8 +861,8 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
     } else {
       phiPoint -= phiOffset;
       // put phi back in -M_PI < phi < +M_PI range
-      if (phiPoint < -M_PI) phiPoint += 2. * M_PI; 
-      if (phiPoint > M_PI)  phiPoint -= 2. * M_PI; 
+      if (phiPoint < -M_PI) phiPoint += 2. * M_PI;
+      if (phiPoint > M_PI)  phiPoint -= 2. * M_PI;
       phiMin = std::min(phiMin, phiPoint);
       phiMax = std::max(phiMax, phiPoint);
       rMin = std::min(rMin, rPoint);
@@ -866,13 +873,13 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
     first = false;
   }
 
-  // put phi back in -M_PI < phi < +M_PI range	  
+  // put phi back in -M_PI < phi < +M_PI range
   phiMin += phiOffset;
   phiMax += phiOffset;
-  if (phiMin < -M_PI) phiMin += 2. * M_PI; 
-  if (phiMin > M_PI)  phiMin -= 2. * M_PI; 
-  if (phiMax < -M_PI) phiMax += 2. * M_PI; 
-  if (phiMax > M_PI)  phiMax -= 2. * M_PI; 
+  if (phiMin < -M_PI) phiMin += 2. * M_PI;
+  if (phiMin > M_PI)  phiMin -= 2. * M_PI;
+  if (phiMax < -M_PI) phiMax += 2. * M_PI;
+  if (phiMax > M_PI)  phiMax -= 2. * M_PI;
 
 }
 
@@ -886,14 +893,14 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 // so if the element extends across the -180/180 boundary then minPhi will
 // be greater than maxPhi.
 void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &etaMax, double &phiMin, 
-					double &phiMax, double &rz) const
+                                        double &phiMax, double &rz) const
 {
   if (!m_cacheValid) updateCache();
 
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
 
-  bool first = true; 
+  bool first = true;
 
   double phiOffset = 0.;
 
@@ -911,9 +918,9 @@ void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &e
       // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg. 
       // This offset is later removed.
       if (phiPoint < -0.5 * M_PI) {
-	phiOffset = -0.5 * M_PI;
+        phiOffset = -0.5 * M_PI;
       } else if  (phiPoint > 0.5 * M_PI) {
-	phiOffset = 0.5 * M_PI;
+        phiOffset = 0.5 * M_PI;
       }
       phiMin = phiMax = phiPoint - phiOffset;
       etaMin = etaMinPoint;
@@ -921,8 +928,8 @@ void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &e
     } else {
       phiPoint -= phiOffset;
       // put phi back in -M_PI < phi < +M_PI range
-      if (phiPoint < -M_PI) phiPoint += 2. * M_PI; 
-      if (phiPoint > M_PI)  phiPoint -= 2. * M_PI; 
+      if (phiPoint < -M_PI) phiPoint += 2. * M_PI;
+      if (phiPoint > M_PI)  phiPoint -= 2. * M_PI;
       phiMin = std::min(phiMin, phiPoint);
       phiMax = std::max(phiMax, phiPoint);
       etaMin = std::min(etaMin, etaMinPoint);
@@ -931,13 +938,13 @@ void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &e
     first = false;
   }
 
-  // put phi back in -M_PI < phi < +M_PI range	  
+  // put phi back in -M_PI < phi < +M_PI range
   phiMin += phiOffset;
   phiMax += phiOffset;
-  if (phiMin < -M_PI) phiMin += 2. * M_PI; 
-  if (phiMin > M_PI)  phiMin -= 2. * M_PI; 
-  if (phiMax < -M_PI) phiMax += 2. * M_PI; 
-  if (phiMax > M_PI)  phiMax -= 2. * M_PI; 
+  if (phiMin < -M_PI) phiMin += 2. * M_PI;
+  if (phiMin > M_PI)  phiMin -= 2. * M_PI;
+  if (phiMax < -M_PI) phiMax += 2. * M_PI;
+  if (phiMax > M_PI)  phiMax -= 2. * M_PI;
 
   // Calculate rz = r (barrel) or z (endcap)
   // Use center of sensor ((0,0,0) in local coordinates) for determining this.
@@ -948,14 +955,14 @@ void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &e
     rz = center().z();  // z
   }
 
-}	
+}
 
 // Gets eta phi for a point given in local coordinates. deltaZ is specified to
 // account for the vertex spread. phi is independent of this vertex
 // spread. etaMax will correspond to zMin (-deltaZ) and etaMin will
 // correspond to zMax (+deltaZ).
 void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> & point, double deltaZ, 
-				       double &etaMin, double &etaMax, double &phi) const
+                                       double &etaMin, double &etaMax, double &phi) const
 {
   // Get the point in global coordinates.
   HepGeom::Point3D<double> globalPoint = globalPosition(point);
@@ -1008,7 +1015,7 @@ void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const
 
 SiIntersect
 SiDetectorElement::inDetector(const Amg::Vector2D & localPosition, 
-					  double phiTol, double etaTol) const
+                              double phiTol, double etaTol) const
 {
   return m_design->inDetector(localPosition, phiTol, etaTol);
 }
@@ -1082,20 +1089,20 @@ SiDetectorElement::identifierFromCellId(const SiCellId & cellId) const
 
   if (cellId.isValid()) {
 
-    if (isPixel()){
+    if (isPixel()) {
       const PixelID * pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
       if (pixelIdHelper) {
-	id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
+        id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
       }
     } else {
       const SCT_ID * sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
       if (sctIdHelper) {
-	id = sctIdHelper->strip_id(m_id, cellId.strip());
+        id = sctIdHelper->strip_id(m_id, cellId.strip());
       }
     }
   }
 
-  return id; 
+  return id;
 }
 
 SiCellId   
@@ -1107,15 +1114,15 @@ SiDetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
 
   if (identifier.is_valid()) {
   
-    if (isPixel()){
+    if (isPixel()) {
       const PixelID * pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
       if (pixelIdHelper) {
-	cellId = SiCellId(pixelIdHelper->phi_index(identifier), pixelIdHelper->eta_index(identifier));
+        cellId = SiCellId(pixelIdHelper->phi_index(identifier), pixelIdHelper->eta_index(identifier));
       }
     } else {
       const SCT_ID * sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
       if (sctIdHelper) {
-	cellId =  SiCellId(sctIdHelper->strip(identifier));
+        cellId =  SiCellId(sctIdHelper->strip(identifier));
       }
     }
   }

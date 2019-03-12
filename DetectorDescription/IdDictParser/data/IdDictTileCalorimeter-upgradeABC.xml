@@ -41,6 +41,13 @@
   </subregion>
 
 
+  <subregion name="dummytower" >
+    <range field="sampling" value="0" />
+    <range field="pmt" value="0" />
+    <range field="adc" value="0" />
+  </subregion>
+
+
 <!-- Barrel towers -->
   <subregion name="tower0AB" >
     <range field="tower"    value="0" />
@@ -277,6 +284,7 @@
   <!-- dummy tower -->
   <subregion name="tower41" >
     <range field="tower"    value="41" />
+    <reference subregion="dummytower" />
   </subregion>
   <subregion name="tower42" >
     <range field="tower"    value="42" />
@@ -286,14 +294,17 @@
   <!-- dummy tower -->
   <subregion name="tower43" >
     <range field="tower"    value="43" />
+    <reference subregion="dummytower" />
   </subregion>
   <!-- dummy tower -->
   <subregion name="tower44" >
     <range field="tower"    value="44" />
+    <reference subregion="dummytower" />
   </subregion>
   <!-- dummy tower -->
   <subregion name="tower45" >
     <range field="tower"    value="45" />
+    <reference subregion="dummytower" />
   </subregion>
 
   <subregion name="tower46" >

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------
@@ -8,7 +8,7 @@
 // Y. HASEGAWA
 //-----------------------------------------------------
 
-#include "TGC_Digitization/TgcDigitMaker.h"
+#include "TgcDigitMaker.h"
 
 #include <iostream>
 #include <fstream>
@@ -37,7 +37,6 @@ TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
 			     unsigned int                       runperiod)
 {
   m_digits                  = 0;
-  m_engine                  = 0;
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
   m_runperiod               = runperiod;
@@ -59,7 +58,7 @@ TgcDigitMaker::~TgcDigitMaker()
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
-StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine)
+StatusCode TgcDigitMaker::initialize()
 {
   // Initialize TgcIdHelper
   if(!m_hitIdHelper) {
@@ -70,9 +69,6 @@ StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine)
   m_idHelper = m_mdManager->tgcIdHelper();
   
   readFileOfTimeJitter();
-
-  // getting our random numbers stream
-  m_engine = rndmEngine;
 
   // Read share/TGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold. 
   readFileOfEnergyThreshold();
@@ -96,7 +92,8 @@ StatusCode TgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine)
 // Execute Digitization
 //---------------------------------------------------
 TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
-					       const double globalHitTime)
+					       const double globalHitTime,
+                                               CLHEP::HepRandomEngine* rndmEngine)
 {
   //////////  convert ID for this digitizer system 
   int         Id         = hit->TGCid();
@@ -185,7 +182,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   // For TGCSimHit_p1, old efficiency check with only isStrip variable is used. 
   // For TGCSimHit_p2, new efficiency check with chamber dependent energy threshold is used. 
 
-  if((energyDeposit< -1. && efficiencyCheck(isStrip)) || // Old efficiencyCheck for TGCSimHit_p1. 
+  if((energyDeposit< -1. && efficiencyCheck(isStrip, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1. 
      (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, isStrip, energyDeposit)) // New efficiencyCheck for TGCSimHit_p2
      ) {  
 
@@ -235,7 +232,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     for(int iwg=iWG[0]; iwg<=iWG[1]; iwg++) {
       if(1<=iwg && iwg<=tgcChamber->getNGangs(ilyr)) {
 	// TGC response time calculation
-	float jit = timeJitter(direCos);
+	float jit = timeJitter(direCos, rndmEngine);
 	if(jit < jitter) jitter = jit;
 	const float wirePropagationTime = 3.3*CLHEP::ns/CLHEP::m; // 3.7*ns/m was used until MC10.
 	float ySignPhi = (stationPhi%2==1) ? -1. : +1.; 
@@ -257,7 +254,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId,bctag);
 
 	  if(iwg==iWG[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iwg, posInWG[0], wDigitTime);
+	    randomCrossTalk(elemId, ilyr, isStrip, iwg, posInWG[0], wDigitTime, rndmEngine);
 	  }	 
  
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
@@ -282,7 +279,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   isStrip = 1;
 
   if((ilyr != 2 || (stationName.substr(0,2) != "T1")) && // no stip in middle layers of T1* 
-     ((energyDeposit< -1. && efficiencyCheck(isStrip)) || // Old efficiencyCheck for TGCSimHit_p1.
+     ((energyDeposit< -1. && efficiencyCheck(isStrip, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1.
       (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, isStrip, energyDeposit))) // New efficiencyCheck for TGCSimHit_p2
      ) { 
 
@@ -375,7 +372,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	const float stripPropagationTime = 3.3*CLHEP::ns/CLHEP::m; // 8.5*ns/m was used until MC10. 
 	// Since MC11 3.3*ns/m (the speed of light) is used and was obtained with Z->mumu data/MC comparison. 
 	if(jitter > jitterInitial-0.1) {
-	  jitter = timeJitter(direCos);
+	  jitter = timeJitter(direCos, rndmEngine);
 	}
 	float zSignEta = (abs(stationEta)%2 == 1 && abs(stationEta) != 5) ? -1. : +1.;
 	// if(abs(stationEta)%2 == 1 && abs(stationEta) != 5) : -1. : ASD attached at the longer base of TGC
@@ -404,7 +401,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						   << bctag << endmsg;
 
 	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime);
+	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime, rndmEngine);
 	  }
 	}
       }
@@ -465,7 +462,7 @@ void TgcDigitMaker::readFileOfTimeJitter()
   ifs.close();
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal) const 
+float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal, CLHEP::HepRandomEngine* rndmEngine) const 
 {
   float injectionAngle = atan2(fabs(direCosLocal[2]),fabs(direCosLocal[0]))/CLHEP::degree;
 
@@ -485,8 +482,8 @@ float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal) const
   float probRef = 0.;
 
   while (prob > probRef) {
-    prob   = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0);
-    jitter = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0)*40.; // trial time jitter in nsec
+    prob   = CLHEP::RandFlat::shoot(rndmEngine, 0.0, 1.0);
+    jitter = CLHEP::RandFlat::shoot(rndmEngine, 0.0, 1.0)*40.; // trial time jitter in nsec
     int ithJitter = static_cast<int>(jitter);
     // probability distribution calculated from weighted sum between neighboring bins of angles
     probRef = (1.-wAngle)*m_vecAngle_Time[ithAngle][ithJitter]
@@ -495,12 +492,12 @@ float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal) const
   return jitter;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool TgcDigitMaker::efficiencyCheck(const int isStrip) const {
+bool TgcDigitMaker::efficiencyCheck(const int isStrip, CLHEP::HepRandomEngine* rndmEngine) const {
   if(isStrip == 0) { // wire group
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfWireGangs) return true;
+    if(CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) < m_efficiencyOfWireGangs) return true;
   }
   else if(isStrip == 1) { // strip
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfStrips) return true;
+    if(CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) < m_efficiencyOfStrips) return true;
   }
   if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed. isStrip: " << isStrip << endmsg;
   return false;
@@ -1002,7 +999,8 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     const int isStrip,
                                     const int channel,
                                     const float posInChan,
-                                    const double digitTime) 
+                                    const double digitTime,
+                                    CLHEP::HepRandomEngine* rndmEngine) 
 {
   int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
   int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
@@ -1033,7 +1031,7 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
   } else if(posInChan > 1.-prob1CrossTalk) {
     nCrossTalks_pos = 1;  // 0-1
   } else {
-    double prob = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0);
+    double prob = CLHEP::RandFlat::shoot(rndmEngine, 0.0, 1.0);
     if(prob < prob11CrossTalk/(1.-2.*prob1CrossTalk)) {
       nCrossTalks_neg = 1; nCrossTalks_pos = 1;  // 1-1
     } else if(prob < (prob20CrossTalk + prob11CrossTalk) / (1.-2.*prob1CrossTalk)) { 

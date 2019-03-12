@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FSIEndJewel.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_FSIEndJewel::SCT_FSIEndJewel(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_FSIEndJewel::SCT_FSIEndJewel(const std::string & name,
+                                 InDetDD::SCT_DetectorManager* detectorManager,
+                                 const SCT_GeometryManager* geometryManager,
+                                 SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -26,8 +29,7 @@ SCT_FSIEndJewel::SCT_FSIEndJewel(const std::string & name)
 void
 SCT_FSIEndJewel::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;   
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
  
   m_materialName  = parameters->fsiEndJewelMaterial();
   m_radialWidth = parameters->fsiEndJewelRadialWidth();
@@ -41,12 +43,9 @@ SCT_FSIEndJewel::build()
 
   // Build the barrel FSI end jewel. Just a simple box.
   // Length is in z-direction. 
-  SCT_MaterialManager materials;
-
   const GeoBox * jewelShape = new GeoBox(0.5*m_radialWidth, 0.5*m_rPhiWidth, 0.5*m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, jewelShape->volume());
-  const GeoLogVol *jewelLog = 
-    new GeoLogVol(getName(), jewelShape, m_material);
+  m_material = m_materials->getMaterialForVolume(m_materialName, jewelShape->volume());
+  const GeoLogVol *jewelLog = new GeoLogVol(getName(), jewelShape, m_material);
   GeoPhysVol * jewel = new GeoPhysVol(jewelLog);
 
   return jewel;

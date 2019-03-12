@@ -4,9 +4,7 @@
 
 #include "SCT_TdaqEnabledCondAlg.h"
 
-#include "EventInfo/EventID.h"
 #include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/SCT_OnlineId.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
@@ -15,6 +13,7 @@
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
+  , m_onlineId{}
 {
 }
 
@@ -37,9 +36,6 @@ StatusCode SCT_TdaqEnabledCondAlg::initialize()
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-
-  // Read Handle
-  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -98,7 +94,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute(const EventContext& ctx) const
       unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
-      if (SCT_OnlineId::rodIdInRange(rodNumber)) {
+      if (m_onlineId.rodIdInRange(rodNumber)) {
         if ((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
           ATH_MSG_WARNING("Set insertion failed for rod "<<rodNumber);
         }
@@ -158,15 +154,10 @@ StatusCode SCT_TdaqEnabledCondAlg::finalize()
 }
 
 bool SCT_TdaqEnabledCondAlg::unfilledRun(const EventContext& ctx) const {
-  SG::ReadHandle<EventInfo> event{m_eventInfoKey, ctx};
-  if (event.isValid()) {
-    const unsigned int runNumber{event->event_ID()->run_number()};
-    const bool noDataExpected{runNumber < s_earliestRunForFolder};
-    if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
-    return noDataExpected;
-  }
-  ATH_MSG_WARNING("The event information could not be retrieved in this service");
-  return false; //this means the service will attempt to access the folder and fill it, even though the run number is unknown
+  const unsigned int runNumber{ctx.eventID().run_number()};
+  const bool noDataExpected{runNumber < s_earliestRunForFolder};
+  if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
+  return noDataExpected;
 }
 
 //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'

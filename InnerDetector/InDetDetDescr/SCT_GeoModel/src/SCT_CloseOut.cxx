@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CloseOut.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_CloseOut::SCT_CloseOut(const std::string & name, int iLayer)
-  : SCT_SharedComponentFactory(name), m_iLayer(iLayer)
+SCT_CloseOut::SCT_CloseOut(const std::string & name, int iLayer,
+                           InDetDD::SCT_DetectorManager* detectorManager,
+                           const SCT_GeometryManager* geometryManager,
+                           SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_iLayer(iLayer)
 {
   getParameters();
   m_physVolume = build();
@@ -26,10 +30,9 @@ SCT_CloseOut::SCT_CloseOut(const std::string & name, int iLayer)
 void 
 SCT_CloseOut::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
     
-  m_material    = materials.getMaterial(parameters->closeOutMaterial(m_iLayer));
+  m_material    = m_materials->getMaterial(parameters->closeOutMaterial(m_iLayer));
   m_length      = parameters->closeOutDeltaZ(m_iLayer);
 
   // Same inner and outer radius of support cylinder.

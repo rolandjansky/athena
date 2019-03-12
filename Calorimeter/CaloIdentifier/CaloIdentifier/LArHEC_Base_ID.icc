@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -36,10 +36,10 @@ LArHEC_Base_ID::channel_id (const ExpandedIdentifier& exp_id) const
 
 //----------------------------------------------------------------------------
 inline Identifier 
-LArHEC_Base_ID::region_id (int pos_neg, int sampling, int region) const 
+LArHEC_Base_ID::region_id (int pos_neg, int sampling, int region, bool checks) const 
 {
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
         region_id_checks ( pos_neg, sampling, region );
     }
 
@@ -56,13 +56,20 @@ LArHEC_Base_ID::region_id (int pos_neg, int sampling, int region) const
     return result;
 }
 
+inline Identifier 
+LArHEC_Base_ID::region_id (int pos_neg, int sampling, int region) const
+{
+  return region_id (pos_neg, sampling, region, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier 
 LArHEC_Base_ID::channel_id   ( int pos_neg, int sampling, int region,
-                               int eta,     int phi ) const 
+                               int eta,     int phi,
+                               bool checks) const 
 {  
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
         channel_id_checks( pos_neg, sampling, region, eta, phi );
     }
 
@@ -78,6 +85,12 @@ LArHEC_Base_ID::channel_id   ( int pos_neg, int sampling, int region,
     m_slar_impl.pack     (m_slar,               result);
 
     return result;
+}
+inline Identifier 
+LArHEC_Base_ID::channel_id   ( int pos_neg, int sampling, int region,
+                               int eta,     int phi ) const
+{
+  return channel_id (pos_neg, sampling, region, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------
@@ -96,10 +109,11 @@ LArHEC_Base_ID::region_id   ( const Identifier channelId ) const
 //----------------------------------------------------------------------------
 inline Identifier 
 LArHEC_Base_ID::channel_id   ( const Identifier regionId,
-                               int eta,       int phi ) const 
+                               int eta,       int phi,
+                               bool checks) const 
 {
     // Do checks 
-    if(m_do_checks) {
+    if(checks) {
       channel_id_checks( regionId, eta, phi );
     }
 
@@ -113,6 +127,13 @@ LArHEC_Base_ID::channel_id   ( const Identifier regionId,
     m_slar_impl.pack     (m_slar,   result);
 
     return result;
+}
+
+inline Identifier 
+LArHEC_Base_ID::channel_id   ( const Identifier regionId,
+                               int eta,       int phi ) const
+{
+  return channel_id (regionId, eta, phi, do_checks());
 }
 
 //----------------------------------------------------------------------------

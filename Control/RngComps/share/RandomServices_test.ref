@@ -1,0 +1,15 @@
+Py:ComponentAccumulator   DEBUG Adding component AtDSFMTGenSvc/AtDSFMTGenSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component AtRanluxGenSvc/AtRanluxGenSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component AtRndmGenSvc/AtRndmGenSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGdSFMT1 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGdSFMT2 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGRanlux64 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGRanecu to the job
+Py:ComponentAccumulator   DEBUG Adding component AtDSFMTGenSvc/AtDSFMTGenSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AtDSFMTGenSvc
+Py:ComponentAccumulator   DEBUG Adding component AtRanluxGenSvc/AtRanluxGenSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component AtRndmGenSvc/AtRndmGenSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGdSFMT1 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGdSFMT2 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGRanlux64 to the job
+Py:ComponentAccumulator   DEBUG Adding component AthRNGSvc/RNGRanecu to the job

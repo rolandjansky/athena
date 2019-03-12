@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,7 @@
 #define CALOIDENTIFIER_CALOCELL_BASE_ID_H
 
 
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/LArNeighbours.h"
@@ -72,12 +73,8 @@ public:
 
   int GetSubCaloName( const std::string SubCaloName ) const;
 
-  bool do_checks(void) const;
-
-  void set_do_checks(bool do_checks) const;
-
   /// Initialization from the identifier dictionary
-  virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr);
+  virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
 
   /** Make a region ID from constituting fields and subCalo index;
       for (Mini)FCAL and Tiles, the last argument is not used  
@@ -86,6 +83,11 @@ public:
 				 const int barec_or_posneg, 
                                  const int sampling_or_fcalmodule, 
                                  const int region_or_dummy ) const;
+  Identifier  region_id   	(const int subCalo, 
+				 const int barec_or_posneg, 
+                                 const int sampling_or_fcalmodule, 
+                                 const int region_or_dummy,
+                                 bool checks) const;
 
   /** Make a cell (== channel) ID from constituting fields and subCalo index;
       for (Mini)FCAL,  'region_or_dummy' argument is not used 
@@ -97,6 +99,13 @@ public:
                                  const int region_or_dummy,
 				 const int eta,    
                                  const int phi ) const;
+  Identifier  cell_id   	(const int subCalo, 
+				 const int barec_or_posneg, 
+                                 const int sampling_or_fcalmodule,
+                                 const int region_or_dummy,
+				 const int eta,    
+                                 const int phi,
+                                 bool checks) const;
 				 
   /** Make a region ID from a cell ID   */     
   Identifier  region_id	(const Identifier cellId ) const;
@@ -106,6 +115,10 @@ public:
   Identifier  cell_id( const Identifier regionId,
 		       const int eta, const int phi,
                        int depth = 0) const ;
+  Identifier  cell_id( const Identifier regionId,
+		       const int eta, const int phi,
+                       int depth,
+                       bool checks) const ;
 			     
   /** create region id from 'global'(==full calo) hash id*/
   Identifier region_id	(const IdentifierHash caloRegionHash) const;
@@ -397,6 +410,8 @@ private:
 
 #include "CaloIdentifier/CaloCell_Base_ID.icc"
 
+
+CLASS_DEF( CaloCell_Base_ID , 257140327 , 1 )
 
 
 #endif // not CALOIDENTIFIER_CALOCELL_BASE_ID_H

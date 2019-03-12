@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "LArRawConditions/LArCaliWave.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
@@ -187,8 +187,9 @@ StatusCode LArPhysWavePredictor::stop()
       return sc;
     }}
 
-  const CaloIdManager *caloIdMgr = CaloIdManager::instance() ;
-  const LArEM_ID* emId = caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* emId = idHelper->em_idHelper();
   if (!emId) {
       ATH_MSG_ERROR( "Could not access lar EM ID helper" );
       return StatusCode::FAILURE;

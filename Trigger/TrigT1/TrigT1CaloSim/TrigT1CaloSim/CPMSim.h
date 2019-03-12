@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  /***************************************************************************
@@ -13,21 +13,25 @@
   *                                                                         *
   *                                                                         *
   ***************************************************************************/
- #ifndef CPMSim_H
- #define CPMSim_H
+ #ifndef TRIGT1CALOSIM_CPMSIM_H
+ #define TRIGT1CALOSIM_CPMSIM_H
 
  // STL
  #include <string>
  #include <vector>
 
  // Athena/Gaudi
- #include "AthenaBaseComps/AthAlgorithm.h"
+ #include "AthenaBaseComps/AthReentrantAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
+ #include "xAODTrigL1Calo/CPMTowerContainer.h"
  #include "AthContainers/DataVector.h"
  #include "GaudiKernel/DataSvc.h"
  #include "StoreGate/StoreGateSvc.h"
+ #include "StoreGate/ReadHandleKey.h"
+ #include "StoreGate/WriteHandleKey.h"
+ #include "StoreGate/WriteHandleKeyArray.h"
  
  #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
@@ -38,7 +42,11 @@
  #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 
  // For RoI output 
+ #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
  #include "TrigT1Interfaces/SlinkWord.h"
+
+ #include "TrigT1CaloEvent/CPMCMXData.h"
+ #include "TrigT1CaloEvent/CPMTobRoI.h"
 
 
  namespace LVL1 {
@@ -53,7 +61,7 @@
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class CPMSim : public AthAlgorithm
+ class CPMSim : public AthReentrantAlgorithm
  {
 
   public:
@@ -71,71 +79,57 @@
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------
 
-   StatusCode initialize() ;
-   StatusCode execute() ;
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute(const EventContext& ctx) const override;
 
  private: // Private methods
-   /** Store TOB RoI objects in the TES. */
-   void storeModuleRoIs();
-   /** Store module outputs in TES as inputs to CMX simulation */
-   void storeBackplaneTOBs();
+#if 0
    /** Simulate Slink data for RoIB input */
-  void storeSlinkObjects();
+   StatusCode storeSlinkObjects (const DataVector<CPMTobRoI>& allTOBs,
+                                 const EventContext& ctx) const;
   
   /** adds slink header */
-  void addHeader( DataVector<LVL1CTP::SlinkWord>* slink, unsigned int subDetID, unsigned int moduleId);
+  void addHeader (DataVector<LVL1CTP::SlinkWord>& slink,
+                  unsigned int subDetID,
+                  unsigned int moduleId,
+                  const EventContext& ctx) const;
   /** add Slink tail */
-  void addTail( DataVector<LVL1CTP::SlinkWord>* slink, unsigned int numberOfDataWords);
+  void addTail (DataVector<LVL1CTP::SlinkWord>& slink,
+                unsigned int numberOfDataWords) const;
   /** creates a new SlinkWord object with the passed word, and returns a pointer.*/
-  LVL1CTP::SlinkWord* getWord(unsigned int tword);
+  std::unique_ptr<LVL1CTP::SlinkWord> getWord(unsigned int tword) const;
+#endif
 
   /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu();
+  void printTriggerMenu() const;
   
  private: // Private attributes
 
-   /** CPM Towers (input to algorithm, output to BS simulation) */
-   //DataVector<xAOD::CPMTower>* m_cpmTowers;
-   
-   /** TOB RoIs for RoIB input and DAQ output simulation */
-   DataVector<CPMTobRoI>* m_allTOBs;
-
-   /** Backplane data objects: CPM outputs to CMX */
-   DataVector<CPMCMXData>* m_CMXData;
-   
-   /** there are 4 CP RoI RODs which have a Slink cable connected to the RoIB.
-    This array holds pointers to 4 DataVectors containing the Slink words  */
-   DataVector<LVL1CTP::SlinkWord>* m_CPRoIROD[TrigT1CaloDefs::numOfCPRoIRODs];
-
    /** Where to store the CPMTowers */
-   std::string   m_CPMTowerLocation;
+   SG::ReadHandleKey<xAOD::CPMTowerContainer> m_CPMTowerLocation
+   { this, "CPMTowerLocation", TrigT1CaloDefs::CPMTowerLocation, "" };
    /** Locations of outputs in StoreGate */
-   std::string   m_CPMTobRoILocation;
-   std::string   m_CPMCMXDataLocation;
+   SG::WriteHandleKey<DataVector<CPMTobRoI> > m_CPMTobRoILocation
+   { this, "CPMTobRoILocation", TrigT1CaloDefs::CPMTobRoILocation, "" };
+   SG::WriteHandleKey<DataVector<CPMCMXData> > m_CPMCMXDataLocation
+   { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation, "" };
+#if 0
+   // RoIROD is also writing an object of the same name!
+   // In the previous version, we were recording using overwrite().
+   // RoIROD was scheduled second, so it's the one that wins.
+   // There doesn't appear to be anything in between that reads this.
+   // So just remove this output from this algorithm.
+   SG::WriteHandleKeyArray<DataVector<LVL1CTP::SlinkWord> > m_emTauSlinkKeys
+   { this, "EmTauSlinkKeys", {}, "" };
    std::string   m_emTauSlinkLocation ;
+#endif
    
    /** The essentials - data access, configuration, tools */
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    ToolHandle<LVL1::IL1CPMTools> m_CPMTool;
-   
-   unsigned int m_eventNumber;
-
-
 };
 
  } // end of namespace bracket
 
 
  #endif
-
-
-
-
-
-
-
-
-
-
-
-

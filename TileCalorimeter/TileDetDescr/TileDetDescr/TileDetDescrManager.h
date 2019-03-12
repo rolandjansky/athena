@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDetDescrManager_h
@@ -176,6 +176,7 @@ class TileDetDescrManager : public GeoVDetectorManager
   
   // Create elements  
   void create_elements();
+  void create_elements(bool checks);
 
   //  Insertion
   void add(TileDetDescrRegion* region);

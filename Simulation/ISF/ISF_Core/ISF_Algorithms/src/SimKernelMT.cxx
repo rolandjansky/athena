@@ -151,8 +151,7 @@ StatusCode ISF::SimKernelMT::execute() {
 
   // read and convert input
   ISFParticleContainer simParticles; // particles for ISF simulation
-  bool isPileup = false;
-  ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, isPileup) );
+  ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, HepMcParticleLink::find_enumFromKey(outputTruth.name())) );
 
   // loop until there are no more particles to simulate
   while (simParticles.size() ) {

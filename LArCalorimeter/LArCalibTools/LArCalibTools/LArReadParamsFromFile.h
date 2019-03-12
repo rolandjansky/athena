@@ -17,7 +17,7 @@
 #define LARREADPARAMSFROMFILE_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 //#include "GaudiKernel/SmartDataPtr.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <fstream>
 #include <stdio.h>

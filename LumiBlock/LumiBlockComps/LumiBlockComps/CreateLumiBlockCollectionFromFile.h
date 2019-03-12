@@ -29,6 +29,8 @@
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 class StoreGateSvc;
 
 class CreateLumiBlockCollectionFromFile:public AthAlgorithm, virtual public IIncidentListener,
@@ -50,6 +52,8 @@ public:
 
 protected:
  
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+
   /// Fill metaDataStore and ntuples
   void finishUp();
 

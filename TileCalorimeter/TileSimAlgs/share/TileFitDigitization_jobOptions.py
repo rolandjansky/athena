@@ -80,11 +80,6 @@ if doTileHitToDigit:
     theTileDigitsMaker.UseCoolPulseShapes=False
     theTileDigitsMaker.MaskBadChannels=False
     theTileDigitsMaker.RndmEvtOverlay=False
-    
-    # Random number engine
-    from Digitization.DigitizationFlags import jobproperties
-    theTileDigitsMaker.RndmSvc=jobproperties.Digitization.rndmSvc()
-    jobproperties.Digitization.rndmSeedList.addSeed("Tile_DigitsMaker", 4789899, 989240512)
 
 
 if doTileDigitToRawChannel:

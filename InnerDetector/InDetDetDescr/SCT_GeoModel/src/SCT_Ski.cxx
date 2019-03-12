@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Ski.h"
@@ -35,11 +35,14 @@
 #include <cmath>
 
 SCT_Ski::SCT_Ski(const std::string & name,
-                 const SCT_Module * module,
+                 SCT_Module * module,
                  int stereoSign,
                  double tilt,
-                 double length)
-  : SCT_UniqueComponentFactory(name), 
+                 double length,
+                 InDetDD::SCT_DetectorManager* detectorManager,
+                 const SCT_GeometryManager* geometryManager,
+                 SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_stereoSign(stereoSign),
     m_tilt(tilt), 
     m_length(length), 
@@ -66,8 +69,8 @@ void
 SCT_Ski::getParameters()
 {
 
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+  const SCT_GeneralParameters * generalParameters = m_geometryManager->generalParameters();
 
   m_safety       = generalParameters->safety();
   
@@ -107,13 +110,11 @@ SCT_Ski::preBuild()
 
 
   // Make components.
-  // 15th Aug 2005 S.Mima modified.
-  //  m_dogleg = new SCT_Dogleg(getName()+"Dogleg");
-  m_dogleg = new SCT_Dogleg(getName()+"Dogleg");
-  // 15th Aug 2005 S.Mima modified.
-  //  m_coolingBlock = new SCT_CoolingBlock(getName()+"CoolingBlock");
-  m_coolingBlock = new SCT_CoolingBlock(getName()+"CoolingBlock");
-  m_coolingPipe = new SCT_CoolingPipe(getName()+"CoolingPipe",m_length);
+  m_dogleg = new SCT_Dogleg(getName()+"Dogleg", m_detectorManager, m_geometryManager, m_materials);
+  m_coolingBlock = new SCT_CoolingBlock(getName()+"CoolingBlock",
+                                        m_detectorManager, m_geometryManager, m_materials);
+  m_coolingPipe = new SCT_CoolingPipe(getName()+"CoolingPipe", m_length,
+                                      m_detectorManager, m_geometryManager, m_materials);
 
   // We need the sign of the tilt in numerous places
   int tiltSign = (m_tilt < 0) ? -1 : +1;
@@ -432,9 +433,7 @@ SCT_Ski::preBuild()
     add(*envelope2 << GeoTrf::Translate3D(xShift2, yShift2, 0));
   skiEnvelopeShape = &tmpShape;
   
-  
-  SCT_MaterialManager materials;    
-  GeoLogVol * skiLog = new GeoLogVol(getName(), skiEnvelopeShape, materials.gasMaterial());
+  GeoLogVol * skiLog = new GeoLogVol(getName(), skiEnvelopeShape, m_materials->gasMaterial());
 
   //GeoPhysVol * ski = new GeoPhysVol(skiLog);
 
@@ -467,7 +466,7 @@ SCT_Ski::preBuild()
 
 
 GeoVPhysVol * 
-SCT_Ski::build(SCT_Identifier id) const
+SCT_Ski::build(SCT_Identifier id)
 {
   GeoPhysVol * ski = new GeoPhysVol(m_logVolume);
 
@@ -485,7 +484,7 @@ SCT_Ski::build(SCT_Identifier id) const
     ski->add(modulePV);  
     
     // Store alignable transform
-    detectorManager()->addAlignableTransform(1, id.getWaferId(), moduleTransform, modulePV);
+    m_detectorManager->addAlignableTransform(1, id.getWaferId(), moduleTransform, modulePV);
  
     // Add dogleg
     ski->add(m_refPointTransform);

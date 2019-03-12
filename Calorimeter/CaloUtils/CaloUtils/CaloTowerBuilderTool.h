@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOWERBUILDERTOOL_H
@@ -25,6 +25,7 @@
 class CaloTower;
 class CaloTowerStore;
 class CaloTowerContainer;
+class CaloDetDescrManager;
 class StoreGateSvc;
 class MsgStream;
 
@@ -103,6 +104,7 @@ private:
   // Specific Initialization //
   /////////////////////////////
 
+  const CaloDetDescrManager* m_caloDDM;
   CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);

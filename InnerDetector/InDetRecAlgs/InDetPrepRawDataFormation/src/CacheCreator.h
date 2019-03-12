@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,13 +16,13 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-#include "PixelConditionsData/SpecialPixelMap.h"
+
+#include <atomic>
 
 class TRT_ID;
 class PixelID;
@@ -43,18 +43,24 @@ namespace InDet{
         const TRT_ID* m_pTRTHelper;
         const PixelID* m_pix_idHelper;
         const SCT_ID*  m_sct_idHelper;
-        SG::WriteHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey;
-        SG::WriteHandleKey<SCT_ClusterContainerCache>            m_SCTclusterContainerCacheKey;
-        SG::WriteHandleKey<InDet::PixelClusterContainerCache>    m_PIXclusterContainerCacheKey;
-        SG::WriteHandleKey<SpacePointCache>    m_PIXSpacePointCacheKey;
-        SG::WriteHandleKey<SpacePointCache>    m_SCTSpacePointCacheKey;
-        SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey;
-        SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey;
-        bool m_disableTRT;
-        mutable bool m_disableWarning;
+        SG::WriteHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey
+          {this, "TRT_DriftCircleKey", ""};
+        SG::WriteHandleKey<SCT_ClusterContainerCache>            m_SCTclusterContainerCacheKey
+          {this, "SCT_ClusterKey", ""};
+        SG::WriteHandleKey<InDet::PixelClusterContainerCache>    m_PIXclusterContainerCacheKey
+          {this,"Pixel_ClusterKey", ""};
+        SG::WriteHandleKey<SpacePointCache>    m_PIXSpacePointCacheKey
+          {this, "SpacePointCachePix", ""};
+        SG::WriteHandleKey<SpacePointCache>    m_SCTSpacePointCacheKey
+          {this, "SpacePointCacheSCT", ""};
+        SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey
+          {this, "SCTRDOCacheKey", ""};
+        SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey
+          {this, "PixRDOCacheKey", ""};
+        BooleanProperty m_disableTRT{this, "disableTRT", false};
+        BooleanProperty m_disableWarning{this, "DisableViewWarning", false};
+        mutable std::atomic_bool m_disableWarningCheck;
 	//Temporary workarounds for problem in scheduler - remove later
-        SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
-        SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
         bool isInsideView(const EventContext&) const;
         template<typename T>
         StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;

@@ -18,6 +18,8 @@ extern "C" {
 // xAOD include(s):
 #include "xAODCore/AuxContainerBase.h"
 
+#include "xAODTrigger/TrigComposite.h"
+
 namespace xAOD {
 
    /// Auxiliary store for TrigComposite containers
@@ -40,6 +42,8 @@ namespace xAOD {
       std::vector< std::vector< uint32_t > >    linkColKeys;
       std::vector< std::vector< uint16_t > >    linkColIndices;
       std::vector< std::vector< uint32_t > >    linkColClids;
+
+      std::vector< std::vector< TrigCompositeUtils::DecisionID > >    decisions;
 
    }; // class TrigCompositeAuxContainer_v2
 

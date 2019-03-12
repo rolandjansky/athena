@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDetDescr/TileDetDescrManager.h"
@@ -137,6 +137,10 @@ void TileDetDescrManager::print() const
 }
 
 void TileDetDescrManager::create_elements()
+{
+  create_elements (m_tile_id->do_checks());
+}
+void TileDetDescrManager::create_elements(bool checks)
 {
   MLOG(INFO) << "Entering create_elements()" << endmsg;
 
@@ -336,7 +340,7 @@ void TileDetDescrManager::create_elements()
       CaloDetDescriptor* modDescr;
       
       try {
-        Identifier id = m_tile_id->module_id(section,side,module);
+        Identifier id = m_tile_id->module_id(section,side,module, checks);
         IdentifierHash idhash;
         /* int result = */ m_tile_id->get_hash(id,idhash,&module_context);
         modDescr = new CaloDetDescriptor(id,(AtlasDetectorID *)m_tile_id,m_cell_id);
@@ -383,7 +387,7 @@ void TileDetDescrManager::create_elements()
             int tower = (int)((eta + 0.01) * 10); // tower number in 0.1 granularity
 
             try {
-              Identifier id = m_tile_id->cell_id(section,side,module,tower,sample);
+              Identifier id = m_tile_id->cell_id(section,side,module,tower,sample,checks);
               IdentifierHash idhash;
               /* int result = */ m_tile_id->get_hash(id,idhash,&cell_context);
 
@@ -452,7 +456,7 @@ void TileDetDescrManager::create_elements()
               
 	      // Temporary solution for cell volumes
 	      if(section == TileID::BARREL && side == -1 && ieta == 0 && sample == 2)
-                ++volumeIndex; // skip D0 in negagive side
+                ++volumeIndex; // skip D0 in negative side
 	      if(section == TileID::BARREL)
 		elt->set_volume(vBarrelCells[volumeIndex++]);
 	      else if(section == TileID::EXTBAR)

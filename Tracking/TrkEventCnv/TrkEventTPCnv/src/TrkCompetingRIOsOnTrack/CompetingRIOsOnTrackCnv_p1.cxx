@@ -19,13 +19,14 @@ void CompetingRIOsOnTrackCnv_p1::persToTrans( const Trk::CompetingRIOsOnTrack_p1
   EigenHelpers::vectorToEigenMatrix(dummy.values, transObj->m_localCovariance, "CompetingRIOsOnTrackCnv_p1");
 
   #ifdef UseFloatsIn_CompetingRIOsOnTrack
-  std::vector<double> tmpVector;
+  std::vector<double> *tmpVector = new std::vector<double>();
+  tmpVector->reserve(persObj->m_assignProb.size());
   for (std::vector<float>::const_iterator itr  = persObj->m_assignProb.begin() ; 
   itr != persObj->m_assignProb.end()   ; ++itr)
   {
-    tmpVector.push_back((double)(*itr));
+    tmpVector->push_back((double)(*itr));
   }
-  transObj->m_assignProb = new std::vector<double>(tmpVector);
+  transObj->m_assignProb = tmpVector;
   #else
   transObj->m_assignProb = new std::vector<double>(persObj->m_assignProb);
   #endif
@@ -34,7 +35,7 @@ void CompetingRIOsOnTrackCnv_p1::persToTrans( const Trk::CompetingRIOsOnTrack_p1
   double maxAssgnProb = 0;
   unsigned int max = transObj->m_assignProb->size();
   typedef std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > t_probVec;
-  t_probVec& tProbVec = *(const_cast<t_probVec*>(transObj->m_assignProb));
+  const t_probVec& tProbVec = *(transObj->m_assignProb);
   for (unsigned int i=0; i<max; i++) {
     if ( tProbVec[i] >= maxAssgnProb) {
       transObj->m_indexMaxAssignProb=i;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_RT_RELATION_DB_DIGITOOL_H
@@ -14,7 +14,6 @@ Adopted from RT_Relation_DigiTool
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/RndmGenerators.h"
 
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -28,7 +27,6 @@ Adopted from RT_Relation_DigiTool
 //#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 //#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -44,36 +42,32 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent );
     
     //Methods
-    StatusCode initialize();
-    MdtDigiToolOutput digitize(const MdtDigiToolInput& input);
+    virtual StatusCode initialize() override;
+    virtual MdtDigiToolOutput digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine *rndmEngine) override final;
     bool initializeTube();
   
   private:
     //Methods
-    double getDriftTime(double radius,Identifier DigitId);
-    double getAdcResponse(double radius);
-    bool   isTubeEfficient(double radius);
+    double getDriftTime(double radius,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine) const;
+    double getAdcResponse(double radius,CLHEP::HepRandomEngine *rndmEngine) const;
+    bool   isTubeEfficient(double radius,CLHEP::HepRandomEngine *rndmEngine) const;
     
     //Data members
     double m_effRadius;
     double m_maxRadius;
-    Rndm::Numbers  m_flatDist;
     const MuonGM::MuonDetectorManager* m_muonGeoMgr;
     
   protected:
     ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
-    CLHEP::HepRandomEngine *m_rndmEngine;
-    std::string m_rndmEngineName;
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
 };
 
 
-inline bool RT_Relation_DB_DigiTool::isTubeEfficient(double radius)
+inline bool RT_Relation_DB_DigiTool::isTubeEfficient(double radius,CLHEP::HepRandomEngine *rndmEngine) const
 {
   if ((radius < 0) || (radius > m_maxRadius)) return false;
   if (radius < m_effRadius) return true;
   double eff = 1.0 + (radius-m_effRadius)/(m_effRadius-m_maxRadius);
-  if (m_flatDist() <= eff) return true;
+  if (CLHEP::RandFlat::shoot(rndmEngine,0.0, 1.0) <= eff) return true;
   
   return false;
 }

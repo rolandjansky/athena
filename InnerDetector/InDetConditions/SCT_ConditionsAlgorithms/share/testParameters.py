@@ -50,13 +50,12 @@ rec.projectName.set_Value_and_Lock("data12_8TeV")
 # --- switch on InnerDetector
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.SCT_setOn()
-DetFlags.ID_setOn()
+DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
 DetFlags.SCT_setOn()
-DetFlags.TRT_setOff()
 
 # ---- switch parts of ID off/on as follows
 #switch off tasks
@@ -112,9 +111,6 @@ conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR")
 #--------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
 from SCT_ConditionsTools.SCT_ConditionsParameterToolSetup import SCT_ConditionsParameterToolSetup
 sct_ConditionsParameterToolSetup = SCT_ConditionsParameterToolSetup()

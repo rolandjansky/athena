@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CoolingPipe.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_CoolingPipe::SCT_CoolingPipe(const std::string & name, double length)
-  : SCT_SharedComponentFactory(name), m_length(length)
+SCT_CoolingPipe::SCT_CoolingPipe(const std::string & name, double length,
+                                 InDetDD::SCT_DetectorManager* detectorManager,
+                                 const SCT_GeometryManager* geometryManager,
+                                 SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_length(length)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +30,7 @@ SCT_CoolingPipe::SCT_CoolingPipe(const std::string & name, double length)
 void
 SCT_CoolingPipe::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
     
   m_materialName  = parameters->coolingPipeMaterial();
   m_pipeRadius = parameters->coolingPipeRadius();
@@ -37,11 +41,9 @@ SCT_CoolingPipe::build()
 {
 
   // Build the CoolingPipe.
-  SCT_MaterialManager materials;
-
   const GeoTube * coolingPipeShape = new GeoTube(0., m_pipeRadius, 0.5*m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, coolingPipeShape->volume());
-  if(!m_material) {m_material = materials.getMaterial(m_materialName);}
+  m_material = m_materials->getMaterialForVolume(m_materialName, coolingPipeShape->volume());
+  if(!m_material) m_material = m_materials->getMaterial(m_materialName);
   const GeoLogVol *coolingPipeLog = 
     new GeoLogVol(getName(), coolingPipeShape, m_material);
   GeoPhysVol * coolingPipe = new GeoPhysVol(coolingPipeLog);

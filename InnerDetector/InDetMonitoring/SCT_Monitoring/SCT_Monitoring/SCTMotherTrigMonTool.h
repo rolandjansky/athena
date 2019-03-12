@@ -19,7 +19,7 @@
 #include <bitset>
 
 #include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Fwd declarations
 class IInterface;
@@ -63,7 +63,7 @@ protected:
 private:
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfoKey", "Key of xAOD::EventInfo"};
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -12,7 +12,6 @@
  * @author Hongtao Yang     <Hongtao.Yang@cern.ch>     - UW Madsion, USA
  *
  * File and Version Information:
- * $Id: TrigMissingETMuon.h,v 0.01 2012-03-05 09:00:20 yanght Exp $
  **********************************************************************************/
 
 
@@ -25,6 +24,9 @@
 #include <vector>
 
 #include "xAODTrigMissingET/TrigMissingET.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 namespace HLT {
   class TriggerElement;

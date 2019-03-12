@@ -25,7 +25,7 @@ class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._sequence=AthSequencer(sequenceName)    #(Nested) sequence of event processing algorithms per sequence + their private tools
+        self._sequence=AthSequencer(sequenceName,Sequential=True)    #(Nested) sequence of event processing algorithms per sequence + their private tools
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
@@ -578,35 +578,84 @@ class ComponentAccumulator(object):
                 self._jocat[name][k]=v.getFullName()
             elif isinstance(v,GaudiHandles.GaudiHandleArray):
                 self._jocat[name][k]=str([ v1.getFullName() for v1 in v ])
-                #print name,k,self._jocat[name][k]
             else:
+                if name not in self._jocat:
+                    self._jocat[name] = {}
                 self._jocat[name][k]=str(v)
+
         #print "All Children:",confElem.getAllChildren()
         for ch in confElem.getAllChildren():
             self.appendConfigurable(ch)
         return
 
 
-    def store(self,outfile,nEvents=10):
+    def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
         import pickle
-        import glob
-        # first load basics from the bootstrap-pickle
-        # a better solution to be discussed
-        # prefer local file
-        localbs = glob.glob("bootstrap.pkl")
-        if len( localbs ) == 0:
-            # if local bootstrap is missing, use one from the release
-            bsfilename=find_datafile("bootstrap.pkl")
+        if useBootStrapFile:
+            import glob
+            # first load basics from the bootstrap-pickle
+            # a better solution to be discussed
+            # prefer local file
+            localbs = glob.glob("bootstrap.pkl")
+            if len( localbs ) == 0:
+                # if local bootstrap is missing, use one from the release
+                bsfilename=find_datafile("bootstrap.pkl")
+            else:
+                bsfilename = "./"+localbs[0]
+
+            bsfile=open(bsfilename)
+            self._jocat=pickle.load(bsfile)
+            self._jocfg=pickle.load(bsfile)
+            self._pycomps=pickle.load(bsfile)
+            bsfile.close()
+  
         else:
-            bsfilename = "./"+localbs[0]
+            from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg, MainServicesSerialCfg
+            if threaded:
+              from AthenaConfiguration.AllConfigFlags import ConfigFlags
+              flags = ConfigFlags.clone()
+              flags.Concurrency.NumThreads = 1
+              flags.Concurrency.NumConcurrentEvents = 1
+              basecfg = MainServicesThreadedCfg(flags)
+              basecfg.printConfig()
+              basecfg.merge(self)
+              self = basecfg
+              self.printConfig()
+            else: #Serial
+              basecfg = MainServicesSerialCfg()
+              basecfg.merge(self)
+              self = basecfg
+            self._jocat={}
+            self._jocfg={}
+            self._pycomps={}
+            self._jocfg["ApplicationMgr"]={}
+            self._jocfg["ApplicationMgr"]["ExtSvc"] = "['ToolSvc/ToolSvc', \
+                                                        'AuditorSvc/AuditorSvc', \
+                                                        'MessageSvc/MessageSvc', \
+                                                        'IncidentSvc/IncidentSvc',\
+                                                        'EvtPersistencySvc/EventPersistencySvc',\
+                                                        'HistogramSvc/HistogramDataSvc',\
+                                                        'NTupleSvc/NTupleSvc',\
+                                                        'RndmGenSvc/RndmGenSvc',\
+                                                        'ChronoStatSvc/ChronoStatSvc',\
+                                                        'StatusCodeSvc/StatusCodeSvc',\
+                                                        'StoreGateSvc/StoreGateSvc',\
+                                                        'StoreGateSvc/DetectorStore',\
+                                                        'StoreGateSvc/HistoryStore',\
+                                                        'ClassIDSvc/ClassIDSvc',\
+                                                        'AthDictLoaderSvc/AthDictLoaderSvc',\
+                                                        'AthenaSealSvc/AthenaSealSvc',\
+                                                        'CoreDumpSvc/CoreDumpSvc',\
+                                                        'JobOptionsSvc/JobOptionsSvc']"
 
-        bsfile=open(bsfilename)
-        self._jocat=pickle.load(bsfile)
-        self._jocfg=pickle.load(bsfile)
-        self._pycomps=pickle.load(bsfile)
-        bsfile.close()
-
+            #Code seems to be wrong here
+            for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+                self._jocat[seqName] = {}
+                for alg in algoList:
+                  self._jocat[alg.name()] = {}
+            for k, v in self._sequence.getValuedProperties().items():
+                self._jocat[self._sequence.getName()][k]=str(v)
 
         #EventAlgorithms
         for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
@@ -616,10 +665,13 @@ class ComponentAccumulator(object):
                 evtalgseq.append( alg.getFullName() )
 
 
+        print self._sequence
         for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
-            mergedSequence = ast.literal_eval(self._jocat[seqName]["Members"]) +  [alg.getFullName() for alg in algoList]
-            self._jocat[seqName]["Members"] = str( mergedSequence )
+            for prop in self._jocat[seqName]:
+                if prop == "Members":
+                    mergedSequence = ast.literal_eval(self._jocat[seqName]["Members"]) +  [alg.getFullName() for alg in algoList]
+                    self._jocat[seqName]["Members"] = str( mergedSequence )
 
 
         #Conditions Algorithms:

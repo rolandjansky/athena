@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/DetectorDescription/IdDictParser/src/IdDictParser.cxx,v 1.13 2008-12-09 09:55:22 dquarrie Exp $  
@@ -15,58 +15,23 @@ namespace IdDictParserNS
   class Debugger 
   { 
   public: 
-    static bool debug () 
-    { 
-      static bool first = true; 
-      static bool debug_state = false; 
-      
-      if (first) 
-	{ 
-	  first = false; 
-	  if (::getenv ("IDDEBUG") == 0) 
-	    { 
-	      debug_state = false; 
-	    } 
-	  else 
-	    { 
-	      debug_state = true; 
-	    } 
-	} 
-      
-      return (debug_state); 
-    } 
+    static bool get_debug_state()
+    {
+      return ::getenv ("XMLDEBUG") != 0;
+    }
+    static bool debug ()
+    {
+      static const bool debug_state = get_debug_state();
+      return debug_state;
+    }
     
-    static void up () 
-    { 
-      level (1); 
-    } 
-    
-    static void down () 
-    { 
-      level (-1); 
-    } 
-    
-    static void tab () 
-    { 
-      int n = level (); 
-      
+    static void tab (int n) 
+    {
       for (int i = 0; i < n; ++i) 
 	{ 
 	  std::cout << " "; 
 	} 
     } 
-    
-  private: 
-    
-    static int level (int d = 0) 
-    { 
-      static int n = 0; 
-      
-      n += d; 
-      
-      return (n); 
-    } 
-    
   }; 
   
   class IdDictBaseFactory : public XMLCoreFactory  
@@ -158,18 +123,16 @@ using namespace IdDictParserNS;
  
 IdDictParser::IdDictParser () : XMLCoreParser ()  
 {  
-  initialize_factories ();
-
-  register_factory ("IdDict", new IdDictMgrFactory);  
-  register_factory ("IdDictionary", new DictionaryFactory);  
-  register_factory ("field", new FieldFactory);  
-  register_factory ("label", new LabelFactory);  
-  register_factory ("alternate_regions", new AltRegionsFactory);  
-  register_factory ("region", new RegionFactory);  
-  register_factory ("subregion", new SubRegionFactory);  
-  register_factory ("range", new RangeFactory);  
-  register_factory ("reference", new ReferenceFactory);  
-  register_factory ("dictionary", new DictionaryRefFactory);  
+  register_factory ("IdDict",            std::make_unique<IdDictMgrFactory>());  
+  register_factory ("IdDictionary",      std::make_unique<DictionaryFactory>());  
+  register_factory ("field",             std::make_unique<FieldFactory>());  
+  register_factory ("label",             std::make_unique<LabelFactory>());  
+  register_factory ("alternate_regions", std::make_unique<AltRegionsFactory>());  
+  register_factory ("region",            std::make_unique<RegionFactory>());  
+  register_factory ("subregion",         std::make_unique<SubRegionFactory>());  
+  register_factory ("range",             std::make_unique<RangeFactory>());  
+  register_factory ("reference",         std::make_unique<ReferenceFactory>());  
+  register_factory ("dictionary",        std::make_unique<DictionaryRefFactory>());
  
   m_dictionary = 0; 
   m_field      = 0; 
@@ -187,21 +150,21 @@ IdDictMgr& IdDictParser::parse (const std::string& file_name, std::string tag)
  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictParser::parse1>" << std::endl; 
+      std::cout << "IdDictParser::parse1>" << std::endl; 
     } 
  
   m_idd.resolve_references (); 
  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictParser::parse2>" << std::endl; 
+      std::cout << "IdDictParser::parse2>" << std::endl; 
     } 
  
   m_idd.generate_implementation (tag); 
  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictParser::parse3>" << std::endl; 
+      std::cout << "IdDictParser::parse3>" << std::endl; 
     } 
  
   return (m_idd); 
@@ -210,14 +173,14 @@ IdDictMgr& IdDictParser::parse (const std::string& file_name, std::string tag)
 void IdDictBaseFactory::do_start (XMLCoreParser& parser,   
 				  const XMLCoreNode& node)  
 {  
-  Debugger::up (); 
+  parser.up (); 
   idd_start ((IdDictParser&) parser, node);  
 }  
   
 void IdDictBaseFactory::do_end (XMLCoreParser& parser, const XMLCoreNode& node)  
 {  
   idd_end ((IdDictParser&) parser, node);  
-  Debugger::down (); 
+  parser.down (); 
 }  
   
 void IdDictBaseFactory::idd_start (IdDictParser& /*parser*/,   
@@ -242,17 +205,19 @@ void IdDictMgrFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictMgrFactoryFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "IdDictMgrFactoryFactory::idd_start>" << std::endl; 
     } 
   parser.m_idd.set_DTD_version(get_value (node, "DTD_version"));
 }  
   
-void IdDictMgrFactory::idd_end (IdDictParser& /*parser*/,   
+void IdDictMgrFactory::idd_end (IdDictParser& parser,   
 				const XMLCoreNode& /*node*/)  
 { 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictMgrFactoryFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "IdDictMgrFactoryFactory::idd_end>" << std::endl; 
     } 
 } 
   
@@ -260,7 +225,8 @@ void DictionaryFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "DictionaryFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "DictionaryFactory::idd_start>" << std::endl; 
     } 
  
   parser.m_dictionary = new IdDictDictionary; 
@@ -275,7 +241,8 @@ void DictionaryFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node
 { 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "DictionaryFactory::idd_end> d=" << parser.m_dictionary << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "DictionaryFactory::idd_end> d=" << parser.m_dictionary << std::endl; 
     } 
  
   if (parser.m_dictionary != 0) 
@@ -290,7 +257,8 @@ void FieldFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "FieldFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "FieldFactory::idd_start>" << std::endl; 
     } 
  
   IdDictField* field = new IdDictField; 
@@ -312,7 +280,8 @@ void FieldFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node*/)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "FieldFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "FieldFactory::idd_end>" << std::endl; 
     } 
 
   if (parser.m_field != 0) 
@@ -328,7 +297,8 @@ void LabelFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "LabelFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "LabelFactory::idd_start>" << std::endl; 
     } 
  
   IdDictLabel* label = new IdDictLabel; 
@@ -348,11 +318,12 @@ void LabelFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
   else delete label; 
 }  
   
-void LabelFactory::idd_end (IdDictParser& /*parser*/, const XMLCoreNode& /*node*/)  
+void LabelFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node*/)  
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "LabelFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "LabelFactory::idd_end>" << std::endl; 
     } 
 }  
   
@@ -360,16 +331,18 @@ void AltRegionsFactory::idd_start (IdDictParser& parser, const XMLCoreNode& /*no
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "AltRegionsFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "AltRegionsFactory::idd_start>" << std::endl; 
     } 
 
   IdDictAltRegions* altregions = new IdDictAltRegions;
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "AltRegionsFactory::idd_start> previous=" << parser.m_altregions
-				  << " new=" << altregions
-				  << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "AltRegionsFactory::idd_start> previous=" << parser.m_altregions
+                << " new=" << altregions
+                << std::endl; 
     } 
 
   parser.m_altregions = altregions;
@@ -379,7 +352,8 @@ void AltRegionsFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "AltRegionsFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "AltRegionsFactory::idd_end>" << std::endl; 
     } 
  
   if (parser.m_altregions != 0) 
@@ -419,7 +393,8 @@ void RegionFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RegionFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "RegionFactory::idd_start>" << std::endl; 
     } 
  
   parser.m_region = new IdDictRegion; 
@@ -608,11 +583,12 @@ void RegionFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RegionFactory::idd_start> name, group, tag, next eta, prev/next samp, prev/next subdet "
-				  << parser.m_region->m_name << " " 
-				  << parser.m_region->m_group << " " 
-				  << parser.m_region->m_tag << " " 
-				  << parser.m_region->m_next_abs_eta << " ";
+      Debugger::tab (parser.level());
+      std::cout << "RegionFactory::idd_start> name, group, tag, next eta, prev/next samp, prev/next subdet "
+                << parser.m_region->m_name << " " 
+                << parser.m_region->m_group << " " 
+                << parser.m_region->m_tag << " " 
+                << parser.m_region->m_next_abs_eta << " ";
       for (unsigned int i = 0; i < parser.m_region->m_prev_samp_names.size(); ++i) {
 	  std::cout << parser.m_region->m_prev_samp_names[i] << " ";
       }
@@ -638,7 +614,8 @@ void RegionFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node*/)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RegionFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "RegionFactory::idd_end>" << std::endl; 
     } 
  
   if (parser.m_region != 0) 
@@ -684,7 +661,8 @@ void SubRegionFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "SubRegionFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "SubRegionFactory::idd_start>" << std::endl; 
     } 
  
   parser.m_subregion = new IdDictSubRegion; 
@@ -695,7 +673,8 @@ void SubRegionFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node*
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "SubRegionFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "SubRegionFactory::idd_end>" << std::endl; 
     } 
  
   if (parser.m_subregion != 0) 
@@ -707,11 +686,12 @@ void SubRegionFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*node*
     } 
 }  
   
-void RegionEntryFactory::idd_start (IdDictParser& /*parser*/, const XMLCoreNode& /*node*/)  
+void RegionEntryFactory::idd_start (IdDictParser& parser, const XMLCoreNode& /*node*/)  
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RegionEntryFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "RegionEntryFactory::idd_start>" << std::endl; 
     } 
 } 
  
@@ -719,7 +699,8 @@ void RegionEntryFactory::idd_end (IdDictParser& parser, const XMLCoreNode& /*nod
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RegionEntryFactory::idd_end>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "RegionEntryFactory::idd_end>" << std::endl; 
     } 
  
   if (parser.m_regionentry != 0) 
@@ -736,7 +717,8 @@ void RangeFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "RangeFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "RangeFactory::idd_start>" << std::endl; 
     } 
  
   IdDictRange* range = new IdDictRange; 
@@ -857,7 +839,8 @@ void ReferenceFactory::idd_start (IdDictParser& parser, const XMLCoreNode& node)
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "ReferenceFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "ReferenceFactory::idd_start>" << std::endl; 
     } 
  
   IdDictReference* reference = new IdDictReference; 
@@ -873,7 +856,8 @@ void DictionaryRefFactory::idd_start (IdDictParser& parser, const XMLCoreNode& n
 {  
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "DictionaryRefFactory::idd_start>" << std::endl; 
+      Debugger::tab (parser.level());
+      std::cout << "DictionaryRefFactory::idd_start>" << std::endl; 
     } 
  
   IdDictDictionaryRef* dictionaryref = new IdDictDictionaryRef; 

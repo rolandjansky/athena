@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/RNNIPTag.h"
@@ -288,7 +288,7 @@ namespace Analysis {
   }
 
 
-  StatusCode RNNIPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode RNNIPTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
     /** author to know which jet algorithm: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);
@@ -299,20 +299,11 @@ namespace Analysis {
     int nbPart = m_trackGradePartitionsDefinition.size();
 
     std::vector<const xAOD::TrackParticle*> TrkFromV0;
-    // Amg::Vector3D SvxDirection;
-    // bool canUseSvxDirection=false;
-
-    // if (m_SignWithSvx) {
-    //   m_SVForIPTool->getDirectionFromSecondaryVertexInfo(
-    //     SvxDirection,canUseSvxDirection,//output
-    //     jetToTag,BTag,m_secVxFinderName,*m_priVtx);//input
-    //   // jetToTag,BTag,m_secVxFinderNameForIPSign,*m_priVtx);//input
-    // }
 
     // bad tracks from V0s, conversions, interactions:
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(
       TrkFromV0,//output
-      jetToTag,BTag,m_secVxFinderName);//input
+      BTag,m_secVxFinderName);//input
 
     ATH_MSG_VERBOSE("#BTAG# VALERIO TrkFromV0 : number of reconstructed"
                     " bad tracks: " << TrkFromV0.size());
@@ -347,7 +338,7 @@ namespace Analysis {
         nbTrak++;
         if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(
-            *aTemp, jetToTag.p4() );
+            *aTemp, jetToTag->p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= "
                           << theGrade->gradeString() );
           bool tobeUsed = false;
@@ -380,7 +371,7 @@ namespace Analysis {
                     m_priVtx->position().z());
 
     /** jet direction: */
-    Amg::Vector3D jetDirection(jetToTag.px(),jetToTag.py(),jetToTag.pz());
+    Amg::Vector3D jetDirection(jetToTag->px(),jetToTag->py(),jetToTag->pz());
 
     /** prepare vectors with all track information: TP links,
      * i.p. significances, track grade, etc */

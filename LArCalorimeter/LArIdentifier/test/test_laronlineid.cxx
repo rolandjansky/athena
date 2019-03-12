@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IdDictParser/IdDictParser.h"  
@@ -35,10 +35,10 @@ static void check_lar_online_id_decoding(IdDictMgr& idd)
   }
 
   const LArOnlineID* p_laronline_id = &laronline_id;
-  bool verif = p_laronline_id->do_checks();
+  bool verif = laronline_id.do_checks();
   std::cout << "[TEST_LARONLINE] [1] Do_check verif0 = " << verif << std::endl;
-  p_laronline_id->set_do_checks(true);
-  verif = p_laronline_id->do_checks();
+  laronline_id.set_do_checks(true);
+  verif = laronline_id.do_checks();
   std::cout << "[TEST_LARONLINE] [1] Do_Check verif1 = " << verif << std::endl;
   std::string l_version = laronline_id.dictionaryVersion();
   l_version = "fullAtlas";

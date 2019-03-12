@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_EXPANDEDIDENTIFIER_H
@@ -88,18 +88,6 @@
 //                                       /1 == /1/3  
 //
 //
-//  error_code last_error ()             : returns the last error code 
-//                                         produced by the most recent 
-//                                         identifier operation. The possible
-//                                         values are :
-//
-//                                             none
-//                                             bad_parameter
-//                                             field_not_found
-//
-//  const std::string last_error_text () : returns a text describing the 
-//                                         last error.
-//
 //  ----------------------------------------------------
 //
 //  Example of how to use an identifier :
@@ -109,10 +97,6 @@
 //  ExpandedIdentifier id;
 //
 //  id << 125 << 236 << 306 << 2222;
-//  if (id.last_error () != ExpandedIdentifier::none)
-//    {
-//      cout << "Error : " << id.last_error_text () << endl;
-//    }
 //
 //  for (size_type i = 0; i < id.fields (); ++i)
 //    {
@@ -137,19 +121,6 @@ public:
     {
       max_value = 0x3FFFFFFF
     } max_value_type;
-
-    //----------------------------------------------------------------
-    // Possible errors that may occur in operations.
-    //----------------------------------------------------------------
-  typedef enum
-    {
-      none,                 // success
-      bad_parameter,        // bad value for any method parameter
-      field_not_found,      // the field number is not found
-      
-      errors,
-      get
-    } error_code;
 
     //----------------------------------------------------------------
     // Constructors
@@ -230,22 +201,6 @@ public:
   int match (const ExpandedIdentifier& other) const;
 
     //----------------------------------------------------------------
-    // Error management
-    //----------------------------------------------------------------
-
-    //----------------------------------------------------------------
-    // Return the error produced in the last operation
-    // The value identifier::none represents the successful condition.
-    //----------------------------------------------------------------
-  error_code last_error () const;
-
-    //----------------------------------------------------------------
-    // Return a textual equivalent to the error produced
-    // in the last operation
-    //----------------------------------------------------------------
-  const std::string last_error_text () const;
-
-    //----------------------------------------------------------------
     // Utilities
     //----------------------------------------------------------------
 
@@ -262,11 +217,6 @@ private:
     // The actual identifier data.
     //----------------------------------------------------------------
   element_vector m_fields;
-
-    //----------------------------------------------------------------
-    // Maintains the last error code (shared by all objects).
-    //----------------------------------------------------------------
-  error_code set_last_error (error_code code = get) const;
 };
 //-----------------------------------------------
 
@@ -278,16 +228,13 @@ private:
 inline
 ExpandedIdentifier::ExpandedIdentifier ()
 {
-  set_last_error (none);
 }
 
 //-----------------------------------------------
 inline
 ExpandedIdentifier::ExpandedIdentifier (const ExpandedIdentifier& other)
+  : m_fields (other.m_fields)
 {
-  set_last_error (none);
-
-  m_fields = other.m_fields;
 }
 
 //-----------------------------------------------
@@ -296,7 +243,6 @@ ExpandedIdentifier&
 ExpandedIdentifier::operator= (const ExpandedIdentifier& other)
 {
   if (this != &other) {
-    set_last_error (none);
     m_fields = other.m_fields;
   }
   return *this;
@@ -308,7 +254,6 @@ ExpandedIdentifier&
 ExpandedIdentifier::operator= (ExpandedIdentifier&& other)
 {
   if (this != &other) {
-    set_last_error (none);
     m_fields = std::move(other.m_fields);
   }
   return *this;
@@ -318,8 +263,6 @@ ExpandedIdentifier::operator= (ExpandedIdentifier&& other)
 inline
 ExpandedIdentifier::ExpandedIdentifier (const ExpandedIdentifier& other, size_type start)
 {
-  set_last_error (none);
-
   if (start < other.fields ())
     {
       element_vector::const_iterator it = other.m_fields.begin ();
@@ -336,8 +279,6 @@ ExpandedIdentifier::ExpandedIdentifier (const ExpandedIdentifier& other, size_ty
 inline
 void ExpandedIdentifier::add (element_type value)
 {
-  set_last_error (none);
-
   // Max size of id levels should be < 10
   if(m_fields.capacity() < 10) m_fields.reserve(10);
   m_fields.push_back (value);
@@ -347,8 +288,6 @@ void ExpandedIdentifier::add (element_type value)
 inline
 ExpandedIdentifier& ExpandedIdentifier::operator << (element_type value)
 {
-  set_last_error (none);
-
   // Max size of id levels should be < 10
   if(m_fields.capacity() < 10) m_fields.reserve(10);
   m_fields.push_back (value);
@@ -360,18 +299,8 @@ ExpandedIdentifier& ExpandedIdentifier::operator << (element_type value)
 inline
 ExpandedIdentifier::element_type & ExpandedIdentifier::operator [] (size_type index)
 {
-  set_last_error (none);
-
-  if (index >= m_fields.size ())
-    {
-      static element_type dummy = 0;
-
-      set_last_error (field_not_found);
-
-      return (dummy);
-    }
-
-  return (m_fields[index]);
+  // Raises an exception if index is out-of-bounds.
+  return m_fields.at (index);
 }
 
 //-----------------------------------------------
@@ -388,16 +317,8 @@ void ExpandedIdentifier::clear ()
 inline
 ExpandedIdentifier::element_type ExpandedIdentifier::operator [] (size_type index) const
 {
-  set_last_error (none);
-
-  if (index >= m_fields.size ())
-    {
-      set_last_error (field_not_found);
-
-      return (0);
-    }
-
-  return (m_fields[index]);
+  // Raises an exception if index is out-of-bounds.
+  return m_fields.at (index);
 }
 
 //-----------------------------------------------
@@ -497,29 +418,6 @@ int ExpandedIdentifier::match (const ExpandedIdentifier& other) const
 
   return (1);
 }
-
-  // Error management
-//-----------------------------------------------
-inline
-ExpandedIdentifier::error_code ExpandedIdentifier::last_error () const
-{
-  return (set_last_error (get));
-}
-
-//----------------------------------------------------------------
-inline
-ExpandedIdentifier::error_code ExpandedIdentifier::set_last_error (error_code code) const
-{
-  static error_code last = none;
-  
-  if (code != get)
-    {
-      last = code;
-    }
-  
-  return (last);
-}
-
 
 
 #endif

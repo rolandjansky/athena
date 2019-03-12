@@ -10,7 +10,7 @@
 #include <memory>
 
 SCT_AlignCondAlg::SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthReentrantAlgorithm(name, pSvcLocator)
+  : ::AthAlgorithm(name, pSvcLocator)
   , m_writeKey{"SCTAlignmentStore", "SCTAlignmentStore"}
   , m_condSvc{"CondSvc", name}
   , m_detManager{nullptr}
@@ -44,12 +44,12 @@ StatusCode SCT_AlignCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_AlignCondAlg::execute(const EventContext& ctx) const
+StatusCode SCT_AlignCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey, ctx};
+  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
@@ -72,7 +72,7 @@ StatusCode SCT_AlignCondAlg::execute(const EventContext& ctx) const
 
   if (not m_useDynamicAlignFolders.value()) { // Static
     // ____________ Get Read Cond Object ____________
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic, ctx};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};
     if (readCdoStatic==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyStatic.key());
@@ -91,19 +91,19 @@ StatusCode SCT_AlignCondAlg::execute(const EventContext& ctx) const
     }
   } else { // Dynamic
     // ____________ Get Read Cond Object ____________
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1, ctx};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1};
     const CondAttrListCollection* readCdoDynamicL1{*readHandleDynamicL1};
     if (readCdoDynamicL1==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyDynamicL1.key());
       return StatusCode::FAILURE;
     }
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL2{m_readKeyDynamicL2, ctx};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL2{m_readKeyDynamicL2};
     const CondAttrListCollection* readCdoDynamicL2{*readHandleDynamicL2};
     if (readCdoDynamicL2==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL2.key());
       return StatusCode::FAILURE;
     }
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicL3{m_readKeyDynamicL3, ctx};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicL3{m_readKeyDynamicL3};
     const AlignableTransformContainer* readCdoDynamicL3{*readHandleDynamicL3};
     if (readCdoDynamicL3==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL3.key());

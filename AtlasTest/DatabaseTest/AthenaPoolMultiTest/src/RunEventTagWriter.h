@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLMULTITEST_RUNEVENTTAGWRITER_H
@@ -59,26 +59,28 @@ class RunEventTagWriter : public AthAlgorithm
      * @brief Defines attribute list specification object
      * @return Status of method execution success
      */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** 
      * @brief Stores dummy event tag metadata in attribute list object
      * @return Status of method execution success
      */
-    virtual StatusCode execute();
+    virtual StatusCode execute() override;
 
     /**
      * @brief Prints confirmation message
      * @return Status of method execution success
      */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
   private:
 
     StatusCode fillTag(const xAOD::EventInfo*, AthenaAttributeList*);
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_evt;
-    SG::WriteHandleKey<AthenaAttributeList> m_attribList;
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt
+    { this, "EventInfo", "EventInfo", "" };
+    SG::WriteHandleKey<AthenaAttributeList> m_attribList
+    { this, "RunEventTag", "RunEventTag", "" };
 
     /// Specification of the event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;

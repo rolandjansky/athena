@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -88,7 +88,10 @@ StatusCode PixelPrepDataToxAOD::initialize()
 
   CHECK(m_calibSvc.retrieve());
 
-  ATH_CHECK(m_DCSConditionsTool.retrieve());
+  ATH_CHECK(m_condDCSStateKey.initialize());
+  ATH_CHECK(m_condDCSStatusKey.initialize());
+  ATH_CHECK(m_readKeyTemp.initialize());
+  ATH_CHECK(m_readKeyHV.initialize());
 
   CHECK(m_pixelBSErrorsSvc.retrieve());
 
@@ -224,10 +227,13 @@ StatusCode PixelPrepDataToxAOD::execute()
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
         AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
-        AUXDATA(xprd,std::string,DCSState) = (std::string)m_DCSConditionsTool->PixelFSMState(moduleHash);
-        AUXDATA(xprd,float,BiasVoltage) = (float)m_DCSConditionsTool->biasVoltage(moduleHash);
-        AUXDATA(xprd,float,Temperature) = (float)m_DCSConditionsTool->temperature(moduleHash);
-        AUXDATA(xprd,float,DepletionVoltage) = (float)m_DCSConditionsTool->depletionVoltage(moduleHash);
+        AUXDATA(xprd,int,DCSState) = SG::ReadCondHandle<PixelModuleData>(m_condDCSStateKey)->getModuleStatus(moduleHash);
+
+        float deplVoltage = 0.0;
+        AUXDATA(xprd,float,BiasVoltage) = SG::ReadCondHandle<PixelModuleData>(m_readKeyHV)->getBiasVoltage(moduleHash);
+        AUXDATA(xprd,float,Temperature) = SG::ReadCondHandle<PixelModuleData>(m_readKeyTemp)->getTemperature(moduleHash);
+        AUXDATA(xprd,float,DepletionVoltage) = deplVoltage;
+
         AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleTool->getLorentzShift(moduleHash);
 
         addRdoInformation(xprd,  prd);

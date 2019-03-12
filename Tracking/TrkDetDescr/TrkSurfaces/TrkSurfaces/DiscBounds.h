@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,14 +60,17 @@ namespace Trk {
      /**Constructor for a symmetric disc around phi != 0*/
      DiscBounds(double minrad, double maxrad, double avephi, double hphisec);
      
-     /**Copy constructor*/
-     DiscBounds(const DiscBounds& discbo);
-     
+     /**Default copy constructor*/ 
+     DiscBounds(const DiscBounds&) = default;  
+   
      /**Destructor*/
      virtual ~DiscBounds();
      
-     /**Assignment operator*/
-     DiscBounds& operator=(const DiscBounds& discbo);
+     /**Default move constructor*/	
+     DiscBounds(DiscBounds&& discbo) = default;
+
+     /**Default move assignment operator*/
+     DiscBounds& operator=(DiscBounds&& discbo) = default;
      
      /**Equality operator*/
      virtual bool operator==(const SurfaceBounds& sbo) const override;

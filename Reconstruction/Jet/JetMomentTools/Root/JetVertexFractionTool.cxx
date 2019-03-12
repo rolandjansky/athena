@@ -22,6 +22,7 @@ JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
   declareProperty("VertexContainer", m_vertexContainer_key);
   declareProperty("TrackVertexAssociation", m_tva_key);
   declareProperty("TrackParticleContainer",m_tracksCont_key);
+  declareProperty("IsTrigger",m_isTrigger =false);
 }
 
 //**********************************************************************
@@ -166,7 +167,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<float> vsumpttrk = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
     float sumpttrk_all = tracksums.first;
     float sumpttrk_nonPV = tracksums.second;
-    float sumpttrk_PV = vsumpttrk[HSvertex->index()];
+    float sumpttrk_PV = vsumpttrk[HSvertex->index() - (*vertices)[0]->index()];
 
     // Get and set the JVF vector
     std::vector<float> jvf(vertices->size());
@@ -176,9 +177,10 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     jet->setAttribute(m_jvfname, jvf);
 
     // Get and set the highest JVF vertex
-    jet->setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
-
-    // Calculate RpT and JVFCorr
+    if(!m_isTrigger) {
+      jet->setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
+    }
+    // Calculate RpT and JVFCorr 
     // Default JVFcorr to -1 when no tracks are associated.
     float jvfcorr = -999.;
     if(sumpttrk_PV + sumpttrk_nonPV > 0) {
@@ -286,15 +288,19 @@ int JetVertexFractionTool::getPileupTrackCount(const xAOD::Vertex* vertex,
 
 const xAOD::Vertex* JetVertexFractionTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
 {
-  for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
-    if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
-
-      ATH_MSG_VERBOSE("JetVertexFractionTool " << name() << " Found HS vertex at index: "<< iVertex);
-      return vertices->at(iVertex);
-    }
+  const xAOD::Vertex* primvert = nullptr;
+  for (const xAOD::Vertex* pv : *vertices) {
+	if (pv->vertexType() == xAOD::VxType::PriVtx ) {
+		primvert = pv;
+      		ATH_MSG_VERBOSE("JetVertexFractionTool " << name() << " Found HS vertex.");
+		break;
+	}
   }
-  ATH_MSG_VERBOSE("There is no vertex of type PriVx. Taking default vertex.");
-  return vertices->at(0);
+  if (primvert == nullptr ) {
+  	ATH_MSG_VERBOSE("There is no vertex of type PriVx. Taking default vertex.");
+	primvert = *(vertices->begin());
+  }
+  return primvert;
 }
 
 //**********************************************************************

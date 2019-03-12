@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::HECGeometry
@@ -215,7 +215,7 @@ namespace LArG4 {
       G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
       Point3D<double>  globalPosition = pre_step_point->GetPosition();
 
-      G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
+      const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
       G4String volumeName = theTouchable->GetVolume()->GetName() ;
 
       // Do the following only once - to determine the G4 history-depth of the wheel coordinates

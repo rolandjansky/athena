@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloDM_ID.h"
@@ -545,14 +545,6 @@ void CaloDM_ID::lar_region_id_checks (int pos_neg_z, int dmat, int sampling, int
   ExpandedIdentifier id(calo_exp());
   id << pos_neg_z << dmat << sampling << region ;
   
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in CaloDM_ID::lar_region_id(field values), did not build, " +
-      strformat ("pos_neg_z: %d , dmat: %d, sampling: %d, region: %d ", 
-                 pos_neg_z , dmat, sampling , region);
-    throw CaloID_Exception(errorMessage , 3);
-  }
-
   if (!m_full_lar_region_range.match(id)) { 
     std::string errorMessage = "CaloDM_ID::lar_region_id() result is not OK: ID, range = "
       + std::string(id) + " , " + (std::string)m_full_lar_zone_range;
@@ -566,14 +558,6 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
   ExpandedIdentifier id(calo_exp());
   id << pos_neg_z << dmat << sampling << region ;
   
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in CaloDM_ID::tile_region_id(field values), did not build, " +
-      strformat ("pos_neg_z: %d , dmat: %d, sampling: %d, region: %d ", 
-                 pos_neg_z , dmat, sampling , region);
-    throw CaloID_Exception(errorMessage , 3);
-  }
-
   if (!m_full_tile_region_range.match(id)) { 
     std::string errorMessage = "CaloDM_ID::tile_region_id() result is not OK: ID, range = "
       + std::string(id) + " , " + (std::string)m_full_tile_zone_range;
@@ -590,14 +574,6 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
   ExpandedIdentifier id(calo_exp());
   id << pos_neg_z << dmat << sampling << region << eta << phi;
 
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in CaloDM_ID::lar_zone_id(field values), did not build, " +
-      strformat ("pos_neg_z: %d , dmat: %d, sampling: %d, region: %d , eta: %d , phi: %d ", 
-                 pos_neg_z , dmat, sampling , region, eta, phi);
-    throw CaloID_Exception(errorMessage , 4);
-  }
-
   if (!m_full_lar_zone_range.match(id)) { 
     std::string errorMessage = "CaloDM_ID::lar_zone_id() result is not OK: ID, range = "
       + std::string(id) + " , " + (std::string)m_full_lar_zone_range;
@@ -611,14 +587,6 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
   id << pos_neg_z << dmat << sampling << region << eta << phi;
-
-  if( id.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in CaloDM_ID::tile_zone_id(field values), did not build, " +
-      strformat ("pos_neg_z: %d , dmat: %d, sampling: %d, region: %d , eta: %d , phi: %d ", 
-                 pos_neg_z , dmat, sampling , region, eta, phi);
-    throw CaloID_Exception(errorMessage , 4);
-  }
 
   if (!m_full_tile_zone_range.match(id)) { 
     std::string errorMessage = "CaloDM_ID::tile_zone_id() result is not OK: ID, range = "
@@ -643,13 +611,6 @@ void CaloDM_ID::zone_id_checks   ( const Identifier& regionId,
 
     id << eta << phi;
 
-    if( id.last_error () != ExpandedIdentifier::none) {
-      std::string errorMessage =
-        "Error in CaloDM_ID::zone_id(regionId,field values), values ok but did not build, " +
-        strformat ("eta: %d , phi: %d ", eta, phi);
-      throw CaloID_Exception(errorMessage , 4);
-    }
-    
     if(is_lar(regionId)) {
       if (!m_full_lar_zone_range.match(id)) {
 	std::string errorMessage = "CaloDM_ID::zone_id(regionId) result is not OK: ID, range = "

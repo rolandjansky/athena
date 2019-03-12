@@ -41,7 +41,6 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : AthAlgTool(type, name, parent),
     m_muonMgr(0),
     m_cscHelper(0),
-    m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool", this),
     m_cscCalibTool( "CscCalibTool/CscCalibTool", this),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder", this),
     m_cabling( "CSCcablingSvc" ,name),
@@ -50,9 +49,7 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   declareInterface<IMuonRdoToPrepDataTool>(this);
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
   declareProperty("DecodeData",          m_decodeData = true ); 
-  declareProperty("useBStoRdoTool",      m_useBStoRdoTool = false ); 
   // tools 
-  declareProperty("RawDataProviderTool", m_rawDataProviderTool);
   declareProperty("CscCalibTool",        m_cscCalibTool );
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
   // DataHandle
@@ -84,9 +81,6 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
 
   ATH_MSG_INFO("The Geometry version is " << m_muonMgr->get_DBMuonVersion());
 
-  // Get CscRawDataProviderTool
-  ATH_CHECK(m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool }));
-  
   // get cscCalibTool
   if (m_cscCalibTool.retrieve().isFailure()){
     ATH_MSG_ERROR ( "Can't get handle on CSC calibration tools" );
@@ -157,25 +151,6 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
     if (sizeVectorRequested == 0) m_fullEventDone=true;
   }
 
-  ////// conversion/decoding are done for different case
-  if ( m_useBStoRdoTool )  { 
-    // need to produce from scratch or to keep filling the RDO 
-    if (sizeVectorRequested != 0) {
-      if (m_rawDataProviderTool->convert(givenIdhs).isFailure()) {
-        ATH_MSG_FATAL ( "BS conversion into RDOs failed" );
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG ( "BS conversion to RDOs for selected collections done !" );
-
-    } else {
-
-      if (m_rawDataProviderTool->convert().isFailure()) {
-        ATH_MSG_FATAL ( "BS conversion into RDOs failed" );
-        return StatusCode::FAILURE;
-      }		
-      ATH_MSG_DEBUG ( "BS conversion to RDOs for entire event done !" );
-    }
-  }
   // retrieve the pointer to the RDO container
   // this will just get the pointer from memory if the container is already recorded in SG 
   // or 

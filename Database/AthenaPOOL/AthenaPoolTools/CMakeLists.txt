@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Database/PersistentDataModel
                           Event/EventInfo
+                          Event/ByteStreamData
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODCutFlow
                           GaudiKernel
@@ -24,7 +25,7 @@ atlas_add_component( AthenaPoolTools
                      src/BookkeeperDumper.cxx
                      src/RequireUniqueEvent.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel xAODCutFlow)
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel xAODCutFlow ByteStreamData)
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

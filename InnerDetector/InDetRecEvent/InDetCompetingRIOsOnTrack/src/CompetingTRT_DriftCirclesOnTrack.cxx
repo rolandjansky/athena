@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,9 +27,9 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
 // copy constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) :
   Trk::CompetingRIOsOnTrack(compROT),
-  m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+  m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*(compROT.m_globalPosition.load())) : 0),
   m_containedChildRots(0),
-  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface) {
+  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface.load()) {
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
     m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
@@ -87,7 +87,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
       m_associatedSurface = 0;
     }
     m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
-    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
+    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
       m_containedChildRots->push_back((*rotIter)->clone());
@@ -155,7 +155,8 @@ bool InDet::CompetingTRT_DriftCirclesOnTrack::ROTsHaveCommonSurface(const bool w
 
 
 const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() const {
-  if (m_globalPosition) return (*m_globalPosition);
+  auto ptr = m_globalPosition.load();
+  if (ptr) return (*ptr);
   // cannot use the localToGlobal transformation, because the local z-coordinate along
   // the wire is not known here. The contained TRT_DriftCircleOnTrack use the full
   // transformation => use the weighted mean of their GlobalPositions
@@ -178,9 +179,14 @@ const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() c
   } else {
     globalPos = (*m_containedChildRots->begin())->globalPosition();
   }
-    
-  m_globalPosition = new Amg::Vector3D(globalPos);
-  return *m_globalPosition;
+  auto newptr = new Amg::Vector3D(globalPos);
+  if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
+     return *newptr; //new object is now stored in m_globalPosition for other threads
+  }
+  assert(ptr != nullptr);
+  delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
+  return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
+  
 }
 
 void InDet::CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() {

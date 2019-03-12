@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
 			  LArCalorimeter/LArIdentifier
                           Control/AthenaKernel
+                          Control/AthenaBaseComps
                           DetectorDescription/Identifier
                           GaudiKernel
                           PRIVATE
@@ -24,7 +25,7 @@ atlas_add_library( LArRecConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRecConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier LArIdentifier AthenaKernel Identifier GaudiKernel
+                   LINK_LIBRARIES CaloIdentifier LArIdentifier AthenaKernel Identifier GaudiKernel AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRecConditionsDict

@@ -28,8 +28,8 @@ public: // Non-static members
   /// processed
   virtual StatusCode endInputFile(const SG::SourceID& sid = "Serial") = 0;
 
-  /// Function called when the tool should write out its metadata
-  virtual StatusCode metaDataStop(const SG::SourceID& sid = "Serial") = 0;
+  /// Function called when the tool should prepare to write its metadata
+  virtual StatusCode metaDataStop() = 0;
 
   /// Gaudi boilerplate
    static const InterfaceID& interfaceID();

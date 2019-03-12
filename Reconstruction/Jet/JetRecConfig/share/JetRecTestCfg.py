@@ -77,8 +77,8 @@ def DefineJetCollections():
 
     ########################################################################
     # Now we define our own definitions
-    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAOD
-    LCTopoCSSK = JetConstit(xAOD.Type.CaloCluster, ["LC","Origin","CS","SK"])
+    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
+    LCTopoCSSK = JetConstit(xAODType.CaloCluster, ["LC","Origin","CS","SK"])
     AntiKt4LCTopoCSSK = JetDefinition("AntiKt",0.4,LCTopoCSSK,ptmin=2e3,ptminfilter=2e3)
     AntiKt4LCTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
     AntiKt4LCTopoCSSK.ghostdefs = standardghosts
@@ -179,7 +179,7 @@ if __name__=="__main__":
     
     # Write what we produced to AOD
     # First define the output list
-    outputlist = []
+    outputlist = ["EventInfo#*"]
     originaljets = ["AntiKt4EMPFlowJets"]
     for jetcoll in originaljets:
         outputlist += ["xAOD::JetContainer#"+jetcoll,
@@ -189,10 +189,10 @@ if __name__=="__main__":
         outputlist += ["xAOD::JetContainer#"+key,
                        "xAOD::JetAuxContainer#"+key+"Aux."]
 
-    # # Now get the output stream components
-    # from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    # cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
-    # pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
+    # Now get the output stream components
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
+    pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
   
     # Optionally, print the contents of the store every event
     cfg.getService("StoreGateSvc").Dump = args.dumpSG

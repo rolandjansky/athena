@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // *************************************************************************
@@ -41,8 +41,6 @@
 #include "LUCID_RawEvent/LUCID_DigitContainer.h"
 #include "LUCID_RawDataByteStreamCnv/LUCID_RodEncoder.h"
 
-extern long ByteStream_StorageType;
-
 typedef std::map<uint32_t, LUCID_RodEncoder> LucidRodEncoder_map;
 
 class LUCID_DigitByteStreamCnv: public Converter {
@@ -51,17 +49,16 @@ class LUCID_DigitByteStreamCnv: public Converter {
 
   LUCID_DigitByteStreamCnv(ISvcLocator* svcloc);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // create the RawEvent fragments for LUCID
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
-  virtual long repSvcType() const { return ByteStream_StorageType; }
-  static  long storageType()      { return ByteStream_StorageType; }
-
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static  long storageType();
   static const CLID& classID();
 
-  virtual StatusCode fillFEA(LUCID_DigitContainer* RDO_container, RawEventWrite* re);
+  StatusCode fillFEA(LUCID_DigitContainer* RDO_container, RawEventWrite* re);
 
   unsigned short RodBlockVersion(void) { return m_RodBlockVersion; }
   int            BCs_per_LVL1ID (void) { return m_BCs_per_LVL1ID; }

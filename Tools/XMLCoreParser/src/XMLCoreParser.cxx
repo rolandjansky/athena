@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,27 +11,48 @@
  
 class XMLCoreParserDebugger
 { 
-public: 
+public:
+  static bool get_debug_state()
+  {
+    return ::getenv ("XMLDEBUG") != 0;
+  }
   static bool debug ()
       {
-        static bool first = true;
-        static bool debug_state = false;
-
-        if (first)
-          {
-            first = false;
-
-            if (::getenv ("XMLDEBUG") != 0)
-              {
-                debug_state = true;
-              }
-          }
-
-        return (debug_state);
+        static const bool debug_state = get_debug_state();
+        return debug_state;
       }
-}; 
+};
 
 #include "ExpatCoreParser.h"
+
+
+XMLCoreNode&  XMLCoreNode::operator= (const XMLCoreNode& other)  
+{
+  if (this != &other) {
+    if (m_owns) delete m_node;
+    m_node = other.m_node;
+    m_owns = false;
+  }
+  return *this;
+}
+    
+XMLCoreNode&  XMLCoreNode::operator= (XMLCoreNode&& other)  
+{
+  if (this != &other) {
+    if (m_owns) delete m_node;
+    m_node = other.m_node;
+    m_owns = other.m_owns;
+    other.m_node = nullptr;
+    other.m_owns = false;
+  }
+  return *this;
+}
+
+XMLCoreNode::~XMLCoreNode()
+{
+  if (m_owns) delete m_node;
+}
+
 
 /* 
  *
@@ -269,7 +290,7 @@ bool XMLCoreFactory::check_int (const int n, const XMLCoreNode& node, const std:
       if (nodename != "" ) std::cerr << "for name=" << nodename << std::endl; 
       if (volume != "" ) std::cerr << "for volume=" << volume << std::endl; 
  
-      exit(4); 
+      std::abort();
     } 
  
   return true; 
@@ -309,7 +330,7 @@ bool XMLCoreFactory::check_double (const int n, const XMLCoreNode& node, const s
       if (name1 != "" ) std::cerr << "for name=" << name << std::endl; 
       if (volume != "" ) std::cerr << "for volume=" << volume << std::endl; 
  
-      exit(4); 
+      std::abort();
     } 
  
   return true; 
@@ -319,114 +340,8 @@ class DummyFactory : public XMLCoreFactory
 {
 }; 
 
-class XMLCoreParserImpl
-{ 
-public: 
- 
-  typedef std::map <std::string, XMLCoreFactory*> FactoryMap; 
- 
-  static XMLCoreParserImpl& instance () 
-      { 
-        static XMLCoreParserImpl me; 
- 
-        return (me); 
-      } 
- 
-  CoreParser::DOMNode* parse (const std::string& file_name) 
-      { 
-	CoreParser::DOMNode* doc = ExpatCoreParser::parse (file_name);
-
-	if (XMLCoreParserDebugger::debug ())
-	  {
-	    if (doc != 0) doc->print ("============ ALL =============");
-	  }
-
-	return (doc); 
-      } 
- 
-  void initialize_factories ()
-      {
-        m_default_factory = 0;
-        for (FactoryMap::iterator i = m_factories.begin();
-             i != m_factories.end();
-             ++i) {
-            delete i->second;
-        }
-        m_factories.clear ();
-      }
- 
-  void register_factory (const std::string& name, XMLCoreFactory* factory) 
-      {
-        if (XMLCoreParserDebugger::debug ())
-          {
-            std::cout << "XMLCoreFactory::register_factory> name=" << name
-                      << " factory=" << factory << std::endl; 
-          }
-
-        m_factories[name] = factory; 
-      } 
- 
-  void register_default_factory (XMLCoreFactory* factory) 
-      { 
-        m_default_factory = factory; 
-      } 
- 
-  XMLCoreFactory* find_factory (const std::string& name) 
-      { 
-        FactoryMap::iterator it; 
- 
-        it = m_factories.find (name); 
- 
-        if (it == m_factories.end ()) 
-          { 
-            return (m_default_factory); 
-          } 
-        else 
-          { 
-            return ((*it).second); 
-          } 
-      } 
- 
- 
-private: 
- 
-  XMLCoreParserImpl ()
-      { 
-        m_initialized = false; 
-        m_default_factory = 0; 
-        initialize (); 
-      } 
- 
-  ~XMLCoreParserImpl () {
-    initialize_factories();
-  }
-
-  bool initialize () 
-      { 
-        if (m_initialized) return (true); 
-   
-        m_initialized = true; 
-         
-        return (true); 
-      } 
- 
-  void terminate () 
-      { 
-        if (!m_initialized) return; 
-         
-        m_initialized = false; 
-      } 
- 
-  bool m_initialized; 
- 
-  FactoryMap m_factories; 
-  XMLCoreFactory* m_default_factory; 
-}; 
-     
- 
 XMLCoreParser::XMLCoreParser () 
 { 
-  XMLCoreParserImpl::instance (); 
 } 
  
 XMLCoreParser::~XMLCoreParser () 
@@ -455,34 +370,15 @@ void XMLCoreParser::set_create_entity_reference_nodes ()
  
 XMLCoreNode XMLCoreParser::parse (const std::string& file_name) 
 {
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
-   
-  CoreParser::DOMNode* doc = p.parse (file_name); 
-
-  XMLCoreNode n (doc);
-       
-  return (n); 
-}
-
-void XMLCoreParser::debug_test (XMLCoreParser& parser, XMLCoreFactory* factory) 
-{
+  m_level = 0;
+  std::unique_ptr<CoreParser::DOMNode> doc = ExpatCoreParser::parse (file_name);
   if (XMLCoreParserDebugger::debug ())
-    {
-      std::cout << "XMLCoreParser::debug_test " << std::endl; 
-    }
-
-  XMLCoreNode node (0);
-
-  if (factory == 0)
-    {
-      XMLCoreParserImpl& p = XMLCoreParserImpl::instance ();
-
-      factory = p.find_factory ("AGDD");
-    }
-
-  if (factory != 0) factory->start (parser, node);
+  {
+    if (doc != 0) doc->print ("============ ALL =============");
+  }
+  return XMLCoreNode (std::move (doc));
 }
- 
+
 void XMLCoreParser::visit (const std::string& file_name) 
 { 
   if (XMLCoreParserDebugger::debug ())
@@ -491,38 +387,24 @@ void XMLCoreParser::visit (const std::string& file_name)
                 << file_name << std::endl; 
     }
 
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
-  
-  CoreParser::DOMNode* doc = p.parse (file_name.c_str ());
+  XMLCoreNode n = parse (file_name.c_str ());
 
-  if (doc != 0)
-    {
-      if (XMLCoreParserDebugger::debug ())
-	{
-	  doc->print ();
-	}
+  if (XMLCoreParserDebugger::debug ())
+  {
+    const CoreParser::DOMNode& node = n.get_node();
+    const CoreParser::DOMNode* nptr = &node;
+    std::cout << "XMLCoreParser::visit node=" << nptr << std::endl; 
+  }
 
-      XMLCoreNode n (doc);
-
-      if (XMLCoreParserDebugger::debug ())
-	{
-          CoreParser::DOMNode& node = n.get_node();
-	  CoreParser::DOMNode* nptr = &node;
-	  std::cout << "XMLCoreParser::visit node=" << nptr << std::endl; 
-	}
-
-      visit (n); 
-    }
+  visit (n);
 } 
  
-void XMLCoreParser::visit (const XMLCoreNode& core_node) 
+void XMLCoreParser::visit (const XMLCoreNode& core_node)
 { 
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
- 
   // Get the name and value out for convenience 
 
-  CoreParser::DOMNode& node = core_node.get_node ();
-  CoreParser::DOMNode* nptr = &node;
+  const CoreParser::DOMNode& node = core_node.get_node ();
+  const CoreParser::DOMNode* nptr = &node;
 
   const std::string& nodeName = node.get_name(); 
   const std::string& nodeValue = node.get_value(); 
@@ -532,7 +414,7 @@ void XMLCoreParser::visit (const XMLCoreNode& core_node)
       std::cout << "XMLCoreParser::visit node(" << nptr << ") " << nodeName << std::endl; 
     }
 
-  XMLCoreFactory* factory = p.find_factory (nodeName); 
+  XMLCoreFactory* factory = find_factory (nodeName); 
  
   if (XMLCoreParserDebugger::debug ())
     {
@@ -543,12 +425,8 @@ void XMLCoreParser::visit (const XMLCoreNode& core_node)
     { 
     case CoreParser::DOMNode::DOCUMENT_NODE : 
       { 
-	CoreParser::DOMSiblings& siblings = node.get_siblings ();
-	CoreParser::DOMSiblings::iterator it;
-	
-	for (it = siblings.begin (); it != siblings.end (); ++it)
-	  {
-	    CoreParser::DOMNode* child = *it;
+	const CoreParser::DOMSiblings& siblings = node.get_siblings ();
+        for (const CoreParser::DOMNode* child : siblings) {
             XMLCoreNode n (child);
             visit (n); 
           } 
@@ -569,15 +447,11 @@ void XMLCoreParser::visit (const XMLCoreNode& core_node)
           {
             std::cerr << "XMLCoreParser> Cannot find factory for element " 
                       << nodeName << std::endl;
-            register_factory (nodeName, new DummyFactory);
+            register_factory (nodeName, std::make_unique<DummyFactory>());
           }
  
-	CoreParser::DOMSiblings& siblings = node.get_siblings ();
-	CoreParser::DOMSiblings::iterator it;
-	
-	for (it = siblings.begin (); it != siblings.end (); ++it)
-	  {
-	    CoreParser::DOMNode* child = *it;
+	const CoreParser::DOMSiblings& siblings = node.get_siblings ();
+        for (const CoreParser::DOMNode* child : siblings) {
             XMLCoreNode n (child);
             visit (n); 
           } 
@@ -613,24 +487,23 @@ void XMLCoreParser::visit (const XMLCoreNode& core_node)
     }
 } 
  
-void XMLCoreParser::initialize_factories ()
+void XMLCoreParser::register_default_factory (std::unique_ptr<XMLCoreFactory> factory) 
 {
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
-  p.initialize_factories ();
+  m_default_factory = std::move (factory);
 }
 
-void XMLCoreParser::register_factory (const std::string& name, XMLCoreFactory* factory) 
+void XMLCoreParser::register_factory (const std::string& name,
+                                      std::unique_ptr<XMLCoreFactory> factory) 
 { 
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
-  p.register_factory (name, factory); 
+  if (XMLCoreParserDebugger::debug ())
+  {
+    std::cout << "XMLCoreFactory::register_factory> name=" << name
+              << " factory=" << factory.get() << std::endl; 
+  }
+
+  m_factories[name] = std::move (factory);
 }
 
-void XMLCoreParser::register_default_factory (XMLCoreFactory* factory) 
-{ 
-  XMLCoreParserImpl& p = XMLCoreParserImpl::instance (); 
-  p.register_default_factory (factory); 
-} 
- 
 void XMLCoreParser::register_external_entity (const std::string& name, const std::string& file_name)
 {
   if (XMLCoreParserDebugger::debug ())
@@ -652,5 +525,32 @@ void XMLCoreParser::register_text_entity (const std::string& name, const std::st
 
   ExpatCoreParser::register_text_entity (name, text); 
 }
+ 
+ 
+XMLCoreFactory* XMLCoreParser::find_factory (const std::string& name) 
+{ 
+  FactoryMap::iterator it = m_factories.find (name);
+  if (it != m_factories.end ()) 
+  { 
+    return (*it).second.get();
+  }
+  return m_default_factory.get();
+} 
 
 
+void XMLCoreParser::up()
+{
+  m_level += 1;
+}
+
+
+void XMLCoreParser::down()
+{
+  m_level -= 1;
+}
+
+
+int XMLCoreParser::level() const
+{
+  return m_level;
+}

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,6 +10,7 @@
 
 #include <vector>
 
+#include "CxxUtils/checker_macros.h"
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigNavStructure/TriggerElementFactory.h"
 #include "TrigNavStructure/BaseHolder.h"
@@ -363,8 +364,8 @@ namespace HLT {
 
     TriggerElementFactory m_factory;                     //!< factory of trigger elements
     TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
-    static const TriggerElement* m_unspecifiedTE;
-    static std::string m_unspecifiedLabel;
+    static const TriggerElement* m_unspecifiedTE ATLAS_THREAD_SAFE;
+    static std::string m_unspecifiedLabel ATLAS_THREAD_SAFE;
 
 
   };

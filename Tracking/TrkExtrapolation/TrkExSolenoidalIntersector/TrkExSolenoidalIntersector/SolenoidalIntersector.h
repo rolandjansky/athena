@@ -9,111 +9,156 @@
 #ifndef TRKEXSOLENOIDALINTERSECTOR_SOLENOIDALINTERSECTOR_H
 #define TRKEXSOLENOIDALINTERSECTOR_SOLENOIDALINTERSECTOR_H
 
-#include <cmath>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
+#include <cmath>
 
 class IIncidentSvc;
 namespace Trk
 {
 
-class SolenoidalIntersector: public AthAlgTool,
-			     virtual public IIntersector, virtual public IIncidentListener
+class SolenoidalIntersector: public extends<AthAlgTool, IIntersector>
 {
     
 public:
+    /**
+     * @brief Constants of motion and other cached values.
+     *
+     * There is some data we want to persist across calls to intersectSurface()
+     * for a single trajectory.  We do this by attaching this structure
+     * as a cache block to TrackSurfaceIntersection.  Some of these are
+     * actually constants of motion for a helical trajectory.  We also
+     * include here the solenoidal parametrization.  This gets updated
+     * as we step through the field; including it here avoids a reevaluation
+     * at the start of the next call.  We also include the position at the
+     * end of the stepping phase, m_lastPosition.  This is because before
+     * after we finish stepping but before we return, we improve the
+     * estimate of the intersection by calculating the straight line
+     * intersection with the surface.  But if we then calcuate a further
+     * intersection with the same trajectory, we want to start at the
+     * point at the end of the previous stepping, not the position
+     * we returned.
+     */
+    struct Constants
+      : public TrackSurfaceIntersection::IIntersectionCache
+    {
+      Constants (const SolenoidParametrization& solpar,
+                 const TrackSurfaceIntersection& trackTrackSurfaceIntersection,
+                 const double qOverP);
+      virtual std::unique_ptr<IIntersectionCache> clone() const override
+      { return std::make_unique<Constants> (*this); }
+
+      double m_sinTheta;
+      double m_oneOverSinTheta;
+      double m_cotTheta;
+      double m_qOverPt;
+      const SolenoidParametrization& m_solPar;
+      Amg::Vector3D m_lastPosition;
+      SolenoidParametrization::Parameters m_solParams;
+    };
     SolenoidalIntersector	(const std::string& type, 
 				 const std::string& name,
 				 const IInterface* parent);
-    ~SolenoidalIntersector	(void); 	// destructor
+    virtual ~SolenoidalIntersector() = default;
 
-    StatusCode			initialize();
-    StatusCode			finalize();
-
-    /** handle for incident service */
-    void 			handle(const Incident& inc) ;
+    virtual StatusCode		initialize() override;
+    virtual StatusCode		finalize() override;
 
     /**IIntersector interface method for general Surface type */
+    virtual
     const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
 						 const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						 const double      	qOverP);
+						 const double      	qOverP) const override;
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
+    virtual
     const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
 						       const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						       const double      	qOverP);
+						       const double      	qOverP) const override;
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
+    virtual
     const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
 							    const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-							    const double      	qOverP);
+							    const double      	qOverP) const override;
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
 							  const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-							  const double      	qOverP);
+							  const double      	qOverP) const override;
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
 						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						      const double      	qOverP);
+						      const double      	qOverP) const override;
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
+    virtual
     const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
 						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
-						      const double      	qOverP);
+						      const double      	qOverP) const override;
 
     /**IIntersector interface method to check validity of parametrization within extrapolation range */
+    virtual
     bool			isValid (Amg::Vector3D startPosition,
-					 Amg::Vector3D endPosition) const;
+					 Amg::Vector3D endPosition) const override;
 
     /** tabulate parametrization details */
-    void			validationAction() const;
+    virtual void		validationAction() const override;
     
 private:
+    const SolenoidParametrization*              getSolenoidParametrization() const;
+
     double					circularArcLength(double, double, double, double, double,
-								    double, double&, double&);
-    double					linearArcLength(double);
-    bool					extrapolateToR(double endRadius);
-    bool					extrapolateToZ(double endZ);
-    const TrackSurfaceIntersection*		intersection(const Surface&	surface);
-    void					setParameters(const TrackSurfaceIntersection*	intersection,
-							      double			qOverP);
-    
-    // services and tools:
-    ServiceHandle<IIncidentSvc>			m_incidentSvc;   //!< IncidentSvc to catch begin of event
+								    double, double&, double&) const;
+    double					linearArcLength(const TrackSurfaceIntersection& isect,
+                                                                const Constants& com,
+                                                                const double radius2,
+                                                                const double endRadius) const;
+    bool					extrapolateToR(TrackSurfaceIntersection& isect,
+                                                               double& radius2,
+                                                               Constants&   com,
+                                                               const double endRadius) const;
+    bool					extrapolateToZ(TrackSurfaceIntersection& isect,
+                                                               Constants&   com,
+                                                               const double endZ) const;
+    const TrackSurfaceIntersection*		intersection(std::unique_ptr<TrackSurfaceIntersection> isect,
+                                                             Constants&     com,
+                                                             const Surface& surface) const;
+
+   std::unique_ptr<TrackSurfaceIntersection>
+   newIntersection (const TrackSurfaceIntersection& oldIsect,
+                    const SolenoidParametrization& solpar,
+                    const double qOverP,
+                    Constants*& com) const;
+
     ServiceHandle<MagField::IMagFieldSvc>	m_magFieldSvc;
     ToolHandle<IIntersector>			m_rungeKuttaIntersector;
 
-    double					m_cotTheta;
-    float					m_currentMax;
-    float					m_currentMin;
     double					m_deltaPhiTolerance;
-    Amg::Vector3D				m_direction;
-    unsigned					m_intersectionNumber;
-    double					m_oneOverSinTheta;
-    double					m_pathLength;
-    Amg::Vector3D				m_position;
-    double					m_qOverP;
-    double					m_qOverPt;
-    double					m_radius;
-    double					m_sinTheta;
-    SolenoidParametrization*			m_solenoidParametrization;
     double					m_surfaceTolerance;
-    double					m_validRadius;
-    double					m_validZ;
 
     // counters
-    unsigned long long				m_countExtrapolations;
-    unsigned long long				m_countRKSwitches;
-    
+    mutable std::atomic<unsigned long long>	m_countExtrapolations;
+    mutable std::atomic<unsigned long long>	m_countRKSwitches;
+
+    mutable std::mutex m_mutex;
+    mutable Gaudi::Hive::ContextSpecificPtr<const SolenoidParametrization> m_lastSolenoidParametrization ATLAS_THREAD_SAFE;
+    // List of active solenoid parametrizations.  Second element of the pair
+    // is a use count.
+    typedef std::list<std::pair<SolenoidParametrization, int> > Parmlist_t;
+    mutable Parmlist_t m_solenoidParametrizations ATLAS_THREAD_SAFE;
 };
 
 
@@ -126,7 +171,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 					 double		cosPhi,
 					 double		sinPhi,
 					 double&	cosPhiIntersect,
-					 double&	sinPhiIntersect)
+					 double&	sinPhiIntersect) const
 {
     int		trapped	= 0;
     double	radiusSquared 	= xCentre*xCentre + yCentre*yCentre;
@@ -198,11 +243,17 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 // arc length to intersect of a line to a circle of radius endRadius centred at (0,0)
 // +ve (-ve) endRadius selects the solution on the same (opposite) side of (0,0)
 inline double
-SolenoidalIntersector::linearArcLength(double	endRadius)
+SolenoidalIntersector::linearArcLength(const TrackSurfaceIntersection& isect,
+                                       const Constants& com,
+                                       const double	radius2,
+                                       const double	endRadius) const
 {
-    double 	arcLength     	= (-m_direction.x()*m_position.x() - m_direction.y()*m_position.y()) *
-				  m_oneOverSinTheta;
-    double 	radiusSquared	= endRadius*endRadius - m_radius*m_radius + arcLength*arcLength;
+    const Amg::Vector3D& pos = isect.position();
+    const Amg::Vector3D& dir = isect.direction();
+
+    double 	arcLength     	= (-dir.x()*pos.x() - dir.y()*pos.y()) *
+				  com.m_oneOverSinTheta;
+    double 	radiusSquared	= endRadius*endRadius - radius2 + arcLength*arcLength;
     if (radiusSquared > 0.)
     {
 	if (endRadius > 0.)
@@ -218,66 +269,27 @@ SolenoidalIntersector::linearArcLength(double	endRadius)
 }
     
 inline const TrackSurfaceIntersection*
-SolenoidalIntersector::intersection(const Surface&	surface)
+SolenoidalIntersector::intersection(std::unique_ptr<TrackSurfaceIntersection> isect,
+                                    Constants&          com,
+                                    const Surface&	surface) const
 {
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    // // validate
-    // if (! intersection)
-    // {
-    // 	ATH_MSG_WARNING(" this should never fail");
-    // 	return 0;
-    // }
-    
-    // const Amg::Vector2D* localPos = surface.positionOnSurface(intersection->position(), false);
-    // if (! localPos)
-    // {
-    // 	ATH_MSG_INFO("   localPos fails  surface type " << surface.type()
-    // 		     << "   at R,Z " << m_position.perp() << ", " << m_position.z()
-    // 		     << "  surface R " << surface.globalReferencePoint().perp());
-    // 	return 0;
-    // }
-    
-
-    // ATH_MSG_INFO(" serial diff " << intersection->serialNumber() - m_intersectionNumber
-    // 	<< "  at R,Z: " << m_radius << ", " << m_position.z());
-    
-    m_intersectionNumber = intersection->serialNumber();
-    return intersection;
-}
-
-inline void
-SolenoidalIntersector::setParameters(const TrackSurfaceIntersection* trackTrackSurfaceIntersection, double qOverP)
-{
-    if (trackTrackSurfaceIntersection->serialNumber() != m_intersectionNumber || qOverP != m_qOverP)
+    // Improve the estimate of the intersection by calculating
+    // the straight-line intersection.
+    Intersection SLIntersect	= surface.straightLineIntersection(isect->position(), isect->direction(), false, false);
+    if (SLIntersect.valid)
     {
-	// ATH_MSG_INFO(" initialize parameters.  Diff: " << trackTrackSurfaceIntersection->serialNumber()-m_intersectionNumber
-	// 	     << "  at R,Z: " << trackTrackSurfaceIntersection->position().perp() << ", " << trackTrackSurfaceIntersection->position().z());
-	++m_countExtrapolations;
-	m_position.x()		= trackTrackSurfaceIntersection->position().x();
-	m_position.y()		= trackTrackSurfaceIntersection->position().y();
-	m_position.z()		= trackTrackSurfaceIntersection->position().z();
-	m_radius		= m_position.perp();
-	m_direction.x()		= trackTrackSurfaceIntersection->direction().x();
-	m_direction.y()		= trackTrackSurfaceIntersection->direction().y();
-	m_direction.z()		= trackTrackSurfaceIntersection->direction().z();
-	m_sinTheta		= m_direction.perp();
-	m_oneOverSinTheta	= 1./m_sinTheta;
-	m_cotTheta		= m_direction.z() * m_oneOverSinTheta;
-	m_pathLength		= trackTrackSurfaceIntersection->pathlength();
-	m_qOverP		= qOverP;
-	m_qOverPt		= qOverP * m_oneOverSinTheta;
-	m_solenoidParametrization->setParameters(m_radius,m_position.z(),m_cotTheta);
+        // But first save our current position, so that we can
+        // start from here on the next call.
+        com.m_lastPosition = isect->position();
+        isect->position() = SLIntersect.position;
+	return isect.release();
     }
+
+    return nullptr;
 }
 
 } // end of namespace
 
 
 #endif // TRKEXSOLENOIDALINTERSECTOR_SOLENOIDALINTERSECTOR_H
-
 

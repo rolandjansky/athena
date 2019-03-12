@@ -50,8 +50,6 @@ PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(std::stri
 	m_name(tag){
 
 	std::vector<float> *layers = getLayersBins();
-	std::vector<float> etabins = model.getEtaBins();
-	std::vector<float> phibins = model.getAngleBins();
 	std::vector<float> clustersizeEta = model.getClusterSizeYBins();
 	clustersizeEta.insert(clustersizeEta.begin(),0.5);
 	clustersizeEta.push_back(100);

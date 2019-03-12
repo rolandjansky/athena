@@ -61,7 +61,7 @@ public:
            std::swap(a.m_atomic, b.m_atomic);
            std::swap(a.m_mut, b.m_mut);
         }
-        IDC_WriteHandle(IDC_WriteHandle&& other){
+        IDC_WriteHandle(IDC_WriteHandle&& other) : IDC_WriteHandle() {
            Swap(*this, other);
         }
         StatusCode addOrDelete(std::unique_ptr<T> ptr, bool &deleted){

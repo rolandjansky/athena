@@ -36,7 +36,7 @@ public:
 
  float getJetVertexFraction(const xAOD::Vertex*, const std::vector<const xAOD::TrackParticle*>&, const jet::TrackVertexAssociation*) const;
 
- virtual void cleanup(DiTauCandidateData *) { }
+ virtual void cleanup(DiTauCandidateData *) override { }
 
 
 private:

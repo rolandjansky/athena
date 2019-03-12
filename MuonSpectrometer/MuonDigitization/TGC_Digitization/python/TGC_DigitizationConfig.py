@@ -14,10 +14,6 @@ def TGC_LastXing():
     return 75
 
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    tgcRndm = kwargs.setdefault("RndmEngine", "TGC_Digitization")
-    # set rndm seeds
-    jobproperties.Digitization.rndmSeedList.addSeed(tgcRndm, 49261510, 105132394) 
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
@@ -41,5 +37,5 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     return TgcDigitizationTool(name,**kwargs)
 
 def getTGC_OverlayDigitizer(name="TGC_OverlayDigitizer", **kwargs):
-    kwargs.setdefault("TGC_DigitizationTool","Tgc_OverlayDigitizationTool")
+    kwargs.setdefault("DigitizationTool","Tgc_OverlayDigitizationTool")
     return CfgMgr.TGCDigitizer(name,**kwargs)

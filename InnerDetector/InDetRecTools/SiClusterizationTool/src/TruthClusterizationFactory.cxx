@@ -34,13 +34,10 @@ namespace InDet {
   TruthClusterizationFactory::TruthClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
-	  m_incidentSvc("IncidentSvc", n),
-	  m_simDataCollection(0),
 	  m_rndmSvc("AtDSFMTGenSvc",name),
 	  m_rndmEngine(0)
 {
   // further properties
-  declareProperty("IncidentService", m_incidentSvc );
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TruthClusterizationFactory");
   
   declareInterface<TruthClusterizationFactory>(this);
@@ -53,13 +50,7 @@ namespace InDet {
   TruthClusterizationFactory::~TruthClusterizationFactory() {}
   
   StatusCode TruthClusterizationFactory::initialize() {
-    if (m_incidentSvc.retrieve().isFailure()){
-		ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-		return StatusCode::FAILURE;
-	}
   
-	// register to the incident service
-	m_incidentSvc->addListener( this, "BeginEvent");
 
 	msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
 
@@ -83,22 +74,7 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
   
-  void TruthClusterizationFactory::handle(const Incident& inc) 
-  { 
-   if ( inc.type() == IncidentType::BeginEvent ){
-   	// record the SDO collection
-     
-     SG::ReadHandle<InDetSimDataCollection> pixSdoColl(m_simDataCollectionName);
 
-     if (!pixSdoColl.isValid()){
-       ATH_MSG_WARNING("Could not retrieve the  InDetSimDataCollection with name "   << m_simDataCollectionName);
-       m_simDataCollection = 0;
-     } else {
-       ATH_MSG_VERBOSE("Successfully retrieved the InDetSimDataCollection with name " << m_simDataCollectionName);
-       m_simDataCollection = &(*pixSdoColl);  
-     }
-   }  
-  }
 
   std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const
   {
@@ -108,11 +84,12 @@ namespace InDet {
 	unsigned int nPartContributing = 0;
 	//Initialize vector for a list of UNIQUE barcodes for the cluster
 	std::vector<int> barcodes;
+        SG::ReadHandle<InDetSimDataCollection> pixSdoColl(m_simDataCollectionName);
 	//Loop over all elements (pixels/strips) in the cluster
-	for (auto rdoIter :  rdos){
-		if (m_simDataCollection){
-			auto simDataIter = m_simDataCollection->find(rdoIter);
-			if (simDataIter != m_simDataCollection->end()){
+        if(pixSdoColl.isValid()){
+            for (auto rdoIter :  rdos){
+                       auto simDataIter = pixSdoColl->find(rdoIter);
+                       if (simDataIter != pixSdoColl->end()){
                 		crazycluster = false;
 				// get the SimData and count the individual contributions
 				auto simData = (simDataIter->second);
@@ -134,8 +111,8 @@ namespace InDet {
 				}
 				//nPartContributing = simDataDeposits.size() > nPartContributing ? simDataDeposits.size() : nPartContributing;
 			}
-		}
-	}
+	   }
+        }
 	//Barcodes vector is then a list of the total number of UNIQUE
 	//barcodes in the cluster, each corresponding to a truth particle
 	nPartContributing = barcodes.size();

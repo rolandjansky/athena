@@ -172,9 +172,9 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecFromCluster'
         # add factory to instance label to facilitate log file searches
         trkstr = self.menu_data.trkopt
-        if 'ftk' in self.menu_data.trkopt:
-                name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
-                outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
+        if 'ftk' in trkstr:
+            name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
+            outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
         else:
                 name = '"%s_%s"' %(factory, self.fex_params.fex_label)
                 outputcollectionlabel = "'%s'" % (self.fex_params.fex_label)
@@ -223,13 +223,20 @@ class AlgFactory(object):
 
         factory = 'TrigHLTTrackMomentHelpers'
 
-        name = '"%s"' % factory
+        trkstr = self.menu_data.trkopt
+        
+        name = '"%s_%s"' % ( factory, trkstr )
+        
+        tvassocsgkey = 'HLT_'+trkstr+'_JetTrackVtxAssoc'
+        tracksgkey = 'HLT_'+trkstr+'_InDetTrackParticles'
+        primvtxsgkey = 'HLT_'+trkstr+'_PrimaryVertices'
         
         kwds = {
             'name': name,  # instance label
-            'tvassocSGkey': "'HLT_FTK_JetTrackVtxAssoc'",
-            'trackSGkey': "'HLT_FTK_InDetTrackParticles'",
-            'primVtxSGkey': "'HLT_FTK_PrimaryVertices'",
+            'trkopt' : "'%s'" % trkstr,
+            'tvassocSGkey': "'%s'" % tvassocsgkey,
+            'trackSGkey': "'%s'" % tracksgkey,
+            'primVtxSGkey': "'%s'" % primvtxsgkey,
         }
 
         return [Alg(factory, (), kwds)]

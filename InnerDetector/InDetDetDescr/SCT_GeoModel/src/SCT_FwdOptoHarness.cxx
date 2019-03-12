@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdOptoHarness.h"
@@ -19,8 +19,12 @@
 
 inline double sqr(double x) {return x*x;}
 
-SCT_FwdOptoHarness::SCT_FwdOptoHarness(const std::string & name, int itype)
-  : SCT_SharedComponentFactory(name), m_type(itype)
+SCT_FwdOptoHarness::SCT_FwdOptoHarness(const std::string & name, int itype,
+                                       InDetDD::SCT_DetectorManager* detectorManager,
+                                       const SCT_GeometryManager* geometryManager,
+                                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_type(itype)
 {
   getParameters();
   m_physVolume = build();
@@ -30,7 +34,7 @@ SCT_FwdOptoHarness::SCT_FwdOptoHarness(const std::string & name, int itype)
 void 
 SCT_FwdOptoHarness::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
 
   m_index = -1;
   for(int i=0; i<3; ++i) {
@@ -52,10 +56,8 @@ SCT_FwdOptoHarness::getParameters()
 GeoVPhysVol * 
 SCT_FwdOptoHarness::build() 
 {
-  SCT_MaterialManager materials;
-
   const GeoTube * optoHarnessShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, optoHarnessShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, optoHarnessShape->volume());
   const GeoLogVol * optoHarnessLog = new GeoLogVol(getName(), optoHarnessShape, m_material);
 
   GeoPhysVol * optoHarness = new GeoPhysVol(optoHarnessLog);

@@ -26,9 +26,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-00-00" CACHE STRING
+    set( TDAQ-COMMON_VERSION "03-02-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-01-02" CACHE STRING
+    set( TDAQ_VERSION "08-02-00" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -52,6 +52,7 @@ find_package( Gaudi REQUIRED )
 # Find some auxiliary packages:
 find_package( Doxygen )
 find_package( PNG )
+find_package( VDT )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

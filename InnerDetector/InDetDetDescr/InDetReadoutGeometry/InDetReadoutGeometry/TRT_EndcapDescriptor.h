@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,8 +10,9 @@
 
 #ifndef TRT_EndcapDescriptor_h
 #define TRT_EndcapDescriptor_h 1
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
+#include "CxxUtils/CachedUniquePtr.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoXF.h"
 
 namespace Trk{
@@ -73,7 +74,7 @@ namespace InDetDD {
     protected:
       
       
-      virtual ~TRT_EndcapDescriptor();
+      virtual ~TRT_EndcapDescriptor() = default;
       
       
     private:
@@ -111,8 +112,7 @@ namespace InDetDD {
       size_t                 m_o;
       
       // Bounds
-      mutable Trk::CylinderBounds * m_bounds;
-
+      CxxUtils::CachedUniquePtr<Trk::CylinderBounds> m_bounds;
 
     };
 }

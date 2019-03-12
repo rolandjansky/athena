@@ -12,10 +12,10 @@ DOWRITE=0
 include("AthenaRootComps/test_athena_ntuple_dumper.py")
 
 ## filter configuration ##
-##  -> we use the special sequence 'AthFilterSeq' which
+##  -> we use the special sequence 'AthMasterSeq' which
 ##      is run before any other algorithm (which are usually in the
 ##      'TopAlg' sequence
-seq = AthSequencer("AthFilterSeq")
+seq = AthSequencer("AthMasterSeq")
 
 from GaudiSequencer.PyComps import PyEvtFilter
 seq += PyEvtFilter(

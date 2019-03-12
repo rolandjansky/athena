@@ -31,7 +31,7 @@ namespace {
 
 /////////////////////////////////////////////////////////////////////////////
 
-string SCT_MonitorConditionsTool::s_separator{string("-")};
+const string SCT_MonitorConditionsTool::s_separator{"-"};
 
 SCT_MonitorConditionsTool::SCT_MonitorConditionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),

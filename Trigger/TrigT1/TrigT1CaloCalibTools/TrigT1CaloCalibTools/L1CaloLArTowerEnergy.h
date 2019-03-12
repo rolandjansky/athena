@@ -17,7 +17,7 @@
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "LArRecConditions/ILArBadFebMasker.h"
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
@@ -76,7 +76,7 @@ private:
   CaloTriggerTowerService* m_ttService;
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
-  ToolHandle< ILArBadChanTool > m_badChannelTool; // Handle to badChannelTool
+  ToolHandle< ILArBadFebMasker > m_badFebMasker; // Handle to badChannelTool
   ToolHandle<LArCablingLegacyService> m_larCablingSvc;  // Handle to LarCablingService
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
 

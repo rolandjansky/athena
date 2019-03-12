@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FSIScorpion.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_FSIScorpion::SCT_FSIScorpion(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_FSIScorpion::SCT_FSIScorpion(const std::string & name,
+                                 InDetDD::SCT_DetectorManager* detectorManager,
+                                 const SCT_GeometryManager* geometryManager,
+                                 SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -26,9 +29,7 @@ SCT_FSIScorpion::SCT_FSIScorpion(const std::string & name)
 void
 SCT_FSIScorpion::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;   
- 
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
   m_materialName  = parameters->fsiScorpionMaterial();
   m_radialWidth = parameters->fsiScorpionRadialWidth();
   m_rPhiWidth = parameters->fsiScorpionRPhiWidth();
@@ -40,13 +41,10 @@ SCT_FSIScorpion::build()
 {
 
   // Build the barrel FSI scorpion. Just a simple box.
-  // Length is in z-direction. 
-  SCT_MaterialManager materials;
-
+  // Length is in z-direction.
   const GeoBox * scorpionShape = new GeoBox(0.5*m_radialWidth, 0.5*m_rPhiWidth, 0.5*m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, scorpionShape->volume());
-  const GeoLogVol *scorpionLog = 
-    new GeoLogVol(getName(), scorpionShape, m_material);
+  m_material = m_materials->getMaterialForVolume(m_materialName, scorpionShape->volume());
+  const GeoLogVol *scorpionLog = new GeoLogVol(getName(), scorpionShape, m_material);
   GeoPhysVol * scorpion = new GeoPhysVol(scorpionLog);
 
   return scorpion;

@@ -366,7 +366,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step'],
+    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
     'eventBuildType'  : AllowedEventBuildingIdentifiers,
     }
 # ---- Egamma Dictinary of default Values ----

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -111,8 +111,6 @@ private:
     ToolHandle< InDet::IInDetTrackSelectionTool > m_baseline_selTool;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_tight_selTool;
 
-    ///Switch if LB accounting should be done
-    bool m_doLumiblock;
     /// Switch for hole searching
     bool m_doHolePlots;
     bool m_DoHoles_Search;
@@ -212,7 +210,6 @@ private:
     TProfile2D  *m_holes_eta_pt;
     TProfile2D  *m_holes_phi_pt;
     TProfile2D  *m_holes_eta_phi_n;
-    TH1F     *m_holesComb2;
     TProfile *m_holes_hits;
     TH2F     *m_holesvshits;
     TH2F     *m_holesvshits_ECA;

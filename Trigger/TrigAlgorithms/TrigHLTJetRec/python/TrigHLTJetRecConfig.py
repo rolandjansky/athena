@@ -192,6 +192,51 @@ def _getIsData():
     from AthenaCommon.GlobalFlags import globalflags
     return globalflags.DataSource() == 'data'
 
+def addJVFTool(toolname,
+                  tvSGkey,
+                  vcSGkey,
+                  tpcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+ 
+        # Build the tool :
+        jvfTool = JetVertexFractionTool(toolname,
+                                        VertexContainer = vcSGkey, 
+                                        AssociatedTracks = "GhostTrack",
+                                        TrackVertexAssociation = tvSGkey,
+                                        TrackParticleContainer = tpcSGkey, 
+                                        TrackSelector = jtm.trackselloose,
+                                        JVFName = "JVF",
+                                        IsTrigger=True,)
+        
+        jtm += jvfTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname
+
+
+def addJVTTool(toolname,
+                  vcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
+ 
+        # Build the tool :
+        jvtTool = JetVertexTaggerTool(toolname,
+                                      VertexContainer = vcSGkey)
+        
+        jtm += jvtTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvt tool "%s" to jtm' % toolname
+
 
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
@@ -207,6 +252,7 @@ def configTVassocTool(name,
         TrackParticleContainer = tpcSGkey,
         TrackVertexAssociation = tvSGkey,
         VertexContainer = vcSGkey,
+        TrackVertexAssoTool = jtm.jetLooseTVAtool,
     )
 
     # Build the tool :
@@ -451,6 +497,7 @@ def _getJetBuildTool2(merge_param,
                       iParticleRejectionTool,
                       name='',
                       secondary_label='',
+		      trkopt = '',
                       outputLabel='',
                       OutputLevel=INFO,
                       fromJet=False
@@ -476,7 +523,7 @@ def _getJetBuildTool2(merge_param,
     # in situ calibration step is only for data, not MC
     # this string here allows the following code to be data/MC unaware
     inSitu = 'i' if _getIsData() else ''
-
+   
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
@@ -490,14 +537,27 @@ def _getJetBuildTool2(merge_param,
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        if not hasattr(jtm, 'trkmoms_GhostTracks'):
+        if not hasattr(jtm, 'trkmoms_'+trkopt):
             print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
         else:        
-            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_GhostTracks')
+            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_'+trkopt)
             trkmoms_ghosttrack.unlock()
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
+        if not hasattr(jtm, 'jvf_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+        else:        
+            jvf_ghosttrack = getattr(jtm, 'jvf_'+trkopt)
+            jvf_ghosttrack.unlock()
+            jvf_ghosttrack.AssociatedTracks = secondary_label
+            jvf_ghosttrack.lock()
+            mymods.append(jvf_ghosttrack)
+        if not hasattr(jtm, 'jvt_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVT tool configured. Continuing without jvt calculations."
+        else:        
+            jvt_ghosttrack = getattr(jtm, 'jvt_'+trkopt)
+            mymods.append(jvt_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -567,6 +627,7 @@ def _getJetBuildTool2(merge_param,
 
     try:
         # jetBuildTool = jtm.addJetFinderTrigger(
+        #OutputLevel=VERBOSE
         jetBuildTool = jtm.addTriggerJetBuildTool(
             name=name,
             alg="AntiKt",
@@ -1137,8 +1198,9 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             do_substructure=do_substructure,
             iParticleRejectionTool=iIParticleRejecter,
             name=name,
-            secondary_label=secondary_label, # track related modifiers
             OutputLevel=OutputLevel,
+            trkopt = trkopt,
+            secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
             )
         print 'after jetbuild'
         
@@ -1169,7 +1231,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  OutputLevel=INFO,
                  ):
 
-        # OutputLevel = VERBOSE
+        #OutputLevel = VERBOSE
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
 
@@ -1502,6 +1564,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
 
     def __init__(self,
                  name,
+                 trkopt,
                  tvassocSGkey,
                  trackSGkey,
                  primVtxSGkey,
@@ -1512,7 +1575,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.primVtxSGkey = primVtxSGkey
 
         #retrieve and configure the TVA tool 
-        tvatoolname = 'tvassoc_GhostTracks'
+        tvatoolname = 'tvassoc_'+trkopt
 
         tvaoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
@@ -1522,12 +1585,27 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.tvassocTool = _getTVassocTool(tvatoolname, **tvaoptions)
     
         # add  a specially configured trkmoms tool to jtm 
-        trkmomstoolname = 'trkmoms_GhostTracks'
+        trkmomstoolname = 'trkmoms_'+trkopt
         
         trkmomsoptions = dict(tvSGkey=tvassocSGkey,
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+        
+        # add  a specially configured jvf tool to jtm 
+        jvftoolname = 'jvf_'+trkopt
+        
+        jvfoptions = dict(tvSGkey=tvassocSGkey,
+                       tpcSGkey=trackSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addJVFTool(jvftoolname, **jvfoptions)
+
+        # add  a specially configured jvt tool to jtm 
+        jvttoolname = 'jvt_'+trkopt
+        
+        jvtoptions = dict(vcSGkey=primVtxSGkey)
+        addJVTTool(jvttoolname, **jvtoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

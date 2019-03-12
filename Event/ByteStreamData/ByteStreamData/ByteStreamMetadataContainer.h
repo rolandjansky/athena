@@ -22,4 +22,11 @@ class ByteStreamMetadataContainer : public DataVector<ByteStreamMetadata> {
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ByteStreamMetadataContainer, 1076128893, 1)
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<ByteStreamMetadataContainer> , 1174128703 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<ByteStreamMetadataContainer>, MetaContBase );
+#endif // not XAOD_STANDALONE
+
 #endif
