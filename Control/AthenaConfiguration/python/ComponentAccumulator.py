@@ -431,7 +431,7 @@ class ComponentAccumulator(object):
                     self.addEventAlgorithm(other, sequenceName=sequenceName)
                     #FIXME: At this point we can't distingush event algos from conditions algos.
                     #Might become possible with new Gaudi configurables
-                elif isinstance(otherConfigurableAlgTool):
+                elif isinstance(other,ConfigurableAlgTool):
                     self.addPublicTool(other)
                 else:
                     raise RuntimeError("mergeAll called with unexpected parameter of type %s" % type(other))
