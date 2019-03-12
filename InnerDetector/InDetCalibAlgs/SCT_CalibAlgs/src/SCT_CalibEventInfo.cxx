@@ -54,10 +54,6 @@ SCT_CalibEventInfo::finalize() {
   return StatusCode::SUCCESS;
 }
 
-int SCT_CalibEventInfo::lumiBlock() const {
-  return m_lumiBlock;
-}
-
 void
 SCT_CalibEventInfo::setTimeStamp(const int begin, const int end) {
   m_timeStampBegin = begin;
@@ -67,15 +63,11 @@ SCT_CalibEventInfo::setTimeStamp(const int begin, const int end) {
   m_tsEndString = toUtc(end);
 }
 
-int SCT_CalibEventInfo::duration() const {
-  return m_duration;
-}
-
 void
 SCT_CalibEventInfo::setTimeStamp(const std::string& begin, const std::string& end) {
   int ibegin{std::stoi(begin)};
   int iend{std::stoi(end)};
-  setTimeStamp(ibegin,iend);
+  setTimeStamp(ibegin, iend);
 }
 
 void
@@ -84,9 +76,29 @@ SCT_CalibEventInfo::setTimeStamp(const int ts) {
 }
 
 void
-SCT_CalibEventInfo::getLumiBlock(int& begin, int& end) const {
-  begin = m_LBBegin;
-  end = m_LBEnd;
+SCT_CalibEventInfo::getTimeStamps(int& begin, int& end) const {
+  begin = m_timeStampBegin;
+  end = m_timeStampEnd;
+}
+
+void
+SCT_CalibEventInfo::getTimeStamps(std::string& begin, std::string& end) const {
+  begin = m_tsBeginString;
+  end = m_tsEndString;
+}
+
+int
+SCT_CalibEventInfo::timeStamp() const {
+  return m_timeStamp;
+}
+
+int SCT_CalibEventInfo::duration() const {
+  return m_duration;
+}
+
+void
+SCT_CalibEventInfo::setSource(const std::string source) {
+  m_source = source;
 }
 
 void
@@ -102,8 +114,18 @@ SCT_CalibEventInfo::setLumiBlock(const int lb) {
 }
 
 void
-SCT_CalibEventInfo::setSource(const std::string source) {
-  m_source = source;
+SCT_CalibEventInfo::getLumiBlock(int& begin, int& end) const {
+  begin = m_LBBegin;
+  end = m_LBEnd;
+}
+
+int SCT_CalibEventInfo::lumiBlock() const {
+  return m_lumiBlock;
+}
+
+int
+SCT_CalibEventInfo::numLumiBlocks() const {
+  return m_numLB;
 }
 
 void
@@ -111,31 +133,19 @@ SCT_CalibEventInfo::setRunNumber(const int rn) {
   m_runNumber = rn;
 }
 
-void
-SCT_CalibEventInfo::setBunchCrossing(const int bc) {
-  m_bunchCrossing = bc;
-}
-
-void
-SCT_CalibEventInfo::getTimeStamps(std::string& begin, std::string& end) const {
-  begin = m_tsBeginString;
-  end = m_tsEndString;
-}
-
-void
-SCT_CalibEventInfo::getTimeStamps(int& begin, int& end) const {
-  begin = m_timeStampBegin;
-  end = m_timeStampEnd;
-}
-
-int
-SCT_CalibEventInfo::timeStamp() const {
-  return m_timeStamp;
-}
-
 int
 SCT_CalibEventInfo::runNumber() const {
   return m_runNumber;
+}
+
+void
+SCT_CalibEventInfo::setCounter(const int counterVal) {
+  m_counter = counterVal;
+}
+
+void
+SCT_CalibEventInfo::incrementCounter() {
+  ++m_counter;
 }
 
 int
@@ -144,18 +154,8 @@ SCT_CalibEventInfo::counter() const {
 }
 
 void
-SCT_CalibEventInfo::incrementCounter() {
-  ++m_counter;
-}
-
-void
-SCT_CalibEventInfo::setCounter(const int counterVal) {
-  m_counter = counterVal;
-}
-
-int
-SCT_CalibEventInfo::numLumiBlocks() const {
-  return m_numLB;
+SCT_CalibEventInfo::setBunchCrossing(const int bc) {
+  m_bunchCrossing = bc;
 }
 
 std::string

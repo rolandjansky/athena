@@ -52,11 +52,11 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
   /// set number of lumiblocks
   void setNumberOfLb(const int nLb);
   /// get number of lumiblocks
-  int numberOfLb();
+  int numberOfLb() const;
   /// set number of lumiblocks
   void setLbToMerge(const int nLbMerge);
   /// get number of lumiblocks
-  int LbToMerge();
+  int LbToMerge() const;
  protected:
   std::vector<TH1F*> m_phistoVector;
   std::vector<TH2F*> m_phistoVector2D;
@@ -68,12 +68,11 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
   //
   bool init();
   template<class T>
-    std::pair<std::string, bool> retrievedTool(T& tool) {
+    std::pair<std::string, bool> retrievedTool(T& tool) const {
     if (tool.retrieve().isFailure() ) return std::make_pair(std::string{"Unable to retrieve "}+tool.name(), false);
     return std::make_pair("", true);
   }
 };
-
 
 inline const InterfaceID& ISCT_CalibHistoTool::interfaceID() {
   static const InterfaceID IID{"ISCT_CalibHistoTool", 1, 0};

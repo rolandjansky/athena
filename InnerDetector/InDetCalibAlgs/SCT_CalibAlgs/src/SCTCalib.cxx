@@ -20,13 +20,8 @@
 
 #include "SCT_CalibAlgs/SCTCalib.h"
 #include "SCT_CalibAlgs/SCT_LorentzAngleFunc.h"
-#include "SCT_CalibUtilities.h"
-#include "SCT_CalibBsErrorTool.h"
-#include "SCT_CalibLbTool.h"
-#include "SCT_CalibModuleListTool.h"
-#include "SCT_CalibEventInfo.h"
-#include "SCT_CalibHitmapTool.h"
 
+#include "SCT_CalibUtilities.h"
 #include "XmlHeader.h"
 #include "XmlStreamer.h"
 
@@ -59,11 +54,11 @@ using namespace std;
 namespace {
   enum Bec {ENDCAP_C = -2, BARREL = 0, ENDCAP_A = 2};
   // String names for the detector parts
-  const std::string detectorNames[]{"negativeEndcap", "Barrel", "positiveEndcap"};
+  const std::string detectorNames[] = {"negativeEndcap", "Barrel", "positiveEndcap"};
   // String names for the detector parts
-  const std::string shortNames[]{"EndCapC", "Barrel", "EndCapA"};
+  const std::string shortNames[] = {"EndCapC", "Barrel", "EndCapA"};
   // Path names to become part of the histogram paths
-  const std::string detectorPaths[]{"SCTEC", "SCTB", "SCTEA"};
+  const std::string detectorPaths[] = {"SCTEC", "SCTB", "SCTEA"};
 
   bool areConsecutiveIntervals(const std::pair<int, int>& i1, const std::pair<int, int>& i2, const int withinLimits) {
     return i1.second <= (i2.first + withinLimits);
@@ -658,7 +653,7 @@ StatusCode SCTCalib::getDeadStrip() {
   //std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
   std::set<Identifier>::const_iterator stripEnd(badStripsExclusive.end());
   //To get #(Enabled Modules)
-  int numEnabledModules_B[n_barrels]{n_phiBinsB0*n_etaInBarrel, n_phiBinsB1*n_etaInBarrel, n_phiBinsB2*n_etaInBarrel, n_phiBinsB3*n_etaInBarrel};
+  int numEnabledModules_B[n_barrels] = {n_phiBinsB0*n_etaInBarrel, n_phiBinsB1*n_etaInBarrel, n_phiBinsB2*n_etaInBarrel, n_phiBinsB3*n_etaInBarrel};
   int numEnabledModules_EC[n_disks][n_etaBinsEC] = {{0}, {0}};
   for (int i{0}; i<n_disks; i++) {
     for (int j{0}; j<n_etaBinsEC; j++) {
@@ -1165,16 +1160,16 @@ StatusCode SCTCalib::getNoiseOccupancy()
   ATH_MSG_INFO("----- in getNoiseOccupancy() -----");
 
   //--- Initialization
-  int n_phiBinsBarrel[n_barrels]{n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
-  int n_phiBinsEndcap[n_disks][n_etaBinsEC]{{n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter,                 0,                0}
+  int n_phiBinsBarrel[n_barrels] = {n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
+  int n_phiBinsEndcap[n_disks][n_etaBinsEC] = {{n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter,                 0,                0}
   };
   
   double meanNO_Barrel[n_barrels] = {0};
@@ -1382,16 +1377,16 @@ StatusCode SCTCalib::getRawOccupancy()
   ATH_MSG_INFO("----- in getRawOccupancy() -----");
 
   //--- Initialization
-  int n_phiBinsBarrel[n_barrels]{n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
-  int n_phiBinsEndcap[n_disks][n_etaBinsEC]{{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter,                 0,                0}
+  int n_phiBinsBarrel[n_barrels] = {n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
+  int n_phiBinsEndcap[n_disks][n_etaBinsEC] = {{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter,                 0,                0}
   };
 
   double meanRO_Barrel[n_barrels] = {0};
@@ -1533,16 +1528,16 @@ StatusCode SCTCalib::getEfficiency() {
   ATH_MSG_INFO("----- in getEfficiency() -----");
 
   //--- Initialization
-  int n_phiBinsBarrel[n_barrels]{n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
-  int n_phiBinsEndcap[n_disks][n_etaBinsEC]{{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter,                 0,                0}
+  int n_phiBinsBarrel[n_barrels] = {n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
+  int n_phiBinsEndcap[n_disks][n_etaBinsEC] = {{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter,                 0,                0}
   };
 
   double meanEff_Barrel[n_barrels] = {0};
@@ -1713,16 +1708,16 @@ StatusCode SCTCalib::getBSErrors() {
   ATH_MSG_INFO("----- in getBSErrors() -----");
 
   //--- Initialization
-  int n_phiBinsBarrel[n_barrels]{n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
-  int n_phiBinsEndcap[n_disks][n_etaBinsEC]{{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
-                                            {n_phiBinsECOuter,                 0,                0}
+  int n_phiBinsBarrel[n_barrels] = {n_phiBinsB0, n_phiBinsB1, n_phiBinsB2, n_phiBinsB3};
+  int n_phiBinsEndcap[n_disks][n_etaBinsEC] = {{n_phiBinsECOuter, n_phiBinsECMiddle,                0},
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle, n_phiBinsECShort}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter, n_phiBinsECMiddle,                0}, 
+                                               {n_phiBinsECOuter,                 0,                0}
   };
 
   unsigned long long nErrLink_Barrel[n_barrels] = {0};
@@ -2077,8 +2072,8 @@ StatusCode SCTCalib::getLorentzAngle() {
   float Chisq_BarrelSide[n_barrels][2][2] = {{{0}, {0}}, {{0}, {0}}};
 
   string DBUploadFlag{"G"};  // fit status flag
-  string module[2]{"100", "111"};
-  int moduleint[2]{100, 111};
+  string module[2] = {"100", "111"};
+  int moduleint[2] = {100, 111};
 
   int FitFlag[n_barrels][2][2] = {{{0}, {0}}, {{0}, {0}}};  // fit status flag
 
@@ -2283,7 +2278,6 @@ StatusCode SCTCalib::getLorentzAngle() {
 
         //--- DB output
         if (m_writeToCool) {
-          //  if (m_pCalibWriteTool->createListLA(waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule]).isFailure()) {
           if (m_pCalibWriteTool->createListLA(waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], Err_LA_BarrelSide[iLayer][iSide][iModule], Chisq_BarrelSide[iLayer][iSide][iModule], A_BarrelSide[iLayer][iSide][iModule], Err_A_BarrelSide[iLayer][iSide][iModule], B_BarrelSide[iLayer][iSide][iModule], Err_B_BarrelSide[iLayer][iSide][iModule], Sigma_BarrelSide[iLayer][iSide][iModule], Err_Sigma_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule], Err_MCW_BarrelSide[iLayer][iSide][iModule]).isFailure()) {
             ATH_MSG_ERROR("Unable to run createListLA");
             return StatusCode::FAILURE;
@@ -2624,7 +2618,7 @@ SCTCalib::getNumNoisyStrips(const Identifier& waferId) const {
 }
 
 StatusCode
-SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew) {
+SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew) const {
   IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
   float noisyStripThr{m_noisyStripThrDef ? (m_noisyStripThrOffline):(m_noisyStripThrOnline)};
   for (int iStrip{0}; iStrip != nbins; ++iStrip) {
@@ -2654,7 +2648,7 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
 StatusCode
 SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll, 
                                 const std::map<Identifier, std::set<Identifier>>& moduleListNew, 
-                                const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
+                                const std::map<Identifier, std::set<Identifier>>& moduleListRef) const {
   //--- Write out strips
   float noisyStripThr{m_noisyStripThrDef?(m_noisyStripThrOffline):(m_noisyStripThrOnline)};
   int nDefects{0};

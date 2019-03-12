@@ -32,11 +32,11 @@ class ISCT_CalibModuleListTool : virtual public IAlgTool {
   virtual ~ISCT_CalibModuleListTool() = default;
   static const InterfaceID& interfaceID();
   //@}
-  virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList)=0;
+  virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const =0;
 
  protected:
   template<class T>
-    std::pair<std::string, bool> retrievedTool(T& tool) {
+    std::pair<std::string, bool> retrievedTool(T& tool) const {
     if (tool.retrieve().isFailure()) return std::make_pair(std::string{"Unable to retrieve "}+tool.name(), false);
     return std::make_pair("", true);
   }

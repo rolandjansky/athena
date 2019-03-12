@@ -111,8 +111,8 @@ class SCTCalib : public AthAlgorithm {
 
   // For ntuple sorting
   // For HV trips
-  std::vector< std::vector< std::pair<int, int> > > m_summarytrips;
-  std::vector< std::vector< std::pair<int, int> > > m_summarytripslb;
+  std::vector<std::vector<std::pair<int, int>>> m_summarytrips;
+  std::vector<std::vector<std::pair<int, int>>> m_summarytripslb;
 
   std::ofstream m_gofile;
 
@@ -230,7 +230,7 @@ class SCTCalib : public AthAlgorithm {
   StringProperty m_LorentzAngleSummaryFile{this, "LorentzAngleSummaryFile", "LorentzAngleSummaryFile.xml", "Output XML for summary of lorentz angle"};
 
   // Event related
-  int             m_numOfLBsProcessed;
+  int m_numOfLBsProcessed;
   unsigned long long m_numberOfEvents;
   unsigned long long m_numberOfEventsHist; // For number of events from HIST
   std::string        m_utcBegin;
@@ -266,60 +266,60 @@ class SCTCalib : public AthAlgorithm {
   StatusCode getLorentzAngle();
 
   // To handle XML file for DB
-  StatusCode openXML4DB( std::ofstream&, const char*, const char*, IOVTime, IOVTime ) const;
-  StatusCode closeXML4DB( std::ofstream& ) const;
-  StatusCode addToXML4DB( std::ofstream&, const Identifier&, const char*, float, const char* ) const;
+  StatusCode openXML4DB(std::ofstream&, const char*, const char*, IOVTime, IOVTime) const;
+  StatusCode closeXML4DB(std::ofstream&) const;
+  StatusCode addToXML4DB(std::ofstream&, const Identifier&, const char*, float, const char*) const;
 
   // To handle XML file for Summary
-  StatusCode openXML4MonSummary( std::ofstream&, const char* ) const;
-  StatusCode openXML4DeadSummary( std::ofstream& file, const char* type, int n_Module=0, int n_Link=0, int n_Chip=0, int n_Strip=0 ) const;
-  StatusCode wrapUpXML4Summary( std::ofstream&, const char*, std::ostringstream& ) const;
-  StatusCode addToSummaryStr( std::ostringstream&, const Identifier&, const char*, const char*, const char* ) const;
+  StatusCode openXML4MonSummary(std::ofstream&, const char*) const;
+  StatusCode openXML4DeadSummary(std::ofstream& file, const char* type, int n_Module=0, int n_Link=0, int n_Chip=0, int n_Strip=0) const;
+  StatusCode wrapUpXML4Summary(std::ofstream&, const char*, std::ostringstream&) const;
+  StatusCode addToSummaryStr(std::ostringstream&, const Identifier&, const char*, const char*, const char*) const;
 
   template<class S>
-    bool retrievedService(S& service) {
-    if (service.retrieve().isFailure() ) {
+    bool retrievedService(S& service) const {
+    if (service.retrieve().isFailure()) {
       ATH_MSG_ERROR("Unable to retrieve "<<service.name());
       return false;
     }
     return true;
   }
   std::string
-    xmlChannelNoiseOccDataString(const Identifier& waferId,  const float occupancy, const SCT_SerialNumber& serial) const;
+    xmlChannelNoiseOccDataString(const Identifier& waferId, const float occupancy, const SCT_SerialNumber& serial) const;
 
   std::string
-    xmlChannelEfficiencyDataString(const Identifier& waferId,  const float efficiency, const SCT_SerialNumber& serial) const;
+    xmlChannelEfficiencyDataString(const Identifier& waferId, const float efficiency, const SCT_SerialNumber& serial) const;
 
   std::pair<int, bool>
-    getNumNoisyStrips( const Identifier& waferId ) const;
+    getNumNoisyStrips(const Identifier& waferId) const;
 
   StatusCode
-    addStripsToList( Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew );
+    addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew) const;
 
   StatusCode
-    writeModuleListToCool( const std::map< Identifier, std::set<Identifier> >& moduleListAll,
-                           const std::map< Identifier, std::set<Identifier> >& moduleListNew,
-                           const std::map< Identifier, std::set<Identifier> >& moduleListRef );
+    writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+                          const std::map<Identifier, std::set<Identifier>>& moduleListNew,
+                          const std::map<Identifier, std::set<Identifier>>& moduleListRef) const;
   std::string
-    getStripList( const std::set<Identifier>& stripIdList ) const;
+    getStripList(const std::set<Identifier>& stripIdList) const;
 
   StatusCode
-    noisyStripsToXml( const std::map< Identifier, std::set<Identifier> >& moduleList, const std::string& badStripsFile ) const;
+    noisyStripsToXml(const std::map< Identifier, std::set<Identifier> >& moduleList, const std::string& badStripsFile) const;
 
   StatusCode
-    noisyStripsToSummaryXml( const std::map< Identifier, std::set<Identifier> >& moduleListAll,
-                             const std::map< Identifier, std::set<Identifier> >& moduleListNew,
-                             const std::map< Identifier, std::set<Identifier> >& moduleListRef,
-                             const std::string& badStripsFile) const;
+    noisyStripsToSummaryXml(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+                            const std::map<Identifier, std::set<Identifier>>& moduleListNew,
+                            const std::map<Identifier, std::set<Identifier>>& moduleListRef,
+                            const std::string& badStripsFile) const;
 
   std::set<int>
-    getNoisyChips( const std::set<Identifier>& stripIdList ) const;
+    getNoisyChips(const std::set<Identifier>& stripIdList) const;
 
-  std::pair< std::string, float >
-    getNoisyLB( const Identifier& moduleId, int& chipId ) const;
+  std::pair<std::string, float>
+    getNoisyLB(const Identifier& moduleId, int& chipId) const;
 
   std::string
-    getLBList( const std::set<int>& LBList ) const;
+    getLBList(const std::set<int>& LBList) const;
 }; // end of class
 
 #endif // SCTCalib_H

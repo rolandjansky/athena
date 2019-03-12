@@ -46,9 +46,6 @@ static const string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
-  m_detStore{"DetectorStore", name},
-  m_evtStore{"StoreGateSvc", name},
-  m_evtInfo{"SCT_CalibEventInfo", name},
   m_pSCTHelper{nullptr},
   m_pManager{nullptr},
   m_sct_waferHash{0},
@@ -66,8 +63,8 @@ StatusCode
 SCT_CalibLbTool::initialize() {
   ATH_MSG_INFO("Initialize of " << PACKAGE_VERSION);
   ATH_CHECK(service("THistSvc", m_thistSvc));
-  ATH_CHECK(m_detStore->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(m_detStore->retrieve(m_pManager, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
   std::pair<std::string, bool> msgCode{retrievedTool(m_evtInfo)};
   if (not msgCode.second) {
     ATH_MSG_ERROR(msgCode.first);

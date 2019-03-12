@@ -7,7 +7,6 @@
 SCT_CalibModuleListTool::SCT_CalibModuleListTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_pSCTHelper{nullptr},
-  m_detStore{"DetectorStore", name},
   m_IOVDbSvc{"IOVDbSvc", name}
 {
 }
@@ -15,7 +14,7 @@ SCT_CalibModuleListTool::SCT_CalibModuleListTool(const std::string& type, const 
 StatusCode SCT_CalibModuleListTool::initialize() {
   ATH_MSG_DEBUG("Initializing SCT_CalibModuleListTool");
 
-  ATH_CHECK(m_detStore->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   ATH_CHECK(m_MonitorConditionsTool.retrieve());
   ATH_CHECK(m_IOVDbSvc.retrieve());
 
@@ -26,7 +25,7 @@ StatusCode SCT_CalibModuleListTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_CalibModuleListTool::readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) {
+StatusCode SCT_CalibModuleListTool::readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const {
   //--- Read strips using SCT_MonitorConditionsSvc
   SCT_ID::const_id_iterator waferIdItr{m_pSCTHelper->wafer_begin()};
   SCT_ID::const_id_iterator waferIdItrE{m_pSCTHelper->wafer_end()};
