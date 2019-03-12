@@ -329,14 +329,13 @@ DbStatus DbContainerObj::update(DbContainer& cntH, const void* object, ShapeH sh
 DbStatus DbContainerObj::load(DataCallBack* call,
                               const Token::OID_t& linkH, 
                               Token::OID_t& oid,
-                              DbAccessMode  mod,
                               bool          any_next)
 {
   if ( hasAccess() && call && m_isOpen )  {
     m_dbH.setAge(0);
     oid.first  = token()->oid().first;
     // Specific implementation may overwrite OID
-    return m_info->load(call, linkH, oid, mod, any_next);
+    return m_info->load(call, linkH, oid, any_next);
   }
   return Error;
 }

@@ -199,7 +199,6 @@ namespace pool    {
     /** @param  call      [IN]   Callback to load data
       * @param  linkH     [IN]   Preferred object OID
       * @param  oid      [OUT]   Actual object OID
-      * @param  mode      [IN]   Object access mode
       * @param  any_next  [IN]   On selection, objects may be skipped.
       *                          If objects are skipped, the actual oid
       *                          will differ from the preferred oid.
@@ -208,7 +207,6 @@ namespace pool    {
     virtual DbStatus load(DataCallBack* call,
                           const Token::OID_t& lnkH, 
                           Token::OID_t&       oid,
-                          DbAccessMode        mod,
                           bool                any_next);
     /// Clear Transaction stack containing transaction requests
     virtual DbStatus clearStack();
@@ -222,8 +220,7 @@ namespace pool    {
       * @return Status code indicating success or failure.
       */
     virtual DbStatus loadObject(DataCallBack* call,
-                                Token::OID_t& oid,
-                                DbAccessMode  mode);
+                                Token::OID_t& oid);
 
   };
 }       // End namespace pool

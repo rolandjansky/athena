@@ -85,7 +85,7 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    return status;
 }
 
-DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode mode) {
+DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oid) {
    if ((oid.second >> 32) > 0) {
       long long int evt_id = m_tree->GetEntryNumberWithIndex(oid.second);
       if (evt_id == -1) {
@@ -96,5 +96,5 @@ DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oi
          oid.second = evt_id;
       }
    }
-   return RootTreeContainer::loadObject(call, oid, mode);
+   return RootTreeContainer::loadObject(call, oid);
 }

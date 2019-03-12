@@ -370,7 +370,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
 }
 
 DbStatus 
-RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode /* mode */)
+RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
 {
   RootDataPtr user(nullptr);
   RootDataPtr context(nullptr);

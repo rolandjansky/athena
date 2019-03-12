@@ -55,12 +55,11 @@ namespace pool  {
     DbStatus _load( DbObjectHandle<DbObject>& objH,
                     const Token::OID_t& linkH,
                     const DbTypeInfo* typ,
-                    DbAccessMode  mod) const;
+                    bool any_nexrt) const;
     /// Load next object in the container identified by its link handle
     DbStatus _loadNext(DbObjectHandle<DbObject>& objH,
                     Token::OID_t& linkH,
-                    const DbTypeInfo* typ,
-                    DbAccessMode  mod) const;
+                    const DbTypeInfo* typ) const;
     /// Internal add of an object entry identified by its handle
     DbStatus _save( const DbObjectHandle<DbObject>& objH,
                     const DbTypeInfo* typ);
@@ -168,7 +167,7 @@ namespace pool  {
     /// Destroy an existing persistent object identified by its handle
     DbStatus destroy(const Token::OID_t& linkH);
     /// Select object in the container identified by its handle
-    DbStatus load(void** ptr, ShapeH shape, const Token::OID_t& lH, DbAccessMode mod) const;
+    DbStatus load(void** ptr, ShapeH shape, const Token::OID_t& lH) const;
     //@}
 
     /** Access objects by handle directly.                                  
@@ -196,15 +195,13 @@ namespace pool  {
     /// Load object in the container identified by its handle
     template <class T> DbStatus load( DbObjectHandle<T>& objH,
                                       const Token::OID_t& linkH,
-                                      const DbTypeInfo* typ,
-                                      DbAccessMode  mod)  const
-    { return _load(objH, linkH, typ, mod);                                   }
+                                      const DbTypeInfo* typ)  const
+    { return _load(objH, linkH, typ, false);                                 }
     /// Load object in the container identified by its handle
     template <class T> DbStatus loadNext(DbObjectHandle<T>& objH,
                                          Token::OID_t& linkH,
-                                         const DbTypeInfo* typ,
-                                         DbAccessMode  mod)  const
-    { return _loadNext(objH, linkH, typ, mod);                               }
+                                         const DbTypeInfo* typ)  const
+    { return _loadNext(objH, linkH, typ);                                    }
     //@}
   };
 }       // End namespace pool

@@ -160,8 +160,7 @@ namespace pool  {
     /// Select object in the container identified by its handle
     DbStatus load(DataCallBack* call, 
                   const Token::OID_t& linkH, 
-                  Token::OID_t&       oid, 
-                  DbAccessMode  mod,
+                  Token::OID_t&       oid,
                   bool          any_next);
     //@}
 

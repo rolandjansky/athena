@@ -230,13 +230,11 @@ namespace pool  {
     /// Find object by object identifier and load it into memory
     /** @param  call      [IN]   Callback to load data
       * @param  oid      [OUT]   Object OID
-      * @param  mode      [IN]   Object access mode
       *
       * @return Status code indicating success or failure.
       */
     virtual DbStatus loadObject(DataCallBack* call,
-                                Token::OID_t& oid,
-                                DbAccessMode  mode);
+                                Token::OID_t& oid);
 
 
     /// Create TBranch for a basic type (ROOT type notation given in the leafname)

@@ -273,7 +273,6 @@ DbStatus DbContainerImp::fetch(const Token::OID_t& linkH, Token::OID_t& stmt)  {
 DbStatus DbContainerImp::load(DataCallBack* call,
                               const Token::OID_t& linkH,
                               Token::OID_t& oid,
-                              DbAccessMode  mode,
                               bool          any_next)
 {
   DbStatus sc = Error;
@@ -282,7 +281,7 @@ DbStatus DbContainerImp::load(DataCallBack* call,
     while ( oid.second < size() ) {
       sc = fetch(linkH, oid);
       if ( sc.isSuccess() )  {
-	sc = loadObject(call, oid, mode);
+	sc = loadObject(call, oid);
 	if ( sc.isSuccess() )  {
 	  return sc;
 	}
@@ -296,15 +295,14 @@ DbStatus DbContainerImp::load(DataCallBack* call,
     }
   }
   else {
-    sc = loadObject(call, oid, mode);
+    sc = loadObject(call, oid);
   }
   return sc;
 }
 
 /// Find object by object identifier and load it into memory
 DbStatus DbContainerImp::loadObject(DataCallBack* /* call */,
-                                    Token::OID_t& /* oid  */,
-                                    DbAccessMode  /* mode */)
+                                    Token::OID_t& /* oid  */)
 {
   return Error;
 }

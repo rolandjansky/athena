@@ -189,15 +189,16 @@ DbStatus DbContainer::destroy(const Token::OID_t& linkH)    {
 }
 
 /// Load object in the container identified by its handle
-DbStatus DbContainer::load(void** ptr, ShapeH shape,
-                           const Token::OID_t& linkH,
-                           DbAccessMode mod)  const {
+DbStatus DbContainer::load( void** ptr,
+                            ShapeH shape,
+                            const Token::OID_t& linkH ) const
+{
   DbObjectCallBack call;
   call.setObject(*ptr);
   call.setShape(shape);
   if ( isValid() )  {
     Token::OID_t oid;
-    DbStatus sc = m_ptr->load(&call, linkH, oid, mod, false);
+    DbStatus sc = m_ptr->load(&call, linkH, oid, false);
     *ptr = const_cast<void*>(call.object());
     return sc;
   }
@@ -255,12 +256,12 @@ DbStatus DbContainer::_destroy(DbObjectHandle<DbObject>& objH)    {
 DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
                             const Token::OID_t& linkH,
                             const DbTypeInfo* typ,
-                            DbAccessMode  mod) const
+                            bool any_next) const
 {
   if ( isValid() && typ )  {
     Token::OID_t oid;
     DbCallBack call(this, &objH, typ);
-    if ( m_ptr->load(&call, linkH, oid, mod, false).isSuccess() )  {
+    if ( m_ptr->load(&call, linkH, oid, any_next).isSuccess() )  {
       objH._setObject(call.object());
       objH.oid() = oid;
       return Success;
@@ -272,17 +273,11 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
 /// Load object in the container identified by its link handle
 DbStatus DbContainer::_loadNext(DbObjectHandle<DbObject>& objH,
                                 Token::OID_t& linkH,
-                                const DbTypeInfo* typ,
-                                DbAccessMode  mod) const
+                                const DbTypeInfo* typ) const
 {
-  if ( isValid() && typ )  {
-    Token::OID_t oid;
-    DbCallBack call(this, &objH, typ);
-    if ( m_ptr->load(&call, linkH, oid, mod, true).isSuccess() )  {
-      objH._setObject(call.object());
-      objH.oid() = linkH = oid;
+   if( _load( objH, linkH, typ, true ).isSuccess() ) {
+      linkH =  objH.oid();
       return Success;
-    }
-  }
-  return Error;
+   }
+   return Error;
 }

@@ -118,7 +118,7 @@ template <class T> inline pool::DbStatus pool::DbIter<T>::next()
   DbObjectHandle<DbObject> objH(m_obj.ptr());
   objH._setType(m_obj.type());
   m_token.oid().second++;
-  if ( m_cnt.loadNext(objH, m_token.oid(), m_type, m_mode).isSuccess() ) {
+  if ( m_cnt.loadNext(objH, m_token.oid(), m_type).isSuccess() ) {
     m_obj._setObject(static_cast<T*>(objH.ptr()));
     return Success;
   }

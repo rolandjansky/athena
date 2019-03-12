@@ -100,7 +100,6 @@ namespace pool    {
     /** @param  call      [IN]   Callback to load data
       * @param  linkH     [IN]   Preferred object OID
       * @param  oid      [OUT]   Actual object OID
-      * @param  mode      [IN]   Object access mode
       * @param  any_next  [IN]   On selection, objects may be skipped.
       *                          If objects are skipped, the actual oid
       *                          will differ from the preferred oid.
@@ -109,7 +108,6 @@ namespace pool    {
     virtual DbStatus load(  DataCallBack* call, 
                             const Token::OID_t& linkH,
                             Token::OID_t&       oid,
-                            DbAccessMode  mode,
                             bool          any_next=false) = 0;
 
     /// Save new object in the container and return its handle

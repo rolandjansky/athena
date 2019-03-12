@@ -50,8 +50,7 @@ namespace pool {
       * @return Status code indicating success or failure.
       */
       virtual DbStatus loadObject(DataCallBack* call,
-                                Token::OID_t& oid,
-                                DbAccessMode  mode);
+                                Token::OID_t& oid);
       
       /// Commit single entry to container
       virtual DbStatus writeObject(ActionList::value_type&);

@@ -172,7 +172,6 @@ DbStatus RootKeyContainer::fetch(DbSelect& sel)   {
 DbStatus RootKeyContainer::load( DataCallBack* call,
                                  const Token::OID_t& linkH,
                                  Token::OID_t& oid,
-                                 DbAccessMode  mode,
                                  bool          any_next)
 {
   DbStatus sc = Error;
@@ -182,7 +181,7 @@ DbStatus RootKeyContainer::load( DataCallBack* call,
     ::sprintf(txt, "_pool_valid_%08d", int(oid.second));
     const TKey* key = (TKey*)m_dir->GetListOfKeys()->FindObject(txt);
     if ( key )    {
-      sc = loadObject(call, oid, mode);
+      sc = loadObject(call, oid);
       if ( sc.isSuccess() )  {
         return sc;
       }
@@ -225,8 +224,7 @@ DbStatus RootKeyContainer::destroyObject(ActionList::value_type& entry) {
 }
 
 DbStatus RootKeyContainer::loadObject( DataCallBack*   call,
-                                       Token::OID_t&   oid,
-                                       DbAccessMode /* mode */ )
+                                       Token::OID_t&   oid )
 {
    char txt[64];
    ::sprintf(txt, "_pool_valid_%08d", int(oid.second));
