@@ -68,11 +68,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
-/*
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
-*/
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include "ZdcIdentifier/ZdcID.h"
