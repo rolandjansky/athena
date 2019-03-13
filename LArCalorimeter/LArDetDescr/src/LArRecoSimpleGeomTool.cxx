@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -12,11 +12,9 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
@@ -52,9 +50,7 @@ StatusCode
 LArRecoSimpleGeomTool::initialize()
 {
   // Retrieve the Id helpers needed    
-  const CaloIdManager* mgr = CaloIdManager::instance();
-  m_calo_id = mgr->getCaloCell_ID();
-
+  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
   
   // Decode tag ( via GeoModel ) and fix it for TestBeam :
   m_tag = "ATLAS-00";

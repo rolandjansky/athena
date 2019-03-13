@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "RIO_OnTrackErrorScalingKit.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
@@ -28,8 +28,8 @@ public:
   virtual unsigned int nParametres() const override {
     return MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes;
   }
-  virtual const char **paramNames()  const override {
-    return const_cast<const char **>(m_names);
+  virtual const char* const* paramNames()  const override {
+    return const_cast<const char* const*>(m_names);
   }
 private:
   char **m_names;
@@ -47,7 +47,7 @@ public:
   virtual unsigned int nParametres() const override {
     return MDTRIO_OnTrackErrorScaling::kNParamTypes;
   }
-  virtual const char **paramNames()  const override {
+  virtual const char* const* paramNames()  const override {
     return MDTRIO_OnTrackErrorScaling::paramNames();
   }
 };

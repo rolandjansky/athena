@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,8 @@
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
+#include "CxxUtils/CachedUniquePtr.h"
+#include <atomic>
 #include <iosfwd>
 
 class MsgStream;
@@ -105,10 +107,10 @@ namespace InDet {
     //! private method to clear the Trk::RIO_OnTrack vector
     void                               clearChildRotVector();
     //! The surface to which the competingROTs parameters are expressed to
-    mutable const Trk::Surface*             m_associatedSurface;
+    const Trk::Surface* m_associatedSurface;
 
     //! The global Position
-    mutable const Amg::Vector3D*        m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     //! The vector of contained InDet::TRT_DriftCircleOnTrack objects
     std::vector<const InDet::TRT_DriftCircleOnTrack*>*   m_containedChildRots;
@@ -120,7 +122,7 @@ namespace InDet {
 	are checked.
 	- interface  from CompetingRIOsOnTrack */
     bool ROTsHaveCommonSurface(const bool withNonVanishingAssignProb=true) const;
-    mutable int m_ROTsHaveCommonSurface;
+    mutable std::atomic_int m_ROTsHaveCommonSurface;
 
 
   };

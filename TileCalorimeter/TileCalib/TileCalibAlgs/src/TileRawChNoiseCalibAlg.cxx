@@ -61,9 +61,6 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   , m_cabling(0)
   , m_tileID(0)
   , m_tileHWID(0)
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileBadChanTool("TileBadChanTool")
-  , m_tileIdTrans("TileCondIdTransforms")
   , m_cispar(0)
   //, m_nDrawers(0)
   , m_time(0)
@@ -95,8 +92,6 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   declareProperty("FileNamePrefix", m_file="RawCh_NoiseCalib");
   declareProperty("NtupleID", m_ntupleID="RawCh_NoiseCalib");
   declareProperty("TreeSize", m_treeSize = 16000000000LL);
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   m_evtNr=-1;

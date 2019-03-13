@@ -21,9 +21,6 @@
 
 #include <algorithm>
 
-/// External definitions (TODO: remove this once all "extern" references are removed)
-long ByteStream_StorageType = ByteStreamAddress::storageType();
-
 /// Standard constructor
 ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLocator)
   : ByteStreamCnvSvcBase(name, pSvcLocator),

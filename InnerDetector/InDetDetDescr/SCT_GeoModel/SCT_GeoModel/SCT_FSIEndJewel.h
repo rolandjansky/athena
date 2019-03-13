@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FSIENDJEWEL_H
@@ -15,7 +15,10 @@ class SCT_FSIEndJewel : public SCT_SharedComponentFactory
 {
 
 public:
-  SCT_FSIEndJewel(const std::string & name);
+  SCT_FSIEndJewel(const std::string & name,
+                  InDetDD::SCT_DetectorManager* detectorManager,
+                  const SCT_GeometryManager* geometryManager,
+                  SCT_MaterialManager* materials);
 
 public:
   const GeoMaterial * material() const {return m_material;}

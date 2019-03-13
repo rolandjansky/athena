@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BarcodeServices/BitCalculator.h"
@@ -54,54 +54,48 @@ Barcode::BitCalculator::BitCalculator()
 }
 
 
-Barcode::BitCalculator::~BitCalculator()
-{
-  // delete collisions grl
-}
-
-
-int 
-Barcode::BitCalculator::GetParentID(const int& barcode)
+int
+Barcode::BitCalculator::GetParentID(const int& barcode) const
 {
   return (barcode&m_parentOne)>>(0);
 }
 
 
-int 
-Barcode::BitCalculator::GetPIDofParent(const int& barcode)
+int
+Barcode::BitCalculator::GetPIDofParent(const int& barcode) const
 {
   return (barcode&m_pidOne)>>(m_nbitsparent);
 }
 
 
-int 
-Barcode::BitCalculator::GetHS(const int& barcode)
+int
+Barcode::BitCalculator::GetHS(const int& barcode) const
 {
   return (barcode&m_hsOne)>>(m_nbitsparent+m_nbitspid);
 }
 
 
 int
-Barcode::BitCalculator::GetSimulator(const int& barcode)
+Barcode::BitCalculator::GetSimulator(const int& barcode) const
 {
   return (barcode&m_simulatorOne)>>(m_nbitsparent+m_nbitspid+m_nbitshs);
 }
 
 
-int 
-Barcode::BitCalculator::GetBCID(const int& barcode)
+int
+Barcode::BitCalculator::GetBCID(const int& barcode) const
 {
   // MB this works for both int and unsigned int
   int negTest = 1<<(8*sizeof(int)-1);
   bool isNeg(false);
-  if ((barcode&negTest)!=0) { isNeg = true; } 
+  if ((barcode&negTest)!=0) { isNeg = true; }
 
   int bc(barcode);
   if (isNeg) { bc &= ~negTest; } // turn off last bit, for bit shifting
 
   bc = (bc&m_bcidOne)>>(m_nbitsparent+m_nbitspid+m_nbitshs+m_nbitssimulator);
 
-  if (isNeg) { // turn on 'last, shifted hs bit' again 
+  if (isNeg) { // turn on 'last, shifted hs bit' again
     //int lastBit = 1<<(m_nbitsbcid-1);
     //bc |= lastBit;
     bc = -bc;
@@ -115,7 +109,7 @@ Barcode::BitCalculator::GetBCID(const int& barcode)
 
 
 void
-Barcode::BitCalculator::SetParentID(int& barcode, const int& parentID)
+Barcode::BitCalculator::SetParentID(int& barcode, const int& parentID) const
 {
   if (parentID<0) {
     std::cerr <<  "ERROR: parent-ID is negative: " << parentID << " Only accepting positive number." << std::endl;
@@ -134,15 +128,15 @@ Barcode::BitCalculator::SetParentID(int& barcode, const int& parentID)
 }
 
 
-void 
-Barcode::BitCalculator::SetPIDofParent(int& barcode, const int& parentPID)
+void
+Barcode::BitCalculator::SetPIDofParent(int& barcode, const int& parentPID) const
 {
   if (parentPID<0) {
     std::cerr <<  "ERROR: PID is negative: " << parentPID << " Only accepting positive number." << std::endl;
     return;
   }
 
-  int shifted = parentPID << (m_nbitsparent);  
+  int shifted = parentPID << (m_nbitsparent);
 
   if (parentPID>=(1<<m_nbitspid)) {
     std::cerr <<  "ERROR: parentPID too big for barcode: " << parentPID << " (limit = " << (1<<m_nbitspid)-1 << "). Reset to zero." << std::endl;
@@ -154,8 +148,8 @@ Barcode::BitCalculator::SetPIDofParent(int& barcode, const int& parentPID)
 }
 
 
-void 
-Barcode::BitCalculator::SetHS(int& barcode, const int& hs)
+void
+Barcode::BitCalculator::SetHS(int& barcode, const int& hs) const
 {
   if (hs<0) {
     std::cerr <<  "ERROR: hard scatter: " << hs << " Only accepting positive number." << std::endl;
@@ -175,7 +169,7 @@ Barcode::BitCalculator::SetHS(int& barcode, const int& hs)
 
 
 void
-Barcode::BitCalculator::SetSimulator(int& barcode, const int& simulator)
+Barcode::BitCalculator::SetSimulator(int& barcode, const int& simulator) const
 {
   int shifted = simulator << (m_nbitsparent+m_nbitspid+m_nbitshs);
 
@@ -189,8 +183,8 @@ Barcode::BitCalculator::SetSimulator(int& barcode, const int& simulator)
 }
 
 
-void 
-Barcode::BitCalculator::SetBCID(int& barcode, const int& bcid) // also to set negative bcid
+void
+Barcode::BitCalculator::SetBCID(int& barcode, const int& bcid) const // also to set negative bcid
 {
   bool isNeg = (bcid<0) ;
   int bcidpositive = (isNeg ? -bcid : bcid);
@@ -209,8 +203,8 @@ Barcode::BitCalculator::SetBCID(int& barcode, const int& bcid) // also to set ne
 }
 
 
-void 
-Barcode::BitCalculator::PrintBits(const int& barcode)
+void
+Barcode::BitCalculator::PrintBits(const int& barcode) const
 {
   for (int i = sizeof(int)*8 -1 ; i>=0; --i) {
     int j = 1<<i;
@@ -222,14 +216,13 @@ Barcode::BitCalculator::PrintBits(const int& barcode)
 
 
 void
-Barcode::BitCalculator::Summary(const int& barcode)
+Barcode::BitCalculator::Summary(const int& barcode) const
 {
   std::cout << "Barcode:      " << barcode << "\n"
-	    << "Bits:         ";   PrintBits(barcode);
+            << "Bits:         ";   PrintBits(barcode);
   std::cout << "Parent ID:    " << GetParentID(barcode) << "\n"
-	    << "Parent PID:   " << GetPIDofParent(barcode) << "\n"
-	    << "Hard scatter: " << GetHS(barcode) << "\n"
-	    << "Simulator:    " << GetSimulator(barcode) << "\n"
-	    << "BCID:         " << GetBCID(barcode) << std::endl;
+            << "Parent PID:   " << GetPIDofParent(barcode) << "\n"
+            << "Hard scatter: " << GetHS(barcode) << "\n"
+            << "Simulator:    " << GetSimulator(barcode) << "\n"
+            << "BCID:         " << GetBCID(barcode) << std::endl;
 }
-

@@ -75,7 +75,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
   // loop over previous decisions
   size_t counter = 0; 
 
-  for ( auto previousDecision: *previousDecisionsHandle )  {
+  for ( const auto previousDecision: *previousDecisionsHandle )  {
     // get L2MuonSA Feature
     TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> linkInfo = 
        TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, "feature");
@@ -104,7 +104,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( "feature", muCombEL );
-    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter);
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision);
 
     // DEBUG
     auto muFastInfo = (*muCombEL)->muSATrack(); 

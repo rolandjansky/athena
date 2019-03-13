@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotReader.h"
-
 #include "VxVertex/VxCandidate.h"
-//#include "TrkEventPrimitives/VertexType.h"
-
-#include "EventInfo/EventID.h"
-
-
 
 InDet::InDetBeamSpotReader::InDetBeamSpotReader(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name, pSvcLocator)
@@ -32,9 +26,8 @@ StatusCode InDet::InDetBeamSpotReader::execute(const EventContext& ctx) const {
 
   //get the set of 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  SG::ReadHandle<EventInfo> eventInfo(m_eventInfo, ctx);
-  EventID* eventID = eventInfo->event_ID();
-    ATH_MSG_INFO( "In event " << (*eventID) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo, ctx);
+    ATH_MSG_INFO( "In event " << (*eventInfo) );
     ATH_MSG_INFO("BeamSpot Position: \n "
 		   << beamSpotHandle->beamPos() );
     ATH_MSG_INFO("BeamSpot Sigma\n\t"

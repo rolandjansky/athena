@@ -68,7 +68,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
  
   std::vector<TrigMuisoHypoTool::MuisoInfo> toolInput; 
   size_t counter = 0; // view counter
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) {
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     ATH_CHECK( viewEL.isValid() );
@@ -90,7 +90,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     
     newd->setObjectLink( "feature", muonEL );  
     newd->setObjectLink( "view",    viewEL );
-    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muIsoKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());

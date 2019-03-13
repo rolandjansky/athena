@@ -104,7 +104,7 @@ namespace Trk
   }
 
   unsigned int Mode3dTo1dFinder::Modes1d(std::vector<float> &/* a */, std::vector<float> &/* b */, 
-					 std::vector<float> &/* c */, std::vector<float> &/* d */){
+					 std::vector<float> &/* c */, std::vector<float> &/* d */) const {
     //implemented to satisfy inheritance
     return 0;
   }

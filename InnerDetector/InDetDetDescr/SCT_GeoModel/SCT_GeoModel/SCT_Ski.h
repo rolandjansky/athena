@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_SKI_H
@@ -30,13 +30,16 @@ class SCT_Ski: public SCT_UniqueComponentFactory
 {
 public:
   SCT_Ski(const std::string & name,
-		const SCT_Module * module,
-		int stereoSign,
-		double tilt,
- 	        double length);
+          SCT_Module * module,
+          int stereoSign,
+          double tilt,
+          double length,
+          InDetDD::SCT_DetectorManager* detectorManager,
+          const SCT_GeometryManager* geometryManager,
+          SCT_MaterialManager* materials);
 
   ~SCT_Ski();
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
 
 public:
   double thickness() const {return m_thickness;}
@@ -57,9 +60,9 @@ public:
   const SCT_CoolingBlock * coolingBlock() const {return m_coolingBlock;}   
   const SCT_CoolingPipe * coolingPipe() const {return m_coolingPipe;}   
 
-  GeoTransform * getRefPointTransform() const {return m_refPointTransform;}
-  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTransform * getRefPointTransform() const {return m_refPointTransform;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
   double env1Thickness() const {return m_env1Thickness;}
   double env1Width()     const {return m_env1Width;}
   double env2Thickness() const {return m_env2Thickness;}
@@ -115,10 +118,10 @@ private:
   double m_doglegOffsetX;
   double m_doglegOffsetY;
 
-  const SCT_Module* m_module;
-  const SCT_Dogleg* m_dogleg;
-  const SCT_CoolingBlock* m_coolingBlock;
-  const SCT_CoolingPipe* m_coolingPipe;
+  SCT_Module* m_module;
+  SCT_Dogleg* m_dogleg;
+  SCT_CoolingBlock* m_coolingBlock;
+  SCT_CoolingPipe* m_coolingPipe;
 
   GeoTransform * m_refPointTransform;
   GeoTransform * m_coolingPipePos;

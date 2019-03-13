@@ -371,9 +371,9 @@ Tile_Base_ID::tile_gap        ()      const
 
 // For any Tilecal section
 Identifier
-Tile_Base_ID::tile_det        ( int section )        const
+Tile_Base_ID::tile_det        ( int section, bool checks )        const
 {
-    if(m_do_checks) {
+    if(checks) {
 	// Check that id is within allowed range
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
@@ -394,6 +394,12 @@ Tile_Base_ID::tile_det        ( int section )        const
     return result;
 }
 
+Identifier
+Tile_Base_ID::tile_det        ( int section )        const
+{
+  return tile_det (section, do_checks());
+}
+
 // single region, module, tower, cell, pmt, adc identifiers
 Identifier
 Tile_Base_ID::region_id       ( int index )           const
@@ -408,9 +414,9 @@ Tile_Base_ID::region_id       ( int index )           const
 }
 
 Identifier
-Tile_Base_ID::region_id       ( int section, int side )      const
+Tile_Base_ID::region_id       ( int section, int side, bool checks )      const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -441,6 +447,13 @@ Tile_Base_ID::region_id       ( int section, int side )      const
 }
 
 Identifier
+Tile_Base_ID::region_id       ( int section, int side )      const
+{
+  return region_id (section, side, do_checks());
+}
+
+
+Identifier
 Tile_Base_ID::region_id       ( const Identifier& any_id )   const
 {
   Identifier result;
@@ -454,9 +467,10 @@ Tile_Base_ID::region_id       ( const Identifier& any_id )   const
 
 Identifier
 Tile_Base_ID::module_id       ( int section, int side, 
-                                int module ) const
+                                int module,
+                                bool checks ) const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -488,6 +502,14 @@ Tile_Base_ID::module_id       ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::module_id       ( int section, int side, 
+                                int module ) const
+{
+  return module_id (section, side, module, do_checks());
+}
+
+
+Identifier
 Tile_Base_ID::module_id       ( const Identifier& any_id )   const
 {
   Identifier result;
@@ -501,9 +523,10 @@ Tile_Base_ID::module_id       ( const Identifier& any_id )   const
 
 Identifier
 Tile_Base_ID::tower_id        ( int section, int side,
-                                int module,   int tower )     const
+                                int module,   int tower,
+                                bool checks)     const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -536,6 +559,13 @@ Tile_Base_ID::tower_id        ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::tower_id        ( int section, int side,
+                                int module,   int tower) const
+{
+  return tower_id (section, side, module, tower, do_checks());
+}
+
+Identifier
 Tile_Base_ID::tower_id       ( const Identifier& any_id )   const
 {
   Identifier result;
@@ -562,9 +592,10 @@ Tile_Base_ID::cell_id         ( const Identifier & any_id )   const
 Identifier
 Tile_Base_ID::cell_id         ( int section, int side,
                                 int module,   int tower, 
-                                int sample )                  const
+                                int sample,
+                                bool checks )                  const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -598,6 +629,14 @@ Tile_Base_ID::cell_id         ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::cell_id         ( int section, int side,
+                                int module,   int tower, 
+                                int sample )                  const
+{
+  return cell_id (section, side, module, tower, sample, do_checks());
+}
+
+Identifier
 Tile_Base_ID::pmt_id          ( const Identifier & any_id )   const
 {
   Identifier result;
@@ -611,7 +650,7 @@ Tile_Base_ID::pmt_id          ( const Identifier & any_id )   const
 
 Identifier
 Tile_Base_ID::pmt_id          ( const Identifier & cell_id, 
-                                int pmt )                     const
+                                int pmt, bool checks )                const
 {
     Identifier result;
 
@@ -628,7 +667,7 @@ Tile_Base_ID::pmt_id          ( const Identifier & cell_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -657,11 +696,19 @@ Tile_Base_ID::pmt_id          ( const Identifier & cell_id,
 }
 
 Identifier
+Tile_Base_ID::pmt_id          ( const Identifier & cell_id, 
+                                int pmt )                const
+{
+  return pmt_id (cell_id, pmt, do_checks());
+}
+
+Identifier
 Tile_Base_ID::pmt_id          ( int section, int side,
                                 int module,   int tower,
-                                int sample,   int pmt )       const
+                                int sample,   int pmt,
+                                bool checks)       const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -696,8 +743,16 @@ Tile_Base_ID::pmt_id          ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::pmt_id          ( int section, int side,
+                                int module,   int tower,
+                                int sample,   int pmt) const
+{
+  return pmt_id (section, side, module, tower, sample, pmt, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( const Identifier & cell_id,
-                                int pmt, int adc )            const
+                                int pmt, int adc, bool checks )       const
 {
     Identifier result;
 
@@ -715,7 +770,7 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -744,8 +799,15 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
 }
 
 Identifier
+Tile_Base_ID::adc_id          ( const Identifier & cell_id,
+                                int pmt, int adc )       const
+{
+  return adc_id (cell_id, pmt, adc, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
-                                int adc )                     const
+                                int adc, bool checks )               const
 {
     Identifier result;
 
@@ -762,7 +824,7 @@ Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -791,11 +853,19 @@ Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
 }
 
 Identifier
+Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
+                                int adc )               const
+{
+  return adc_id (pmt_id, adc, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( int section, int side,
                                 int module, int tower, int sample, 
-                                int pmt, int adc )            const
+                                int pmt, int adc,
+                                bool checks)            const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -828,6 +898,14 @@ Tile_Base_ID::adc_id          ( int section, int side,
     }
 
     return result;
+}
+
+Identifier
+Tile_Base_ID::adc_id          ( int section, int side,
+                                int module, int tower, int sample, 
+                                int pmt, int adc)            const
+{
+  return adc_id (section, side, module, tower, sample, pmt, adc, do_checks());
 }
 
 bool Tile_Base_ID::module_id  ( const Identifier& region_id,

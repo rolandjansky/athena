@@ -39,7 +39,10 @@ else:
 streamAlgs = ['StreamHITS','StreamRDO','StreamESD','StreamAOD']
 streamSeq = AlgSequence("Streams")
 for stream in streamAlgs:
-    outStream =  getattr(streamSeq, stream, None)
-    if outStream is not None:
-        outStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]
-
+    sSoutStream = getattr(streamSeq, stream, None)
+    tSoutStream = getattr(topSequence, stream, None)
+    if tSoutStream is not None:
+        tSoutStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]
+    else:
+        if sSoutStream is not None:
+            sSoutStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]

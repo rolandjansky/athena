@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArIdentifier/LArOnlineID_Base.h"
@@ -685,15 +685,6 @@ void LArOnlineID_Base::channel_Id_checks( int barrel_ec, int pos_neg, int feedth
     ExpandedIdentifier expId(lar_exp());
     expId << s_lar_online_field_value << barrel_ec << pos_neg << feedthrough << slot << channel ;
     if ( m_this_is_slar ) expId << 1;
-    if( expId.last_error () != ExpandedIdentifier::none) {
-        char * l_str = new char[200];
-        std::string errorMessage ;
-        sprintf(l_str,"Error in LArOnlineID_Base::channel_Id_checks(field values) , values ok but did not build , barrel_ec: %d, feedthrough: %d , slot: %d , channel_in_slot: %d ", barrel_ec , feedthrough, slot, channel);
-        errorMessage += std::string(l_str);
-        delete[] l_str ;
-        LArOnlID_Exception except(errorMessage , 99);
-        throw except ;   
-    }
 
     if (!m_full_laronline_range.match(expId)) { 
         std::string errorMessage = "LArOnlineID_Base::channel_Id_checks() result is not OK: ID, range = "
@@ -765,16 +756,6 @@ void LArOnlineID_Base::feb_Id_checks( int barrel_ec, int pos_neg, int feedthroug
   expId << s_lar_online_field_value << barrel_ec << pos_neg << feedthrough << slot ;
 
   if ( m_this_is_slar ) expId << 0 << 1;
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    char * l_str = new char[200];
-    std::string errorMessage ;
-    sprintf(l_str,"Error in LArOnlineID_Base::feb_Id_checks , values ok but did not build , barrel_ec: %d , pos_neg: %d , feedthrough: %d , slot: %d", 
-            barrel_ec , pos_neg, feedthrough, slot);
-    errorMessage += std::string(l_str);
-    delete[] l_str ;
-    LArOnlID_Exception except(errorMessage , 99);
-    throw except ;
-    }  
     if (!m_full_feedthrough_range.match(expId)) { std::string errorMessage = "LArOnlineID_Base::feb_Id_checks() result is not OK: ID, range = "
     + std::string(expId) + " , " + (std::string)m_full_feb_range;
     LArOnlID_Exception except(errorMessage , 99);
@@ -792,16 +773,6 @@ void LArOnlineID_Base::feedthrough_Id_checks( int barrel_ec, int pos_neg, int fe
   expId << s_lar_online_field_value << barrel_ec << pos_neg << feedthrough << 0 << 0 << (int)m_this_is_slar;
 
 //  if ( m_this_is_slar ) expId << 0 << 0 << 1;
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    char * l_str = new char[200];
-    std::string errorMessage ;
-    sprintf(l_str,"Error in LArOnlineID_Base::feedthrough_Id_checks , values ok but did not build , barrel_ec: %d , pos_neg: %d , feedthrough: %d ", 
-    barrel_ec , pos_neg, feedthrough);
-    errorMessage += std::string(l_str);
-    delete[] l_str ;
-    LArOnlID_Exception except(errorMessage , 99);
-    throw except ;
-    }  
     if (!m_full_feedthrough_range.match(expId)) { std::string errorMessage = "LArOnlineID_Base::feedthrough_Id_checks() result is not OK: ID, range = "
     + std::string(expId) + " , " + (std::string)m_full_feedthrough_range;
     LArOnlID_Exception except(errorMessage , 99);
@@ -1423,7 +1394,9 @@ bool LArOnlineID_Base::isValidId(const HWIdentifier id) const {
 							   
 
 
-HWIdentifier LArOnlineID_Base::feedthrough_Id (int barrel_ec, int pos_neg, int feedthrough ) const 
+HWIdentifier
+LArOnlineID_Base::feedthrough_Id (int barrel_ec, int pos_neg, int feedthrough,
+                                  bool checks) const 
 {
   HWIdentifier result(0);
 
@@ -1437,12 +1410,18 @@ HWIdentifier LArOnlineID_Base::feedthrough_Id (int barrel_ec, int pos_neg, int f
 	m_slar_impl.pack       (1                , result);
 
   /* Do checks */
-  if(m_do_checks) 
+  if(checks) 
     {
       feedthrough_Id_checks ( barrel_ec, pos_neg, feedthrough );
     }
   return result;
 }
+HWIdentifier
+LArOnlineID_Base::feedthrough_Id (int barrel_ec, int pos_neg, int feedthrough) const
+{
+  return feedthrough_Id (barrel_ec, pos_neg, feedthrough, do_checks());
+}
+
 
 HWIdentifier LArOnlineID_Base::feedthrough_Id(IdentifierHash feedthroughHashId) const
 /*=============================================================================== */
@@ -1485,8 +1464,10 @@ std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feedthrough_end(void
 /* FEB id */
 /*========*/
 
-HWIdentifier LArOnlineID_Base::feb_Id(int barrel_ec, int pos_neg, 
-					int feedthrough, int slot ) const 
+HWIdentifier
+LArOnlineID_Base::feb_Id(int barrel_ec, int pos_neg, 
+                         int feedthrough, int slot,
+                         bool checks ) const 
 /*==================================================================== */
 {
   HWIdentifier result(0);
@@ -1502,10 +1483,17 @@ HWIdentifier LArOnlineID_Base::feb_Id(int barrel_ec, int pos_neg,
     m_slar_impl.pack       (1                , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     feb_Id_checks ( barrel_ec, pos_neg, feedthrough, slot );
   }
   return result;
+}
+
+HWIdentifier
+LArOnlineID_Base::feb_Id(int barrel_ec, int pos_neg, 
+                         int feedthrough, int slot) const
+{
+  return feb_Id (barrel_ec, pos_neg, feedthrough, slot, do_checks());
 }
 
 HWIdentifier LArOnlineID_Base::feb_Id(const HWIdentifier feedthroughId , int slot) const
@@ -1567,8 +1555,10 @@ IdentifierHash LArOnlineID_Base::feb_Hash_binary_search (HWIdentifier febId) con
     return (0);
 }
 
-HWIdentifier LArOnlineID_Base::channel_Id( int barrel_ec, int pos_neg, int feedthrough, 
-					     int slot,      int channel ) const 
+HWIdentifier
+LArOnlineID_Base::channel_Id( int barrel_ec, int pos_neg, int feedthrough, 
+                              int slot,      int channel,
+                              bool checks) const 
 /*============================================================================== */
 {  
   HWIdentifier result(0);
@@ -1584,12 +1574,19 @@ HWIdentifier LArOnlineID_Base::channel_Id( int barrel_ec, int pos_neg, int feedt
      m_slar_impl.pack           (1                    , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     channel_Id_checks( barrel_ec, pos_neg, feedthrough, slot, channel );
   }
   return result;
 }
 
+HWIdentifier
+LArOnlineID_Base::channel_Id( int barrel_ec, int pos_neg, int feedthrough, 
+                              int slot,      int channel) const
+{
+  return channel_Id (barrel_ec, pos_neg, feedthrough, slot, channel,
+                     do_checks());
+}
 
 HWIdentifier LArOnlineID_Base::channel_Id(IdentifierHash channelHashId) const
 /*===================================================================*/
@@ -1598,7 +1595,9 @@ HWIdentifier LArOnlineID_Base::channel_Id(IdentifierHash channelHashId) const
 }
 
 
-HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier feedthroughId,int slot,int channel) const 
+HWIdentifier
+LArOnlineID_Base::channel_Id(const HWIdentifier feedthroughId,int slot,int channel,
+                             bool checks) const 
 /*==================================================================================================== */
 {  
   HWIdentifier result(feedthroughId);
@@ -1611,13 +1610,21 @@ HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier feedthroughId,int s
     m_slar_impl.pack            (1  , result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
       channel_Id_checks( feedthroughId, slot, channel );
   }
   return result;
 }
 
-HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier febId, int channel) const 
+HWIdentifier
+LArOnlineID_Base::channel_Id(const HWIdentifier feedthroughId,int slot,int channel) const
+{
+  return channel_Id (feedthroughId, slot, channel, do_checks());
+}
+
+HWIdentifier
+LArOnlineID_Base::channel_Id(const HWIdentifier febId, int channel,
+                             bool checks) const 
 /*======================================================================================= */
 {  
   HWIdentifier result(febId);
@@ -1628,10 +1635,16 @@ HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier febId, int channel)
 	m_slar_impl.pack (1, result);
 
   /* Do checks */
-  if(m_do_checks) {
+  if(checks) {
     channel_Id_checks( febId, channel );
   }
   return result;
+}
+
+HWIdentifier
+LArOnlineID_Base::channel_Id(const HWIdentifier febId, int channel) const
+{
+  return channel_Id (febId, channel, do_checks());
 }
 
 //----------------------------------------------------------------------------

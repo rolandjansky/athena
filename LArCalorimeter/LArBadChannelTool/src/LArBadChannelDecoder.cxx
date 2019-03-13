@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
@@ -14,9 +14,6 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
 {
   std::vector<BadChanEntry> result;
 
-  bool oldIdCheckStatus=m_onlineID->do_checks();
-  m_onlineID->set_do_checks(true); //Check Id when reading from ASCII file
- 
   // set up parsing with exactly 6 ints and >= 1 string, for reading channels
   LArBadChannelParser parser(fname, &m_log, 6, -1);
   if (!parser.fileStatusGood()) {
@@ -40,8 +37,6 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
       }
     }
   }
-  //Reset checking, to avoid downstream problems (see bug #33824)
-  m_onlineID->set_do_checks(oldIdCheckStatus); 
   return result;
 }
 
@@ -50,9 +45,6 @@ LArBadChannelDecoder::readFebASCII( const std::string& fname) const
 {
   std::vector<BadFebEntry> result;
 
-  bool oldIdCheckStatus=m_onlineID->do_checks();
-  m_onlineID->set_do_checks(true); //Check Id when reading from ASCII file
- 
  // set up a parser to read 4 ints (the 4th of which can be a wildcard) and >=1 strings
   LArBadChannelParser parser(fname, &m_log, 4, -1, 4);
   if (!parser.fileStatusGood()) {
@@ -76,8 +68,6 @@ LArBadChannelDecoder::readFebASCII( const std::string& fname) const
       }
     }
   }
-  //Reset checking, to avoid downstream problems (see bug #33824)
-  m_onlineID->set_do_checks(oldIdCheckStatus); 
   return result;
 }
 
@@ -94,7 +84,7 @@ HWIdentifier LArBadChannelDecoder::constructChannelId( const std::vector<int>& i
   }
   try {
     HWIdentifier hwid( m_onlineID->channel_Id( intVec[barrel_ec], intVec[pos_neg], intVec[feedthrough],
-					       intVec[slot], intVec[channel]));
+					       intVec[slot], intVec[channel], true));
     if (coolChan<LArBadChannelState::MAXCOOLCHAN && !checkId( hwid, intVec[barrel_ec], intVec[pos_neg], coolChan)) {
       log << MSG::WARNING << "Channel "; insertExpandedID( intVec, log);
       log << " does not belong to COOL channel " << State::coolChannelName( coolChan) 
@@ -149,7 +139,7 @@ HWIdentifier LArBadChannelDecoder::constructSingleFebId( const std::vector<int>&
   HWIdentifier invalid;
   if (v.size() != 4) return invalid;
   try {
-    HWIdentifier hwid( m_onlineID->feb_Id( v[barrel_ec], v[pos_neg], v[feedthrough], v[slot]));
+    HWIdentifier hwid( m_onlineID->feb_Id( v[barrel_ec], v[pos_neg], v[feedthrough], v[slot], true));
     log << MSG::DEBUG << "Translating FEB id ";  insertExpandedID( v, log);
     log << " to 0x" << MSG::hex << hwid << MSG::dec << endmsg;   
     return hwid;

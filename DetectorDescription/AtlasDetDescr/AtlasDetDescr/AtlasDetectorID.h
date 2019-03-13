@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATLASDETDESCR_ATLASDETECTORID_H
@@ -226,13 +226,13 @@ public:
     /// @name  Checks are performed by default in debug compilation and NOT in optimized compilation. One can switch or query this mode for any idHelper with the following methods:
     //@{
     virtual bool        do_checks       (void) const;
-    virtual void        set_do_checks   (bool do_checks) const;
+    virtual void        set_do_checks   (bool do_checks);
     //@}
 
     /// @name neighbours are initialized by default. One can switch or query this mode with the following methods:
     //@{
     virtual bool        do_neighbours       (void) const;
-    virtual void        set_do_neighbours   (bool do_neighbours) const;
+    virtual void        set_do_neighbours   (bool do_neighbours);
     //@}
 
     /// @name setting pointer to the MessageService

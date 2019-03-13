@@ -8,11 +8,13 @@
 
 #include "TrigHLTJetRec/TrigHLTSoftKiller.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODBase/IParticleContainer.h"
 
 TrigHLTSoftKiller::TrigHLTSoftKiller(const std::string& name, ISvcLocator* pSvcLocator)
     : HLT::FexAlgo(name, pSvcLocator)
 {
     declareProperty( "output_collection_label", m_outputCollectionLabel);
+    declareProperty("skclustModSeqTool",m_skclustModSeqTool);
 }
 
 TrigHLTSoftKiller::~TrigHLTSoftKiller()
@@ -23,7 +25,15 @@ HLT::ErrorCode TrigHLTSoftKiller::hltInitialize()
     
     ATH_MSG_INFO("Initializing " << name() << "...");
     
-    // TODO Retrieve any needed ToolHandles here, like the SoftKiller tool
+   StatusCode sc = m_skclustModSeqTool.retrieve();
+
+   if (sc.isSuccess())
+       ATH_MSG_INFO("Retrieved skclustModSeqTool: " << m_skclustModSeqTool->name());
+    else
+    {
+     	ATH_MSG_ERROR("Failed to retrieve the skclustModSeqTool: " << m_skclustModSeqTool->name());
+        return HLT::ERROR;
+    }
 
     ATH_MSG_INFO("Initialization successful");
 
@@ -47,12 +57,12 @@ HLT::ErrorCode TrigHLTSoftKiller::hltExecute(const HLT::TriggerElement* inputTE,
     ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
 
     // Get the input container
-    const xAOD::CaloClusterContainer* clusters = nullptr;
-    HLT::ErrorCode status = getFeature(inputTE,clusters);
+    const xAOD::CaloClusterContainer* inputclusters = nullptr;
+    HLT::ErrorCode status = getFeature(inputTE,inputclusters);
     if (status == HLT::OK)
     {
-        if (clusters != nullptr)
-            ATH_MSG_DEBUG("Retrieved input cluster container of size " << clusters->size());
+        if (inputclusters != nullptr)
+            ATH_MSG_DEBUG("Retrieved input cluster container of size " << inputclusters->size());
         else
         {
             ATH_MSG_ERROR("Retrieved NULL input cluster container");
@@ -65,19 +75,47 @@ HLT::ErrorCode TrigHLTSoftKiller::hltExecute(const HLT::TriggerElement* inputTE,
         return HLT::ERROR;
     }
 
+    JetConstituentModSequence *skclustModSeqTool = const_cast<JetConstituentModSequence*>(dynamic_cast<const JetConstituentModSequence*>(&*m_skclustModSeqTool));
+    const xAOD::IParticleContainer* IP_inputclusters = dynamic_cast<const xAOD::IParticleContainer*> (inputclusters);
+    skclustModSeqTool->setInputClusterCollection(IP_inputclusters);
+    //skclustModSeqTool->setInputClusterCollection(inputclusters);
+    int process_status = skclustModSeqTool->execute();
+    const xAOD::CaloClusterContainer* outputclusters = dynamic_cast<const xAOD::CaloClusterContainer*>(skclustModSeqTool->getOutputClusterCollection()); 
+    
+    if (process_status == 0)
+    {
+        if (outputclusters != nullptr)
+            ATH_MSG_DEBUG("Processed cluster container of size " << outputclusters->size());
+        else
+        {
+            ATH_MSG_ERROR("SoftKillerWeightTool returned NULL input cluster container");
+            return HLT::ERROR;
+        }
+    }
+    else
+    {
+        ATH_MSG_ERROR("Failed to retrieve processed cluster container");
+        return HLT::ERROR;
+    }
+    
+    ////////// FOR DEBUGGING PURPOSES
+    //SG::AuxElement::ConstAccessor<float> weightAcc("PUWeight"); // Handle for PU weighting here
+    //for (size_t icl = 0; icl < outputclusters->size(); ++icl)
+    //    if (weightAcc(*(outputclusters->at(icl))) < 1.e-6)
+    //        ATH_MSG_INFO("Cluster SK weight: " << weightAcc(*(outputclusters->at(icl))) << ", pT = " << outputclusters->at(icl)->pt());
 
-
-    // Apply SoftKiller and store the output in clustersSK
-    const xAOD::CaloClusterContainer* clustersSK = clusters; // TODO change this to the SK cluster output
-    // TODO add SK here
-
+    ATH_MSG_DEBUG("writing results");
 
 
     // Write the resulting container
+    auto auxStore = outputclusters->getStore();
     std::string key = "";
-    status = recordAndAttachFeature(outputTE,clustersSK,key,m_outputCollectionLabel);
+    status = recordAndAttachFeature(outputTE,outputclusters,key,m_outputCollectionLabel);
     if (status == HLT::OK)
+    {
         ATH_MSG_DEBUG("Attached SK cluster container to output TE");
+        delete auxStore;
+    }
     else
         ATH_MSG_ERROR("Failed to attach SK cluster container to output TE, status " << status);
     return status;

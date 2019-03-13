@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdPowerTape.h"
@@ -20,8 +20,12 @@ SCT_FwdPowerTape::SCT_FwdPowerTape(const std::string & name,
                                    int numModules,
                                    double innerRadius, 
                                    double startPos, 
-                                   double endPos)
-  : SCT_SharedComponentFactory(name), m_numModules(numModules), m_innerRadius(innerRadius)
+                                   double endPos,
+                                   InDetDD::SCT_DetectorManager* detectorManager,
+                                   const SCT_GeometryManager* geometryManager,
+                                   SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_numModules(numModules), m_innerRadius(innerRadius)
 {
   m_length = std::abs(endPos - startPos);
   m_zPosition = 0.5 * (startPos + endPos);
@@ -33,11 +37,9 @@ SCT_FwdPowerTape::SCT_FwdPowerTape(const std::string & name,
 
 void 
 SCT_FwdPowerTape::getParameters()
-{ 
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
-  SCT_MaterialManager materials;
-    
-  m_material  = materials.getMaterial(parameters->fwdPowerTapeMaterial());
+{
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
+  m_material  = m_materials->getMaterial(parameters->fwdPowerTapeMaterial());
   m_crossSectArea = parameters->fwdPowerTapeCrossSectArea();
 }
 

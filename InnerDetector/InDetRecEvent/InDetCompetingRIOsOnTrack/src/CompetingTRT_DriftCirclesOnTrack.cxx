@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,16 +20,16 @@
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
   Trk::CompetingRIOsOnTrack(),
   m_associatedSurface(0),
-  m_globalPosition(0),
+  m_globalPosition{},
   m_containedChildRots(0),
   m_ROTsHaveCommonSurface(8) {}
 
 // copy constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) :
   Trk::CompetingRIOsOnTrack(compROT),
-  m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+  m_globalPosition{},
   m_containedChildRots(0),
-  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface) {
+  m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface.load()) {
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
     m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
@@ -40,6 +40,9 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const 
   std::vector< const InDet::TRT_DriftCircleOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
   for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
     m_containedChildRots->push_back((*rotIter)->clone());
+  }
+  if (compROT.m_globalPosition) {
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(compROT.m_globalPosition)));
   }
 }
 
@@ -56,7 +59,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
 									  ):
   Trk::CompetingRIOsOnTrack(assgnProb),
   m_associatedSurface(sf),
-  m_globalPosition(0),
+  m_globalPosition{},
   m_containedChildRots(childrots),
   m_ROTsHaveCommonSurface(ROTsHaveComSrfc)
 {
@@ -75,7 +78,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     // clear rots
     clearChildRotVector();
     delete m_containedChildRots;
-    delete m_globalPosition;
+    if (m_globalPosition) delete m_globalPosition.release().get();
     // delete surface if not owned by detElement
     if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
       delete m_associatedSurface;
@@ -86,8 +89,8 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     } else {
       m_associatedSurface = 0;
     }
-    m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
-    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
+    if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+    m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
       m_containedChildRots->push_back((*rotIter)->clone());
@@ -97,9 +100,9 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
 
 InDet::CompetingTRT_DriftCirclesOnTrack::~CompetingTRT_DriftCirclesOnTrack() {
   // delete surface if not owned by detElement
-  if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
+  if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) {
     delete m_associatedSurface;
-  delete m_globalPosition;
+  }
   clearChildRotVector();
   delete m_containedChildRots;
 }
@@ -118,8 +121,8 @@ MsgStream& InDet::CompetingTRT_DriftCirclesOnTrack::dump( MsgStream& out ) const
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<endmsg;
-  else out << *m_globalPosition<<endmsg;
+  if (not m_globalPosition) out << "null pointer" << endmsg;
+  else out << *m_globalPosition << endmsg;
   return out;
 }
 
@@ -131,8 +134,8 @@ std::ostream& InDet::CompetingTRT_DriftCirclesOnTrack::dump( std::ostream& out )
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<std::endl;
-  else out << *m_globalPosition<<std::endl;
+  if (not m_globalPosition) out << "null pointer" << std::endl;
+  else out << *m_globalPosition << std::endl;
   return out;
 }
 
@@ -155,7 +158,7 @@ bool InDet::CompetingTRT_DriftCirclesOnTrack::ROTsHaveCommonSurface(const bool w
 
 
 const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() const {
-  if (m_globalPosition) return (*m_globalPosition);
+  if (m_globalPosition) return *m_globalPosition;
   // cannot use the localToGlobal transformation, because the local z-coordinate along
   // the wire is not known here. The contained TRT_DriftCircleOnTrack use the full
   // transformation => use the weighted mean of their GlobalPositions
@@ -178,9 +181,9 @@ const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() c
   } else {
     globalPos = (*m_containedChildRots->begin())->globalPosition();
   }
-    
-  m_globalPosition = new Amg::Vector3D(globalPos);
+  m_globalPosition.set(std::make_unique<const Amg::Vector3D>(globalPos));
   return *m_globalPosition;
+  
 }
 
 void InDet::CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() {

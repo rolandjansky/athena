@@ -3,8 +3,10 @@ TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_mu6Comb ID#3933
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_mu6nol1 ID#1250234908
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_mu6 ID#1672162766
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_mu6fast ID#2393852230
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_mu20_ivar ID#267444585
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_mu6Comb ID#393364983
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_mu6 ID#1672162766
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_mu20_ivar ID#267444585
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6Comb ID#393364983
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6nol1 ID#1250234908
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6 ID#1672162766
@@ -22,8 +24,8 @@ TrigSignatureMoniMT                                INFO HLT_2mu6                
 TrigSignatureMoniMT                                INFO HLT_2mu6 decisions                                2         2         2         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb                  10        10        1         1         0         0         1         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb decisions                            2         2         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu20_ivar                 10        10        1         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu20_ivar decisions                           1         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu20_ivar                 10        10        1         1         1         0         1         
+TrigSignatureMoniMT                                INFO HLT_mu20_ivar decisions                           1         1         1         0         
 TrigSignatureMoniMT                                INFO HLT_mu6                       10        10        2         2         1         1         1         
 TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 3         3         2         1         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb                   10        10        2         2         0         0         2         

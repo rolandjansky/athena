@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_SCTRAWHITVALIDATION_V1_H
@@ -63,6 +63,37 @@ namespace xAOD {
     /// check if there is an error in the second hit's data
     bool SecondHitError() const;
     /// @}
+
+    /// set bec of this RDO
+    void setBec(int new_bec);
+
+    /// get bec of this RDO
+    int bec() const;
+
+    /// set layer of this RDO
+    void setLayer(int new_layer);
+
+    /// get layer of this RDO
+    int layer() const;
+    
+    /// set eta_module of this RDO
+    void setEta_module(int new_eta_module);
+    
+    /// get eta_module of this RDO
+    int eta_module() const;
+    
+    /// set phi_module of this RDO
+    void setPhi_module(int new_phi_module);
+    
+    /// get phi_module of this RDO
+    int phi_module() const;
+    
+    /// set side of this RDO
+    void setSide(int new_side);
+
+    /// get side of this RDO
+    int side() const;
+    
   }; // end of the SCTRawHitValidation_v1 class definition
 
 } // end of the xAOD namespace

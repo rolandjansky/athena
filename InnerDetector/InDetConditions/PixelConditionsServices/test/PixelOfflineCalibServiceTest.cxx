@@ -156,12 +156,12 @@ StatusCode PixelOfflineCalibServiceTest::execute() {
 
     // PixelClusterOnTrackErrorData
     int v2 = m_pat->getPixelClusterOnTrackErrorData()->getVersion();
-    const std::vector<float> csx =m_pat->getPixelClusterOnTrackErrorData()->getClusterSizeBinsX();
-    const std::vector<float> csy =m_pat->getPixelClusterOnTrackErrorData()->getClusterSizeBinsY();
-    const std::vector<float> eta =m_pat->getPixelClusterOnTrackErrorData()->getEtaBins();
-    const std::vector<float> alpha = m_pat->getPixelClusterOnTrackErrorData()->getIncidenceAngleBins();
-    const std::vector<float> etaibl =  m_pat->getPixelClusterOnTrackErrorData()->getEtaIBLBins();
-    const std::vector<float> alphaibl =  m_pat->getPixelClusterOnTrackErrorData()->getIncidenceAngleIBLBins();
+    const std::vector<float> &csx =m_pat->getPixelClusterOnTrackErrorData()->getClusterSizeBinsX();
+    const std::vector<float> &csy =m_pat->getPixelClusterOnTrackErrorData()->getClusterSizeBinsY();
+    const std::vector<float> &eta =m_pat->getPixelClusterOnTrackErrorData()->getEtaBins();
+    const std::vector<float> &alpha = m_pat->getPixelClusterOnTrackErrorData()->getIncidenceAngleBins();
+    const std::vector<float> &etaibl =  m_pat->getPixelClusterOnTrackErrorData()->getEtaIBLBins();
+    const std::vector<float> &alphaibl =  m_pat->getPixelClusterOnTrackErrorData()->getIncidenceAngleIBLBins();
 
     int ncsx = csx.size();
     int ncsy = csy.size();
@@ -226,14 +226,14 @@ StatusCode PixelOfflineCalibServiceTest::execute() {
 
     // PixelChargeInterpolationData
     int v3 = m_pat->getPixelChargeInterpolationParameters()->getVersion();
-    const std::vector<float> csx2 = m_pat->getPixelChargeInterpolationParameters()->getClusterSizeXBins();
-    const std::vector<float> csy2 = m_pat->getPixelChargeInterpolationParameters()->getClusterSizeYBins();
-    const std::vector<float> eta2 = m_pat->getPixelChargeInterpolationParameters()->getEtaBins();
-    const std::vector<float> alpha2 = m_pat->getPixelChargeInterpolationParameters()->getAngleBins();
+    const std::vector<float> &csx2 = m_pat->getPixelChargeInterpolationParameters()->getClusterSizeXBins();
+    const std::vector<float> &csy2 = m_pat->getPixelChargeInterpolationParameters()->getClusterSizeYBins();
+    const std::vector<float> &eta2 = m_pat->getPixelChargeInterpolationParameters()->getEtaBins();
+    const std::vector<float> &alpha2 = m_pat->getPixelChargeInterpolationParameters()->getAngleBins();
     // IBL
-    const std::vector<float> etaibl2 = m_pat->getPixelChargeInterpolationParameters()->getIBLEtaBins() ;
+    const std::vector<float> &etaibl2 = m_pat->getPixelChargeInterpolationParameters()->getIBLEtaBins() ;
 
-    const std::vector<float> alphaibl2 = m_pat->getPixelChargeInterpolationParameters()->getIBLAngleBins() ;
+    const std::vector<float> &alphaibl2 = m_pat->getPixelChargeInterpolationParameters()->getIBLAngleBins() ;
     //
     // number of bins
     // The upper limit is not implicit, we must subtract one!

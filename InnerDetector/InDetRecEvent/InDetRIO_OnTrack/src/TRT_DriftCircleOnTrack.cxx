@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,11 +13,14 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-#include <cassert>
-#include "GaudiKernel/MsgStream.h"
-#include <ostream>
-#include <limits>
 
+#include "GaudiKernel/MsgStream.h"
+
+#include <cassert>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <utility>
 
 // Constructor with parameters:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( 
@@ -30,7 +33,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
     const Trk::DriftCircleStatus status)
 	:
   Trk::RIO_OnTrack(driftRadius, errDriftRadius, RIO->identify()), //call base class constructor
-  m_globalPosition(0), 
+  m_globalPosition{},
   m_positionAlongWire(predictedLocZ),
   m_idDE(idDE),
   m_status(status),
@@ -40,7 +43,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
 {
   m_rio.setElement(RIO);
   const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
-  if(slsf) m_globalPosition = slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ);
+  if (slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
   //scaling the direction with drift radius   
@@ -52,13 +55,13 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
 
 // Destructor:
 InDet::TRT_DriftCircleOnTrack::~TRT_DriftCircleOnTrack()
-{ delete m_globalPosition; }
+{}
 
 // default constructor:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack()
 	:
   Trk::RIO_OnTrack(),
-  m_globalPosition(0),
+  m_globalPosition{},
   m_localAngle(std::numeric_limits<float>::quiet_NaN()),
   m_positionAlongWire(std::numeric_limits<float>::quiet_NaN()),
   m_rio(),
@@ -81,7 +84,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
      bool highLevel,
      double timeOverThreshold)
      : Trk::RIO_OnTrack (driftRadius, errDriftRadius, id),
-       m_globalPosition(nullptr),
+       m_globalPosition{},
        m_localAngle(localAngle),
        m_positionAlongWire(predictedLocZ),
        m_rio(RIO),
@@ -96,27 +99,33 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
 //copy constructor:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
 	Trk::RIO_OnTrack(rot),
-  m_globalPosition(rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0 ),
-  m_localAngle(rot.m_localAngle),
-  m_positionAlongWire(rot.m_positionAlongWire),
+  m_globalPosition{},
+  m_localAngle(rot.m_localAngle.load()),
+  m_positionAlongWire(rot.m_positionAlongWire.load()),
   m_rio(rot.m_rio),
   m_idDE(rot.m_idDE),
   m_status(rot.m_status),
   m_highLevel(rot.m_highLevel),
   m_timeOverThreshold(rot.m_timeOverThreshold),
   m_detEl(rot.m_detEl)
-{}
+{
+  if (rot.m_globalPosition) {
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+  }
+}
 
 //assignment operator:
 InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const InDet::TRT_DriftCircleOnTrack& rot)
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    delete m_globalPosition;
-    m_globalPosition        = (rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0);
+    if (m_globalPosition) delete m_globalPosition.release().get();
+    if (rot.m_globalPosition) {
+      m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+    }
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle;
-    m_positionAlongWire     = rot.m_positionAlongWire;
+    m_localAngle            = rot.m_localAngle.load();
+    m_positionAlongWire     = rot.m_positionAlongWire.load();
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -131,11 +140,11 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    delete m_globalPosition;
-    m_globalPosition        = rot.m_globalPosition;
+    if (m_globalPosition) delete m_globalPosition.release().get();
+    m_globalPosition        = std::move(rot.m_globalPosition);
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle;
-    m_positionAlongWire     = rot.m_positionAlongWire;
+    m_localAngle            = rot.m_localAngle.load();
+    m_positionAlongWire     = rot.m_positionAlongWire.load();
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -161,7 +170,7 @@ const Trk::Surface& InDet::TRT_DriftCircleOnTrack::associatedSurface() const
 void InDet::TRT_DriftCircleOnTrack::setGlobalPosition(Amg::Vector3D& loc3Dframe) const{
    const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>( &(associatedSurface()) );
    if(slsf) {
-     m_globalPosition = new  Amg::Vector3D(slsf->transform() * loc3Dframe);
+     m_globalPosition.set(std::make_unique<Amg::Vector3D>(slsf->transform() * loc3Dframe));
    }else{
     throw GaudiException("Dynamic_cast to StraightLineSurface failed!",             
                     	 "TRT_DriftCircleOnTrack::setGlobalPosition()", 
@@ -176,7 +185,7 @@ void InDet::TRT_DriftCircleOnTrack::setValues(const Trk::TrkDetElementBase* detE
 
 const Amg::Vector3D& InDet::TRT_DriftCircleOnTrack::globalPosition() const { 
   
-   if (!m_globalPosition)
+   if (not m_globalPosition)
    { 
 
     if (side()==Trk::NONE) 
@@ -233,7 +242,7 @@ std::ostream& InDet::TRT_DriftCircleOnTrack::dump( std::ostream& sl ) const
 
     sl << "Global position (x,y,z) = (";
     this->globalPosition();
-    if ( m_globalPosition !=0 )
+    if (m_globalPosition)
     {
         sl  <<this->globalPosition().x()<<", "
             <<this->globalPosition().y()<<", "

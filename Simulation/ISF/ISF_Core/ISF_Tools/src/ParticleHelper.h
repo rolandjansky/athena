@@ -49,7 +49,7 @@ namespace ISF {
       StatusCode  finalize();
 
       /** Create a new particle */
-      ISFParticle* createParticle( double x, double y, double z,
+      virtual ISFParticle* createParticle( double x, double y, double z,
                                    double px, double py, double pz,
                                    double pMass,
                                    double pCharge,
@@ -57,10 +57,11 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   TruthBinding* tBinding = nullptr,
+				   const HepMcParticleLink * partLink = nullptr) const override final;
 
       /** Create a new particle */
-      ISFParticle* createParticle( const Amg::Vector3D& x,
+      virtual ISFParticle* createParticle( const Amg::Vector3D& x,
                                    const Amg::Vector3D& p,
                                    double pMass,
                                    double pCharge,
@@ -68,10 +69,11 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   TruthBinding* tBinding = nullptr,
+				   const HepMcParticleLink * partLink = nullptr) const override final;
 
       /** Create a new particle */
-      ISFParticle* createParticle( const HepGeom::Point3D<double>& x,
+      virtual ISFParticle* createParticle( const HepGeom::Point3D<double>& x,
                                    const HepGeom::Vector3D<double>& p,
                                    double pMass,
                                    double pCharge,
@@ -79,16 +81,17 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   TruthBinding* tBinding = nullptr,
+				   const HepMcParticleLink * partLink = nullptr) const override final;
 
       /** An updated particle (e.g. after transport) */
-      ISFParticle* updatedParticle( const ISFParticle& origIsp,
+      virtual ISFParticle* updatedParticle( const ISFParticle& origIsp,
                                     const Amg::Vector3D& updatedPos,
                                     const Amg::Vector3D& updatedMom,
                                     double deltaTime = 0.) const override final;
       
       /** An updated particle (e.g. after transport) */
-      ISFParticle* updatedParticle( const ISFParticle& origIsp,
+      virtual ISFParticle* updatedParticle( const ISFParticle& origIsp,
                                     const HepGeom::Point3D<double>&  updatedPos,
                                     const HepGeom::Vector3D<double>& updatedMom,
                                     double deltaTime = 0.) const override final;

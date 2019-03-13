@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "LArRecConditions/LArFebConfig.h"
 
 class LArADC2MeV;
 class ILAruA2MeV;
@@ -22,8 +22,6 @@ class ILArRamp;
 class ILArMphysOverMcal;
 class ILArHVScaleCorr;
 class LArOnOffIdMapping;
-
-class ILArFEBConfigReader;
 
 class LArADC2MeVCondAlg: public AthAlgorithm {
  public:
@@ -50,10 +48,7 @@ class LArADC2MeVCondAlg: public AthAlgorithm {
   ServiceHandle<ICondSvc> m_condSvc;
 
 
-  //FIXME:
-  //The FEB configurations (gain thresholds) are also conditions
-  //Its stored in 18 COOL folders, so waiting for ReadCondHandleArray for migrating to a cond-algo
-  ToolHandle<ILArFEBConfigReader> m_febCfgReader;
+  SG::ReadCondHandleKey<LArFebConfig> m_configKey;
 
   bool m_useFEBGainThresholds;
   size_t m_nGains;

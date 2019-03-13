@@ -133,9 +133,6 @@ private:
   bool m_dac0sub, m_saveRawRamp,m_saveRecRamp, m_longNtuple, m_satSlope;
   IntegerProperty m_minDAC;
 
-  // datahandle for LArCaliWaveContainer
-  const DataHandle<LArCaliWaveContainer> m_caliWaveContainer;
-
   int m_DeadChannelCut;
   std::string m_folderName;
   int m_shapeMethodDAC;

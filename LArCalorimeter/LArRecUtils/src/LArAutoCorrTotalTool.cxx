@@ -8,6 +8,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArCabling/LArCablingLegacyService.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include <cmath>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -23,7 +24,6 @@ LArAutoCorrTotalTool::LArAutoCorrTotalTool(const std::string& type,
     m_lar_on_id(nullptr),
     m_cablingService(nullptr),
     m_larmcsym("LArMCSymTool"),m_adc2mevTool("LArADC2MeVTool"),
-    m_calo_id_man(nullptr),
     m_lar_em_id(nullptr),
     m_lar_hec_id(nullptr),
     m_lar_fcal_id(nullptr),
@@ -77,16 +77,17 @@ StatusCode LArAutoCorrTotalTool::initialize()
   }
 
   //retrieves helpers for LArCalorimeter
-  m_calo_id_man  = CaloIdManager::instance();
+  const CaloCell_Base_ID* idHelper = nullptr;
   if ( m_isSC ) {
-    m_lar_em_id   = m_calo_id_man->getEM_SuperCell_ID();
-    m_lar_hec_id  = m_calo_id_man->getHEC_SuperCell_ID();
-    m_lar_fcal_id = m_calo_id_man->getFCAL_SuperCell_ID();
-  }  else  {
-    m_lar_em_id   = m_calo_id_man->getEM_ID();
-    m_lar_hec_id  = m_calo_id_man->getHEC_ID();
-    m_lar_fcal_id = m_calo_id_man->getFCAL_ID();
-  }  
+    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
+  }
+  else {
+    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  }
+
+  m_lar_em_id   = idHelper->em_idHelper();
+  m_lar_hec_id  = idHelper->hec_idHelper();
+  m_lar_fcal_id = idHelper->fcal_idHelper();
   
 
 

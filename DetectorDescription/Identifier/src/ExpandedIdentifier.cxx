@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,8 +43,6 @@ ExpandedIdentifier::ExpandedIdentifier (const std::string& text)
 //-----------------------------------------------
 void ExpandedIdentifier::set (const std::string& text)
 {
-  set_last_error (none);
-
   clear ();
   if (text.size () == 0) return;
   const char* ctext = text.c_str ();
@@ -92,22 +90,6 @@ int ExpandedIdentifier::prefix_less (const ExpandedIdentifier& other) const
     }
   
   return (0);
-}
-
-  // Error management
-
-//-----------------------------------------------
-const std::string ExpandedIdentifier::last_error_text () const
-{
-  static const std::string text[] = {
-    "none",
-    "bad parameter",
-    "field not found"
-  };
-  
-  error_code code = last_error ();
-  
-  return (text[code]);
 }
 
 //-----------------------------------------------

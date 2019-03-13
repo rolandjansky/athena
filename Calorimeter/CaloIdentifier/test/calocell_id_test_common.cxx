@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -224,10 +224,6 @@ std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (bool do_neighbours = false)
                                                        minifcal_id.release(),
                                                        tile_id.release());
   assert (calo_id->initialize_from_dictionary (idd) == 0);
-
-  assert (!calo_id->do_checks());
-  calo_id->set_do_checks (true);
-  assert (calo_id->do_checks());
 
   //assert (calo_id->em_idHelper() == em_id);
   //assert (calo_id->hec_idHelper() == hec_id);
@@ -732,7 +728,7 @@ void test_exceptions (const CaloCell_Base_ID& calo_id)
 
   bool caught = false;
   try {
-    /*Identifier wrongChanId =*/ calo_id.cell_id (0, 99, 0, 0, 0, 0);
+    /*Identifier wrongChanId =*/ calo_id.cell_id (0, 99, 0, 0, 0, 0, true);
   }
   catch(LArID_Exception & except){
     caught = true;

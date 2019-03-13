@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
@@ -323,7 +322,8 @@ TBXMLCaloCellWriterTool::writeRunFiles(const std::string& fileDir,
   // Write Run Geometry //
   ////////////////////////
 
-  const CaloDetDescrManager* caloDetMgr = CaloDetDescrManager::instance();
+  const CaloDetDescrManager* caloDetMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve (caloDetMgr, "CaloMgr") );
 
   IdentifierHash firstIndex, lastIndex, safeIndex;
   m_idHelper->calo_cell_hash_range((int)CaloCell_ID::LARFCAL,
@@ -431,14 +431,7 @@ TBXMLCaloCellWriterTool::convertProperties()
   MsgStream log(msgSvc(),name());
 
   // get calo id helper
-  m_idHelper = CaloIdManager::instance()->getCaloCell_ID();
-  if ( m_idHelper == 0 )
-    {
-      log << MSG::ERROR
-	  << "cannot allocate CaloCell_ID helper!"
-	  << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( detStore()->retrieve (m_idHelper, "CaloCell_ID") );
 
   //////////////////////
   // Get Calo Indices //

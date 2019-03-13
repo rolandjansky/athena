@@ -3,7 +3,7 @@
 */
 
 #include "LArEventTest/DumpLArRawChannels.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "xAODEventInfo/EventInfo.h"
 //#include "testpack/compdigit.h"
 #include <stdlib.h>
@@ -33,12 +33,9 @@ StatusCode DumpLArRawChannels::initialize()
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  if (!caloIdMgr) {
-    ATH_MSG_ERROR ( "Unable to get instance of CaloIdManager" );
-    return StatusCode::FAILURE;
-  }
-  m_emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
   if (!m_emId) {
     ATH_MSG_ERROR ( "Unable to get EM_ID" );
     return StatusCode::FAILURE;

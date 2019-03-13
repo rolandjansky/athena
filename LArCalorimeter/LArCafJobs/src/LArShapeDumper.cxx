@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumper.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigit.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"

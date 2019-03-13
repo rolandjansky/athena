@@ -26,12 +26,8 @@
 TileOFC2DBAlg::TileOFC2DBAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
   , m_regSvc(0)
-  , m_tileToolTiming("TileCondToolTiming")
-  , m_tileCondToolOfc("TileCondToolOfc")
 
 {
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolOfc",    m_tileCondToolOfc, "TileCondToolOfc");
   declareProperty("OF2",                m_of2            = true,"true => OF2, false => OF1");
   declareProperty("RunIOVSince",        m_runIOVSince    = IOVTime::MINRUN );
   declareProperty("RunIOVUntil",        m_runIOVUntil    = IOVTime::MAXRUN );

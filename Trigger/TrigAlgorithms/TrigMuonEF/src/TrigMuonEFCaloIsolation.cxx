@@ -14,6 +14,8 @@
 #include <iostream>
 #include <deque>
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 // ------------------------------------------------------------------------------------------------------
 /**
  * Standard constructor for the calo isolation algo.

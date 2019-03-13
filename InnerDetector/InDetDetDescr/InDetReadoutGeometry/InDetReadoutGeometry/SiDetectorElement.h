@@ -13,6 +13,7 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
 // Data member classes
+#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
@@ -22,10 +23,11 @@
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+
+#include "CLHEP/Geometry/Point3D.h"
 
 #include <atomic>
 #include <mutex>
@@ -625,16 +627,16 @@ namespace InDetDD {
     
       mutable std::recursive_mutex m_mutex;
 
-      mutable Amg::Transform3D m_transform; // Will be guarded by m_mutex
-      mutable HepGeom::Transform3D m_transformCLHEP; // Will be guarded by m_mutex
+      mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-      mutable Amg::Vector3D m_normal; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_etaAxis; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_phiAxis; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_center; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_centerCLHEP; // Will be guarded by m_mutex
+      mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       mutable std::atomic<double> m_minZ;
       mutable std::atomic<double> m_maxZ;
@@ -643,8 +645,8 @@ namespace InDetDD {
       mutable std::atomic<double> m_minPhi;
       mutable std::atomic<double> m_maxPhi;
 
-      mutable std::atomic<Trk::Surface*> m_surface;
-      mutable std::vector<const Trk::Surface*> m_surfaces; // Will be guarded by m_mutex
+      CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
+      mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       const GeoAlignmentStore* m_geoAlignStore{};
     };
@@ -666,8 +668,8 @@ namespace InDetDD {
     
     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
     }
 
@@ -678,8 +680,8 @@ namespace InDetDD {
     
      inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
     }
      //here
@@ -695,15 +697,16 @@ namespace InDetDD {
     
     inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double> & globalPosition) const
     {
-      if (!m_cacheValid) updateCache();
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
       return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
     }
 
-    inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const{
-      if (!m_cacheValid) updateCache();
+    inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const
+    {
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       Amg::Vector3D relativePos = globalPosition - m_center;
       return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
     }
@@ -765,7 +768,7 @@ namespace InDetDD {
     inline void SiDetectorElement::updateAllCaches() const
     {
       if (!m_cacheValid) updateCache();
-      if (!m_surface) surface();
+      if (not m_surface) surface();
     }
     
     

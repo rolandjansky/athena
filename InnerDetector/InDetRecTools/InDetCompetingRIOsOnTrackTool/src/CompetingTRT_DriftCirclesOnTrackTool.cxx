@@ -479,7 +479,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     
     // cast baseCompROT to CompTRT_DConTrack:
 
-    const InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< const InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
+    InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
     if (!compROT) {
         ATH_MSG_ERROR("Given CompetingRIOsOnTrack is not a CompetingTRT_DriftCirclesOnTrack!");
         ATH_MSG_ERROR("Update of assignment probabilities aborted!!!");
@@ -718,8 +718,9 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         delete compROT->m_associatedSurface;
     compROT->m_associatedSurface=assocSurface;
     // delete global position (will be recreated in competingROT itself
-    delete compROT->m_globalPosition;
-    compROT->m_globalPosition = 0; // very important otherwise segfault in destructor...
+    if (compROT->m_globalPosition) {
+        delete compROT->m_globalPosition.release().get();
+    }
     //calling CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() does not work here!
     // have to set the effective measurement and error matrix directly:
     //const_cast<InDet::CompetingTRT_DriftCirclesOnTrack*>(compROT)->setLocalParametersAndErrorMatrix();

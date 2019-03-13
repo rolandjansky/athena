@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -33,7 +33,7 @@ void Athena::reportMessage (IMessageSvc* ims, const std::string &source, int typ
   if (ims) ims->reportMessage(source, type, message);
 }
 
-int Athena::outputLevel(IMessageSvc* ims, const std::string &source) {
+int Athena::outputLevel(const IMessageSvc* ims, const std::string &source) {
   if (ims) return ims->outputLevel(source);
   else return MSG::INFO;
 }

@@ -23,6 +23,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <string>
 #include <vector>
 
@@ -75,8 +77,10 @@ class TrigLivefractionTool: public AthAlgTool, virtual public ITrigLivefractionT
   // Flag to indicate that cached data has changed
   bool m_recalcLumiLivefraction;
 
-  // Tool handle for luminosity
-  ToolHandle<ILuminosityTool> m_lumiTool;
+  // Tool handle for luminosity ### NEEDS UPDTING
+  PublicToolHandle<ILuminosityTool> m_lumiTool{this, "LuminosityTool", ""};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
 
   // Number of turns in this lumi block
   unsigned int m_turnCounter;
@@ -86,7 +90,7 @@ class TrigLivefractionTool: public AthAlgTool, virtual public ITrigLivefractionT
   std::vector<float> m_livefractionLow;
 
   // Folder name
-  std::string m_deadtimeFolderName;
+  Gaudi::Property<std::string> m_deadtimeFolderName{this,"DeadtimeFolderName", ""}; 
 
   void fillVector(std::vector<float>& livevec, const coral::Blob& blob);
 

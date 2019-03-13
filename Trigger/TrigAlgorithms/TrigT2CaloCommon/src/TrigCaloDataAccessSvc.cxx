@@ -36,8 +36,9 @@ StatusCode TrigCaloDataAccessSvc::finalize() {
       EventContext ec;
       ec.setSlot( slot );
       HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
-      cache->larContainer->finalize();
+      CHECK( cache->larContainer->finalize() );
       delete cache->larContainer;
+      CHECK( cache->tileContainer->finalize() );
       delete cache->tileContainer;
       cache->lastFSEvent = 0xFFFFFFFF;
       delete cache->fullcont;
@@ -547,7 +548,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     m_robDataProvider->addROBData( requestROBs );
     m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
-  if ( robFrags.empty() ) {
+  if ( robFrags.empty() && (!requestROBs.empty()) ) {
     return 0x1; // dummy code
   }
 

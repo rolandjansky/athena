@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Module.h"
@@ -39,8 +39,11 @@
 
 #include <cmath>
 
-SCT_Module::SCT_Module(const std::string & name) 
-  : SCT_UniqueComponentFactory(name),
+SCT_Module::SCT_Module(const std::string & name,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials)
+: SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_innerSide(0),
     m_outerSide(0),
     m_baseBoard(0)
@@ -58,7 +61,6 @@ SCT_Module::~SCT_Module()
   delete m_innerSidePos;
   delete m_outerSidePos;
 
-  //delete m_sensor; // 14:00 Thu 14th Jul 2005 D.Naito removed.
   delete m_innerSide;
   delete m_outerSide;
   delete m_baseBoard;
@@ -71,10 +73,8 @@ SCT_Module::~SCT_Module()
 void
 SCT_Module::getParameters()
 {
-  const SCT_BarrelModuleParameters       * parameters = geometryManager()->barrelModuleParameters();
-  const SCT_GeneralParameters     * generalParameters = geometryManager()->generalParameters();
-
-  //const SCT_OuterSide OuterSide("OuterSide"); // 14:00 Thu 14th Jul 2005 D.Naito removed.
+  const SCT_BarrelModuleParameters       * parameters = m_geometryManager->barrelModuleParameters();
+  const SCT_GeneralParameters     * generalParameters = m_geometryManager->generalParameters();
 
   m_safety       = generalParameters->safety();
 
@@ -86,9 +86,6 @@ SCT_Module::getParameters()
   m_stereoInner = -0.5*sign*m_stereoAngle;
   m_stereoOuter =  0.5*sign*m_stereoAngle;
 
-  // 1st Feb 2005 D.Naito modified.
-  //m_hybridAndBaseBoardOffsetDirection = (m_stereoSign == 0) ? -1 : +1;
-
   m_baseBoardOffsetY = parameters->baseBoardOffsetY();
   m_baseBoardOffsetZ = parameters->baseBoardOffsetZ();
 }
@@ -97,13 +94,10 @@ SCT_Module::getParameters()
 const GeoLogVol * 
 SCT_Module::preBuild()
 {
-  SCT_MaterialManager materials;
-
   // Create child components
-  m_outerSide       = new SCT_OuterSide("OuterSide");
-  m_baseBoard = new SCT_BaseBoard("BaseBoard");
-  m_innerSide       = new SCT_InnerSide("InnerSide");
-  //m_sensor          = new SCT_Sensor("BRLSensor"); // 14:00 Thu 14th Jul 2005 D.Naito removed.
+  m_outerSide = new SCT_OuterSide("OuterSide", m_detectorManager, m_geometryManager, m_materials);
+  m_baseBoard = new SCT_BaseBoard("BaseBoard", m_detectorManager, m_geometryManager, m_materials);
+  m_innerSide = new SCT_InnerSide("InnerSide", m_detectorManager, m_geometryManager, m_materials);
 
   //
   // We have 2 envelopes.
@@ -307,7 +301,7 @@ SCT_Module::preBuild()
     add(*envelope2 << GeoTrf::Translate3D(xCenterEnv2, yCenterEnv2, zCenterEnv2)).
     subtract(*subBox << GeoTrf::Translate3D(xCenterSubBox, yCenterSubBox, zCenterSubBox));
 
-  const GeoLogVol * moduleLog           = new GeoLogVol(getName(), &moduleEnvelope, materials.gasMaterial());
+  const GeoLogVol * moduleLog           = new GeoLogVol(getName(), &moduleEnvelope, m_materials->gasMaterial());
   
   //
   // inner side
@@ -335,7 +329,7 @@ SCT_Module::preBuild()
 
 
 GeoVPhysVol * 
-SCT_Module::build(SCT_Identifier id) const
+SCT_Module::build(SCT_Identifier id)
 {
   GeoFullPhysVol * module = new GeoFullPhysVol(m_logVolume); 
 
@@ -362,7 +356,7 @@ SCT_Module::build(SCT_Identifier id) const
   GeoVPhysVol * innerSide = m_innerSide->build(id);
   module->add(innerSide);  
   // Store alignable transform
-  detectorManager()->addAlignableTransform(0, innerId, innerTransform, innerSide);
+  m_detectorManager->addAlignableTransform(0, innerId, innerTransform, innerSide);
      
   // Add outerside
   GeoAlignableTransform * outerTransform = new GeoAlignableTransform(*m_outerSidePos);
@@ -375,7 +369,7 @@ SCT_Module::build(SCT_Identifier id) const
   GeoVPhysVol * outerSide = m_outerSide->build(id);
   module->add(outerSide);
   // Store alignable transform
-  detectorManager()->addAlignableTransform(0, outerId, outerTransform, outerSide);
+  m_detectorManager->addAlignableTransform(0, outerId, outerTransform, outerSide);
   
   return module;
 }

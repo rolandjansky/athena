@@ -65,7 +65,6 @@ StatusCode EventCounterAlg::initialize()
                                    xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
                                    "AllStreams");
 
-  ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -89,7 +88,7 @@ StatusCode EventCounterAlg::execute()
   // Update also the other counters for the non-nominal MC weights
   if (m_trackOtherMCWeights) {
     // Get the EventInfo object
-    SG::ReadHandle<xAOD::EventInfo> evtInfo (m_eventInfoKey, ctx);
+    SG::ReadHandle<xAOD::EventInfo> evtInfo (eventInfoKey(), ctx);
     // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
     if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) ) {
       ATH_MSG_DEBUG("We are not running on simulation and thus, nothing to be done here");

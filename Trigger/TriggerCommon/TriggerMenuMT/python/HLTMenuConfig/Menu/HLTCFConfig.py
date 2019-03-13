@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
@@ -6,7 +6,6 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
 import copy
@@ -23,27 +22,6 @@ def makeSummary(name, flatDecisions):
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary
-
-
-def makeStreamESD(name, flatDecisions):
-    """ Creates output stream for given decisions """
-    import AthenaPoolCnvSvc.WriteAthenaPool
-    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-    StreamESD = createOutputStream(name,"myESD.pool.root",True)
-    StreamESD.OutputLevel=3
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.remove( StreamESD )
-    def addTC(name):   
-        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-    for tc in flatDecisions:
-        addTC( tc )
-
-    addTC("HLTSummary")
-    log.debug("ESD file content: ")
-    log.debug( StreamESD.ItemList  )
-    return StreamESD
 
 
 def createStepRecoNode(name, seq_list, dump=False):
@@ -86,6 +64,7 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         ath_sequence = menuseq.sequence.Alg
         name = ath_sequence.name()
+        print('5555555 ATH SEQUENCE NAME ---- ', name)
         if name in already_connected:
             log.debug("AthSequencer %s already in the Tree, not added again",name)
         else:
@@ -166,10 +145,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()    
-    #edmCreator.TrigCompositeContainer = flatDecisions
-    #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
     # add signature monitor
@@ -182,7 +157,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
     monAcc.appendToGlobals()    
     hltTop += monAlg
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)
     
     topSequence += hltTop
 
@@ -356,7 +330,11 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
     return finalDecisions
 
 
-def generateDecisionTree(HLTNode, chains, allChainDicts):
+"""
+Not used, kept for reference and testing purposes
+To be removed in future
+"""
+def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()

@@ -66,14 +66,12 @@ IOVDbSvc.OutputLevel = DEBUG
 #--------------------------------------------------------------
 # --- switch on InnerDetector
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOn()
+DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
 DetFlags.SCT_setOn()
-DetFlags.pixel_setOff()
-DetFlags.TRT_setOff()
 
 # ---- switch parts of ID off/on as follows
 #switch off tasks
@@ -96,8 +94,9 @@ import AtlasGeoModel.GeoModelInit
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+if not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg"):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
 from SCT_ConditionsTools.SCT_ReadCalibChipDataToolSetup import SCT_ReadCalibChipDataToolSetup
 sct_ReadCalibChipDataToolSetup = SCT_ReadCalibChipDataToolSetup()

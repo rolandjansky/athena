@@ -9,7 +9,6 @@
 #include "EventContainers/SelectAllObject.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
@@ -31,14 +30,13 @@ namespace JiveXML {
    **/
   CaloFCalRetriever::CaloFCalRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("FCAL")
+    m_typeName("FCAL"),
+    m_calocell_id(nullptr)
   {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_calo_id_man  = CaloIdManager::instance();
-    m_calocell_id  = m_calo_id_man->getCaloCell_ID();
     m_sgKey = "AllCalo"; 
 
     declareInterface<IDataRetriever>(this);
@@ -61,7 +59,8 @@ namespace JiveXML {
 
   StatusCode CaloFCalRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    ATH_MSG_DEBUG( "Initialising Tool"  );
+    ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     ATH_CHECK( m_cablingKey.initialize() );
 
@@ -73,22 +72,19 @@ namespace JiveXML {
    */
   StatusCode CaloFCalRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    ATH_MSG_DEBUG( "in retrieve()"  );
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
+	ATH_MSG_WARNING( "Could not retrieve Calorimeter Cells "  );
 	return StatusCode::FAILURE;
       }
 
    if(m_fcal){
       DataMap data = getFCalData(cellContainer);
-      if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-        return StatusCode::FAILURE;
-      } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCal retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data) );
+      ATH_MSG_DEBUG( "FCal retrieved"  );
     }
     //FCal cells retrieved okay
     return StatusCode::SUCCESS;
@@ -101,7 +97,7 @@ namespace JiveXML {
    */
   const DataMap CaloFCalRetriever::getFCalData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getFCalData()" << endmsg;
+    ATH_MSG_DEBUG( "getFCalData()"  );
 
     DataMap DataMap;
 
@@ -139,20 +135,20 @@ namespace JiveXML {
     const ILArPedestal* larPedestal = nullptr;
     if(m_doFCalCellDetails){
 	if( detStore()->retrieve(larPedestal).isFailure() ){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr Pedestal" << endmsg;
+	  ATH_MSG_ERROR( "in getFCalData(), Could not retrieve LAr Pedestal"  );
 	}
       }
       
     const LArOnlineID* onlineId;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(),Could not get LArOnlineID!" << endmsg;
+      ATH_MSG_ERROR( "in getFCalData(),Could not get LArOnlineID!"  );
      }
     
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doFCalCellDetails){
 	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
+	  ATH_MSG_ERROR( "in getFCalData(), Could not retrieve LAr ADC2MeV Tool"  );
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
@@ -216,8 +212,7 @@ namespace JiveXML {
  	       else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
             }else{
                adc2Mev.push_back(DataType(-1)); // write placeholder
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) 
- 		<< "LArADC2MeVTool dynamic cast failed" << endmsg;
+	       ATH_MSG_WARNING( "LArADC2MeVTool dynamic cast failed"  );
 	    }
 	  }
 
@@ -234,7 +229,7 @@ namespace JiveXML {
 	    sub.push_back(DataType(0));
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in FCAL (LAr) in GeV : " <<  energyAllLArFcal << endmsg;
+    ATH_MSG_DEBUG( " Total energy in FCAL (LAr) in GeV : " <<  energyAllLArFcal  );
 
     // write values into DataMap
     DataMap["x"] = x;
@@ -259,9 +254,7 @@ namespace JiveXML {
        DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endmsg;
-    }
+    ATH_MSG_DEBUG( dataTypeName() << " retrieved with " << x.size() << " entries" );
 
     //All collections retrieved okay
     return DataMap;

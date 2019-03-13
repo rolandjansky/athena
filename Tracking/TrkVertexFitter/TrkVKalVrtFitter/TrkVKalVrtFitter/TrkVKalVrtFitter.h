@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkVKalVrtFitter.h
@@ -226,7 +226,7 @@ namespace Trk{
         void setVertexForConstraint(double,double,double);
         void setCovVrtForConstraint(double,double,double,double,double,double);
 				  
-        void setMassInputParticles( std::vector<double>& );
+        void setMassInputParticles( const std::vector<double>& );
         void setMomCovCalc(int);
         void setDefault();
         void setZeroCharge(int);

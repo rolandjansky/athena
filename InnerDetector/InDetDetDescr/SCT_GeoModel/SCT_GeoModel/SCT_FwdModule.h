@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDMODULE_H
@@ -26,7 +26,10 @@ class SCT_FwdModule : public SCT_UniqueComponentFactory
 {
 public:
 
-  SCT_FwdModule(const std::string & name, int ringType);
+  SCT_FwdModule(const std::string & name, int ringType,
+                InDetDD::SCT_DetectorManager* detectorManager,
+                const SCT_GeometryManager* geometryManager,
+                SCT_MaterialManager* materials);
   ~SCT_FwdModule();
   //explicitly disallow copy, assignment to appease coverity
   SCT_FwdModule(const SCT_FwdModule &) = delete;
@@ -35,7 +38,7 @@ public:
   // Ring type
   int ringType() const {return m_ringType;}
 
-  virtual GeoVPhysVol* build(SCT_Identifier id) const;
+  virtual GeoVPhysVol* build(SCT_Identifier id);
 
   double stereoAngle() const {return m_stereoAngle;}
 
@@ -89,11 +92,11 @@ private:
 public:	  
   // Child detector elements
   SCT_FwdSensor    * m_sensor;
-  const SCT_FwdModuleConnector    * m_connector;
-  const SCT_FwdHybrid    * m_hybrid;
-  const SCT_FwdSpine     * m_spine;
-  const SCT_FwdSubSpine  * m_subspineL;
-  const SCT_FwdSubSpine  * m_subspineR;
+  SCT_FwdModuleConnector    * m_connector;
+  SCT_FwdHybrid    * m_hybrid;
+  SCT_FwdSpine     * m_spine;
+  SCT_FwdSubSpine  * m_subspineL;
+  SCT_FwdSubSpine  * m_subspineR;
 };
     
 #endif //  SCT_GEOMODEL_SCT_FWDMODULE_H

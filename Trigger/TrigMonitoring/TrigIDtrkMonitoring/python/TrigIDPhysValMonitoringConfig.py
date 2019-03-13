@@ -211,10 +211,10 @@ def TrigIDPhysValMonitoringTool():
 
     chainnames = [
        #jets                   
-      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
-      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
-      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
-      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
+      "HLT_j.*perf_.*FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
+      "HLT_j.*perf_.*FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
+      "HLT_j.*perf_.*FTK_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
+      "HLT_j.*perf_.*FTK_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
       #taus
       "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
       "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
@@ -222,10 +222,10 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit",
       "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
       #muons 
-      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK",
-      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
-      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
-      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
+      "HLT_mu.*idperf_FTK_.*:key=InDetTrigTrackingxAODCnv_Muon_FTK",
+      "HLT_mu.*idperf_FTK_.*:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
+      "HLT_mu.*idperf_FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
+      "HLT_mu.*idperf_FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
     ]
 
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
@@ -242,11 +242,11 @@ def TrigIDPhysValMonitoringTool():
     cosmic = False
     
     chainnames = [
-       #jets                   
-      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
-      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
-      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
-      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
+      #jets                   
+      "HLT_j.*perf_.*FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
+      "HLT_j.*perf_.*FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
+      "HLT_j.*perf_.*FTK_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
+      "HLT_j.*perf_.*FTK_.*:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
       #taus
       "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
       "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
@@ -254,10 +254,10 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit",
       "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
       #muons 
-      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK",
-      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
-      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
-      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
+      "HLT_mu.*idperf_FTK_.*:key=InDetTrigTrackingxAODCnv_Muon_FTK",
+      "HLT_mu.*idperf_FTK_.*:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
+      "HLT_mu.*idperf_FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
+      "HLT_mu.*idperf_FTKRefit_.*:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
     ]
 
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline)]

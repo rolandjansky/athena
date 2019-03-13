@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_RANGE_H
@@ -249,11 +249,11 @@ public:
    *   will have their min=max=id[i] 
    */ 
   Range (const ExpandedIdentifier& root); 
-     
+
   /** 
    * Build a range from a textual description. 
    */ 
-  void build (const std::string& text); 
+  void build (const std::string& text);
  
   /** 
    *   Build a range from a single ExpandedIdentifier 
@@ -364,7 +364,7 @@ public:
     public: 
 	identifier_factory (); 
 	identifier_factory (const identifier_factory& other); 
-	identifier_factory (const MultiRange& multirange, bool sort); 
+	identifier_factory (const MultiRange& multirange); 
 	~identifier_factory (); 
  
 	identifier_factory& operator = (const identifier_factory& other); 
@@ -383,7 +383,6 @@ public:
 	typedef id_vec::const_iterator 		id_const_iterator;
 
 	ExpandedIdentifier		m_id;
-	bool 				m_sort;
 	Range::const_identifier_factory	m_id_fac_it; 
 	Range::const_identifier_factory	m_id_fac_end; 
 	range_vector::const_iterator   	m_range_it; 
@@ -398,7 +397,7 @@ public:
     public: 
 	const_identifier_factory (); 
 	const_identifier_factory (const const_identifier_factory& other); 
-	const_identifier_factory (const MultiRange& multirange, bool sort); 
+	const_identifier_factory (const MultiRange& multirange); 
 	~const_identifier_factory (); 
  
 	const_identifier_factory& operator = (const const_identifier_factory& other);
@@ -416,7 +415,6 @@ public:
 	typedef id_vec::const_iterator 		id_const_iterator;
 
 	ExpandedIdentifier		m_id;
-	bool 				m_sort;
 	Range::const_identifier_factory	m_id_fac_it; 
 	Range::const_identifier_factory	m_id_fac_end; 
 	range_vector::const_iterator   	m_range_it; 
@@ -429,7 +427,6 @@ public:
   /// Constructors 
   MultiRange (); 
   MultiRange (const MultiRange& other); 
-  MultiRange (const std::string& text); 
 
 
   /// Assignment.
@@ -440,10 +437,7 @@ public:
    *   two overlapping ones 
    */ 
   MultiRange (const Range& r, const Range& s); 
- 
-  /// Build a range from a textual description. 
-  void build (const std::string& text); 
- 
+
   /// Modifications 
  
   void clear (); 
@@ -484,8 +478,8 @@ public:
   void reduce (); 
  
   // identifier_factory management 
-  identifier_factory 		factory_begin (bool sort = false); 
-  const_identifier_factory 	factory_begin (bool sort = false) const; 
+  identifier_factory 		factory_begin (); 
+  const_identifier_factory 	factory_begin () const; 
   identifier_factory 		factory_end (); 
   const_identifier_factory 	factory_end () const; 
 
@@ -504,10 +498,6 @@ private:
   friend class const_identifier_factory;
   typedef std::vector<ExpandedIdentifier>	id_vec;
   range_vector 		m_ranges; 
-  // number of iterators accessing m_ids
-  mutable size_type 	m_it_count;  
-  mutable id_vec	m_ids;
-
 }; 
  
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "Identifier/Identifier.h"
 
 #include "LArRawEvent/LArDigit.h"
@@ -34,15 +34,11 @@ LArRawChannelBuilderToolParabola::LArRawChannelBuilderToolParabola(const std::st
 
 StatusCode LArRawChannelBuilderToolParabola::initTool()
 {
-  if(m_parabolaRecoTool.retrieve().isFailure() )
-    {
-      MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "Unable to find tool LArParabolaPeakRecoTool" << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_parabolaRecoTool.retrieve() );
   
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance();
-  m_emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper(); 
   
   return StatusCode::SUCCESS;
 }

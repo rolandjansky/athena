@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __DOMNode_h__
-#define __DOMNode_h__
+#ifndef XMLCOREPARSER_DOMNODE_H
+#define XMLCOREPARSER_DOMNODE_H
 
 #include <string>
 #include <vector>
@@ -37,11 +37,11 @@ namespace CoreParser
       const DOMNamedNodeMap& get_attributes() const;
       const std::string& get_name () const;
       const std::string& get_value () const;
-      DOMSiblings& get_siblings();
+      const DOMSiblings& get_siblings() const;
       unsigned int sibling_number () const;
       DOMNode* get_first_child ();
       DOMNode* get_next_sibling ();
-      void print (const std::string& header = "") const;
+      void print (const std::string& header = "", int depth=0) const;
       
       NodeType m_type;
       std::string m_name;

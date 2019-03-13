@@ -14,7 +14,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"

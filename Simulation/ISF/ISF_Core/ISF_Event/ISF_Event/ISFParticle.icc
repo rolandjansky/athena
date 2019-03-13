@@ -6,80 +6,88 @@
 
 namespace ISF {
 
-// inline methods, nomen est omen
-//
-inline const Amg::Vector3D& ISFParticle::position() const { return m_position; }
-inline const Amg::Vector3D& ISFParticle::momentum() const { return m_momentum; }
-inline void ISFParticle::updatePosition(const Amg::Vector3D& position) { m_position=position; }
-inline void ISFParticle::updateMomentum(const Amg::Vector3D& momentum) { m_momentum=momentum; }
+  // inline methods, nomen est omen
+  //
+  inline const Amg::Vector3D& ISFParticle::position() const { return m_position; }
+  inline const Amg::Vector3D& ISFParticle::momentum() const { return m_momentum; }
+  inline void ISFParticle::updatePosition(const Amg::Vector3D& position) { m_position=position; }
+  inline void ISFParticle::updateMomentum(const Amg::Vector3D& momentum) { m_momentum=momentum; }
 
-inline double          ISFParticle::mass() const      { return m_mass; }
-inline double          ISFParticle::charge() const    { return m_charge; }
-inline double          ISFParticle::timeStamp() const { return m_tstamp; }
-inline int             ISFParticle::pdgCode() const   { return m_pdgCode; }
+  inline double          ISFParticle::mass() const      { return m_mass; }
+  inline double          ISFParticle::charge() const    { return m_charge; }
+  inline double          ISFParticle::timeStamp() const { return m_tstamp; }
+  inline int             ISFParticle::pdgCode() const   { return m_pdgCode; }
 
-inline double          ISFParticle::ekin() const      { return sqrt( m_momentum.mag2() + m_mass*m_mass ) - m_mass; }
+  inline double          ISFParticle::ekin() const      { return sqrt( m_momentum.mag2() + m_mass*m_mass ) - m_mass; }
 
-// history methods
-//
-inline const ParticleHistory&      ISFParticle::history()     const { return m_history;                    }
-inline AtlasDetDescr::AtlasRegion  ISFParticle::originGeoID() const { return m_history.front().first;      }
-inline SimSvcID                    ISFParticle::originSimID() const { return m_history.front().second;     }
-inline AtlasDetDescr::AtlasRegion  ISFParticle::prevGeoID()   const { return (m_history.end()-1)->first;   }
-inline SimSvcID                    ISFParticle::prevSimID()   const { return (m_history.end()-1)->second;  }
-inline AtlasDetDescr::AtlasRegion  ISFParticle::nextGeoID()   const { return m_history.back().first;       }
-inline SimSvcID                    ISFParticle::nextSimID()   const { return m_history.back().second;      }
-inline void                        ISFParticle::setNextGeoID( AtlasDetDescr::AtlasRegion geoID) { m_history.back().first = geoID; }
-inline void                        ISFParticle::setNextSimID( SimSvcID simID)                   { m_history.back().second = simID;}
+  // history methods
+  //
+  inline const ParticleHistory&      ISFParticle::history()     const { return m_history;                    }
+  inline AtlasDetDescr::AtlasRegion  ISFParticle::originGeoID() const { return m_history.front().first;      }
+  inline SimSvcID                    ISFParticle::originSimID() const { return m_history.front().second;     }
+  inline AtlasDetDescr::AtlasRegion  ISFParticle::prevGeoID()   const { return (m_history.end()-1)->first;   }
+  inline SimSvcID                    ISFParticle::prevSimID()   const { return (m_history.end()-1)->second;  }
+  inline AtlasDetDescr::AtlasRegion  ISFParticle::nextGeoID()   const { return m_history.back().first;       }
+  inline SimSvcID                    ISFParticle::nextSimID()   const { return m_history.back().second;      }
+  inline void                        ISFParticle::setNextGeoID( AtlasDetDescr::AtlasRegion geoID) { m_history.back().first = geoID; }
+  inline void                        ISFParticle::setNextSimID( SimSvcID simID)                   { m_history.back().second = simID;}
 
-// barcode methods
-//
-inline Barcode::ParticleBarcode ISFParticle::barcode() const { return m_barcode; }
-inline void            ISFParticle::setBarcode(Barcode::ParticleBarcode bc) { m_barcode = bc; }
+  // barcode methods
+  //
+  inline Barcode::ParticleBarcode ISFParticle::barcode() const { return m_barcode; }
+  inline void            ISFParticle::setBarcode(Barcode::ParticleBarcode bc) { m_barcode = bc; }
 
-// truth methods
-//
-inline TruthBinding* ISFParticle::getTruthBinding() const              { return m_truth; }
-inline void          ISFParticle::setTruthBinding(TruthBinding *truth) { m_truth = truth; }
+  // truth methods
+  //
+  inline TruthBinding* ISFParticle::getTruthBinding() const              { return m_truth; }
+  inline void          ISFParticle::setTruthBinding(TruthBinding *truth) { m_truth = truth; }
 
-// particle order methods
-//
-inline int  ISFParticle::getOrder() const { return m_order; }
-inline void ISFParticle::setOrder( ParticleOrder order ) { m_order = order; }
+  // particle order methods
+  //
+  inline int  ISFParticle::getOrder() const { return m_order; }
+  inline void ISFParticle::setOrder( ParticleOrder order ) { m_order = order; }
 
-// set ParticleUserInformation
-inline ParticleUserInformation *ISFParticle::getUserInformation() const                            { return m_userInfo;    }
-inline void                     ISFParticle::setUserInformation(ParticleUserInformation *userInfo)
-{
-  if ( m_userInfo==0 ) { m_userInfo = userInfo; }
-  else {
-    m_userInfo->setGeneration( userInfo->generation() );
-    m_userInfo->setProcess( userInfo->process() );
-    // don't overwrite barcode
+  // set ParticleUserInformation
+  inline ParticleUserInformation *ISFParticle::getUserInformation() const                            { return m_userInfo;    }
+  inline void                     ISFParticle::setUserInformation(ParticleUserInformation *userInfo)
+  {
+    if ( m_userInfo==0 ) { m_userInfo = userInfo; }
+    else {
+      m_userInfo->setGeneration( userInfo->generation() );
+      m_userInfo->setProcess( userInfo->process() );
+      // don't overwrite barcode
+    }
   }
-}
 
-// bunch-crossing identifier
-inline int ISFParticle::getBCID() const {
-  return m_bcid;
-}
-inline void ISFParticle::setBCID(int bcid) {
-  m_bcid = bcid;
-}
+  // bunch-crossing identifier
+  inline int ISFParticle::getBCID() const {
+    return m_bcid;
+  }
+  inline void ISFParticle::setBCID(int bcid) {
+    m_bcid = bcid;
+  }
 
-// printout methods
-inline MsgStream& ISFParticle::dump( MsgStream& out ) const
-    { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
-          << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
-          << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-          << " barcode=" << m_barcode << " mass=" << m_mass << " BCID=" << m_bcid << " order=" << m_order;
-      return out;}
+  // printout methods
+  inline MsgStream& ISFParticle::dump( MsgStream& out ) const
+  { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
+        << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
+        << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
+        << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order << " bcid=" << m_bcid;
+    if (m_partLink)
+      out << " (" << *m_partLink << ")";
+    else
+      out << " (No assoc. HMPL)";
+    return out;}
 
-inline std::ostream& ISFParticle::dump( std::ostream& out ) const
-    { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
-          << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
-          << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-          << " barcode=" << m_barcode << " mass=" << m_mass << " BCID=" << m_bcid << " order=" << m_order;
-      return out;}
+  inline std::ostream& ISFParticle::dump( std::ostream& out ) const
+  { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
+        << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
+        << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
+        << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order << " bcid=" << m_bcid;
+    if (m_partLink)
+      out << " (" << *m_partLink << ")";
+    else
+      out << " (No assoc. HMPL)";
+    return out;}
 
 } // end ISF namespace

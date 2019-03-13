@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*----------------------------------------------------
@@ -9,9 +9,6 @@
 
 // Header Includes
 #include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "TRT_DAQ_ConditionsSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -28,13 +25,11 @@ TRT_DAQ_ConditionsSvc::TRT_DAQ_ConditionsSvc( const std::string& name, ISvcLocat
   AthService( name, pSvcLocator ),
   m_evtStore("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
-  m_EventInfoKey("ByteStreamEventInfo"),
   m_FolderName(run1FolderName),
   m_TRT_ID_Helper(0),
   m_EnabledRods(0)
 {
   // Get properties from job options
-  declareProperty( "EventInfoKey", m_EventInfoKey );
   declareProperty( "FolderName", m_FolderName );
   declareProperty( "EventStore", m_evtStore );
   declareProperty( "DetectorStore", m_detStore );
@@ -223,51 +218,10 @@ void TRT_DAQ_ConditionsSvc::handle( const Incident& inc ) {
 
   // BeginEvent handler
   if ( inc.type() == "BeginEvent" ) {
-
     // Retrieve COOL Folder at beginning of event to cut down on StoreGate accesses.
     // Contents won't change during event.
     sc= m_detStore->retrieve( m_EnabledRods, m_FolderName );
     if (sc.isFailure()) ATH_MSG_ERROR("The folder "<<m_FolderName<<" could not be retrieved");
-   
-
-    /* FOR TESTING THE CALLBACK
-    // Get the run number
-    const EventInfo* evtInfo;
-    sc = m_evtStore->retrieve(evtInfo,m_EventInfoKey);
-    if ( sc.isFailure() || !evtInfo ) {
-      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey << " from StoreGate." );
-      return;
-    }
-    if ( !evtInfo->event_ID() ) {
-      ATH_MSG_WARNING( m_EventInfoKey << " object has no EventID object." );
-      return;
-    }
-    int runNum = evtInfo->event_ID()->run_number();
-    int lumiBlock = evtInfo->event_ID()->lumi_block();
-
-    ATH_MSG_INFO( "Run " << runNum << ", lumiblock " << lumiBlock );
-    */
-
-    /* FOR TESTING FOLDER ACCESS
-    CondAttrListCollection::name_const_iterator chanNameMapItr;
-    if ( m_EnabledRods->name_size() == 0 ) {
-      ATH_MSG_FATAL( "This CondAttrListCollection has no entries in it's ChanNameMap." );
-      return;
-    }
-    for ( chanNameMapItr = m_EnabledRods->name_begin();
-	  chanNameMapItr != m_EnabledRods->name_end(); ++chanNameMapItr ) {
-      int chanNum = (*chanNameMapItr).first;
-      std::string chanName = (*chanNameMapItr).second;
-      CondAttrListCollection::iov_const_iterator chanIOVPair;
-      chanIOVPair = m_EnabledRods->chanIOVPair( chanNum );
-      if ( chanIOVPair == m_EnabledRods->iov_end() ) {
-	ATH_MSG_INFO( "Channel " << chanNum << " (" << chanName << ") not found." );
-	return;
-      }
-      ATH_MSG_INFO( "Channel " << chanNum << " (" << chanName << ") enabled in this event." );
-    }
-    */
-
   }
 
   return;

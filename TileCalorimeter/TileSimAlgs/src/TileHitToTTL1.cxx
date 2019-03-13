@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -40,7 +40,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 // Gaudi includes
 #include "GaudiKernel/ISvcLocator.h"
@@ -74,15 +75,12 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_lastTower(0)
   , m_tileNoise(false)
   , m_tileThresh(false)
-  , m_pHRengine(0)
-  , m_rndmSvc ("AtRndmGenSvc", name)
 {
   m_infoName = "TileInfo";
   m_TileTTL1Type = "Standard";
 
   declareProperty("TileInfoName", m_infoName);
   declareProperty("TileTTL1Type", m_TileTTL1Type);
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileHitToTTL1");
   declareProperty("maskBadChannels", m_maskBadChannels = true);
 }
 
@@ -113,9 +111,8 @@ StatusCode TileHitToTTL1::initialize() {
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
 
-  CHECK( m_rndmSvc.retrieve() );
-  m_pHRengine = m_rndmSvc->GetEngine("Tile_HitToTTL1");
-
+  //=== Get rndm number service
+  ATH_CHECK( m_rndmSvc.retrieve() );
 
   m_cabling = TileCablingService::getInstance();
 
@@ -213,6 +210,10 @@ StatusCode TileHitToTTL1::execute() {
 
   // declare array for random number generation for noise in samples.
   double Rndm[16];      // Can't use variable size array
+
+  // Prepare RNG Service
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
 
   /*........................................................................*/
   // Get hit container from TES and create TTL1 and MBTS container
@@ -540,7 +541,7 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Max = m_tileInfo->MBTSL1Max(MBTS_id);
 
           if (m_tileNoise)
-            RandGaussQ::shootArray(m_pHRengine, m_MBTSnSamples, Rndm);
+            RandGaussQ::shootArray(*rngWrapper, m_MBTSnSamples, Rndm);
           for (int jsamp = 0; jsamp < m_MBTSnSamples; ++jsamp) {
             MBTSAmp[jsamp] *= ttL1Calib; // convert pCb to mV
             MBTSsamples[jsamp] = MBTSAmp[jsamp] + ttL1Ped;
@@ -596,7 +597,7 @@ StatusCode TileHitToTTL1::execute() {
           }  // end loop over samples
 
           if (m_tileNoise)
-            peakAmp += ttL1NoiseSigma * RandGaussQ::shoot(m_pHRengine);
+            peakAmp += ttL1NoiseSigma * RandGaussQ::shoot(*rngWrapper);
           ttL1samples[0] = peakAmp;
           if (m_tileThresh) {
             if (ttL1samples[0] - ttL1Ped < ttL1Thresh)
@@ -622,7 +623,7 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Max = m_tileInfo->TTL1Max(ttId[ieta]);
 
           if (m_tileNoise)
-            RandGaussQ::shootArray(m_pHRengine, m_nSamples, Rndm);
+            RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm);
           for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
             ttAmp[ieta][jsamp] *= ttL1Calib; // convert pCb to mV
             ttL1samples[jsamp] = ttAmp[ieta][jsamp] + ttL1Ped;

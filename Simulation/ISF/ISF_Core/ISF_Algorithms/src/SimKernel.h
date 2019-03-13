@@ -85,8 +85,7 @@ namespace ISF {
         generator truth collection into output simulation truth collection */
     StatusCode prepareInput(SG::ReadHandle<McEventCollection>& inputTruth,
                             SG::WriteHandle<McEventCollection>& outputTruth,
-                            ISFParticleContainer& simParticles,
-                            bool isPileup=false) const;
+                            ISFParticleContainer& simParticles) const;
 
 
     /** Input/output truth collections and input conversion */

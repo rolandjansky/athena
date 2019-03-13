@@ -5,6 +5,7 @@
 #include "LArCalibTools/LArAverages2Ntuple.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -27,8 +28,9 @@ StatusCode LArAverages2Ntuple::initialize()
 {
   ATH_MSG_INFO ( "in initialize" );
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId = idHelper->em_idHelper();
   if (!m_emId) {
     ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;

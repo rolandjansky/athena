@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalManager.h
@@ -57,8 +57,6 @@ private:
     /// Name of combined inner detector tracks container
     SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"CombinedTrackName", "ExtendedTracks", "Combined Track Collection For Monitoring"};
  
-    const TrackCollection *m_CombinedTracks;
-
     /// Name of trt drift circle container
     SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRT_DriftCircleName{this,"TRT_DriftCircleName", "TRT_DriftCircles", "TRT Drift Circle Collection For Monitoring"};
 

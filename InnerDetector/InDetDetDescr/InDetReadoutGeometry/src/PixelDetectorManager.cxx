@@ -421,8 +421,7 @@ namespace InDetDD {
         Amg::Transform3D shift = Amg::Translation3D(basex+bowx,0,0) * Amg::RotationMatrix3D::Identity();
 
         const AlignableTransform* cpat = *pat;
-        AlignableTransform *pat_update=const_cast<AlignableTransform*>(cpat);
-        AlignableTransform::AlignTransMem_citr this_trans=pat_update->findIdent(trans_iter->identify());
+        AlignableTransform::AlignTransMem_citr this_trans=cpat->findIdent(trans_iter->identify());
         HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(shift)*this_trans->transform();
 
         /** Verbose level debug section for transforms **/

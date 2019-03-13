@@ -16,7 +16,6 @@
 
  #include "AthenaBaseComps/AthAlgTool.h"
  #include "GaudiKernel/ToolHandle.h"
- #include "GaudiKernel/IIncidentSvc.h"
 
  #include <vector>
  #include <string>
@@ -47,8 +46,7 @@ namespace InDet {
 
   static const InterfaceID IID_TruthClusterizationFactory("InDet::NnClusterizationFactory", 1, 0);
   
-  class TruthClusterizationFactory : 	virtual public IIncidentListener,
-									public AthAlgTool  {
+  class TruthClusterizationFactory : public AthAlgTool  {
      
    public:
      
@@ -62,18 +60,13 @@ namespace InDet {
     virtual StatusCode initialize();
     virtual StatusCode finalize() { return StatusCode::SUCCESS; };
 	
-	/** handle for incident service */
-    virtual void handle(const Incident& inc); 
-     
     std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const;
 
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster&) const;
                                                       
    private:
 	/** IncidentSvc to catch begining of event and end of event */   
-    ServiceHandle<IIncidentSvc>           m_incidentSvc;   	
     SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName {this, "InputSDOMap", "PixelSDO_Map", "sim data collection name"};
-    mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
 
   protected:
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;

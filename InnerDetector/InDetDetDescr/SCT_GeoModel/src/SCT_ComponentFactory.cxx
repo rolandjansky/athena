@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
@@ -10,40 +10,28 @@
 
 using InDetDD::SCT_DetectorManager;
 
-SCT_DetectorManager * SCT_ComponentFactory::s_detectorManager = 0;
-const SCT_GeometryManager * SCT_ComponentFactory::s_geometryManager = 0;
+const double SCT_ComponentFactory::s_epsilon = 1.0e-6 * Gaudi::Units::mm;
 
-double SCT_ComponentFactory::s_epsilon = 1.0e-6 * Gaudi::Units::mm;
-
-SCT_ComponentFactory::SCT_ComponentFactory(const std::string & name) 
-  : m_name(name)
+SCT_ComponentFactory::SCT_ComponentFactory(const std::string & name,
+                                           InDetDD::SCT_DetectorManager* detectorManager,
+                                           const SCT_GeometryManager* geometryManager,
+                                           SCT_MaterialManager* materials)
+  : m_detectorManager(detectorManager), 
+    m_geometryManager(geometryManager),
+    m_materials(materials),
+    m_name(name)
 {}
 
 SCT_ComponentFactory::~SCT_ComponentFactory() 
 {}
 
-
-void 
-SCT_ComponentFactory::setDetectorManager(SCT_DetectorManager * manager)
-{
-  s_detectorManager = manager;
-}
-
-void 
-SCT_ComponentFactory::setGeometryManager(SCT_GeometryManager * manager)
-{
-  s_geometryManager = manager;
-}
-
 std::string 
-SCT_ComponentFactory::intToString(int i)
+SCT_ComponentFactory::intToString(int i) const
 {
   std::ostringstream str;
   str << i;
   return str.str();
 }
-
- 
 
 double
 SCT_ComponentFactory::epsilon() const

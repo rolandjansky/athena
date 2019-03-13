@@ -64,11 +64,11 @@ from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsT
 pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
 pixelDCSConditionsToolSetup.setup()
 pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
-from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
 pixelSiPropertiesToolSetup.setup()
 pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
-from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
 pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 pixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 
@@ -81,13 +81,13 @@ ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
 # SCT
 #
 # Silicon Lorentz angle tool
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 sctLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
 sctSiliconConditionsTool = sctLorentzAngleToolSetup.sctSiliconConditionsTool
 
 # Silicon properties tool
-from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
 sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
 sct_SiPropertiesToolSetup.setSiliconTool(sctSiliconConditionsTool)
 sct_SiPropertiesToolSetup.setup()

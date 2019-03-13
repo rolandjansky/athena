@@ -81,7 +81,7 @@ CutFlowSvc::initialize()
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, IncidentType::BeginInputFile, 60); // pri has to be < 100 to be after MetaDataSvc.
   incSvc->addListener(this, IncidentType::EndInputFile, 50); // pri has to be > 10 to be before MetaDataSvc.
-  incSvc->addListener(this, "MetaDataStop", 50);
+  incSvc->addListener(this, "MetaDataStop", 30);
 
   // Create bookkeeper container for bookkeepers in _this_ processing
   auto fileBook = new xAOD::CutBookkeeperContainer();

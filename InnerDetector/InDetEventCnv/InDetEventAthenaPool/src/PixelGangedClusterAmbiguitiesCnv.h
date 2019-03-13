@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -14,6 +14,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguities_p1.h"
+#include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguitiesCnv_p1.h"
 
 // the latest persistent representation type of PixelGangedClusterAmbiguities
 typedef  InDet::PixelGangedClusterAmbiguities_p1  PixelGangedClusterAmbiguities_PERS;
@@ -27,6 +28,8 @@ public:
 protected:
   virtual PixelGangedClusterAmbiguities_PERS*   createPersistent (InDet::PixelGangedClusterAmbiguities* transObj);
   virtual InDet::PixelGangedClusterAmbiguities*        createTransient ();
+private:
+  PixelGangedClusterAmbiguitiesCnv_p1 m_TPconverter;
 };
 
 #endif

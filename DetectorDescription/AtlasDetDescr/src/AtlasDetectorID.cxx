@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -903,7 +903,7 @@ bool            AtlasDetectorID::do_checks      (void) const
     return (m_do_checks);
 }
 
-void            AtlasDetectorID::set_do_checks  (bool do_checks) const
+void            AtlasDetectorID::set_do_checks  (bool do_checks)
 {
     m_do_checks = do_checks;
 }
@@ -913,7 +913,7 @@ bool            AtlasDetectorID::do_neighbours  (void) const
     return (m_do_neighbours);
 }
 
-void            AtlasDetectorID::set_do_neighbours      (bool do_neighbours) const
+void            AtlasDetectorID::set_do_neighbours      (bool do_neighbours)
 {
     m_do_neighbours = do_neighbours;
 }

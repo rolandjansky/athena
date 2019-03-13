@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
 #include <iosfwd>
 
@@ -103,7 +104,7 @@ private:
 
 
     /** The global Position */
-    mutable const Amg::Vector3D*        m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained InDet::PixelClusterOnTrack objects */
     std::vector<const InDet::PixelClusterOnTrack*>*   m_containedChildRots;
@@ -136,12 +137,6 @@ inline const InDet::PixelClusterOnTrack& CompetingPixelClustersOnTrack::rioOnTra
         return * m_containedChildRots->operator[](indx);
 }
 
- inline const Amg::Vector3D& CompetingPixelClustersOnTrack::globalPosition() const {
-    if (m_globalPosition)
-        return (*m_globalPosition);
-    m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return (*m_globalPosition);
-}
 
 inline unsigned int CompetingPixelClustersOnTrack::numberOfContainedROTs() const {
     return m_containedChildRots->size();

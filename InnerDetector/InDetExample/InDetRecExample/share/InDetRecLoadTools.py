@@ -52,7 +52,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         # --- a better solution is needed...
 
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
             pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
@@ -96,7 +96,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
             print NnClusterizationFactory
 elif InDetFlags.doPixelClusterSplitting():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
     from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthClusterizationFactory
@@ -134,7 +134,7 @@ if InDetFlags.loadRotCreator():
         # tool to always make conservative pixel cluster errors
         # SiLorentzAngleTool
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
             pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
         if InDetFlags.doDBM():
@@ -197,7 +197,7 @@ if InDetFlags.loadRotCreator():
 
     if DetFlags.haveRIO.SCT_on():
         # SiLorentzAngleTool
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
         SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
@@ -258,7 +258,7 @@ if InDetFlags.loadRotCreator():
     if DetFlags.haveRIO.pixel_on():
         # SiLorentzAngleTool
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
             pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         #
         # tool to always make conservative pixel cluster errors
@@ -290,7 +290,7 @@ if InDetFlags.loadRotCreator():
     
     if DetFlags.haveRIO.SCT_on():
         # SiLorentzAngleTool
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 778117 2016-10-12 20:11:14Z krasznaa $
 ################################################################################
 # Package: TrigNavStructure
 ################################################################################
@@ -10,7 +9,8 @@ atlas_subdir( TrigNavStructure )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
-   Control/AthToolSupport/AsgTools )
+   Control/AthToolSupport/AsgTools
+   Control/CxxUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Author: Ketevi A. Assamagan */
@@ -17,11 +17,9 @@ using std::setw;
 
 CscCalibTool::CscCalibTool
 ( const std::string& t, const std::string& n, const IInterface*  p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", n)
 {
-  declareInterface<ICscCalibTool>(this);
-  
   declareProperty( "Slope", m_slope = 0.19 );
   declareProperty( "Noise", m_noise = 3.5 );
   declareProperty( "Pedestal", m_pedestal = 2048.0 );
@@ -44,14 +42,6 @@ CscCalibTool::CscCalibTool
 
   declareProperty( "Use2Samples", m_use2Samples = false); // force 2 sample
 }
-
-CscCalibTool::~CscCalibTool() {}
-
-StatusCode CscCalibTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
 
 // ROOT USER Function
 Double_t bipfunc(const Double_t *x, const Double_t *par){

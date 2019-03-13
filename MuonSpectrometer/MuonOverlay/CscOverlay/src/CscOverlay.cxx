@@ -4,7 +4,6 @@
 
 #include "CscOverlay/CscOverlay.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -14,21 +13,20 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include <iostream>
-#include <typeinfo>
-
-constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
+namespace {
+  constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
+}
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonOverlayBase(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
 //================================================================
-StatusCode CscOverlay::overlayInitialize()
+StatusCode CscOverlay::initialize()
 {
-  ATH_MSG_INFO("CscOverlay initialized");
+  ATH_MSG_DEBUG("CscOverlay initialized");
 
   /** access to the CSC Identifier helper */
   ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
@@ -40,262 +38,227 @@ StatusCode CscOverlay::overlayInitialize()
   // get cscRdoDecoderTool
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
-  ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digitization Tool.");
-
-  ATH_CHECK(m_rdoTool2.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 2.");
-
-  ATH_CHECK(m_rdoTool4.retrieve());
-  ATH_MSG_DEBUG("Retrieved CSC Digit -> RDO Tool 4.");
-
   //random number initialization
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  ATH_CHECK( m_inputDataRDOKey.initialize() );
-  ATH_CHECK( m_inputOverlayRDOKey.initialize() );
-  ATH_CHECK( m_outputContainerKey.initialize() );
+  ATH_CHECK( m_bkgInputKey.initialize() );
+  ATH_CHECK( m_signalInputKey.initialize() );
+  ATH_CHECK( m_outputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode CscOverlay::overlayFinalize()
+StatusCode CscOverlay::execute() {
+  ATH_MSG_DEBUG("execute() begin");
+
+
+  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey);
+  if(!bkgContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get background CscRawDataContainer called " << bkgContainer.name() << " from store " << bkgContainer.store());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Found background CscRawDataContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
+
+  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey);
+  if(!signalContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal CscRawOverlayContainer called " << signalContainer.name() << " from store " << signalContainer.store());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Found signal CscRawOverlayContainer called " << signalContainer.name() << " in store " << signalContainer.store());
+
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
+  ATH_CHECK(outputContainer.record(std::make_unique<CscRawDataContainer>(bkgContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output CscRawOverlayContainer called " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Recorded output CscRawOverlayContainer called " << outputContainer.name() << " in store " << outputContainer.store());
+
+  // now do the overlay
+  ATH_CHECK(overlayContainer(bkgContainer.cptr(), signalContainer.cptr(), outputContainer.ptr()));
+
+
+  ATH_MSG_DEBUG("execute() end");
+  return StatusCode::SUCCESS;
+}
+
+//================================================================
+StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
+                                        const CscRawDataContainer *signalContainer,
+                                        CscRawDataContainer *outputContainer)
 {
-  ATH_MSG_INFO("CscOverlay finalized");
-  return StatusCode::SUCCESS;
-}
+  ATH_MSG_DEBUG("overlayContainer() begin");
 
-//================================================================
-StatusCode CscOverlay::overlayExecute() {
-  ATH_MSG_DEBUG("CscOverlay::execute() begin");
-  //----------------------------------------------------------------
-  unsigned int numsamples=0;//to be determined from the data
-  SG::ReadHandle<CscRawDataContainer> inputDataRDO(m_inputDataRDOKey);
-  if(!inputDataRDO.isValid()) {
-    ATH_MSG_WARNING("Could not get data CscRawDataContainer  \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_VERBOSE("Found CscRawDataContainer \"" << inputDataRDO.name() << "\" in " << inputDataRDO.store());
-  if ((inputDataRDO->begin()==inputDataRDO->end()) || !*(inputDataRDO->begin())){
-        ATH_MSG_WARNING("Could not get nsamples, inputDataRDO empty?");
-  }
-  else{
-    numsamples=inputDataRDO->begin()->numSamples();
+  // Get all the hashes for the signal and background containers
+  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
+  const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
+
+  // The MC signal container should typically be smaller than bkgContainer,
+  // because the latter contains all the noise, minimum bias and pile up.
+  // Thus we firstly iterate over signal hashes and store them in a map.
+  std::map<IdentifierHash, bool> overlapMap;
+  for (const IdentifierHash &hashId : signalHashes) {
+    overlapMap.emplace(hashId, false);
   }
 
-  /** in the simulation stream, run digitization of the fly
-      and make RDO - this will be used as input to the overlay job */
-  if ( m_digTool->processAllSubEvents().isFailure() ) {
-     ATH_MSG_WARNING("On the fly CSC digitization failed ");
-     return StatusCode::SUCCESS;
-  }
+  // Now loop through the background hashes and copy unique ones over
+  for (const IdentifierHash &hashId : bkgHashes) {
+    auto search = overlapMap.find(hashId);
+    if (search == overlapMap.end()) {
+      // Copy the background collection
+      std::unique_ptr<CscRawDataCollection> bkgCollection
+        = copyCollection(bkgContainer->indexFindPtr(hashId));
 
-  if (numsamples==2) {
-    if ( m_rdoTool2->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 2 failed ");
-      return StatusCode::SUCCESS;
+      if (outputContainer->addCollection(bkgCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding background Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        bkgCollection.release();
+      }
+    } else {
+      // Flip the overlap flag
+      search->second = true;
     }
-    ATH_MSG_DEBUG("Digitizing with 2 samples");
-  }
-  else if (numsamples==4) {
-    if ( m_rdoTool4->digitize().isFailure() ) {
-      ATH_MSG_WARNING("On the fly CSC Digit -> RDO 4 failed ");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Digitizing with 4 samples");
-  }
-  else{
-    ATH_MSG_WARNING("On the fly CSC Digit -> RDO failed - not 2 or 4 samples!");
-    //return StatusCode::SUCCESS;
   }
 
-  if (numsamples>0) {
-    ATH_MSG_DEBUG("Retrieving MC input CSC container");
-    SG::ReadHandle<CscRawDataContainer> inputOverlayRDO(m_inputOverlayRDOKey);
-    if(!inputOverlayRDO.isValid()) {
-      ATH_MSG_WARNING("Could not get overlay CscRawDataContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_VERBOSE("Found CscRawOverlayContainer \"" << inputOverlayRDO.name() << "\" in " << inputOverlayRDO.store());
-
-    /* now do the overlay - reading real data from the data stream
-       and reading simulated RDO produced in the previous steps
-       from the simulation stream */
-    this->overlayContainer(inputDataRDO.cptr(), inputOverlayRDO.cptr());
-  }
-
-  //----------------------------------------------------------------
-  ATH_MSG_DEBUG("CscOverlay::execute() end");
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-void CscOverlay::overlayContainer(const CscRawDataContainer *main,
-                                  const CscRawDataContainer *overlay)
-{
-  ATH_MSG_DEBUG("overlayContainer<>() begin");
-
-  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputContainerKey);
-  if (outputContainer.record(std::make_unique<CscRawDataContainer>()).isFailure()) {
-    ATH_MSG_ERROR("Failed to record " << m_outputContainerKey);
-  }
-
-  /** Add data from the main container to the output one */
-  CscRawDataContainer::const_iterator p_main = main->begin();
-  CscRawDataContainer::const_iterator p_main_end = main->end();
-  for(; p_main != p_main_end; ) {
-    const CscRawDataCollection& mainColl(**p_main);
-    //Deep-copy CscRawDataCollection
-    //FIXME Write a copy-constructor for CscRawDataCollection!!
-    auto p_newColl = std::make_unique<CscRawDataCollection>(mainColl.identify());
-    this->copyCscRawDataCollectionProperties(mainColl, *p_newColl);
-    for(auto rawData : **p_main) {
-      auto newData = std::make_unique<CscRawData>(*rawData); // TODO confirm implicit copy-constructor works as expected
-      p_newColl->push_back(newData.release());
-    }
-    if ( outputContainer->addCollection(p_newColl.release(), p_main.hashId()).isFailure() ) {
-      ATH_MSG_WARNING("addCollection failed for main");
-    }
-    else {
-      ATH_MSG_DEBUG("data overlayContainer() added overlaid RDO");
-    }
-    ++p_main;
-  }
-
+  // Setup random engine
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
 
-  /** Add data from the ovl container to the output one */
-  CscRawDataContainer::const_iterator p_ovl = overlay->begin();
-  CscRawDataContainer::const_iterator p_ovl_end = overlay->end();
+  // Finally loop through the map and process the signal and overlay if
+  // necessary
+  for (const auto &[hashId, overlap] : overlapMap) {
+    // Retrieve the signal collection
+    const CscRawDataCollection *signalCollection = signalContainer->indexFindPtr(hashId);
 
-  for(; p_ovl != p_ovl_end; ) {
+    // Output collection
+    std::unique_ptr<CscRawDataCollection> outputCollection{};
 
-    const CscRawDataCollection *coll_ovl = *p_ovl;
-    const uint16_t coll_id = (*p_ovl)->identify();
+    if (overlap) { // Do overlay
+      // Retrieve the background collection
+      const CscRawDataCollection *bkgCollection = bkgContainer->indexFindPtr(hashId);
 
-    /** The newly created stuff will go to the output EventStore SG */
-    auto out_coll = std::make_unique<CscRawDataCollection>( coll_id );
+      // Create the output collection with background collection as a base
+      // TODO: should it be signal collection?
+      outputCollection = copyCollection(bkgCollection, true);
 
-    /** Look for the same ID in the main StoreGate EventStore */
-    CscRawDataContainer::const_iterator q = outputContainer->indexFind(coll_id);
+      // Merge the collections
+      mergeCollections(bkgCollection, signalCollection, outputCollection.get(), rndmEngine);
+    } else {
+      // Create the output collection with signal collection as a base
+      outputCollection = copyCollection(signalCollection, true);
 
-    if( q != outputContainer->end() ) {
-      /** Need to merge the collections
-          Retrieve q */
+      uint16_t numSamples = signalCollection->numSamples();
 
-      const CscRawDataCollection *coll_data = *q;
-      this->copyCscRawDataCollectionProperties(*coll_data, *out_coll);
-      this->mergeCollections(out_coll.get(), coll_data, coll_ovl, rndmEngine);
-
-      /** Here the new collection is created, but not yet registered.
-          Put it in IDC in place of the original collection.
-       */
-
-      outputContainer->removeCollection(p_ovl.hashId());
-      if(outputContainer->addCollection(out_coll.release(), p_ovl.hashId()).isFailure()) {
-        ATH_MSG_WARNING("addCollection failed ");
-      }
-      else {
-        ATH_MSG_DEBUG("overlayContainer() added overlaid RDO");
-      }
-    }
-    else {
-      /** Copy the complete collection from ovl to output,
-          hopefully preserving the "most derived" type of its raw data */
-      this->copyCscRawDataCollectionProperties(*coll_ovl, *out_coll);
-
-      /** Copy the complete collection from ovl to output,
-          hopefully preserving the "most derived" type of its raw data */
-      unsigned int numSamples = coll_ovl->numSamples();
-      for(CscRawDataCollection::const_iterator i=coll_ovl->begin(); i!=coll_ovl->end(); i++) {
-
-        /** Put Digit into Collection */
-        const CscRawData *data = ( *i );
-        if( !data ) {
+      for (const CscRawData *data : *signalCollection) {
+        if (!data) {
           ATH_MSG_WARNING("NULL pointer to Digit!");
           continue;
         }
-        else{
-          /** The new RDO goes to m_storeGateOutput - no need to mess with the pedestal, but add in noise */
-          uint16_t width = data->width();
-          uint32_t hashOffset = data->hashId();
-          std::vector<uint16_t> all_samples;
-          for (unsigned int j=0; j<width; ++j) {
-            uint32_t stripHash = hashOffset+j;
-            double noise    = m_cscCalibTool->stripNoise( stripHash, false );
-            //double pedestal = m_cscCalibTool->stripPedestal( stripHash, false );
-            std::vector<uint16_t> samples;
-            bool extractSamples = data->samples(j, numSamples, samples);
-            if (!extractSamples) {
-              ATH_MSG_WARNING("Unable to extract samples for strip " << j
-                              << " Online Cluster width = " << width
-                              << " for number of Samples = " << numSamples
-                              << " continuing ...");
-            }
-            else {
-              for (unsigned int k=0; k<samples.size(); ++k) {
-                double theNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, noise);
-                float adcCount = samples[k] + theNoise;
-                if ( adcCount > MAX_AMPL ) {
-                  ATH_MSG_DEBUG("value out of range (copying over signal): " << adcCount << " "
-                                << " Setting it to max value = " << MAX_AMPL
-                                << " IdentifierHash is " << stripHash);
-                  adcCount = MAX_AMPL;
-                }
-                all_samples.push_back( (uint16_t) rint(adcCount) );
-              }
-            }
-          }
-          auto rdo = std::make_unique<CscRawData>( all_samples, data->address(), data->identify(), data->rpuID(), data->width() );
-          rdo->setHashID( data->hashId() );//ACH - was "width()" ???
-          rdo->setTime( data->time() );//ACH - was absent
 
-          //perform some checks
-          bool good=true;
-          for (unsigned int j=0; j<width; ++j) {
-            const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
-            if(!(m_cscHelper->valid(channelId))) {
-              ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
-              good=false;
+        // Copy the digit and add noise
+        std::vector<uint16_t> samples;
+
+        uint16_t width = data->width();
+        uint32_t hashOffset = data->hashId();
+
+        // Loop over width
+        for (uint16_t j = 0; j < width; ++j) {
+          uint32_t stripHash = hashOffset + j;
+          double stripNoise = m_cscCalibTool->stripNoise(stripHash, false);
+          // Get the samples
+          std::vector<uint16_t> stripSamples;
+          bool extractSamplesStatus = data->samples(j, numSamples, stripSamples);
+          if (!extractSamplesStatus) {
+            ATH_MSG_WARNING("Unable to extract samples for strip " << j
+                            << " Online Cluster width = " << width
+                            << " for number of Samples = " << numSamples
+                            << " continuing ...");
+          } else {
+            for (uint16_t sample : stripSamples) {
+              double sampleNoise = CLHEP::RandGauss::shoot(rndmEngine, 0.0, stripNoise);
+              // TODO: rounding issue - some strange type conversion is going on
+              // uint16_t adcCount = sample + std::lrint(sampleNoise);
+              float adcCount = sample + sampleNoise;
+              if (adcCount > MAX_AMPL) {
+                ATH_MSG_DEBUG("value out of range (copying over signal): " << adcCount << " "
+                              << " Setting it to max value = " << MAX_AMPL
+                              << " IdentifierHash is " << stripHash);
+                adcCount = MAX_AMPL;
+              }
+              // TODO: rounding issue
+              // samples.push_back(adcCount);
+              samples.push_back( (uint16_t) rint(adcCount) );
             }
-          }
-          if (good){
-            out_coll->push_back( rdo.release() );
           }
         }
-      }
 
-      /** The new collection goes to m_storeGateOutput */
-      if(outputContainer->addCollection(out_coll.release(), out_coll->identify()).isFailure()) {
-        ATH_MSG_WARNING("overlayContainer(): Problem in outputContainer->addCollection(Identifier)");
-      }
-      else {
-        ATH_MSG_DEBUG("overlayContainer() added new RDO");
+        // Copy over the digit with the updated samples
+        auto rdo = std::make_unique<CscRawData>(samples, data->address(), data->identify(), data->time(), data->rpuID(), data->width(), data->hashId());
+
+        // Perform some checks
+        bool good = true;
+        for (uint16_t j = 0; j < width; ++j) {
+          const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
+          if (!m_cscHelper->valid(channelId)) {
+            ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
+            good = false;
+            break;
+          }
+        }
+        if (good) {
+          outputCollection->push_back(rdo.release());
+        }
       }
     }
 
-    ++p_ovl;
+    if (outputContainer->addCollection(outputCollection.get(), hashId).isFailure()) {
+      ATH_MSG_ERROR("Adding overlaid Collection with hashId " << hashId << " failed");
+      return StatusCode::FAILURE;
+    } else {
+      outputCollection.release();
+    }
   }
 
-  ATH_MSG_DEBUG("overlayContainer<>() end");
+  ATH_MSG_DEBUG("overlayContainer>() end");
+  return StatusCode::SUCCESS;
 }
 
-// Copying CscRawDataCollection properties
- void CscOverlay::copyCscRawDataCollectionProperties(const CscRawDataCollection& sourceColl, CscRawDataCollection& outColl) const {
-   /** copy a few things to the new collection */
-   outColl.setIdentifyHash( sourceColl.identifyHash() );
-   outColl.set_eventType( sourceColl.eventType() );
-   outColl.setRodId ( sourceColl.rodId() );
-   outColl.setSubDetectorId ( sourceColl.subDetectorId() );
-   if (sourceColl.samplingPhase()) { outColl.set_samplingPhase(); }
-   if (sourceColl.triggerType()) { outColl.set_triggerType(); }
-   outColl.set_firstBitSummary( sourceColl.firstBitSummary() );
-   outColl.set_scaAddress( sourceColl.scaAddress() );
-   for (auto dataType : sourceColl.dataType()) { outColl.addDataType( dataType ); }
- }
+// Copy CscRawDataCollection
+std::unique_ptr<CscRawDataCollection>
+CscOverlay::copyCollection(const CscRawDataCollection *collection,
+                           bool propertiesOnly) const
+{
+  auto outputCollection = std::make_unique<CscRawDataCollection>(collection->identify());
+
+  // Copy property values to the new collection
+  outputCollection->setIdentifyHash(collection->identifyHash());
+  outputCollection->set_eventType(collection->eventType());
+  outputCollection->setRodId(collection->rodId());
+  outputCollection->setSubDetectorId(collection->subDetectorId());
+  outputCollection->set_samplingPhase(collection->samplingPhase());
+  outputCollection->set_triggerType(collection->triggerType());
+  outputCollection->set_firstBitSummary(collection->firstBitSummary());
+  outputCollection->set_scaAddress(collection->scaAddress());
+  for (uint8_t dataType : collection->dataType()) {
+    outputCollection->addDataType(dataType);
+  }
+
+  // Return if only properties requested
+  if (propertiesOnly) {
+    return outputCollection;
+  }
+
+  for (const CscRawData *existingDatum : *collection) {
+    // Owned by the collection
+    auto *datumCopy = new CscRawData(*existingDatum);
+    outputCollection->push_back(datumCopy);
+  }
+
+  return outputCollection;
+}
 
 void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) {
   data.clear();  if ( !coll ) return;
@@ -316,36 +279,33 @@ bool CscOverlay::needtoflip(const int address) const {
          return false;
 }
 
-//
-//
-//
-//
+
 //================================================================
-void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
-                                  const CscRawDataCollection *data_coll,
-                                  const CscRawDataCollection *ovl_coll,
-                                  CLHEP::HepRandomEngine* rndmEngine)
+void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
+                                  const CscRawDataCollection *signalCollection,
+                                  CscRawDataCollection *outputCollection,
+                                  CLHEP::HepRandomEngine *rndmEngine)
 {
-  ATH_MSG_DEBUG("mergeCollection<>() begin");
+  ATH_MSG_DEBUG("mergeCollection() begin");
 
   // number of ADC samples in  the both data stream
-  unsigned int nSigSamples  = data_coll->numSamples();
-  unsigned int nOvlSamples  = ovl_coll->numSamples();
+  unsigned int nSigSamples  = bkgCollection->numSamples();
+  unsigned int nOvlSamples  = signalCollection->numSamples();
 
   // sampling times in both data streams
-  unsigned int dataSamplingTime = data_coll->rate();
-  unsigned int ovlSamplingTime  = ovl_coll->rate();
+  unsigned int dataSamplingTime = bkgCollection->rate();
+  unsigned int ovlSamplingTime  = signalCollection->rate();
 
   if ( dataSamplingTime != ovlSamplingTime ) {
-    ATH_MSG_WARNING("Overlay of inconsistent data - sampling times not the same "
-                    << dataSamplingTime << " ns " << ovlSamplingTime << " ns");
-     return;
+    ATH_MSG_ERROR("Overlay of inconsistent data - sampling times not the same "
+                  << dataSamplingTime << " ns " << ovlSamplingTime << " ns");
+    throw std::runtime_error("mergeCollections(): sampling time mismatch");
   }
 
   if ( nSigSamples != nOvlSamples ) {
-    ATH_MSG_WARNING("Overlay of inconsistent data - number of samples not the same "
-                    << nSigSamples << " " << nOvlSamples);
-     return;
+    ATH_MSG_ERROR("Overlay of inconsistent data - number of samples not the same "
+                  << nSigSamples << " " << nOvlSamples);
+    throw std::runtime_error("mergeCollections(): number of samples mismatch");
   }
 
   /** loop over the SPU - collecting thr data by layer
@@ -355,10 +315,10 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
   for ( uint16_t spuID=0; spuID<10; ++spuID) {
 
     std::vector<const CscRawData*> sigData; // real data
-    this->spuData(data_coll, spuID, sigData);
+    this->spuData(bkgCollection, spuID, sigData);
 
     std::vector<const CscRawData*> ovlData; // simulation
-    this->spuData(ovl_coll, spuID, ovlData);
+    this->spuData(signalCollection, spuID, ovlData);
 
     /** for the non-precision strips, all the 4 layers in a chamber
         are in the same SPU, we need to recover the data by chamber layer */
@@ -409,7 +369,7 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        for (std::map< int,std::vector<uint16_t> >::const_iterator s=sigSamples.begin(); s!=sigSamples.end(); ++s){readstrips.insert(s->first);}
        for (std::map< int,std::vector<uint16_t> >::const_iterator si=ovlSamples.begin(); si!=ovlSamples.end(); ++si){readstrips.insert(si->first);}
 
-       std::vector<CscRawData*> datums = this->overlay(sigSamples, ovlSamples,address, spuID, out_coll->identify(), hash, rndmEngine);
+       std::vector<CscRawData*> datums = this->overlay(sigSamples, ovlSamples,address, spuID, outputCollection->identify(), hash, rndmEngine);
        if ( datums.size()==0 ) {         ATH_MSG_WARNING("datums is size 0!");       }
        for (unsigned int di=0; di<datums.size(); ++di){
          CscRawData* datum=datums[di];
@@ -456,7 +416,7 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
             }
           else{ATH_MSG_DEBUG("Valid CSC Identifier in merge " << channelId);}
           }
-          if (good){        out_coll->push_back(datum);   }
+          if (good){        outputCollection->push_back(datum);   }
           else{     continue;     }
 
           //keep count
@@ -474,8 +434,8 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
 
     }
   }
-  for (unsigned int i=0; i<10; ++i) out_coll->set_spuCount(i,clusterCounts[i]);
-  for (unsigned int i=0; i<2; ++i)  { if (rpuCount[i] != 0) out_coll->addRPU(rpuCount[i]); }
+  for (unsigned int i=0; i<10; ++i) outputCollection->set_spuCount(i,clusterCounts[i]);
+  for (unsigned int i=0; i<2; ++i)  { if (rpuCount[i] != 0) outputCollection->addRPU(rpuCount[i]); }
   // FIXME --- need to be able to reset the dataType - should add a new method to CscRawDataCollection for this
   ATH_MSG_DEBUG("mergeCollection<>() end ");
 }

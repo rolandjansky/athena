@@ -29,6 +29,8 @@
 
 #include "CoralBase/Blob.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -80,6 +82,8 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   virtual StatusCode updateCache(IOVSVC_CALLBACK_ARGS);
 
  private:
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
 
   // Callback functions
   virtual StatusCode updateAvgLumi(IOVSVC_CALLBACK_ARGS);

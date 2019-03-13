@@ -12,10 +12,9 @@
 
 #include "LArCalibUtils/LArDumpShapes.h"
 #include "LArElecCalib/ILArShape.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -59,7 +58,7 @@ StatusCode LArDumpShapes::execute()
     return StatusCode::SUCCESS;
 
   // Get the shapes from the detector store.
-  const DataHandle<ILArShape> dd_shape;
+  const ILArShape* dd_shape;
   CHECK( detStore()->retrieve (dd_shape) );
 
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
@@ -69,7 +68,9 @@ StatusCode LArDumpShapes::execute()
      return StatusCode::FAILURE;
   }
   // Get the calorimeter identifier helper.
-  const LArEM_ID* em_id = CaloIdManager::instance()->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* em_id = idHelper->em_idHelper();
 
   // Open the ROOT file.
   TFile f (m_filename.c_str(), "RECREATE");

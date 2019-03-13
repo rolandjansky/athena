@@ -9,7 +9,6 @@
 #include "EventContainers/SelectAllObject.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "TileEvent/TileCell.h"
@@ -36,13 +35,13 @@ namespace JiveXML {
    **/
   CaloTileRetriever::CaloTileRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("TileDigit") {
+    m_typeName("TileDigit"),
+    m_calocell_id(nullptr)
+  {
 
    //Only declare the interface
    declareInterface<IDataRetriever>(this);
 
-   m_calo_id_man  = CaloIdManager::instance();
-   m_calocell_id  = m_calo_id_man->getCaloCell_ID();
    m_sgKey = "AllCalo";
 
    declareProperty("StoreGateKey" , m_sgKey);
@@ -62,6 +61,7 @@ namespace JiveXML {
   StatusCode CaloTileRetriever::initialize() {
 
     ATH_MSG_DEBUG( "Initialising Tool" );
+    ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     //=== get TileCondToolTiming
     ATH_CHECK( m_tileToolTiming.retrieve() );
@@ -80,23 +80,18 @@ namespace JiveXML {
    */
   StatusCode CaloTileRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    ATH_MSG_DEBUG( "in retrieve()"  );
 
     const CaloCellContainer* cellContainer;
     if (!evtStore()->retrieve(cellContainer,m_sgKey)) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  <<
-        "Could not retrieve Calorimeter Cells for Tile " << endmsg;
+      ATH_MSG_WARNING( "Could not retrieve Calorimeter Cells for Tile "  );
       return StatusCode::SUCCESS;
     }
 
     if (m_tile) {
       DataMap data = getCaloTileData(cellContainer);
-      if ( FormatTool->AddToEvent("TILE", m_sgKey, &data).isFailure()) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endmsg;
-        return StatusCode::SUCCESS;
-      } else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent("TILE", m_sgKey, &data) );
+      ATH_MSG_DEBUG( "Tile retrieved"  );
     }
     //Tile cells retrieved okay
     return StatusCode::SUCCESS;
@@ -109,7 +104,7 @@ namespace JiveXML {
    */
   const DataMap CaloTileRetriever::getCaloTileData(const CaloCellContainer* cellContainer) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getTileData()" << endmsg;
+    ATH_MSG_DEBUG( "getTileData()"  );
     char rndStr[30];
     DataMap DataMap;
 
@@ -143,16 +138,15 @@ namespace JiveXML {
 
 //    m_sub; m_sub.reserve(cellContainer->size());
     m_sub.clear();
-//    msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endmsg;
 
     std::string adcCounts1Str = "adcCounts1 multiple=\"0\"";
     std::string adcCounts2Str = "adcCounts2 multiple=\"0\"";
 
     StatusCode scTileDigit = StatusCode::FAILURE;
     StatusCode scTileRawChannel = StatusCode::FAILURE;
-    const TileID* tileID;
-    const TileHWID* tileHWID;
-    const TileInfo* tileInfo;
+    const TileID* tileID = nullptr;
+    const TileHWID* tileHWID = nullptr;
+    const TileInfo* tileInfo = nullptr;
     const TileCablingService* cabling=nullptr;
     const TileDigitsContainer *tileDigits = nullptr;
     const TileRawChannelContainer* RawChannelCnt;
@@ -178,19 +172,18 @@ namespace JiveXML {
 
     //===== retrieving everything which is needed for Tile
 
-    StatusCode sc = detStore()->retrieve(tileID);
-    if ( sc.isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileID" <<endmsg;
+    if (detStore()->retrieve(tileID).isFailure()) {
+      ATH_MSG_ERROR( "in getCaloTileData(), Could not retrieve TileID"  );
 
-    sc = detStore()->retrieve(tileHWID);
-    if ( sc.isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileHWID" <<endmsg;
+    }
 
-    //=== get TileInfo
-    sc = detStore()->retrieve(tileInfo, "TileInfo");
-    if (sc.isFailure())
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileInfo"<< endmsg;
+    if (detStore()->retrieve(tileHWID).isFailure()) {
+      ATH_MSG_ERROR( "in getCaloTileData(), Could not retrieve TileHWID"  );
+    }
 
+    if (detStore()->retrieve(tileInfo, "TileInfo").isFailure()) {
+      ATH_MSG_ERROR( "in getCaloTileData(), Could not retrieve TileInfo" );
+    }
 
     if (m_doTileDigit) {
 
@@ -204,7 +197,7 @@ namespace JiveXML {
       }
 
       if (scTileDigit.isFailure())
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getTileData(), Could not retrieve TileDigits" << endmsg;
+        ATH_MSG_ERROR( "in getTileData(), Could not retrieve TileDigits"  );
     }
 
 
@@ -227,7 +220,7 @@ namespace JiveXML {
       }
 
       if (scTileRawChannel.isFailure())
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "in getTileData(), Could not retrieve TileRawchannel" << endmsg;
+        ATH_MSG_WARNING( "in getTileData(), Could not retrieve TileRawchannel"  );
     }
 
 
@@ -516,7 +509,7 @@ namespace JiveXML {
       } //if (m_doTileCellDetails)
     } // end cell iterator
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in Tile in GeV : " <<  energyAllTile<< endmsg;
+    ATH_MSG_DEBUG( " Total energy in Tile in GeV : " <<  energyAllTile );
 
     if ( !pmt1digit.empty() ) pmt1digit.clear();
     if ( !pmt2digit.empty() ) pmt2digit.clear();
@@ -562,9 +555,7 @@ namespace JiveXML {
     DataMap[adcCounts2Str] = adcCounts2Vec;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
-    }
+    ATH_MSG_DEBUG( dataTypeName() << " retrieved with " << phi.size() << " entries" );
 
     //All collections retrieved okay
     return DataMap;

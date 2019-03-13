@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -308,27 +307,8 @@ StatusCode TBCaloResponseMonTool::setupAction()
   // messaging
   MsgStream report(msgSvc(),name());
 
-  // get calo cell helper
-  const CaloIdManager* idManager = CaloIdManager::instance();
-  // problem
-  if ( idManager == 0 )
-    {
-      report << MSG::ERROR
-	     << "cannot allocate CaloCell Id manager object"
-	     << endmsg;
-      return StatusCode::FAILURE;
-    }
-
   // get cell id helper
-  m_caloCellHelper = idManager->getCaloCell_ID();
-  // check
-  if ( m_caloCellHelper == 0 )
-    {
-      report << MSG::ERROR
-	     << "cannot allocate CaloCell_ID helper"
-	     << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( detStore()->retrieve (m_caloCellHelper, "CaloCell_ID") );
 
   // get calorimeter modules and regions
   std::vector<std::string>::const_iterator firstCalo = 

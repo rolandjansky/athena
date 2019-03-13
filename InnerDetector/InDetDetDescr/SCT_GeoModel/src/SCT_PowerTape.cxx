@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_PowerTape.h"
@@ -15,8 +15,12 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_PowerTape::SCT_PowerTape(const std::string & name, double length)
-  : SCT_SharedComponentFactory(name), m_length(length)
+SCT_PowerTape::SCT_PowerTape(const std::string & name, double length,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_length(length)
 {
   getParameters();
   m_physVolume = build();
@@ -26,12 +30,8 @@ SCT_PowerTape::SCT_PowerTape(const std::string & name, double length)
 void
 SCT_PowerTape::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;
-  
-  // 30th Aug 2005 S.Mima modified.
-  //  m_material  = materials.powerTapeMaterial();
-  m_material  = materials.getMaterial(parameters->powerTapeMaterial());
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+  m_material  = m_materials->getMaterial(parameters->powerTapeMaterial());
   m_thickness = parameters->powerTapeThickness();
   m_width     = parameters->powerTapeWidth();
 }

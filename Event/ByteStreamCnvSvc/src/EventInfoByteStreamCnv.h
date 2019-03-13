@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOBYTESTREAMCNV_H
@@ -18,9 +18,6 @@
 #include <string>
 
 class IOpaqueAddress;
-//class DataObject;
-//class StatusCode;
-//class IAddressCreator;
 class ByteStreamCnvSvc;
 class IROBDataProviderSvc;
 class StoreGateSvc;
@@ -28,8 +25,6 @@ class StoreGateSvc;
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
 
-// Externals
-extern long ByteStream_StorageType;
 
 /** @class EventInfoByteStreamCnv
  *  @brief This class implements the ByteStream Converter for EventInfo.
@@ -40,17 +35,17 @@ class EventInfoByteStreamCnv : public Converter {
 public:
    EventInfoByteStreamCnv(ISvcLocator* svcloc);
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// converter method to create object
-   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
    /// converter method to write object
-   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
    /// Storage type and class ID
-   virtual long repSvcType() const    { return ByteStream_StorageType; }
-   static long storageType()          { return ByteStream_StorageType; }
+   virtual long repSvcType() const override { return i_repSvcType(); }
+   static long storageType();
    static const CLID& classID();
 
 private:

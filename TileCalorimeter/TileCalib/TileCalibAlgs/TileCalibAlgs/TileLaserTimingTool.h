@@ -256,7 +256,8 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     // Tools info
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+      "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
 
     // jobOptions
     std::string m_rawChannelContainerName;

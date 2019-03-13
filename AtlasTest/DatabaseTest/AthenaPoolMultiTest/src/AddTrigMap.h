@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AddTrigMap.h
@@ -42,14 +42,17 @@ public:
   AddTrigMap(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~AddTrigMap();
   
-  virtual StatusCode initialize(); 
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_evt;
-  SG::WriteHandleKey<FauxTriggerMap> m_wftm;
-  SG::WriteHandleKey<FauxTriggerMap> m_wftm2;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt
+  { this, "EventInfo", "EventInfo", "" };
+  SG::WriteHandleKey<FauxTriggerMap> m_wftm
+  { this, "MultiTestTrigMap", "MultiTestTrigMap", "" };
+  SG::WriteHandleKey<FauxTriggerMap> m_wftm2
+  { this, "ExcludeTestTrigMap", "ExcludeTestTrigMap", "" };
 
 };
 #endif

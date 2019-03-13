@@ -42,7 +42,6 @@
 #include "LArCabling/LArCablingBase.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 
 class StoreGateSvc; 
@@ -101,7 +100,6 @@ class LArOFCTool: public AthAlgTool,
   LArCablingBase* m_cablingService;
   ToolHandle<ILArMCSymTool>    m_larmcsym;
   
-  const CaloIdManager* m_calo_id_man;
   const LArEM_Base_ID*    m_lar_em_id; 
   const LArHEC_Base_ID*   m_lar_hec_id;
   const LArFCAL_Base_ID*  m_lar_fcal_id;

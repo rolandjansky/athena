@@ -72,6 +72,7 @@ Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
   declareProperty("CalculateCloseHits", m_calculateCloseHits = false );
   declareProperty("RoadWidth",           m_roadWidth = 135.,"width used to calculate hits within the road (mm)"); 
   declareProperty("Extrapolator",    m_extrapolator);
+  declareProperty("MdtPrepDataContainer", m_mdtKey="MDT_DriftCircles");
   declareProperty("HoleOnTrackTool", m_muonTgTool);	
   declareProperty("TrackingGeometryName", m_trackingGeometryName);
 }
@@ -99,6 +100,20 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   if (sc.isFailure())
     {
       msg (MSG::WARNING) << "Could not get TGC ID helper !" << endmsg;
+      muonOkay=false;
+    }
+
+  sc = detStore()->retrieve(m_stgcId);
+  if (sc.isFailure())
+    {
+      msg (MSG::WARNING) << "Could not get STGC ID helper !" << endmsg;
+      muonOkay=false;
+    }    
+
+  sc = detStore()->retrieve(m_mmId);
+  if (sc.isFailure())
+    {
+      msg (MSG::WARNING) << "Could not get MM ID helper !" << endmsg;
       muonOkay=false;
     }
 
@@ -214,13 +229,13 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
     else                           increment(information[numberOfTgcEtaHits]);
   }else if(m_mdtId->is_mdt(id)){  
     increment(information[numberOfMdtHits]);
-  }else if(m_mdtId->is_mm(id) ){
-    increment(information[numberOfCscUnspoiltEtaHits]);
-  }else if(m_mdtId->is_stgc(id)){  
-    int chType = m_idHelperTool->stgcIdHelper().channelType(id);
-    if( chType == 2 )      increment(information[numberOfCscPhiHits]);
-    else if( chType == 1 ) increment(information[numberOfCscEtaHits]);
-    else                   increment(information[numberOfCscPhiHoles]);
+  }else if(m_stgcId->is_stgc(id) ){
+    // strip = measuresPhi
+    if( m_stgcId->measuresPhi(id) )    increment(information[numberOfStgcPhiHits]);
+    // we do not discriminate between pads or wires
+    else                               increment(information[numberOfStgcEtaHits]);
+  }else if(m_mmId->is_mm(id)){  
+    increment(information[numberOfMmHits]); 
   }else{
     msg (MSG::ERROR) << "Unknown muon detector type " << endmsg;
     msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*tsos << endmsg;
@@ -378,11 +393,11 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
         Identifier id = pars->associatedSurface().associatedDetectorElement()->identify();
         bool issTgc = m_idHelperTool->issTgc(id);
         if(issTgc) {
-// get the identifier for phi or eta holes 
+	  // get the identifier for phi or eta holes 
           Identifier idh = pars->associatedSurface().associatedDetectorElementIdentifier();
           if(idh.is_valid()) {
             id = idh;
-//            ATH_MSG_VERBOSE(" For sTGC hole use associatedDetectorElementIdentifier ");
+	    // ATH_MSG_VERBOSE(" For sTGC hole use associatedDetectorElementIdentifier ");
           }
         }
         if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
@@ -494,6 +509,18 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  goodLayIds.insert(layId);
 	}
       }
+      else if(m_idHelperTool->isCsc(id)){
+	const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
+	if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+      }
+      else if(m_idHelperTool->isMM(id)) {
+	// MM quality requirements to be inserted here if needed
+	goodLayIds.insert(layId);
+      }
+      else if(m_idHelperTool->issTgc(id)) {
+	// sTGC quality requirements to be inserted here if needed
+	goodLayIds.insert(layId);
+      }
     }else{
       const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
       if( crot ){
@@ -509,6 +536,10 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  // get layer Identifier and insert it into set
 	  Identifier layId =  m_idHelperTool->layerId( (*clit)->identify() );
 	  layIds.insert(layId);
+	  if(m_idHelperTool->isCsc(id)){
+	    const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
+	    if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+	  }
 	}
       }else{
 	continue;

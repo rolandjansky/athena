@@ -4,10 +4,6 @@
 
 #include "LumiBlockComps/TrigLivefractionTool.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -22,15 +18,11 @@ TrigLivefractionTool::TrigLivefractionTool(const std::string& type,
 				 const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_recalcLumiLivefraction(true),
-    m_lumiTool(""), // "LuminosityTool"),
     m_turnCounter(0),
-    m_deadtimeFolderName(""), // "/TRIGGER/LUMI/PerBcidDeadtime"),
     m_lumiLiveFractionLo(1.),
     m_lumiLiveFractionHi(1.)
 {
   declareInterface<ITrigLivefractionTool>(this);
-  declareProperty("DeadtimeFolderName", m_deadtimeFolderName);
-  declareProperty("LuminosityTool", m_lumiTool);
 
   // Initialize to 1 so we don't have divide by zero if there is no data
   m_livefractionHigh = std::vector<float>(TOTAL_LHC_BCIDS, 1.);
@@ -41,6 +33,7 @@ StatusCode
 TrigLivefractionTool::initialize()
 {
   ATH_MSG_DEBUG("TrigLivefractionTool::initialize() begin");
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   if (m_deadtimeFolderName.empty()) {
     // May not be configured, could be OK
@@ -110,16 +103,17 @@ TrigLivefractionTool::l1LivefractionVector(bool highPriority) const {
 float
 TrigLivefractionTool::livefractionPerBCID(bool highPriority) const {
 
-  const EventInfo* eventInfo;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot access event info " );
-    return 0.;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);  
+
+  // check is only useful for serial running; remove when MT scheduler used
+  if(!eventInfo.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_eventInfoKey.key());
+    return 0;
   }
 
-  float frac = livefractionPerBCID(eventInfo->event_ID()->bunch_crossing_id(), highPriority);
+  float frac = livefractionPerBCID(eventInfo->bcid(), highPriority);
 
-  ATH_MSG_DEBUG( "LB " << eventInfo->event_ID()->lumi_block() << " bcid " << eventInfo->event_ID()->bunch_crossing_id() << " -> Livefrac = " << frac << " for highPriority = " << highPriority);
+  ATH_MSG_DEBUG( "LB " << eventInfo->lumiBlock() << " bcid " << eventInfo->bcid() << " -> Livefrac = " << frac << " for highPriority = " << highPriority);
 
   return frac;
 }

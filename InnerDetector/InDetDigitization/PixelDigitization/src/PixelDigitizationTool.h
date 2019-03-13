@@ -67,15 +67,15 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     bool              m_onlyHitElements;
 
-    ToolHandleArray<SensorSimTool>                 m_chargeTool;
-    ToolHandleArray<FrontEndSimTool>               m_fesimTool;
-    ToolHandle<EnergyDepositionTool>               m_energyDepositionTool;
-
     const PixelID            *m_detID;
 
     IntegerProperty           m_vetoThisBarcode;
 
     TimedHitCollection<SiHit> *m_timedHits;
+
+    ToolHandleArray<SensorSimTool> m_chargeTool{this, "ChargeTools", {}, "List of charge tools"};
+    ToolHandleArray<FrontEndSimTool> m_fesimTool{this, "FrontEndSimTools", {}, "List of Front-End simulation tools"};
+    ToolHandle<EnergyDepositionTool> m_energyDepositionTool{this, "EnergyDepositionTool", "EnergyDepositionTool", "Energy deposition tool"};
 
   protected:
 

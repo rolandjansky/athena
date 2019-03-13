@@ -74,7 +74,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
   std::vector<TrigMufastHypoTool::MuonClusterInfo> toolInput;
   // loop over previous decisions
   size_t counter=0;
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
     auto roiEL = roiInfo.link;
@@ -104,7 +104,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     newd->setObjectLink( "feature", muonEL );  
     newd->setObjectLink( "roi",     roiEL );
     newd->setObjectLink( "view",    viewEL );
-    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());

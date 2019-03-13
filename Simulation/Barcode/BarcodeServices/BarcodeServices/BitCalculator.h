@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __BARCODE_BITCALCULATOR_H__
-#define __BARCODE_BITCALCULATOR_H__
+#ifndef __BARCODESERVICES_BITCALCULATOR_H__
+#define __BARCODESERVICES_BITCALCULATOR_H__
 
 #include "TObject.h"
 #include <vector>
@@ -15,24 +15,24 @@ namespace Barcode {
 
    public:
     BitCalculator();
-    virtual ~BitCalculator();
-    
-    int GetParentID(const int& barcode);
-    int GetPIDofParent(const int& barcode);
-    int GetBCID(const int& barcode);
-    int GetHS(const int& barcode);
-    int GetSimulator(const int& barcode); 
-    
-    void SetParentID(int& barcode, const int& parentID);
-    void SetPIDofParent(int& barcode, const int& parentPID);
-    void SetBCID(int& barcode, const int& bcid);
-    void SetHS(int& barcode, const int& hs);
-    void SetSimulator(int& barcode, const int& simulator);
-    
-    inline void SetHS(int& barcode, const bool& hs) { return SetHS(barcode,(int)hs); }
+    virtual ~BitCalculator() = default;
 
-    void PrintBits(const int& barcode);
-    void Summary(const int& barcode);
+    int GetParentID(const int& barcode) const;
+    int GetPIDofParent(const int& barcode) const;
+    int GetBCID(const int& barcode) const;
+    int GetHS(const int& barcode) const;
+    int GetSimulator(const int& barcode) const;
+
+    void SetParentID(int& barcode, const int& parentID) const;
+    void SetPIDofParent(int& barcode, const int& parentPID) const;
+    void SetBCID(int& barcode, const int& bcid) const;
+    void SetHS(int& barcode, const int& hs) const;
+    void SetSimulator(int& barcode, const int& simulator) const;
+
+    inline void SetHS(int& barcode, const bool& hs) const { return SetHS(barcode,(int)hs); }
+
+    void PrintBits(const int& barcode) const;
+    void Summary(const int& barcode) const;
 
    private:
 
@@ -41,16 +41,15 @@ namespace Barcode {
     const int m_nbitshs;
     const int m_nbitssimulator;
     const int m_nbitsbcid;
-    
+
     int m_parentOne;
     int m_pidOne;
     int m_hsOne;
     int m_simulatorOne;
     int m_bcidOne;
-    
+
     ClassDef(BitCalculator,1)
   };
 }
 
-#endif //> __BARCODE_BITCALCULATOR_H__
-
+#endif //> __BARCODESERVICES_BITCALCULATOR_H__

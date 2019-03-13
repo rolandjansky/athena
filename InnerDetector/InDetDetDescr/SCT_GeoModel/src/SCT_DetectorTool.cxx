@@ -50,10 +50,6 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
 StatusCode
 SCT_DetectorTool::create()
 { 
-  // Reinit various singleton type objects.
-  SCT_DataBase::reinit();
-  SCT_MaterialManager::reinit();
-
   // Get the detector configuration.
   ATH_CHECK(m_geoDbTagSvc.retrieve());
   
@@ -156,10 +152,6 @@ SCT_DetectorTool::create()
     ATH_CHECK(detStore()->symLink(m_manager, siDetManager));
   }
 
-  // Delete unneeded singleton objects
-  SCT_DataBase::reinit();
-  SCT_MaterialManager::reinit();
-
   return StatusCode::SUCCESS;
 }
 
@@ -175,7 +167,7 @@ SCT_DetectorTool::clear()
 }
 
 StatusCode 
-SCT_DetectorTool::registerCallback()
+SCT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
   StatusCode sc{StatusCode::FAILURE, true};
   if (m_alignable.value()) {

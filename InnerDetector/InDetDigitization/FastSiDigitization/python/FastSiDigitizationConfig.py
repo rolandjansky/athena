@@ -83,7 +83,7 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
     # SiLorentzAngleTool for PixelFastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
 
@@ -118,14 +118,14 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
     sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
-    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    from SiPropertiesTool.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
     sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
     sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
     sct_SiPropertiesToolSetup.setup()
 
     # SiLorentzAngleTool for SCT_FastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     kwargs.setdefault("LorentzAngleTool", sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 

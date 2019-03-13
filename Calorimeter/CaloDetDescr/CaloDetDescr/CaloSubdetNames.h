@@ -15,7 +15,6 @@
 #ifndef CALODETDESCR_CALOSUBDETNAMES_H
 # define CALODETDESCR_CALOSUBDETNAMES_H
 
-class CaloCell_ID;
 
 #include <vector>
 #include "Identifier/Identifier.h"
@@ -60,12 +59,6 @@ class CaloSubdetNames
    */  
   CaloSubdetNames::ALIGNVOL alignVolEnum(std::string reconame);
  
-  /** @brief Matching between the reconstruction region descriptors and names
-   */
-  std::string alignVolName(Identifier regId);
-  /** @brief Matching between the reconstruction region descriptors and enum 
-   */
-  CaloSubdetNames::ALIGNVOL alignVolEnum(Identifier regId);
 
  private:
   /** @brief match names and enum
@@ -78,15 +71,6 @@ class CaloSubdetNames
   /** @brief vector of ALIGNVOL enum values
    */ 
   std::vector <CaloSubdetNames::ALIGNVOL>  m_alvol;
-
-  /** @brief Matching between Readout reagions and ALIGNVOL : array indexed by calo-hash-id
-   */
-  std::vector <std::string>                    m_regReconame;
-
-  /** @brief Calo Cell ID helper
-   */
-  const CaloCell_ID* m_calocell_id;
-  
 };
 
 #endif // CALODETDESCR_CALOSUBDETNAMES_H

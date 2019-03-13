@@ -1,0 +1,167 @@
+/*
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file GeneratorObjects/CachedParticlePtr.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2019
+ * @brief Hold overloaded store/particle pointer.
+ */
+
+
+namespace GeneratorObjects {
+
+
+/**
+ * @brief Default constructor.
+ * Initializes to a reference the current event store.
+ */
+inline
+CachedParticlePtr::CachedParticlePtr()
+  : CachedParticlePtr (SG::CurrentEventStore::store())
+{
+}
+
+
+/**
+ * @brief Constructor referencing a specific event store.
+ * @param sg The store to reference, as an IProxyDict*.
+ */
+inline
+CachedParticlePtr::CachedParticlePtr (const IProxyDict* sg)
+  : m_ptr (storedict (sg))
+{
+}
+
+/**
+ * @brief Constructor referencing a specific particle.
+ * @param part The particle to reference.
+ */
+inline
+CachedParticlePtr::CachedParticlePtr (const HepMC::GenParticle* part)
+  : m_ptr (part)
+{
+  assert (!isdict (part));
+}
+
+
+/**
+ * @brief Copy constructor.  (Can't be defaulted due to the atomic member.)
+ */
+inline
+CachedParticlePtr::CachedParticlePtr (const CachedParticlePtr& other)
+  : m_ptr (static_cast<const void*>(other.m_ptr))
+{
+}
+
+
+/**
+ * @brief Assignment.  (Can't be defaulted due to the atomic member.)
+ */
+inline
+CachedParticlePtr& CachedParticlePtr::operator= (const CachedParticlePtr& other)
+{
+  if (this != &other) {
+    m_ptr = static_cast<const void*> (other.m_ptr);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Reset to reference a new event store.
+ * @param sg The store to reference, as an IProxyDict*.
+ *
+ * Not compatible with any other concurrent access.
+ */
+inline
+void CachedParticlePtr::store (const IProxyDict* sg)
+{
+  m_ptr = storedict (sg);
+}
+
+
+/**
+ * @brief Retrieve the current value.
+ * @param sg[out] Referenced event store.
+ *
+ * If this pointer is referencing an event store, set @c sg to that 
+ * and return nullptr.
+ * Otherwise, we're referencing a particular particle.
+ * Return that and set @c sg to nullptr.
+ */
+inline
+const HepMC::GenParticle*
+CachedParticlePtr::get (IProxyDict const* & sg) const
+{
+  const void* p = m_ptr;
+  if (isdict (p)) {
+    sg = getdict (p);
+    return nullptr;
+  }
+  else {
+    sg = nullptr;
+    return reinterpret_cast<const HepMC::GenParticle*> (p);
+  }
+}
+
+
+/**
+ * @brief Change the pointer to refer to a particle rather than a store.
+ * @param sg Store the pointer is currently referencing.
+ * @param part Particle the pointer should be referencing.
+ *
+ * It is ok to call this concurrently, as long as each call uses
+ * the same parameters.
+ */
+inline
+void CachedParticlePtr::set (const IProxyDict* sg,
+                             const HepMC::GenParticle* part) const
+{
+  assert (!isdict (part));
+  const void* p = storedict (sg);
+  m_ptr.compare_exchange_strong (p, part);
+  assert (p == part || p == storedict (sg));
+}
+
+
+/**
+ * @brief Convert a store pointer to a void* to store.
+ * @param sg IProxyDict* to reference.
+ *
+ * Sets the low bit and converts to void*.
+ */
+inline
+const void* CachedParticlePtr::storedict (const IProxyDict* sg)
+{
+  assert ((reinterpret_cast<unsigned long>(sg) & 1) == 0);
+  return reinterpret_cast<const void*>(reinterpret_cast<unsigned long>(sg) | 1);
+}
+
+
+/**
+ * @brief Test if a stored value references an event store.
+ * @param p The value to test.
+ *
+ * Tests if the low bit is set.
+ */
+inline
+bool CachedParticlePtr::isdict (const void* p)
+{
+  return (reinterpret_cast<unsigned long>(p)&1) != 0;
+}
+
+
+/** 
+ * @brief Convert a stored value void* to an IProxyDict*.
+ * @param Clears the low bit and does pointer conversion.
+ */
+inline
+const IProxyDict* CachedParticlePtr::getdict (const void* p)
+{
+  assert ((reinterpret_cast<unsigned long>(p)&1) != 0);
+  return reinterpret_cast<const IProxyDict*>(reinterpret_cast<unsigned long>(p)&~1UL);
+}
+
+
+} // namespace GeneratorObjects

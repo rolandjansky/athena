@@ -99,6 +99,10 @@ def _get_energy_density_radius():
     """Provide a common source for the energy density akt radius"""
     return 0.4
 
+def _get_soft_killer_grid_size():
+    """Provide a common source for the SoftKiller grid size"""
+    return 0.4,0.4
+
 
 class AlgFactory(object):
     def __init__(self, chain_config):
@@ -172,9 +176,9 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecFromCluster'
         # add factory to instance label to facilitate log file searches
         trkstr = self.menu_data.trkopt
-        if 'ftk' in self.menu_data.trkopt:
-                name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
-                outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
+        if 'ftk' in trkstr:
+            name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
+            outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
         else:
                 name = '"%s_%s"' %(factory, self.fex_params.fex_label)
                 outputcollectionlabel = "'%s'" % (self.fex_params.fex_label)
@@ -223,13 +227,20 @@ class AlgFactory(object):
 
         factory = 'TrigHLTTrackMomentHelpers'
 
-        name = '"%s"' % factory
+        trkstr = self.menu_data.trkopt
+        
+        name = '"%s_%s"' % ( factory, trkstr )
+        
+        tvassocsgkey = 'HLT_'+trkstr+'_JetTrackVtxAssoc'
+        tracksgkey = 'HLT_'+trkstr+'_InDetTrackParticles'
+        primvtxsgkey = 'HLT_'+trkstr+'_PrimaryVertices'
         
         kwds = {
             'name': name,  # instance label
-            'tvassocSGkey': "'HLT_FTK_JetTrackVtxAssoc'",
-            'trackSGkey': "'HLT_FTK_InDetTrackParticles'",
-            'primVtxSGkey': "'HLT_FTK_PrimaryVertices'",
+            'trkopt' : "'%s'" % trkstr,
+            'tvassocSGkey': "'%s'" % tvassocsgkey,
+            'trackSGkey': "'%s'" % tracksgkey,
+            'primVtxSGkey': "'%s'" % primvtxsgkey,
         }
 
         return [Alg(factory, (), kwds)]
@@ -635,6 +646,30 @@ class AlgFactory(object):
                 'ed_merge_param': ed_merge_param
             }
     
+        return [Alg(factory, (), kwds)]
+
+
+    def softKillerAlg(self):
+        factory = 'TrigHLTSoftKiller'
+
+        # assign a name which identifies the fex sequence and
+        # the python class to be instantiated.
+        sk_grid_param_eta,sk_grid_param_phi = _get_soft_killer_grid_size()
+
+        name = '"%s_%s%s"' % (
+            factory,
+            str(int(10*sk_grid_param_eta))+str(int(10*sk_grid_param_phi)),
+            self.fex_params.cluster_calib,
+        )
+        
+        # we do not carry the SoftKiller grid sizes
+        # so hard wire it here (to be fixed)
+        kwds = {'name': name,
+                'cluster_calib': '"%s"' %self.fex_params.cluster_calib_fex,
+                'sk_grid_param_eta': sk_grid_param_eta,
+                'sk_grid_param_phi': sk_grid_param_phi
+            }
+
         return [Alg(factory, (), kwds)]
 
 

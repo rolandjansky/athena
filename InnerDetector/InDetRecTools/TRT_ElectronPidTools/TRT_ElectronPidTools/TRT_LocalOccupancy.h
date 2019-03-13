@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,8 +50,7 @@ namespace InDet
       @author  Alejandro Alonso: <Alejandro.Alonso@cern.ch>
   */
 
-  class TRT_LocalOccupancy : public AthAlgTool,
-				 virtual public ITRT_LocalOccupancy{
+  class TRT_LocalOccupancy : public extends <AthAlgTool, ITRT_LocalOccupancy> {
   public:
    TRT_LocalOccupancy(const std::string&,const std::string&,const IInterface*);
 

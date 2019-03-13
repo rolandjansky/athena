@@ -24,9 +24,11 @@
 
 #ifndef LARPHYSWAVEBUILDER_H
 #define LARPHYSWAVEBUILDER_H
+#include "LArRawEvent/LArDigitContainer.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
@@ -96,7 +98,8 @@ private:
 
   /// === Algorithm properties.
   /// Storegate key for the @c LArDigitContainer of interest.
-  std::string m_gainCont;
+  SG::ReadHandleKey<LArDigitContainer> m_gainCont
+    { this, "GainCont", "FREE", "" };
 
   /// Number of bins per sample to record.
   int m_bins_per_sample;

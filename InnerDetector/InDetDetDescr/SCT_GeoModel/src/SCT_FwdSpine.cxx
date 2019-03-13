@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -30,19 +30,21 @@
 #include <cmath>
 
 SCT_FwdSpine::SCT_FwdSpine(const std::string & name,
-         int ringType)
-  : SCT_SharedComponentFactory(name), m_ringType(ringType)
+                           int ringType,
+                           InDetDD::SCT_DetectorManager* detectorManager,
+                           const SCT_GeometryManager* geometryManager,
+                           SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
+    m_ringType(ringType)
 {
   getParameters();
   m_physVolume = build();
 }
 
-
-
 void
 SCT_FwdSpine::getParameters()
 {
-  const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
+  const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
  
   m_materialName = parameters->fwdSpineMaterial(m_ringType);
 
@@ -91,10 +93,8 @@ SCT_FwdSpine::build()
   
   //position = position / 2. * HybPos;
   
-  SCT_MaterialManager materials;
-
   const GeoShape & spinePosMain = (*spineShapeMain << GeoTrf::TranslateZ3D(position) );
-  m_material = materials.getMaterialForVolume(m_materialName, spineShapeMain->volume());  
+  m_material = m_materials->getMaterialForVolume(m_materialName, spineShapeMain->volume());  
   GeoLogVol * spineLog = new GeoLogVol(getName(), &spinePosMain, m_material);
   GeoPhysVol * spine = new GeoPhysVol(spineLog);
 

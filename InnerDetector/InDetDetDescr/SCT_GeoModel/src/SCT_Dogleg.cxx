@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -18,8 +18,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_Dogleg::SCT_Dogleg(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_Dogleg::SCT_Dogleg(const std::string & name,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -29,10 +32,9 @@ SCT_Dogleg::SCT_Dogleg(const std::string & name)
 void
 SCT_Dogleg::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;
-    
-  m_material  = materials.getMaterial(parameters->doglegMaterial());
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+
+  m_material  = m_materials->getMaterial(parameters->doglegMaterial());
   m_thickness = parameters->doglegThickness();
   m_length    = parameters->doglegLength();
   m_width     = parameters->doglegWidth();

@@ -16,6 +16,7 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/CxxUtils
    PRIVATE
    ${extra_deps} )
 

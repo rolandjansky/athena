@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalManager.cxx
@@ -39,8 +39,7 @@
 InDetGlobalManager::InDetGlobalManager(
     const std::string &name, 
     ISvcLocator *pSvcLocator)
-    : AthenaMonManager(name, pSvcLocator),
-      m_CombinedTracks(0)
+    : AthenaMonManager(name, pSvcLocator)
 {
  
 }

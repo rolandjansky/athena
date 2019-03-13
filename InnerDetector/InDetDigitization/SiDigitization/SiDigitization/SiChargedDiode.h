@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -63,7 +63,7 @@ public:
   int flag() const;
   
   //neighbouring strip for navigation 
-  SiChargedDiode * nextInCluster() const;
+  SiChargedDiode * nextInCluster();
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ inline double SiChargedDiode::charge() const
   return m_totalCharge.charge();
 }
 
-inline SiChargedDiode * SiChargedDiode::nextInCluster() const
+inline SiChargedDiode * SiChargedDiode::nextInCluster()
 {
   return m_nextInCluster;
 }

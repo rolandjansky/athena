@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -50,6 +50,7 @@
 #include <stdexcept>
 #include <memory>
 
+
 namespace
 {
   thread_local std::unique_ptr<TileGeoG4LookupBuilder> s_lookup(nullptr);
@@ -61,6 +62,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocat
   : AthService(name, pSvcLocator)
   , m_detStore("DetectorStore",name)
   , m_geoModSvc("GeoModelSvc",name)
+  , m_keepHitTime(false)
 {
   declareProperty( "DetectorStore", m_detStore );
   declareProperty( "GeoModelSvc", m_geoModSvc );
@@ -107,16 +109,16 @@ StatusCode TileGeoG4SDCalc::initialize() {
   // Unpack TileG4SimOptions from DetectorStore
 
   // Determine time window for hit to be recorded
-  m_deltaT = m_options.deltaTHit[m_options.deltaTHit.size() - 1] * CLHEP::ns;
+  double deltaT = m_options.deltaTHit[m_options.deltaTHit.size() - 1] * CLHEP::ns;
 
   // Determine variable time window for hit to be recorded
   for (int i = m_options.deltaTHit.size() - 1; i > -1; --i) {
     m_options.deltaTHit[i] *= CLHEP::ns;
   }
   // protection agaist wrong vector size
-  if (m_options.deltaTHit.size() % 3 != 1 || m_deltaT <= 0.0) {
+  if (m_options.deltaTHit.size() % 3 != 1 || deltaT <= 0.0) {
     m_options.deltaTHit.resize(1);
-    m_options.deltaTHit[0] = m_deltaT;
+    m_options.deltaTHit[0] = deltaT;
   }
 
   // Determine maximum time for hit to be recorded
@@ -157,8 +159,8 @@ StatusCode TileGeoG4SDCalc::initialize() {
     m_options.uShape = 1;
   }
 
-  if (m_deltaT > 0.0)
-    m_options.timeCut = ((int) (m_options.timeCut / m_deltaT) + 0.5) * m_deltaT;
+  if (deltaT > 0.0)
+    m_options.timeCut = ((int) (m_options.timeCut / deltaT) + 0.5) * deltaT;
   if (m_options.deltaTHit.size() > 1) {
     G4cout << "Using deltaTHit = ";
     unsigned int i = 0;
@@ -171,7 +173,7 @@ StatusCode TileGeoG4SDCalc::initialize() {
     }
     G4cout << "and " << delta / CLHEP::ns << " ns outside this window" << G4endl;
   } else {
-    ATH_MSG_INFO("Using deltaTHit = " << m_deltaT / CLHEP::ns << " ns. ");
+    ATH_MSG_INFO("Using deltaTHit = " << deltaT / CLHEP::ns << " ns. ");
   }
   ATH_MSG_INFO("Using timeCut = " << m_options.timeCut / CLHEP::ns << " ns. ");
   ATH_MSG_INFO("Using doBirk = " << (m_options.doBirk ? "true" : "false"));
@@ -179,24 +181,26 @@ StatusCode TileGeoG4SDCalc::initialize() {
   ATH_MSG_INFO("Using doTileRow = " << (m_options.doTileRow ? "true" : "false"));
   ATH_MSG_INFO("Using doCalibHitParticleID = " << (m_options.doCalibHitParticleID ? "true" : "false"));
 
-  if (! (m_deltaT > 0.0)) {
+  if (deltaT > 0.0) {
+    m_keepHitTime = true;
+  } else {
     ATH_MSG_WARNING("deltaT is not set, ignore hit time in ProcessHits()");
   }
 
   m_tileSizeDeltaT = 100000 * CLHEP::ns; // used for doTileRow
 
-  if (m_options.timeCut > m_tileSizeDeltaT - m_deltaT) {
-    m_options.timeCut = m_tileSizeDeltaT - m_deltaT;
+  if (m_options.timeCut > m_tileSizeDeltaT - deltaT) {
+    m_options.timeCut = m_tileSizeDeltaT - deltaT;
     ATH_MSG_WARNING("Reducing timeCut to " << m_options.timeCut / CLHEP::ns << " ns. ");
   } else if ( ! m_options.doTOFCorrection && m_options.timeCut < 1000*CLHEP::ns ) {
     // assuming that if TOF correction is disabled, then we are running cosmic simulation
     // and should not use too restrictive time cut
-    m_options.timeCut = m_tileSizeDeltaT - m_deltaT;
+    m_options.timeCut = m_tileSizeDeltaT - deltaT;
     ATH_MSG_WARNING("TOF correction is disabled, settting time cut to "
                     << m_options.timeCut / CLHEP::ns << " ns. ");
   }
 
-  m_lateHitTime = m_tileSizeDeltaT - m_deltaT;
+  m_lateHitTime = m_tileSizeDeltaT - deltaT;
   ATH_MSG_INFO("All hits with time above " << m_options.timeCut / CLHEP::ns << " ns will be stored with time = "
                << m_lateHitTime / CLHEP::ns << " ns.");
 
@@ -431,7 +435,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   return true;
 }
 
-G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitData) const
+G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitData, double& deltaTime) const
 {
   if (hitData.nrOfPMT == 0) {
     return false;
@@ -581,7 +585,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
 
   G4double totalTime = aStep->GetPostStepPoint()->GetGlobalTime();  //added by Mike
 
-  if (m_deltaT > 0.0) {
+  if (m_keepHitTime) {
     const G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition();  //position of the hit
     const double cosTh_hit = position.cosTheta();
     const double magn_hit = position.mag();
@@ -660,7 +664,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
     ATH_MSG_VERBOSE(" hit time set to " << totalTime);
   }
   // calculate unique deltaT bin width for both up and down PMT, ignoring additional deltas
-  m_deltaT = this->deltaT(totalTime);
+  deltaTime = this->deltaT(totalTime);
   const double scin_Time = totalTime + (hitData.tileSize + 1) * m_tileSizeDeltaT;
   hitData.scin_Time_up = hitData.scin_Time_down = scin_Time;
   hitData.totalTimeUp = hitData.totalTimeDown = totalTime;
@@ -729,8 +733,10 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep, TileHitData& 
     return microHit;
   }
 
+  double deltaTime(0);
+
   //calculation of pmtID, edep and scin_Time with aStep
-  if (!this->MakePmtEdepTime(aStep, hitData)) {
+  if (!this->MakePmtEdepTime(aStep, hitData, deltaTime)) {
     ATH_MSG_DEBUG("MakePmtEdepTime: wrong pmtID_up,pmtID_down,edep_up,"
                     << "edep_down,scin_Time_up,scin_Time_down:\t"
                     << hitData.pmtID_up << "\t"
@@ -751,7 +757,7 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep, TileHitData& 
   return microHit;
 }
 
-G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
+G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData, double deltaTime) const
 {
   //Having hitData.cell and hitData.nModule (number of current module) we need to
   //determine if a Hit object already exists for this cell and module.
@@ -793,24 +799,24 @@ G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
   }
 
   if (hitData.edep_up != 0.) {
-    if (newTileHitUp) { this->CreateScintHit(1, hitData); }
-    else { this->UpdateScintHit(1, hitData); }
+    if (newTileHitUp) { this->CreateScintHit(1, hitData, deltaTime); }
+    else { this->UpdateScintHit(1, hitData, deltaTime); }
   }
 
   if (hitData.edep_down != 0.) {
-    if (newTileHitDown) { this->CreateScintHit(0, hitData); }
-    else { this->UpdateScintHit(0, hitData); }
+    if (newTileHitDown) { this->CreateScintHit(0, hitData, deltaTime); }
+    else { this->UpdateScintHit(0, hitData, deltaTime); }
   }
 
   return true;
 }
 
-void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
+void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData, double deltaTime) const
 {
   if (pmt == 1) { //Upper PMT of Cell
-    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, m_deltaT);
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, deltaTime);
     if (m_options.doTileRow) {
-      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, deltaTime);
     }
     if (hitData.isNegative) {
       hitData.cell->moduleToHitUpNegative[hitData.nModule - 1] = aHit.release();
@@ -819,9 +825,9 @@ void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
       hitData.cell->moduleToHitUp[hitData.nModule - 1] = aHit.release();
     }
   } else { //Down PMT of Cell
-    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, m_deltaT);
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, deltaTime);
     if (m_options.doTileRow) {
-      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, deltaTime);
     }
     if (hitData.isNegative) {
       hitData.cell->moduleToHitDownNegative[hitData.nModule - 1] = aHit.release();
@@ -832,7 +838,7 @@ void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
   }
 }
 
-void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
+void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData, double deltaTime) const
 {
   TileSimHit* aHit(nullptr);
 
@@ -843,9 +849,9 @@ void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
     else {
       aHit = hitData.cell->moduleToHitUp[hitData.nModule - 1];
     }
-    aHit->add(hitData.edep_up, hitData.totalTimeUp, m_deltaT);
+    aHit->add(hitData.edep_up, hitData.totalTimeUp, deltaTime);
     if (m_options.doTileRow) {
-      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, deltaTime);
     }
   } else { // Down PMT of Cell
     if (hitData.isNegative) {
@@ -854,9 +860,9 @@ void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
     else {
       aHit = hitData.cell->moduleToHitDown[hitData.nModule - 1];
     }
-    aHit->add(hitData.edep_down, hitData.totalTimeDown, m_deltaT);
+    aHit->add(hitData.edep_down, hitData.totalTimeDown, deltaTime);
     if (m_options.doTileRow) {
-      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, deltaTime);
     }
   }
 }
