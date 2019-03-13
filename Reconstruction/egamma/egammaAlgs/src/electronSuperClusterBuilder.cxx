@@ -140,7 +140,6 @@ StatusCode electronSuperClusterBuilder::execute(){
     //
     //Counters to keep tracks why we added the clusters
     m_nWindowClusters=0;
-    m_nExtraClusters=0;
     m_nSameTrackClusters=0;
     m_nSimpleBremSearchClusters=0;
     //
@@ -189,7 +188,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     //////////////////////////////////////////////////////////////////
     //Push back the new cluster into the output container.
     outputClusterContainer->push_back(newClus.release());
-    ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
+    ElementLink< xAOD::CaloClusterContainer > clusterLink(*outputClusterContainer, outputClusterContainer->size() - 1);
     std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
     //
     ////////////////////////////////////////////////////////////////////
@@ -199,6 +198,9 @@ StatusCode electronSuperClusterBuilder::execute(){
       newEgRec->setCaloClusters  (elClusters);
       newEgammaRecs->push_back(newEgRec);
       ATH_MSG_DEBUG("Made new egammaRec object");
+    } else {
+      ATH_MSG_FATAL("Couldn't make an egammaRec object");
+      return StatusCode::FAILURE;
     }
   } //End loop on egammaRecs
  

@@ -152,23 +152,24 @@ StatusCode photonSuperClusterBuilder::execute(){
      
     
     //push back the new photon super cluster 
-    outputClusterContainer->push_back(newCluster.release());
+    outputClusterContainer->push_back(newCluster.get());
+
+    //Add the cluster link to the super cluster
+    ElementLink< xAOD::CaloClusterContainer > clusterLink(*outputClusterContainer, outputClusterContainer->size() - 1);
+    std::vector< ElementLink<xAOD::CaloClusterContainer> > phCluster {clusterLink};
 
     ///////////////////////////////////////////////////////
     //Now create the new eg Rec 
     egammaRec *newEgRec = new egammaRec(*egRec);
-
-    //Add the cluster link to the super cluster
-    ElementLink< xAOD::CaloClusterContainer > clusterLink(newCluster, *outputClusterContainer);
-    std::vector< ElementLink<xAOD::CaloClusterContainer> > phCluster {clusterLink};
-    newEgRec->setCaloClusters(phCluster);
-
-    // will rerun conversion finding, so conversion vertices are not copied
-
-    //push it back
-    newEgammaRecs->push_back(newEgRec);
-
-    ATH_MSG_DEBUG("Finished making photon egammaRec object");
+    if (newEgRec) {
+      newEgRec->setCaloClusters(phCluster);
+      //push it back
+      newEgammaRecs->push_back(newEgRec);
+      ATH_MSG_DEBUG("Finished making photon egammaRec object");
+    } else {
+      ATH_MSG_FATAL("Couldn't make an egammaRec object");
+      return StatusCode::FAILURE;
+    }
   } //End loop on egammaRecs
 
   //Redo conversion matching given the super cluster

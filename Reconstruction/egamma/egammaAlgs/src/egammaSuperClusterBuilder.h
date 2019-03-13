@@ -65,14 +65,14 @@ private:
       The return value is whether it succeeded in finding a positive energy max value. 
       (If rv = false, the output variables are passed as arguments are not updated.) 
   */
-  bool findCentralPosition(float& eta, float& phi, bool& isBarrel
+  bool findCentralPosition(float& eta, float& phi, bool& isBarrel,
 			   const std::vector<const xAOD::CaloCluster*>& clusters) const;
 
   /** Find the reference position (eta, phi) relative to which cells are restricted.
       The return value is whether it succeeded in finding a positive energy max value. 
       (If rv = false, the output variables are passed as arguments are not updated.) 
   */
-  bool findPhiSize(double& phiSizePlus, double& phiSizeMinus, float phi,
+  void findPhiSize(double& phiSizePlus, double& phiSizeMinus, float phi,
 		   const xAOD::CaloCluster* cluster) const;
 
   
@@ -83,10 +83,10 @@ private:
 				 double eta, double phi, bool isBarrel) const;
 
   /** Add the preshower and L1 EM cells from reference cluster to self */
-  StatusCode addL01EMCellsToCluster(xAOD::CaloCluster* newCluster,
-				    const xAOD::CaloCluster* ref,
-				    double eta, double phi, bool isBarrel,
-				    double phiSizePlus, double phiSizeMinus) const;
+  StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
+				     const xAOD::CaloCluster* ref,
+				     double eta, double phi, bool isBarrel,
+				     double phiSizePlus, double phiSizeMinus) const;
   
   /** function to calibrate the new clusters energy */
   StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,

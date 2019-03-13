@@ -208,7 +208,7 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
 
   float etaRef = clusters[0]->eta(); // these are just default values, overwritten by findCentralPosition
   float phiRef = clusters[0]->phi();
-  bool isBarrel = xAOD::EgammaHelpers::isBarrel(clusters[0])
+  bool isBarrel = xAOD::EgammaHelpers::isBarrel(clusters[0]);
   
   bool foundHotCell = findCentralPosition(etaRef, phiRef, isBarrel, clusters);
 
@@ -216,6 +216,12 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   float phi0 = phiRef;
 
   if (foundHotCell) {
+    //Get the hotest in raw co-ordinates
+    const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
+    if (!mgr) {
+      ATH_MSG_ERROR("Couldn't create instance of CaloDetDescrManager this should never happen");
+      return nullptr;
+    }
     CaloCell_ID::CaloSample xsample = (isBarrel) ? CaloCell_ID::EMB2 :CaloCell_ID::EME2;
     const CaloDetDescrElement* dde = mgr->get_element(xsample, etaRef, phiRef);
     if (dde) {
@@ -259,14 +265,12 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   double phiSizePlus = 0;
   double phiSizeMinus = 0;
 
-  if (!findPhiSize(phiSizePlus, phiSizeMinus, phiRef, newCluster)) {
-    ATH_MSG_DEBUG("There was a problem finding the cluster size");
-  }
+  findPhiSize(phiSizePlus, phiSizeMinus, phiRef, newCluster.get());
 
   // now add L1 cells
   for (size_t i = 0; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
-    if (addL01EMCellsToCluster(newCluster.get(),clusters[i], etaRef, phiRef, isBarrel, phiSizePlus, phiSizeMinus).isFailure()) {
+    if (addL0L1EMCellsToCluster(newCluster.get(),clusters[i], etaRef, phiRef, isBarrel, phiSizePlus, phiSizeMinus).isFailure()) {
       ATH_MSG_WARNING("There was problem adding the topocluster PS and L1 cells to the the cluster");
       // Could potentially downgrade this to a debug. Getting rid of malformed clusters is the right thing to do.
       return nullptr;
@@ -444,7 +448,7 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
 	CaloCell_ID::PreSamplerB == sampling || CaloCell_ID::PreSamplerE == sampling) {
       double cell_phi = proxim(cell->phi(), phiRef);
       bool inRange = cell_phi > phiMinus && cell_phi < phiPlus;
-      ATH_MSG_DEBUG("Found PS or L1 cell with phi = " << cell_phi "; inRange = " << inRange);
+      ATH_MSG_DEBUG("Found PS or L1 cell with phi = " << cell_phi << "; inRange = " << inRange);
       if (inRange) {
 	newCluster->addCell(cell_itr.index(), cell_itr.weight());
       }
@@ -651,7 +655,7 @@ StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster
   return StatusCode::SUCCESS;
 }
 
-bool egammaSuperClusterBuilder::findCentralPosition(float& eta, float& phi, bool& isBarrel
+bool egammaSuperClusterBuilder::findCentralPosition(float& eta, float& phi, bool& isBar,
 						    const std::vector<const xAOD::CaloCluster*>& clusters) const
 {
 
@@ -684,7 +688,7 @@ bool egammaSuperClusterBuilder::findCentralPosition(float& eta, float& phi, bool
   if (emax > 0) {
     eta = etaRef;
     phi = phiRef;
-    isBarrel = isBarrel;
+    isBar = isBarrel;
     return true;
   } else {
     return false;
