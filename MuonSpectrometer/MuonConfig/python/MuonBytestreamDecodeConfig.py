@@ -1,4 +1,4 @@
-1;95;0c#
+#
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -56,8 +56,6 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
                                                                Decoder = RPCRodDecoder )
     if forTrigger:
-        cacheAcc,cacheAlg = MuonCacheCfg()
-        acc.merge( cacheAcc )
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
         MuonRpcRawDataProviderTool.OutputLevel = DEBUG
