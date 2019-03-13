@@ -28,7 +28,7 @@
 #include "xAODMuon/SlowMuon.h"
 
 // Tools
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
