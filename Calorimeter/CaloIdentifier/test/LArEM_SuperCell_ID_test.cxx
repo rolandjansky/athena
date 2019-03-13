@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -79,8 +79,9 @@ void test4 (const LArEM_SuperCell_ID& /*em_id*/)
 
 int main()
 {
-  std::unique_ptr<LArEM_SuperCell_ID> idhelper = make_helper<LArEM_SuperCell_ID_Test>();
-  std::unique_ptr<LArEM_SuperCell_ID> idhelper_n = make_helper<LArEM_SuperCell_ID_Test>(true);
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<LArEM_SuperCell_ID> idhelper = make_helper<LArEM_SuperCell_ID_Test>(*parser);
+  std::unique_ptr<LArEM_SuperCell_ID> idhelper_n = make_helper<LArEM_SuperCell_ID_Test>(*parser,true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);

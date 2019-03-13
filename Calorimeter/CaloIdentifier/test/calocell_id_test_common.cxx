@@ -181,13 +181,10 @@ template <class CALOCELL_ID_T,
           class LARHEC_ID_T,
           class LARFCAL_ID_T,
           class TILE_ID_T>
-std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (bool do_neighbours = false)
+std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (IdDictParser& parser,
+                                               bool do_neighbours = false)
 {
-  //IdDictParser parser;
-  //parser.register_external_entity ("LArCalorimeter",
-  //"IdDictLArCalorimeter_DC3-05-Comm-01.xml");
-  //IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
-  IdDictMgr& idd = getDictMgr();
+  IdDictMgr& idd = parser.m_idd;
 
   // Set some default file names for neighbours (RDS 12/2009):
   if (!do_neighbours) {
@@ -198,10 +195,13 @@ std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (bool do_neighbours = false)
     idd.add_metadata("TILENEIGHBORS",       "TileNeighbour_reduced.txt");  
   }
 
-  std::unique_ptr<LAREM_ID_T> em_id = make_helper<LAREM_ID_T> (do_neighbours,
+  std::unique_ptr<LAREM_ID_T> em_id = make_helper<LAREM_ID_T> (parser,
+                                                               do_neighbours,
                                                                false);
-  std::unique_ptr<LARHEC_ID_T> hec_id = make_helper<LARHEC_ID_T> (do_neighbours);
-  std::unique_ptr<LARFCAL_ID_T> fcal_id = make_helper<LARFCAL_ID_T> (do_neighbours);
+  std::unique_ptr<LARHEC_ID_T> hec_id = make_helper<LARHEC_ID_T> (parser,
+                                                                  do_neighbours);
+  std::unique_ptr<LARFCAL_ID_T> fcal_id = make_helper<LARFCAL_ID_T> (parser,
+                                                                     do_neighbours);
 
 #if 0
   IdDictParser* miniparser = new IdDictParser;
@@ -214,9 +214,9 @@ std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (bool do_neighbours = false)
 #endif
   // Adding in MiniFCAL doesn't really work, because MiniFCAL and FCAL
   // overlap ID assignments!
-  std::unique_ptr<LArMiniFCAL_ID> minifcal_id = make_helper<LArMiniFCAL_ID> (do_neighbours);
+  std::unique_ptr<LArMiniFCAL_ID> minifcal_id = make_helper<LArMiniFCAL_ID> (parser,do_neighbours);
 
-  std::unique_ptr<TILE_ID_T> tile_id = make_helper<TILE_ID_T> (do_neighbours);
+  std::unique_ptr<TILE_ID_T> tile_id = make_helper<TILE_ID_T> (parser, do_neighbours);
 
   auto calo_id = CxxUtils::make_unique<CALOCELL_ID_T> (em_id.release(),
                                                        hec_id.release(),

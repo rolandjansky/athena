@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,13 +18,14 @@
 #include "calocell_id_test_common.cxx"
 
 
-std::unique_ptr<CaloCell_ID> make_calo_id (bool do_neighbours = false)
+std::unique_ptr<CaloCell_ID> make_calo_id (IdDictParser& parser,
+                                           bool do_neighbours = false)
 {
   return make_calo_id_t<CaloCell_ID,
                         LArEM_ID,
                         LArHEC_ID,
                         LArFCAL_ID,
-                        TileID> (do_neighbours);
+                        TileID> (parser, do_neighbours);
 }
 
 
@@ -53,8 +54,9 @@ void test_neighbours (const CaloCell_ID& calo_id)
 
 int main()
 {
-  std::unique_ptr<CaloCell_ID> calo_id = make_calo_id();
-  std::unique_ptr<CaloCell_ID> calo_id_n = make_calo_id(true);
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<CaloCell_ID> calo_id = make_calo_id(*parser);
+  std::unique_ptr<CaloCell_ID> calo_id_n = make_calo_id(*parser, true);
   try {
     test_cells (*calo_id);
     test_sample (*calo_id, false);

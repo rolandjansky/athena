@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -103,12 +103,13 @@ void test_neighbors (const TileID& idhelper)
 
 int main()
 {
-  idDictType = "TileCalorimeter";
-  idDictXmlFile = "IdDictTileCalorimeter.xml";
-  IdDictMgr& idd = getDictMgr();
+  std::string type = "TileCalorimeter";
+  std::string xmlFile = "IdDictTileCalorimeter.xml";
+  std::unique_ptr<IdDictParser> parser = make_parser(type, xmlFile);
+  IdDictMgr& idd = parser->m_idd;
   idd.add_metadata("TILENEIGHBORS",       "TileNeighbour_reduced.txt");  
-  std::unique_ptr<TileID> idhelper = make_helper<TileID_Test>();
-  std::unique_ptr<TileID> idhelper_n = make_helper<TileID_Test>(true);
+  std::unique_ptr<TileID> idhelper = make_helper<TileID_Test>(*parser);
+  std::unique_ptr<TileID> idhelper_n = make_helper<TileID_Test>(*parser,true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
