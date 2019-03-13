@@ -967,8 +967,22 @@ sub run_test($){
       print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
     }
 
-    my %reldata = release_metadata();
-    my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
+    #my %reldata = release_metadata();
+    my $nightly = '';
+    #if ( exists $reldata{'nightly name'} ) {
+    #  $nightly = $reldata{'nightly name'};
+    #  print "nightly name: ".$nightly."\n";
+    #} 
+    if( defined $ENV{'AtlasBuildBranch'} ) {
+      $nightly = $ENV{'AtlasBuildBranch'}; 
+      #print "AtlasBuildBranch: ".$nightly."\n";
+    } elsif ( defined $ENV{'gitlabTargetBranch'} ) {  #fix for ATR-19383
+      $nightly = $ENV{'gitlabTargetBranch'}; 
+      #print "gitlabTargetBranch: ".$nightly."\n";
+    } else {
+      #print "nightly unknown\n";
+      $nightly = 'UNKNOWN';
+    }
     # modification for ART (ATR-17618)
     # $nightly = $nightly . "/latest";
     print "$prog: looking for histograms and references for nightly $nightly \n";
@@ -1384,9 +1398,11 @@ sub release_metadata() {
     my %data;
     my @dir = grep(/\/$ENV{'AtlasProject'}\//, split(':',$ENV{'LD_LIBRARY_PATH'}));
     open RELDATA, "$dir[0]/../ReleaseData" or print "=== Alert! Cannot open ReleaseData file\n";
+    #print "Release metadata:\n";
     while (<RELDATA>) {
         chomp;
         my @kv = split(':');
+        #print $kv[0].": ".$kv[1]."\n";
         $data{$kv[0]} = $kv[1];
     }
     return %data;
