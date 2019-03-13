@@ -56,7 +56,7 @@ datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite) #i:xaoddata.root o:xaodd
 datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead) #i:xaoddata2.root o:xaoddata2x.root
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
-datamodel_run_test (xAODTestReadRename DEPENDS xaAODTestWrite)
+datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadRenameMT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)

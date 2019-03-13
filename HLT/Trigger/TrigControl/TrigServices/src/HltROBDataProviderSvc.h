@@ -1,251 +1,200 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef TRIGSERVICES_HLTROBDATAPROVIDERSVC_H
 #define TRIGSERVICES_HLTROBDATAPROVIDERSVC_H
+/**
+ * @file   HltROBDataProviderSvc.h
+ * @brief  Service to serve ROB data in online environment
+ * @author Werner Wiedenmann
+ */
 
-/** ===============================================================
- *     HltROBDataProviderSvc.h
- *  ===============================================================
- *    Description:  ROBDataProvider class for accessing ROBData
- *                  To be used for Offline/Online
- *
- *    Requirements: define a ROBData class in the scope
- *                  provide a method
- *       void getROBData(const vector<uint>& ids, vector<ROBData*>& v)
- *    Implementation: Use an interal map to store all ROBs
- *                    We can not assume any ROB/ROS relationship, no easy 
- *                    way to search.
- * 
- *    Created:      Sept 19, 2002
- *         By:      Hong Ma 
- *    Modified:     Aug. 18  2003 (common class for Online/Offline)
- *         By:      Werner Wiedenmann 
- *    Modified:     Apr  21  2005 (implementation for online)
- *         By:      Werner Wiedenmann
- *    Modified:     Jun. 02 2006 (added monitoring horograms)
- *         By:      Tomasz Bold
- *    Modified:     May  21  2007 (updates for release 13)
- *         By:      Werner Wiedenmann
- *    Modified:     Nov. 10  2008 (updates for L2/EF result node ID handling)   
- *         By:      Werner Wiedenmann
- *    Modified:     Mar. 05, 2013 (adapted from L2 for merged HLT)
- *         By:      Ricardo Abreu
- *    Modified:     Nov. 04, 2013 (implement complete hltinterface definitions)
- *         By:      Werner Wiedenmann
- */ 
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/HistoProperty.h"
-#include "GaudiKernel/Property.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvcPrefetch.h"
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+// Package includes
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
-#include "TrigDataAccessMonitoring/ROBDataMonitor.h"
-#include "TrigSteeringEvent/RobRequestInfo.h"
-#include "eformat/Status.h"
-#include "hltinterface/DCM_ROBInfo.h"
+#include "eformat/SourceIdentifier.h"
+
+// Framework includes
+#include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "AthenaMonitoring/Monitored.h"
+
+// STL includes
+#include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 
-// Forward declarations
-class StoreGateSvc;  
-class IAlgContextSvc;
-class TH1F;   /// for monitoring purposes
-class TH2F;   /// for monitoring purposes
+// TBB includes
+#include "tbb/concurrent_unordered_map.h"
 
-class HltROBDataProviderSvc : public ROBDataProviderSvc,
-			       virtual public ITrigROBDataProviderSvc,
-			       virtual public ITrigROBDataProviderSvcPrefetch,
-			       virtual public IIncidentListener
-{
+/**
+ * @class HltROBDataProviderSvc
+ * @brief ROBDataProvider service for retrieving and serving ROB data in HLT online
+ **/
+class HltROBDataProviderSvc : public extends<AthService, IROBDataProviderSvc> {
 public:
+  /// ROB Fragment class
+  typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
 
-    typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF ; 
+  HltROBDataProviderSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~HltROBDataProviderSvc() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-    HltROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc);
+  /// --- Implementation of IROBDataProviderSvc interface ---
+  /// --- Legacy interface (deprecated) ---
 
-    virtual ~HltROBDataProviderSvc(void);
-  
-    virtual StatusCode initialize();
+  /// Signal ROB fragments which should be considered for prefetching in online running
+  virtual void addROBData(const std::vector<uint32_t>& /*robIds*/, 
+			  const std::string_view callerName="UNKNOWN") override;
 
-    virtual StatusCode finalize();
+  /// Start a new event with a set of ROB fragments, e.g. from LVL1 result, in online and add the fragments to the ROB cache
+  virtual void setNextEvent(const std::vector<ROBF>& /*result*/) override;
 
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  /// Start a new event with a full event fragment and add all ROB fragments in to the ROB cache
+  virtual void setNextEvent(const RawEvent* /*re*/) override;
 
-    /// --- Implementation of IROBDataProviderSvc interface ---    
+  /// Retrieve ROB fragments for given ROB ids from the ROB cache
+  virtual void getROBData(const std::vector<uint32_t>& /*robIds*/, std::vector<const ROBF*>& /*robFragments*/, 
+			  const std::string_view callerName="UNKNOWN") override;
 
-    /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
-    virtual void addROBData(const EventContext& /*ctx*/,
-                            const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN")
-    {
-      addROBData(robIds, callerName);
-    }
-    virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN");
+  /// Retrieve the full event fragment
+  virtual const RawEvent* getEvent() override;
 
-    /// Add a given LVL1/HLT ROBFragment to cache
-    virtual void setNextEvent(const EventContext& /*ctx*/,
-                              const std::vector<ROBF>& result)
-    { setNextEvent (result); }
-    virtual void setNextEvent(const std::vector<ROBF>& result);
+  /// Store the status for the event.
+  virtual void setEventStatus(uint32_t /*status*/) override;
 
-    /// Add all ROBFragments of a RawEvent to cache 
-    virtual void setNextEvent(const EventContext& /*ctx*/, const RawEvent* re)
-    { setNextEvent(re); }
-    virtual void setNextEvent(const RawEvent* re);
+  /// Retrieve the status for the event.
+  virtual uint32_t getEventStatus() override;
 
-    /// Retrieve ROBFragments for given ROB ids from cache 
-    virtual void getROBData(const EventContext& /*ctx*/,
-                            const std::vector<uint32_t>& robIds, 
-			    std::vector<const ROBF*>& robFragments,
-			    const std::string callerName="UNKNOWN")
-    {
-      getROBData (robIds, robFragments, callerName);
-    }
-    virtual void getROBData(const std::vector<uint32_t>& robIds, 
-			    std::vector<const ROBF*>& robFragments,
-			    const std::string callerName="UNKNOWN");
- 
-    /// Retrieve the whole event.
-    virtual const RawEvent* getEvent(const EventContext& /*ctx*/)
-    { return getEvent(); }
-    virtual const RawEvent* getEvent();
+  /// --- Implementation of IROBDataProviderSvc interface ---
+  /// --- Context aware interface for MT ---
 
-    /// --- Implementation of ITrigROBDataProviderSvc interface ---
+  /// Signal ROB fragments which should be considered for prefetching in online running
+  virtual void addROBData(const EventContext& /*context*/, const std::vector<uint32_t>& /*robIds*/, 
+			  const std::string_view callerName="UNKNOWN") override;
 
-    /// Return vector with all ROBFragments stored in the cache 
-    virtual void getAllROBData(std::vector<const ROBF*>& robFragments) ;
+  /// Start a new event with a set of ROB fragments, e.g. from LVL1 result, in online and add the fragments to the ROB cache
+  virtual void setNextEvent(const EventContext& /*context*/, const std::vector<ROBF>& /*result*/) override;
 
-    // Dump ROB cache
-    virtual std::string dumpROBcache() const ;
+  /// Start a new event with a full event fragment and add all ROB fragments in to the ROB cache
+  virtual void setNextEvent(const EventContext& /*context*/, const RawEvent* /*re*/) override;
 
-    /// Return size of ROBFragments cache 
-    virtual int sizeROBCache() { return m_online_robmap.size(); }
+  /// Retrieve ROB fragments for given ROB ids from the ROB cache
+  virtual void getROBData(const EventContext& /*context*/, 
+			  const std::vector<uint32_t>& /*robIds*/, std::vector<const ROBF*>& /*robFragments*/, 
+			  const std::string_view callerName="UNKNOWN") override;
 
-    /// iterators over cache entries
-    virtual std::map<uint32_t, ROBF>::iterator beginROBCache() { return m_online_robmap.begin(); }
-    virtual std::map<uint32_t, ROBF>::iterator endROBCache()   { return m_online_robmap.end(); }
+  /// Retrieve the full event fragment
+  virtual const RawEvent* getEvent(const EventContext& /*context*/) override;
 
-    /// Flag to check if complete event data are already in cache
-    virtual bool isEventComplete(const EventContext& /*ctx*/) const { return m_isEventComplete; }
-    virtual bool isEventComplete() { return m_isEventComplete; }
+  /// Store the status for the event.
+  virtual void setEventStatus(const EventContext& /*context*/, uint32_t /*status*/) override;
 
-    /// Collect all data for an event from the ROS and put them into the cache
-    /// Return value: number of ROBs which were retrieved to complete the event
-    /// Optinonally the name of the caller of this method can be specified for cost monitoring
-    virtual int collectCompleteEventData(const EventContext& /*ctx*/,
-                                         const std::string callerName="UNKNOWN")
-    {
-      return collectCompleteEventData(callerName);
-    }
-    virtual int collectCompleteEventData(const std::string callerName="UNKNOWN");
+  /// Retrieve the status for the event.
+  virtual uint32_t getEventStatus(const EventContext& /*context*/) override;
 
-    /// set the name of the program which uses the ROBDataProviderSvc
-    virtual void setCallerName(const std::string);
+  /// Apply a function to all ROBs in the cache
+  virtual void processCachedROBs(const EventContext& /*context*/, const std::function< void(const ROBF* )>& /*fn*/) const override;
 
-    /// get the name of the program which is presently registered in the ROBDataProviderSvc
-    virtual std::string getCallerName() { return m_callerName; };
+  /// Flag to check if all event data have been retrieved
+  virtual bool isEventComplete(const EventContext& /*context*/) const override;
 
-    /// --- Implementation of ITrigROBDataProviderSvcPrefetch interface ---
-
-    /// Set access to ROB prefetching information from steering
-    virtual void setRobRequestInfo(HLT::RobRequestInfo* robInfo) { m_RobRequestInfo = robInfo; } ;
-
-    /// Get access to ROB prefetching information from steering
-    virtual HLT::RobRequestInfo* robRequestInfo() const { return m_RobRequestInfo; };
-
-    /// --- Implementation of IIncidentListener interface ---
-
-    // handler for BeginRun actions
-    void handle(const Incident& incident);
-
+  /// retrieve in online running all ROBs for the event from the readout system. Only those ROBs are retrieved which are not already in the cache
+  virtual int collectCompleteEventData(const EventContext& /*context*/, 
+				       const std::string_view callerName="UNKNOWN") override;
 
 private:
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Reference to StoreGateSvc;
-    StoreGateSvc_t         m_storeGateSvc;
-    
-    /// Pointer to AlgContextSvc 
-    IAlgContextSvc*        m_algContextSvc;
+  /*--------------+
+   *  Event cache |
+   *--------------+ 
+   */
+  /// map for all the ROB fragments
+  typedef tbb::concurrent_unordered_map<uint32_t, ROBF> ROBMAP;
 
-    typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
-    typedef SimpleProperty< std::map<int,int> >     IntegerMapProperty;
+  /// struct which provides the event cache for each slot
+  struct EventCache {
+    ~EventCache();
+    const RawEvent* event      = 0;
+    uint32_t currentLvl1ID     = 0; 
+    uint64_t globalEventNumber = 0;
+    uint32_t eventStatus       = 0;    
+    bool     isEventComplete   = false;    
+    ROBMAP   robmap;
+  };
 
-    // flag indicates if running in online/offline 
-    bool m_onlineRunning ;
+  /// An event cache for each slot
+  SG::SlotSpecificObj<EventCache> m_eventsCache;
 
-    // read enabled ROBs from OKS when possible
-    BooleanProperty m_readROBfromOKS;
+  /*------------------------------+
+   * Attributes for configuration |
+   *------------------------------+ 
+   */
+  /// vector of Source ids and status words to be ignored for the ROB map
+  typedef std::vector< std::pair<int, int> > ArrayPairIntType;
+  Gaudi::Property< ArrayPairIntType > m_filterRobWithStatus{
+    this, "filterRobWithStatus", {} , "List of ROBs with status code to remove"};
+  Gaudi::Property< ArrayPairIntType > m_filterSubDetWithStatus{
+    this, "filterSubDetWithStatus", {} , "List of SubDets with status code to remove"};
 
-    // list of all enabled ROBs which can be retrieved    
-    Uint32ArrayProperty m_enabledROBs;
+  /// map of full ROB Source ids and status words to be ignored for the ROB map
+  typedef std::map<uint32_t, std::vector<uint32_t> > FilterRobMap;
+  FilterRobMap          m_filterRobMap;
+  /// map of Sub Det Source ids and status words to be ignored for the ROB map
+  typedef std::map<eformat::SubDetector, std::vector<uint32_t> > FilterSubDetMap;
+  FilterSubDetMap       m_filterSubDetMap;
 
-    // list of ROBs which should be ignored for retrieval    
-    Uint32ArrayProperty m_ignoreROB;
+  /// Filter out empty ROB fragments which are send by the ROS
+  Gaudi::Property<bool> m_filterEmptyROB{
+    this, "filterEmptyROB", false , "Filter out empty ROB fragments"};
 
-    // list of all LAr MET ROBs which can be retrieved    
-    Uint32ArrayProperty m_enabledLArMetROBs ;
-    UnsignedIntegerProperty m_genericLArMetModuleID ;
+  /// For Run 1 the module ID for the Lvl2/EF result contained the machine ID and nedded to
+  /// be filtered out to access these result records transparently
+  bool m_maskL2EFModuleID = false;    
 
-    // list of all Tile MET ROBs which can be retrieved    
-    Uint32ArrayProperty m_enabledTileMetROBs;
-    UnsignedIntegerProperty m_genericTileMetModuleID ;
+  // read enabled ROBs from OKS when possible
+  Gaudi::Property<bool> m_readROBfromOKS{
+    this, "readROBfromOKS", true , "Read enabled ROBs from OKS"};
 
-    // Separate data collector calls to ROS for normal ROBs and MET ROBs
-    BooleanProperty m_separateMETandDetROBRetrieval ;
+  // list of all enabled ROBs which can be retrieved    
+  Gaudi::Property< std::vector<uint32_t> > m_enabledROBs{
+    this, "enabledROBs", {} , "Enabled ROBs for retrieval"};
 
-    // Filter out empty ROB fragments which are send by the ROS
-    bool m_removeEmptyROB;
+  /*------------------------+
+   * Methods acting on ROBs |
+   *------------------------+ 
+   */
+  /// method to filter ROBs with given Status code
+  bool robmap_filterRobWithStatus(const ROBF*);
 
-    // map for all the ROB fragments (cache for ROB data so that they are 
-    // not deleted when local containers go out of scope)
-    typedef std::map<uint32_t, ROBF> ONLINE_ROBMAP;
-    ONLINE_ROBMAP m_online_robmap; 
+  /*------------------------------+
+   * Methods acting on EventCache |
+   *------------------------------+ 
+   */
+  /// method to clear an event cache in a slot
+  /// input:
+  ///     pointer to cache
+  void eventCache_clear(EventCache*);
 
-    // helper function to retrieve ROB fragments over the network and to add them to the cache 
-    void addROBDataToCache(std::vector<uint32_t>& robIdsForRetrieval,         // vector of ROBs to retrieve 
-			   robmonitor::ROBDataMonitorStruct* p_robMonStruct); // pointer to ROB monitoring structure for retrieval
+  /// method to compare a list of ROB Ids to the ones in an event cache in a slot
+  /// input:
+  ///     pointer to cache
+  ///     vector of ROB Ids to compare to existing ones in cache
+  /// output:
+  ///     vector of ROB fragments available already in cache
+  ///     vector of ROB Ids missing in cache
+  void eventCache_checkRobListToCache(EventCache*, const std::vector<uint32_t>&, 
+				      std::vector<const ROBF*>&, std::vector<uint32_t>& );
 
-    // helper function to put retrieved ROB fragments into the local cache and update the monitoring records 
-    void updateROBDataCache(std::vector<hltinterface::DCM_ROBInfo>& vRobInfo,  // vector of ROB Info records with retrieved fragments 
-			    robmonitor::ROBDataMonitorStruct* p_robMonStruct); // pointer to ROB monitoring structure
+  /// method to add ROB fragments to an event cache in a slot
+  /// input:
+  ///     pointer to cache
+  ///     vector of ROB fragments to add to the cache
+  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&) ;
 
-    // Flag to indicate if all event data are already in the cache
-    bool m_isEventComplete;
-
-    // name of the program which presently uses the ROBDataProviderSvc
-    std::string m_callerName;
-
-    // ROB prefetching info
-    HLT::RobRequestInfo* m_RobRequestInfo;
-
-    // monitoring
-    std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
-    std::vector<std::string>                      m_vec_SpecificStatus;
-
-    BooleanProperty m_doMonitoring;
-    BooleanProperty m_doDetailedROBMonitoring;
-    StringProperty  m_ROBDataMonitorCollection_SG_Name;
-
-    Histo1DProperty m_histProp_requestedROBsPerCall;
-    Histo1DProperty m_histProp_receivedROBsPerCall;
-    Histo1DProperty m_histProp_timeROBretrieval;
-
-    TH1F* m_hist_requestedROBsPerCall;
-    TH1F* m_hist_receivedROBsPerCall;
-    TH1F* m_hist_timeROBretrieval;
-    TH2F* m_hist_genericStatusForROB;
-    TH2F* m_hist_specificStatusForROB;
-
-    // Temporary hack to make this version compile in master
-    uint32_t m_currentLvl1ID;
+  /// Monitoring tool
+  ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 };
 
-#endif
+#endif // TRIGSERVICES_HLTROBDATAPROVIDERSVC_H

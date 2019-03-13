@@ -13,9 +13,7 @@
 
 //Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 
@@ -25,8 +23,10 @@
 //local includes
 #include "SCT_CalibAlgs/ISCT_CalibHistoTool.h"
 
+//Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 //STL includes
-#include <atomic>
 #include <string>
 
 //fwd declarations
@@ -58,9 +58,7 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   //@}
 
  private:
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_evtStore;
-  ServiceHandle<ISCT_CalibEvtInfo> m_evtInfo;
+  ToolHandle<ISCT_CalibEvtInfo> m_evtInfo{this, "SCT_CalibEvtInfo", "SCT_CalibEvtInfo"};
 
   const SCT_ID* m_pSCTHelper;
   const InDetDD::SCT_DetectorManager* m_pManager;
@@ -71,7 +69,7 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   VecInt* m_sct_firstStrip;
   VecInt* m_sct_rdoGroupSize;
 
-  mutable std::atomic_int m_lumiBlock;
+  int m_lumiBlock;
 
   //private use in this class
   int m_LbRange;

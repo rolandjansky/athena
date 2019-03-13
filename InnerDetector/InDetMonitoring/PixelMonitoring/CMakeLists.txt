@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Database/AthenaPOOL/AthenaPoolUtilities
    DetectorDescription/GeoPrimitives
-   Event/EventInfo
+   Event/xAOD/xAODEventInfo
    Event/EventPrimitives
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsServices
@@ -44,7 +44,7 @@ atlas_add_component( PixelMonitoring
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib AtlasDetDescr
    GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack
-   AthenaPoolUtilities GeoPrimitives EventInfo EventPrimitives InDetIdentifier
+   AthenaPoolUtilities GeoPrimitives xAODEventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
    TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver 
    InDetTrackSelectionToolLib )

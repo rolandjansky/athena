@@ -28,18 +28,19 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
 			     const IInterface* parent) 
   : 
     AthAlgTool(type, name, parent),
-    m_lar_on_id(NULL), 	    
-    m_calocell_id(NULL),	
-    m_larem_id(NULL),
-    m_larhec_id(NULL),
-    m_larfcal_id(NULL),	
-    m_electrodeID(NULL),
+    m_lar_on_id(nullptr), 	    
+    m_calocell_id(nullptr),	
+    m_larem_id(nullptr),
+    m_larhec_id(nullptr),
+    m_larfcal_id(nullptr),	
+    m_electrodeID(nullptr),
+    m_calodetdescrmgr(nullptr),
     m_cablingService("LArCablingLegacyService"),
     m_hvtool("LArHVToolMC")
 {
   declareInterface<ILArHVCorrTool>(this);
 
-  m_Tdrift = NULL;
+  m_Tdrift = nullptr;
   m_ownScale = true;
   m_keyOutput = "LArHVScaleCorr";
   m_keyOutputTd = "LArTdrift";
@@ -73,64 +74,22 @@ LArHVCorrTool::~LArHVCorrTool() {
 StatusCode LArHVCorrTool::initialize() {
   ATH_MSG_DEBUG("LArHVCorrTool initialize() begin");
   
-  StatusCode sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_calocell_id,"CaloCell_ID") );
 
-  sc=detStore()->retrieve(m_calocell_id,"CaloCell_ID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve  CaloCellID from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
-// retrieve LArEM id helper
+  m_larem_id   = m_calocell_id->em_idHelper();
+  m_larhec_id   = m_calocell_id->hec_idHelper();
+  m_larfcal_id   = m_calocell_id->fcal_idHelper();
 
-  sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endmsg;
-   return sc;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_CHECK( detStore()->retrieve(m_electrodeID) );
+  ATH_CHECK( m_hvtool.retrieve() );
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  ATH_CHECK( detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(&(*m_hvtool)),
+                                &ILArHVCorrTool::LoadCalibration,dynamic_cast<ILArHVCorrTool*>(this)) );
 
-  if(m_cablingService.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Unable to get CablingService " << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore()->retrieve(m_calodetdescrmgr);                
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get CaloDetDescrManager" << endmsg;
-    return StatusCode::FAILURE;                              
-  } 
-
-
-  sc=detStore()->retrieve(m_electrodeID);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get LArElectrodeID helper" << endmsg;
-    return sc;
-  }
-
-  if (m_hvtool.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Unable to find tool for LArHVTool" << endmsg; 
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(&(*m_hvtool)),
-			  &ILArHVCorrTool::LoadCalibration,dynamic_cast<ILArHVCorrTool*>(this));
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "canot register callback " << endmsg;
-    return sc;
-  }
-
-  sc = this->buildFixHVList();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot build list to fix HV corrections " << endmsg; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( this->buildFixHVList() );
 
   //Initialize hash-ranges
   //FIXME: Hardcoded numbers are not ideal
@@ -254,7 +213,7 @@ StatusCode LArHVCorrTool::finalize()
 // *** compute global ADC2MeV factor from subfactors *** 
 StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
   
-  if (m_doTdrift && m_Tdrift==NULL) {
+  if (m_doTdrift && m_Tdrift==nullptr) {
     m_Tdrift = new LArTdriftComplete();
     if( (m_Tdrift->setGroupingType("ExtendedSubDetector",msg())).isFailure()) {
       msg(MSG::ERROR) << " cannot setGroupingType " << endmsg;

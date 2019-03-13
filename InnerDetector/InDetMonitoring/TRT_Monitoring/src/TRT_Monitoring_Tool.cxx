@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
@@ -21,8 +21,6 @@
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventID.h"
 #include "xAODTrigger/TrigDecision.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -609,7 +607,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_CHECK( m_rdoContainerKey.initialize() );
 	ATH_CHECK( m_trackCollectionKey.initialize() );
 	ATH_CHECK( m_combTrackCollectionKey.initialize() );
-	ATH_CHECK( m_eventInfoKey.initialize() );
 	ATH_CHECK( m_xAODEventInfoKey.initialize() );
 	ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
 	ATH_CHECK( m_comTimeObjectKey.initialize() );

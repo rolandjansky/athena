@@ -30,7 +30,7 @@ SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string &type, const std::s
 StatusCode
 SCTMotherTrigMonTool::initialize() {
   if (ManagedMonitorToolBase::initialize().isFailure()) {
-    msg(MSG::ERROR) << "Could not initialize Monitor tool base!" << endmsg;
+    ATH_MSG_ERROR("Could not initialize Monitor tool base!");
     return StatusCode::FAILURE;
   }
 

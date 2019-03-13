@@ -9,21 +9,21 @@
 
 // P Sherwood March 2018
 
-/// \class NegativeEnergyRejectionTool
+/// \class NonPositiveEnergyRejectionTool
 ///
 /// Tool to select IParticles.
 
 #include "TrigHLTJetRec/IIParticleRejectionTool.h"
 #include "AsgTools/AsgTool.h"
 
-class NegativeEnergyRejectionTool : 
+class NonPositiveEnergyRejectionTool : 
   public asg::AsgTool, virtual public IIParticleRejectionTool{
-  ASG_TOOL_CLASS(NegativeEnergyRejectionTool, IIParticleRejectionTool)
+  ASG_TOOL_CLASS(NonPositiveEnergyRejectionTool, IIParticleRejectionTool)
   
   public:
   
-  NegativeEnergyRejectionTool(const std::string& name);
-  virtual ~NegativeEnergyRejectionTool() override {}
+  NonPositiveEnergyRejectionTool(const std::string& name);
+  virtual ~NonPositiveEnergyRejectionTool() override {}
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
@@ -33,7 +33,6 @@ class NegativeEnergyRejectionTool :
   virtual std::size_t rejected() const override;
 
 private:
-  bool  m_skipNegativeEnergy{true};
 
   std::size_t m_tested{0};
   std::size_t m_rejected{0};

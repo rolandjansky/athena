@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DAQ_CONDITIONSSVC_H
@@ -70,7 +70,6 @@ class TRT_DAQ_ConditionsSvc : public AthService,
   ServiceHandle<StoreGateSvc> m_detStore;
 
   // jobOptions properties
-  std::string m_EventInfoKey;
   std::string m_FolderName;
 
   // Straw Helpers

@@ -8,7 +8,6 @@
  *
  */
 #include "SCT_Monitoring/SCTRatioNoiseMonTool.h"
-#include "deletePointers.h"
 #include "SCT_NameFormatter.h"
 #include <cmath>
 
@@ -277,7 +276,7 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   }
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;
+    ATH_MSG_WARNING("Error in bookRatioNoiseHistos()");
   }
   return StatusCode::SUCCESS;
 }
@@ -299,7 +298,7 @@ SCTRatioNoiseMonTool::bookHistograms() {
   }
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;
+    ATH_MSG_WARNING("Error in bookRatioNoiseHistos()");
   }
 
   return StatusCode::SUCCESS;
@@ -800,9 +799,7 @@ SCTRatioNoiseMonTool::procHistograms() {
   m_NOECCSide->SetBinContent(m_NOECCSide->GetNbinsX(), m_NOECCSide->GetBinContent(
                                m_NOECCSide->GetNbinsX()) + m_NOECCSide->GetBinContent(m_NOECCSide->GetNbinsX() + 1));
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Total Rec Event Number: " << m_numberOfEvents << endmsg;
-  }
+  ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
   return StatusCode::SUCCESS;
 }
 
@@ -830,10 +827,10 @@ SCTRatioNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 //                              SCTRatioNoiseMonTool :: bookRatioNoiseHistos
 // ====================================================================================================
 StatusCode
-SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
-  if (newRunFlag()) {                                         // hidetoshi 14.01.22
+SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
+  if (newRunFlag()) {
     string stem = m_path + "/SCT/GENERAL/RatioNoise/";
-    MonGroup RatioNoise(this, m_path + "SCT/GENERAL/RatioNoise", run, ATTRIB_UNMANAGED); // hidetoshi 14.01.22
+    MonGroup RatioNoise(this, m_path + "SCT/GENERAL/RatioNoise", run, ATTRIB_UNMANAGED);
 
     string hNumBarrel[N_BARRELS] = {
       "0", "1", "2", "3"
@@ -1090,7 +1087,7 @@ SCTRatioNoiseMonTool::pFactory(const std::string &name, const std::string &title
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   return success ? tmp : NULL;
 }
@@ -1102,7 +1099,7 @@ SCTRatioNoiseMonTool::h1Factory(const std::string &name, const std::string &titl
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   return success ? tmp : NULL;
 }
@@ -1115,7 +1112,7 @@ SCTRatioNoiseMonTool::h2Factory(const std::string &name, const std::string &titl
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   return success ? tmp : NULL;
 }
@@ -1127,7 +1124,7 @@ SCTRatioNoiseMonTool::h1Factory(const std::string &name, const std::string &titl
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
   return success ? tmp : NULL;
@@ -1153,7 +1150,7 @@ SCTRatioNoiseMonTool::prof2Factory(const std::string &name, const std::string &t
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
   return success ? tmp : NULL;

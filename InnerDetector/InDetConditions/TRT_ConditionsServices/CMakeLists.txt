@@ -30,7 +30,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
-			  Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           InnerDetector/InDetConditions/InDetCoolCoralClientUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -50,7 +49,7 @@ atlas_add_library( TRT_ConditionsServicesLib
                    PUBLIC_HEADERS TRT_ConditionsServices
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel GeoPrimitives EventPrimitives GaudiKernel TRT_ConditionsData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier xAODEventInfo EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier xAODEventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry PathResolver )
 
 atlas_add_component( TRT_ConditionsServices
                      src/components/*.cxx

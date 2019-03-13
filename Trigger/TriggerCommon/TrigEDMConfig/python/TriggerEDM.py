@@ -610,6 +610,10 @@ TriggerHLTList = [
     ('xAOD::JetContainer#HLT_a4sktclcwnojcalibFS',                       'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4sktclcwnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
 
+    # SoftKiller
+    ('xAOD::JetContainer#HLT_a4_sktclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4_sktclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
+
     #GSC
     ('xAOD::JetContainer#HLT_GSCJet', 						'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
     ('xAOD::JetTrigAuxContainer#HLT_GSCJetAux.', 				'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),    

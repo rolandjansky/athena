@@ -10,11 +10,6 @@ atlas_subdir( TriggerMenuMT )
 atlas_depends_on_subdirs( PRIVATE
                           Trigger/TriggerCommon/TriggerJobOpts)
 
-atlas_add_test ( pyflakesMenu
-   SCRIPT scripts/pyflakesMenu.sh
-   ENVIRONMENT "PYPATH=${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/share ${CMAKE_CURRENT_SOURCE_DIR}/scripts"
-)
-
 atlas_add_test( flake8
    SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python 
    POST_EXEC_SCRIPT nopost.sh )

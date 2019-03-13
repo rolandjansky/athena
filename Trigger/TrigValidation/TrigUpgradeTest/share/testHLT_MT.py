@@ -32,10 +32,10 @@ class opt :
     enableCostD3PD   = False          # enable cost monitoring
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
+    isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
 #
 ################################################################################
 
-import AthenaCommon.CfgMgr as CfgMgr
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')
@@ -48,9 +48,9 @@ defaultOptions = [a for a in dir(opt) if not a.startswith('__')]
 for option in defaultOptions:
     if option in globals():
         setattr(opt, option, globals()[option])
-        print ' %20s = %s' % (option, getattr(opt, option))
+        print(' %20s = %s' % (option, getattr(opt, option)))
     else:        
-        print ' %20s = (Default) %s' % (option, getattr(opt, option))
+        print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -61,35 +61,38 @@ from AthenaCommon.BeamFlags import jobproperties
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
-# Input format and file for athena running
+# Auto-configuration for athena
 if len(athenaCommonFlags.FilesInput())>0:
-    from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys, GetRunNumber
-    ConfigureFromListOfKeys(['everything'])
-    TriggerRelease.Modifiers._run_number = GetRunNumber()
-else:
-    if '_run_number' in dir(): TriggerRelease.Modifiers._run_number = _run_number   # set by athenaHLT
-    globalflags.InputFormat = 'bytestream'  # default for athenaHLT
-    if opt.setupForMC:
-        globalflags.DetGeo = 'atlas'
-        globalflags.DataSource = 'geant4'
-    else:
-        globalflags.DetGeo = 'commis'
-        globalflags.DataSource = 'data'
-        jobproperties.Beam.beamType = 'collisions'
-        jobproperties.Beam.bunchSpacing = 25
-        globalflags.DetDescrVersion = TriggerFlags.OnlineGeoTag()
-        globalflags.ConditionsTag = TriggerFlags.OnlineCondTag()
-        
+    import PyUtils.AthFile as athFile
+    af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
+    globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
+    globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    if opt.setDetDescr is None:
+        opt.setDetDescr = af.fileinfos.get('geometry',None)
+    if opt.setGlobalTag is None:
+        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
+            (TriggerFlags.OnlineCondTag() if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
+    TriggerRelease.Modifiers._run_number = af.fileinfos['run_number'][0]
 
-# Overwrite tags if specified on command line
-if opt.setDetDescr is not None:
-    globalflags.DetDescrVersion = opt.setDetDescr
-if opt.setGlobalTag is not None:
-    globalflags.ConditionsTag = opt.setGlobalTag
+else:   # athenaHLT
+    globalflags.InputFormat = 'bytestream'
+    globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    if '_run_number' in dir():
+        TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+        del _run_number
 
+# Set final Cond/Geo tag based on input file, command line or default
+globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+
+# Other defaults
+jobproperties.Beam.beamType = 'collisions'
+jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
-athenaCommonFlags.isOnline = False # for the moment, run in offline mode
+log.info('Configured the following global flags:')
+globalflags.print_JobProperties()
 
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags

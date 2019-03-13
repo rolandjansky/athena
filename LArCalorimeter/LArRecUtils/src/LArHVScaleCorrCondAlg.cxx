@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVScaleCorrCondAlg.h"
@@ -30,7 +30,8 @@ LArHVScaleCorrCondAlg::LArHVScaleCorrCondAlg(const std::string& name, ISvcLocato
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),	
-    m_electrodeID(nullptr)
+    m_electrodeID(nullptr),
+    m_calodetdescrmgr(nullptr)
 {
 
   m_deltatupdate = 0;
@@ -56,11 +57,10 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
   // retrieve id helpers
   ATH_CHECK(detStore()->retrieve(m_lar_on_id,"LArOnlineID"));
   ATH_CHECK(detStore()->retrieve(m_calocell_id,"CaloCell_ID"));
-  ATH_CHECK(detStore()->retrieve( m_caloIdMgr ));
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  m_larem_id   = m_calocell_id->em_idHelper();
+  m_larhec_id   = m_calocell_id->hec_idHelper();
+  m_larfcal_id   = m_calocell_id->fcal_idHelper();
 
   ATH_CHECK(detStore()->retrieve(m_calodetdescrmgr));
 

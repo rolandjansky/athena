@@ -12,9 +12,9 @@
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h" // cannot fwd-declare because of covariant method
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include <iosfwd>
-#include <atomic>
 
 class MsgStream;
 
@@ -106,7 +106,7 @@ private:
 
 
     /** The global position */
-    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained InDet::SCT_ClusterOnTrack objects */
     std::vector<const InDet::SCT_ClusterOnTrack*>*   m_containedChildRots;
@@ -138,14 +138,10 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
 }
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
-    const Amg::Vector3D* ptr = m_globalPosition.load();
-    if(ptr) return *ptr;
-    const Amg::Vector3D* newptr = associatedSurface().localToGlobal(localParameters());
-    if(m_globalPosition.compare_exchange_strong(ptr, newptr)){
-       return *newptr; //new object is now stored in m_globalPosition
+    if (not m_globalPosition) {
+        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
-    delete newptr; //Object was created on another thread, while this was running, so this is now unneeded.
-    return *ptr; //ptr was replaced with other object by compare_exchange_strong, this is now returned.
+    return *m_globalPosition;
 }
 
 inline unsigned int CompetingSCT_ClustersOnTrack::numberOfContainedROTs() const {

@@ -65,6 +65,7 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         ath_sequence = menuseq.sequence.Alg
         name = ath_sequence.name()
+        print('5555555 ATH SEQUENCE NAME ---- ', name)
         if name in already_connected:
             log.debug("AthSequencer %s already in the Tree, not added again",name)
         else:
@@ -328,7 +329,11 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
     return finalDecisions
 
 
-def generateDecisionTree(HLTNode, chains, allChainDicts):
+"""
+Not used, kept for reference and testing purposes
+To be removed in future
+"""
+def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()

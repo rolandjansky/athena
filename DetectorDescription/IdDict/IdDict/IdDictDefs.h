@@ -89,8 +89,8 @@ private:
     std::set<std::string> m_subdictionary_names; 
     bool                  m_resolved_references;
     bool                  m_generated_implementation;
-    mutable bool          m_do_checks;
-    mutable bool          m_do_neighbours;
+    bool                  m_do_checks;
+    bool                  m_do_neighbours;
 };  
   
 class IdDictDictionary  
@@ -310,8 +310,8 @@ private:
     std::string m_dict_tag;  
     //bool m_resolved_references;
     bool m_generated_implementation;
-    mutable bool  m_do_checks;
-    mutable bool  m_do_neighbours;
+    bool  m_do_checks;
+    bool  m_do_neighbours;
 };  
   
 class IdDictField 

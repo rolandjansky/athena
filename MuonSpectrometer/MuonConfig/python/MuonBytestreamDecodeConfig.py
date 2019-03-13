@@ -24,7 +24,7 @@ def MuonCacheCfg():
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
     acc.addEventAlgo( cacheCreator )
-    return acc, cacheCreator
+    return acc
 
 
 ## This configuration function sets up everything for decoding RPC bytestream data into RDOs
@@ -130,9 +130,6 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
     if forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc,cacheAlg = MuonCacheCfg()
-        acc.merge( cacheAcc )
         # tell the raw data provider tool to use the cache
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
@@ -170,9 +167,6 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
     if forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc,cacheAlg = MuonCacheCfg()
-        acc.merge( cacheAcc )
         # tell the raw data provider tool to use the cache
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 

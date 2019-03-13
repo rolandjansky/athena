@@ -13,7 +13,6 @@
 
 //Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -43,14 +42,12 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   //@name ISCT_CalibHistoSvc methods, reimplemented
   //@{
   virtual bool book();
-  virtual bool read(const std::string & fileName);
+  virtual bool read(const std::string& fileName);
   virtual bool fill(const bool fromData=false);
   virtual bool fillFromData();
   //@}
 
  private:
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_evtStore;
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bytestreamErrorsTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   const SCT_ID* m_pSCTHelper;
 

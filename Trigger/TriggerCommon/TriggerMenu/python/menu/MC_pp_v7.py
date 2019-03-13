@@ -254,6 +254,14 @@ def setupMenu():
         ['j175_lcw_subjesIS', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j420_subjesIS',     'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j420_lcw_subjesIS', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+
+        # SoftKiller test and comparison chains
+        ['j60_sktc_em_nojcalib',  'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_tc_em_nojcalib',    'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_tc_em_sub',         'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_sktc_lcw_nojcalib', 'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_tc_lcw_nojcalib',   'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j60_tc_lcw_sub',        'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         
         # data scouting
         ['j0_perf_ds1_L1All',      'L1_All',  [], ['DataScouting_05_Jets'], ['RATE:Cosmic_Jets_DS', 'BW:Jet'], -1],
