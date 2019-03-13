@@ -799,10 +799,7 @@ def defineMenu():
 #        'L1_MU4_ALFA_EINE',
 
 
-        #item with FTK trigger type, for FTK commissioning
-         'L1_J15_FTK', 'L1_J40_FTK', 'L1_J100_FTK', 'L1_4J15.0ETA25_FTK',
-         'L1_MU6_FTK', 'L1_MU21_FTK', 'L1_MU20_FTK',
-         'L1_TAU12IM_FTK',
+        #item with FTK trigger type, for FTK commissioning - removed
         ]
     
 
@@ -1230,14 +1227,6 @@ def defineMenu():
         
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
         
-        'L1_J15_FTK' : 25,
-        'L1_J40_FTK' : 29,
-        'L1_J100_FTK' : 30,
-        'L1_4J15.0ETA25_FTK' : 31,
-        'L1_MU6_FTK' : 36,
-        'L1_TAU12IM_FTK' : 42,
-        'L1_MU21_FTK' : 49,
-        'L1_MU20_FTK' : 50,
 
 }
 
