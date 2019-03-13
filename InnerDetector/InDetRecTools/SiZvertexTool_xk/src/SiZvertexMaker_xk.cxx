@@ -263,7 +263,10 @@ void InDet::SiZvertexMaker_xk::production()
 MsgStream& InDet::SiZvertexMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
