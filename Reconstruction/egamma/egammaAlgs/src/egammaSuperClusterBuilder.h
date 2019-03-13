@@ -20,6 +20,8 @@
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
 
+#include <memory>
+
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
  *  The inheritance should be private. This class should never be instantiated
  *  by itself, and hence has no interface class
@@ -34,13 +36,13 @@ protected:
   StatusCode initialize() override;
 
   /** Is clus in window center around ref? */
-  bool MatchesInWindow(const xAOD::CaloCluster *ref,
+  bool matchesInWindow(const xAOD::CaloCluster *ref,
 		       const xAOD::CaloCluster *clus) const;
 
   /** Creates a new supercluster out of the input cluster */
   // not const because it calls CalibrateCluster
-  xAOD::CaloCluster* CreateNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
-				      xAOD::EgammaParameters::EgammaType egType);
+  std::unique_ptr<xAOD::CaloCluster> createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
+						      xAOD::EgammaParameters::EgammaType egType);
 
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
@@ -59,12 +61,35 @@ protected:
   //
 private:
 
-  /** Add the EM cells from reference cluster to self */
-  StatusCode AddEMCellsToCluster(xAOD::CaloCluster* newCluster,
-				 const xAOD::CaloCluster* ref) const;
+  /** Find the reference position (eta, phi) relative to which cells are restricted.
+      The return value is whether it succeeded in finding a positive energy max value. 
+      (If rv = false, the output variables are passed as arguments are not updated.) 
+  */
+  bool findCentralPosition(float& eta, float& phi, bool& isBarrel
+			   const std::vector<const xAOD::CaloCluster*>& clusters) const;
 
+  /** Find the reference position (eta, phi) relative to which cells are restricted.
+      The return value is whether it succeeded in finding a positive energy max value. 
+      (If rv = false, the output variables are passed as arguments are not updated.) 
+  */
+  bool findPhiSize(double& phiSizePlus, double& phiSizeMinus, float phi,
+		   const xAOD::CaloCluster* cluster) const;
+
+  
+  /** Add the EM cells from reference cluster to self; eta and phi are the ones to use for limiting size. 
+      This excludes L1 (which is done as a separate step) */
+  StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
+				 const xAOD::CaloCluster* ref,
+				 double eta, double phi, bool isBarrel) const;
+
+  /** Add the preshower and L1 EM cells from reference cluster to self */
+  StatusCode addL01EMCellsToCluster(xAOD::CaloCluster* newCluster,
+				    const xAOD::CaloCluster* ref,
+				    double eta, double phi, bool isBarrel,
+				    double phiSizePlus, double phiSizeMinus) const;
+  
   /** function to calibrate the new clusters energy */
-  StatusCode CalibrateCluster(xAOD::CaloCluster* newCluster,
+  StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,
 			      const xAOD::EgammaParameters::EgammaType egType) ;
   // not const because it calls fillPositionsInCalo
 
@@ -79,7 +104,7 @@ private:
 			     const CaloSampling::CaloSample sample) const ;
   
   /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode AddTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
 
   // these are calculated window values for the windows in which cells of topoclusters are edded
   float m_addCellsWindowEtaBarrel; //!< half of addCells window size, converted to units of eta

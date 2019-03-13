@@ -120,7 +120,7 @@ StatusCode photonSuperClusterBuilder::execute(){
     int nExtraClusters = 0;
 
     const std::vector<std::size_t> secondaryClusters = 
-      SearchForSecondaryClusters(i, egammaRecs.cptr(), isUsed, nWindowClusters, nExtraClusters);
+      searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed, nWindowClusters, nExtraClusters);
 
     for (auto secClus : secondaryClusters) {
       const auto secRec = egammaRecs->at(secClus);
@@ -138,7 +138,7 @@ StatusCode photonSuperClusterBuilder::execute(){
       xAOD::EgammaParameters::convertedPhoton :
       xAOD::EgammaParameters::unconvertedPhoton;
 
-    xAOD::CaloCluster* newCluster = CreateNewCluster(accumulatedClusters, egType);
+    std::unique_ptr<xAOD::CaloCluster> newCluster = createNewCluster(accumulatedClusters, egType);
 
     if (!newCluster) {
       ATH_MSG_DEBUG("Creating a new cluster failed");
@@ -147,8 +147,12 @@ StatusCode photonSuperClusterBuilder::execute(){
       continue;
     }
 
+    ATH_MSG_DEBUG("window clusters: " << nWindowClusters);
+    ATH_MSG_DEBUG("extra clusters: " << nExtraClusters);
+     
+    
     //push back the new photon super cluster 
-    outputClusterContainer->push_back(newCluster);
+    outputClusterContainer->push_back(newCluster.release());
 
     ///////////////////////////////////////////////////////
     //Now create the new eg Rec 
@@ -181,7 +185,7 @@ StatusCode photonSuperClusterBuilder::execute(){
 }
 
 std::vector<std::size_t> 
-photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
+photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
 						      const EgammaRecContainer *egammaRecs,
 						      std::vector<bool>& isUsed,
 						      int& nWindowClusters,
@@ -243,20 +247,17 @@ photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
     // Now perform a number of tests to see if the cluster should be added
     bool addCluster = false;
     if (m_addClustersInWindow && 
-	MatchesInWindow(seedCaloClus, caloClus)) {
+	matchesInWindow(seedCaloClus, caloClus)) {
       ATH_MSG_DEBUG("Cluster  with Et : " << caloClus->et()<< " matched in window");
       nWindowClusters++;
       addCluster = true;
-    } 
-
-    // should do "else if" if we want nWindowCluster and nExtraCluster to not both increment
-    if (m_addClustersMatchingVtx && 
-	MatchesVtx(seedVertices, seedVertexType, egRec)) {
+    } else if (m_addClustersMatchingVtx && 
+	matchesVtx(seedVertices, seedVertexType, egRec)) {
       ATH_MSG_DEBUG("conversion vertices match");
       addCluster = true;
       nExtraClusters++;
     } else if (m_addClustersMatchingVtxTracks &&
-	       MatchesVtxTrack(seedVertexTracks, egRec)) {
+	       matchesVtxTrack(seedVertexTracks, egRec)) {
       ATH_MSG_DEBUG("conversion track match");
       addCluster = true;
       nExtraClusters++;
@@ -272,7 +273,7 @@ photonSuperClusterBuilder::SearchForSecondaryClusters(std::size_t photonInd,
 }
 
 
-bool photonSuperClusterBuilder::MatchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
+bool photonSuperClusterBuilder::matchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
 					   const std::vector<xAOD::EgammaParameters::ConversionType>& seedVertexType,
 					   const egammaRec *egRec) const
 {
@@ -297,7 +298,7 @@ bool photonSuperClusterBuilder::MatchesVtx(const std::vector<const xAOD::Vertex*
   return false;
 }
 
-bool photonSuperClusterBuilder::MatchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
+bool photonSuperClusterBuilder::matchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
 						const egammaRec *egRec) const
 {
   auto numTestTracks = egRec->getNumberOfTrackParticles();

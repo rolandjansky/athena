@@ -31,7 +31,6 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name
 							 ISvcLocator* pSvcLocator):
   egammaSuperClusterBuilder(name, pSvcLocator),
   m_nWindowClusters(0),
-  m_nExtraClusters(0),
   m_nSameTrackClusters(0),
   m_nSimpleBremSearchClusters(0)
 {
@@ -162,7 +161,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     //Find Secondary Clusters
     ATH_MSG_DEBUG("Find secondary clusters");
     const std::vector<std::size_t>  secondaryIndices = 
-      SearchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
+      searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
     //
     //Append possible accumulated  clusters.
     ATH_MSG_DEBUG("Add secondary clusters");
@@ -174,7 +173,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     ATH_MSG_DEBUG("Total clusters " << accumulatedClusters.size());
     //
     //Take the full list of cluster , now stored in the secondaries and add their cells together
-    xAOD::CaloCluster *newClus = CreateNewCluster(accumulatedClusters,xAOD::EgammaParameters::electron);
+    std::unique_ptr<xAOD::CaloCluster> newClus = createNewCluster(accumulatedClusters,xAOD::EgammaParameters::electron);
     //
     if (!newClus) {
       ATH_MSG_DEBUG("Creating a new cluster failed - skipping it");
@@ -183,14 +182,13 @@ StatusCode electronSuperClusterBuilder::execute(){
       continue;
     }
     //
-    ATH_MSG_DEBUG("extra clusters: " << m_nExtraClusters);
-    ATH_MSG_DEBUG("extra clusters: " << m_nWindowClusters);
+    ATH_MSG_DEBUG("window clusters: " << m_nWindowClusters);
     ATH_MSG_DEBUG("Same Track clusters: " << m_nSameTrackClusters);
     ATH_MSG_DEBUG("Simple Brem Search clusters:  " << m_nSimpleBremSearchClusters);
     //
     //////////////////////////////////////////////////////////////////
     //Push back the new cluster into the output container.
-    outputClusterContainer->push_back(newClus);
+    outputClusterContainer->push_back(newClus.release());
     ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
     std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
     //
@@ -217,7 +215,7 @@ StatusCode electronSuperClusterBuilder::execute(){
   return StatusCode::SUCCESS;
 }
 
-const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryClusters(const std::size_t electronIndex,
+const std::vector<std::size_t> electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electronIndex,
 										       const EgammaRecContainer* egammaRecs,
 										       std::vector<bool>& isUsed){
   std::vector<std::size_t>  secondaryClusters;
@@ -248,49 +246,47 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
     const xAOD::CaloCluster *clus = egRec->caloCluster();
 
     //Now the actual checks
+    bool addCluster = false;
+
     //Check if clusters are nearby enough to form the "topo-seeded window.'
-    bool matchesInWindow(MatchesInWindow(seedCluster,clus));
-    if (matchesInWindow){
+    if (matchesInWindow(seedCluster,clus)) {
       ATH_MSG_DEBUG("Cluster  with Et : " << clus->et()<< " matched in window");
       ++ m_nWindowClusters;
-    }    
+      addCluster = true;
+    }   
 
+    
     //Satellite brem cluster search for clusters
     //outside the 3x5 window.
-    bool passesSimpleBremSearch(false);
-    bool matchSameTrack        (false);
-
     float seedSecdEta(fabs(seedCluster->eta() - clus->eta()));
     float seedSecdPhi(fabs(P4Helpers::deltaPhi(seedCluster->phi(), clus->phi())));
 
-    if (!matchesInWindow 
+    if (!addCluster   
 	&& seedSecdEta<m_maxDelEta 
-	&& seedSecdPhi<m_maxDelPhi) {      
-      matchSameTrack = MatchSameTrack(seedEgammaRec,egRec);      
-
-      if(matchSameTrack) {
+	&& seedSecdPhi<m_maxDelPhi) {
+      if (matchSameTrack(seedEgammaRec,egRec)) {
 	++m_nSameTrackClusters;
-	++m_nExtraClusters;
+	addCluster = true;
       } else if (doBremSatellite){
 	  
 	static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
 	static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
 	float perigeeExtrapEta (pgExtrapEta(*seedEgammaRec->trackParticle()));
 	float perigeeExtrapPhi (pgExtrapPhi(*seedEgammaRec->trackParticle()));
-	if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.)
-	  passesSimpleBremSearch = PassesSimpleBremSearch(seedCluster,
-	      					    clus,
-	      					    perigeeExtrapEta,
-	      					    perigeeExtrapPhi);
-	if (passesSimpleBremSearch) {
-	  ++m_nSimpleBremSearchClusters;
-	  ++m_nExtraClusters;
+	if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.) {
+	  if (passesSimpleBremSearch(seedCluster,
+				     clus,
+				     perigeeExtrapEta,
+				     perigeeExtrapPhi)) {
+	    ++m_nSimpleBremSearchClusters;
+	    addCluster = true;
+	  }
 	}
       }
     }
     
     //Add it to the list of secondary clusters if it matches.
-    if (matchesInWindow || passesSimpleBremSearch || matchSameTrack) {
+    if (addCluster) {
       secondaryClusters.push_back(i); 
       isUsed.at(i)=1;
     }
@@ -300,7 +296,7 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
   return secondaryClusters;
 }
 
-bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
+bool electronSuperClusterBuilder::matchSameTrack(const egammaRec *seed,
 						 const egammaRec *sec) const{
   bool matchesSameTrack(false);
   if (seed && sec) {
@@ -322,7 +318,7 @@ bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
   return matchesSameTrack;
 }
 
-bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
+bool electronSuperClusterBuilder::passesSimpleBremSearch(const xAOD::CaloCluster *seed,
 							 const xAOD::CaloCluster *sec,
 							 float perigeeExtrapEta,
 							 float perigeeExtrapPhi) const
