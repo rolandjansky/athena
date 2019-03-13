@@ -53,13 +53,13 @@ TestDriver::testWriting()
    storSvc->addRef();
    cout << "startSession" << endl;
    pool::Session* sessionHandle = 0;
-   if ( ! ( storSvc->startSession( pool::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+   if ( ! ( storSvc->startSession( pool::RECREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a session." );
    }
 
    cout << "Session connect" << endl;
    pool::FileDescriptor fd( file, file );
-   if ( ! ( storSvc->connect( sessionHandle, pool::CREATE, fd ).isSuccess() ) ) {
+   if ( ! ( storSvc->connect( sessionHandle, pool::RECREATE, fd ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a connection." );
    }
    pool::DatabaseConnection* connection = fd.dbc();

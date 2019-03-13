@@ -99,6 +99,7 @@ namespace pool  {
 
 } // End namespace pool
 
+
 /// Scan the container
 template <class T> inline 
 pool::DbStatus pool::DbIter<T>::scan(const DbContainer& cntH, 
@@ -109,9 +110,11 @@ pool::DbStatus pool::DbIter<T>::scan(const DbContainer& cntH,
     m_cnt    = cntH;
   }
   m_obj = DbHandle<T>(cntH.type());
-  return (cntH.isValid()) ? Success : Error;
+
+  return cntH.isValid()? Success : Error;
 }
 
+        
 /// Retrieve next element of iteration
 template <class T> inline pool::DbStatus pool::DbIter<T>::next()
 {

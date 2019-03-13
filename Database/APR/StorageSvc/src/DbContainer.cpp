@@ -17,11 +17,11 @@
 // Framework include files
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbObject.h"
-#include "StorageSvc/DbCallBack.h"
 #include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
 #include "StorageSvc/DbToken.h"
+#include "StorageSvc/DbReflex.h"
 #include "DbContainerObj.h"
 
 #include <memory>
@@ -258,16 +258,27 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
                             const DbTypeInfo* typ,
                             bool any_next) const
 {
-  if ( isValid() && typ )  {
-    Token::OID_t oid;
-    DbCallBack call(this, &objH, typ);
-    if ( m_ptr->load(&call, linkH, oid, any_next).isSuccess() )  {
-      objH._setObject(call.object());
-      objH.oid() = oid;
-      return Success;
-    }
-  }
-  return Error;
+   if( typ ) {
+      TypeH cl = typ->clazz();
+      if( cl ) {
+         DbObject* ptr = DbHeap::allocate( cl.SizeOf(), const_cast<DbContainer*>(this), 0, 0 );
+         if( ptr ) {
+            ptr = cl.Construct(ptr);
+            objH._setObject( ptr );
+
+            Token::OID_t oid;
+            DbObjectCallBack call;
+            call.setObject( ptr );
+            call.setShape( typ );
+            if ( m_ptr->load(&call, linkH, oid, any_next).isSuccess() )  {
+               objH._setObject(call.object());
+               objH.oid() = oid;
+               return Success;
+            }
+         }
+      }
+   }
+   return Error;
 }
 
 /// Load object in the container identified by its link handle

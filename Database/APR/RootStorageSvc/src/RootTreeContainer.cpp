@@ -369,6 +369,9 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   return Error;
 }
 
+#include <iostream>
+using namespace std;
+
 DbStatus 
 RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
 {
@@ -376,103 +379,103 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
   RootDataPtr context(nullptr);
   DbStatus status = Error;
   long long evt_id = oid.second;
+  // lock access to this DB for MT safety
+  std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
   // Read data; disable branch after reading the information
   try {
-     status = call->start(DataCallBack::GET, context.ptr, &user.ptr);
-     if ( status.isSuccess() ) {
-        // lock access to this DB for MT safety
-        std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
-        int numBytesBranch, icol = 0, numBytes = 0;
-        bool hasRead(false);
-        Branches::iterator k;
-        for(k=m_branches.begin(); k != m_branches.end(); ++k,++icol)  {
-           BranchDesc& dsc = (*k);
-           RootDataPtr p(nullptr), q(nullptr);
-           DbStatus sc = call->bind(DataCallBack::GET,dsc.column,icol,user.ptr,&p.ptr);
-           q.ptr = p.ptr;
-           if ( sc.isSuccess() && sc != DataCallBack::SKIP ) {
-              int typ = dsc.column->typeID();
-              std::string _s;
-              // associate branch with an object
-              switch ( typ )    {
-               case DbColumn::STRING:
-               case DbColumn::LONG_STRING:
-               case DbColumn::NTCHAR:
-               case DbColumn::LONG_NTCHAR:
-               case DbColumn::TOKEN:
-                  break;
-               case DbColumn::BLOB:
-                  dsc.object = &s_char_Blob;
-                  p.ptr      = &dsc.object;
-                  dsc.branch->SetAddress(p.ptr);
-                  break;
-               case DbColumn::ANY:
-               case DbColumn::POINTER:
-               default:
-                  dsc.object = p.ptr;
-                  dsc.branch->SetAddress(dsc.object);
-                  break;
-              }
-              // Must move tree entry to correct value
-              if (m_tree) {
-                 if (m_tree->GetReadEntry() < evt_id) m_tree->LoadTree(evt_id);
-              } else if (dsc.branch->GetTree()->GetReadEntry() < evt_id) {
-                 dsc.branch->GetTree()->LoadTree(evt_id);
-              }
-              // read the object
-              numBytesBranch = dsc.branch->GetEntry(evt_id);
-              TTree::TClusterIterator clusterIterator = dsc.branch->GetTree()->GetClusterIterator(evt_id);
-              clusterIterator.Next();
-              if (evt_id == clusterIterator.GetStartEntry() && dsc.branch->GetTree()->GetMaxVirtualSize() != 0) {
-                 for (int i = dsc.branch->GetReadBasket(); i < dsc.branch->GetMaxBaskets()
-	                 && dsc.branch->GetBasketEntry()[i] < clusterIterator.GetNextEntry(); i++) {
-                    dsc.branch->GetBasket(i);
-                 }
-              }
-              numBytes += numBytesBranch;
-              if ( numBytesBranch >= 0 )     {
-		 hasRead=true;
-                 switch ( typ )    {
-                  case DbColumn::STRING:
-                  case DbColumn::LONG_STRING:
-                     p.ptr = dsc.leaf->GetValuePointer();
-                     *q.str = p.c_str;
-                     break;
-                  case DbColumn::NTCHAR:
-                  case DbColumn::LONG_NTCHAR:
-                  case DbColumn::TOKEN:
-                     p.ptr = dsc.leaf->GetValuePointer();
-                     ::strcpy(q.c_str, p.c_str);
-                     break;
-                  case DbColumn::BLOB:
-                     q.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
-                     s_char_Blob.release(false);
-                     break;
-                  case DbColumn::POINTER:
-                     // for AUX store objects with the right interface supply a special store object
-                     // that will read branches on demand
-                     if( dsc.aux_reader ) {
-                        // cout << " ***  AuxDyn reader detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
-                        dsc.aux_reader->addReaderToObject(*(void**)dsc.object, evt_id, &m_rootDb->ioMutex());
-                     }
-                     break;
-                 }
-              } else {
-                 DbPrint log(m_name);
-                 log << DbPrintLvl::Error << "Cannot load branch " << dsc.branch->GetName()
-                     << " for entry No." << evt_id << DbPrint::endmsg;
-                 m_ioBytes = -1;
-                 return Error;
-              }
+     int numBytesBranch, icol = 0, numBytes = 0;
+     bool hasRead(false);
+     Branches::iterator k;
+     for(k=m_branches.begin(); k != m_branches.end(); ++k,++icol)  {
+        BranchDesc& dsc = (*k);
+        RootDataPtr p(nullptr), q(nullptr);
+        DbStatus sc = call->bind(DataCallBack::GET,dsc.column,icol,user.ptr,&p.ptr);
+        // cout << " TREE bind: obj=" << call->object() << " ptr=" << p.ptr <<" *ptr=" << *p.pptr << endl;
+        q.ptr = p.ptr;
+        int typ = dsc.column->typeID();
+        std::string _s;
+        // associate branch with an object
+        switch ( typ )    {
+         case DbColumn::STRING:
+         case DbColumn::LONG_STRING:
+         case DbColumn::NTCHAR:
+         case DbColumn::LONG_NTCHAR:
+         case DbColumn::TOKEN:
+            break;
+         case DbColumn::BLOB:
+            dsc.object = &s_char_Blob;
+            p.ptr      = &dsc.object;
+            dsc.branch->SetAddress(p.ptr);
+            break;
+         case DbColumn::ANY:
+         case DbColumn::POINTER:
+         default:
+            dsc.object = p.ptr;
+            dsc.branch->SetAddress(dsc.object);
+            break;
+        }
+        // Must move tree entry to correct value
+        if (m_tree) {
+           if (m_tree->GetReadEntry() < evt_id) m_tree->LoadTree(evt_id);
+        } else if (dsc.branch->GetTree()->GetReadEntry() < evt_id) {
+           dsc.branch->GetTree()->LoadTree(evt_id);
+        }
+        // read the object
+        numBytesBranch = dsc.branch->GetEntry(evt_id);
+        TTree::TClusterIterator clusterIterator = dsc.branch->GetTree()->GetClusterIterator(evt_id);
+        clusterIterator.Next();
+        if (evt_id == clusterIterator.GetStartEntry() && dsc.branch->GetTree()->GetMaxVirtualSize() != 0) {
+           for (int i = dsc.branch->GetReadBasket(); i < dsc.branch->GetMaxBaskets()
+                   && dsc.branch->GetBasketEntry()[i] < clusterIterator.GetNextEntry(); i++) {
+              dsc.branch->GetBasket(i);
            }
         }
-	if ( hasRead )   {
-           /// Update statistics
-           m_ioBytes = numBytes;
-           m_rootDb->addByteCount(RootDatabase::READ_COUNTER, numBytes);
-           /// Terminate callback
-           return call->end(DataCallBack::GET, user.ptr);
-	}
+        numBytes += numBytesBranch;
+        if ( numBytesBranch >= 0 )     {
+           hasRead=true;
+           switch ( typ )    {
+            case DbColumn::STRING:
+            case DbColumn::LONG_STRING:
+               q.ptr = *p.pptr;
+               //cout << " TREE: ptr=" << q.ptr << endl;
+               q.ptr = q.c_str + dsc.column->offset();
+               //cout << "       col ptr=" << q.ptr << endl;
+               p.ptr = dsc.leaf->GetValuePointer();
+               //cout <<"    read string=" << p.c_str << endl;
+               *q.str = p.c_str;
+               break;
+            case DbColumn::NTCHAR:
+            case DbColumn::LONG_NTCHAR:
+            case DbColumn::TOKEN:
+               p.ptr = dsc.leaf->GetValuePointer();
+               ::strcpy(q.c_str, p.c_str);
+               break;
+            case DbColumn::BLOB:
+               q.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
+               s_char_Blob.release(false);
+               break;
+            case DbColumn::POINTER:
+               // for AUX store objects with the right interface supply a special store object
+               // that will read branches on demand
+               if( dsc.aux_reader ) {
+                  // cout << " ***  AuxDyn reader detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
+                  dsc.aux_reader->addReaderToObject(*(void**)dsc.object, evt_id, &m_rootDb->ioMutex());
+               }
+               break;
+           }
+        } else {
+           DbPrint log(m_name);
+           log << DbPrintLvl::Error << "Cannot load branch " << dsc.branch->GetName()
+               << " for entry No." << evt_id << DbPrint::endmsg;
+           m_ioBytes = -1;
+           return Error;
+        }
+     }
+     if ( hasRead )   {
+        /// Update statistics
+        m_ioBytes = numBytes;
+        m_rootDb->addByteCount(RootDatabase::READ_COUNTER, numBytes);
+        return Success;
      }
   }
   catch( const std::exception& e )    {
