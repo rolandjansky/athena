@@ -5,22 +5,6 @@
 #include "FlavorTagDiscriminants/BTagAugmenterTool.h"
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
 
-namespace {
-
-#define RETURN_SCHEMA(schema) \
-  if (name == std::string(#schema)) \
-    return FlavorTagDiscriminants::EDMSchema::schema
-
-  FlavorTagDiscriminants::EDMSchema get_schema(const std::string& name) {
-    RETURN_SCHEMA(WINTER_2018);
-    RETURN_SCHEMA(FEB_2019);
-    throw std::logic_error("b-tagging name schema " + name + " unknown");
-  }
-
-#undef RETURN_SCHEMA
-
-}
-
 namespace FlavorTagDiscriminants {
 
   BTagAugmenterTool::BTagAugmenterTool(const std::string& name):
@@ -33,7 +17,7 @@ namespace FlavorTagDiscriminants {
   BTagAugmenterTool::~BTagAugmenterTool() {}
 
   StatusCode BTagAugmenterTool::initialize() {
-    m_aug.reset(new BTagJetAugmenter(get_schema(m_schema)));
+    m_aug.reset(new BTagJetAugmenter(enumFromString(m_schema)));
     return StatusCode::SUCCESS;
   }
   StatusCode BTagAugmenterTool::finalize() {
