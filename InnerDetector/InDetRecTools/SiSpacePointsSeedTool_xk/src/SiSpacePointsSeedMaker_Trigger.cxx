@@ -212,7 +212,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::finalize()
 void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+
+  erase();
   buildBeamFrameWork();
 
   double f[3], gP[3] ={10.,10.,0.}; 
