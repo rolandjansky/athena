@@ -15,7 +15,7 @@ namespace FlavorTagDiscriminants{
   EDMSchema enumFromString(const std::string& name) {
     RETURN_SCHEMA(WINTER_2018);
     RETURN_SCHEMA(FEB_2019);
-    throw std::logic_error("b-tagging name schema " + name + " unknown");
+    throw std::logic_error("b-tagging name schema '" + name + "' unknown");
   }
 
 #undef RETURN_SCHEMA

@@ -18,7 +18,7 @@ namespace {
       }
     }
     throw std::logic_error(
-      "no regex match found for input variable " + var_name);
+      "no regex match found for input variable '" + var_name + "'");
   }
 }
 
