@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
+                          Control/CxxUtils
                           Calorimeter/CaloEvent
                           Event/xAOD/xAODEventShape
                           Reconstruction/EventShapes/EventShapeTools
