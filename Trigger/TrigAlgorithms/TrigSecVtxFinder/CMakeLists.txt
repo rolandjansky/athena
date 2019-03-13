@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTrackJetFinderTool
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
+                          Control/CxxUtils
                           DetectorDescription/GeoPrimitives
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigSteeringEvent )
