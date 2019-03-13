@@ -304,9 +304,10 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
       // store the error condition into the StatusCode and continue
     }
   }
-  // Unsure about this at the moment
-  //ATH_CHECK( rdoContainerHandle.record (std::move (pad)) );
+
   ATH_MSG_DEBUG("After processing, number of collections in container : " << pad-> numberOfCollections() );
+
+  // Only write out the RpcSectorLogigContainer if we activate the flag
   if(m_WriteOutRpcSectorLogic){
     ATH_MSG_DEBUG("Writing out RpcSectorLogicContainer");
     ATH_CHECK( logicHandle.record (std::move (logic)) );
