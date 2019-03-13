@@ -20,7 +20,7 @@ private:
     const unsigned int m_element;
     const std::string m_layerStr;
     const std::string m_sideStr;
-    unsigned int m_region;// 30.11.2014
+    unsigned int m_region;
 public:
     LayerSideFormatter(const unsigned int i) : m_element(i), m_layerStr(std::to_string(i / 2)), m_sideStr(std::to_string(
                                                                                                             i % 2)),
@@ -29,7 +29,7 @@ public:
     }
 
     LayerSideFormatter(const unsigned int i, const unsigned int m) : m_element(i), m_layerStr(std::to_string(i / 2)),
-      m_sideStr(std::to_string(i % 2)), m_region(m) {// 30.11.2014
+      m_sideStr(std::to_string(i % 2)), m_region(m) {
       // nop
     }
 
