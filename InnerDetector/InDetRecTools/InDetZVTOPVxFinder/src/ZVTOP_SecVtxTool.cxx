@@ -396,7 +396,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 //for xAOD::IParticle --David S.
 //Added purely to satisfy new inheritance in ISecVertexInJetFinder, not yet implemented
 /////////////////////////////////////////////////////////////////////////////////////////
-const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex & primaryVertex, const TLorentzVector & jetMomentum,const std::vector<const xAOD::IParticle*> & inputTracks) const {
+const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex & /*primaryVertex*/, const TLorentzVector & /*jetMomentum*/,const std::vector<const xAOD::IParticle*> & /*inputTracks*/) const {
 
   if(msgLvl(MSG::DEBUG)){
     msg(MSG::DEBUG) << "No ZVTOP_SecVtxTool implementation for xAOD::IParticle" << endreq;
