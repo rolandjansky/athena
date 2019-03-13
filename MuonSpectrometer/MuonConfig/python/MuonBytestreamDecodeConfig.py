@@ -204,7 +204,7 @@ if __name__=="__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from AthenaCommon.Logging import log
+    from AthenaCommon.Logging import log 
 
     log.setLevel(DEBUG)
     log.info('About to setup Rpc Raw data decoding')
