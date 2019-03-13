@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Trigger/TrigConfiguration/TrigConfHLTData
