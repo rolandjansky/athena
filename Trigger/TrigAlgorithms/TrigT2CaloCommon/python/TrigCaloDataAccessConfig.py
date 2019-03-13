@@ -11,8 +11,8 @@ def createLArRoI_Map( flags ):
     from LArCabling.LArCablingConf import LArCablingLegacyService
     cablingTool = LArCablingLegacyService() # this is realy a tool
     # needed by above
-    acc.merge( LArFebRodMappingCfg( flags )[0] )
-    acc.merge( LArCalibIdMappingCfg( flags )[0] )
+    acc.merge( LArFebRodMappingCfg( flags ))
+    acc.merge( LArCalibIdMappingCfg( flags ))
 
     from CaloTriggerTool.CaloTriggerToolConf import CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
