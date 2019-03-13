@@ -11,9 +11,9 @@
 
 // Base classes
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include "TrkEventPrimitives/DriftCircleStatus.h"
 #include "TrkEventPrimitives/DriftCircleSide.h"
-#include "GaudiKernel/GaudiException.h"
 
 // InDet
 
@@ -21,6 +21,8 @@
 // for ElementLink to IdentifiableContainer PixelClusterContainer
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "AthLinks/ElementLink.h"
+
+#include "GaudiKernel/GaudiException.h"
 
 #include <atomic>
 
@@ -158,7 +160,7 @@ namespace InDet{
       void setGlobalPosition(Amg::Vector3D& loc3Dframe) const;   
  
       /** global position to be cached */
-      mutable std::atomic<const Amg::Vector3D*> m_globalPosition; // This may be replaced by CachedUniquePtr
+      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
       
       /**local angle to be written out */     
       mutable std::atomic<float> m_localAngle;

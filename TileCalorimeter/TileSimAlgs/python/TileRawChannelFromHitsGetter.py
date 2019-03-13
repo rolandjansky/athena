@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileRawChannel creation from TileHit
@@ -65,11 +65,6 @@ class TileRawChannelFromHitsGetter ( Configured )  :
 
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
 
-        # Random number engine
-        from Digitization.DigitizationFlags import digitizationFlags
-        digitizationFlags.rndmSeedList.addSeed("Tile_DigitsMaker", 4789899, 989240512)
-
-        
         # now add algorithm to topSequence
         # this should always come at the end
 

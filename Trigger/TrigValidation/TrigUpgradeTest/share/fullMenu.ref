@@ -188,15 +188,15 @@ TrigSignatureMoniMT                                INFO HLT_2mu6 decisions      
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb                  20        20        0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb decisions                            0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            54        262       
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            54        343       
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step decisions                       54        0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_mu6              20        20        10        0         1         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_mu6 decisions                        17        0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        251       
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        330       
 TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        205       
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        265       
 TrigSignatureMoniMT                                INFO HLT_g5_etcut                  20        20        17        17        17        
 TrigSignatureMoniMT                                INFO HLT_g5_etcut decisions                            50        50        
 TrigSignatureMoniMT                                INFO HLT_j100                      20        20        6         0         6         

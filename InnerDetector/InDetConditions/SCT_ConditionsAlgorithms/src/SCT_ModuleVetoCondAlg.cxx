@@ -8,15 +8,17 @@
 
 #include <memory>
 
-template <class T> 
-static std::vector<T> 
-string2Vector(const std::string& s) {
-  std::vector<T> v;
-  std::istringstream inputStream{s};
-  std::istream_iterator<T> vecRead{inputStream};
-  std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
-  std::copy(vecRead,endOfString, std::back_inserter(v)); // DOESN'T ALLOW NON-WHITESPACE DELIMITER !
-  return v;
+namespace {
+  template <class T>
+  std::vector<T>
+  string2Vector(const std::string& s) {
+    std::vector<T> v;
+    std::istringstream inputStream{s};
+    std::istream_iterator<T> vecRead{inputStream};
+    std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
+    std::copy(vecRead,endOfString, std::back_inserter(v)); // DOESN'T ALLOW NON-WHITESPACE DELIMITER !
+    return v;
+  }
 }
 
 SCT_ModuleVetoCondAlg::SCT_ModuleVetoCondAlg(const std::string& name, ISvcLocator* pSvcLocator)

@@ -36,5 +36,23 @@ namespace TrigCompositeUtils {
     return handle;
   }
 
+  template<typename T>
+  LinkInfo<T>
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
+    auto source = find(start, HasObject(linkName) );
+    //
+    if ( not source ){
+      auto seeds = getLinkToPrevious(start);
+      for (auto seed: seeds){
+        const xAOD::TrigComposite* dec = *seed;//deference
+        LinkInfo<T> link= findLink<T>( dec, linkName );
+        // return the first found
+        if (link.isValid()) return link;
+      }
+      return LinkInfo<T>(); // invalid link
+    }
+
+    return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
+  }
 
 }

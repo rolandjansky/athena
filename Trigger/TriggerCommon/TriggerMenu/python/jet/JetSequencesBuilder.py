@@ -91,6 +91,7 @@ class JetSequencesBuilder(object):
                        'cmfs1': self.make_cmfs1,  # cell maker full scan
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
+                       'sk': self.make_sk,  # SoftKiller
                        'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
                        'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
@@ -161,9 +162,14 @@ class JetSequencesBuilder(object):
             ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False, 'notrk'): ['fs2','cmfs1','hicm','hijr'],
             ('TT', 'FS', False, 'notrk'): ['tt', 'jt'],
-            ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr']}.get((data_type,
-                                                           scan_type,
-                                                           do_trimming,trkopt), [])
+            ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr'],
+            # SoftKiller topoclusters, no need for EventDensity for rho*area subtraction
+            ('sktc','FS',False, 'notrk'):    ['fs2','cmfs1','cmfs2','sk','jr'],
+            ('sktc','FS',False, 'ftk'):      ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
+            ('sktc','FS',False,' ftkrefit'): ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
+            }.get((data_type,
+                   scan_type,
+                   do_trimming,trkopt), [])
 
         if not seq_order:
             msg = '%s._make_sequence_list: cannot determine sequence'\
@@ -311,6 +317,16 @@ class JetSequencesBuilder(object):
         alias = 'trkmomhelpers'
 
         return AlgList(alg_list=self.alg_factory.trackmoment_helpers(), alias=alias)
+
+    def make_sk(self):
+        """Return SoftKiller Alg"""
+        fex_params = self.chain_config.menu_data.fex_params
+        alias = 'softkiller_%s' % fex_params.cluster_calib
+
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.softKillerAlg,)]
+
+        return AlgList(algs,alias=alias)
 
     def make_cm(self):
         """Return cellmaker for non partial scan running.

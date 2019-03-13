@@ -30,8 +30,6 @@ namespace {
 
 SCT_CalibHvTool::SCT_CalibHvTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_detStore{"DetectorStore", name},
-  m_evtStore{"StoreGateSvc", name},
   m_pSCTHelper{nullptr},
   m_sct_waferHash{0},
   m_sct_numHitsInWafer{0},

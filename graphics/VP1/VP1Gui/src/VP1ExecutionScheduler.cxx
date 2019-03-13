@@ -213,10 +213,13 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 	m_d->scheduler = this;
 	m_d->prioritiser = new VP1Prioritiser(this);
 	m_d->mainwindow = new VP1MainWindow(this,availEvents);//mainwindow takes ownership of available events
-	m_d->batchMode = false;
+	
+    m_d->batchMode = false;
 	m_d->batchUtilities = nullptr;
 	m_d->batchModeAllEvents = false;
 	m_d->batchModeNEvents = 0;
+    m_d->batchModeRandomConfig = false;
+
 	m_d->allSystemsRefreshed = false;
 	m_d->goingtonextevent=true;
 	m_d->currentsystemrefreshing=0;
@@ -386,12 +389,15 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 	if (joboptions.empty()) {
 		//scheduler->m_d->mainwindow->tabManager()->addNewTab("My Tab");
 	} else {
+        qDebug() << "config files: " << joboptions; // DEBUG
 		foreach(QString opt,joboptions)
     		  scheduler->m_d->mainwindow->loadConfigurationFromFile(opt);
 
 		if ( scheduler->m_d->batchMode ) {
 			if (scheduler->m_d->batchModeRandomConfig ) {
-				scheduler->m_d->batchUtilities = new VP1BatchUtilities( qstringlistToVecString(joboptions) );
+                if (joboptions.size() != 0 ) {
+				    scheduler->m_d->batchUtilities = new VP1BatchUtilities( qstringlistToVecString(joboptions) );
+                }
 			}
 			QString batchNevents = VP1QtUtils::environmentVariableValue("VP1_BATCHMODE_NEVENTS");
 			if (batchNevents > 0 ) {

@@ -75,7 +75,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
   size_t counter = 0;  // view counter
 
   // loop over previous decisions
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
     auto roiEL = roiInfo.link;
@@ -110,7 +110,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
     newd -> setObjectLink( "feature", muonEL );
     newd -> setObjectLink( "roi",     roiEL  );
     newd -> setObjectLink( "view",    viewEL );
-    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
 
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());

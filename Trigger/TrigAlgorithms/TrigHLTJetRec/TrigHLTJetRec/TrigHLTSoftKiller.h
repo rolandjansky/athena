@@ -8,6 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
 
+#include "JetRecTools/JetConstituentModSequence.h"
 
 class TrigHLTSoftKiller : public HLT::FexAlgo
 {
@@ -22,9 +23,11 @@ class TrigHLTSoftKiller : public HLT::FexAlgo
         HLT::ErrorCode hltFinalize();
 
     private:
-        // TODO Add SoftKiller ToolHandle and related here
 
-        std::string m_outputCollectionLabel;
+       ToolHandle<IJetConstituentModifier> m_skWeightTool;
+       ToolHandle<IJetExecuteTool> m_skclustModSeqTool; 
+       std::string m_outputCollectionLabel;
+       std::string m_clusterCalib;
         
 };
 

@@ -10,7 +10,7 @@
 
 using namespace TrigCompositeUtils;
 ComboHypo::ComboHypo(const std::string& name, ISvcLocator* pSvcLocator) 
-  : ::AthReentrantAlgorithm(name, pSvcLocator)
+: ::AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
 ComboHypo::~ComboHypo()
@@ -34,8 +34,8 @@ StatusCode ComboHypo::initialize() {
 
   // find max inputs size
   auto maxMultEl = std::max_element( m_multiplicitiesReqMap.begin(), m_multiplicitiesReqMap.end(),  
-  				   []( MultiplicityReqMap::value_type a, MultiplicityReqMap::value_type b ){  
-  				     return a.second.size() < b.second.size(); } ); 
+   []( MultiplicityReqMap::value_type a, MultiplicityReqMap::value_type b ){  
+     return a.second.size() < b.second.size(); } ); 
   
   const size_t maxMult = maxMultEl->second.size();
 
@@ -64,7 +64,7 @@ StatusCode ComboHypo::finalize() {
 
 
 StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const EventContext& context ) const {
-    
+
   ATH_MSG_DEBUG( "Copying "<<passing.size()<<" positive decisions to outputs");
   for ( size_t input_counter = 0; input_counter < m_inputs.size(); ++input_counter ) {
 
@@ -74,51 +74,47 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 
     auto inputHandle = SG::makeHandle( m_inputs[input_counter], context );
     if ( inputHandle.isValid() ) {
-      const DecisionContainer* inputs = inputHandle.cptr();
-      const size_t sz = inputs->size();
       
-      for ( size_t i = 0; i < sz; ++i  ) {
-	const Decision *inputDecision = inputs->at(i);
-	DecisionIDContainer inputDecisionIDs;
-	decisionIDs( inputDecision, inputDecisionIDs );
-	
-	// from all poitive decision in the input only the ones that survived counting are passed over
-	DecisionIDContainer common;      
-	std::set_intersection( inputDecisionIDs.begin(), inputDecisionIDs.end(), passing.begin(), passing.end(),
-			       std::inserter( common, common.end() ) );
-	
+      for (const Decision* inputDecision: *inputHandle) {
 
-	Decision*  newDec = newDecisionIn( outDecisions );
-	linkToPrevious( newDec, inputHandle.key(), i );
-	ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec, "initialRoI")).isValid()
-		      <<" valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");   
+        DecisionIDContainer inputDecisionIDs;
+        decisionIDs( inputDecision, inputDecisionIDs );
 
-	for ( auto id: common ) {
-	  addDecisionID( id, newDec );
-	}
-	
-	// add View?
-	if ( inputDecision->hasObjectLink( "view" ) ) {
-	   auto viewEL = inputDecision->objectLink< ViewContainer >( "view" );
-	   CHECK( viewEL.isValid() );
-	   newDec->setObjectLink( "view",    viewEL );
-	}
+        // from all poitive decision in the input only the ones that survived counting are passed over
+        DecisionIDContainer common;      
+        std::set_intersection( inputDecisionIDs.begin(), inputDecisionIDs.end(), passing.begin(), passing.end(),
+          std::inserter( common, common.end() ) );
+
+        Decision*  newDec = newDecisionIn( outDecisions );
+        linkToPrevious( newDec, inputDecision );
+        ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec, "initialRoI")).isValid()
+          << " valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");   
+
+        insertDecisionIDs( common, newDec );
+
+        // add View?
+        if ( inputDecision->hasObjectLink( "view" ) ) {
+          auto viewEL = inputDecision->objectLink< ViewContainer >( "view" );
+          CHECK( viewEL.isValid() );
+          newDec->setObjectLink( "view",    viewEL );
+        }
       }
     }
 
     // debug printout:
-    if ( msgLvl(MSG::DEBUG)) {
+    if ( msgLvl(MSG::DEBUG) ) {
       ATH_MSG_DEBUG(outputHandle.key() <<" with "<< outputHandle->size() <<" decisions:");
       for (auto outdecision:  *outputHandle){
-	TrigCompositeUtils::DecisionIDContainer objDecisions;      
-	TrigCompositeUtils::decisionIDs( outdecision, objDecisions );    
-	ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
-	for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-	  ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
-	}
+        TrigCompositeUtils::DecisionIDContainer objDecisions;      
+        TrigCompositeUtils::decisionIDs( outdecision, objDecisions );    
+        ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
+        for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+          ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
+        }
       }
     }
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -129,11 +125,11 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
       ATH_MSG_DEBUG( "Found implicit RH from " << inputHandle.key() <<" with "<< inputHandle->size() << " elements:"  );
       MultiplicityMap thisInputDmap;
       for ( const Decision* decision : *inputHandle.cptr() ) {
-	ATH_MSG_DEBUG( "Decision with "<< decisionIDs( decision ).size() << " chains passed:" );
-	for ( DecisionID id: decisionIDs( decision ) ) {
-	  ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-	  thisInputDmap[id] ++;
-	}	    
+        ATH_MSG_DEBUG( "Decision with "<< decisionIDs( decision ).size() << " chains passed:" );
+        for ( DecisionID id: decisionIDs( decision ) ) {
+          ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+          thisInputDmap[id] ++;
+        }     
       }
       dmap[i]= thisInputDmap; 
     }
@@ -142,7 +138,6 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
       //dmap empty in this case
     }
   }
-
 
   //debug
   ATH_MSG_DEBUG( "Decision map filled :" );
@@ -158,7 +153,7 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
 
 StatusCode ComboHypo::execute(const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
- 
+
   
   DecisionIDContainer passing;
   // this map is filled with the count of positive decisions from each input
@@ -175,8 +170,8 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       const int observedMultiplicity = dmap[ inputContainerIndex ][ requiredDecisionID ];
       ATH_MSG_DEBUG( "Required multiplicity " << requiredMultiplicity  << " for chain " << m.first<< ": observed multiplicity " << observedMultiplicity << " in container " << inputContainerIndex  );
       if ( observedMultiplicity < requiredMultiplicity ) {
-	overallDecision = false;
-	break;
+        overallDecision = false;
+        break;
       }
     }
     ATH_MSG_DEBUG( "Chain " << m.first <<  ( overallDecision ? " is accepted" : " is rejected") );
@@ -186,7 +181,6 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   }
   
   ATH_CHECK( copyDecisions( passing, context ) );
-
   
   return StatusCode::SUCCESS;
 }

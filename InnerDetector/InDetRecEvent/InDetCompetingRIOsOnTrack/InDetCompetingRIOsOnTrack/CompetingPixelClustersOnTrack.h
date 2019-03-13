@@ -11,8 +11,8 @@
 
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
-#include <atomic>
 #include <iosfwd>
 
 class MsgStream;
@@ -104,7 +104,7 @@ private:
 
 
     /** The global Position */
-    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained InDet::PixelClusterOnTrack objects */
     std::vector<const InDet::PixelClusterOnTrack*>*   m_containedChildRots;

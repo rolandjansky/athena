@@ -13,7 +13,6 @@
 
 //Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //Inner detector includes
 #include "InDetIdentifier/SCT_ID.h"
@@ -24,7 +23,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 //STL includes
 #include <string>
@@ -63,8 +61,6 @@ class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
         n_BSErrorType = 15, firstBSErrorType = 0, lastBSErrorType = 14
   };
 
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_evtStore;
   ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
 
   const SCT_ID* m_pSCTHelper;
@@ -97,7 +93,7 @@ class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   int m_lowHitCut;
   ///retrieve a tool and report if it failed
   template<class T>
-    bool retrievedTool(T & tool, const std::string & toolName) {
+    bool retrievedTool(T& tool, const std::string& toolName) const {
     if (tool.retrieve().isFailure()) {
       ATH_MSG_ERROR("Unable to retrieve " << toolName);
       return false;

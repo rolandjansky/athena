@@ -52,7 +52,7 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
 
   // loop over previous decisions
   size_t counter=0;
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
     auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
     ATH_CHECK( roiELInfo.isValid() );
@@ -70,15 +70,15 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
 
     toolInput.emplace_back( d, roi, clusterHandle.cptr(), previousDecision );
 
-     {
-       auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
+    {
+      auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
       ATH_CHECK( el.isValid() );
       d->setObjectLink( "feature",  el );
     }
-     d->setObjectLink( "roi", roiELInfo.link );
-     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
-     counter++;
+    d->setObjectLink( "roi", roiELInfo.link );
+    TrigCompositeUtils::linkToPrevious( d, previousDecision );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    counter++;
 
   }
 

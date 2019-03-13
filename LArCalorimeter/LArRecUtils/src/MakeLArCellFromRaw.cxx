@@ -11,7 +11,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
@@ -55,7 +54,7 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   StatusCode sc = svcLoc->service("MessageSvc", m_msgSvc);
   if (sc.isFailure())
   {
-     std::cout << "MakeLArCellFromRaw ERROR cannot retrieve MessageSvc " << std::endl;
+    std::cout << "MakeLArCellFromRaw ERROR cannot retrieve MessageSvc " << std::endl;
     return;
   }
 
@@ -66,7 +65,19 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   if(pCorr) log <<MSG::INFO <<" Number of Corrections "<< pCorr->size()<< endmsg ;
   
 
-  const CaloDetDescrManager* man = CaloDetDescrManager::instance();
+  StoreGateSvc* detStore = nullptr;
+  sc = svcLoc->service("DetectorStore", detStore);
+  if (sc.isFailure())
+  {
+    log << MSG::ERROR << "MakeLArCellFromRaw ERROR cannot retrieve DetectorStore " << endmsg;
+    return;
+  }
+
+  const CaloDetDescrManager* man = nullptr;
+  if ( detStore->retrieve (man, "CaloMgr").isFailure() ) {
+    log << MSG::ERROR << "MakeLArCellFromRaw ERROR cannot retrieve CaloMgr " << endmsg;
+    return;
+  }
 
   IToolSvc* p_toolSvc;
   StatusCode status = svcLoc->service( "ToolSvc",p_toolSvc );
@@ -98,25 +109,14 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   }
 
 
-  const CaloIdManager* caloCIM = man->getCalo_Mgr();
-  const LArEM_ID& em_id = *( caloCIM->getEM_ID() );
-  const LArHEC_ID& hec_id = *( caloCIM->getHEC_ID() );
-  const LArFCAL_ID& fcal_id = *(caloCIM->getFCAL_ID() );
+  const CaloCell_ID* calo_id = man->getCaloCell_ID();
+  const LArEM_ID& em_id = *calo_id->em_idHelper();
+  const LArHEC_ID& hec_id = *calo_id->hec_idHelper();
+  const LArFCAL_ID& fcal_id = *calo_id->fcal_idHelper();
 
-// retrive onlineID helper from detStore
-
-   StoreGateSvc* detStore;
-   if (svcLoc->service("DetectorStore", detStore).isFailure()) {
-     log << MSG::ERROR   << "Unable to access DetectoreStoren MakeLArCellFromRaw" << endmsg ;
-     return;
-   }
-
-// retrieve OnlineID helper from detStore
-   sc = detStore->retrieve(m_onlineID, "LArOnlineID");
-   if (sc.isFailure()) {
-     log << MSG::ERROR <<  "MakeLArCellFromRaw: Could not get LArOnlineID helper !" << endmsg ;
-      return;
-   }
+  if (detStore->retrieve(m_onlineID, "LArOnlineID").isFailure()) {
+    log <<MSG::ERROR << "cannot find LArOnlineID in MakeLArCellFromRaw " << endmsg;
+  }
 
 
   int n_em   = 0 ; 

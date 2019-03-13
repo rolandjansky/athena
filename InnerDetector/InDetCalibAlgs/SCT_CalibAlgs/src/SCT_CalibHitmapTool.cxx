@@ -36,8 +36,6 @@ const static string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
-  m_detStore{"DetectorStore", name},
-  m_evtStore{"StoreGateSvc", name},
   m_pSCTHelper{nullptr},
   m_sct_waferHash{0},
   m_sct_firstStrip{0},
@@ -48,7 +46,7 @@ SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::str
 
 StatusCode
 SCT_CalibHitmapTool::initialize() {
-  ATH_CHECK(m_detStore->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   //
   m_waferItrBegin = m_pSCTHelper->wafer_begin();
   m_waferItrEnd = m_pSCTHelper->wafer_end();

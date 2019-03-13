@@ -894,8 +894,6 @@ def TrigJetMonitoringTool():
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)
 
-  ToolSvc += HLTJetMon;
-
   # Set up the trigger configuration tool:
   #ToolSvc += CfgMgr.TrigConf__xAODConfigTool( "xAODConfigTool",
                                             #OutputLevel = 2 )

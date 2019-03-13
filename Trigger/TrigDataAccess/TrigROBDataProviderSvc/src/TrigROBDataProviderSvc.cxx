@@ -427,7 +427,7 @@ StatusCode TrigROBDataProviderSvc::queryInterface(const InterfaceID& riid, void*
     - in offline only check that given ROB ids are in the map, issue an
       error if not
 */
-void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string callerName) 
+void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName) 
 { 
   //-------------------
   // remove empty calls
@@ -844,7 +844,7 @@ void TrigROBDataProviderSvc::setNextEvent(const RawEvent* re)
 
 /** return ROBData for ROBID
  */ 
-void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, std::string callerName) 
+void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, std::string_view callerName) 
 {
 
   //--------------------
@@ -1096,7 +1096,7 @@ std::string TrigROBDataProviderSvc::dumpROBcache() const {
 
 /// Collect all data for an event from the ROS and put them into the cache
 /// Return value: number of ROBs which were retrieved to complete event
-int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerName) {
+int TrigROBDataProviderSvc::collectCompleteEventData(const std::string_view callerName) {
 
   // return if call was already issued
   if (m_isEventComplete) return 0;
@@ -1216,17 +1216,17 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
 } // end int collectCompleteEventData(...)
 
 int TrigROBDataProviderSvc::collectCompleteEventData(const EventContext&, 
-                                                     const std::string callerName)
+                                                     const std::string_view callerName)
 {
   return collectCompleteEventData (callerName);
 }
 
 /// set the name of the program which uses the ROBDataProviderSvc
-void TrigROBDataProviderSvc::setCallerName(std::string callerName)
+void TrigROBDataProviderSvc::setCallerName(std::string_view callerName)
 {
  // caller name of this method
   std::string caller_name("UNKNOWN");
-  if (callerName != "UNKNOWN") { 
+  if (callerName != caller_name) { 
     caller_name = callerName;
   }else{
     IAlgorithm* alg(0);

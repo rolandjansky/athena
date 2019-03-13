@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <string_view>
 
 // Declaration of the interface ID ( interface id, major version, minor version)
 static const InterfaceID IID_ITrigROBDataProviderSvc("ITrigROBDataProviderSvc", 2 , 0);
@@ -52,14 +53,14 @@ public:
   /// Collect all data for an event from the ROS and put them into the cache
   /// Return value: number of ROBs which were retrieved to complete the event
   /// Optinonally the name of the caller of this method can be specified for cost monitoring
-  virtual int collectCompleteEventData(const std::string callerName="UNKNOWN") = 0;
+  virtual int collectCompleteEventData(const std::string_view callerName="UNKNOWN") = 0;
 
   //-------------------------------------
   // Methods useful for (cost) monitoring
   //-------------------------------------
 
   /// set the name of the program which uses the ROBDataProviderSvc
-  virtual void setCallerName(const std::string) = 0;
+  virtual void setCallerName(const std::string_view) = 0;
 
   /// get the name of the program which is presently registered in the ROBDataProviderSvc
   virtual std::string getCallerName() = 0;

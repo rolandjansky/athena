@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -51,7 +51,7 @@
 #include <vector>
 
 
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 class TileID;
 class TileTBID;
 class TileHWID;
@@ -111,8 +111,7 @@ class TileHitToRawChannel: public AthAlgorithm {
     double m_threshHi; //!< Value of the mimimal amplitude required to do the conversion to raw channel in high gain (not used for low gain)
     double m_ampMaxHi; //!< Value of the maximum amplitude to be stored as a high gain channel. For larger amplitudes, the channel is converted to low gain
 
-    IAtRndmGenSvc * m_atRndmGenSvc; //!< Random number generator engine to use
-    CLHEP::HepRandomEngine * m_pHRengine;  //!< Random number service to use
+    ServiceHandle<IAthRNGSvc> m_atRndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number generator engine to use
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};

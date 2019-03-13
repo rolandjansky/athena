@@ -349,7 +349,7 @@ serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
 serialiser.OutputLevel=VERBOSE
 serialiser.addCollectionListToMainResult([
    "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-   "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.decisions",
+   "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.",
    "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
    "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
    "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",

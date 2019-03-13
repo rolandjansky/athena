@@ -2,7 +2,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains, \
-    generateDecisionTree
+    generateDecisionTreeOld
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
@@ -40,10 +41,6 @@ def generateMenu( flags ):
     menuChains = []
     allChainDicts =[]
 
-    menuAcc = ComponentAccumulator()
-    mainSequenceName = 'HLTAllSteps'
-    menuAcc.addSequence( seqAND(mainSequenceName) )
-
     chainAccumulators = []
 
     for name, cfgFlag in list(flags._flagdict.iteritems()):
@@ -80,14 +77,21 @@ def generateMenu( flags ):
 
     _log.info('Obtained Menu Chain objects')
 
-    # pass all menuChain to CF builder    
+    # pass all menuChain to CF builder
+    useReworked = True
 
+    if useReworked:
+        menuAcc = generateDecisionTree(menuChains, allChainDicts)
+    else:
+        menuAcc = ComponentAccumulator()
+        mainSequenceName = 'HLTAllSteps'
+        menuAcc.addSequence( seqAND(mainSequenceName) )
+        chainsAcc = generateDecisionTreeOld(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
+        menuAcc.merge(chainsAcc)
 
-    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
-    chainsAcc.printConfig()
-
-    menuAcc.merge( chainsAcc )
     menuAcc.printConfig()
+
+    # kaboom
 
     _log.info('CF is built')
 

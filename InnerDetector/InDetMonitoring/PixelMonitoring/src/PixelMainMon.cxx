@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_currentTime = 0;
   m_runNum = 0;
   m_idHelper = 0;
-  m_eventInfoKey = "ByteStreamEventInfo";
   m_eventxAODInfoKey = "EventInfo";
   // Initalize all pointers for histograms
 
@@ -387,7 +386,6 @@ StatusCode PixelMainMon::initialize() {
   ATH_CHECK(m_Pixel_SiClustersName.initialize());
   ATH_CHECK(m_TracksName.initialize());
   ATH_CHECK(m_PixelBCIDName.initialize());
-  ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_eventxAODInfoKey.initialize());
   // Retrieve tools
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {

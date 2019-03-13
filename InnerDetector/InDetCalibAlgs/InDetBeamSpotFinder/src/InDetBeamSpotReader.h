@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDET_INDETBEAMSPOTREADER_H
@@ -13,7 +13,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "VxVertex/VxContainer.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet {
@@ -34,7 +34,7 @@ namespace InDet {
   private:
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
-    SG::ReadHandleKey<EventInfo> m_eventInfo
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo
       {this, "EvtInfo", "EventInfo", "EventInfo name"};
     SG::ReadHandleKey<VxContainer> m_vxContainer
       {this, "VxContainer", "VxPrimaryCandidate", "Vertex container name"};

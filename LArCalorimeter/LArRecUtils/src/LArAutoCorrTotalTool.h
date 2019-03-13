@@ -36,7 +36,6 @@
 #include "StoreGate/DataHandle.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "GaudiKernel/IIncidentListener.h"
 
@@ -104,7 +103,6 @@ class LArAutoCorrTotalTool: public AthAlgTool,
   ToolHandle<ILArMCSymTool>     m_larmcsym;
   ToolHandle<ILArADC2MeVTool>   m_adc2mevTool;
   
-  const CaloIdManager* m_calo_id_man;
   const LArEM_Base_ID*    m_lar_em_id; 
   const LArHEC_Base_ID*   m_lar_hec_id;
   const LArFCAL_Base_ID*  m_lar_fcal_id;
