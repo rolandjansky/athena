@@ -16,6 +16,7 @@
 
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "CaloEvent/CaloCellClusterWeights.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
 
@@ -67,11 +68,14 @@ private:
   bool                                          m_useCellsFromClusters;     ///< Use cells from topo-clusters if @c true, else use all cells, default is @c true
   bool                                          m_applyCellEnergyThreshold; ///< Apply cell energy threshold, default is @c false 
   double                                        m_energyThreshold;          ///< Cell energy threshold, default is set in @c m_energyThresholdDef
+  //  bool                                          m_collectMonitorData;       ///< Collect monitor data if @c true (default is @c false)
+  //  std::string                                   m_monitorDataFile;          ///< File to dump for monitor data
   /// @}
 
   /// @name Constants and parameters
   /// @{
-  uint_t             m_numberOfCells;          ///< Number of cells (highest cell index) 
+  uint_t             m_numberOfCells;          ///< Number of cells (highest cell index + 1)
+  uint_t             m_maxCellHash;            ///< Maximum hash index of cell ( number of cells - 1)
   uint_t             m_numberOfSamplings;      ///< Number of samplings
   uint_t             m_numberOfTowers;         ///< Number of towers
   static double      m_energyThresholdDef;     ///< Default energy threshold
@@ -94,10 +98,10 @@ private:
   ///@param clusCont reference to non-modifiable @c xAOD::CaloClusterContainer
   ///@param protoCont reference to modifiable proto-cluster container
   ///@{
-  bool buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Inclusive towers
-  bool buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Exclusive towers
-  bool buildEMTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont);  ///< EM topo-towers
-  bool buildLCWTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont); ///< LCW topo-towers
+  StatusCode buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Inclusive towers
+  StatusCode buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Exclusive towers
+  StatusCode buildEMTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont);  ///< EM topo-towers
+  StatusCode buildLCWTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont); ///< LCW topo-towers
   ///@}
   /// @brief Adding cells to proto-clusters
   ///
@@ -109,13 +113,20 @@ private:
   
   ///@name Helpers
   ///@{
-  bool        filterProtoCluster(const CaloClusterCellLink& clnk) const;
+  bool        filterProtoCluster(const CaloClusterCellLink& clnk)  const;
+  void        checkCellIndices(const CaloCellContainer* pCellCont) const;
   ///@}
 
-  ///@brief Excluded sampling
-  std::vector<CaloSampling::CaloSample>                       m_excludedSamplings;
-  std::vector<std::string>                                    m_excludedSamplingsName;
-  std::bitset< _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE >   m_exludedSamplingsPattern;
+  ///@name Excluded samplings
+  ///@{
+  std::vector<CaloSampling::CaloSample>                       m_excludedSamplings;         ///< List of excluded samplings (@c CaloSampling::CaloSample enumerators)
+  std::vector<std::string>                                    m_excludedSamplingsName;     ///< List of excluded samplings (human-readable names)
+  std::bitset< _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE >   m_excludedSamplingsPattern;  ///< Bit pattern indicates if sampling is excluded
+  ///@}
+
+  ///@name Monitoring
+  ///@{
+  ///@}
 };
 
 ///@class CaloTopoClusterFromTowerMaker

@@ -3,8 +3,6 @@
 #include "CaloRec/CaloTopoClusterFromTowerHelpers.h"
 
 #include <cmath>
-#include <cstdio>
-#include <fstream>
 
 namespace { constexpr auto _pi = 3.14159265358979323846; }
 
@@ -96,43 +94,32 @@ StatusCode CaloTowerGeometrySvc::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_towerBins   = m_towerEtaBins*m_towerPhiBins;
-  m_towerArea   = m_towerEtaWidth*m_towerPhiWidth;
-  m_maxCellHash = f_caloDDM()->element_size();
+  m_towerBins     = m_towerEtaBins*m_towerPhiBins;
+  m_towerArea     = m_towerEtaWidth*m_towerPhiWidth;
+  m_maxCellHash   = f_caloDDM()->element_size()-1;
+  m_numberOfCells = f_caloDDM()->element_size(); 
 
-  char buffer[256];
-  int  nbuf(sprintf(buffer,"Tower description - Eta(bins,min,max,width) = (%3zu,%6.3f,%6.3f,%6.4f)",m_towerEtaBins,m_towerEtaMin,m_towerEtaMax,m_towerEtaWidth));
-  ATH_MSG_INFO( std::string(buffer,nbuf) );
-  nbuf = sprintf(buffer,"Tower description - Phi(bins,min,max,width) = (%3zu,%6.3f,%6.3f,%6.4f)",m_towerPhiBins,m_towerPhiMin,m_towerPhiMax,m_towerPhiWidth);
-  ATH_MSG_INFO( std::string(buffer,nbuf) );
-  nbuf = sprintf(buffer,"Tower description - maximum number of towers %5zu; (eta,phi)-space area %6.4f; maximum cell hash index %6zu",m_towerBins,m_towerArea,m_maxCellHash);
-  ATH_MSG_INFO( std::string(buffer,nbuf) );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("Tower description - Eta(bins,min,max,width) = (%3zu,%6.3f,%6.3f,%6.4f)",m_towerEtaBins,m_towerEtaMin,m_towerEtaMax,m_towerEtaWidth) );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("Tower description - Phi(bins,min,max,width) = (%3zu,%6.3f,%6.3f,%6.4f)",m_towerPhiBins,m_towerPhiMin,m_towerPhiMax,m_towerPhiWidth) );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("Tower description - maximum number of towers %5zu; (eta,phi)-space area %6.4f; maximum cell hash index %6zu",m_towerBins,m_towerArea,m_maxCellHash) );
 
   if ( this->msgLvl(MSG::VERBOSE) ) {
     std::vector<std::string> logger; logger.reserve(m_towerBins+10);
-    char buffer[1024];
-    int nbuf(sprintf(buffer,"[CaloTowerGeometrySvc::%s] +-------- Tower Index Mapping ---------+------------+------------+",this->name().c_str()));
-    logger.push_back(std::string(buffer,nbuf));
-    nbuf = sprintf(buffer,"[CaloTowerGeometrySvc::%s] | %10.10s | %10.10s | %10.10s | %10.10s | %10.10s |",
-		   this->name().c_str(),"TowerIndex", " EtaIndex ", " PhiIndex ","     Eta     ","     Phi    ");
-    logger.push_back(std::string(buffer,nbuf));
-    nbuf = sprintf(buffer,"[CaloTowerGeometrySvc::%s] +------------+------------+------------+------------+------------+",this->name().c_str());
-    logger.push_back(std::string(buffer,nbuf));
+    logger.push_back(CaloRec::Helpers::fmtMsg("[CaloTowerGeometrySvc::%s] +-------- Tower Index Mapping ---------+------------+------------+",this->name().c_str()));
+    logger.push_back(CaloRec::Helpers::fmtMsg("[CaloTowerGeometrySvc::%s] | %10.10s | %10.10s | %10.10s | %10.10s | %10.10s |",this->name().c_str(),"TowerIndex", " EtaIndex ", " PhiIndex ","     Eta     ","     Phi    "));
+    logger.push_back(CaloRec::Helpers::fmtMsg("[CaloTowerGeometrySvc::%s] +------------+------------+------------+------------+------------+",this->name().c_str()));
     for ( size_t i(0); i<m_towerBins; ++i ) { 
       size_t etaIndex(this->etaIndexFromTowerIndex(i));
       size_t phiIndex(this->phiIndexFromTowerIndex(i));
       double eta(this->towerEta(i)); double phi(this->towerPhi(i));
-      nbuf = sprintf(buffer,"[CaloTowerGeometrySvc::%s] |    %5zu   |    %5zu   |    %5zu   |   %6.3f   |   %6.3f   |",this->name().c_str(),i,etaIndex,phiIndex,eta,phi);
-      logger.push_back(std::string(buffer,nbuf));
+      logger.push_back(CaloRec::Helpers::fmtMsg("[CaloTowerGeometrySvc::%s] |    %5zu   |    %5zu   |    %5zu   |   %6.3f   |   %6.3f   |",this->name().c_str(),i,etaIndex,phiIndex,eta,phi));
     }
-    nbuf = sprintf(buffer,"[CaloTowerGeometrySvc::%s] +------------+------------+------------+------------+------------+",this->name().c_str());
-    logger.push_back(std::string(buffer,nbuf));
+    logger.push_back(CaloRec::Helpers::fmtMsg("[CaloTowerGeometrySvc::%s] +------------+------------+------------+------------+------------+",this->name().c_str()));
     // 
     std::string logFileName = m_logFileName+"."+this->name()+".dat";
     std::ofstream logfile;
     logfile.open(logFileName); for ( auto mlog : logger ) { logfile << mlog << std::endl; } logfile.close();
   }
-      
   return f_setupTowerGrid(); 
 }
 
@@ -155,8 +142,18 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGrid()
   elementvector_t ev;
 
   // set up lookup table
-  ATH_MSG_INFO( "Setting up cell-to-tower lookup for " << m_maxCellHash << " calorimeter cells" );
-  m_towerLookup.resize(m_maxCellHash,ev); 
+  ATH_MSG_INFO( "Setting up cell-to-tower lookup for " << m_numberOfCells << " calorimeter cells" );
+  m_towerLookup.resize(m_numberOfCells,ev);
+
+  // dump projections 
+  std::ofstream logger;
+  if ( msgLvl(MSG::DEBUG) ) { 
+    logger.open(CaloRec::Helpers::fmtMsg("%s.calocellprojections_dump.dat",this->name().c_str()));
+    logger << CaloRec::Helpers::fmtMsg("############################################################################") << std::endl;
+    logger << CaloRec::Helpers::fmtMsg("## CaloCell projections onto %3.1f x %3.1f tower grid (projective cells only) ##",m_towerEtaWidth,m_towerPhiWidth) << std::endl;
+    logger << CaloRec::Helpers::fmtMsg("############################################################################") << std::endl; 
+    logger << std::endl;
+  }
 
   // loop cells
   for ( auto fcell(m_caloDDM->element_begin()); fcell != m_caloDDM->element_end(); ++fcell ) {
@@ -168,16 +165,18 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGrid()
       ATH_MSG_WARNING( "Cell hash identifier out of range " << cidx << "/" << m_towerLookup.size() << ", ignore cell" );
     } else {
       if ( pCaloDDE->is_lar_fcal() ) { 
-	if ( this->f_setupTowerGridFCal(pCaloDDE).isFailure() ) { return StatusCode::FAILURE; }
+	if ( this->f_setupTowerGridFCal(pCaloDDE,logger).isFailure() ) { return StatusCode::FAILURE; }
       } else {
-	if ( this->f_setupTowerGridProj(pCaloDDE).isFailure() ) { return StatusCode::FAILURE; }
+	if ( this->f_setupTowerGridProj(pCaloDDE,logger).isFailure() ) { return StatusCode::FAILURE; }
       } 
     } // cell hash in range?    
   } // loop cell descriptors
+  if ( logger.is_open() ) { logger.close(); }
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloTowerGeometrySvc::f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE)
+StatusCode CaloTowerGeometrySvc::f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE,std::ofstream& /*logger*/)
 {
   //-----------------------------------------------------------------------------------------//
   // FCal special - the rectangular (in linear space) calorimeter cells are sub-divided into //
@@ -250,7 +249,7 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridFCal(const CaloDetDescrElement*
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE)
+StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE,std::ofstream& logger)
 {
   // projective readout calos - collect geometrical variables
   double cEtaPos(pCaloDDE->eta_raw());            // projective cell center in pseudorapidity
@@ -269,7 +268,7 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
   }
   
   // share cells
-  double cWght(1./((double)kEta*kPhi));            // area weight
+  double cWght(1./((double)kEta*kPhi));          // area weight
   double sEta(cEtaWid/((double)kEta));           // step size (pseudorapidity)
   double sPhi(cPhiWid/((double)kPhi));           // step size (azimuth)
   double oEta(cEtaPos-sEta/2.);                  // offset (pseudorapidity)
@@ -288,15 +287,15 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
       } // invalid tower index
       //      m_towerLookup[pCaloDDE->calo_hash()].emplace_back(towerIdx,cWght); // add to tower lookup
       f_assign(pCaloDDE->calo_hash(),towerIdx,cWght);
-      if ( msgLvl(MSG::DEBUG) && towerIdx > 3200 && towerIdx < 3300 ) { 
+      if ( logger.is_open() ) { 
 	double el(this->towerEta(towerIdx)-this->etaWidth()/2.); double eh(this->towerEta(towerIdx)+this->etaWidth()/2.);
 	double pl(this->towerPhi(towerIdx)-this->phiWidth()/2.); double ph(this->towerPhi(towerIdx)+this->phiWidth()/2.);
 	if ( cEtaPos >= el && cEtaPos <= eh && cPhiPos >= pl && cPhiPos <= ph ) { 
-	  ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("Cell [%6zu] at (%6.3f,%6.3f) contributes to tower [%5zu] at ([%6.3f-%6.3f],[%6.3f-%6.3f]) with weight %6.4f",
-						  (size_t)pCaloDDE->calo_hash(),cEtaPos,cPhiPos,el,eh,pl,ph,cWght) );
+	  logger << CaloRec::Helpers::fmtMsg("Cell [%6zu] at (%6.3f,%6.3f) in Sampling %10.10s contributes to tower [%5zu] at ([%6.3f,%6.3f],[%6.3f,%6.3f]) with weight %6.4f [IN_BOUNDS]",
+					     (size_t)pCaloDDE->calo_hash(),cEtaPos,cPhiPos,CaloRec::Lookup::getSamplingName(pCaloDDE->getSampling()).c_str(),towerIdx,el,eh,pl,ph,cWght) << std::endl;
 	} else { 
-	  ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("Cell [%6zu] at (%6.3f,%6.3f) contributes to tower [%5zu] at ([%6.3f-%6.3f],[%6.3f-%6.3f]) with weight %6.4f [OUT_OF_BOUNDS]",
-						  (size_t)pCaloDDE->calo_hash(),cEtaPos,cPhiPos,el,eh,pl,ph,cWght) );
+	  logger << CaloRec::Helpers::fmtMsg("Cell [%6zu] at (%6.3f,%6.3f) in Sampling %10.10s contributes to tower [%5zu] at ([%6.3f,%6.3f],[%6.3f,%6.3f]) with weight %6.4f [OUT_OF_BOUNDS]",
+					     (size_t)pCaloDDE->calo_hash(),cEtaPos,cPhiPos,CaloRec::Lookup::getSamplingName(pCaloDDE->getSampling()).c_str(),towerIdx,el,eh,pl,ph,cWght) << std::endl;
 	}
       } // debugging central region
     } // phi fragment loop
@@ -312,8 +311,8 @@ double CaloTowerGeometrySvc::f_assign(IdentifierHash cellHash,index_t towerIdx,d
 {
   // check if cell-tower already related
   uint_t cidx(static_cast<uint_t>(cellHash));
-  for ( auto elm : m_towerLookup.at(cidx) ) { 
-    if ( towerIndex(elm) == towerIdx ) { std::get<1>(elm) += wght; return cellWeight(elm); }
+  for ( element_t& elm : m_towerLookup.at(cidx) ) { 
+    if ( towerIndex(elm) == towerIdx ) { std::get<1>(elm) += wght; return cellWeight(elm); }  
   }
   // not yet related
   m_towerLookup[cidx].emplace_back(towerIdx,wght);
@@ -354,7 +353,12 @@ CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(Identifier
 {
   // check input
   uint_t cidx(static_cast<uint_t>(cellHash)); 
-  return cidx < m_towerLookup.size() ? m_towerLookup.at(cidx) : elementvector_t();  
+  if ( cidx >= m_towerLookup.size() ) { 
+    ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("invalid cell hash %6zu beyond range (max hash is %6zu)",cidx,m_maxCellHash) ); 
+    return elementvector_t();
+  } else {
+    return m_towerLookup.at(cidx);
+  }
 } 
 
 //-----------------------//

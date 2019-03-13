@@ -20,6 +20,7 @@
 #include <cmath>
 #include <array>
 #include <tuple>
+#include <fstream>
 
 ///@name Forward declarations
 ///@{
@@ -81,17 +82,18 @@ public:
 
   ///@name Tower bin descriptors and other size information
   ///@{
-  uint_t maxCellHash() const; ///< Maximum cell hash value
-  uint_t etaBins()     const; ///< Number of pseudorapidity bins
-  double etaMin()      const; ///< Lower boundary of pseudorapidity range
-  double etaMax()      const; ///< Upper boundary of pseudorapidity range 
-  double etaWidth()    const; ///< Width of pseudorapidity bin  
-  uint_t phiBins()     const; ///< Number of azimuth bins
-  double phiMin()      const; ///< Lower boundary of azimuth
-  double phiMax()      const; ///< Upper boundary of azimuth
-  double phiWidth()    const; ///< Width of azimuth bin
-  uint_t towerBins()   const; ///< Total number of towers
-  double towerArea()   const; ///< Area of individual tower 
+  uint_t maxCellHash()      const; ///< Maximum cell hash value
+  uint_t totalNumberCells() const; ///< Total number of cells 
+  uint_t etaBins()          const; ///< Number of pseudorapidity bins
+  double etaMin()           const; ///< Lower boundary of pseudorapidity range
+  double etaMax()           const; ///< Upper boundary of pseudorapidity range 
+  double etaWidth()         const; ///< Width of pseudorapidity bin  
+  uint_t phiBins()          const; ///< Number of azimuth bins
+  double phiMin()           const; ///< Lower boundary of azimuth
+  double phiMax()           const; ///< Upper boundary of azimuth
+  double phiWidth()         const; ///< Width of azimuth bin
+  uint_t towerBins()        const; ///< Total number of towers
+  double towerArea()        const; ///< Area of individual tower 
   ///@}
 
   ///@name Tower index calculators, translaters, manipulators and converters
@@ -134,15 +136,23 @@ public:
   double  cellWeight(const CaloCell* pCell, index_t towerIdx)  const; ///< Retrieve cell signal weight from pointer to cell object and tower index
   ///@}
 
+  ///@name Access to storage
+  ///@{
+  elementmap_t::const_iterator begin() const;  ///< Iterator points to first entry in internal look-up table (only @c const access!)
+  elementmap_t::const_iterator end()   const;  ///< Iterator marks end of internal look-up table (only @c const access)  
+  size_t                       size()  const;  ///< Size of internal look-up table
+  bool                         empty() const;  ///< Internal look-up table is empty if @c true
+  ///@}
+
 private:
 
   ///@name Helpers
   ///@{
-  StatusCode f_setupSvc();                                                  ///< Internally used function setting up other services needed by this service
-  StatusCode f_setupTowerGrid();                                            ///< Internally used function setting up the lookup store
-  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE);     ///< Internally used function mapping an FCal cell onto the tower grid
-  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE);     ///< Internally used function mapping a projective cell onto the tower grid
-  double     f_assign(IdentifierHash cellHash,index_t towerIdx,double wgt); ///< Internally used function assigning tower to cell with update of weight if same tower is already assigned
+  StatusCode f_setupSvc();                                                                    ///< Internally used function setting up other services needed by this service
+  StatusCode f_setupTowerGrid();                                                              ///< Internally used function setting up the lookup store
+  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE,std::ofstream& logger); ///< Internally used function mapping an FCal cell onto the tower grid
+  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE,std::ofstream& logger); ///< Internally used function mapping a projective cell onto the tower grid
+  double     f_assign(IdentifierHash cellHash,index_t towerIdx,double wgt);                   ///< Internally used function assigning tower to cell with update of weight if same tower is already assigned
   ///@}
 
   ///@name Access to detector store and other services and stores
@@ -161,6 +171,7 @@ protected:
   double       m_towerArea;     ///< Area of individual tower
   uint_t       m_towerBins;     ///< Maximum number of towers
   uint_t       m_maxCellHash;   ///< Maximum cell hash value
+  uint_t       m_numberOfCells; ///< Total number of cells 
   ///@}
   
   ///@name Properties
@@ -326,20 +337,21 @@ inline StatusCode CaloTowerGeometrySvc::f_setupSvc() {
 //------------------------------------//
 // Public access to tower descriptors //
 //------------------------------------//
-inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::maxCellHash() const { return m_maxCellHash;   }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::maxCellHash()      const { return m_maxCellHash;   }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::totalNumberCells() const { return m_numberOfCells; }  
 
-inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::etaBins()   const { return m_towerEtaBins;  }
-inline double                       CaloTowerGeometrySvc::etaMin()    const { return m_towerEtaMin;   }
-inline double                       CaloTowerGeometrySvc::etaMax()    const { return m_towerEtaMax;   }
-inline double                       CaloTowerGeometrySvc::etaWidth()  const { return m_towerEtaWidth; }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::etaBins()          const { return m_towerEtaBins;  }
+inline double                       CaloTowerGeometrySvc::etaMin()           const { return m_towerEtaMin;   }
+inline double                       CaloTowerGeometrySvc::etaMax()           const { return m_towerEtaMax;   }
+inline double                       CaloTowerGeometrySvc::etaWidth()         const { return m_towerEtaWidth; }
 
-inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::phiBins()   const { return m_towerPhiBins;  }
-inline double                       CaloTowerGeometrySvc::phiMin()    const { return m_towerPhiMin;   }
-inline double                       CaloTowerGeometrySvc::phiMax()    const { return m_towerPhiMax;   }
-inline double                       CaloTowerGeometrySvc::phiWidth()  const { return m_towerPhiWidth; }
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::phiBins()          const { return m_towerPhiBins;  }
+inline double                       CaloTowerGeometrySvc::phiMin()           const { return m_towerPhiMin;   }
+inline double                       CaloTowerGeometrySvc::phiMax()           const { return m_towerPhiMax;   }
+inline double                       CaloTowerGeometrySvc::phiWidth()         const { return m_towerPhiWidth; }
 
-inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::towerBins() const { return m_towerBins;     }
-inline double                       CaloTowerGeometrySvc::towerArea() const { return m_towerArea;     } 
+inline CaloTowerGeometrySvc::uint_t CaloTowerGeometrySvc::towerBins()        const { return m_towerBins;     }
+inline double                       CaloTowerGeometrySvc::towerArea()        const { return m_towerArea;     } 
 
 //----------------//
 // Index checking //
@@ -375,6 +387,11 @@ inline double CaloTowerGeometrySvc::towerEtaLocal(index_t etaIdx) const { return
 inline double CaloTowerGeometrySvc::towerPhiLocal(index_t phiIdx) const { return !isInvalidPhiIndex(phiIdx) ? phiMin()+(static_cast<double>(phiIdx)+0.5)*phiWidth() : invalidValue(); }
 inline double CaloTowerGeometrySvc::towerEta(index_t towerIdx)    const { return towerEtaLocal(etaIndexFromTowerIndex(towerIdx)); }
 inline double CaloTowerGeometrySvc::towerPhi(index_t towerIdx)    const { return towerPhiLocal(phiIndexFromTowerIndex(towerIdx)); }  
+
+inline CaloTowerGeometrySvc::elementmap_t::const_iterator CaloTowerGeometrySvc::begin() const { return m_towerLookup.begin(); }
+inline CaloTowerGeometrySvc::elementmap_t::const_iterator CaloTowerGeometrySvc::end()   const { return m_towerLookup.end(); }
+inline size_t                                             CaloTowerGeometrySvc::size()  const { return m_towerLookup.size(); }
+inline bool                                               CaloTowerGeometrySvc::empty() const { return m_towerLookup.empty(); }
 
 //-------------------//
 // Other data access //
