@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
 import sys

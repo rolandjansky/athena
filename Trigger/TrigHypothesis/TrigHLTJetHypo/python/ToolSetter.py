@@ -1,3 +1,10 @@
+"""Instantiates AlgTools from paramters stored in a node instance"""
+
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+
+
+
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (TrigJetHypoToolConfig_simple,
                                                TrigJetHypoToolConfig_dijet,
                                                TrigJetNotToolMT,

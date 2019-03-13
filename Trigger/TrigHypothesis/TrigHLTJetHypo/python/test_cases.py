@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 test_strings = [
     'ijet([(10et, 0eta320)])',
      'ijet([(10et, 0eta320)(20et, 0eta320)])',
