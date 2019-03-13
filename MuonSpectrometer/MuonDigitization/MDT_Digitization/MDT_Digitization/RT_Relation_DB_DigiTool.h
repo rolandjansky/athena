@@ -42,7 +42,7 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent );
     
     //Methods
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual MdtDigiToolOutput digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine *rndmEngine) override final;
     bool initializeTube();
   

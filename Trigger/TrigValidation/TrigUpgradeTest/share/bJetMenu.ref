@@ -1,6 +1,6 @@
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070       100       100       30        24        24        
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070 decisions                    237       97        
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split 100       100       30        24        24        
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split decisions                    237       97        
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split  100       100       30        24        24        
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split decisions                    237       97  
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070       100       100       28        22        22        
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070 decisions                    61        38        
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split 100       100       28        22        22        
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split decisions                    61        38        
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split  100       100       28        22        22        
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split decisions                    61        38        

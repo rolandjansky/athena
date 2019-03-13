@@ -174,7 +174,7 @@ StatusCode MonROBDataProviderSvc::queryInterface(const InterfaceID& riid, void**
 }
 
 /// addROBData (no effect in offline, all ROBS were already read in from full event)
-void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string callerName) 
+void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName) 
 { 
   // for offline running all requested ROBs should be found in cache
   ROBDataProviderSvc::addROBData(robIds,callerName);
@@ -208,7 +208,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
   if ( p_robMonCollection ) {
     // caller name
     std::string caller_name("UNKNOWN");
-    if (callerName != "UNKNOWN") {
+    if (callerName != caller_name) {
       caller_name = callerName;
     } else {
       IAlgorithm* alg(0);
@@ -363,7 +363,7 @@ void MonROBDataProviderSvc::setNextEvent(const RawEvent* re)
 
 /** return ROBData for ROBID
  */ 
-void MonROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, std::string callerName) 
+void MonROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, std::string_view callerName) 
 {
   ROBDataProviderSvc::getROBData(robIds,robFragments, callerName);
   return ; 

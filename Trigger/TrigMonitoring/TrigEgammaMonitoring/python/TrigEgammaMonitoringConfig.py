@@ -149,6 +149,10 @@ class TrigEgammaMonToolBuilder:
         self.mam=monitoring_mam
 
     def configureElectronMonTool(self,plotTool,toolList):
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += plotTool()
+        for t in toolList:
+            ToolSvc += t()
         ElectronAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaElectronAnalysis',
                 Analysis='Electrons',
                 PlotTool=plotTool,
@@ -265,23 +269,22 @@ class TrigEgammaMonToolBuilder:
                         histoPathBase=self.basePath,
                         IgnoreTruncationCheck=True,
                         Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
-                ToolSvc += tool        
             else:
-                ToolSvc += self.configureDefaultMonTool()
+                tool = self.configureDefaultMonTool()
         elif self.HI_mode == True or self.pPb_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            ToolSvc += tool        
         elif self.cosmic_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            ToolSvc += tool
         else:
-            ToolSvc += self.configureDefaultMonTool()
-        return toolList    
+            tool = self.configureDefaultMonTool()
+        ToolSvc += tool
+        #return toolList    
+        return [tool]

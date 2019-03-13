@@ -12,7 +12,8 @@ from GaudiKernel.Constants import (VERBOSE,
 
 import TrigHLTJetRecConf
 from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
-                                             IParticlePtEtaRejectionTool,)
+                                             IParticlePtEtaRejectionTool,
+                                             NonPositiveEnergyRejectionTool)
 
 # from JetRec.JetRecConf import JetRecTool
 # from JetRec.JetRecConf import (JetFromPseudojetMT,)
@@ -192,6 +193,51 @@ def _getIsData():
     from AthenaCommon.GlobalFlags import globalflags
     return globalflags.DataSource() == 'data'
 
+def addJVFTool(toolname,
+                  tvSGkey,
+                  vcSGkey,
+                  tpcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+ 
+        # Build the tool :
+        jvfTool = JetVertexFractionTool(toolname,
+                                        VertexContainer = vcSGkey, 
+                                        AssociatedTracks = "GhostTrack",
+                                        TrackVertexAssociation = tvSGkey,
+                                        TrackParticleContainer = tpcSGkey, 
+                                        TrackSelector = jtm.trackselloose,
+                                        JVFName = "JVF",
+                                        IsTrigger=True,)
+        
+        jtm += jvfTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname
+
+
+def addJVTTool(toolname,
+                  vcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
+ 
+        # Build the tool :
+        jvtTool = JetVertexTaggerTool(toolname,
+                                      VertexContainer = vcSGkey)
+        
+        jtm += jvtTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvt tool "%s" to jtm' % toolname
+
 
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
@@ -207,6 +253,7 @@ def configTVassocTool(name,
         TrackParticleContainer = tpcSGkey,
         TrackVertexAssociation = tvSGkey,
         VertexContainer = vcSGkey,
+        TrackVertexAssoTool = jtm.jetLooseTVAtool,
     )
 
     # Build the tool :
@@ -451,6 +498,7 @@ def _getJetBuildTool2(merge_param,
                       iParticleRejectionTool,
                       name='',
                       secondary_label='',
+		      trkopt = '',
                       outputLabel='',
                       OutputLevel=INFO,
                       fromJet=False
@@ -476,7 +524,7 @@ def _getJetBuildTool2(merge_param,
     # in situ calibration step is only for data, not MC
     # this string here allows the following code to be data/MC unaware
     inSitu = 'i' if _getIsData() else ''
-
+   
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
@@ -490,14 +538,27 @@ def _getJetBuildTool2(merge_param,
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        if not hasattr(jtm, 'trkmoms_GhostTracks'):
+        if not hasattr(jtm, 'trkmoms_'+trkopt):
             print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
         else:        
-            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_GhostTracks')
+            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_'+trkopt)
             trkmoms_ghosttrack.unlock()
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
+        if not hasattr(jtm, 'jvf_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+        else:        
+            jvf_ghosttrack = getattr(jtm, 'jvf_'+trkopt)
+            jvf_ghosttrack.unlock()
+            jvf_ghosttrack.AssociatedTracks = secondary_label
+            jvf_ghosttrack.lock()
+            mymods.append(jvf_ghosttrack)
+        if not hasattr(jtm, 'jvt_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVT tool configured. Continuing without jvt calculations."
+        else:        
+            jvt_ghosttrack = getattr(jtm, 'jvt_'+trkopt)
+            mymods.append(jvt_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -567,6 +628,7 @@ def _getJetBuildTool2(merge_param,
 
     try:
         # jetBuildTool = jtm.addJetFinderTrigger(
+        #OutputLevel=VERBOSE
         jetBuildTool = jtm.addTriggerJetBuildTool(
             name=name,
             alg="AntiKt",
@@ -1042,6 +1104,31 @@ def _getIParticleNullRejectionTool(toolname, **kwds):
 
     return rejecter
 
+def _getNonPositiveEnergyRejectionTool(toolname, **kwds):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        rejecter = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorAll to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        rejecter = NonPositiveEnergyRejectionTool(
+            name=toolname, **kwds)
+        jtm += rejecter
+        rejecter = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getNonPositiveEnergyRectionTool '\
+            'Added rejecter "%s" to jtm' % toolname
+
+    return rejecter
+
 
 def _getIParticlePtEtaRejectionTool(toolname, **kwds):
 
@@ -1103,8 +1190,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iIParticleSelectorAll') 
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 
@@ -1137,8 +1224,9 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             do_substructure=do_substructure,
             iParticleRejectionTool=iIParticleRejecter,
             name=name,
-            secondary_label=secondary_label, # track related modifiers
             OutputLevel=OutputLevel,
+            trkopt = trkopt,
+            secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
             )
         print 'after jetbuild'
         
@@ -1169,7 +1257,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  OutputLevel=INFO,
                  ):
 
-        # OutputLevel = VERBOSE
+        #OutputLevel = VERBOSE
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
 
@@ -1183,8 +1271,8 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         # 3/18 IParticle selection moved to TriggerJetBuildTool
         # self.iIParticleSelector = _getIParticleSelectorAll(
         #    'iParticleSelectorAll')
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
         # Groomer builds jets from clusters and then grooms them
@@ -1201,7 +1289,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
             do_minimalist_setup=do_minimalist_setup,
             iParticleRejectionTool=iIParticleRejecter,
             name=name+'notrim',
-            do_substructure=do_substructure,
+            do_substructure=False, #do_substructure,
             OutputLevel=OutputLevel,
         )
         
@@ -1248,15 +1336,14 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
         self.OutputLevel = OutputLevel
         
-        self.OutputLevel = OutputLevel
         self.cluster_calib = cluster_calib
         # self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
         name = 'iIParticleEtaPtRejecter_%d_%d' % (int(10 * etaMaxCut),
                                                   int(ptMinCut))
         
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
 
         concrete_type = 'Jet'
 
@@ -1313,8 +1400,8 @@ class TrigHLTJetRecFromTriggerTower(
         #                                       int(ptMinCut)),
         #    **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
 
-        iIParticleRejecter = _getIParticleNullRejectionTool(
-            'iIParticleNullRejectionTool', OutputLevel=OutputLevel)
+        iIParticleRejecter = _getNonPositiveEnergyRejectionTool(
+            'nonPositiveEnergyRejectionTool', OutputLevel=OutputLevel)
         
 
 
@@ -1472,6 +1559,8 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
 
         self.energyDensity = 0
 
+from JetRecTools.JetRecToolsConf import  (JetConstituentModSequence, SoftKillerWeightTool, ClusterAtEMScaleTool, VoronoiWeightTool)
+
 class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
     """Supply a specific grid configuration for SoftKiller"""
 
@@ -1487,12 +1576,43 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
 
         self.OutputLevel = OutputLevel
-        self.output_collection_label = output_collection_label
+        self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
-        # TODO create and configure offline SoftKiller tool here, pass it to our tool
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
         print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
 
+        # Temp hardcode enum value as this is code that will be dropped
+        xaodtype_calocluster = 1
+
+        modifiers = []
+        # We only want an EM tool if we are working with EM clusters
+        # The tool should be used before calling SoftKiller (prepend to list)
+        if cluster_calib == "EM":
+            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib, InputType=xaodtype_calocluster)
+            jtm.add(emTool)
+            self.emTool = emTool
+            modifiers.append(self.emTool)
+        
+        global jtm
+        skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5, InputType=xaodtype_calocluster)
+        jtm.add(skTool)
+        self.skWeightTool = skTool
+
+        voronoiTool = VoronoiWeightTool('voronoiTool'+name+'_'+cluster_calib, doSpread =  False, nSigma = 0, InputType=xaodtype_calocluster)
+        jtm.add(voronoiTool)
+        self.voronoiTool = voronoiTool
+        modifiers += [self.voronoiTool, self.skWeightTool]
+        
+        skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
+                                                 InputContainer = "CaloCalTopoClusters",
+                                                 OutputContainer = self.output_collection_label,
+                                                 InputType=xaodtype_calocluster,
+                                                 Trigger = True,
+                                                 Modifiers = modifiers
+                                                 )
+        jtm.add(skclustModSeq)
+        self.skclustModSeqTool = skclustModSeq
+        
         print "SK clusters from clusters"
 
 # Track Moment helper class                                                     
@@ -1502,6 +1622,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
 
     def __init__(self,
                  name,
+                 trkopt,
                  tvassocSGkey,
                  trackSGkey,
                  primVtxSGkey,
@@ -1512,7 +1633,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.primVtxSGkey = primVtxSGkey
 
         #retrieve and configure the TVA tool 
-        tvatoolname = 'tvassoc_GhostTracks'
+        tvatoolname = 'tvassoc_'+trkopt
 
         tvaoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
@@ -1522,12 +1643,27 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.tvassocTool = _getTVassocTool(tvatoolname, **tvaoptions)
     
         # add  a specially configured trkmoms tool to jtm 
-        trkmomstoolname = 'trkmoms_GhostTracks'
+        trkmomstoolname = 'trkmoms_'+trkopt
         
         trkmomsoptions = dict(tvSGkey=tvassocSGkey,
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+        
+        # add  a specially configured jvf tool to jtm 
+        jvftoolname = 'jvf_'+trkopt
+        
+        jvfoptions = dict(tvSGkey=tvassocSGkey,
+                       tpcSGkey=trackSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addJVFTool(jvftoolname, **jvfoptions)
+
+        # add  a specially configured jvt tool to jtm 
+        jvttoolname = 'jvt_'+trkopt
+        
+        jvtoptions = dict(vcSGkey=primVtxSGkey)
+        addJVTTool(jvttoolname, **jvtoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

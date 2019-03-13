@@ -13,6 +13,7 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
 // Data member classes
+#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
@@ -22,10 +23,11 @@
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+
+#include "CLHEP/Geometry/Point3D.h"
 
 #include <atomic>
 #include <mutex>
@@ -625,16 +627,16 @@ namespace InDetDD {
     
       mutable std::recursive_mutex m_mutex;
 
-      mutable Amg::Transform3D m_transform; // Will be guarded by m_mutex
-      mutable HepGeom::Transform3D m_transformCLHEP; // Will be guarded by m_mutex
+      mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-      mutable Amg::Vector3D m_normal; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_etaAxis; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_phiAxis; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP; // Will be guarded by m_mutex
-      mutable Amg::Vector3D m_center; // Will be guarded by m_mutex
-      mutable HepGeom::Vector3D<double> m_centerCLHEP; // Will be guarded by m_mutex
+      mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       mutable std::atomic<double> m_minZ;
       mutable std::atomic<double> m_maxZ;
@@ -643,8 +645,8 @@ namespace InDetDD {
       mutable std::atomic<double> m_minPhi;
       mutable std::atomic<double> m_maxPhi;
 
-      mutable std::atomic<Trk::Surface*> m_surface;
-      mutable std::vector<const Trk::Surface*> m_surfaces; // Will be guarded by m_mutex
+      CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
+      mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       const GeoAlignmentStore* m_geoAlignStore{};
     };
@@ -766,7 +768,7 @@ namespace InDetDD {
     inline void SiDetectorElement::updateAllCaches() const
     {
       if (!m_cacheValid) updateCache();
-      if (!m_surface) surface();
+      if (not m_surface) surface();
     }
     
     

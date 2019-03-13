@@ -2,13 +2,16 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-def makeInDetAlgs():
+def makeInDetAlgs( whichSignature='' ):
+  #If signature specified add suffix to the algorithms
+  signature =  "_" + whichSignature if whichSignature else ''
+
   eventAlgs = []
   viewAlgs = []
   from InDetRecExample.InDetKeys import InDetKeys
   #Create IdentifiableCaches
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews" + signature,
                                        Pixel_ClusterKey = "PixelTrigClustersCache",
                                        SCT_ClusterKey   = "SCT_ClustersCache",
                                        SpacePointCachePix = "PixelSpacePointCache",
@@ -27,11 +30,11 @@ def makeInDetAlgs():
     #Pixel
     
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
-    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
+    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder" + signature)
     ToolSvc += InDetPixelRodDecoder
     
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
-    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
+    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool" + signature,
                                                              Decoder = InDetPixelRodDecoder)
     ToolSvc += InDetPixelRawDataProviderTool
 
@@ -41,7 +44,7 @@ def makeInDetAlgs():
     
     # load the PixelRawDataProvider
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
-    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
+    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
                                                      RDOKey       = InDetKeys.PixelRDOs(),
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
                                                      #OutputLevel = INFO)
@@ -58,12 +61,12 @@ def makeInDetAlgs():
     
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name          = "InDetSCTRodDecoder",)
+    InDetSCTRodDecoder = SCT_RodDecoder(name          = "InDetSCTRodDecoder" + signature)
                                         # OutputLevel = INFO)
     ToolSvc += InDetSCTRodDecoder
     
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
-    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
+    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool" + signature,
                                                         Decoder = InDetSCTRodDecoder)
     ToolSvc += InDetSCTRawDataProviderTool
     if (InDetFlags.doPrintConfigurables()):
@@ -71,7 +74,7 @@ def makeInDetAlgs():
     
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
-    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
+    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider" + signature,
                                                 RDOKey       = InDetKeys.SCT_RDOs(),
                                                 ProviderTool = InDetSCTRawDataProviderTool, )
                                                 #OutputLevel = INFO)
@@ -83,7 +86,7 @@ def makeInDetAlgs():
 
     # load the SCTEventFlagWriter
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTEventFlagWriter
-    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter")
+    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter"+ signature)
 
     viewAlgs.append(InDetSCTEventFlagWriter)
 
@@ -94,23 +97,23 @@ def makeInDetAlgs():
     ServiceMgr += InDetTRTCalDbSvc
     
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc" + signature)
     ServiceMgr += InDetTRTStrawStatusSummarySvc
     
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
-    InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
+    InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder" + signature,
                                         LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
     ToolSvc += InDetTRTRodDecoder
       
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
-    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
+    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool" + signature,
                                                           Decoder = InDetTRTRodDecoder)
     ToolSvc += InDetTRTRawDataProviderTool
     
       
     # load the TRTRawDataProvider
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
+    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider" + signature,
                                                  RDOKey       = "TRT_RDOs",
                                                   ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
@@ -123,7 +126,7 @@ def makeInDetAlgs():
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
   
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
+  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool" + signature,
                                                   PixelCalibSvc        = None,
                                                   UsePixelCalibCondDB  = False,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
@@ -133,7 +136,7 @@ def makeInDetAlgs():
   
   
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool",
+  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool" + signature,
                                                   globalPosAlg            = InDetClusterMakerTool,
                                                   MinimalSplitSize        = 0,
                                                   MaximalSplitSize        = 49,
@@ -143,11 +146,11 @@ def makeInDetAlgs():
   ToolSvc += InDetMergedPixelsTool
   
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
-  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")
+  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder" + signature)
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
   
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
+  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
@@ -167,7 +170,7 @@ def makeInDetAlgs():
   # InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
   
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool" + signature)
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   condTools = []
@@ -177,7 +180,7 @@ def makeInDetAlgs():
     if condTool not in condTools:
       if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
         condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged" + signature)
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
@@ -186,7 +189,7 @@ def makeInDetAlgs():
   # --- SCT_ClusteringTool (public)
   #
   from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
-  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
+  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool" + signature,
                                                       globalPosAlg      = InDetClusterMakerTool,
                                                       conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   #
@@ -194,7 +197,7 @@ def makeInDetAlgs():
   #
 
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
-  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
+  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization" + signature,
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
@@ -210,12 +213,12 @@ def makeInDetAlgs():
   #Space points and FTF
   
   from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
-  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool" + signature)
   ToolSvc += InDetSiSpacePointMakerTool
 
   from AthenaCommon.DetFlags import DetFlags 
   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
+  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder" + signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
                                                                     SCT_ClustersName       = "SCT_TrigClusters",
@@ -239,13 +242,13 @@ def makeInDetAlgs():
       # Setup alignment folders and conditions algorithms
       from InDetCondFolders import InDetAlignFolders
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
-      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg" + signature)
 
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
+  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                            doIBLresidual = False,
                                                            TrackName = "TrigFastTrackFinder_Tracks",
                                                            TrackParticlesName = "xAODTracks",
@@ -253,6 +256,7 @@ def makeInDetAlgs():
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   viewAlgs.append(theTrackParticleCreatorAlg)
 
-  
+
+
   return (viewAlgs, eventAlgs)
 

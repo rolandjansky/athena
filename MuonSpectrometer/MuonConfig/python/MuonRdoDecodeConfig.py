@@ -169,10 +169,16 @@ def muonRdoDecodeTestData( forTrigger = False ):
     log.info('About to setup Rpc Raw data decoding')
 
     cfg=ComponentAccumulator()
+
         
     # Seem to need this to read BS properly
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
+
+    if forTrigger:
+        # cache creators loaded independently
+        from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
+        cfg.merge( MuonCacheCfg() )
 
     # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg

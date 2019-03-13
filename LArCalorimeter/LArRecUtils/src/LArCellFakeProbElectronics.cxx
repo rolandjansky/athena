@@ -18,7 +18,6 @@ PURPOSE:  Scales down the energy of cells due to simulated
 #include "LArCellFakeProbElectronics.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArCabling/LArCablingLegacyService.h"
@@ -77,12 +76,10 @@ double  LArCellFakeProbElectronics::wtCell(const CaloCell * theCell ) const
 
 
   // get calo id helper
-  const CaloCell_ID* idHelper = CaloIdManager::instance()->getCaloCell_ID();
-  if ( idHelper == 0 )
-    {
-      ATH_MSG_ERROR( "cannot allocate CaloCell_ID helper!" );
-      return 1;
-    }
+  const CaloCell_ID* idHelper = nullptr;
+  if (detStore()->retrieve (idHelper, "CaloCell_ID").isFailure()) {
+    return 1;
+  }
   
   HWIdentifier id;
   try{

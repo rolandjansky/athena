@@ -8,7 +8,8 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 
-Reco_tf.py --AMI=q220 --outputTAGFile=myTAG.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data15_cos.00251363.physics_IDCosmic.merge.RAW._lb0057._SFO-ALL._0001.1 --imf False
+#This test currently has the muon isolation reconstruction switched off. It should be switched back on at a later date. 
+Reco_tf.py --AMI=q220 --outputTAGFile=myTAG.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False --preExec "r2e:from MuonRecExample.MuonRecFlags import muonRecFlags; muonRecFlags.doMuonIso.set_Value_and_Lock(False)"
 echo "art-result: $?"
 
 ArtPackage=$1

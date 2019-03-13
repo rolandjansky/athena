@@ -34,6 +34,7 @@ public:
   // set inputs for jet finding. label is a type flag used 
   // for IParticle selection
   virtual void prime(const xAOD::IParticleContainer*) = 0;
+  virtual void primeGhost(const xAOD::IParticleContainer*, std::string ghostlabel) = 0;
   virtual int build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const = 0;
   
   // Allow owner Algorithm to reset the Pseudojets (no managed by the evt store)

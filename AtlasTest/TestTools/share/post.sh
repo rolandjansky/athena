@@ -164,6 +164,7 @@ PP="$PP"'|servers found for host'
 PP="$PP"'|^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) '
 PP="$PP"'|INFO Database being retired|^Domain.*INFO'
 PP="$PP"'|SZ='
+PP="$PP"'|using job opts'
 
 # Outputs dependent on whether or not a file catalog already exists.
 PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'

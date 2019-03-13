@@ -103,7 +103,7 @@ if DetFlags.haveRIO.pixel_on():
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
 
@@ -267,7 +267,7 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
         
     # Setup Lorentz angle tool.
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 
     forceUseDB = False
     forceUseGeoModel = False

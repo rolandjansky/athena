@@ -9,7 +9,6 @@
 #include "EventContainers/SelectAllObject.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
@@ -31,14 +30,13 @@ namespace JiveXML {
    **/
   CaloLArRetriever::CaloLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("LAr")
+    m_typeName("LAr"),
+    m_calocell_id(nullptr)
   {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_calo_id_man  = CaloIdManager::instance();
-    m_calocell_id  = m_calo_id_man->getCaloCell_ID();
     m_sgKey = "AllCalo"; 
 
     declareInterface<IDataRetriever>(this);
@@ -61,7 +59,8 @@ namespace JiveXML {
 
   StatusCode CaloLArRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    ATH_MSG_DEBUG( "Initialising Tool"  );
+    ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     ATH_CHECK( m_cablingKey.initialize() );
 
@@ -73,22 +72,19 @@ namespace JiveXML {
    */
   StatusCode CaloLArRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    ATH_MSG_DEBUG( "in retrieve()"  );
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
+	ATH_MSG_WARNING( "Could not retrieve Calorimeter Cells "  );
 	return StatusCode::FAILURE;
       }
 
    if(m_lar){
       DataMap data = getLArData(cellContainer);
-      if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-        return StatusCode::FAILURE;
-      } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data) );
+      ATH_MSG_DEBUG( "LAr retrieved"  );
     }
     //LAr cells retrieved okay
     return StatusCode::SUCCESS;
@@ -101,7 +97,7 @@ namespace JiveXML {
    */
   const DataMap CaloLArRetriever::getLArData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArData()" << endmsg;
+    ATH_MSG_DEBUG( "getLArData()"  );
 
     DataMap DataMap;
 
@@ -127,21 +123,21 @@ namespace JiveXML {
     
     const ILArPedestal* larPedestal = nullptr;
     if(m_doLArCellDetails){
-	if( detStore()->retrieve(larPedestal).isFailure() ){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr Pedestal" << endmsg;
-	}
+      if( detStore()->retrieve(larPedestal).isFailure() ){
+        ATH_MSG_ERROR( "in getLArData(), Could not retrieve LAr Pedestal"  );
       }
+    }
       
     const LArOnlineID* onlineId = nullptr;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(),Could not get LArOnlineID!" << endmsg;
-     }
-    
+      ATH_MSG_ERROR( "in getLArData(),Could not get LArOnlineID!"  );
+    }
+
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doLArCellDetails){
 	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
+	  ATH_MSG_ERROR( "in getLArData(), Could not retrieve LAr ADC2MeV Tool"  );
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
@@ -150,7 +146,7 @@ namespace JiveXML {
       double energyGeV,cellTime;
       double energyAllLArBarrel = 0.;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
+      ATH_MSG_DEBUG( "Start iterator loop over cells"  );
       
       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
       const LArOnOffIdMapping* cabling{*cablingHdl};
@@ -194,9 +190,6 @@ namespace JiveXML {
           feedThrough.push_back(DataType(onlineId->feedthrough(LArhwid))); 
        	  slot.push_back(DataType(onlineId->slot(LArhwid))); 
 
-	  //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cell with ID " << (Identifier::value_type)(*it1)->ID().get_compact() <<  
-          //                 " retrieved" << endmsg;
-
 	  if ( m_doLArCellDetails){
 	    cellTime = (*it1)->time();
 	    cellTimeVec.push_back(DataType( gcvt( cellTime, m_cellTimePrec, rndStr) ) );
@@ -219,7 +212,7 @@ namespace JiveXML {
 	  }
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel << endmsg;
+    ATH_MSG_DEBUG( " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel  );
 
     // write values into DataMap
     DataMap["phi"] = phi;
@@ -243,10 +236,8 @@ namespace JiveXML {
        DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
-    }
+    ATH_MSG_DEBUG( dataTypeName() << " , collection: " << dataTypeName()
+                   << " retrieved with " << phi.size() << " entries" );
 
     //All collections retrieved okay
     return DataMap;

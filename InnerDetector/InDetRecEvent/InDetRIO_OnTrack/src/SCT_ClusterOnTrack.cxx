@@ -90,12 +90,12 @@ void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, c
 const  Amg::Vector3D& InDet::SCT_ClusterOnTrack::globalPosition() const
   {
    //checking whether the globalposition is available
-   if(!m_globalPosition)
+   if (not m_globalPosition)
    {
     
     // calculate global position from the position of the strip and the position along the strip
      Amg::Vector2D lpos( localParameters().get(Trk::locX), m_positionAlongStrip );
-     m_globalPosition = detectorElement()->surface( identify() ).localToGlobal( lpos );            
+     m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface( identify() ).localToGlobal( lpos )));            
    }
     
    return (*m_globalPosition);

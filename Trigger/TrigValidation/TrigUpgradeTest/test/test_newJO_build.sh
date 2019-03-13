@@ -18,7 +18,7 @@ export REGTESTEXP=".*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOte
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/NewJO.ref`
 
-get_files -jo TrigUpgradeTest/newJOtest.py
+get_files -remove -jo TrigUpgradeTest/newJOtest.py
 
 echo $(date "+%FT%H:%M %Z")"     Generate pickle file for test ${NAME}"
 python newJOtest.py &> athena.pickle.log # generate pickle

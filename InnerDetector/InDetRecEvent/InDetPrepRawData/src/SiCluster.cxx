@@ -28,7 +28,7 @@ SiCluster::SiCluster(
         ) :
         PrepRawData(RDOId, locpos, rdoList, locErrMat), //call base class constructor
         m_width(width),
-        m_globalPosition(0),
+        m_globalPosition{},
         m_gangedPixel(0),
         m_detEl(detEl) {}
 
@@ -44,21 +44,20 @@ SiCluster::SiCluster(
                     std::move(rdoList),
                     std::move(locErrMat)), //call base class constructor
         m_width(width),
-        m_globalPosition(0),
+        m_globalPosition{},
         m_gangedPixel(0),
         m_detEl(detEl) {}
 
 // Destructor:
 SiCluster::~SiCluster()
 {
-	delete m_globalPosition;
 	// do not delete m_detEl since owned by DetectorStore
 }
 
 // Default constructor:
 SiCluster::SiCluster():
 	PrepRawData(),
-	m_globalPosition(0),
+	m_globalPosition{},
 	m_gangedPixel(0),
 	m_detEl(0)
 {}
@@ -67,34 +66,37 @@ SiCluster::SiCluster():
 SiCluster::SiCluster(const SiCluster& RIO):
 	PrepRawData( RIO ),
 	m_width( RIO.m_width ),
-	m_globalPosition( 0 ),
+	m_globalPosition{},
 	m_gangedPixel( RIO.m_gangedPixel ),
 	m_detEl( RIO.m_detEl )
 
 {
-  // copy only if it exists
-  m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+        // copy only if it exists
+        if (RIO.m_globalPosition) {
+                m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+        }
 }
 
 //move constructor:
 SiCluster::SiCluster(SiCluster&& RIO):
         PrepRawData( std::move(RIO) ),
 	m_width( std::move(RIO.m_width) ),
-	m_globalPosition( RIO.m_globalPosition.load() ),
+	m_globalPosition( std::move(RIO.m_globalPosition) ),
 	m_gangedPixel( RIO.m_gangedPixel ),
 	m_detEl( RIO.m_detEl )
 
 {
-  RIO.m_globalPosition = nullptr;
 }
 
 //assignment operator
 SiCluster& SiCluster::operator=(const SiCluster& RIO){
-      if (&RIO !=this) {
+       if (&RIO !=this) {
                 Trk::PrepRawData::operator= (RIO);
-		delete m_globalPosition;
 		m_width = RIO.m_width;
-		m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+		if (m_globalPosition) delete m_globalPosition.release().get();
+		if (RIO.m_globalPosition) {
+                        m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+                }
 		m_gangedPixel = RIO.m_gangedPixel;
 		m_detEl =  RIO.m_detEl ;
        }
@@ -105,12 +107,11 @@ SiCluster& SiCluster::operator=(const SiCluster& RIO){
 SiCluster& SiCluster::operator=(SiCluster&& RIO){
       if (&RIO !=this) {
                 Trk::PrepRawData::operator= (std::move(RIO));
-		delete m_globalPosition;
-		m_width = RIO.m_width;
-		m_globalPosition = RIO.m_globalPosition.load();
-                RIO.m_globalPosition = nullptr;
-		m_gangedPixel = RIO.m_gangedPixel;
-		m_detEl =  RIO.m_detEl ;
+                m_width = RIO.m_width;
+                if (m_globalPosition) delete m_globalPosition.release().get();
+                m_globalPosition = std::move(RIO.m_globalPosition);
+                m_gangedPixel = RIO.m_gangedPixel;
+                m_detEl =  RIO.m_detEl ;
        }
        return *this;
 } 
@@ -122,8 +123,8 @@ MsgStream& SiCluster::dump( MsgStream&    stream) const
 	// have to do a lot of annoying checking to make sure that PRD is valid. 
 	{
 		stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
-			<<this->globalPosition().y()<<", "
-			<<this->globalPosition().z()<<")"<<std::endl;
+                       <<this->globalPosition().y()<<", "
+                       <<this->globalPosition().z()<<")"<<std::endl;
 	}
 	
 	if ( gangedPixel()==true ) 

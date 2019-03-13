@@ -55,7 +55,6 @@ namespace TrigCompositeUtils {
   /**
    * @brief Creates and right away records the DecisionContainer using the provided WriteHandle.
    **/
-
   void createAndStore( SG::WriteHandle<DecisionContainer>& handle );
 
   /**
@@ -95,6 +94,12 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   void insertDecisionIDs( const Decision* src, Decision* dest );
 
  /**
+   * @brief Appends the decision IDs of src to the dest decision object
+   * @warning Performing merging of IDs and solving the duples (via set)
+   **/
+  void insertDecisionIDs( const DecisionIDContainer& src, Decision* dest );
+
+ /**
    * @brief Make unique list of decision IDs of dest Decision object
    * @warning Use vector->set->vector
    * This helps solving multiple inserts of the Decision obejcts
@@ -109,14 +114,17 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
 
   /**
    * @brief Another variant of the above method to access DecisionIDs stored in
- the Decision object, returns const accessor
+   * the Decision object, returns const accessor
+   * @warning Operates on the underlying xAOD vector form rather than the DecisionContainer set form
    **/
-  const std::vector<int>& decisionIDs( const Decision* d ); 
+  const std::vector<DecisionID>& decisionIDs( const Decision* d ); 
 
   /**
-   * @brief Another variant of the above method to access DecisionIDs stored in the Decision object, returns read/write accessor
+   * @brief Another variant of the above method to access DecisionIDs stored in 
+   * the Decision object, returns read/write accessor
+   * @warning Operates on the underlying xAOD vector form rather than the DecisionContainer set form
    **/ 
-  std::vector<int>& decisionIDs( Decision* d );
+  std::vector<DecisionID>& decisionIDs( Decision* d );
 
   
   /**
@@ -135,19 +143,24 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   bool passed( DecisionID id, const DecisionIDContainer& );
   
   /**
-   * @brief Links to the previous object
+   * @brief Links to the previous object, location of previous 'seed' decision supplied by hand
    **/
   void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex);
 
   /**
-   * @brief checks if there is a link to previous object
+   * @brief Links to the previous object, 'seed' decision provided explicitly.
+   **/
+  void linkToPrevious(Decision* d, const Decision* dOld);
+
+  /**
+   * @brief checks if there is at least one 'seed' link to previous object
    **/
   bool hasLinkToPrevious(const Decision* d);
 
   /**
-   * @brief returns link to previous decision object
+   * @brief returns links to previous decision object 'seed'
    **/
-  ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
+  const ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -180,6 +193,24 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
     std::string m_name;
   };
 
+  /**
+   * @brief Prerequisite object usable with @see filter allowing to find TC having a link to an object collection of name
+   **/
+  class HasObjectCollection {
+  public:
+    /**
+     * @brief constructor specifying the link name
+     **/
+    HasObjectCollection(const std::string& name): m_name(name) {}
+    /**
+     * @brief checks if the arg TC has link collection of name specified at construction 
+     * @warning method for internal consumption within @see find function 
+     **/
+    bool operator()(const xAOD::TrigComposite* ) const;
+  private:
+    std::string m_name;
+  };
+
   
   /**
    * @brief collects all TC linked back to the start TC
@@ -196,7 +227,7 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
       : source{0} {}
     LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l)
       : source{s}, link{l} {}
-	
+
     bool isValid() const {
       return source && link.isValid(); }
     /**
@@ -204,7 +235,7 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
      */
     operator StatusCode () {
       return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE); }
-	
+
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
   };
@@ -217,25 +248,7 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
    */
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
-    auto source = find(start, HasObject(linkName) );
-    //
-    if ( not source ){
-      auto seeds = getLinkToPrevious(start);
-      // std::cout<<"Looking for seeds: found " <<seeds.size()<<std::endl;
-      for (auto seed: seeds){
-	const xAOD::TrigComposite* dec = *seed;//deference
-	LinkInfo<T> link= findLink<T>( dec, linkName );
-	// return the first found
-	if (link.isValid()) return link;
-      }
-      return LinkInfo<T>(); // invalid link
-    }
-
-    //std::cout<<"Found source for "<<linkName<<std::endl;
-
-    return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
-  }
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName);
 
   /**
    * Prints the TC including the linked seeds

@@ -1,26 +1,11 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # @file:    rootcomp.py
 # @purpose: Script to compare the histograms in two root files
 # @author:  Frank Winklmeier, Will Buttinger
 #
-# $Id: rootcomp.py,v 1.18 2009-04-18 20:06:28 sgeorge Exp $
-
-"""
-Compares the histograms in two root files.
-
-Return value: totalHistograms > 0 : 
-                   (totalHistograms - matchingHistograms - missingHistograms)
-              totalHistograms = 0 :
-                   255
-              (i.e. script returns 0 if all histograms match)     
-"""              
-
-__author__  = "Frank Winklmeier, Will Buttinger"
-__version__ = "$Revision: 1.18 $"
-__doc__     = "Script to compare the histograms in two root files"
-
+from __future__ import print_function
 import sys
 import os
 import os.path
@@ -80,12 +65,10 @@ def diffFiles(ref,file,opts):
       selection = lambda x : reduce(lambda a,b:a|b,[re.search(pat,x)!=None for pat in opts.select])
       
    refonly = filter(selection,filter(lambda s:s[0]=='-',diff))
-   #fileonly = filter(selection,filter(lambda s:s[0]=='+',diff))
 
    if len(refonly)>0:
-      print
-      print "Histograms only found in reference:"
-      for s in refonly: print s
+      print("\nHistograms only found in reference:")
+      for s in refonly: print(s)
 
    return
 
@@ -165,7 +148,6 @@ def main():
                      action = "store_true", default = False,
                      help = "be verbose")
 
-
    parser.add_option("--atnMode",
                      action = "store_true", default = False, help = "reference file is one from previous atn nightly test")
    
@@ -178,7 +160,7 @@ def main():
       for i in range(1,7):
          refFile = getPreviousNightlyPath(i) + "/" + args[0]
          if os.path.isfile(refFile): break
-         print "Could not find file %s" % refFile
+         print("Could not find file %s" % refFile)
       args = [refFile] + args
 
    if len(args)!=2:
@@ -187,6 +169,7 @@ def main():
 
    if not opts.noSkipList:
       opts.skip += ["TIMERS"]
+      opts.skip += ["/TIME_"]
       opts.skip += ["TimerTot"]         # For TrigCalo[Cell,Cluster,Tower]Maker
       opts.skip += ["FullCalo_Total"]   # TrigCaloCellMaker_fullcalo/FullCalo_Total
       opts.skip += ["signatureAcceptance"]
@@ -214,21 +197,18 @@ def main():
       if opts.chi2: opts.threshold = 0.95
       else: opts.threshold = 1e-6
       
-   print "-"*70
-   print " rootcomp.py, "+__version__
-   print
-   print "Command    : rootcomp.py %s" % (" ".join(sys.argv[1:]))
-   print
-   print "Reference  : %s" % (args[0])
-   print "File       : %s" % (args[1])
-   print "Comparison :",
-   if opts.chi2: print "CHI2 (%.2f)" % opts.threshold
-   elif opts.axis: print "AXIS"
-   else: print "BIN-BY-BIN (%.1e)" % opts.threshold
-   if not opts.skip==[]: print "Ignored histograms: %s" % (", ".join(opts.skip))
-   if not opts.select==[]: print "Selected histograms: %s" % (", ".join(opts.select))   
+   print("-"*70)
+   print("Command    : rootcomp.py %s\n" % (" ".join(sys.argv[1:])))
+   print("Reference  : %s" % args[0])
+   print("File       : %s" % args[1])
+   print("Comparison : ", end="")
+   if opts.chi2: print("CHI2 (%.2f)" % opts.threshold)
+   elif opts.axis: print("AXIS")
+   else: print("BIN-BY-BIN (%.1e)" % opts.threshold)
+   if not opts.skip==[]: print("Ignored histograms: %s" % (", ".join(opts.skip)))
+   if not opts.select==[]: print("Selected histograms: %s" % (", ".join(opts.select)))
 
-   print "-"*70
+   print("-"*70)
 
 
    # Now import ROOT
@@ -283,7 +263,7 @@ def main():
    
    # Run
    rc = valid.setReferenceFile(args[0],opts.refBaseDir)
-   if rc==False:
+   if rc is False:
       return 255
 
    rc = valid.run(args[1],opts.fileBaseDir)
@@ -292,7 +272,7 @@ def main():
    sys.stderr.flush()
    
    if opts.zip and not opts.pdf:
-      print "GZipping postscript file -> %s.ps.gz" % (opts.outFile)
+      print("GZipping postscript file -> %s.ps.gz" % opts.outFile)
       os.system("gzip -f %s.ps" % (opts.outFile))
 
    # List histograms that are only found in reference
@@ -313,11 +293,9 @@ def main():
 
    if opts.html:
       os.system("root2html.py *.root")
-   
 
-   print "Overall test result: %i" % result
+   print("Overall test result: %i" % result)
    return result
-
 
 if __name__ == "__main__":
    sys.exit(main())

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
@@ -38,9 +38,7 @@ namespace InDetDD {
         m_code(isPositive,wheelIndex,strawLayIndex,phiIndex),
         m_descriptor(descriptor),
         m_nextInZ(NULL),
-        m_previousInZ(NULL),
-        m_surface(0)
-
+        m_previousInZ(NULL)
     {
         m_descriptor->ref();
     }
@@ -49,7 +47,6 @@ namespace InDetDD {
     TRT_EndcapElement::~TRT_EndcapElement()
     {
         m_descriptor->unref();
-        delete m_surface;
     }
 
     unsigned int TRT_EndcapElement::nStraws() const
@@ -203,7 +200,7 @@ namespace InDetDD {
 
     const Trk::Surface& TRT_EndcapElement::elementSurface() const 
     {
-        if (!m_surface) m_surface = new Trk::DiscSurface(*this);
+        if (not m_surface) m_surface.set(std::make_unique<Trk::DiscSurface>(*this));
         return *m_surface;
     }
 
@@ -242,10 +239,9 @@ namespace InDetDD {
         Trk::DiscBounds* bounds = new Trk::DiscBounds(rMin, rMax, phiHalfWidth);
         Amg::Vector3D*  center = new Amg::Vector3D(transform->translation());
         Amg::Vector3D*  normal = new Amg::Vector3D(transform->rotation().col(2));
-        m_surfaceCache = new SurfaceCache(transform, center, normal, bounds);
+        m_surfaceCache.set(std::make_unique<SurfaceCache>(transform, center, normal, bounds));
         // create the surface if needed 
-        if (!m_surface) m_surface = new Trk::DiscSurface(*this);
-
+        if (not m_surface) elementSurface();
     }
 
 

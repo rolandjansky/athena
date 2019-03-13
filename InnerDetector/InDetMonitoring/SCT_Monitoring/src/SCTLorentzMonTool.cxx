@@ -9,7 +9,6 @@
  *    Modified by Yuta
  */
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
-#include "deletePointers.h"
 #include "SCT_NameFormatter.h"
 #include <cmath>
 #include <type_traits>
@@ -85,22 +84,16 @@ StatusCode SCTLorentzMonTool::initialize() {
 // ====================================================================================================
 //                       SCTLorentzMonTool :: bookHistograms
 // ====================================================================================================
-// StatusCode SCTLorentzMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun
-// )//suppress 'unused' compiler warning     // hidetoshi 14.01.21
 StatusCode
-SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                                                                              //
-                                                                                                                                             // hidetoshi
-                                                                                                                                             // 14.01.21
+SCTLorentzMonTool::bookHistogramsRecurrent( ) {
   m_path = "";
   if (newRunFlag()) {
-    m_numberOfEvents = 0;                                                                                                                        //
-                                                                                                                                                 // hidetoshi
-                                                                                                                                                 // 14.01.21
+    m_numberOfEvents = 0;
   }
   ATH_MSG_DEBUG("initialize being called");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");
   }
   return StatusCode::SUCCESS;
 }
@@ -109,19 +102,15 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                 
 //                       SCTLorentzMonTool :: bookHistograms
 // ====================================================================================================
 StatusCode
-SCTLorentzMonTool::bookHistograms( ) {                                                                                                      //
-                                                                                                                                            // hidetoshi
-                                                                                                                                            // 14.01.21
+SCTLorentzMonTool::bookHistograms( ) {
   m_path = "";
-  m_numberOfEvents = 0;                                                                                                                                  //
-                                                                                                                                                         // hidetoshi
-                                                                                                                                                         // 14.01.21
+  m_numberOfEvents = 0;
   ATH_MSG_DEBUG("initialize being called");
   /* Retrieve TrackToVertex extrapolator tool */
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");
   }
   return StatusCode::SUCCESS;
 }
@@ -167,7 +156,7 @@ SCTLorentzMonTool::fillHistograms() {
 
   SG::ReadHandle<TrackCollection> tracks(m_tracksName);
   if (not tracks.isValid()) {
-    msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key() << endmsg;
+    ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key());
     return StatusCode::SUCCESS;
   }
   TrackCollection::const_iterator trkitr = tracks->begin();
@@ -177,21 +166,20 @@ SCTLorentzMonTool::fillHistograms() {
     // Get track
     const Trk::Track *track = (*trkitr);
     if (not track) {
-      msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
+      ATH_MSG_ERROR("no pointer to track!!!");
       continue;
     }
 
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     if (not trackStates) {
-      msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" <<
-      endmsg;
+      ATH_MSG_WARNING("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       continue;
     }
 
     const Trk::TrackSummary *summary = track->trackSummary();
     if (not summary) {
-      msg(MSG::WARNING) << " null trackSummary" << endmsg;
+      ATH_MSG_WARNING(" null trackSummary");
       continue;
     }
 
@@ -229,7 +217,7 @@ SCTLorentzMonTool::fillHistograms() {
             int nStrip = rdoList.size();
             const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
             if (not trkp) {
-              msg(MSG::WARNING) << " Null pointer to MeasuredTrackParameters" << endmsg;
+              ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
               continue;
             }
 
@@ -245,7 +233,7 @@ SCTLorentzMonTool::fillHistograms() {
               pTrack[2] = trkp->momentum().z();
               int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), elements, thetaToWafer, phiToWafer);
               if (iflag < 0) {
-                msg(MSG::WARNING) << "Error in finding track angles to wafer surface" << endmsg;
+                ATH_MSG_WARNING("Error in finding track angles to wafer surface");
                 continue; // Let's think about this (later)... continue, break or return?
               }
 
@@ -256,7 +244,7 @@ SCTLorentzMonTool::fillHistograms() {
                   (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
                   ) {
                 passesCuts = true;
-              }// 01.02.2015
+              }
               else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                        (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
                        (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) && // d0 <
@@ -299,9 +287,7 @@ SCTLorentzMonTool::fillHistograms() {
 //                             SCTLorentzMonTool :: procHistograms
 // ====================================================================================================
 StatusCode
-SCTLorentzMonTool::procHistograms() {                                                                                                                //
-                                                                                                                                                     // hidetoshi
-                                                                                                                                                     // 14.01.21
+SCTLorentzMonTool::procHistograms() {
   if (endOfRunFlag()) {
     ATH_MSG_DEBUG("finalHists()");
     ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
@@ -323,14 +309,11 @@ SCTLorentzMonTool::checkHists(bool /*fromFinalize*/) {
 //                              SCTLorentzMonTool :: bookLorentzHistos
 // ====================================================================================================
 StatusCode
-SCTLorentzMonTool::bookLorentzHistos() {                                                                                                                //
-                                                                                                                                                        // hidetoshi
-                                                                                                                                                        // 14.01.22
+SCTLorentzMonTool::bookLorentzHistos() {
   const int nLayers(4);
   const int nSides(2);
   string stem = m_path + "/SCT/GENERAL/lorentz/";
-  //    MonGroup Lorentz(this,m_path+"SCT/GENERAL/lorentz",expert,run);        // hidetoshi 14.01.21
-  MonGroup Lorentz(this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED);     // hidetoshi 14.01.21
+  MonGroup Lorentz(this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED);
 
   string hNum[nLayers] = {
     "0", "1", "2", "3"
@@ -386,23 +369,6 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
   if (success == 0) {
     return StatusCode::FAILURE;
   }
-  //  }
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //                                                                                                                 //
-  // hidetoshi 14.01.22
   return StatusCode::SUCCESS;
 }
 
@@ -413,9 +379,7 @@ SCTLorentzMonTool::pFactory(const std::string &name, const std::string &title, i
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    if (msgLvl(MSG::ERROR)) {
-      msg(MSG::ERROR) << "Cannot book SCT histogram: " << name << endmsg;
-    }
+    ATH_MSG_ERROR("Cannot book SCT histogram: " << name);
     iflag = 0;
   }else {
     iflag = 1;
@@ -433,9 +397,7 @@ SCTLorentzMonTool::h1Factory(const std::string &name, const std::string &title, 
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    if (msgLvl(MSG::ERROR)) {
-      msg(MSG::ERROR) << "Cannot book SCT histogram: " << name << endmsg;
-    }
+    ATH_MSG_ERROR("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
   return success;
@@ -454,9 +416,8 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &
   const IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
   const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
   if (!element) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::ERROR << "findAnglesToWaferSurface:  failed to find detector element for id=" <<
-    m_pSCTHelper->show_to_string(id) << endmsg;
+    ATH_MSG_ERROR("findAnglesToWaferSurface:  failed to find detector element for id=" <<
+                  m_pSCTHelper->show_to_string(id));
     return iflag;
   }
 

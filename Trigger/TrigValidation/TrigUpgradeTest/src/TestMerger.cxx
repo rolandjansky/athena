@@ -17,8 +17,8 @@ namespace HLTTest {
   // Constructors
   ////////////////
   TestMerger::TestMerger( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
-    ::AthAlgorithm( name, pSvcLocator )
+    ISvcLocator* pSvcLocator ) : 
+  ::AthAlgorithm( name, pSvcLocator )
   {
     declareProperty( "Inputs", m_inputs );
     declareProperty( "Output", m_outputKey );
@@ -51,17 +51,17 @@ namespace HLTTest {
     auto aux    = std::make_unique<DecisionAuxContainer>();
     output->setStore( aux.get() );
 
-    for ( auto input: m_inputs ) {
+    for (const auto input: m_inputs ) {
       auto iHandle = SG::ReadHandle<DecisionContainer>(input);
       if ( iHandle.isValid() ) {
-	size_t counter = 0;
-	for ( auto iDecisionIter  = iHandle->begin(); iDecisionIter != iHandle->end(); ++iDecisionIter, ++counter ) {
-	  auto d = newDecisionIn(output.get());
-	  linkToPrevious(d, input, counter );
-	}
-	ATH_MSG_DEBUG( "Input " << input << " present, linked " << counter << " inputs" );
+        size_t counter = 0;
+        for ( auto iDecisionIter  = iHandle->begin(); iDecisionIter != iHandle->end(); ++iDecisionIter, ++counter ) {
+          auto d = newDecisionIn(output.get());
+          linkToPrevious(d, *iDecisionIter );
+        }
+        ATH_MSG_DEBUG( "Input " << input << " present, linked " << counter << " inputs" );
       } else {
-	ATH_MSG_DEBUG( "Input " << input << " absent" );
+        ATH_MSG_DEBUG( "Input " << input << " absent" );
       }
     }
     

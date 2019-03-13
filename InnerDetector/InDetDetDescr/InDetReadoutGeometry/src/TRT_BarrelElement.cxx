@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -36,9 +36,7 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
   m_nextInPhi(NULL),
   m_previousInPhi(NULL),
   m_nextInR(NULL),
-  m_previousInR(NULL),
-  m_surface(0)
-		      
+  m_previousInR(NULL)
 {
   m_descriptor->ref();
 }
@@ -47,7 +45,6 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
 TRT_BarrelElement::~TRT_BarrelElement()
 {
   m_descriptor->unref();
-  delete m_surface;
 }
 
 
@@ -171,7 +168,7 @@ const Trk::SurfaceBounds& TRT_BarrelElement::strawBounds() const
 
 const Trk::Surface& TRT_BarrelElement::elementSurface() const 
 {
-  if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
+  if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
   return *m_surface;
 }
    
@@ -222,10 +219,10 @@ void TRT_BarrelElement::createSurfaceCache() const
   // create the element bounds
   Trk::RectangleBounds * elementBounds = new Trk::RectangleBounds(0.5*elementWidth, 0.5*strawLength());
   // create the surface cache
-  m_surfaceCache = new SurfaceCache(transform, center, normal, elementBounds);
-  // creaete the surface (only if needed, links are still ok even if cache update)
-  if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
+  m_surfaceCache.set(std::make_unique<SurfaceCache>(transform, center, normal, elementBounds));
 
+  // creaete the surface (only if needed, links are still ok even if cache update)
+  if (not m_surface) elementSurface();
 }
 
 

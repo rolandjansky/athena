@@ -8,65 +8,26 @@
 #include <iostream>  
  
 #include <stdio.h>
-#include <cstdlib>  
+#include <cstdlib>
+#include <atomic>
   
 #include "IdDict/IdDictDefs.h"  
  
 class Debugger 
 { 
-public: 
+public:
+  static bool get_debug_state()
+  {
+    if (::getenv ("IDDEBUG") != 0) {
+      return true;
+    }
+    return false; 
+  }
   static bool debug () 
   { 
-    static bool first = true; 
-    static bool debug_state = false; 
- 
-    if (first) 
-      { 
-	first = false; 
-	if (::getenv ("IDDEBUG") == 0) 
-	  { 
-	    debug_state = false; 
-	  } 
-	else 
-	  { 
-	    debug_state = true; 
-	  } 
-      } 
- 
-    return (debug_state); 
+    static const bool debug_state = get_debug_state();
+    return debug_state; 
   } 
- 
-  static void up () 
-  { 
-    level (1); 
-  } 
- 
-  static void down () 
-  { 
-    level (-1); 
-  } 
- 
-  static void tab (int nspaces = 0) 
-  { 
-    int n = (nspaces) ? nspaces : level (); 
- 
-    for (int i = 0; i < n; ++i) 
-      { 
-	std::cout << " "; 
-      } 
-  } 
- 
-private: 
- 
-  static int level (int d = 0) 
-  { 
-    static int n = 0; 
- 
-    n += d; 
- 
-    return (n); 
-  } 
- 
 }; 
 
 static bool isNumber(const std::string& str) 
@@ -98,14 +59,14 @@ class TypeId
 public:  
   operator int ()  
       {  
-        static int i = TypeIdBuilder::build_id ();  
+        static const int i = TypeIdBuilder::build_id ();  
         return (i);  
       }  
 };  
   
 int TypeIdBuilder::build_id ()  
 {  
-  static int i = 0;  
+  static std::atomic<int> i = 0;  
   i++;  
   return (i);  
 }  
@@ -172,7 +133,7 @@ const std::string&
 IdDictMgr::find_metadata           (const std::string& name) const
 {
     metadata_map::const_iterator it = m_metadata.find(name);
-    static std::string empty;
+    static const std::string empty;
     if (it != m_metadata.end()) return (it->second);
     else return empty;
 }
@@ -258,7 +219,7 @@ void IdDictMgr::generate_implementation (std::string tag)
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictMgr::generate_implementation>" << std::endl; 
+      std::cout << "IdDictMgr::generate_implementation>" << std::endl; 
     } 
 
   // Must reset the implementation for multiple passes, this resets
@@ -575,7 +536,6 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
     //
 
 
-//      Debugger::tab (level); 
 //      std::cout << " get_bits : level " << level;
 //      std::cout << " regions size " << regions.size() << std::endl;
 
@@ -616,7 +576,6 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
  
     RV mr = regions; 
  
-    //    Debugger::tab (level); 
     //    std::cout << " or-ing fields : level " << level;
     //    std::cout << " name " << mr[0]->m_implementation[level].m_range->m_field_name ; 
 
@@ -643,7 +602,7 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
   
     for (;;) { 
         if (mr.size () == 0)  { 
-            //Debugger::tab (level); std::cout << "empty RV" << std::endl; 
+            //std::cout << "empty RV" << std::endl; 
             break; 
         } 
  
@@ -664,7 +623,7 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
 //                std::cout << "k in level " << k << " " << level << std::endl;
 
 		/*
-		  Debugger::tab (level); std::cout << "Install the non empty Region : " <<  
+		  std::cout << "Install the non empty Region : " <<  
                   reference_region->m_index; 
                    
                   const IdDictFieldImplementation& f = reference_region->m_implementation[level]; 
@@ -689,7 +648,7 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
         if (reference_region == 0) break;
   
         if (overlapping.size () == 0) { 
-//              Debugger::tab (level); std::cout << "RV only contains empty Regions" << std::endl; 
+//              std::cout << "RV only contains empty Regions" << std::endl; 
             break; 
         } 
  
@@ -746,7 +705,7 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
  
                 if (region->m_implementation.size () <= level) continue; 
  
-//  	  Debugger::tab (level); std::cout << "Check a non empty Region : " << region->m_index; 
+//  	  std::cout << "Check a non empty Region : " << region->m_index; 
  
                 bool overlap = false; 
 
@@ -807,7 +766,7 @@ static void get_bits (const RV& regions, size_t level, const std::string& group)
         if (all_within_group) temp.clear();
 
 
-//        Debugger::tab (level); std::cout << "now we have " << overlapping.size () <<  
+//        std::cout << "now we have " << overlapping.size () <<  
 //                         " vs " <<  
 //                         temp.size () << " regions" << std::endl; 
 
@@ -831,7 +790,7 @@ void IdDictDictionary::generate_implementation (const IdDictMgr& idd,
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictDictionary::generate_implementation>" << std::endl; 
+      std::cout << "IdDictDictionary::generate_implementation>" << std::endl; 
     } 
   
   if (!m_generated_implementation) {
@@ -2356,7 +2315,7 @@ IdDictGroup::generate_implementation (const IdDictMgr& idd,
 {
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictGroup::generate_implementation>" << std::endl; 
+      std::cout << "IdDictGroup::generate_implementation>" << std::endl; 
     } 
 
   if (!m_generated_implementation) {
@@ -2659,7 +2618,7 @@ void IdDictRegion::generate_implementation (const IdDictMgr& idd,
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictRegion::generate_implementation>" << std::endl; 
+      std::cout << "IdDictRegion::generate_implementation>" << std::endl; 
     } 
   
 //    std::cout << "IdDictRegion::generate_implementation - name, tag " 
@@ -2875,7 +2834,7 @@ IdDictSubRegion::generate_implementation (const IdDictMgr& idd,
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictSubRegion::generate_implementation>" << std::endl; 
+      std::cout << "IdDictSubRegion::generate_implementation>" << std::endl; 
     } 
   
     // NOTE: we DO NOT protect this method with
@@ -3038,7 +2997,7 @@ void IdDictRange::generate_implementation (const IdDictMgr& /*idd*/,
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictRange::generate_implementation>" << std::endl; 
+      std::cout << "IdDictRange::generate_implementation>" << std::endl; 
     } 
 
 
@@ -3279,7 +3238,7 @@ void IdDictReference::generate_implementation (const IdDictMgr& idd,
 
   if (Debugger::debug ()) 
     { 
-      Debugger::tab (); std::cout << "IdDictReference::generate_implementation>" << std::endl; 
+      std::cout << "IdDictReference::generate_implementation>" << std::endl; 
     } 
   
   if (m_subregion != 0) m_subregion->generate_implementation (idd, dictionary, region, tag); 

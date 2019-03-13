@@ -163,25 +163,25 @@ namespace CP {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
         } else if (muWPname == "Loose") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "99");
+            //addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "99");
         } else if (muWPname == "Tight") {
             ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "96");
+            //addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "96");
             // For gradient efficiency in pT
         } else if (muWPname == "Gradient") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.1143*x+92.14");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
+            //addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
         } else if (muWPname == "GradientLoose") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.057*x+95.57");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
+            ///addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
         } else if (muWPname == "GradientT1") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.1713*x+88.71");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1713*x+88.71");
+            //addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1713*x+88.71");
             ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
         } else if (muWPname == "GradientT2") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.2283*x+85.28");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.2283*x+85.28");
+            //addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.2283*x+85.28");
             ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
             // Using fixed cuts
         } else if (muWPname == "FixedCutTightTrackOnly") {

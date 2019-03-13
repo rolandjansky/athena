@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -86,10 +86,9 @@ namespace InDetDD
   // Return the level in the hierarchy (user defined) corresponding to the key.
     const InDetDetectorManager::LevelInfo& InDetDetectorManager::getLevel(const std::string & key) const 
     {
-        static LevelInfo invalidLevel;
         std::map<std::string, LevelInfo>::const_iterator iter;
         iter = m_keys.find(key);
-        if (iter == m_keys.end()) return invalidLevel;
+        if (iter == m_keys.end()) return s_invalidLevel;
         return iter->second;
     }
 
@@ -440,5 +439,6 @@ namespace InDetDD
         return false;
     }
 
+    const InDetDetectorManager::LevelInfo InDetDetectorManager::s_invalidLevel;
 
 } // namespace InDetDD

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -42,11 +42,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "CLHEP/Random/RandomEngine.h"
-
 #include <string>
 
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 class TileID;
 class TileTBID;
 class TileHWID;
@@ -118,9 +116,7 @@ class TileHitToTTL1: public AthAlgorithm {
     bool m_tileNoise;   //!< If true => generate noise for the TileTTL1 creation
     bool m_tileThresh;  //!< If true => apply threshold on the conversion to TileTTL1
 
-    CLHEP::HepRandomEngine* m_pHRengine; //!< Random number service to use
-
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc; //!< Random number generator engine to use
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number generator engine to use
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};

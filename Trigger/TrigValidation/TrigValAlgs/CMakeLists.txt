@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Control/CxxUtils
+                          Control/AthViews
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODBTagging
@@ -64,7 +65,7 @@ atlas_add_component( TrigValAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavToolsLib TrigNavigationLib TrigParticle TrigSteeringEvent AthenaKernel CxxUtils EventInfo xAODEventInfo xAODBTagging xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODCore xAODTrigger AnalysisTriggerEvent MuonCombinedToolInterfaces Particle tauEvent VxSecVertex TrigConfigSvcLib TrigConfHLTData TrigRoiConversionLib TrigDecisionEvent TrigMissingEtEvent TrigInDetTruthEvent TrigT1Interfaces DecisionHandlingLib )
+                     LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavToolsLib TrigNavigationLib TrigParticle TrigSteeringEvent AthenaKernel CxxUtils EventInfo xAODEventInfo xAODBTagging xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODCore xAODTrigger AnalysisTriggerEvent MuonCombinedToolInterfaces Particle tauEvent VxSecVertex TrigConfigSvcLib TrigConfHLTData TrigRoiConversionLib TrigDecisionEvent TrigMissingEtEvent TrigInDetTruthEvent TrigT1Interfaces DecisionHandlingLib AthViews )
 
 # Install files from the package:
 atlas_install_headers( TrigValAlgs )

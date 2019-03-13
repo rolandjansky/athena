@@ -22,7 +22,7 @@ from AthenaCommon.CfgGetter import getPublicTool,getPrivateTool
 TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
 TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool") 
 
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #

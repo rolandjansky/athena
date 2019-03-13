@@ -37,20 +37,25 @@ public:
 
   CscOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
 
 private:
 
-  /** given 2 container of data - zero bias real data and the simulation,
-      do the merging */
-  StatusCode overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
+  /// @brief Overlay signal on the background container and record to the output one
+  StatusCode overlayContainer(const CscRawDataContainer *bkgContainer,
+                              const CscRawDataContainer *signalContainer,
+                              CscRawDataContainer *outputContainer);
 
-  /** if the 2 container do overlay,
-      loop over the container and do the overlap collection by collection */
-  void mergeCollections(CscRawDataCollection *out_coll, const CscRawDataCollection *orig_coll,
-                        const CscRawDataCollection *ovl_coll, CLHEP::HepRandomEngine* rndmEngine);
+  /// @brief Copy CscRawDataCollection, optionally only copy properties
+  std::unique_ptr<CscRawDataCollection> copyCollection(const CscRawDataCollection *collection,
+                                                       bool propertiesOnly = false) const;
+
+  /// @brief In case of overlap merge signal and background collections
+  void mergeCollections(const CscRawDataCollection *bkgCollection,
+                        const CscRawDataCollection *signalCollection,
+                        CscRawDataCollection *outputCollection,
+                        CLHEP::HepRandomEngine *rndmEngine);
 
   /** get the data in one SPU of a chamber */
   void spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data);
@@ -76,9 +81,6 @@ private:
 
   //Whether the data needs to be fliped by 49-strip for bug#56002
   bool needtoflip(const int address) const;
-
-  // Copying CscRawDataCollection properties
-  void copyCscRawDataCollectionProperties(const CscRawDataCollection& sourceColl, CscRawDataCollection& outColl) const;
 
   // ----------------------------------------------------------------
 

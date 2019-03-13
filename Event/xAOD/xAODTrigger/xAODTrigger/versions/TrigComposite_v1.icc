@@ -184,12 +184,14 @@ namespace xAOD {
     // No method currently provided to update or check for uniqueness of a link
     // being added to a container.
 
-    // Add a new object:
+    // Add a new object (unless it would duplicate an existing one):
     const std::string mangledName = collectionName + s_collectionSuffix;
-    linkColNamesNC().push_back( mangledName );
-    linkColKeysNC().push_back( link.key() );
-    linkColIndicesNC().push_back( link.index() );
-    linkColClidsNC().push_back( ClassID_traits< CONTAINER >::ID() );
+    if (!hasObjectLinkExact(mangledName, link.key(), link.index(), ClassID_traits< CONTAINER >::ID())) {
+      linkColNamesNC().push_back( mangledName );
+      linkColKeysNC().push_back( link.key() );
+      linkColIndicesNC().push_back( link.index() );
+      linkColClidsNC().push_back( ClassID_traits< CONTAINER >::ID() );
+    }
     return true;
   }
 

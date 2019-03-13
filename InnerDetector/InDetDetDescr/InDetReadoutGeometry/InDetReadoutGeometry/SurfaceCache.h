@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,13 +49,13 @@ namespace InDetDD {
       ///delete assignment
       SurfaceCache & operator = (const SurfaceCache &) = delete;
     
-      const Amg::Transform3D* transform() {return (m_transform);}
+      const Amg::Transform3D* transform() const {return (m_transform);}
       
-      const Amg::Vector3D* center() {return (m_center);}
+      const Amg::Vector3D* center() const {return (m_center);}
       
-      const Amg::Vector3D*  normal() {return (m_normal);}
+      const Amg::Vector3D*  normal() const {return (m_normal);}
       
-      const Trk::SurfaceBounds* bounds() {return (m_bounds);}
+      const Trk::SurfaceBounds* bounds() const {return (m_bounds);}
       
     
     private:

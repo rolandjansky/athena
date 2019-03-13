@@ -55,7 +55,7 @@ void IParticleExtractor::addToJet(xAOD::Jet& jet,
                                    [](double sumPt, const xAOD::IParticle* p){
                                      return sumPt + p->pt();});
 
-    if (!m_isTrigger){jet.setAssociatedObjects(m_label, constituents);}
+    if ( (!m_isTrigger) || (m_label == "GhostTrack") ){jet.setAssociatedObjects(m_label, constituents);}
     jet.setAttribute<float>(m_label + "Pt", ptSum);
     jet.setAttribute<int>(m_label+"Count", constituents.size());
   } else {

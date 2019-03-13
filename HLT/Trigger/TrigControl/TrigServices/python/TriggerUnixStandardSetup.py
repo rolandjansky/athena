@@ -65,6 +65,23 @@ def setupCommonServices():
     from PyUtils.Helpers import ROOT6Setup
     ROOT6Setup()
 
+    # Setup online THistSvc unless specifically configured otherwise
+    #    setup the THistSvc early and force the creation of the ThistSvc 
+    #    so that it can be used by infrastructure services to book histograms  
+    #    (to avoid problems e.g. with histograms in ROBDataProviderSvc)
+    if _Conf.useOnlineTHistSvc:
+        if hasattr(svcMgr, 'THistSvc'):
+            log.fatal("The offline histogramming THistSvc is already in place.")
+            raise RuntimeError("Cannot setup online histogramming TrigMonTHistSvc")
+        log.debug("Using online histogramming service (TrigMonTHistSvc)")
+        from TrigServices.TrigServicesConf import TrigMonTHistSvc
+        svcMgr += TrigMonTHistSvc("THistSvc")
+    else:
+        log.debug("Using offline histogramming service (THistSvc)")
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc()
+    theApp.CreateSvc += [ svcMgr.THistSvc.getFullName() ]
+
     # StoreGateSvc
     svcMgr.StoreGateSvc.ActivateHistory = False
     
@@ -109,18 +126,9 @@ def setupCommonServices():
     from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
     svcMgr.HltEventLoopMgr.CoolUpdateTool = TrigCOOLUpdateHelper()
             
-    # Setup online THistSvc unless specifically configured otherwise
-    if _Conf.useOnlineTHistSvc:
-        if hasattr(svcMgr, 'THistSvc'):
-            log.fatal("The offline histogramming THistSvc is already in place.")
-            raise RuntimeError("Cannot setup online histogramming TrigMonTHistSvc")
-        log.debug("Using online histogramming service (TrigMonTHistSvc)")
-        from TrigServices.TrigServicesConf import TrigMonTHistSvc
-        svcMgr += TrigMonTHistSvc("THistSvc")
-    else:
-        log.debug("Using offline histogramming service (THistSvc)")
-        from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc()
+    # Configure the online ROB data provider service
+    from TrigServices.TrigServicesConfig import HltROBDataProviderSvc
+    svcMgr += HltROBDataProviderSvc()  
 
     # Explicitly set a few OutputLevels (needed because some services are created in
     # different order when running with the PSC)
@@ -154,7 +162,6 @@ def setupCommonServicesEnd():
     else:
         if 1 not in [ o.count('EXPERT') for o in svcMgr.THistSvc.Output ]:
             svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
-
 
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online runnig')

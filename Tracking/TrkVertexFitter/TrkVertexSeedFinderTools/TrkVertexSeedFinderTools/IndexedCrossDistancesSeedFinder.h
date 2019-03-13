@@ -69,7 +69,6 @@ namespace Trk
   private:
 
     bool m_useweights;
-    int m_typeofweight;
     float m_trackdistcutoff;
     int m_trackdistexppower;
     float m_constraintcutoff;

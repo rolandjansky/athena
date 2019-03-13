@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,7 +36,6 @@ class AthenaAttributeList;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-class CaloIdManager;
 class CaloDetDescrManager;
 class Identifier;
 class LArElectrodeID;
@@ -77,8 +76,7 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   // other members:
   
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
   const LArEM_ID* m_larem_id;
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;

@@ -34,7 +34,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
@@ -59,8 +60,6 @@ TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLoca
   , m_tileThresh(false)
   , m_threshHi(0.0)
   , m_ampMaxHi(0.0)
-  , m_atRndmGenSvc(0)
-  , m_pHRengine(0)
 {
   m_rChUnit = TileRawChannelUnit::ADCcounts;
   m_rChType = TileFragHash::Default;
@@ -103,9 +102,7 @@ StatusCode TileHitToRawChannel::initialize() {
   ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   if (m_tileNoise) {
-    static const bool CREATEIFNOTTHERE_RNDM(true);
-    CHECK( service("AtRndmGenSvc", m_atRndmGenSvc, CREATEIFNOTTHERE_RNDM));
-    m_pHRengine = m_atRndmGenSvc->GetEngine("Tile_DigitsMaker");
+    ATH_CHECK(m_atRndmGenSvc.retrieve());
   }
 
   m_cabling = TileCablingService::getInstance();
@@ -169,6 +166,9 @@ StatusCode TileHitToRawChannel::execute() {
 
   ATH_MSG_DEBUG( "Executing TileHitToRawChannel" );
 
+  ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+
   // step1: read hits from TES
   SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
   ATH_CHECK( hitContainer.isValid() );
@@ -226,7 +226,7 @@ StatusCode TileHitToRawChannel::execute() {
     // If tileNoise is requested, generate random numbers to give noise
     if (m_tileNoise) {
 
-      RandGaussQ::shootArray(m_pHRengine, nChMax, random, 0.0, 1.0);
+      RandGaussQ::shootArray(*rngWrapper, nChMax, random, 0.0, 1.0);
 
       for (ch = 0; ch < nChMax; ++ch) {
         adc_gain[ch] = TileID::HIGHGAIN;

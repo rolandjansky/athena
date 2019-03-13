@@ -170,12 +170,12 @@ StatusCode ROBDataProviderSvc::initialize() {
   
 
 
-void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string callerName) {
+void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName) {
   const EventContext context{ Gaudi::Hive::currentContext() };
   return addROBData( context, robIds, callerName );
 }
 
-void ROBDataProviderSvc::addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string callerName) {
+void ROBDataProviderSvc::addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string_view callerName) {
     EventCache* cache = m_eventsCache.get( context );
 
    // Copy missing ROB ids to vector with pthread allocator
@@ -318,12 +318,13 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
 }
 /** return ROBData for ROBID
  */
-void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, const std::string callerName) {
+void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, const std::string_view callerName) {
   const EventContext context{ Gaudi::Hive::currentContext() };
   return getROBData( context, ids, v, callerName );
 }
 
-void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, const std::string callerName) {
+void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, 
+				    const std::string_view callerName) {
   EventCache* cache = m_eventsCache.get( context );
   
    for (std::vector<uint32_t>::const_iterator it = ids.begin(), it_end = ids.end(); it != it_end; it++) {
