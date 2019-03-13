@@ -17,7 +17,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include <atomic>
 #include <string>
 
 class StatusCode;
@@ -75,10 +74,10 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
   std::string m_source;
 
   //
-  mutable std::atomic_int m_runNumber;
-  mutable std::atomic_int m_lumiBlock;
-  mutable std::atomic_int m_timeStamp;
-  mutable std::atomic_int m_bunchCrossing;
+  int  m_runNumber;
+  int  m_lumiBlock;
+  int  m_timeStamp;
+  int  m_bunchCrossing;
   int  m_counter;
   std::string toUtc(const int timestamp) const;
 };
