@@ -13,6 +13,7 @@ def hypo_factory(key, args):
         'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
         'HLThypo2_dijet': HLThypo2_dijet,
         'HLThypo2_jetattrs': HLThypo2_jetattrs,
+        'HLThypo2_jvt': HLThypo2_jvt,
          }.get(key)
 
     if klass == None:
@@ -410,6 +411,26 @@ class HLThypo2_jetattrs(HypoAlg):
         return self.momentstr
     
 
+# Jona Bossio, February 2019
+class HLThypo2_jvt(HypoAlg):
+    # Store parameters for a jvt scenario
+
+    def __init__(self, ddict):
+        print "JVT hypo_factory dictionary "+str(ddict)
+        HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_jvt'
+
+    def _check_args(self, ddict):
+        #check the constructor args
+
+        must_have = (
+            'njet',
+            'etmin',
+            'wp',
+        )
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
 
 if __name__ == '__main__':
     d =  {'m_mins': [900.0], 'm_maxs': [-1.0], 'beta_maxs': [-1.0],
@@ -423,4 +444,8 @@ if __name__ == '__main__':
 
     d = {'jetVars': ['ktdr'], 'momentstr': 'subj360Iktdr', 'limit_maxs': ['10'], 'E': [360], 'limit_mins': ['0'], 'chain_name': 'j0_subj360Iktdr', 'has': ['yes'], 'jetattrs_string': 'subj360Iktdr'}
 
-    print hypo_factory('HLThypo2_jetattrs', d)
+    #print hypo_factory('HLThypo2_jetattrs', d)
+
+    d = {'njet': [1], 'etmin': [45], 'wp': [11], 'jetvt_string': 'jvt011et45'}
+
+    print hypo_factory('HLThypo2_jvt', d)

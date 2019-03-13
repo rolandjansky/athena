@@ -180,3 +180,20 @@ class TrigHLTJetHypo_JetAttrs (TrigHLTJetHypoConf.TrigHLTJetHypo_JetAttrs):
 
             self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+# Jona Bossio, February 2019
+class TrigHLTJetHypo_JVT (TrigHLTJetHypoConf.TrigHLTJetHypo_JVT):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo_JVT, self ).__init__( name, **kwargs )
+
+        if  KeepMonitoring(self.chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigHLTJetHypo2ValidationMonitoring()
+            online = TrigHLTJetHypo2OnlineMonitoring()
+            cosmic = TrigHLTJetHypo2CosmicMonitoring()
+
+            time = TrigTimeHistToolConfig("HLTJetHypo_JVT_Time")
+
+            self.AthenaMonTools = [ time, validation, online, cosmic ]
+
