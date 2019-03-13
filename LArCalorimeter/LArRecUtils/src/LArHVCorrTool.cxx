@@ -36,7 +36,7 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
     m_electrodeID(nullptr),
     m_calodetdescrmgr(nullptr),
     m_cablingService("LArCablingLegacyService"),
-    m_hvtool("LArHVToolMC")
+    m_hvtool("LArHVToolMC",this)
 {
   declareInterface<ILArHVCorrTool>(this);
 
