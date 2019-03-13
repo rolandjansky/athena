@@ -178,14 +178,14 @@ void TrigROBDataProviderSvc_RTT::FillEvent(){
   }
 }
 
-void TrigROBDataProviderSvc_RTT::setCallerName(std::string callerName)
+void TrigROBDataProviderSvc_RTT::setCallerName(std::string_view callerName)
 {
   return TrigROBDataProviderSvc::setCallerName(callerName);
 }
 
 
 
-void TrigROBDataProviderSvc_RTT::addROBData(const std::vector<uint32_t>& robIds, std::string callerName)
+void TrigROBDataProviderSvc_RTT::addROBData(const std::vector<uint32_t>& robIds, std::string_view callerName)
 {
   //call the base class method
   TrigROBDataProviderSvc:: addROBData(robIds, callerName);
@@ -234,7 +234,7 @@ void TrigROBDataProviderSvc_RTT::addROBData(const std::vector<uint32_t>& robIds,
 
 
 void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments,
-					    const std::string callerName)
+					    const std::string_view callerName)
 
 {
   //call the base class method

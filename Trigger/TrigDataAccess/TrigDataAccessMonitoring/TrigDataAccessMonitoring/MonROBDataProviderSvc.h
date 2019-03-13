@@ -57,7 +57,7 @@ public:
     /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
     using ROBDataProviderSvc::addROBData;
     virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN") override;
+			    const std::string_view callerName="UNKNOWN") override;
 
     /// Add a given LVL1/LVL2 ROBFragment to cache 
     using ROBDataProviderSvc::setNextEvent;
@@ -70,7 +70,7 @@ public:
     using ROBDataProviderSvc::getROBData;
     virtual void getROBData(const std::vector<uint32_t>& robIds, 
 			    std::vector<const ROBF*>& robFragments,
-                            const std::string callerName="UNKNOWN") override;
+                            const std::string_view callerName="UNKNOWN") override;
  
     /// Retrieve the whole event.
     using ROBDataProviderSvc::getEvent;
