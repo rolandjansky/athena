@@ -51,6 +51,9 @@ class ComponentAccumulator(object):
             raise RuntimeError("ComponentAccumulator was not merged!")
             #log = logging.getLogger("ComponentAccumulator")
             #log.error("The ComponentAccumulator listed below was never merged!")
+
+        if self._privateTools is not None:
+            raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
         #pass
 
 
@@ -159,21 +162,28 @@ class ComponentAccumulator(object):
             return findSubSequence(self._sequence,sequenceName)
 
     def setPrivateTools(self,privTool):
+        """Use this method to carry private AlgTool(s) to the caller when returning this ComponentAccumulator. 
+        The method accepts either a single private AlgTool or a list of private AlgTools (typically assigned to ToolHandleArray)
+        """
+
         if self._privateTools is not None:
-            raise ConfigurationError("This ComponentAccumulator holds already a private tool. Only one private tool is allowed")
+            raise ConfigurationError("This ComponentAccumulator holds already a (list of) private tool. Only one (list of)  private tool(s) is allowed")
 
         if isinstance(privTool,collections.Sequence):
             for t in privTool:
                 if not isinstance(t,ConfigurableAlgTool):
-                    raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only configurableAlgTools or lists of ConfigurableAlgTools. Encountered %s in a list" % type(t))
+                    raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s in a list" % type(t))
         else: 
             if not isinstance(privTool,ConfigurableAlgTool):
-                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only configurableAlgTools or lists of ConfigurableAlgTools. Encountered %s " % type(privTool))
+                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only cCnfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s " % type(privTool))
                 
         self._privateTools=privTool
         return
         
     def popPrivateTools(self):
+        """Get the (list of) private AlgTools from this CompoentAccumulator. 
+        The CA will not keep any reference to the AlgTool.
+        """
         tool=self._privateTools
         self._privateTools=None
         return tool
@@ -443,10 +453,6 @@ class ComponentAccumulator(object):
         """ Merging in the other accumulator """
         if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
-
-        privTool=self._privateTools or other._privateTools
-        if (privTool is not None):
-            raise RuntimeError("merge called on a ComponentAccumulator with and dangling private tool %s/%s" % (privTool.getType(),privTool.getName()))
 
         if isinstance(other,collections.Sequence):
             self._msg.error("Merge called with a: %s "  % str(type(other)) + " of length: %d " % len(other))
