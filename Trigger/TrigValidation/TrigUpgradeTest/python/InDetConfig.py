@@ -4,6 +4,31 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+class InDetCacheNames:
+  Pixel_ClusterKey   = "PixelTrigClustersCache"
+  SCT_ClusterKey     = "SCT_ClustersCache"
+  SpacePointCachePix = "PixelSpacePointCache"
+  SpacePointCacheSCT = "SctSpacePointCache"
+  SCTRDOCacheKey     = "SctRDOCache"
+  PixRDOCacheKey     = "PixRDOCache"
+
+def InDetIDCCacheCreatorCfg():
+  #Create IdentifiableCaches
+  acc = ComponentAccumulator()
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+  InDetCacheCreatorTrig = InDet__CacheCreator(name = "InDetCacheCreatorTrig",
+                                       Pixel_ClusterKey   = InDetCacheNames.Pixel_ClusterKey,
+                                       SCT_ClusterKey     = InDetCacheNames.SCT_ClusterKey,
+                                       SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
+                                       SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
+                                       SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
+                                       PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
+
+  acc.addEventAlgo( InDetCacheCreatorTrig )
+  return acc
+
+
+
 #Set up ID GeoModel
 def InDetGMConfig( flags ):
   acc = ComponentAccumulator()
@@ -203,17 +228,6 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   acc.merge(TrigInDetCondConfig(flags))
 
   from InDetRecExample.InDetKeys import InDetKeys
-  #Create IdentifiableCaches
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                       Pixel_ClusterKey = "PixelTrigClustersCache",
-                                       SCT_ClusterKey   = "SCT_ClustersCache",
-                                       SpacePointCachePix = "PixelSpacePointCache",
-                                       SpacePointCacheSCT   = "SctSpacePointCache",
-                                       SCTRDOCacheKey       = "SctRDOCache",
-                                       PixRDOCacheKey = "PixRDOCache",)
-
-  acc.addCondAlgo( InDetCacheCreatorTrigViews )
 
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
@@ -238,7 +252,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                      #OutputLevel = INFO)
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = roisKey
-    InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
+    InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
     acc.addEventAlgo(InDetPixelRawDataProvider)
 
 
@@ -262,7 +276,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                 #OutputLevel = INFO)
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
-    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
+    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
 
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
@@ -337,7 +351,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                         ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = roisKey
-  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
+  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
 
   acc.addEventAlgo(InDetPixelClusterization)
 
@@ -382,7 +396,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = roisKey
-  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
+  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
 
   acc.addEventAlgo(InDetSCT_Clusterization)
 
@@ -405,8 +419,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
-                                                                    SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT,
-                                                                    SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix,)
+                                                                    SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
+                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
                                                                     #OutputLevel=INFO)
 
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
