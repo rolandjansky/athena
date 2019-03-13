@@ -121,16 +121,16 @@ namespace DerivationFramework {
 
   // Save a TLV as 4 floats
   void TruthCategoriesDecorator::decorateFourVec(const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4) const {
-    eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()/CLHEP::GeV;
+    eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()*CLHEP::GeV;
     eventInfo->auxdecor<float>((prefix+"_eta").Data()) = p4.Eta();
     eventInfo->auxdecor<float>((prefix+"_phi").Data()) = p4.Phi();
-    eventInfo->auxdecor<float>((prefix+"_m").Data())   = p4.M()/CLHEP::GeV;
+    eventInfo->auxdecor<float>((prefix+"_m").Data())   = p4.M()*CLHEP::GeV;
   }
 
   // Save a vector of TLVs as vectors of float
   void TruthCategoriesDecorator::decorateFourVecs(const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s) const {
     std::vector<float> pt, eta, phi, mass;
-    for (auto p4:p4s) { pt.push_back(p4.Pt()/CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()/CLHEP::GeV); }
+    for (auto p4:p4s) { pt.push_back(p4.Pt()*CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()*CLHEP::GeV); }
     eventInfo->auxdecor<std::vector<float> >((prefix+"_pt").Data())  = pt;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_eta").Data()) = eta;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_phi").Data()) = phi;
@@ -192,7 +192,7 @@ namespace DerivationFramework {
     
 
     // At the very least, save the Higgs boson pT
-    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()/CLHEP::GeV;
+    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()*CLHEP::GeV;
 
     if (m_detailLevel>0) {
       // The Higgs and the associated V (last instances prior to decay)
