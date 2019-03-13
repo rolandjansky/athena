@@ -680,6 +680,9 @@ namespace TrigCostRootAnalysis {
       if (counterA->getStrDecoration(kDecType) != "Chain") {
         continue; // I'm not a HLT chain counter - next
       }
+      if (isZero(counterA->getDecoration(kDecPrescaleVal) + 1)) {
+        continue; // Prescaled out in rates processing
+      }
 
       if (checkPatternOverlap(counterA->getName(), kFALSE) == kFALSE) continue;
 
@@ -690,6 +693,9 @@ namespace TrigCostRootAnalysis {
         CounterBaseRates* counterB = static_cast<CounterBaseRates*>(itB->second);
         if (counterB->getStrDecoration(kDecType) != "Chain") {
           continue; // I'm not a HLT chain counter - next
+        }
+        if (isZero(counterB->getDecoration(kDecPrescaleVal) + 1)) {
+          continue; // Prescaled out in rates processing
         }
 
         // Same group?
