@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
  *
- * @version: $Id: T2Track.h 793162 2017-01-20 03:48:25Z ssnyder $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -146,7 +145,7 @@ namespace PESA {
     double m_D0err;
     double m_NDF;
     double m_Qual;
-    mutable double m_Chi2Prob;
+    mutable std::atomic<double> m_Chi2Prob;
     int    m_SiHits;
     int    m_PIXHits;
     int    m_SCTHits;
