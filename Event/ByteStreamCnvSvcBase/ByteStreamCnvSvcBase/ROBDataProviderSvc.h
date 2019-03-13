@@ -51,7 +51,7 @@ public:
    //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector
-   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
+   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName="UNKNOWN") override;
 
    /// Add a given LVL1/LVL2 ROBFragment to cache
    virtual void setNextEvent(const std::vector<ROBF>& result) override;
@@ -60,7 +60,7 @@ public:
    virtual void setNextEvent(const RawEvent* re) override;
 
    /// Retrieve ROBFragments for given ROB ids from cache
-   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string callerName="UNKNOWN") override;
+   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string_view callerName="UNKNOWN") override;
 
    /// Retrieve the whole event.
    virtual const RawEvent* getEvent() override;
@@ -73,10 +73,11 @@ public:
 
 
    /// MT variants 
-   virtual void addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
+   virtual void addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string_view callerName="UNKNOWN") override;
    virtual void setNextEvent(const EventContext& context, const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& result) override;
    virtual void setNextEvent(const EventContext& context, const RawEvent* re) override;
-   virtual void getROBData(const EventContext& context, const std::vector<uint32_t>& robIds, VROBFRAG& robFragments, const std::string callerName="UNKNOWN") override;
+   virtual void getROBData(const EventContext& context, const std::vector<uint32_t>& robIds, VROBFRAG& robFragments, 
+			   const std::string_view callerName="UNKNOWN") override;
    virtual const RawEvent* getEvent(const EventContext& context) override;
    virtual void setEventStatus(const EventContext& context, uint32_t status) override;
    virtual uint32_t getEventStatus(const EventContext& context) override;
@@ -85,9 +86,7 @@ public:
 				  const std::function< void(const ROBF* )>& fn ) const override;
 
    virtual bool isEventComplete(const EventContext& /*context*/) const override { return true; }
-   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string /*callerName*/ ) override {  return 0; }
-
-
+   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string_view /*callerName*/ ) override {  return 0; }
 
 protected:
    /// vector of ROBFragment class
@@ -124,8 +123,6 @@ protected:
    /// Filter out empty ROB fragments which are send by the ROS
    BooleanProperty m_filterEmptyROB;
    bool m_maskL2EFModuleID = false;    
-
-
 
 private: // data
 
