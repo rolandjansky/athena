@@ -65,7 +65,7 @@ McAodSymLinkTests::~McAodSymLinkTests()
 StatusCode McAodSymLinkTests::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  m_msg.setLevel( msgLevel() );
 
   m_msg << MSG::INFO 
 	<< "Initializing " << name() << "..." 
