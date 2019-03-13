@@ -2,7 +2,7 @@
 
 import sys, re, copy
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
+from AthenaCommon.Constants import VERBOSE,DEBUG
 log = logging.getLogger('MenuComponents')
 log.setLevel( VERBOSE )
 logLevel=DEBUG
@@ -50,18 +50,18 @@ class AlgNode(Node):
     def setPar(self, prop, name):
         cval = self.Alg.getProperties()[prop]
         try:
-            if type(cval) == type(list()):
+            if type(cval) is list:
                 cval.append(name)
                 return setattr(self.Alg, prop, cval)
-            else:
+            else: 
                 return setattr(self.Alg, prop, name)
-        except:
+        except RuntimeError: 
             pass
 
     def getPar(self, prop):
         try:
             return getattr(self.Alg, prop)
-        except:
+        except RuntimeError:
             return self.Alg.getDefaultProperty(prop)
         raise "Error in reading property " + prop + " from " + self.Alg
 
@@ -82,7 +82,7 @@ class AlgNode(Node):
         cval = self.getPar(self.outputProp)
         if cval == '':
             return outputs
-        if type(cval) == type(list()):
+        if type(cval) is list:
             outputs.extend(cval)
         else:
             outputs.append(cval)
@@ -105,7 +105,7 @@ class AlgNode(Node):
         cval = self.getPar(self.inputProp)
         if cval =='':
             return inputs
-        if type(cval) == type(list()):
+        if type(cval) is list:
             inputs.extend(cval)
         else:
             inputs.append(cval)
@@ -123,7 +123,7 @@ class HypoToolConf():
         self.conf=''
 
     def setConf( self, chainDict):
-        if type(chainDict) != type({}):
+        if type(chainDict) is not dict:
             raise RuntimeError("Configuring hypo with %s, not good anymore, use chainDict" % str(chainDict) )
         self.chainDict = chainDict
 
@@ -224,7 +224,7 @@ class ComboMaker(AlgNode):
             print "MEOW multiplicity ", allMultis[i]
             cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
             print "MEOW cval ", cval
-            if type(cval) == type(dict()):
+            if type(cval) is dict:
                 ##cval[chain] = allMultis
                 if chain in cval.keys():
                     cval[chain].append(allMultis[i])
@@ -262,7 +262,6 @@ def isFilterAlg(alg):
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
-        from AthenaCommon.AlgSequence import AthSequencer
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
@@ -345,10 +344,13 @@ class Chain:
         for seed in vseeds:
             split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
             mult,single = split[0]
-            if not mult: mult=1
-            else: mult=int(mult)
+            if not mult: 
+                mult=1
+            else: 
+                mult=int(mult)
 #            print mult,single
-            for m in range(0,mult): self.vseeds.append(single)
+            for m in range(0,mult): 
+                self.vseeds.append(single)
 
         # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
@@ -380,7 +382,7 @@ class Chain:
 
     def decodeHypoToolConfs(self, allChainDicts):
         """ This is extrapolating the hypotool configuration from the (combined) chain name"""
-        #from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getConfFromChainName
+        import copy
         from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getChainDictFromChainName
         chainDict = getChainDictFromChainName(self.name, allChainDicts)
 
@@ -391,9 +393,8 @@ class Chain:
                 sys.exit("ERROR, in chain configuration")
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
-                if seq.ca != None: # The CA merging took care of everything
+                if seq.ca is not None: # The CA merging took care of everything
                     continue
-                import copy
                 onePartChainDict = copy.deepcopy( chainDict )
                 onePartChainDict['chainParts'] = [ chainDictPart ]
 
@@ -437,7 +438,8 @@ class CFSequence():
             nseq+=1
 
 
-        if self.step.isCombo: self.connectCombo()
+        if self.step.isCombo: 
+            self.connectCombo()
 
     def connectCombo(self):
         # reset sequence output, they will b ereplaced by new combo outputs
@@ -569,7 +571,6 @@ class RecoFragmentsPool:
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
-        from AthenaCommon.Logging import logging
         requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) )
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **kwargs )
