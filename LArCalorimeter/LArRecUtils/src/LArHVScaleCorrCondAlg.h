@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // Rewritten from LArHVScaleCorrTool
 
@@ -15,7 +15,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArRecConditions/LArHVData.h"
@@ -53,8 +52,7 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   const LArHEC_ID*      m_larhec_id;	
   const LArFCAL_ID*     m_larfcal_id;	
   const LArElectrodeID* m_electrodeID;  
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"} ;  
   SG::ReadCondHandleKey<LArHVData> m_hvKey {this, "keyHVdata", "LArHVData", "Input key for HV data from DCS"};
