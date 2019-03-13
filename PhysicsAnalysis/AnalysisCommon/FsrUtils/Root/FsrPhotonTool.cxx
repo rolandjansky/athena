@@ -217,10 +217,8 @@ namespace FSR {
    	std::vector< std::pair <const xAOD::IParticle*, double> > farFsrCandList;
    	farFsrCandList.clear();
    	farFsrCandList.reserve(photons_cont->size());
-        // Save muon or electron of overlap removal for isolation
-        // std::vector<const xAOD::IParticle*> parts(1);
-        // parts[0] = part;
 
+        // Save muon or electron of overlap removal for isolation
         xAOD::IParticleContainer parts(SG::VIEW_ELEMENTS);
         parts.push_back(const_cast<xAOD::IParticle*>(part));
    
@@ -234,31 +232,30 @@ namespace FSR {
                 xAOD::Photon* ph = const_cast<xAOD::Photon*>(photon);
                 // Isolation selection
 
-                // ATH_MSG_INFO( "Far Fsr ph bef : pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
+                ATH_MSG_VERBOSE( "Far Fsr ph bef : pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
 
                 CP::CorrectionCode rc = m_isoCorrTool->applyCorrection(*ph);
                 if (CP::CorrectionCode::Ok != rc) {
                     ATH_MSG_ERROR("applyIsoSelection: Unable to apply iso correction for photon " << ph->pt());
                 }
 
-                // ATH_MSG_INFO( "Far Fsr ph aft : pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
+                ATH_MSG_VERBOSE( "Far Fsr ph aft : pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
 
-                // bool farPhIsoOK         = (bool)m_isoSelTool->accept(*ph);
                 bool farPhIsoOK         = (bool)m_isoCloseByCorrTool->acceptCorrected(*ph, parts);
 
-                // ATH_MSG_INFO( "Far Fsr ph aft1: pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
+                ATH_MSG_VERBOSE( "Far Fsr ph aft1: pt   " << ph->pt() << " topoetcone20 = " << topoetcone20(*ph));
 
                 bool far_fsr_drcut_isOK = false;
                 if (farPhIsoOK) {
                     double dr = deltaR(part->eta(), part->phi(), ph->eta(), ph->phi());
                     far_fsr_drcut_isOK = (dr > m_far_fsr_drcut);
 
-                    // if (far_fsr_drcut_isOK && dr < 0.2) {
-                    //     ATH_MSG_INFO( "Far Fsr candidate kinematics : author  " << ph->author()
-                    //                   << " Et = " << ph->p4().Et()
-                    //                   << " dr = " << dr
-                    //                   << " isoIsOK = " << (bool)m_isoCloseByCorrTool->acceptCorrected(*ph, parts));
-                    // }
+                    if (far_fsr_drcut_isOK && dr < 0.2) {
+                        ATH_MSG_VERBOSE( "Far Fsr candidate kinematics : author  " << ph->author()
+                                       << " Et = " << ph->p4().Et()
+                                       << " dr = " << dr
+                                       << " isoIsOK = " << (bool)m_isoCloseByCorrTool->acceptCorrected(*ph, parts));
+                    }
 
                     if(far_fsr_drcut_isOK) farFsrCandList.push_back(std::make_pair(ph, dr));
                 }
