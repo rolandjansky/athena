@@ -1,4 +1,4 @@
-#
+1;95;0c#
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -55,7 +55,13 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
                                                                Decoder = RPCRodDecoder )
-    MuonRpcRawDataProviderTool.OutputLevel = VERBOSE
+    if forTrigger:
+        cacheAcc,cacheAlg = MuonCacheCfg()
+        acc.merge( cacheAcc )
+        MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
+        MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
+        MuonRpcRawDataProviderTool.OutputLevel = DEBUG
+
     acc.addPublicTool( MuonRpcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
@@ -67,6 +73,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
         # Configure the RAW data provider for ROI access
         RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
+
 
     return acc, RpcRawDataProvider
 
@@ -119,7 +126,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
 
     # Setup the MDT ROD decoder
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
-    MDTRodDecoder = MdtROD_Decoder(name	     = "MdtROD_Decoder" )
+    MDTRodDecoder = MdtROD_Decoder(name	     = "MdtROD_Decoder")
 
     # RAW data provider tool needs ROB data provider service (should be another Config function?)
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
@@ -130,6 +137,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
+
     if forTrigger:
         # Trigger the creation of cache containers
         cacheAcc,cacheAlg = MuonCacheCfg()
@@ -226,12 +234,12 @@ if __name__=="__main__":
     cfg.addEventAlgo( tgcdecodingAlg )
 
     # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags , True)
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags )
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 
     # Schedule Csc data decoding - once mergeAll is working can simplify these lines
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags , True) 
+    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( cscdecodingAcc )
     cfg.addEventAlgo( cscdecodingAlg )
 
