@@ -5,6 +5,8 @@
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
@@ -29,7 +31,11 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     // get the graph
-    std::ifstream input_stream(nn_file_name);
+    std::string nn_path = PathResolverFindCalibFile(nn_file_name);
+    if (nn_path.size() == 0) {
+      throw std::runtime_error("no file found at '" + nn_file_name + "'");
+    }
+    std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
 
     // __________________________________________________________________

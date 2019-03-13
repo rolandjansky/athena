@@ -5,8 +5,6 @@
 #include "FlavorTagDiscriminants/DL2Tool.h"
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
 
-#include "PathResolver/PathResolver.h"
-
 namespace FlavorTagDiscriminants {
 
   DL2Tool::DL2Tool(const std::string& name):
@@ -21,9 +19,8 @@ namespace FlavorTagDiscriminants {
 
   StatusCode DL2Tool::initialize() {
     ATH_MSG_INFO("Initialize DL2 from: " + m_props.nnFile);
-    std::string nn_path = PathResolverFindCalibFile(m_props.nnFile);
-    ATH_MSG_INFO("Resolved NN to: " + nn_path);
-    m_dl2.reset(new DL2HighLevel(nn_path, enumFromString(m_props.schema)));
+    m_dl2.reset(
+      new DL2HighLevel(m_props.nnFile, enumFromString(m_props.schema)));
     return StatusCode::SUCCESS;
   }
   StatusCode DL2Tool::finalize() {
