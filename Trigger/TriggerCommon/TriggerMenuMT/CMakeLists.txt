@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TriggerCommon/TriggerJobOpts)
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python 
+   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/HLTMenuConfig
    POST_EXEC_SCRIPT nopost.sh )
 
 #----------------------------------

@@ -49,21 +49,19 @@ class AlgNode(Node):
 
     def setPar(self, prop, name):
         cval = self.Alg.getProperties()[prop]
-        try:
-            if type(cval) is list:
-                cval.append(name)
-                return setattr(self.Alg, prop, cval)
-            else: 
-                return setattr(self.Alg, prop, name)
-        except RuntimeError: 
-            pass
+        if type(cval) is list:
+            cval.append(name)
+            return setattr(self.Alg, prop, cval)
+        else: 
+            return setattr(self.Alg, prop, name)
+
 
     def getPar(self, prop):
-        try:
+        if hasattr(self.Alg, prop):
             return getattr(self.Alg, prop)
-        except RuntimeError:
+        else:
             return self.Alg.getDefaultProperty(prop)
-        raise "Error in reading property " + prop + " from " + self.Alg
+
 
     def addOutput(self, name):
         outputs = self.readOutputList()
