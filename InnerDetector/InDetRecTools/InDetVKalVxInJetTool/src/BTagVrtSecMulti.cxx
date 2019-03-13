@@ -614,7 +614,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        if( iv.Good) {
 	  nGoodVertices++;                                    
 	  GoodVertices.emplace_back(iv);    /* add it */
-	  if(nth==2)n2trVrt++;   if(nth>=3)nNtrVrt++;
+	  if(nth==2)n2trVrt++;
+          if(nth>=3)nNtrVrt++;
        }
     }
     if(nGoodVertices == 0 || (n2trVrt+nNtrVrt)==0){  // No good vertices at all
