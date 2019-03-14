@@ -308,7 +308,7 @@
 !
     NberOfMDTMultilayers = 0
 !
-    IF( Jff <= 0 )   	 RETURN
+    IF( Jff <= 0 )        RETURN
     Car3(1:1)=TypChar1(1)
     Car3(2:2)=TypChar1(2)
     Car3(3:3)=TypChar1(3)
