@@ -150,9 +150,8 @@ StatusCode photonSuperClusterBuilder::execute(){
     ATH_MSG_DEBUG("window clusters: " << nWindowClusters);
     ATH_MSG_DEBUG("extra clusters: " << nExtraClusters);
      
-    
     //push back the new photon super cluster 
-    outputClusterContainer->push_back(newCluster.get());
+    outputClusterContainer->push_back(newCluster.release());
 
     //Add the cluster link to the super cluster
     ElementLink< xAOD::CaloClusterContainer > clusterLink(*outputClusterContainer, outputClusterContainer->size() - 1);
