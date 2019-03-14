@@ -227,7 +227,7 @@ namespace xAOD {
        links.push_back( ElementLink< CONTAINER >(linkColKeys()[ i ],
                                                  linkColIndices()[ i ]) );
      }
-     return std::move(links);
+     return links;
   }
 
 } // namespace xAOD
