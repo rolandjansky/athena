@@ -64,7 +64,7 @@ const std::string DbType::storageName()  const {
   else if ( match(ROOTTREE_StorageType)   )
     return "ROOT_Tree";
   else if ( match(ROOTTREEINDEX_StorageType)   )
-    return "ROOT_Tree";
+    return "ROOT_TreeIndex";
   else if ( *this == ROOT_StorageType     )
     return "ROOT_All";
   else if ( match( POOL_RDBMS_HOMOGENEOUS_StorageType ) )
