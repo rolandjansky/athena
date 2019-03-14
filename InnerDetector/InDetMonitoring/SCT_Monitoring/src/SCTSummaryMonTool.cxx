@@ -19,8 +19,8 @@
  *  numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTSummaryMonTool::SCTSummaryMonTool(const std::string &type, const std::string &name,
-                                     const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent) {
+SCTSummaryMonTool::SCTSummaryMonTool(const std::string& type, const std::string& name,
+                                     const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent) {
   m_numberOfEvents = 0;
 }
 

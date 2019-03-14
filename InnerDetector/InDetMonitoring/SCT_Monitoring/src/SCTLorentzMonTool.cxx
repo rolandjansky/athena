@@ -9,28 +9,29 @@
  *    Modified by Yuta
  */
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
+
 #include "SCT_NameFormatter.h"
-#include <cmath>
-#include <type_traits>
+
+#include "AthContainers/DataVector.h"
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SiCluster.h"
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkTrackSummary/TrackSummary.h" // for sct residuals
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile2D.h"
 #include "TF1.h"
-#include "AthContainers/DataVector.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/SiCluster.h"
-#include "TrkParameters/TrackParameters.h"
 
-// for sct residuals
-#include "TrkTrackSummary/TrackSummary.h"
+#include <cmath>
+#include <type_traits>
 
 using namespace std;
 using namespace Rec;
@@ -43,8 +44,8 @@ using namespace SCT_Monitoring;
  *  of the filepath for histograms etc
  */
 // ====================================================================================================
-SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
-                                     const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent),
+SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name,
+                                     const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent),
   m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
   m_phiVsNstrips{},
   m_phiVsNstrips_100{},
@@ -164,20 +165,20 @@ SCTLorentzMonTool::fillHistograms() {
 
   for (; trkitr != trkend; ++trkitr) {
     // Get track
-    const Trk::Track *track = (*trkitr);
+    const Trk::Track* track = (*trkitr);
     if (not track) {
       ATH_MSG_ERROR("no pointer to track!!!");
       continue;
     }
 
     // Get pointer to track state on surfaces
-    const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
     if (not trackStates) {
       ATH_MSG_WARNING("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       continue;
     }
 
-    const Trk::TrackSummary *summary = track->trackSummary();
+    const Trk::TrackSummary* summary = track->trackSummary();
     if (not summary) {
       ATH_MSG_WARNING(" null trackSummary");
       continue;
@@ -186,10 +187,10 @@ SCTLorentzMonTool::fillHistograms() {
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
       if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-        const InDet::SiClusterOnTrack *clus =
-          dynamic_cast<const InDet::SiClusterOnTrack *>((*it)->measurementOnTrack());
+        const InDet::SiClusterOnTrack* clus =
+          dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack());
         if (clus) { // Is it a SiCluster? If yes...
-          const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
+          const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
           if (not RawDataClus) {
             continue; // Continue if dynamic_cast returns null
           }
@@ -213,15 +214,15 @@ SCTLorentzMonTool::fillHistograms() {
               }
             }
             // find cluster size
-            const std::vector<Identifier> &rdoList = RawDataClus->rdoList();
+            const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             int nStrip = rdoList.size();
-            const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
+            const Trk::TrackParameters* trkp = dynamic_cast<const Trk::TrackParameters*>((*it)->trackParameters());
             if (not trkp) {
               ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
               continue;
             }
 
-            const Trk::Perigee *perigee = track->perigeeParameters();
+            const Trk::Perigee* perigee = track->perigeeParameters();
 
             if (perigee) {
               // Get angle to wafer surface
@@ -274,8 +275,8 @@ SCTLorentzMonTool::fillHistograms() {
             }// end if mtrkp
             //            delete perigee;perigee = 0;
           } // end if SCT..
-        } // end if(clus)
-      } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
+        } // end if (clus)
+      } // if ((*it)->type(Trk::TrackStateOnSurface::Measurement)){
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   } // end of loop on tracks
 
@@ -372,9 +373,9 @@ SCTLorentzMonTool::bookLorentzHistos() {
   return StatusCode::SUCCESS;
 }
 
-TProfile *
-SCTLorentzMonTool::pFactory(const std::string &name, const std::string &title, int nbinsx, float xlow, float xhigh,
-                            MonGroup &registry, int &iflag) {
+TProfile*
+SCTLorentzMonTool::pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh,
+                            MonGroup& registry, int& iflag) {
   Prof_t tmp = new TProfile(TString(name), TString(title), nbinsx, xlow, xhigh);
   bool success(registry.regHist(tmp).isSuccess());
 
@@ -389,8 +390,8 @@ SCTLorentzMonTool::pFactory(const std::string &name, const std::string &title, i
 }
 
 bool
-SCTLorentzMonTool::h1Factory(const std::string &name, const std::string &title, const float extent, MonGroup &registry,
-                             VecH1_t &storageVector) {
+SCTLorentzMonTool::h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry,
+                             VecH1_t& storageVector) {
   const unsigned int nbins(100);
   const float lo(-extent), hi(extent);
   H1_t tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
@@ -404,9 +405,9 @@ SCTLorentzMonTool::h1Factory(const std::string &name, const std::string &title, 
 }
 
 int
-SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &sinAlpha, const Identifier &id,
+SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float& sinAlpha, const Identifier& id,
                                             const InDetDD::SiDetectorElementCollection* elements,
-                                            float &theta, float &phi) {
+                                            float& theta, float& phi) {
   int iflag(-1);
 
   phi = 90.;
@@ -414,7 +415,7 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &
 
   const Identifier waferId = m_pSCTHelper->wafer_id(id);
   const IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
-  const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
+  const InDetDD::SiDetectorElement* element = elements->getDetectorElement(waferHash);
   if (!element) {
     ATH_MSG_ERROR("findAnglesToWaferSurface:  failed to find detector element for id=" <<
                   m_pSCTHelper->show_to_string(id));
