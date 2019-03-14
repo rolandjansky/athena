@@ -1,6 +1,6 @@
 #====================================================================
 # HIGG1D2.py
-# This requires the reductionConf flag HIGG1D2 in Reco_tf.py   
+# This requires the reductionConf flag HIGG1D2 in Reco_tf.py
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -29,7 +29,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #====================================================================
-# SKIMMING TOOLS 
+# SKIMMING TOOLS
 #====================================================================
 
 
@@ -38,7 +38,7 @@ print "HIGG1D2.py SkipTriggerRequirement: ",  SkipTriggerRequirement
 TriggerExp = []
 TriggerMerged = []
 if not SkipTriggerRequirement:
-   
+
    try:
      year=int(rec.projectName()[4:6])
      if year > 18 :
@@ -50,18 +50,18 @@ if not SkipTriggerRequirement:
    print "HIGG1D2.py: Setting up trigger requirement for year 20" + str(year)
    if year==17 or year==18:
      TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_e30_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH","HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium","HLT_g35_medium_g25_medium_L12EM20VH"]
-     TriggerExp             = [ 
+     TriggerExp             = [
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
                                "HLT_g35_loose_L1EM24VHI_mu15_mu2noL1", # photon dimuon
                                "HLT_g35_loose_L1EM24VHI_mu18",  #photon muon
-                               "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1", # photon dimuon 
+                               "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1", # photon dimuon
                                "HLT_g35_tight_icalotight_L1EM24VHI_mu18noL1", # photon muon
-                               "HLT_2mu14", #dimuon 
+                               "HLT_2mu14", #dimuon
                                "HLT_mu22_mu8noL1", #dimuon
                                "HLT_mu26_ivarmedium", #single muon
-                               "HLT_mu50", 
-                               "HLT_mu60_0eta105_msonly", 
+                               "HLT_mu50",
+                               "HLT_mu60_0eta105_msonly",
                                "HLT_e26_lhtight_nod0_ivarloose", #single electron
                                "HLT_e60_lhmedium_nod0",
                                "HLT_e140_lhloose_nod0",
@@ -79,18 +79,18 @@ if not SkipTriggerRequirement:
    elif year==16:
      #2016
      TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_g35_medium_g25_medium","HLT_e20_lhmedium_nod0_g35_loose"]
-     TriggerExp             = [ 
+     TriggerExp             = [
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1", # photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu18noL1",  #photon muon
                                "HLT_2mu10",
-                               "HLT_2mu14", #dimuon 
+                               "HLT_2mu14", #dimuon
                                "HLT_mu22_mu8noL1", #dimuon
                                "HLT_mu20_mu8noL1",
                                "HLT_mu24_ivarmedium", #single muon
                                "HLT_mu26_ivarmedium",
-                               "HLT_mu50", 
+                               "HLT_mu50",
                                "HLT_e24_lhtight_nod0_ivarloose", #single electron
                                "HLT_e26_lhtight_nod0_ivarloose",
                                "HLT_e60_lhmedium_nod0",
@@ -104,17 +104,17 @@ if not SkipTriggerRequirement:
                                "HLT_g140_loose", #single photon
                                "HLT_g300_etcut"  #single photon
                               ]
-   elif year ==15: 
+   elif year ==15:
      #2015
      TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_e20_lhmedium_g35_loose"]
-     TriggerExp             = [ 
+     TriggerExp             = [
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
-                               "HLT_2mu10", #dimuon 
+                               "HLT_2mu10", #dimuon
                                "HLT_mu18_mu8noL1", #dimuon
                                "HLT_mu20_iloose_L1MU15", #single muon
-                               "HLT_mu40", 
-                               "HLT_mu60_0eta105_msonly", 
+                               "HLT_mu40",
+                               "HLT_mu60_0eta105_msonly",
                                "HLT_e24_lhmedium_L1EM20VH", #single electron
                                "HLT_e60_lhmedium",
                                "HLT_e120_lhloose",
@@ -125,7 +125,7 @@ if not SkipTriggerRequirement:
                                "HLT_g200_etcut"  #single photon
                               ]
    else:
-     print "HIGG1D2.py : Year not supported -- results might be ugly. Year : ", year 
+     print "HIGG1D2.py : Year not supported -- results might be ugly. Year : ", year
      SkipTriggerRequirement =  True
 
 
@@ -142,7 +142,7 @@ MergedElectronIsEM = CfgMgr.AsgElectronIsEMSelector("MergedElectronIsEM",
                                              isEMMask=egammaPID.ElectronTightHLT,
                                              ConfigFile="ElectronPhotonSelectorTools/trigger/rel21_20161021/ElectronIsEMMergedTightSelectorCutDefs.conf")
 ToolSvc += MergedElectronIsEM
-    
+
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG1
 HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
@@ -167,9 +167,9 @@ HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
                                  IncludeHighPtPhotonElectronPreselection = True,
                                  MinimumPhotonPt = 7.5*GeV,
                                  MinimumElectronPt = 7.5*GeV,
-                                 MinimumMuonPt = 7.5*GeV,   
-                                 MaxMuonEta = 2.7,     
-                                 RemoveCrack = False,    
+                                 MinimumMuonPt = 7.5*GeV,
+                                 MaxMuonEta = 2.7,
+                                 RemoveCrack = False,
                                  MaxEta = 2.5,
                                  MergedElectronCutTool = MergedElectronIsEM
                                  )
@@ -265,7 +265,7 @@ truth_cond_finalState = '(TruthParticles.status == 1 && TruthParticles.barcode <
 truth_expression = '('+truth_cond_1+' || '+truth_cond_2 +' || '+truth_cond_3 +' || '+truth_cond_4+') || ('+truth_cond_finalState+')'
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG1D2TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG1D2TruthThinningTool", 
+HIGG1D2TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG1D2TruthThinningTool",
                                                                       ThinningService         = "HIGG1D2ThinningSvc",
                                                                       ParticleSelectionString = truth_expression,
                                                                       PreserveDescendants     = False,
@@ -283,18 +283,24 @@ print "HIGG1D2.py thinningTools", thinningTools
 
 
 #====================================================================
-# AugmentationTools 
+# AugmentationTools
 #====================================================================
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-egammaExtrapolationTool = EMExtrapolationTools(name = 'egammaExtrapolationTool')
+egammaExtrapolationTool = EMExtrapolationTools(name = 'egammaExtrapolationTool',
+                                               NarrowDeltaEta = 0.5,
+                                               NarrowDeltaPhi = 0.5,
+                                               NarrowDeltaPhiBrem = 1.5)
+
 ToolSvc += egammaExtrapolationTool
 
+include('DerivationFrameworkHiggs/configureVertexFitter.py')
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__MergedElectronDetailsDecorator
 HIGG1D2MergedElectronDetailsDecorator = DerivationFramework__MergedElectronDetailsDecorator(
                                  name = "HIGG1D2MergedElectronDetailsDecorator",
-                                 EMExtrapolationTool = egammaExtrapolationTool
+                                 EMExtrapolationTool = egammaExtrapolationTool,
+                                 VertexFitterTool = TrkVKalVrtFitter
                                  )
 
 ToolSvc += HIGG1D2MergedElectronDetailsDecorator
@@ -307,7 +313,7 @@ print HIGG1D2MergedElectronDetailsDecorator
 HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
 
 #====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
@@ -333,7 +339,7 @@ replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
 DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_HIGG1D2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG1D2Stream )
@@ -381,7 +387,7 @@ HIGG1D2SlimmingHelper.ExtraVariables = ["PhotonsAux.DFCommonPhotonsIsEMTightPtIn
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "AntiKt4EMPFlowJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
+                                        "BTagging_AntiKt4EMTopo.MV1_discriminant",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "MuonTruthParticles.truthOrigin.truthType"]
 
