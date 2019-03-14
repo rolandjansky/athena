@@ -50,7 +50,7 @@ class EvgenExecutor(athenaExecutor):
                     if os.path.isdir(os.path.join(a_dir, name))]                
 
         def mk_jo_proxy(targetbasepath, pkgname, proxypath, addtosearch=True):
-            "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
+       #    "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
             if proxypath:
                 if os.path.exists(proxypath):
                     shutil.rmtree(proxypath)
@@ -109,59 +109,17 @@ class EvgenExecutor(athenaExecutor):
                 msg.info('Evgen tarball download success: %s' % output)
             ## Expand tarball
             expand_if_archive(tarball)
-            if "MC14" in str(joparam):
-                mk_jo_proxy(os.getcwd(), "MC14JobOptions", "_joproxy14")
-            else :
-                mk_jo_proxy(os.getcwd(), "MC15JobOptions", "_joproxy15")
             ## Source setup script (requires some shenanigans to update the Python env robustly)
             # TODO: trf framework now bans use of exec()...
-            #import subprocess
-            #pipe = subprocess.Popen(". ./setupevprod.sh; python -c 'import os; print \"newenv = %r\" % os.environ'", stdout=subprocess.PIPE, shell=True)
-            #exec(pipe.communicate()[0])
-            #os.environ.update(newenv)
 
-        else: ## Use the CVMFS copy of the latest MC14 JOs tag
-            sw_base =  os.popen("echo $ATLAS_SW_BASE").read()
-#            print subprocess.Popen("echo Hellllo World", shell=True, stdout=subprocess.PIPE).stdout.read()
-#            sw_base = print subprocess.Popen("echo $ATLAS_LOCAL_ROOT_BASE", shell=True, stdout=subprocess.PIPE)
-            sw_base = sw_base.strip()
-            if (sw_base == ""):
-                msg.info('$ATLAS_SW_BASE not defined, trying explicite /cvmfs path')
-                sw_base = '/cvmfs'
-#                msg.info('sw_base path %s ' %sw_base)
-            else:    
-                msg.info('ATLAS_SW_BASE path: %s' %sw_base)
-
-            local_path = None
-            if ("localPath" in self._trf.argdict ):
-                local_path = self._trf.argdict["localPath"].value
-                print("local path",local_path)
-            cvmfs_path = os.path.join(sw_base, "atlas.cern.ch")
+        #Expand if a tarball is found in local directory
+        loc_files = os.listdir(os.getcwd())
+        for loc_file in loc_files: 
+            expand_if_archive(loc_file)
             
-            if ((local_path is not None) and (os.path.exists(local_path))) :
-              mk_jo_proxy(local_path, "MC15JobOptions","_joproxy15")
-              print("JO fragments taken from local path i.e. ",local_path)             
-            elif os.path.exists(cvmfs_path):
-                # TODO: Make the package name configurable
-                if "MC14" in str(joparam):
-                    cvmfs_mc14 = os.path.join(cvmfs_path, "repo/sw/Generators/MC14JobOptions/latest/")
-                    mk_jo_proxy(cvmfs_mc14, "MC14JobOptions","_joproxy14")
-#                if "MC15" in str(joparam):
-                else :
-                    cvmfs_mc15 = os.path.join(cvmfs_path, "repo/sw/Generators/MC15JobOptions/latest/")
-#                    msg.info('cvmfs_mc15 path: %s ' %cvmfs_mc15)
-                    mk_jo_proxy(cvmfs_mc15, "MC15JobOptions","_joproxy15")
-                msg.info("No evgenJobOpts tarball specified, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
-            elif os.path.exists("/afs/cern.ch/atlas/groups/Generators"):
-                if "MC14" in str(joparam):
-                    mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
-                else :
-                    mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
-                msg.info("No evgenJobOpts tarball specified, no cvmfs, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
-
         ## Expand tarball input event and generator conf files, if provided
         if "inputGeneratorFile" in self._trf.argdict:
-#            expand_if_archive(self._trf.argdict["inputGeneratorFile"].value)
+#           expand_if_archive(self._trf.argdict["inputGeneratorFile"].value)
             myinputfiles = self._trf.argdict["inputGeneratorFile"].value
             genInputFiles = myinputfiles.split(',')
             for file in genInputFiles:
