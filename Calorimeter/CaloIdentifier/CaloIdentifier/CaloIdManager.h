@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -48,9 +48,6 @@ public:
     CaloIdManager(void);
     ~CaloIdManager(void);
 
-    ///  Access to singleton
-    static const CaloIdManager* instance          (void);
-
     ///  Access to IdHelper
     const CaloCell_ID*          getCaloCell_ID           (void) const;
     const CaloDM_ID*            getDM_ID                 (void) const;
@@ -94,7 +91,6 @@ public:
 
 private:
 
-    static CaloIdManager*  s_instance;
     bool                   m_isInitialized;
 
     const CaloCell_ID*     m_cell_id;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -79,12 +79,13 @@ void test_basic (const LArFCAL_ID& idhelper)
 
 int main()
 {
-  IdDictMgr& idd = getDictMgr();
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  IdDictMgr& idd = parser->m_idd;
   idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
-  std::unique_ptr<LArFCAL_ID> idhelper = make_helper<LArFCAL_ID_Test>();
-  std::unique_ptr<LArFCAL_ID> idhelper_n = make_helper<LArFCAL_ID_Test>(true);
+  std::unique_ptr<LArFCAL_ID> idhelper = make_helper<LArFCAL_ID_Test>(*parser);
+  std::unique_ptr<LArFCAL_ID> idhelper_n = make_helper<LArFCAL_ID_Test>(*parser,true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
