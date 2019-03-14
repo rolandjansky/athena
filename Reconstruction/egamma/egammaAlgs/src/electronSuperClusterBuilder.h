@@ -32,14 +32,14 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
  private:
 
-  bool MatchSameTrack(const egammaRec *seed,
+  bool matchSameTrack(const egammaRec *seed,
 		      const egammaRec *sec) const;
 
-  const std::vector<std::size_t> SearchForSecondaryClusters(const size_t i,
+  const std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
 							    const EgammaRecContainer*,
 							    std::vector<bool>& isUsed);
   
-  bool PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
+  bool passesSimpleBremSearch(const xAOD::CaloCluster *seed,
 			      const xAOD::CaloCluster *sec,
 			      float perigeeExtrapEta,
 			      float perigeeExtrapPhi) const;
@@ -74,7 +74,6 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   //Keep track of # of 3x5 and brem point
   //clusters added to seed clusters.
   int m_nWindowClusters;
-  int m_nExtraClusters;
   int m_nSameTrackClusters;
   int m_nSimpleBremSearchClusters;
 
