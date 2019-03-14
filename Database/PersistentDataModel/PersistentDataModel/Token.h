@@ -101,6 +101,9 @@ public:
    /// Set all the data part of the token
    const Token& setData(Token* pToken) const;
 
+   /// expose Token instance counter for debugging
+   static int numInstances();
+
 private:
    /// Reference count
    int m_refCount;

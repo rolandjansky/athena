@@ -16,7 +16,7 @@ static const char* const fmt_oid_old  = "[OID=%08llX-%08llX]";
 static const int KEY_MASK = (~0u) << CHAR_BIT;
 static std::atomic<int> s_numCount { 0 };
 
-int numTokenInstances() { return s_numCount; }
+int Token::numInstances() { return s_numCount; }
 
 /// Standard Constructor(1): Empty constructor
 Token::Token() : m_refCount(1),

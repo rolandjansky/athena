@@ -26,16 +26,14 @@
 
 using namespace std;
 
-int numTokenInstances();
-
 
 TestDriver::TestDriver()
-{
-}
+{ }
+
 
 TestDriver::~TestDriver()
 {
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+   std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 void

@@ -29,8 +29,6 @@
 
 static const RootType emptyType;
 
-int numTokenInstances();
-
 pool::TestDriver::TestDriver():
   m_fileCatalog( 0 ),
   m_fileName1( "pool1.root" ),
@@ -52,7 +50,7 @@ pool::TestDriver::TestDriver():
 pool::TestDriver::~TestDriver()
 {
   if ( m_fileCatalog ) delete m_fileCatalog;
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+  std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 void

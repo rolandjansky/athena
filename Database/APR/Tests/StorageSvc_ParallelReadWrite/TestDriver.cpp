@@ -27,7 +27,6 @@
 #include <sstream>
 #include <memory>
 
-int numTokenInstances();
 
 static const std::string file1 = "pool_test1.root";
 static const std::string file2 = "pool_test2.root";
@@ -41,7 +40,7 @@ TestDriver::TestDriver()
 
 TestDriver::~TestDriver()
 {
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+   std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 
