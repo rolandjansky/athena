@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
@@ -9,8 +10,6 @@ def LArHVScaleCfg(configFlags):
         result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap<tag>LARHVLineToElectrodeMap-001</tag>"], "LAR_OFL", className="AthenaAttributeList"))
 
     elif not configFlags.Common.isOnline:
-        from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-        result.mergeAll(IOVDbSvcCfg(configFlags))
         result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16"], "DCS_OFL", className="CondAttrListCollection"))
         result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREL/I8"],  "DCS_OFL", className="CondAttrListCollection"))
 
