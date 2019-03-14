@@ -44,7 +44,6 @@ def GetCurrentStreamName( msg, athFile=None ):
 
 
 def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
-    print "CreateCutFlowSvc"
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -64,7 +63,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-
+    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
+    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -79,19 +79,18 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     outname = "CutBookkeepers"
     cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
-                                 OutputCollName= outname,
-                                 ProcessMetadataCollName=inname+"File") 
+                                 OutputCollName= outname) 
     svcMgr.ToolSvc += cutflowtool
-
 
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
-    for x in svcMgr.MetaDataSvc.MetaDataTools:
-        print x
 
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
     if globalflags.DataSource() == 'geant4':
+        #from PyUtils import AthFile
+        #afc = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
+
         # PDF
         name = "PDFSumOfWeights"
         pdfweighttool = BookkeeperTool(name,
@@ -143,8 +142,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
-        #SGkey = "FileBookkeepers"
-        SGkey = "CutBookkeepersFile"
+        SGkey = "FileBookkeepers"
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
         MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
@@ -172,6 +170,7 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
   svcMgr.ToolSvc += cutflowtool
 
   # Add tool to MetaDataSvc
-  svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+  #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
   return
+
