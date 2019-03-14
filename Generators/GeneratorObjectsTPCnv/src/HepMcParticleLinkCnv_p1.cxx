@@ -23,10 +23,12 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            HepMcParticleLink* transObj,
                                            MsgStream &/*msg*/ )
 {
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  if (persObj->m_mcEvtIndex>0) evColl = EBC_FIRSTPUEVCOLL; // HACK
   transObj->setExtendedBarCode
     ( HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
                                           persObj->m_mcEvtIndex,
-                                          EBC_MAINEVCOLL,
+                                          evColl,
                                           HepMcParticleLink::IS_POSITION) );
   return;
 }
