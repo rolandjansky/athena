@@ -15,9 +15,9 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel
    Control/StoreGate
+   Event/xAOD/xAODEventInfo
    Event/ByteStreamCnvSvcBase
    Event/ByteStreamData
-   Event/EventInfo
    GaudiKernel
    LArCalorimeter/LArIdentifier
    LArCalorimeter/LArROD
@@ -43,7 +43,7 @@ atlas_add_library( LArByteStreamLib
    PUBLIC_HEADERS LArByteStream
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps
-   AthenaKernel ByteStreamData EventInfo GaudiKernel LArIdentifier LArRawEvent
+   AthenaKernel xAODEventInfo ByteStreamData GaudiKernel LArIdentifier LArRawEvent
    LArRecConditions LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib
    ByteStreamCnvSvcBaseLib LArRODLib LArRawUtilsLib LArRecUtilsLib LArCablingLib
    ByteStreamCnvSvcLib

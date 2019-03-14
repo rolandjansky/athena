@@ -71,7 +71,7 @@ namespace {// anonymous namespace for functions at file scope
   };
   const std::string histogramPathRe[] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
-  };// 23.01.2015
+  };
 
   template< typename T > Identifier
   surfaceOnTrackIdentifier(const T &tsos, const bool useTrackParameters = true) {
@@ -87,7 +87,7 @@ namespace {// anonymous namespace for functions at file scope
     return result;
   }
 
-  constexpr Double_t radianDegrees(180. / 3.1415927);
+  constexpr Double_t radianDegrees(180. / M_PI);
 
   float
   amgPseudoRapidity(const Amg::Vector3D &position) {
@@ -371,11 +371,8 @@ SCTHitEffMonTool::initialize() {
 
 StatusCode
 SCTHitEffMonTool::bookHistograms() {
-  //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   //
-  // hidetoshi 14.01.22
   if (not newRunFlag()) {
-    return StatusCode::SUCCESS;                                                                         // hidetoshi
-                                                                                                        // 14.01.22
+    return StatusCode::SUCCESS;
   }
   if (m_isCosmic) {
     WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
@@ -403,7 +400,7 @@ SCTHitEffMonTool::bookHistograms() {
       MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)
-    }};// 23.01.2015
+    }};
 
     std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
@@ -427,7 +424,7 @@ SCTHitEffMonTool::bookHistograms() {
     m_Eff_hashCodeHisto->GetXaxis()->SetTitle("Module Hash Code");
     m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");
     CHECK(bookEffHisto(m_Eff_LumiBlockHisto_Total, histGroupE[GENERAL_INDEX], "effLumiBlock",
-                       "Efficiency vs Luminosity block", NBINS_LBs, 0.5, NBINS_LBs + 0.5));// 02.09.2016
+                       "Efficiency vs Luminosity block", NBINS_LBs, 0.5, NBINS_LBs + 0.5));
     m_Eff_LumiBlockHisto_Total->GetXaxis()->SetTitle("Luminosity block");
     m_Eff_LumiBlockHisto_Total->GetYaxis()->SetTitle("Efficiency");
     CHECK(bookEffHisto(m_effdistribution, histGroupE[GENERAL_INDEX], "SctEffDistribution",
@@ -481,7 +478,7 @@ SCTHitEffMonTool::bookHistograms() {
     }};
     std::array < TString, N_REGIONS > effLumiName = {{
       "m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"
-    }};// 23.01.2015
+    }};
     std::array < TString, N_REGIONS > sumeff = {{
       "summaryeffm", "summaryeff", "summaryeffp"
     }};
@@ -494,11 +491,11 @@ SCTHitEffMonTool::bookHistograms() {
     TString sumefftitle[3] = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
-    };// 30.11.2014
+    };
     TString sumefftitleBCID[3] = {
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
-    };// 30.11.2014
+    };
     std::array < TString, 12 > selecName = {{
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
     }};
@@ -540,7 +537,7 @@ SCTHitEffMonTool::bookHistograms() {
                              effLumiName[isub] + i + "_" + j,
                              "Efficiency vs LumiBlock of" + layerName[isub] + i + " / side " + j + " in " +
                              subDetName[isub],
-                             NBINS_LBs, 0.5, NBINS_LBs + 0.5));// 23.01.2015
+                             NBINS_LBs, 0.5, NBINS_LBs + 0.5));
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
         }
@@ -579,20 +576,20 @@ SCTHitEffMonTool::bookHistograms() {
                          2 * n_layers[isub], 0., n_layers[isub]));
       unsigned int limit[3] = {
         N_DISKSx2, N_BARRELSx2, N_DISKSx2
-      };// 30.11.2014
+      };
       for (unsigned int i(0); i != limit[isub]; i++) {
         LayerSideFormatter layerSide(i, isub);
         // use dedicated title for the bin labels (from 0_1 to 3_0)
         m_Eff_summaryHisto[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
         m_Eff_summaryHistoFirstBCID[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
         m_Eff_summaryHisto_old[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.title().c_str());
-      }// 30.11.2014
+      }
       m_Eff_summaryHisto[isub]->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHistoFirstBCID[isub]->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
 
       CHECK(bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub], "effLumiBlock",
-                         "Efficiency vs Luminosity block in " + subDetName[isub], NBINS_LBs, 0.5, NBINS_LBs + 0.5));// 20.01.2015
+                         "Efficiency vs Luminosity block in " + subDetName[isub], NBINS_LBs, 0.5, NBINS_LBs + 0.5));
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -697,7 +694,7 @@ SCTHitEffMonTool::bookHistograms() {
 
       if (m_superDetailed) {
         // CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency v Luminosity
-        // block",1000,1,1001));20.01.2015
+        // block",1000,1,1001));
         CHECK(bookEffHisto(m_inEffStrip[isub], histGroupE[isub],
                            "StripInEfficiency" + subDetNameShort[isub], "Strips inefficiencies in " + subDetName[isub],
                            n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) * 2 - 0.5, N_STRIPS,
@@ -732,15 +729,8 @@ SCTHitEffMonTool::bookHistograms() {
   return StatusCode::SUCCESS;
 }
 
-// StatusCode SCTHitEffMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool isNewRun )
-//    // hidetoshi 14.01.22
 StatusCode
-SCTHitEffMonTool::bookHistogramsRecurrent() {                                                                       // hidetoshi
-                                                                                                                    // 14.01.22
-  //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   //
-  // hidetoshi 14.01.22
-  //  if (not newRunFlag()) return StatusCode::SUCCESS;
-  //                                                                         // hidetoshi 14.01.22
+SCTHitEffMonTool::bookHistogramsRecurrent() {
   if (m_isCosmic) {
     WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
   }
@@ -767,7 +757,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
       MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)
-    }};// 23.01.2015
+    }};
 
     std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
@@ -787,11 +777,11 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
       m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i + 1, subDetName[i]);
     }
     CHECK(bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code",
-                       n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));// 26.11.2014
+                       n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));
     m_Eff_hashCodeHisto->GetXaxis()->SetTitle("Module Hash Code");
-    m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");// 15.12.2014
+    m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");
     CHECK(bookEffHisto(m_Eff_LumiBlockHisto_Total, histGroupE[GENERAL_INDEX], "effLumiBlock",
-                       "Efficiency vs Luminosity block", NBINS_LBs, 0.5, NBINS_LBs + 0.5));// 02.09.2016
+                       "Efficiency vs Luminosity block", NBINS_LBs, 0.5, NBINS_LBs + 0.5));
 
     if (m_detailed) {
       CHECK(bookEffHisto(m_SCTNHitHisto, histGroupE[BARREL_INDEX], "SCTNHit", "Number of total SCT hits", 30, -0.5,
@@ -835,7 +825,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
     }};
     std::array < TString, N_REGIONS > effLumiName = {{
       "m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"
-    }};// 23.01.2015
+    }};
     // inefficiency plots, i.e. 1 - efficiency
     std::array< TString, N_REGIONS > ineffMapName = {{
       "ineffm_", "ineff_", "ineffp_"
@@ -899,7 +889,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
                              effLumiName[isub] + i + "_" + j,
                              "Efficiency vs LumiBlock" + layerName[isub] + i + " / side " + j + " in " +
                              subDetName[isub],
-                             150, 1, 3001));// 23.01.2015
+                             150, 1, 3001));
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
         }
@@ -937,18 +927,18 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
                          2 * n_layers[isub], 0., n_layers[isub]));
       unsigned int limit[3] = {
         N_DISKSx2, N_BARRELSx2, N_DISKSx2
-      };// 30.11.2014
+      };
       for (unsigned int i(0); i != limit[isub]; i++) {
         LayerSideFormatter layerSide(i, isub);
         m_Eff_summaryHisto[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
         m_Eff_summaryHistoFirstBCID[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
         m_Eff_summaryHisto_old[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.title().c_str());
-      }// 30.11.2014
+      }
       m_Eff_summaryHisto[isub]->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHistoFirstBCID[isub]->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
       CHECK(bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub], "effLumiBlock",
-                         "Efficiency vs Luminosity block in " + subDetName[isub], NBINS_LBs, 0.5, NBINS_LBs + 0.5));// 20.01.2015
+                         "Efficiency vs Luminosity block in " + subDetName[isub], NBINS_LBs, 0.5, NBINS_LBs + 0.5));
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -1052,8 +1042,6 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
       }
 
       if (m_superDetailed) {
-        // CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency v Luminosity
-        // block",1000,1,1001));//20.01.2015
         CHECK(bookEffHisto(m_inEffStrip[isub], histGroupE[isub],
                            "StripInEfficiency" + subDetNameShort[isub], "Strips inefficiencies in " + subDetName[isub],
                            n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) * 2 - 0.5, N_STRIPS,
@@ -1692,9 +1680,9 @@ SCTHitEffMonTool::fillHistograms() {
       VERBOSE("Candidate passed all cuts");
       m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, eff); // in order to calculate m_EffsummaryIncBadMod
       m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
-      m_Eff_hashCodeHisto->Fill(Double_t(sideHash), eff);// 15.12.2014
-      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);// 20.01.2015
-      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), eff);// 02.09.2016
+      m_Eff_hashCodeHisto->Fill(Double_t(sideHash), eff);
+      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);
+      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), eff);
       if (BCIDpos <= 0) {
         m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
       }
@@ -1722,7 +1710,6 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_nGoodTrk[isub]->Fill(nTrkGood, eff);
       }
       if (m_superDetailed) {
-        // m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);//20.01.2015
         chipPos = (side == 1) ? 11 - chipPos : chipPos;
         m_inEffChip[isub]->Fill(sideHash, chipPos, int(eff == 0));
         m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., int(eff == 0));
@@ -1758,7 +1745,7 @@ SCTHitEffMonTool::fillHistograms() {
       if( BCIDpos <= 0 ){
         m_effMapFirstBCID[histnumber][side]->Fill(ieta, iphi, eff);
       }
-      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), eff);// 23.01.2015
+      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), eff);
 
       if (testOffline) {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, 1); // dummyfill for testing
@@ -1821,11 +1808,8 @@ SCTHitEffMonTool::fillHistograms() {
   return StatusCode::SUCCESS;
 }
 
-// StatusCode SCTHitEffMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool
-// /*isEndOfRun*/){ // hidetoshi 14.01.22
 StatusCode
-SCTHitEffMonTool::procHistograms() {                                                                             // hidetoshi
-                                                                                                                 // 14.01.22
+SCTHitEffMonTool::procHistograms() {
   if (m_superDetailed) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
     const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
