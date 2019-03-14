@@ -187,16 +187,16 @@ StatusCode electronSuperClusterBuilder::execute(){
     //
     //////////////////////////////////////////////////////////////////
     //Push back the new cluster into the output container.
-    outputClusterContainer->push_back(newClus.release());
+    outputClusterContainer->push_back(std::move(newClus));
     ElementLink< xAOD::CaloClusterContainer > clusterLink(*outputClusterContainer, outputClusterContainer->size() - 1);
     std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
     //
     ////////////////////////////////////////////////////////////////////
     //Make egammaRec object, and push it back into output container.
-    egammaRec *newEgRec = new egammaRec(*egRec);
+    auto newEgRec = std::make_unique<egammaRec>(*egRec);
     if (newEgRec) {
       newEgRec->setCaloClusters  (elClusters);
-      newEgammaRecs->push_back(newEgRec);
+      newEgammaRecs->push_back(std::move(newEgRec));
       ATH_MSG_DEBUG("Made new egammaRec object");
     } else {
       ATH_MSG_FATAL("Couldn't make an egammaRec object");

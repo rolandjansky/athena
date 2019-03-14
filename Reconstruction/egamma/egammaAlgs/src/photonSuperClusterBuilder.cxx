@@ -151,7 +151,7 @@ StatusCode photonSuperClusterBuilder::execute(){
     ATH_MSG_DEBUG("extra clusters: " << nExtraClusters);
      
     //push back the new photon super cluster 
-    outputClusterContainer->push_back(newCluster.release());
+    outputClusterContainer->push_back(std::move(newCluster));
 
     //Add the cluster link to the super cluster
     ElementLink< xAOD::CaloClusterContainer > clusterLink(*outputClusterContainer, outputClusterContainer->size() - 1);
@@ -159,11 +159,11 @@ StatusCode photonSuperClusterBuilder::execute(){
 
     ///////////////////////////////////////////////////////
     //Now create the new eg Rec 
-    egammaRec *newEgRec = new egammaRec(*egRec);
+    auto newEgRec = std::make_unique<egammaRec>(*egRec);
     if (newEgRec) {
       newEgRec->setCaloClusters(phCluster);
       //push it back
-      newEgammaRecs->push_back(newEgRec);
+      newEgammaRecs->push_back(std::move(newEgRec));
       ATH_MSG_DEBUG("Finished making photon egammaRec object");
     } else {
       ATH_MSG_FATAL("Couldn't make an egammaRec object");
