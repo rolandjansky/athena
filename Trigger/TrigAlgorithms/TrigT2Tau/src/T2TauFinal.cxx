@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -29,6 +29,8 @@
 
 #include "TrigParticle/TrigTau.h"
 #include "TrigParticle/TrigTauContainer.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class ISvcLocator;
 

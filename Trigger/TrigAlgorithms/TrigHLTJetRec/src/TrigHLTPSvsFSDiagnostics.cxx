@@ -22,6 +22,7 @@
 #include <cmath>
 #include "TrigSteeringEvent/PhiHelper.h"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 TrigHLTPSvsFSDiagnostics::TrigHLTPSvsFSDiagnostics(const std::string& name, ISvcLocator* pSvcLocator):
 HLT::HypoAlgo(name, pSvcLocator) {

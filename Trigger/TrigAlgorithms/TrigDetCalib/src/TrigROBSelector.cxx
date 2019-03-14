@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -159,12 +159,8 @@ HLT::ErrorCode TrigROBSelector::fillPEBInfo(PartialEventBuildingInfo& pebInfo,
     if (nRobs) (*nRobs).push_back(detectorROBs.size());
     
     TH1I*& robHist = m_robHists[*detector];
-    static bool warnedAlready = false; 
     if (!robHist) {
-      if (!warnedAlready) {
-        ATH_MSG_DEBUG("Monitoring of detector " << *detector << " not implemented yet.");
-        warnedAlready = true;
-      }
+      ATH_MSG_DEBUG("Monitoring of detector " << *detector << " not implemented yet.");
       continue;
     }
 
