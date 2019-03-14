@@ -6,6 +6,23 @@
 #include <exception>
 #include "TestDriver.h"
 
+#include "StorageSvc/DbType.h"
+
+void testTechnology( TestDriver& driver, const pool::DbType& tech )
+{
+   driver.m_storageType = tech;
+   std::cout << "[OVAL] Testing StorageSvc functionality for " << tech.storageName()
+             << " storage technology" << std::endl;
+   std::cout << "[OVAL] Testing the writing operations" << std::endl;
+   driver.testWriting();
+   std::cout << "[OVAL] ...done" << std::endl;
+
+   std::cout << "[OVAL] Testing the reading operations" << std::endl;
+   driver.testReading();
+   std::cout << "[OVAL] ...done" << std::endl;
+}
+
+
 int main( int, char** ) {
   try {
     std::cout << "[OVAL] Creating the test driver." << std::endl;
@@ -16,13 +33,9 @@ int main( int, char** ) {
     libraries.push_back( "test_TestDictionaryDict" );
     driver.loadLibraries( libraries );
 
-    std::cout << "[OVAL] Testing the writing operations" << std::endl;
-    driver.testWriting();
-    std::cout << "[OVAL] ...done" << std::endl;
-
-    std::cout << "[OVAL] Testing the reading operations" << std::endl;
-    driver.testReading();
-    std::cout << "[OVAL] ...done" << std::endl;
+    testTechnology( driver, pool::ROOTTREE_StorageType );
+    testTechnology( driver, pool::ROOTKEY_StorageType );
+    testTechnology( driver, pool::ROOTTREEINDEX_StorageType );
   }
   catch ( std::exception& e ) {
     std::cerr << e.what() << std::endl;

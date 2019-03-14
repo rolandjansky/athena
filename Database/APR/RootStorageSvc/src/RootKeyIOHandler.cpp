@@ -9,7 +9,6 @@
 //    Author     : M.Frank
 //====================================================================
 #include "RootKeyIOHandler.h"
-#include "RootCallEnv.h"
 #include "TKey.h"
 #include "TFile.h"
 #include "TClass.h"

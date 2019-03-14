@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -18,22 +18,19 @@ class TBuffer;
  *   POOL namespace
  */
 namespace pool  {
-  class RootKeyContainer;
-  class RootCallEnv;
-  class DataCallBack;
+  class DbTypeInfo;
 
   /** Helper structure to access context from streamer
       @author  M.Frank
-      @date    1/8/2002
-      @version 1.0
   */
   class RootCallEnv   {
 
   protected:
-    DataCallBack*     call;
-    RootDataPtr&      context;
-  public:
-    RootCallEnv(DataCallBack* cb, RootDataPtr& ctxt);
+    RootDataPtr         m_object;
+    const DbTypeInfo    *m_objType;
+
+ public:
+    RootCallEnv( RootDataPtr object, const DbTypeInfo *typ );
     ~RootCallEnv()    {     }
     void read (TBuffer& buff);
     void write(TBuffer& buff);

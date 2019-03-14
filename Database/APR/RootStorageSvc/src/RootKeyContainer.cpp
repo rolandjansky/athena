@@ -237,34 +237,26 @@ DbStatus RootKeyContainer::loadObject( DataCallBack*   call,
          TClass* cl = TClass::GetClass(class_name);
          if( 0 != cl ) {
             if ( typ->columns().size() == 1) {
-               RootDataPtr user(0), context(cl->New());
-               DbStatus status = call->start(DataCallBack::GET, context.ptr, &user.ptr);
-               if ( status.isSuccess() )  {
-                  RootDataPtr p(context.ptr); 
-                  const DbColumn* col = *(typ->columns().begin());
-                  status = call->bind(DataCallBack::GET,col,0,context.ptr,&p.ptr);
-                  *p.pptr = context.ptr;
-                  if ( status.isSuccess() )  {
-                     int nbyte = m_ioHandler->read(key, p.pptr);
-                     // *p.pptr = key->ReadObjectAny(cl);
-                     // int nbyte = key->GetObjlen() + key->GetKeylen();
-                     if ( nbyte > 1 ) {
-                        /// Update statistics
-                        m_ioBytes = nbyte;
-                        m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);
-                        /// Terminate callback
-                           return call->end(DataCallBack::GET, context.ptr);
-                     }
-                  }
+               RootDataPtr p( cl->New() );
+               int nbyte = m_ioHandler->read( key, &p.ptr );
+               if ( nbyte > 1 ) {
+                  /// Update statistics
+                  m_ioBytes = nbyte;
+                  m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);
+                  call->setObject( p.ptr );
+                  return Success;
                }
             }
             else  {
-               RootDataPtr context(0);
-               RootCallEnv env(call, context);
-               // void* ctxt = key->ReadObjectAny(cl);
-               // int nbyte = key->GetObjlen() + key->GetKeylen();
-               void* ctxt = &env;
-               int nbyte = m_ioHandler->read(key, &ctxt);
+               DbPrint err(m_name);
+               err << DbPrintLvl::Error 
+                   << "I/O for types with more than 1 data member is not currently supported" << DbPrint::endmsg;
+               err << DbPrintLvl::Error << "Type: " << typ->toString() << DbPrint::endmsg; 
+               return Error;
+               
+               RootDataPtr object( call->object() );
+               RootCallEnv env( object, static_cast<const DbTypeInfo*>(call->shape()) );
+               int nbyte = m_ioHandler->read( key, &object.ptr );
                if ( nbyte > 0 )  {
                   m_ioBytes = nbyte;
                   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);
@@ -288,7 +280,7 @@ DbStatus RootKeyContainer::writeObject(ActionList::value_type& action)   {
       ::sprintf(knam, "_pool_valid_%08d", int(action.link.second));
       auto typ = static_cast<const DbTypeInfo*>(action.shape);
       if ( 0 == typ )   {
-         DbPrint log(  m_name);
+         DbPrint log(m_name);
          log << DbPrintLvl::Error << "No type information present when writing an object!"
              << DbPrint::endmsg;
          return Error;
@@ -300,8 +292,8 @@ DbStatus RootKeyContainer::writeObject(ActionList::value_type& action)   {
             const std::string& typ_nam = col->typeName();
             TClass*  cl  = TClass::GetClass(typ_nam.c_str());
             if( !cl ) {
-               DbPrint log(  m_name);
-               log << DbPrintLvl::Error << "No handler for " << typ_nam
+               DbPrint log(m_name);
+               log << DbPrintLvl::Error << "GetClass() failed for type " << typ_nam
                    << DbPrint::endmsg;
                return Error;
             }
@@ -311,11 +303,17 @@ DbStatus RootKeyContainer::writeObject(ActionList::value_type& action)   {
                m_ioBytes = nbyte;
                m_rootDb->addByteCount(RootDatabase::WRITE_COUNTER, nbyte);
                return Success;
+            } else {
+               DbPrint err(m_name);
+               err << DbPrintLvl::Error 
+                   << "[RootKeyContainer] Could not write an object" << DbPrint::endmsg;
             }
+         } else {
+            DbPrint err(m_name);
+            err << DbPrintLvl::Error 
+                << "I/O for types with more than 1 data member is not currently supported" << DbPrint::endmsg;
+            err << DbPrintLvl::Error << "Type: " << typ->toString() << DbPrint::endmsg;
          }
-         DbPrint err(m_name);
-         err << DbPrintLvl::Error 
-             << "[RootKeyContainer] Could not write an object" << DbPrint::endmsg;
       }
    }
    else {
