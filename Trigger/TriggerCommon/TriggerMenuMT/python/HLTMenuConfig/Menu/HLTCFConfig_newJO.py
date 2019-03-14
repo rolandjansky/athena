@@ -27,7 +27,17 @@ def connectStepToFilter(chainStep, filterNode):
         sequence.connectToFilter(output)
 
 
-def generateDecisionTree(chains, allChainDicts):
+def printStepsMatrix(matrix):
+    print('----- Steps matrix ------')
+    for nstep in matrix:
+        print('step {}:'.format(nstep))
+        for chainName in matrix[nstep]:
+            namesInCell = map(lambda el: el.name, matrix[nstep][chainName])
+            print('---- {}: {}'.format(chainName, namesInCell))
+    print('-------------------------')
+
+
+def generateDecisionTree(chains):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from collections import defaultdict
 
@@ -40,16 +50,17 @@ def generateDecisionTree(chains, allChainDicts):
     chainStepsMatrix = defaultdict(lambda: defaultdict(list))
 
     ## Fill chain steps matrix
-    for chain in chains:
+    for index, chain in enumerate(chains):
         for stepNumber, chainStep in enumerate(chain.steps):
-            chainName = chainStep.name.split('_')[0]
-            chainStepsMatrix[stepNumber][chainName].append(chain)
+            chainStepsMatrix[stepNumber][chainStep.name].append(chain)
+
+    printStepsMatrix(chainStepsMatrix)
 
     ## Matrix with steps lists generated. Creating filters for each cell
-    for nstep in chainStepsMatrix:
+    for nstep in sorted(chainStepsMatrix.keys()):
         stepDecisions = []
 
-        stepName = 'Step{}'.format(nstep)
+        stepName = CFNaming.stepName(nstep)
 
         stepFilterNodeName = '{}{}'.format(stepName, CFNaming.FILTER_POSTFIX)
         filterAcc = ComponentAccumulator()
@@ -72,12 +83,13 @@ def generateDecisionTree(chains, allChainDicts):
             else:
                 filter_input = [output for sequence in firstChain.steps[nstep - 1].sequences for output in sequence.outputs]
 
+            chainStep = firstChain.steps[nstep]
+
             # One aggregated filter per chain (one per column in matrix)
-            filterName = 'Filter_{}'.format( firstChain.steps[nstep].name )
+            filterName = CFNaming.filterName(chainStep.name)
             sfilter = buildFilter(filterName, filter_input)
             filterAcc.addEventAlgo(sfilter.Alg, sequenceName = stepFilterNodeName)
 
-            chainStep = firstChain.steps[nstep]
             stepReco = parOR('{}{}'.format(chainStep.name, CFNaming.RECO_POSTFIX))
             stepView = seqAND('{}{}'.format(chainStep.name, CFNaming.VIEW_POSTFIX), [stepReco])
             viewWithFilter = seqAND(chainStep.name, [sfilter.Alg, stepView])
@@ -86,6 +98,7 @@ def generateDecisionTree(chains, allChainDicts):
             stepsAcc = ComponentAccumulator()
 
             for chain in chainsInCell:
+                connectStepToFilter(chain.steps[nstep], sfilter)
                 for seq in chain.steps[nstep].sequences:
                     if seq.ca is None:
                         raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
@@ -95,8 +108,6 @@ def generateDecisionTree(chains, allChainDicts):
 
             recoAcc.merge(stepsAcc, sequenceName = stepReco.getName())
 
-            connectStepToFilter(chainStep, sfilter)
-
             for sequence in chainStep.sequences:
                 stepDecisions += sequence.outputs
 
@@ -105,5 +116,7 @@ def generateDecisionTree(chains, allChainDicts):
 
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
         acc.addSequence(summary, parentName = mainSequenceName)
+
+    acc.printConfig()
 
     return acc

@@ -172,6 +172,14 @@ atlas_add_test( EmuStepProcessing
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing
    )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_newjo )
+atlas_add_test( EmuNewJO
+    SCRIPT test_emu_newjo.sh
+    EXTRA_PATTERNS "-s TrigSignatureMo.*INFO HLT_.*"
+    PROPERTIES TIMEOUT 1000
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_newjo
+    )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
    SCRIPT test/test_newJO_build.sh
