@@ -8,9 +8,11 @@ import pprint
 import json
 import sys
 import argparse
+import ast
 
 parser = argparse.ArgumentParser(description='Utility to transform/display athena configurations')
 parser.add_argument('--print', dest="pr", action='store_true', help='Prints')
+parser.add_argument('--printComps', dest="prComps", action='store_true', help='Prints only the components')
 parser.add_argument('--diff', dest="diff", action='store_true', help='Diffs two files')
 parser.add_argument('--toJSON', help='Convert to JSON file')
 parser.add_argument('file', nargs='+', help='Files to work with')
@@ -53,6 +55,35 @@ def __print( fname ):
         pprint.pprint(dict(c))
     print "... EOF", fname
 
+def __printComps( fname ):
+    conf = __loadSingleFile( fname )
+    print "... ", fname, "content"
+    def __printdict( d ):
+        for name, k in dict( d ).iteritems():
+            if name in "Histograms":
+                continue
+
+            if isinstance( k, dict ):
+                __printdict( k )
+            elif isinstance(k, str) and '/' in k:
+                if not '[' in k: # not an array
+                    if  k.count('/')  == 1:
+                        print k
+                else: # handle arrays
+                    actualType = ast.literal_eval(k)
+                    if isinstance( actualType, list ):
+                        for el in actualType:
+                            if el.count('/')  == 1 : # ==1 eliminates COOL folders
+                                print el
+
+    for n,c in enumerate(conf):
+        __printdict( c )
+            
+
+
+    print "... EOF", fname
+
+
 def __diff():
     def __merge( c ):
         confdict = {}
@@ -87,9 +118,14 @@ def __diff():
             print "... component %-54s" % comp, "identical"
 
 
+if args.prComps:
+    for fileName in args.file:
+        __printComps( fileName )
+
 if args.pr:
     for fileName in args.file:
         __print( fileName )
+
 
 if args.toJSON:
     if len( args.file ) != 1:
