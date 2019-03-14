@@ -103,18 +103,11 @@ namespace InDet
 
   //-------------------------------------------------------------
 
-  /* Return the local covariance matrix. */
-  static const Amg::MatrixX* sctSpacePointSharedLocalCovariance = 0;
-
   //---------------------------------------------------------------
 
   void SCT_SpacePoint::setupLocalCovarianceSCT()
   {
 
-    if( sctSpacePointSharedLocalCovariance ){
-      Trk::MeasurementBase::m_localCovariance = *sctSpacePointSharedLocalCovariance;
-      return;
-    }
     /* For performance reason only, the error is assumed constant.
 	numbers are taken from 
 	Trigger/TrigTools/TrigOfflineSpacePointTool/OfflineSpacePointProviderTool */

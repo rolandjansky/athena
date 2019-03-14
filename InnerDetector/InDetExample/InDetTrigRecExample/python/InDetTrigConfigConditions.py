@@ -190,13 +190,13 @@ class PixelConditionsServicesSetup:
     ToolSvc += TrigSiPropertiesTool
 
     if not hasattr(condSeq, 'PixelSiLorentzAngleCondAlg'):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
                                             SiPropertiesTool=TrigSiPropertiesTool,
                                             UseMagFieldSvc = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
     ToolSvc += TrigPixelLorentzAngleTool
@@ -427,7 +427,7 @@ class SCT_ConditionsToolsSetup:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                           SiConditionsTool = sctSiliconConditionsTool,
@@ -436,7 +436,7 @@ class SCT_ConditionsToolsSetup:
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     

@@ -28,7 +28,7 @@ def CreateEgammaRotCreator():
     # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-      from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+      from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
       pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
@@ -61,7 +61,7 @@ def CreateEgammaRotCreator():
     # load Pixel ROT creator, we overwrite the defaults for the
     # tool to always make conservative pixel cluster errors
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-      from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+      from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
       pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
@@ -80,7 +80,7 @@ def CreateEgammaRotCreator():
 
   if DetFlags.haveRIO.SCT_on():
     # SiLorentzAngleTool
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
     egSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("egSCT_ClusterOnTrackTool",

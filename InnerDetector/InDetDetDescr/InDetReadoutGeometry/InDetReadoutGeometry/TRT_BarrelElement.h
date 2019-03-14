@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/TRT_BarrelCode.h"
 #include "InDetReadoutGeometry/TRT_BarrelDescriptor.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include <atomic>
 
 class TRT_ID;
 
@@ -149,9 +150,6 @@ namespace InDetDD {
     const TRT_BarrelElement    *m_previousInPhi;
     const TRT_BarrelElement    *m_nextInR;
     const TRT_BarrelElement    *m_previousInR;
-
-    mutable Trk::Surface*       m_surface;
-    
   };
   
 

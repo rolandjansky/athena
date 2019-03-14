@@ -50,7 +50,7 @@ Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
 Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll.root
-RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:61408
+RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:61600
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
 Splitter1           DEBUG Trigmask = 2

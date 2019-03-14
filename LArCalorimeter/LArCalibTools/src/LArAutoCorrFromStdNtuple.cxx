@@ -6,7 +6,7 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
@@ -92,9 +92,9 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   const LArOnlineID* onlineHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
   // and helper for FCAL
-  const CaloIdManager* caloId_mgr;
-  ATH_CHECK( detStore()->retrieve(caloId_mgr, "CaloIdManager") );
-  const LArFCAL_ID* fcal_id = caloId_mgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArFCAL_ID* fcal_id = idHelper->fcal_idHelper();
 
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};

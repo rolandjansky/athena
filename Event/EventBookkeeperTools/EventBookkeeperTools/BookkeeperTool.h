@@ -6,7 +6,8 @@
 #define BOOKKEEPERTOOL_H
 
 /** @file BookkeeperTool.h
- *  @brief This file contains the class definition for the BookkeeperTool class.
+ *  @brief This class is an implementation of the GenericMetadataTool
+ *  for the xAOD::CutBookkeeperContainer.
  *  @author Jack Cranshaw <cranshaw@anl.gov>
  *  $Id: $
  **/
@@ -18,10 +19,6 @@
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 #include <string>
-
-/** @class BookkeeperTool
- *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
- **/
 
 
 class BookkeeperTool : public GenericMetadataTool <xAOD::CutBookkeeperContainer, xAOD::CutBookkeeperAuxContainer> 
@@ -37,7 +34,7 @@ public:
 
 private:
   
-  /// Helper class to update a container with information from another one
+  /// Virtual method to update a container with information from another one
   virtual StatusCode updateContainer(xAOD::CutBookkeeperContainer* contToUpdate,
                                const xAOD::CutBookkeeperContainer* otherCont );
 

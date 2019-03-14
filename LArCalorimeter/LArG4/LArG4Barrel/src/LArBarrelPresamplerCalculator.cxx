@@ -301,15 +301,15 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 #ifdef DEBUGSTEP
         ATH_MSG_DEBUG(" set current map for module " << imodule);
 #endif
-        m_psmap->SetMap(imodule);
-        if (!(m_psmap->Map())) {
+	CurrMap* cm = m_psmap->GetMap(imodule);
+        if (!cm) {
           ATH_MSG_INFO(" LArBarrelPresamplerCalculator: cannot get map for module " << imodule);
           continue;
         }
         double current0,current1,current2,gap;
 
         // get information from current map
-        m_psmap->Map()->GetAll(x0,y0,&gap,&current0,&current1,&current2);
+        cm->GetAll(x0,y0,&gap,&current0,&current1,&current2);
 #ifdef DEBUGSTEP
         ATH_MSG_DEBUG(" module,x0,y0,current0 from map " << imodule << " " << x0 << " " << y0 << " " << current0);
 #endif

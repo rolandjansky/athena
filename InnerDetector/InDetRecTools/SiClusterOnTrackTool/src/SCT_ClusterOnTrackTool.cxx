@@ -14,13 +14,17 @@
 
 #include "SiClusterOnTrackTool/SCT_ClusterOnTrackTool.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include <cmath>
 #include "TrkRIO_OnTrack/check_cast.h"
+
+#include <cmath>
 
 using CLHEP::micrometer;
 using CLHEP::deg;
+
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

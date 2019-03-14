@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -135,21 +135,6 @@ int CaloCell_Base_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   }
  
   return 0;
-}
-
-
-bool 
-CaloCell_Base_ID::do_checks(void) const
-{
-  return(m_emHelper->do_checks()) ;
-}
-
-
-void   
-CaloCell_Base_ID::set_do_checks	(bool do_checks) const
-{
-  for (int i=0; i < NSUBCALO; i++)
-    m_helpers[i]->set_do_checks(do_checks);
 }
 
 

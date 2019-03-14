@@ -51,6 +51,7 @@ atlas_add_component( IOVDbSvc
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.txt )
 
 
 atlas_add_test( IOVDbSvc_test
@@ -59,7 +60,7 @@ atlas_add_test( IOVDbSvc_test
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
                 LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES}
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG |Warning in <TFile::Init>: no" 
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG |Warning in <TFile::Init>: no |Initializing" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
                 
 atlas_add_test( IOVDbSvc_Boost_test                

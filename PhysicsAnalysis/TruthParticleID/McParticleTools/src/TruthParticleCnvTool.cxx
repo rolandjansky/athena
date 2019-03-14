@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -286,7 +286,7 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
 		    << hepMcPart->barcode() << " !!");
     }
     //bcToMcPart[ hepMcPart->barcoade() ] = mcPart;
-    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex, sg );
+    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION, sg ); // FIXME assuming that we are using the hard-scatter McEventCollection - would need to pass this info as an argument to the convert function.
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
   }//> end loop over particles

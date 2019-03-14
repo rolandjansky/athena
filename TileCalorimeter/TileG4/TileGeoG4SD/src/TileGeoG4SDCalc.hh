@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -59,9 +59,9 @@ public:
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const override final;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const override final;
+  virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData, double& deltaTime) const override final;
   /// Create or update hit object in the collection
-  virtual G4bool ManageScintHit(TileHitData& hitData) const override final;
+  virtual G4bool ManageScintHit(TileHitData& hitData, double deltaTime) const override final;
   /// Used by FastCaloSimParamAction
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const override final;
   ///
@@ -72,8 +72,8 @@ public:
   /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
   virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int uShape) const override final;
 private:
-  void CreateScintHit(int pmt, TileHitData& hitData) const;
-  void UpdateScintHit(int pmt, TileHitData& hitData) const;
+  void CreateScintHit(int pmt, TileHitData& hitData, double deltaTime) const;
+  void UpdateScintHit(int pmt, TileHitData& hitData, double deltaTime) const;
 
   int getUshapeFromGM() const;
 
@@ -106,8 +106,8 @@ private:
   TileSDOptions m_options;
 
 
-  /** @brief granularity in time for hits */
-  mutable double m_deltaT; // FIXME set during initialize, then reset during MakePmtEdepTime
+  /** @brief Keep hit time */
+  bool m_keepHitTime;
 
   /** @brief Structure holding the attenuation lengths */
   std::unique_ptr<TileRow> m_row;

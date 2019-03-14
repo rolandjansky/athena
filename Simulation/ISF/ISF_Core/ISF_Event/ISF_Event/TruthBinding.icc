@@ -5,100 +5,100 @@
 // this file contains all ITruthBinding inline methods
 
 namespace ISF {
-/** constructor setting all truth particle pointers to the given particle */
-TruthBinding::TruthBinding(HepMC::GenParticle* allTruthP) :
-  m_truthParticle(allTruthP),
-  m_primaryTruthParticle(allTruthP),
-  m_generationZeroTruthParticle(allTruthP) { }
+  /** constructor setting all truth particle pointers to the given particle */
+  TruthBinding::TruthBinding(HepMC::GenParticle* allTruthP) :
+    m_truthParticle(allTruthP),
+    m_primaryTruthParticle(allTruthP),
+    m_generationZeroTruthParticle(allTruthP) { }
 
-/** constructor setting all truth particle pointers individually */
-TruthBinding::TruthBinding(HepMC::GenParticle* truthP, HepMC::GenParticle* primaryTruthP, HepMC::GenParticle* genZeroTruthP) :
-  m_truthParticle(truthP),
-  m_primaryTruthParticle(primaryTruthP),
-  m_generationZeroTruthParticle(genZeroTruthP) { }
+  /** constructor setting all truth particle pointers individually */
+  TruthBinding::TruthBinding(HepMC::GenParticle* truthP, HepMC::GenParticle* primaryTruthP, HepMC::GenParticle* genZeroTruthP) :
+    m_truthParticle(truthP),
+    m_primaryTruthParticle(primaryTruthP),
+    m_generationZeroTruthParticle(genZeroTruthP) { }
 
-/** copy constructor */
-TruthBinding::TruthBinding(const TruthBinding& rhs) :
-  m_truthParticle(rhs.getTruthParticle()),
-  m_primaryTruthParticle(rhs.getPrimaryTruthParticle()),
-  m_generationZeroTruthParticle(rhs.getGenerationZeroTruthParticle()) { }
+  /** copy constructor */
+  TruthBinding::TruthBinding(const TruthBinding &rhs) :
+    m_truthParticle(rhs.getTruthParticle()),
+    m_primaryTruthParticle(rhs.getPrimaryTruthParticle()),
+    m_generationZeroTruthParticle(rhs.getGenerationZeroTruthParticle()) { }
 
-/** move copy constructor */
-TruthBinding::TruthBinding(TruthBinding&& rhs) :
-  m_truthParticle(rhs.getTruthParticle()),
-  m_primaryTruthParticle(rhs.getPrimaryTruthParticle()),
-  m_generationZeroTruthParticle(rhs.getGenerationZeroTruthParticle()) { }
+  /** move copy constructor */
+  TruthBinding::TruthBinding(TruthBinding&& rhs) :
+    m_truthParticle(rhs.getTruthParticle()),
+    m_primaryTruthParticle(rhs.getPrimaryTruthParticle()),
+    m_generationZeroTruthParticle(rhs.getGenerationZeroTruthParticle()) { }
 
-/** assignment operator */
-TruthBinding& TruthBinding::operator=(const TruthBinding& rhs) {
-  m_truthParticle=rhs.getTruthParticle();
-  m_primaryTruthParticle=rhs.getPrimaryTruthParticle();
-  m_generationZeroTruthParticle=rhs.getGenerationZeroTruthParticle();
-  return *this;
-}
-
-/** move assignment operator */
-TruthBinding& TruthBinding::operator=(TruthBinding&& rhs) {
-  m_truthParticle=rhs.getTruthParticle();
-  m_primaryTruthParticle=rhs.getPrimaryTruthParticle();
-  m_generationZeroTruthParticle=rhs.getGenerationZeroTruthParticle();
-  return *this;
-}
-
-/** destructor */
-TruthBinding::~TruthBinding() { }
-
-/** comparison operator */
-bool TruthBinding::operator==(const TruthBinding& rhs) const {
-  return isEqual(rhs);
-}
-
-/** check equality */
-bool TruthBinding::isEqual(const TruthBinding& rhs) const {
-  bool pass = true;
-
-  const auto rhsTruth = rhs.getTruthParticle();
-  if (m_truthParticle && rhsTruth) {
-    pass &= *m_truthParticle == *rhsTruth;
-  } else {
-    return false;
+  /** assignment operator */
+  TruthBinding& TruthBinding::operator=(const TruthBinding &rhs) {
+    m_truthParticle=rhs.getTruthParticle();
+    m_primaryTruthParticle=rhs.getPrimaryTruthParticle();
+    m_generationZeroTruthParticle=rhs.getGenerationZeroTruthParticle();
+    return *this;
   }
 
-  const auto rhsPrimary = rhs.getPrimaryTruthParticle();
-  if (m_primaryTruthParticle && rhsPrimary) {
-    pass &= *m_primaryTruthParticle == *rhsPrimary;
-  } else {
-    return false;
+  /** move assignment operator */
+  TruthBinding& TruthBinding::operator=(TruthBinding&& rhs) {
+    m_truthParticle=rhs.getTruthParticle();
+    m_primaryTruthParticle=rhs.getPrimaryTruthParticle();
+    m_generationZeroTruthParticle=rhs.getGenerationZeroTruthParticle();
+    return *this;
   }
 
-  const auto rhsGenZero = rhs.getGenerationZeroTruthParticle();
-  if (m_generationZeroTruthParticle && rhsGenZero) {
-    pass &= *m_generationZeroTruthParticle == *rhsGenZero;
-  } else {
-    return false;
+  /** destructor */
+  TruthBinding::~TruthBinding() { }
+
+  /** comparison operator */
+  bool TruthBinding::operator==(const TruthBinding& rhs) const {
+    return isEqual(rhs);
   }
 
-  return pass;
-}
+  /** check equality */
+  bool TruthBinding::isEqual(const TruthBinding& rhs) const {
+    bool pass = true;
 
-/** check identity */
-bool TruthBinding::isIdent(const TruthBinding& rhs) const {
-  bool pass = true;
-  pass &= m_truthParticle == rhs.getTruthParticle();
-  pass &= m_primaryTruthParticle == rhs.getPrimaryTruthParticle();
-  pass &= m_generationZeroTruthParticle == rhs.getGenerationZeroTruthParticle();
-  return pass;
-}
+    const auto rhsTruth = rhs.getTruthParticle();
+    if (m_truthParticle && rhsTruth) {
+      pass &= *m_truthParticle == *rhsTruth;
+    } else {
+      return false;
+    }
 
-/** pointer to the particle in the simulation truth */
-HepMC::GenParticle* TruthBinding::getTruthParticle() const { return m_truthParticle; }
-void                TruthBinding::setTruthParticle(HepMC::GenParticle* p) { m_truthParticle = p; }
+    const auto rhsPrimary = rhs.getPrimaryTruthParticle();
+    if (m_primaryTruthParticle && rhsPrimary) {
+      pass &= *m_primaryTruthParticle == *rhsPrimary;
+    } else {
+      return false;
+    }
 
-/** pointer to the primary particle in the simulation truth */
-HepMC::GenParticle* TruthBinding::getPrimaryTruthParticle() const { return m_primaryTruthParticle; }
+    const auto rhsGenZero = rhs.getGenerationZeroTruthParticle();
+    if (m_generationZeroTruthParticle && rhsGenZero) {
+      pass &= *m_generationZeroTruthParticle == *rhsGenZero;
+    } else {
+      return false;
+    }
 
-/** pointer to the simulation truth particle before any regeneration (eg. brem) */
-HepMC::GenParticle* TruthBinding::getGenerationZeroTruthParticle() const { return m_generationZeroTruthParticle; }
-void                TruthBinding::setGenerationZeroTruthParticle(HepMC::GenParticle* p) { m_generationZeroTruthParticle = p; }
+    return pass;
+  }
+
+  /** check identity */
+  bool TruthBinding::isIdent(const TruthBinding& rhs) const {
+    bool pass = true;
+    pass &= m_truthParticle == rhs.getTruthParticle();
+    pass &= m_primaryTruthParticle == rhs.getPrimaryTruthParticle();
+    pass &= m_generationZeroTruthParticle == rhs.getGenerationZeroTruthParticle();
+    return pass;
+  }
+
+  /** pointer to the particle in the simulation truth */
+  HepMC::GenParticle* TruthBinding::getTruthParticle() const { return m_truthParticle; }
+  void                TruthBinding::setTruthParticle(HepMC::GenParticle* p) { m_truthParticle = p; }
+
+  /** pointer to the primary particle in the simulation truth */
+  HepMC::GenParticle* TruthBinding::getPrimaryTruthParticle() const { return m_primaryTruthParticle; }
+
+  /** pointer to the simulation truth particle before any regeneration (eg. brem) */
+  HepMC::GenParticle* TruthBinding::getGenerationZeroTruthParticle() const { return m_generationZeroTruthParticle; }
+  void                TruthBinding::setGenerationZeroTruthParticle(HepMC::GenParticle* p) { m_generationZeroTruthParticle = p; }
 
 } // end ISF namespace

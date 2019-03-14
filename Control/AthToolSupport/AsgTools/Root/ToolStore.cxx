@@ -27,12 +27,9 @@ typedef std::map< std::string, asg::IAsgTool* > ToolMap_t;
 
 namespace {
 
-   /// Helper function providing the application-wide tool registry
-   ToolMap_t& tools() {
-
-      static ToolMap_t s_tools;
-      return s_tools;
-   }
+   /// The application-wide tool registry
+   static ToolMap_t s_tools ATLAS_THREAD_SAFE;
+  std::mutex s_toolMutex;
 
 } // private namespace
 
@@ -55,15 +52,16 @@ namespace asg {
          return StatusCode::FAILURE;
       }
 
+      std::lock_guard<std::mutex> lock (s_toolMutex);
       // Check whether we already have a tool with this name:
-      if( tools().find( name ) != tools().end() ) {
+      if( s_tools.find( name ) != s_tools.end() ) {
          std::cout << "asg::ToolStore::put       WARNING Tool with name \""
                    << name << "\" already registered" << std::endl;
          return StatusCode::FAILURE;
       }
 
       // Remember the tool:
-      tools()[ name ] = ptool;
+      s_tools[ name ] = ptool;
       return StatusCode::SUCCESS;
    }
 
@@ -93,8 +91,9 @@ namespace asg {
 
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
 
-      ToolMap_t::const_iterator itool = tools().find( name );
-      if( itool == tools().end() ) {
+      std::lock_guard<std::mutex> lock (s_toolMutex);
+      ToolMap_t::const_iterator itool = s_tools.find( name );
+      if( itool == s_tools.end() ) {
          if( ! silent ) {
             std::cout << "asg::ToolStore::get       WARNING Tool with name \""
                       << name << "\" not found" << std::endl;
@@ -112,8 +111,9 @@ namespace asg {
 
    StatusCode ToolStore::remove( const std::string& name ) {
 
+      std::lock_guard<std::mutex> lock (s_toolMutex);
       // Remove the tool, not checking if the call was successful or not:
-      tools().erase( name );
+      s_tools.erase( name );
       return StatusCode::SUCCESS;
    }
 
@@ -126,7 +126,8 @@ namespace asg {
     // messages don't interleave the property values
     std::map<std::string,std::map<std::string,std::string> > properties;
 
-    for (auto& tool : tools())
+    std::lock_guard<std::mutex> lock (s_toolMutex);
+    for (auto& tool : s_tools)
     {
       auto& myproperties = properties[tool.first];
       myproperties[""] = std::string (typeid(*tool.second).name()) + "/" + tool.first;

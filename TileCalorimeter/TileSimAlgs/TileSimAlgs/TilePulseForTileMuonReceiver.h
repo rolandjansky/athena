@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -53,9 +53,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "CLHEP/Random/RandomEngine.h"
-
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 class PileUpMergeSvc;
 class HWIdentifier;
 
@@ -127,8 +125,7 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     //
     std::vector<double> m_shapeMuonReceiver;//!< Muon receiver pulse shape
 
-    CLHEP::HepRandomEngine* m_pHRengine;    //!< Random number generator engine to use
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc; //!< Random number service to use
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number service to use
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};

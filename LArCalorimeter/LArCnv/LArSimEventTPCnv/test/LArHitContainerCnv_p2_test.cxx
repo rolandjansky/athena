@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "LArSimEventTPCnv/LArHitContainerCnv_p2.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
@@ -107,12 +106,9 @@ const CaloCell_ID& make_dd (ISvcLocator* svcLoc)
                                           tile_id);
   assert (calo_id->initialize_from_dictionary (idd) == 0);
 
-  CaloIdManager* mgr = new CaloIdManager;
-  mgr->set_helper (calo_id);
-
   StoreGateSvc* detStore = nullptr;
   assert (svcLoc->service( "DetectorStore", detStore ).isSuccess());
-  assert (detStore->record (mgr, "CaloIdManager").isSuccess());
+  assert (detStore->record (calo_id, "CaloCell_ID").isSuccess());
   return *calo_id;
 }
 

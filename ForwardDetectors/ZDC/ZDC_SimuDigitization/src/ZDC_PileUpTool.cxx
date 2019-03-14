@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "ZDC_SimuDigitization/ZDC_PileUpTool.h"
 #include <algorithm>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"

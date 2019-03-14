@@ -1,0 +1,172 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+/*
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file CxxUtils/CachedUniquePtr.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2019
+ * @brief Cached unique_ptr with atomic update.
+ */
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Default constructor.  Sets the element to null.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>::CachedUniquePtrT()
+  : m_ptr (nullptr)
+{
+}
+
+
+/**
+ * @brief Constructor from an element.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>::CachedUniquePtrT (std::unique_ptr<T> elt)
+  : m_ptr (elt.release())
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>::CachedUniquePtrT (CachedUniquePtrT&& other)
+  : m_ptr (other.release().release())
+{
+}
+
+
+/**
+ * @brief Move.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>&
+CachedUniquePtrT<T>::operator= (CachedUniquePtrT&& other)
+{
+  if (this != &other) {
+    store (other.release());
+  }
+  return *this;
+}
+
+
+/** 
+ * @brief Destructor.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>::~CachedUniquePtrT()
+{
+  delete m_ptr;
+}
+
+
+/**
+ * @brief Atomically set the element.  If already set, then @c elt is discarded.
+ * @param elt The new value for the element.
+ *
+ * If the current value of the element is null, then set it to @c elt.
+ * Otherwise, delete @c elt.
+ * This is done atomically.
+ */
+template <class T>
+inline
+void CachedUniquePtrT<T>::set (std::unique_ptr<T> elt) const
+{
+  // Set the element to ELT if it is currently null.
+  T* ptr = elt.release();
+  T* null = nullptr;
+  if (!m_ptr.compare_exchange_strong (null, ptr)) {
+    // Was already set.  Delete the new value.
+    delete ptr;
+  }
+}
+
+
+/**
+ * @brief Store a new value to the element.
+ *        Not compatible with other concurrent access.
+ */
+template <class T>
+inline
+void CachedUniquePtrT<T>::store (std::unique_ptr<T> elt)
+{
+  T* old = m_ptr.exchange (elt.release());
+  delete old;
+}
+
+
+/**
+ * @brief Return the current value of the element.
+ */
+template <class T>
+inline
+T*
+CachedUniquePtrT<T>::get() const
+{
+  return m_ptr.load();
+}
+
+
+/**
+ * @brief Dereference the element.
+ */
+template <class T>
+inline
+T&
+CachedUniquePtrT<T>::operator*() const
+{
+  return *get();
+}
+
+
+/**
+ * @brief Dereference the element.
+ */
+template <class T>
+inline
+T*
+CachedUniquePtrT<T>::operator->() const
+{
+  return get();
+}
+
+
+/**
+ * @brief Test if the element is null.
+ */
+template <class T>
+inline
+CachedUniquePtrT<T>::operator bool() const
+{
+  return get() != nullptr;
+}
+
+
+/**
+ * @brief Transfer ownership from the element: return the current value as a
+ *        unique_ptr, leaving the element null.
+ */
+template <class T>
+inline
+std::unique_ptr<T>
+CachedUniquePtrT<T>::release()
+{
+  T* old = m_ptr.exchange (nullptr);
+  return std::unique_ptr<T> (old);
+}
+
+
+} // namespace CxxUtils

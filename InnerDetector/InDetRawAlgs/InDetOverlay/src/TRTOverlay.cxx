@@ -14,65 +14,43 @@
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
+#include "IDC_OverlayBase/IDC_OverlayCommon.h"
 #include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
+
 namespace Overlay
 {
-  // Specialize mergeChannelData() for the TRT
-  template<> void mergeChannelData(TRT_RDORawData &r1, const TRT_RDORawData &r2, IDC_OverlayBase *parent)
-  {
-
-    // ----------------------------------------------------------------
-    // debug
-    static bool first_time = true;
-    if (first_time) {
-      first_time = false;
-      parent->msg(MSG::INFO) << "Overlay::mergeChannelData(): "
-                             << "TRT specific code is called for "
-                             << typeid(TRT_RDORawData).name()
-                             << endmsg;
-    }
-
-    // ----------------------------------------------------------------
-    // FIXME: That should really be a call to r1.merge(r2);
-
-    TRT_LoLumRawData *pr1 = dynamic_cast<TRT_LoLumRawData*>(&r1);
-    const TRT_LoLumRawData *pr2 = dynamic_cast<const TRT_LoLumRawData*>(&r2);
-
-    if (pr1 && pr2) {
-      // the actual merging
-      pr1->merge(*pr2);
-    }
-  } // mergeChannelData()
-
   // Specialize copyCollection() for the TRT
-  template<> void copyCollection(const InDetRawDataCollection<TRT_RDORawData> *input_coll, InDetRawDataCollection<TRT_RDORawData> *copy_coll)
+  template<>
+  std::unique_ptr<TRT_RDO_Collection> copyCollection(const IdentifierHash &hashId,
+                                                     const TRT_RDO_Collection *collection)
   {
-    copy_coll->setIdentifier(input_coll->identify());
-    InDetRawDataCollection<TRT_RDORawData>::const_iterator firstData = input_coll->begin();
-    InDetRawDataCollection<TRT_RDORawData>::const_iterator lastData = input_coll->end();
-    for ( ; firstData != lastData; ++firstData)
-    {
-	    const Identifier ident = (*firstData)->identify();
-	    const unsigned int word = (*firstData)->getWord();
-	    TRT_LoLumRawData *newData = new TRT_LoLumRawData(ident, word);
-	    copy_coll->push_back(newData);
+    auto outputCollection = std::make_unique<TRT_RDO_Collection>(hashId);
+    outputCollection->setIdentifier(collection->identify());
+
+    for (const TRT_RDORawData *existingDatum : *collection) {
+      // Owned by the collection
+      auto *datumCopy = new TRT_LoLumRawData(existingDatum->identify(), existingDatum->getWord());
+      outputCollection->push_back(datumCopy);
     }
+
+    return outputCollection;
   }
 } // namespace Overlay
 
 
 TRTOverlay::TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : IDC_OverlayBase(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.110);
   declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.090);
   declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE", m_HTOccupancyCorrectionB_noE=0.060);
   declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE", m_HTOccupancyCorrectionEC_noE=0.050);
 }
+
 
 StatusCode TRTOverlay::initialize()
 {
@@ -105,26 +83,25 @@ StatusCode TRTOverlay::initialize()
   // Retrieve TRT local occupancy tool
   CHECK(m_TRT_LocalOccupancyTool.retrieve());
 
-  if (!m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
-    ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-    return StatusCode::FAILURE;
-  } else {
-    if ( !m_TRTStrawSummarySvc.empty()) 
-      ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc );
+  if (!m_TRTStrawSummarySvc.empty()) {
+    if (m_TRTStrawSummarySvc.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG( "Retrieved tool " << m_TRTStrawSummarySvc );
+    }
   }
-
-
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TRTOverlay::execute() {
+
+StatusCode TRTOverlay::execute()
+{
   ATH_MSG_DEBUG("execute() begin");
 
   // Reading the input RDOs
-  ATH_MSG_VERBOSE("Retrieving input RDO containers");
-
   const TRT_RDO_Container *bkgContainerPtr = nullptr;
   if (m_includeBkg) {
     SG::ReadHandle<TRT_RDO_Container> bkgContainer(m_bkgInputKey);
@@ -156,180 +133,178 @@ StatusCode TRTOverlay::execute() {
   // Creating output RDO container
   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_outputKey);
   ATH_CHECK(outputContainer.record(std::make_unique<TRT_RDO_Container>(signalContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output TRT RDO container " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG("Recorded output TRT RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  if (outputContainer.isValid()) {
-    // Calculate occupancy here
-    if (m_includeBkg) {
-      std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy(bkgContainerPtr);
-
-      //Merge containers
-      overlayTRTContainers(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr(), occupancy, *signalSDOContainer);
-    } else {
-      overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
-    }
-
-    ATH_MSG_DEBUG("TRT Result   = " << Overlay::debugPrint(outputContainer.ptr()));
-  }
+  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr(), signalSDOContainer.cptr()));
+  ATH_MSG_DEBUG("TRT Result   = " << Overlay::debugPrint(outputContainer.ptr()));
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
 }
 
-void TRTOverlay::overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
-                                      const TRT_RDO_Container *signalContainer,
-                                      TRT_RDO_Container *outputContainer,
-                                      std::map<int, double> &occupancyMap,
-                                      const InDetSimDataCollection &SDO_Map)
+
+StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
+                                        const TRT_RDO_Container *signalContainer,
+                                        TRT_RDO_Container *outputContainer,
+                                        const InDetSimDataCollection *signalSDOCollection)
 {
-   /** Add data from the background container to the output one */
-   if (bkgContainer) {
-     TRT_RDO_Container::const_iterator p_bkg = bkgContainer->begin();
-     TRT_RDO_Container::const_iterator p_bkg_end = bkgContainer->end();
+  // Get all the hashes for the signal container
+  const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
 
-     for(; p_bkg != p_bkg_end; ++p_bkg) {
-       IdentifierHash hashId = p_bkg.hashId();
-       auto coll_bkg = std::make_unique<TRT_RDO_Collection>(hashId);
-       Overlay::copyCollection(*p_bkg, coll_bkg.get());
+  // There are some use cases where background is empty
+  if (!bkgContainer) {
+    // Only loop through the signal collections and copy them over
+    for (const IdentifierHash &hashId : signalHashes) {
+      // Copy the signal collection
+      std::unique_ptr<TRT_RDO_Collection> signalCollection = Overlay::copyCollection(hashId, signalContainer->indexFindPtr(hashId));
 
-       if (outputContainer->addCollection(coll_bkg.release(), p_bkg.hashId() ).isFailure()) {
-         ATH_MSG_WARNING("add background Collection failed for output " << p_bkg.hashId());
-       }
-     }
-   }
-
-   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-   CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
-
-   /** Add data from the signal container to the output one */
-   TRT_RDO_Container::const_iterator p_signal = signalContainer->begin();
-   TRT_RDO_Container::const_iterator p_signal_end = signalContainer->end();
-
-   for (; p_signal != p_signal_end; ++p_signal) {
-
-      IdentifierHash coll_id = p_signal.hashId();
-      auto coll_signal = std::make_unique<TRT_RDO_Collection>(coll_id);
-      Overlay::copyCollection( *p_signal, coll_signal.get() ) ;
-
-      /** The newly created stuff will go to the output EventStore SG */
-      auto coll_out = std::make_unique<TRT_RDO_Collection>(coll_id);
-      coll_out->setIdentifier((*p_signal)->identify());
-
-      /** Look for the same ID in the main StoreGate EventStore */
-      auto q = outputContainer->indexFind( coll_id );
-      if ( q != outputContainer->end() ) {
-      /**Need to merge the collections
-         Retrieve q */
-         std::unique_ptr <TRT_RDO_Collection> coll_bkg ((TRT_RDO_Collection *) *q);
-         int det =  m_trtId->barrel_ec( (*p_signal)->identify() );
-         mergeTRTCollections(coll_bkg.get(), coll_signal.get(), coll_out.get(), occupancyMap[det], SDO_Map, rndmEngine);
-
-         outputContainer->removeCollection(p_signal.hashId());
-         if (outputContainer->addCollection(coll_out.release(), coll_id).isFailure() ) {
-            ATH_MSG_WARNING( "overlay addCollection failed " );
-         }
+      if (outputContainer->addCollection(signalCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding signal Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        signalCollection.release();
       }
-      else {
-       /** Copy the complete collection from signal to output,
-           hopefully preserving the "most derived" type of its raw data */
-       if ( outputContainer->addCollection(coll_signal.release(), coll_id).isFailure() ) {
-          ATH_MSG_WARNING("add signal Collection failed for output " << coll_id);
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  // Setup the random engine
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
+
+  // Retrieve the occupancy map
+  std::map<int, double> occupancyMap = m_TRT_LocalOccupancyTool->getDetectorOccupancy(bkgContainer);
+
+  // Get all the hashes for the background container
+  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
+
+  // The MC signal container should typically be smaller than bkgContainer,
+  // because the latter contains all the noise, minimum bias and pile up.
+  // Thus we firstly iterate over signal hashes and store them in a map.
+  std::map<IdentifierHash, bool> overlapMap;
+  for (const IdentifierHash &hashId : signalHashes) {
+    overlapMap.emplace(hashId, false);
+  }
+
+  // Now loop through the background hashes and copy unique ones over
+  for (const IdentifierHash &hashId : bkgHashes) {
+    auto search = overlapMap.find(hashId);
+    if (search == overlapMap.end()) {
+      // Copy the background collection
+      std::unique_ptr<TRT_RDO_Collection> bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+
+      if (outputContainer->addCollection(bkgCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding background Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        bkgCollection.release();
+      }
+    } else {
+      // Flip the overlap flag
+      search->second = true;
+    }
+  }
+
+  // Finally loop through the map and process the signal and overlay if
+  // necessary
+  for (const auto &[hashId, overlap] : overlapMap) {
+    // Copy the signal collection
+    std::unique_ptr<TRT_RDO_Collection> signalCollection = Overlay::copyCollection(hashId, signalContainer->indexFindPtr(hashId));
+
+    if (overlap) { // Do overlay
+      // Create the output collection, only works for Inner Detector
+      auto outputCollection = std::make_unique<TRT_RDO_Collection>(hashId);
+      outputCollection->setIdentifier(signalCollection->identify());
+      // Copy the background collection
+      std::unique_ptr<TRT_RDO_Collection> bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+
+      // Merge collections
+      int det = m_trtId->barrel_ec(signalCollection->identify());
+      mergeCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get(), occupancyMap[det], signalSDOCollection, rndmEngine);
+
+      if (outputContainer->addCollection(outputCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding overlaid Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        outputCollection.release();
+      }
+    } else { // Only write signal out
+      if (outputContainer->addCollection(signalCollection.get(), hashId).isFailure()) {
+        ATH_MSG_ERROR("Adding signal Collection with hashId " << hashId << " failed");
+        return StatusCode::FAILURE;
+      } else {
+        signalCollection.release();
       }
     }
   }
+
+  return StatusCode::SUCCESS;
 }
 
-void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
-                                     TRT_RDO_Collection *signalCollection,
-                                     TRT_RDO_Collection *outputCollection,
-                                     double occupancy,
-                                     const InDetSimDataCollection& SDO_Map,
-                                     CLHEP::HepRandomEngine* rndmEngine)
+
+void TRTOverlay::mergeCollections(TRT_RDO_Collection *bkgCollection,
+                                  TRT_RDO_Collection *signalCollection,
+                                  TRT_RDO_Collection *outputCollection,
+                                  double occupancy,
+                                  const InDetSimDataCollection *signalSDOCollection,
+                                  CLHEP::HepRandomEngine *rndmEngine)
 {
-
   if (bkgCollection->identify() != signalCollection->identify()) {
-    std::ostringstream os;
-    os << "mergeTRTCollections<generic>(): collection Id mismatch";
-    ATH_MSG_FATAL(os.str());
-    throw std::runtime_error(os.str());
+    throw std::runtime_error("mergeCollections(): collection Id mismatch");
   }
 
-  const Identifier idColl = bkgCollection->identify();
-
-  // ----------------------------------------------------------------
-  // debug
-  static bool first_time = true;
-  if (first_time) {
-    first_time = false;
-    ATH_MSG_INFO( "mergeTRTCollections():  code is called ");
-  }
-
-  // ----------------------------------------------------------------
-
-  TRT_RDO_Collection bkg(bkgCollection->identifyHash());
-  bkg.setIdentifier(idColl);
-  bkgCollection->swap(bkg);
-
-  TRT_RDO_Collection sig(signalCollection->identifyHash());
-  sig.setIdentifier(idColl);
-  signalCollection->swap(sig);
-
-  //################################################################
-  // Merge by copying ptrs from background and signal to signalCollection
-
-  unsigned int ibkg = 0;
-  unsigned int isig = 0;
-
-  while( (ibkg < bkg.size()) || (isig < sig.size())) {
-
+  // Merge by copying ptrs from background and signal to output collection
+  TRT_RDO_Collection::size_type ibkg = 0, isig = 0;
+  while ((ibkg < bkgCollection->size()) || (isig < signalCollection->size())) {
     // The RDO that goes to the output at the end of this step.
-    TRT_RDORawData *p_rdo(0);
+    TRT_RDORawData *tmp{};
 
-    if(isig == sig.size()) {
-      // just copy the remaining data inputs
-      bkg.swapElement(ibkg++, 0, p_rdo);
-    }
-    else if(ibkg == bkg.size()) {
-      //just copy the remaining MC digits
-      sig.swapElement(isig++, 0, p_rdo);
-    }
-    else {
+    if (isig == signalCollection->size()) {
+      // just copy the remaining background digits
+      bkgCollection->swapElement(ibkg++, nullptr, tmp);
+    } else if (ibkg == bkgCollection->size()) {
+      // just copy the remaining signal digits
+      signalCollection->swapElement(isig++, nullptr, tmp);
+    } else {
       // Need to decide which one goes first.
       // See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
-      if( sig[isig]->identify() < bkg[ibkg]->identify() ) {
-        sig.swapElement(isig++, 0, p_rdo);
-      }
-      else if(bkg[ibkg]->identify() < sig[isig]->identify()) {
-        bkg.swapElement(ibkg++, 0, p_rdo);
-      }
-      else {
+      if (signalCollection->at(isig)->identify() < bkgCollection->at(ibkg)->identify()) {
+        signalCollection->swapElement(isig++, nullptr, tmp);
+      } else if (bkgCollection->at(ibkg)->identify() < signalCollection->at(isig)->identify()) {
+        bkgCollection->swapElement(ibkg++, nullptr, tmp);
+      } else {
         // The hits are on the same channel.
-        TRT_RDORawData *p2(0);
-        bkg.swapElement(ibkg++, 0, p2);
-        sig.swapElement(isig++, 0, p_rdo);
+        TRT_RDORawData *tmpBkg{};
+        bkgCollection->swapElement(ibkg++, nullptr, tmpBkg);
+        signalCollection->swapElement(isig++, nullptr, tmp);
 
-        TRT_LoLumRawData *pr1 = dynamic_cast<TRT_LoLumRawData*>(p_rdo);
-        const TRT_LoLumRawData *pr2 = dynamic_cast<const TRT_LoLumRawData*>(p2);
+        TRT_LoLumRawData *sigRdo = dynamic_cast<TRT_LoLumRawData *>(tmp);
+        const TRT_LoLumRawData *bkgRdo = dynamic_cast<const TRT_LoLumRawData *>(tmpBkg);
 
-        if(pr1 && pr2) {
+        if (sigRdo && bkgRdo) {
           // the actual merging
-          pr1->merge(*pr2);
+          sigRdo->merge(*bkgRdo);
 
-          //If the hit is not already a high level hit
-          if( !(pr1->getWord() & 0x04020100) ) {
-
-            //Determine if the hit is from an electron or not
+          // If the hit is not already a high level hit
+          if (!(sigRdo->getWord() & 0x04020100)) {
+            // Determine if the hit is from an electron or not
             bool isElectron = false;
-            Identifier rdoId = p_rdo->identify();
-            InDetSimDataCollection::const_iterator sdoIter(SDO_Map.find(rdoId));
-            if( sdoIter != SDO_Map.end() ){
-              const std::vector< InDetSimData::Deposit >& deposits = sdoIter->second.getdeposits();
-              for ( const auto& deposit: deposits ){
-                const auto& particleLink = deposit.first;
-                if( particleLink.isValid() ){
-                  if( abs( particleLink->pdg_id() ) == 11 ){
+            Identifier rdoId = sigRdo->identify();
+            InDetSimDataCollection::const_iterator sdoIter = signalSDOCollection->find(rdoId);
+            if (sdoIter != signalSDOCollection->end()) {
+              const std::vector<InDetSimData::Deposit> &deposits = sdoIter->second.getdeposits();
+              for (const InDetSimData::Deposit &deposit : deposits) {
+                const HepMcParticleLink &particleLink = deposit.first;
+                if (particleLink.isValid()) {
+                  if (std::abs(particleLink->pdg_id()) == 11) {
                     isElectron = true;
+                    break;
                   }
                 }
               }
@@ -343,33 +318,31 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
               }
             }
 
-
-
-            unsigned int newword = 0;
-            //Get random number
-            int det =  m_trtId->barrel_ec( pr1->identify() );
+            // Get random number
+            int det = m_trtId->barrel_ec(rdoId);
             float HTOccupancyCorrection = 0;
-            if(isElectron){
-              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;
+            if (isElectron) {
+              HTOccupancyCorrection = std::abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;
             } else {
-              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE;
+              HTOccupancyCorrection = std::abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE;
             }
 
-            if( isXenonStraw && occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( rndmEngine, 0, 1) )
-              newword += 1 << (26-9);
-            //
-            TRT_LoLumRawData newrdo( pr1->identify(), newword);
-            pr1->merge(newrdo);
+            unsigned int newWord = 0;
+            if (isXenonStraw && occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot(rndmEngine, 0, 1)) {
+              newWord += 1 << (26-9);
+            }
+  
+            TRT_LoLumRawData newRdo(rdoId, newWord);
+            sigRdo->merge(newRdo);
           }
         } else {
           ATH_MSG_WARNING("TRT RDO is the wrong format");
         }
 
-        Overlay::mergeChannelData(*p_rdo, *p2, this);
-        delete p2;
+        delete tmpBkg;
       }
     }
 
-    outputCollection->push_back(p_rdo);
+    outputCollection->push_back(tmp);
   } // <= while
 }

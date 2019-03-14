@@ -80,7 +80,7 @@ public:
     /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
     using ROBDataProviderSvc::addROBData;
     virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN") override;
+			    const std::string_view callerName="UNKNOWN") override;
 
     /// Add a given LVL1 ROBFragment to cache 
     using ROBDataProviderSvc::setNextEvent;
@@ -94,7 +94,7 @@ public:
     using ROBDataProviderSvc::getROBData;
     virtual void getROBData(const std::vector<uint32_t>& robIds, 
 			    std::vector<const ROBF*>& robFragments,
-			    const std::string callerName="UNKNOWN") override;
+			    const std::string_view callerName="UNKNOWN") override;
  
     /// Retrieve the whole event.
     using ROBDataProviderSvc::getEvent;
@@ -123,11 +123,11 @@ public:
 
     /// Collect all data for an event from the ROS and put them into the cache
     /// Return value: number of ROBs which were retrieved to complete the event
-    virtual int collectCompleteEventData(const std::string callerName="UNKNOWN") override;
-    virtual int collectCompleteEventData(const EventContext&, const std::string callerName="UNKNOWN") override;
+    virtual int collectCompleteEventData(const std::string_view callerName="UNKNOWN") override;
+    virtual int collectCompleteEventData(const EventContext&, const std::string_view callerName="UNKNOWN") override;
 
     /// set the name of the program which uses the ROBDataProviderSvc
-    virtual void setCallerName(const std::string) override;
+    virtual void setCallerName(const std::string_view) override;
 
     /// get the name of the program which is presently registered in the ROBDataProviderSvc
     virtual std::string getCallerName() override { return m_callerName; };

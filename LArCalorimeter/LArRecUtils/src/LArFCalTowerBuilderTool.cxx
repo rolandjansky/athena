@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,8 +7,8 @@
 #include "LArFCalTowerStore.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 
@@ -28,11 +28,12 @@ LArFCalTowerBuilderTool::LArFCalTowerBuilderTool(const std::string& name,
 						 const IInterface* parent)
   : CaloTowerBuilderToolBase(name,type,parent)
     , m_minEt(0.)
+    , m_cellIdHelper(nullptr)
+    , m_larFCalId(nullptr)
+    , m_theManager(nullptr)
 {
   // Et cut for minicells
   declareProperty("MinimumEt",m_minEt);
-  m_larFCalId = (CaloIdManager::instance())->getFCAL_ID();
-  // initialize intermediate store
 }
 
 LArFCalTowerBuilderTool::~LArFCalTowerBuilderTool(){
@@ -43,6 +44,11 @@ LArFCalTowerBuilderTool::~LArFCalTowerBuilderTool(){
 /////////////////////////////
 
 StatusCode LArFCalTowerBuilderTool::initializeTool(){
+  ATH_CHECK( detStore()->retrieve (m_cellIdHelper, "CaloCell_ID") );
+  m_larFCalId = m_cellIdHelper->fcal_idHelper();
+
+  ATH_CHECK( detStore()->retrieve (m_theManager, "CaloMgr") );
+
   // ignore other input!
   ATH_MSG_INFO( "CaloTowerBuilder for the FCal initiated"  );
 
@@ -191,7 +197,10 @@ void  LArFCalTowerBuilderTool::handle(const Incident&)
 StatusCode LArFCalTowerBuilderTool::rebuildLookup()
 {
   CaloTowerContainer theTowers (towerSeg());
-  if ( m_cellStore.buildLookUp(&theTowers) ) {
+  if ( m_cellStore.buildLookUp(*m_cellIdHelper,
+                               *m_theManager,
+                               &theTowers) )
+  {
     return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;

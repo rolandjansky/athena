@@ -14,11 +14,17 @@ extern "C" {
 }
 #include <string>
 #include <vector>
+#include <set>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
+
+namespace TrigCompositeUtils{ 
+   typedef unsigned int DecisionID;
+   typedef std::set<DecisionID> DecisionIDContainer;
+}
 
 namespace xAOD {
 
@@ -53,6 +59,11 @@ namespace xAOD {
       const std::string& name() const;
       /// Set a human-readable name for the object
       void setName( const std::string& name );
+
+      /// Get positive HLT chain decisions associated with this TrigComposite. Navigation use
+      const std::vector<TrigCompositeUtils::DecisionID>& decisions() const;
+      /// Set positive HLT chain decisions associated with this TrigComposite. Navigation use
+      void setDecisions( const std::vector<TrigCompositeUtils::DecisionID>& decisions );
 
       /// @}
 
@@ -94,11 +105,11 @@ namespace xAOD {
       template< class OBJECT >
       const OBJECT* object( const std::string& name ) const;
 
-      /// Add a link to a single object within a collection
+      /// Add a link to a single object within a collection. Performs de-duplication
       template< class CONTAINER >
       bool addObjectCollectionLink( const std::string& collectionName,
                                     const ElementLink< CONTAINER >& link );
-      /// Add links to multiple objects within a collection
+      /// Add links to multiple objects within a collection.  Performs de-duplication
       template< class CONTAINER >
       bool addObjectCollectionLinks( const std::string& collectionName,
                                      const ElementLinkVector< CONTAINER >& links );
@@ -175,6 +186,9 @@ namespace xAOD {
       std::vector< uint16_t >& linkColIndicesNC();
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
+
+      // Helper function, check for exact link match
+      bool hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const;
 
       /// Helper function, copy one link into this object
       void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);

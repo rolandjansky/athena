@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::LocalGeometry
@@ -192,7 +192,7 @@ namespace LArG4 {
 
 
       // We can extract our position from the copy number of depth and module
-      G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
+      const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
 
       //  Get local coordinates of the step, independently of how it was positioned  in World
       G4AffineTransform transformation;

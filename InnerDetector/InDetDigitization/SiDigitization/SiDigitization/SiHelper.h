@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************
@@ -24,13 +24,6 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "SiDigitization/SiChargedDiode.h"
 
-namespace {
-  MsgStream& silog() {
-    static MsgStream s_log(Athena::getMessageSvc(), "SiHelper");     
-    return s_log;
-  }
-}
-
 class SiHelper
 {
  public:
@@ -43,9 +36,9 @@ class SiHelper
   static void disconnected(SiChargedDiode& chDiode, bool flag, bool mask=false);
   static void maskOut(SiChargedDiode& chDiode, bool flag);
   static void ClusterUsed(SiChargedDiode& chDiode, bool flag);
-  static void SetBunch(SiChargedDiode& chDiode, int bunch);
-  static void SetStripNum(SiChargedDiode& chDiode, int bunch);
-  static void SetTimeBin(SiChargedDiode& chDiode, int time);
+  static void SetBunch(SiChargedDiode& chDiode, int bunch, MsgStream* log=nullptr);
+  static void SetStripNum(SiChargedDiode& chDiode, int nstrip, MsgStream* log=nullptr);
+  static void SetTimeBin(SiChargedDiode& chDiode, int time, MsgStream* log=nullptr);
 
   static bool isUsable(SiChargedDiode& chDiode);
   static bool isNoise(SiChargedDiode& chDiode);
@@ -133,32 +126,32 @@ inline void SiHelper::ClusterUsed(SiChargedDiode& chDiode, bool flag) {
   }
 }
 
-inline void SiHelper::SetBunch(SiChargedDiode& chDiode, int bunch) {
+inline void SiHelper::SetBunch(SiChargedDiode& chDiode, int bunch, MsgStream* log) {
   //
   // Code the bunch number in the 8 bits set corresponding to xx in xx00 
   //
   if (bunch > 0xff) {
-    silog() << MSG::ERROR << "Bunch Number not allowed" << endmsg;
+    if (log) (*log) << MSG::ERROR << "Bunch Number not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ( (bunch&0xff) <<8 )  ;
 }
 
-inline void SiHelper::SetStripNum(SiChargedDiode& chDiode, int nstrip) {
+inline void SiHelper::SetStripNum(SiChargedDiode& chDiode, int nstrip, MsgStream* log) {
   //
   // Code the number of strips in the 12 bits set corresponding to xxx in 0xxx0000 
   //
   if (nstrip > 0xfff) {
-    silog() << MSG::ERROR << "Number of strips not allowed" << endmsg;
+    if (log) (*log) << MSG::ERROR << "Number of strips not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ((nstrip&0xfff) << 16 ) ;
 }
 
-inline void SiHelper::SetTimeBin(SiChargedDiode& chDiode, int time) {
+inline void SiHelper::SetTimeBin(SiChargedDiode& chDiode, int time, MsgStream* log) {
   //
   // Code the SCT Timebin number in the 3 bits set corresponding to x in x0000000
   //
   if (time > 0xf) {
-    silog() << MSG::ERROR << "TimeBin not allowed" << endmsg;
+    if (log) (*log) << MSG::ERROR << "TimeBin not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ( (time&0xf) <<28 )  ;
 }

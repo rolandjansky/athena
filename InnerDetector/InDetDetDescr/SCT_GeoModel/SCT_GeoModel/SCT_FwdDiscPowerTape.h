@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDDISCPOWERTAPE_H
@@ -13,7 +13,10 @@ class SCT_FwdDiscPowerTape : public SCT_SharedComponentFactory
 {
 
 public:
-  SCT_FwdDiscPowerTape(const std::string & name, int iRing);
+  SCT_FwdDiscPowerTape(const std::string & name, int iRing,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials);
 
   //
   // Methods to return basic and derived parameters. 

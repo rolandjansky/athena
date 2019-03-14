@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "LArROD/LArRawChannelBuilderADC2EConstants.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "Identifier/Identifier.h"
 
 using CLHEP::MeV;
@@ -27,10 +27,11 @@ LArRawChannelBuilderADC2EConstants::LArRawChannelBuilderADC2EConstants(const std
 
 StatusCode LArRawChannelBuilderADC2EConstants::initTool()
 {
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId=idHelper->em_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
+  m_hecId=idHelper->hec_idHelper();
   
   return StatusCode::SUCCESS;
 }

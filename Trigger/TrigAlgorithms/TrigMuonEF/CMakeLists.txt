@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/IRegionSelector
                           Event/EventPrimitives

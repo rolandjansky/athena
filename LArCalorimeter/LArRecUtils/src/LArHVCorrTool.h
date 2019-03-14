@@ -17,7 +17,6 @@
 #include "StoreGate/DataHandle.h"
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
@@ -70,8 +69,7 @@ class LArHVCorrTool: public AthAlgTool,
   const LArHEC_ID*      m_larhec_id;	
   const LArFCAL_ID*     m_larfcal_id;	
   const LArElectrodeID* m_electrodeID;  
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
 
   ToolHandle<LArCablingLegacyService>  m_cablingService;  
   ToolHandle<ILArHVTool> m_hvtool;

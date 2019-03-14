@@ -11,6 +11,8 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
 
 #include "AsgTools/ToolStore.h"
 
@@ -55,7 +57,7 @@ namespace asg
     AnaToolShareList& AnaToolShareList ::
     singleton () noexcept
     {
-      static AnaToolShareList result;
+      static AnaToolShareList result ATLAS_THREAD_SAFE;
       return result;
     }
 
@@ -64,6 +66,7 @@ namespace asg
     std::shared_ptr<AnaToolShare> AnaToolShareList ::
     getShare (const std::string& name) const
     {
+      lock_t lock (m_mutex);
       auto iter = m_shared.find (name);
       if (iter == m_shared.end())
 	return std::shared_ptr<AnaToolShare> ();
@@ -76,6 +79,7 @@ namespace asg
     setShare (const std::string& name,
 	      std::unique_ptr<AnaToolShare> val_share)
     {
+      lock_t lock (m_mutex);
       std::shared_ptr<AnaToolShare> result = getShare (name);
       if (result != nullptr)
 	return result;
@@ -91,6 +95,7 @@ namespace asg
 	       const AnaToolConfig& config,
 	       std::shared_ptr<AnaToolShare>& result)
     {
+      lock_t lock (m_mutex);
       using namespace msgToolHandle;
 
       auto& share = m_shared[name];

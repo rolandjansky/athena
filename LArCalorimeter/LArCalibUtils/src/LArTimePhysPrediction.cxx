@@ -9,7 +9,6 @@
 #include "LArRawConditions/LArWaveHelper.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
@@ -176,7 +175,8 @@ StatusCode LArTimePhysPrediction::stop()
   
   //Calo DDM gives "detector description"
   //including real positions of cells
-  const CaloDetDescrManager* caloDDM = CaloDetDescrManager::instance() ;
+  const CaloDetDescrManager* caloDDM = nullptr;
+  ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
   if ( ! caloDDM->isInitialized() )
     {
       ATH_MSG_ERROR
@@ -184,13 +184,12 @@ StatusCode LArTimePhysPrediction::stop()
       return StatusCode::FAILURE;
     }
     
-  //const CaloCell_ID* m_caloCID = m_caloDDM->getCaloCell_ID();
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
+  const CaloCell_ID* caloCID = caloDDM->getCaloCell_ID();
   
   //Get identifiers
-  const LArEM_ID* emId = caloIdMgr->getEM_ID();
-  const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
-  const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
+  const LArEM_ID* emId = caloCID->em_idHelper();
+  const LArHEC_ID* hecId = caloCID->hec_idHelper();
+  const LArFCAL_ID* fcalId = caloCID->fcal_idHelper();
   
   //------------------------------------------------------------------------------------------------------------------------------
   //--------------Start to loop on the LArCaliWaveContainer------------------------------------------------------------------------

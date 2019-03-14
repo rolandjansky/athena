@@ -18,27 +18,30 @@
 #define LARRAWCHANNELBUILDER
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-
+#include "LArRawEvent/LArDigitContainer.h"
+#include "TBEvent/TBPhase.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 class LArRawChannelBuilder : public AthAlgorithm
 {
 
 public:
   LArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
   //Services & Tools 
@@ -50,8 +53,13 @@ private:
   //LArRawOrdering m_larRawOrdering; 
 
 
-  //Algo-properties 
-  std::string m_DataLocation, m_ChannelContainerName;
+  //Algo-properties
+  SG::ReadHandleKey<LArDigitContainer> m_dataLocation
+    { this, "DataLocation", "FREE", "" };
+  SG::ReadHandleKey<TBPhase> m_tbPhaseLocation
+    { this, "TBPhaseLocation", "TBPhase", "" };
+  SG::WriteHandleKey<LArRawChannelContainer> m_ChannelContainerName
+    { this, "LArRawChannelContainerName", "LArRawChannels", "" };
   bool m_useTDC, m_useOFCTool;
   float m_Ecut;
   int m_initialTimeSampleShift;

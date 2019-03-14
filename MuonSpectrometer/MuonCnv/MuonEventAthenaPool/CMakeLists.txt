@@ -75,7 +75,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONEVENTATHENAPOOL_REFERENCE_TAG
-       MuonEventAthenaPoolReference-01-00-00 )
+       MuonEventAthenaPoolReference-02-00-00 )
   run_tpcnv_test( MuonEventTPCnv_17.0.0   ESD-17.0.0
                    REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2

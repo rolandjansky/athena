@@ -18,12 +18,10 @@ TileTopCalibAlg::TileTopCalibAlg(const std::string& name, ISvcLocator* pSvcLocat
   , m_runNumber(0)
   , m_runType(0)
   , m_fileName("TileCalibNtuple.root")
-  , m_tileCalibToolList()
   , m_rootFile(0)
 {
   declareProperty("RunNumber", m_runNumber=0);
   declareProperty("RunType", m_runType=0);
-  declareProperty("TileCalibTools",m_tileCalibToolList,"List Of Tools");
   declareProperty("FileName",m_fileName="TileCalibNtuple.root");
 }
 

@@ -10,8 +10,6 @@
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
-
 #include <iostream>
 #include <fstream>
 #include "TFile.h"
@@ -79,10 +77,10 @@ StatusCode LArTCMPhysWavePredictor::stop()
   
   larTCMFitterTool->setminuitoutputlevel(m_minuitoutputlevel);
   
-  const LArEM_ID* emId;
    
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  emId = caloIdMgr->getEM_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_ID* emId = idHelper->em_idHelper();
   if (!emId) {
     ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;

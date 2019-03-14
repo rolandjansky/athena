@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 #include "InDetIdentifier/PixelID.h"
 
-const char *PixelRIO_OnTrackErrorScaling::s_names[PixelRIO_OnTrackErrorScaling::kNParamTypes]={
+const char* const PixelRIO_OnTrackErrorScaling::s_names[PixelRIO_OnTrackErrorScaling::kNParamTypes]={
     "PixPhi Barrel",
     "PixEta Barrel",
     "PixPhi Endcap",

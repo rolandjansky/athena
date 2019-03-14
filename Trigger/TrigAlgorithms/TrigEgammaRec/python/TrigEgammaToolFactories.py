@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
-# Copyright @2016 Ryan Mackenzie White <ryan.white@cern.ch>
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 """
@@ -36,9 +36,11 @@ PhotonPidTools()
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
+from egammaTools import egammaToolsConf
 
 from egammaTools.egammaToolsConf import EMPIDBuilder
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularCluster,
         name = "trigegamma_CaloFillRectangularCluster",
         eta_size = 5,
@@ -118,8 +120,14 @@ TrigEMExtrapolationTools=EMExtrapolationTools.copyPublic(name="TrigEMExtrapolati
                                                         useCaching=False)
 
 
+def appendtoTrigEMTrackMatchBuilder(tool):
+    "add track to calo tool "
+    if not hasattr(tool,"EMExtrapolationTools"):
+        tool += EMExtrapolationTools()
+
 TrigEMTrackMatchBuilder = EMTrackMatchBuilder.copyPublic(
     name = "TrigEMTrackMatchBuilder",
+    postInit=[appendtoTrigEMTrackMatchBuilder],
     broadDeltaEta      = 0.2, #For offline 0.1
     broadDeltaPhi      = 0.2, #For offline 0.15
     useScoring         = False, 
@@ -134,9 +142,12 @@ TrigEMShowerBuilder = EMShowerBuilder.copyPublic(
 )
 
 from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+from egammaMVACalib.TrigEgammaMVACalibFactories import TrigElectronMVATool, TrigPhotonMVATool
+
 mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
+
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
 
@@ -163,7 +174,6 @@ def configureClusterBuilder(slwAlg):
             eta_Duplicate = 5,
             phi_Duplicate = 5
             )
-    #mlog.info("TrigCaloClusterMaker adding slw tool %s"%trigslw.getFullName())
     slwAlg += trigslw
     slwAlg.ClusterMakerTools=[ trigslw.getFullName() ]
 
@@ -178,7 +188,6 @@ def configureClusterCorrections(slwAlg):
         if hasattr(slwAlg,clName):
             continue
         for tool in make_CaloSwCorrections (cl,version=EgammaSliceFlags.clusterCorrectionVersion()):
-            #mlog.info("Correction tool %s"%tool.getFullName())
             slwAlg += tool
             slwAlg.ClusterCorrectionTools += [tool.getFullName()]
 

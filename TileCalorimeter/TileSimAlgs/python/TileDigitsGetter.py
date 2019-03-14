@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileDigits creation from TileHit
@@ -64,10 +64,6 @@ class TileDigitsGetter ( Configured )  :
         theTileDigitsMaker.TileInfoName="TileInfo"
 
         theTileDigitsMaker.CalibrationRun=False
-
-        # Random number engine
-        theTileDigitsMaker.RndmSvc=digitizationFlags.rndmSvc()
-        digitizationFlags.rndmSeedList.addSeed("Tile_DigitsMaker", 4789899, 989240512)
 
         # Save integer numbers in digits vector if not pile-up premixing
         theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPremixing() 

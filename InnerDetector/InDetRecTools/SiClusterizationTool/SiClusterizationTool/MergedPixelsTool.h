@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,12 +21,14 @@
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 
 #include "Identifier/Identifier.h"
-#include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
 
 // forward declare not possible (typedef)
 #include "InDetPrepRawData/PixelClusterCollection.h"
+
+#include <atomic>
+#include <vector>
 
 class IIncidentSvc;
 class PixelID;
@@ -173,11 +175,12 @@ namespace InDet {
 	
         std::string                                         m_splitClusterMapName;//No longer used Remove later //!< split cluster ambiguity map
 
-        mutable unsigned int                                m_processedClusters;    //!< statistics output
-        mutable unsigned int                                m_modifiedOrigClusters; //!< statistics output
-        mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
-        mutable unsigned int                                m_splitProdClusters;    //!< statistics output
-        mutable unsigned int                                m_largeClusters;        //!< statistics output
+        mutable std::atomic_uint                            m_processedClusters;    //!< statistics output
+        mutable std::atomic_uint                            m_modifiedOrigClusters; //!< statistics output
+        mutable std::atomic_uint                            m_splitOrigClusters;    //!< statistics output
+        mutable std::atomic_uint                            m_splitProdClusters;    //!< statistics output
+        mutable std::atomic_uint                            m_largeClusters;        //!< statistics output
+        mutable std::atomic_bool                            m_printw;
         std::vector<int>          			    m_minToT;               /**< ToT cut */
         //ServiceHandle< StoreGateSvc >                       m_detStore;
         //const PixelID*                                      m_idHelper;
@@ -186,19 +189,3 @@ namespace InDet {
 }
 
 #endif // SICLUSTERIZATIONTOOL_MERGEDPIXELSALG_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

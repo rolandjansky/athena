@@ -16,8 +16,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "StoreGate/DataHandle.h"
-
 #include "LArElecCalib/ILArDigitOscillationCorrTool.h"
 #include "LArElecCalib/ILArH6Oscillation.h"
 #include "LArElecCalib/ILArRamp.h"

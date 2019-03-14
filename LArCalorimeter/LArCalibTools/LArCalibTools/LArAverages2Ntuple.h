@@ -25,7 +25,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"

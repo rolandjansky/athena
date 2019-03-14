@@ -141,18 +141,16 @@ def set_athena_flags(args):
    jp.ConcurrencyFlags.NumProcs = args.nprocs
 
 def HLTMPPy_cfgdict(args):
-   """
-   Create the configuration dictionary as expected by HLTMPPy as defined in
-   https://gitlab.cern.ch/atlas-tdaq-software/HLTMPPU/blob/master/python/HLTMPPy/runner.py
-   """
+   """Create the configuration dictionary as expected by HLTMPPy as defined in
+   https://gitlab.cern.ch/atlas-tdaq-software/HLTMPPU/blob/master/python/HLTMPPy/runner.py"""
 
    cdict = {}
    cdict['HLTMPPU'] = {
-      'application_name' : 'athenaHLT',
+      'application_name' : 'athenaHLT-%d' % os.getpid(),  # unique name required to avoid interference
       'extra_params' : None,
       'interactive' : args.interactive,
       'log_root' : os.getcwd(),
-      'log_name' : ('' if args.unique_log_files else 'worker'),
+      'log_name' : ('' if args.unique_log_files else 'athenaHLT:'),
       'module' : 'HLTMPPU',
       'num_forks' : args.nprocs,
       'num_threads' : args.threads,

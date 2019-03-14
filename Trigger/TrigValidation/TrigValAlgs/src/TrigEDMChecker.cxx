@@ -99,6 +99,9 @@
 
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 
+#include "AthViews/ViewHelper.h"
+#include "AthViews/View.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -4030,6 +4033,11 @@ StatusCode TrigEDMChecker::dumpTrigComposite() {
     m_dumpTrigCompositeContainers.clear();
     const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
     evtStore()->keys(TrigCompositeCLID, m_dumpTrigCompositeContainers);
+    std::string typeNameTC;
+    ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
+    ATH_MSG_DEBUG("dumpTrigComposite got " <<  m_dumpTrigCompositeContainers.size() << " keys for " << typeNameTC);
+  } else {
+    ATH_MSG_DEBUG("Using supplied " <<  m_dumpTrigCompositeContainers.size() << " keys");
   }
 
   for ( const std::string & key: m_dumpTrigCompositeContainers ) {
@@ -4042,22 +4050,12 @@ StatusCode TrigEDMChecker::dumpTrigComposite() {
     const xAOD::TrigCompositeContainer* cont= nullptr;
     ATH_CHECK( evtStore()->retrieve( cont, key ) );
     
+    size_t count = 0;
     for ( auto tc: *cont ) {
-      ATH_MSG_DEBUG("name: " << tc->name());
-
-      // one gets a bit of info but is not that useful, we need to develop 
-      //SGdebug::print_aux_vars( *tc );
-      //SGdebug::dump_aux_vars( *tc );
-
-      // find the EL and check them
-      ATH_MSG_DEBUG( "Link col names   : " << tc->linkColNames() );
-      ATH_MSG_DEBUG( "Link col keys    : " << tc->linkColKeys() );
-      ATH_MSG_DEBUG( "Link col CLIDs   : " << tc->linkColClids() );
-      ATH_MSG_DEBUG( "Link col indices : " << tc->linkColIndices() );
-
+      ATH_MSG_DEBUG(" ########## ELEMENT " << count++);
+      ATH_MSG_DEBUG(*tc);
       // Get the objects we know of
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) ATH_CHECK(checkTrigCompositeElementLink(tc, i));
-
     }
   }
   ATH_MSG_INFO( "REGTEST ==========END of xAOD::TrigCompositeContainer DUMP===========" );
@@ -4074,24 +4072,31 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
   if (clid == ClassID_traits< TrigRoiDescriptorCollection >::ID()) { 
 
     const ElementLink<TrigRoiDescriptorCollection> elementLink = tc->objectLink<TrigRoiDescriptorCollection>(name);
-    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
-    else ATH_MSG_DEBUG("Got TrigRoiDescriptor:" << *elementLink);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to TrigRoiDescriptorCollection, link name:'" << name << "'");
+    else ATH_MSG_DEBUG("  Dereferenced link '" << name << "'' to TrigRoiDescriptor:" << *elementLink);
 
   } else if (clid == ClassID_traits< DataVector< LVL1::RecEmTauRoI > >::ID()) { // There could be a few ROI types....
     // CLASS_DEF( DataVector< LVL1::RecEmTauRoI >, 6256, 1 )
 
     const ElementLink<DataVector< LVL1::RecEmTauRoI >> elementLink = tc->objectLink<DataVector< LVL1::RecEmTauRoI >>(name);
-    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
-    else ATH_MSG_DEBUG("Got LVL1::RecEmTauRoI:" << *elementLink);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to LVL1::RecEmTauRoI, link name:'" << name << "'");
+    else ATH_MSG_DEBUG("  Dereferenced link '" << name << "' to LVL1::RecEmTauRoI:" << *elementLink);
 
    } else if (clid == ClassID_traits< xAOD::TrigCompositeContainer >::ID()) {
     
     const ElementLink<xAOD::TrigCompositeContainer> elementLink = tc->objectLink<xAOD::TrigCompositeContainer>(name);
-    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
-    else ATH_MSG_DEBUG("Got TrigComposite:" << (*elementLink)->name());
+    if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to TrigComposite, link name:'" << name << "'");
+    else ATH_MSG_DEBUG("  Dereferenced link '" << name << "' to TrigComposite, TC name:'" << (*elementLink)->name() << "'");
+
+   } else if (clid == ClassID_traits< ViewContainer >::ID()) {
+    
+    const ElementLink<ViewContainer> elementLink = tc->objectLink<ViewContainer>(name);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to View, link name:'" << name << "'");
+    else ATH_MSG_DEBUG("  Dereferenced link '" << name << "' to View:'" << *elementLink);
+
 
   } else {
-    ATH_MSG_DEBUG("Ignoring link to '" << name << "' with CLID " << clid);
+    ATH_MSG_DEBUG("  Ignoring link to '" << name << "' with link CLID " << clid);
   }
 
   return StatusCode::SUCCESS;
@@ -4104,11 +4109,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   // This constexpr is evaluated at compile time
   const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
   std::vector<std::string> keys;
-  if ( m_doDumpAll ) {
+  if ( m_doDumpAllTrigComposite ) {
     evtStore()->keys(TrigCompositeCLID, keys);
   }
   else {
-    std::vector<std::string> keys = m_dumpTrigCompositeContainers;
+    keys = m_dumpTrigCompositeContainers;
   }
   std::string typeNameTC;
   ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
@@ -4123,8 +4128,21 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "  node [shape=rectangle]" << std::endl;
   ss << "  rankdir = BT" << std::endl;
 
+  const std::vector<std::string> vetoList = { // Patterns to ignore when dumping all
+    "TrigCostContainer",
+    "L1DecoderSummary"
+    };
+
   // Now process them
-  for (const std::string key : keys) {
+  for (const std::string& key : keys) {
+    bool veto = false;
+    for (const std::string& vetoStr : vetoList) {
+      if (m_doDumpAllTrigComposite && key.find(vetoStr) != std::string::npos) {
+        veto = true;
+        break;
+      }
+    }
+    if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
     size_t index = 0;
     ss << "  subgraph " << key << " {" << std::endl;
@@ -4146,21 +4164,23 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       // Output all the things I link to
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
-        if (link == "seed") {
-          const xAOD::TrigComposite* seed = tc->object<xAOD::TrigComposite>("seed");
-          ss << "    \"" << tc << "\" -> \"" << seed << "\" [label=\"seed\"]" << std::endl; 
+        if (link == "self") {
+          continue; // Ignore the "self" link
+        } else if (link == "seed" || link == "seed__COLL") {
+          const xAOD::TrigComposite* seed = tc->object<xAOD::TrigComposite>(link);
+          ss << "    \"" << tc << "\" -> \"" << seed << "\" [label=\"seed\"]" << std::endl; // Print ptr address
         } else {
           // Start with my class ID
           const CLID linkCLID = static_cast<CLID>( tc->linkColClids().at(i) );
           // Use it to get my class name
           std::string tname;
           ATH_CHECK(m_clidSvc->getTypeNameOfID(linkCLID, tname));
-          // Now ge the sgkey I'm linking to & the index
+          // Now get the sgkey I'm linking to & the index
           const SG::sgkey_t key = static_cast<SG::sgkey_t>( tc->linkColKeys().at(i) );
           const unsigned index = tc->linkColIndices().at(i);
           // Look it up
           CLID checkCLID;
-          const std::string* keyStr = evtStore()->keyToString(key, checkCLID);
+          const std::string* keyStr = evtStore()->keyToString(key, checkCLID); // I don't own this str
           if (keyStr != nullptr && checkCLID != linkCLID) {
             std::string tnameOfCheck;
             m_clidSvc->getTypeNameOfID(checkCLID, tnameOfCheck).ignore(); // Might be invalid. But we don't care.
@@ -4168,7 +4188,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
               << ". We were expecting " << linkCLID << " [" << tname << "]");
           }
           // Print
-          ss << "    \"" << tc << "\" -> \"";
+          ss << "    \"" << tc << "\" -> \""; // Print ptr address
           ss << "Container=" << tname << "\\nKey=";
           if (keyStr != nullptr) ss << *keyStr;
           else ss << "[KEY "<< key <<" NOT IN STORE]"; 

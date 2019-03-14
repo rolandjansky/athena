@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECUTILS_LARFCALTOWERSTORE_H
@@ -31,6 +31,8 @@ PACKAGE:  offline/LArCalorimeter/LArClusterRec
 
 #include <map>
 #include <vector>
+
+class CaloDetDescrManager;
 
 class LArFCalTowerStore
 {
@@ -70,7 +72,9 @@ class LArFCalTowerStore
   unsigned int towerSize(tower_iterator t) const  {return t->size();}
   
   /// \brief setup trigger
-  bool buildLookUp(CaloTowerContainer* theTowers);
+  bool buildLookUp(const CaloCell_ID& cellIdHelper,
+                   const CaloDetDescrManager& theManager,
+                   CaloTowerContainer* theTowers);
 
   /// \brief size of internal data store
   size_t size() const { return m_TTCmatrix.size(); }

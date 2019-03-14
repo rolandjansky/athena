@@ -20,6 +20,7 @@
 #define IDC_MUONOVERLAYCOMMON_H
 
 #include <AthenaBaseComps/AthAlgorithm.h>
+#include <Identifier/IdentifierHash.h>
 
 
 class IDC_MuonOverlayBase : public AthAlgorithm

@@ -35,7 +35,7 @@ namespace asg
     // Get the Athena message service
     IMessageSvc* getMessageSvcAthena()
     {
-      static IMessageSvc* msgSvc
+      static IMessageSvc* const msgSvc
 	= Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc");
       return msgSvc;
     }

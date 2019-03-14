@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_OuterSide.h"
@@ -32,8 +32,11 @@
 
 #include <cmath>
 
-SCT_OuterSide::SCT_OuterSide(const std::string & name) 
-  : SCT_UniqueComponentFactory(name),
+SCT_OuterSide::SCT_OuterSide(const std::string & name,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_hybrid(0),
     m_pigtail(0),
     m_sensor(0)
@@ -59,8 +62,8 @@ SCT_OuterSide::~SCT_OuterSide()
 void
 SCT_OuterSide::getParameters()
 {
-  const SCT_GeneralParameters     * generalParameters = geometryManager()->generalParameters();
-  const SCT_BarrelModuleParameters * parameters = geometryManager()->barrelModuleParameters();
+  const SCT_GeneralParameters     * generalParameters = m_geometryManager->generalParameters();
+  const SCT_BarrelModuleParameters * parameters = m_geometryManager->barrelModuleParameters();
 
   m_safety           = generalParameters->safety();
   m_hybridOffsetZ    = parameters->hybridOffsetZ();
@@ -71,12 +74,10 @@ SCT_OuterSide::getParameters()
 const GeoLogVol * 
 SCT_OuterSide::preBuild()
 {
-  SCT_MaterialManager materials;
-
   // Create child components
-  m_sensor             = new SCT_Sensor("BRLSensor");
-  m_hybrid             = new SCT_Hybrid("Hybrid");
-  m_pigtail            = new SCT_Pigtail("Pigtail");
+  m_sensor             = new SCT_Sensor("BRLSensor", m_detectorManager, m_geometryManager, m_materials);
+  m_hybrid             = new SCT_Hybrid("Hybrid", m_detectorManager, m_geometryManager, m_materials);
+  m_pigtail            = new SCT_Pigtail("Pigtail", m_detectorManager, m_geometryManager, m_materials);
 
   //
   // Define constants for convenience.
@@ -170,7 +171,7 @@ SCT_OuterSide::preBuild()
 
   const GeoLogVol * OuterSideEnvelopeLog = new GeoLogVol("OuterSideEnvelope",
                                                          &OuterSideEnvelopeShape,
-                                                         materials.gasMaterial());
+                                                         m_materials->gasMaterial());
 
   // 28th Mar S.Mima modified.
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (03)*********************************
@@ -186,7 +187,7 @@ SCT_OuterSide::preBuild()
 
 
 GeoVPhysVol * 
-SCT_OuterSide::build(SCT_Identifier id) const
+SCT_OuterSide::build(SCT_Identifier id)
 {
   GeoFullPhysVol * outerSide = new GeoFullPhysVol(m_logVolume);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCELLVOLUMES_H
@@ -31,7 +31,8 @@ class CaloCellVolumes
 public:
 
   // Constructors:
-  CaloCellVolumes(ISvcLocator* svcLocator);
+  CaloCellVolumes(ISvcLocator* svcLocator,
+                  const CaloCell_ID* calocell_id);
   virtual ~CaloCellVolumes();
 
   double CellVolume(Identifier cell_id);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_INDETTRKROIMAKER_H
@@ -51,7 +51,7 @@ class InDetTrkRoiMaker : public HLT::FexAlgo {
   //
   // static data
   //
-  static const char* s_scanModeNames[kNumberOfModes];
+  static constexpr const char* s_scanModeNames[kNumberOfModes]{ "FullScan", "SeededScan", "HybridScan" };
   
   //
   // static functions

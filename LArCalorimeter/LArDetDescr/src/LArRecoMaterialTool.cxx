@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -22,7 +22,6 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 
@@ -46,10 +45,8 @@ LArRecoMaterialTool::LArRecoMaterialTool(const std::string& type,
 StatusCode
 LArRecoMaterialTool::initialize()
 {
-  // Retrieve the Id helpers needed    
-  const CaloIdManager* mgr = CaloIdManager::instance();
-  m_calo_id = mgr->getCaloCell_ID();
-  m_dm_id = mgr->getDM_ID();
+  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
+  ATH_CHECK( detStore()->retrieve (m_dm_id,   "CaloDM_ID") );
   
   // These vectors will contain the results :
   m_alignvol_number.resize(0);

@@ -1,0 +1,11 @@
+// common job opts for athena SG-based unit tests
+
+// $Id: StoreGateTestCommon.txt,v 1.2 2008-05-30 22:53:11 calaf Exp $
+
+ApplicationMgr.ExtSvc += { "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionStore"};
+AuditorSvc.Auditors  += { "AlgContextAuditor"};
+//StoreGateSvc.OutputLevel = 1;
+//StoreGateSvc.ActivateHistory = false;
+CLIDSvc.OutputLevel = 2;
+MessageSvc.useColors        = true;
+//MessageSvc.setVerbose  += { "DataProxy"} ;

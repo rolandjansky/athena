@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXMAINMON_H_
@@ -21,7 +21,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
-#include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
@@ -211,7 +210,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   SG::ReadHandleKey<TrackCollection> m_TracksName;
   SG::ReadHandleKey<InDetTimeCollection> m_PixelBCIDName;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventxAODInfoKey;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
   std::string m_detector_error_name;
   std::string m_histTitleExt;

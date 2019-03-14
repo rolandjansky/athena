@@ -370,6 +370,7 @@ void XMLCoreParser::set_create_entity_reference_nodes ()
  
 XMLCoreNode XMLCoreParser::parse (const std::string& file_name) 
 {
+  m_level = 0;
   std::unique_ptr<CoreParser::DOMNode> doc = ExpatCoreParser::parse (file_name);
   if (XMLCoreParserDebugger::debug ())
   {
@@ -535,3 +536,21 @@ XMLCoreFactory* XMLCoreParser::find_factory (const std::string& name)
   }
   return m_default_factory.get();
 } 
+
+
+void XMLCoreParser::up()
+{
+  m_level += 1;
+}
+
+
+void XMLCoreParser::down()
+{
+  m_level -= 1;
+}
+
+
+int XMLCoreParser::level() const
+{
+  return m_level;
+}

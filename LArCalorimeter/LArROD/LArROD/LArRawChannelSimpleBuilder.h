@@ -14,9 +14,10 @@
 #ifndef LARRAWCHANNELSIMPLEBUILDER
 #define LARRAWCHANNELSIMPLEBUILDER
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
+#include "LArRawEvent/LArDigitContainer.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
@@ -24,19 +25,22 @@
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class LArRawChannelContainer;
 
 
-class LArRawChannelSimpleBuilder : public AthAlgorithm
+class LArRawChannelSimpleBuilder : public AthReentrantAlgorithm
 {
 
 public:
 
   LArRawChannelSimpleBuilder (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+
 
 private:
   //Services & Tools 
@@ -50,7 +54,10 @@ private:
   ToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool;
   
   //Algo-properties
-  std::string m_DataLocation, m_ChannelContainerName;
+  SG::ReadHandleKey<LArDigitContainer> m_DataLocation
+    { this, "DataLocation", "FREE", "" };
+  SG::WriteHandleKey<LArRawChannelContainer> m_ChannelContainerName
+    { this, "LArRawChannelContainerName", "LArRawChannels", "" };
   int m_imaxSamp;
   std::string m_mode;
   std::string m_FCALmodeTime;
@@ -65,12 +72,7 @@ private:
   float m_ADCtoMeVEMECOuter[4];
   float m_ADCtoMeVEMB[4];
   
-  //Private Member functions:
-  void sortChannels(LArRawChannelContainer* container) ;
- 
   unsigned int m_iPedestal;
-  LArRawChannelContainer* m_larRawChannelContainer;
-
 };
 
 #endif

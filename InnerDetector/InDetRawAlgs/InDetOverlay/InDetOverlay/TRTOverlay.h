@@ -5,8 +5,8 @@
 #ifndef INDETOVERLAY_TRTOVERLAY_H
 #define INDETOVERLAY_TRTOVERLAY_H
 
-#include "IDC_OverlayBase/IDC_OverlayBase.h"
-#include "InDetRawData/TRT_RDO_Container.h"
+#include <AthenaBaseComps/AthAlgorithm.h>
+#include <InDetRawData/TRT_RDO_Container.h>
 
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -20,31 +20,28 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-typedef InDetRawDataCollection<TRT_RDORawData> TRT_RDO_Collection;
-
-class TRTOverlay : public IDC_OverlayBase
+class TRTOverlay : public AthAlgorithm
 {
 public:
 
   TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
 private:
 
-  void overlayTRTContainers(const TRT_RDO_Container *bkgContainer,
-                            const TRT_RDO_Container *signalContainer,
-                            TRT_RDO_Container *outputContainer,
-                            std::map<int, double> &occupancyMap,
-                            const InDetSimDataCollection &SDO_Map);
+  StatusCode overlayContainer(const TRT_RDO_Container *bkgContainer,
+                              const TRT_RDO_Container *signalContainer,
+                              TRT_RDO_Container *outputContainer,
+                              const InDetSimDataCollection *signalSDOCollection);
 
-  void mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
-                           TRT_RDO_Collection *signalCollection,
-                           TRT_RDO_Collection *outputCollection,
-                           double occupancy,
-                           const InDetSimDataCollection &SDO_Map,
-                           CLHEP::HepRandomEngine* rndmEngine);
+  void mergeCollections(TRT_RDO_Collection *bkgCollection,
+                        TRT_RDO_Collection *signalCollection,
+                        TRT_RDO_Collection *outputCollection,
+                        double occupancy,
+                        const InDetSimDataCollection *signalSDOCollection,
+                        CLHEP::HepRandomEngine *rndmEngine);
 
   const TRT_ID *m_trtId{};
 

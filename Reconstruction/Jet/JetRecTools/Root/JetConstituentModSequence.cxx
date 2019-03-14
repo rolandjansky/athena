@@ -7,6 +7,7 @@
 // Will later add the intermediate step
 
 #include "JetRecTools/JetConstituentModSequence.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
@@ -19,7 +20,7 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
-	declareProperty("Trigger", m_trigger=false);
+  declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
 }
@@ -72,19 +73,29 @@ StatusCode JetConstituentModSequence::initialize() {
 }
   
 int JetConstituentModSequence::execute() const {
-  if (m_trigger){return 0;}
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
 
   case xAOD::Type::CaloCluster: {
-    auto sc  = copyModRecord(m_inClusterKey, 
-                             m_outClusterKey);
-    if(!sc.isSuccess()){return 1;}
+    if (m_trigger){
+      auto clustersin = dynamic_cast<const xAOD::CaloClusterContainer*>(m_trigInputConstits);
+      if(clustersin==nullptr) {
+	ATH_MSG_ERROR("Failed to cast trigInputConstits to CaloCluster");
+	return(3);
+      }
+      auto sc  = copyModForTrigger<xAOD::CaloClusterContainer,xAOD::CaloClusterAuxContainer,xAOD::CaloCluster>(*clustersin);
+      if(!sc.isSuccess()){return 1;}
+    } else {
+      auto sc  = copyModRecord(m_inClusterKey, 
+			       m_outClusterKey);
+      if(!sc.isSuccess()){return 1;}
+    }
     break; 
   }
   
   case xAOD::Type::ParticleFlow: {
+    if (m_trigger){return 2;}
     auto sc = copyModRecordPFO();
     if(!sc.isSuccess()){return 1;}
     break;

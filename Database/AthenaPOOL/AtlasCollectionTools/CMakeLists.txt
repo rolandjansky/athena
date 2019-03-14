@@ -14,6 +14,9 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/APR/StorageSvc
                           TestPolicy )
 
+# Necessary external(s):
+find_package( cx_Oracle )
+
 # Component(s) in the package:
 atlas_add_library( AtlasCollectionTools
                    src/LumiMetaHandler.cxx

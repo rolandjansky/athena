@@ -182,6 +182,57 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
   m_inContainer.append(&pjc);
 }
 
+void TriggerJetBuildTool::primeGhost(const xAOD::IParticleContainer* inputs, std::string ghostlabel){
+
+  
+  // use the input IParticles to make a PseudoJEtContainer.
+  // This method may be called more than once per event
+  // m_label is a string which gives type information. It is used
+  // to determine the function used to select the incoming IParticles.
+  ATH_MSG_DEBUG("Entering primeGhost(), call " << ++m_nprime);
+
+  constexpr bool isGhost = true;
+  IParticleExtractor* extractor = new IParticleExtractor(inputs,
+                                                         ghostlabel,
+                                                         isGhost,
+                                                         m_isTrigger);
+
+  
+  ATH_MSG_DEBUG("No of ghost IParticle inputs: " << inputs->size());
+
+  for(const auto& ip : *inputs){
+    ATH_MSG_VERBOSE("primeGhost() PseudoJetInputDump" 
+                    << ip->e() 
+                    << " "
+                    << "ghost constituent label"
+                    << " "
+                    << ghostlabel);
+  }
+  
+  std::vector<PseudoJet> vpj = 
+    PseudoJetCreatorFunctions::createGhostPseudoJets(inputs, 
+                                                m_iParticleRejecter
+                                                );
+  
+  ATH_MSG_DEBUG("No of pseudojets: " << vpj.size());
+  for(const auto& pj : vpj){
+    ATH_MSG_VERBOSE("prime() PseudoJetDump. index" << " " << pj.user_index()
+                    << " E " << pj.E() 
+                    << " "
+		    << " label "
+                    << ghostlabel);
+  }
+
+  ATH_MSG_DEBUG("So far this job IParticles"
+                << " tested " << m_iParticleRejecter->tested()
+                << " rejected " << m_iParticleRejecter->rejected());
+                
+                
+
+  PseudoJetContainer pjc(extractor, vpj);
+  m_inContainer.append(&pjc);
+}
+
 
 const PseudoJetContainer*
 TriggerJetBuildTool::getInputPseudoJetContainer() const {

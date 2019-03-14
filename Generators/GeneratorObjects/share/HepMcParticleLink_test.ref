@@ -1,0 +1,31 @@
+[==========] Running 3 tests from 1 test case.
+[----------] Global test environment set-up.
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Tue Feb 19 16:13:51 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+[----------] 3 tests from HepMcParticleLink_test
+[ RUN      ] HepMcParticleLink_test.old_test
+*** HepMcParticleLink_test starts ***
+ClassIDSvc           INFO  getRegistryEntries: read 896 CLIDRegistry entries for module ALL
+Testing HepMcParticleLink streamer Event index 0, Barcode 10005, McEventCollection CollectionNotSet(a) --- Event index 1, Barcode 10005, McEventCollection CollectionNotSet(a)
+HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
+*** HepMcParticleLink_test OK ***
+[       OK ] HepMcParticleLink_test.old_test (63 ms)
+[ RUN      ] HepMcParticleLink_test.broken_event_link
+ClassIDSvc           INFO  getRegistryEntries: read 1024 CLIDRegistry entries for module ALL
+[       OK ] HepMcParticleLink_test.broken_event_link (5 ms)
+[ RUN      ] HepMcParticleLink_test.truth_event_link
+[       OK ] HepMcParticleLink_test.truth_event_link (0 ms)
+[----------] 3 tests from HepMcParticleLink_test (68 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test case ran. (113 ms total)
+[  PASSED  ] 3 tests.

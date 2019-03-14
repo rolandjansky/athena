@@ -62,14 +62,19 @@ int main()
 
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
   ISvcLocator* svcLoc;
-  if (!Athena_test::initGaudi("IOVDbSvc_test.txt", svcLoc))
+  //The following is to ensure I can run the test executable outside ctest
+  const std::string here=__FILE__;
+  const size_t lastSlash=here.find_last_of("/");
+  const std::string dir=here.substr(0,lastSlash+1);
+  const std::string searchPath=dir+"../share/";
+  if (!Athena_test::initGaudi(searchPath+"IOVDbSvc_test.txt", svcLoc))
     return 1;
 
-  unlink ("cooldummy.db");
+  unlink ("mytest.db");
 
   cool::IDatabaseSvc& dbSvc=cool::DatabaseSvcFactory::databaseService();
   cool::IDatabasePtr coolDb =
-    dbSvc.createDatabase("sqlite://;schema=cooldummy.db;dbname=OFLP200");
+    dbSvc.createDatabase("sqlite://;schema=mytest.db;dbname=OFLP200");
   cool::RecordSpecification spec;
   spec.extend ("int", cool::StorageType::Int32);
   cool::FolderSpecification fSpec (cool::FolderVersioning::SINGLE_VERSION,

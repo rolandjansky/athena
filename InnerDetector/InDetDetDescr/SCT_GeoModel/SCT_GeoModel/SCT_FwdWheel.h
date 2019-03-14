@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDWHEEL_H
@@ -27,8 +27,11 @@ class SCT_FwdWheel : public SCT_UniqueComponentFactory
 public:
   SCT_FwdWheel(const std::string & name,
 	       int iWheel,
-	       const std::vector<const SCT_FwdModule *> & modules,
-	       int ec);
+	       const std::vector<SCT_FwdModule *> & modules,
+	       int ec,
+               InDetDD::SCT_DetectorManager* detectorManager,
+               const SCT_GeometryManager* geometryManager,
+               SCT_MaterialManager* materials);
   ~SCT_FwdWheel();
   //Explicitly disallow copy and assignment to appease coverity
   SCT_FwdWheel(const SCT_FwdWheel &) = delete;
@@ -52,7 +55,7 @@ public:
   double outerRadius() const {return m_outerRadius;} 
   int    totalModules() const {return m_totalModules;}
 
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
   
  
 private:
@@ -92,15 +95,15 @@ private:
   double m_safety;
 
   // Child detector elements
-  std::vector<const SCT_FwdRing *>      m_rings;
-  const SCT_FwdDiscSupport *            m_discSupport;
-  std::vector<const SCT_FwdPatchPanel*> m_patchPanel;
-  const SCT_FwdPPConnector*             m_pPConnector;
-  const SCT_FwdPPCooling*               m_pPCooling;
-  std::vector<const SCT_FwdFSI*>        m_fsiType;
-  const SCT_FwdDiscFixation*            m_discFixation;
+  std::vector<SCT_FwdRing *>      m_rings;
+  SCT_FwdDiscSupport *            m_discSupport;
+  std::vector<SCT_FwdPatchPanel*> m_patchPanel;
+  SCT_FwdPPConnector*             m_pPConnector;
+  SCT_FwdPPCooling*               m_pPCooling;
+  std::vector<SCT_FwdFSI*>        m_fsiType;
+  SCT_FwdDiscFixation*            m_discFixation;
 
-  const std::vector<const SCT_FwdModule*> & m_modules;
+  const std::vector<SCT_FwdModule*> & m_modules;
 
 
   const std::vector<const FSIDetails *> * m_fsiVector;

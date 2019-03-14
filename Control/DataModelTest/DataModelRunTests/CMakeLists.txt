@@ -56,16 +56,12 @@ datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite) #i:xaoddata.root o:xaodd
 datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead) #i:xaoddata2.root o:xaoddata2x.root
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
-datamodel_run_test (xAODTestReadRename DEPENDS xaAODTestWrite)
+datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadRenameMT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
-datamodel_run_test (xAODTestReadARA
-                    COMMAND python
-                    ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODTestReadARA_t.py
-                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODRootTestRead
                     COMMAND python
                     ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODRootTestRead_t.py
@@ -144,9 +140,6 @@ datamodel_run_test (CondReadWrite)
 #
 # xAODTestReadFilterRead
 # reads xaoddata_filt.root
-#
-# xAODTestReadARA
-# reads xaoddata.root
 #
 # xAODRootTestRead
 # reads xaoddata.root

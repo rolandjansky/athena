@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArRamps2Ntuple.h"
 #include "LArRawConditions/LArRawRampContainer.h"
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArRampSym.h"
-
-//#include "CaloIdentifier/CaloIdManager.h"
 
 #include <math.h>
 

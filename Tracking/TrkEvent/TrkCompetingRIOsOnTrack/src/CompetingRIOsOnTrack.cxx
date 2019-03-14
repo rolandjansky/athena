@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,11 +26,11 @@ Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack():
 // copy constructor
 Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack(const Trk::CompetingRIOsOnTrack& compROT)
     :
-    Trk::MeasurementBase(compROT),
-    m_indexMaxAssignProb(compROT.m_indexMaxAssignProb),
-    m_assignProb(compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0),
-    m_maxProbCalculated(compROT.m_maxProbCalculated)
+    Trk::MeasurementBase(compROT)
 {
+  m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
+  m_assignProb = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0;
+  m_maxProbCalculated = compROT.m_maxProbCalculated;
 }
 
 // constructor with parameters
@@ -49,7 +49,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
         delete m_assignProb;
 
 	Trk::MeasurementBase::operator=(compROT);
-        m_indexMaxAssignProb = compROT.m_indexMaxAssignProb;
+        m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
         m_assignProb         = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0;
         m_maxProbCalculated  = compROT.m_maxProbCalculated;
     }
@@ -64,7 +64,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRI
       m_assignProb = compROT.m_assignProb;
       compROT.m_assignProb = nullptr;
 
-      m_indexMaxAssignProb = compROT.m_indexMaxAssignProb;
+      m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
       m_maxProbCalculated  = compROT.m_maxProbCalculated;
     }
     return (*this);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -8,6 +8,8 @@
 
 
 #include "SCT_GeoModel/SCT_DetectorFactory.h" 
+
+#include "SCT_GeoModel/SCT_DataBase.h"
 #include "SCT_GeoModel/SCT_Identifier.h"
 #include "SCT_GeoModel/SCT_GeometryManager.h" 
 #include "SCT_GeoModel/SCT_MaterialManager.h"
@@ -70,24 +72,18 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   // Create the detector manager
   m_detectorManager = new SCT_DetectorManager(detStore());
 
-  //
+  // Create the database
+  m_db = new SCT_DataBase{athenaComps};
+
+  // Create the material manager
+  m_materials = new SCT_MaterialManager{m_db};
+
   // Create the geometry manager.
-  //
-  
-  m_geometryManager = new SCT_GeometryManager();
+  m_geometryManager = new SCT_GeometryManager{m_db};
   m_geometryManager->setOptions(options);
-  m_geometryManager->setAthenaComps(athenaComps);
 
   m_useDynamicAlignFolders = options.dynamicAlignFolders();
  
-  // Pass the Athena components the data base access class
-  SCT_DataBase::setAthenaComps(athenaComps);
- 
-  // Create SiCommonItems. These are items that are shared by all elements
-  SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  m_geometryManager->setCommonItems(commonItems);
-  
-
   // Set Version information
   // Get the geometry tag
   DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
@@ -118,12 +114,6 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
                            versionPatchNumber);
   m_detectorManager->setVersion(version);
 
-  // Initailize some static variables in various classes/
-  SCT_ComponentFactory::setDetectorManager(m_detectorManager);
-  SCT_ComponentFactory::setGeometryManager(m_geometryManager);
-
-  SCT_Identifier::setIdHelper(athenaComps->getIdHelper());
- 
 } 
  
  
@@ -131,8 +121,9 @@ SCT_DetectorFactory::~SCT_DetectorFactory()
 { 
   // NB the detector manager (m_detectorManager)is stored in the detector store by the
   // Tool and so we don't delete it.
+  delete m_db;
+  delete m_materials;
   delete m_geometryManager;
-
 } 
 
 void SCT_DetectorFactory::create(GeoPhysVol *world) 
@@ -146,10 +137,6 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
   // The tree tops get added to world. We name it "indet" though.
   GeoPhysVol *indet = world;
-
-  // Set default gas throughout detector.
-  // Air is the default if this is not set.
-  // SCT_MaterialManager::setGasMaterial("std::Air"); 
 
   const SCT_GeneralParameters * sctGeneral = m_geometryManager->generalParameters();
 
@@ -175,9 +162,9 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->numerology().addBarrel(0);
 
     // Create the SCT Barrel
-    SCT_Barrel sctBarrel("SCT_Barrel");
+    SCT_Barrel sctBarrel("SCT_Barrel", m_detectorManager, m_geometryManager, m_materials);
   
-    SCT_Identifier id;
+    SCT_Identifier id{m_geometryManager->athenaComps()->getIdHelper()};
     id.setBarrelEC(0);
     GeoVPhysVol * barrelPV = sctBarrel.build(id);
     GeoAlignableTransform * barrelTransform = new GeoAlignableTransform(sctTransform * sctGeneral->partTransform(barrelLabel));
@@ -206,9 +193,9 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->numerology().addEndcap(2);
 
     // Create the Forward
-    SCT_Forward sctForwardPlus("SCT_ForwardA", +2);
+    SCT_Forward sctForwardPlus("SCT_ForwardA", +2, m_detectorManager, m_geometryManager, m_materials);
     
-    SCT_Identifier idFwdPlus;
+    SCT_Identifier idFwdPlus{m_geometryManager->athenaComps()->getIdHelper()};
     idFwdPlus.setBarrelEC(2);
     GeoVPhysVol * forwardPlusPV = sctForwardPlus.build(idFwdPlus);
     GeoTrf::Transform3D fwdTransformPlus(sctTransform 
@@ -239,9 +226,9 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
     m_detectorManager->numerology().addEndcap(-2);
     
-    SCT_Forward sctForwardMinus("SCT_ForwardC",-2);
+    SCT_Forward sctForwardMinus("SCT_ForwardC", -2, m_detectorManager, m_geometryManager, m_materials);
 
-    SCT_Identifier idFwdMinus;
+    SCT_Identifier idFwdMinus{m_geometryManager->athenaComps()->getIdHelper()};
     idFwdMinus.setBarrelEC(-2);
     GeoVPhysVol * forwardMinusPV = sctForwardMinus.build(idFwdMinus);
 

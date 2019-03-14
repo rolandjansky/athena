@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdWheel.h"
@@ -49,9 +49,12 @@ inline double sqr(double x) {return x*x;}
 
 SCT_FwdWheel::SCT_FwdWheel(const std::string & name,
                            int iWheel,
-                           const std::vector<const SCT_FwdModule *> & modules,
-                           int ec)
-  : SCT_UniqueComponentFactory(name), 
+                           const std::vector<SCT_FwdModule *> & modules,
+                           int ec,
+                           InDetDD::SCT_DetectorManager* detectorManager,
+                           const SCT_GeometryManager* geometryManager,
+                           SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iWheel(iWheel), 
     m_endcap(ec),
     m_pPConnector(0),
@@ -87,8 +90,8 @@ SCT_FwdWheel::~SCT_FwdWheel()
 void
 SCT_FwdWheel::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
-    
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
+   
   m_zPosition = parameters->fwdWheelZPosition(m_iWheel);
   m_numRings  = parameters->fwdWheelNumRings(m_iWheel);
   for (int iRing = 0; iRing < m_numRings; iRing++) {
@@ -134,10 +137,10 @@ SCT_FwdWheel::getParameters()
     }
   }
 
-  m_safety = geometryManager()->generalParameters()->safety();
+  m_safety = m_geometryManager->generalParameters()->safety();
 
   // Set numerology
-  detectorManager()->numerology().setNumRingsForDisk(m_iWheel,m_numRings);  
+  m_detectorManager->numerology().setNumRingsForDisk(m_iWheel,m_numRings);  
 
 }
 
@@ -146,28 +149,39 @@ SCT_FwdWheel::preBuild()
 {
    
   // Create disc support. 
-  m_discSupport = new SCT_FwdDiscSupport("DiscSupport"+intToString(m_iWheel), m_iWheel);
+  m_discSupport = new SCT_FwdDiscSupport("DiscSupport"+intToString(m_iWheel), m_iWheel,
+                                         m_detectorManager, m_geometryManager, m_materials);
 
 
   // The rings
   for (int iRing = 0; iRing < m_numRings; iRing++){
     std::string ringName = "Ring"+intToString(iRing)+"For"+getName();
     int ringType = m_ringType[iRing];
-    m_rings.push_back(new SCT_FwdRing(ringName, m_modules[ringType], m_iWheel, iRing, m_endcap));
+    m_rings.push_back(new SCT_FwdRing(ringName, m_modules[ringType], m_iWheel, iRing, m_endcap,
+                                      m_detectorManager, m_geometryManager, m_materials));
   }
 
 
   // Create Patch Panel
   //m_patchPanel = new SCT_FwdPatchPanel("PatchPanel"+intToString(m_iWheel), m_iWheel);
   for (int iPPType = 0; iPPType < m_numPatchPanelTypes; iPPType++) {
-    m_patchPanel.push_back(new SCT_FwdPatchPanel("PatchPanel"+intToString(iPPType), iPPType));
+    m_patchPanel.push_back(new SCT_FwdPatchPanel("PatchPanel"+intToString(iPPType), iPPType,
+                                                 m_detectorManager, m_geometryManager, m_materials));
   }
 
   // Create Patch Pannel Connector and Cooling, and disc Fixations
-  if(m_pPConnectorPresent) {m_pPConnector = new SCT_FwdPPConnector("PPConnector");}
-  if(m_pPCoolingPresent) {m_pPCooling = new SCT_FwdPPCooling("PPCooling");}
-  if(m_discFixationPresent) {m_discFixation = new SCT_FwdDiscFixation("DiscFixation");}
-
+  if (m_pPConnectorPresent) {
+    m_pPConnector = new SCT_FwdPPConnector("PPConnector", 
+                                           m_detectorManager, m_geometryManager, m_materials);
+  }
+  if (m_pPCoolingPresent) {
+    m_pPCooling = new SCT_FwdPPCooling("PPCooling",
+                                       m_detectorManager, m_geometryManager, m_materials);
+  }
+  if (m_discFixationPresent) {
+    m_discFixation = new SCT_FwdDiscFixation("DiscFixation",
+                                             m_detectorManager, m_geometryManager, m_materials);
+  }
 
   // Calculate total number of modules
   m_totalModules = 0;
@@ -181,7 +195,8 @@ SCT_FwdWheel::preBuild()
   for (unsigned int iFSI = 0; iFSI < m_fsiVector->size(); iFSI++) {
     int type = (*m_fsiVector)[iFSI]->simType();
     if (!m_fsiType[type]) {
-      m_fsiType[type] = new SCT_FwdFSI("FSI"+intToString(type), type);
+      m_fsiType[type] = new SCT_FwdFSI("FSI"+intToString(type), type,
+                                       m_detectorManager, m_geometryManager, m_materials);
     }
   }
 
@@ -245,14 +260,12 @@ SCT_FwdWheel::preBuild()
   // m_thickness  = 100 * Gaudi::Units::mm;
 
   // Make envelope for the wheel
-  SCT_MaterialManager materials;
-
   double envelopeShift = 0.5*(m_thicknessBack - m_thicknessFront);
   const GeoTube * tmpShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
   const GeoShape & fwdWheelEnvelopeShape = *tmpShape <<  GeoTrf::Translate3D(0, 0, envelopeShift);
 
   const GeoLogVol * fwdWheelLog = 
-    new GeoLogVol(getName(), &fwdWheelEnvelopeShape, materials.gasMaterial());
+    new GeoLogVol(getName(), &fwdWheelEnvelopeShape, m_materials->gasMaterial());
 
   
   return fwdWheelLog;
@@ -260,7 +273,7 @@ SCT_FwdWheel::preBuild()
 }
 
 GeoVPhysVol * 
-SCT_FwdWheel::build(SCT_Identifier id) const
+SCT_FwdWheel::build(SCT_Identifier id)
 {
   GeoFullPhysVol * wheel = new GeoFullPhysVol(m_logVolume);
 
@@ -277,7 +290,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
 
   for (int iRing = 0; iRing < m_numRings; iRing++){
    
-    const SCT_FwdRing * ring = m_rings[iRing];
+    SCT_FwdRing * ring = m_rings[iRing];
 
     // Position ring
     double ringZpos = ring->ringSide() * ring->ringOffset(); 
@@ -294,7 +307,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     // Position cooling
     // Get a pointer to the cooling ring.
     SCT_FwdRingCooling cooling("RingCoolingW"+intToString(m_iWheel)+"R"+intToString(iRing),
-                               iRing);
+                               iRing, m_detectorManager, m_geometryManager, m_materials);
     double coolingZpos = ring->ringSide() * (0.5*(m_discSupport->thickness() + cooling.thickness()));
     wheel->add(new GeoTransform(GeoTrf::TranslateZ3D(coolingZpos)));
     wheel->add(cooling.getVolume());
@@ -302,7 +315,8 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     // Power Tapes
     // Get a pointer to the power tape
     SCT_FwdDiscPowerTape powerTape("PowerTapeW"+intToString(m_iWheel)+
-                                   "R"+intToString(iRing), iRing);
+                                   "R"+intToString(iRing), iRing,
+                                   m_detectorManager, m_geometryManager, m_materials);
 
     double powerTapeZpos = ring->ringSide() * (0.5*(m_discSupport->thickness() + powerTape.thickness()) +
                                                cooling.thickness());
@@ -419,7 +433,8 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     std::string optoharnessName = "OptoHarnessO";
     if(m_numRings > 1) {optoharnessName+="M";}
     if(m_numRings > 2) {optoharnessName+="I";}
-    SCT_FwdOptoHarness optoharness(optoharnessName+"W"+intToString(m_iWheel),m_numRings);
+    SCT_FwdOptoHarness optoharness(optoharnessName+"W"+intToString(m_iWheel), m_numRings,
+                                   m_detectorManager, m_geometryManager, m_materials);
     double optoHarnessZpos = 0.5*m_rotateWheel*(m_discSupport->thickness() + optoharness.thickness());
     wheel->add(new GeoTransform(GeoTrf::TranslateZ3D(optoHarnessZpos)));
     wheel->add(optoharness.getVolume());
@@ -488,7 +503,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
 
   
   // Extra Material
-  InDetDD::ExtraMaterial xMat(geometryManager()->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_geometryManager->distortedMatManager());
   xMat.add(wheel, "SCTDisc");
   xMat.add(wheel, "SCTDisc"+intToString(m_iWheel));
   if (m_endcap > 0) {

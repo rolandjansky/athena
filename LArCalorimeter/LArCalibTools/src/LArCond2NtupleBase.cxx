@@ -6,7 +6,6 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
@@ -64,18 +63,17 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   m_detStore= &(*detStore()); //for backward compatiblity 
 
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
+  const CaloCell_ID* idHelper = nullptr;
   if ( m_isSC ){
-  m_emId=caloIdMgr->getEM_SuperCell_ID();
-  m_fcalId=caloIdMgr->getFCAL_SuperCell_ID();
-  m_hecId=caloIdMgr->getHEC_SuperCell_ID();
+    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
   }
-  else{
-  m_emId=caloIdMgr->getEM_ID();
-  m_fcalId=caloIdMgr->getFCAL_ID();
-  m_hecId=caloIdMgr->getHEC_ID();
-  m_caloId=caloIdMgr->getCaloCell_ID();
+  else {
+    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+    ATH_CHECK( detStore()->retrieve (m_caloId, "CaloCell_ID") );
   }
+  m_emId=idHelper->em_idHelper();
+  m_fcalId=idHelper->fcal_idHelper();
+  m_hecId=idHelper->hec_idHelper();
 
   if (!m_emId) {
     msg(MSG::ERROR) << "Could not access lar EM ID helper" << endmsg;
@@ -374,4 +372,11 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  m_isConnected = (long)connected;
 
  return connected;
+}
+
+
+const SG::ReadCondHandleKey<LArOnOffIdMapping>&
+LArCond2NtupleBase::cablingKey() const
+{
+  return m_cablingKey;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -89,7 +89,7 @@ StatusCode LocalNoiseSuppressionTool::initialize() {
   ATH_MSG_INFO( "Noise Tool retrieved"  );
 
   // pointer to detector manager:
-  m_calo_dd_man  = CaloDetDescrManager::instance(); 
+  ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
 

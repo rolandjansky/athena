@@ -12,9 +12,9 @@
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h" // cannot fwd-declare because of covariant method
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include <iosfwd>
-#include <atomic>
 
 class MsgStream;
 
@@ -106,7 +106,7 @@ private:
 
 
     /** The global position */
-    mutable std::atomic<const Amg::Vector3D*> m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained InDet::SCT_ClusterOnTrack objects */
     std::vector<const InDet::SCT_ClusterOnTrack*>*   m_containedChildRots;
@@ -138,10 +138,10 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
 }
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
-    if (m_globalPosition==nullptr) {
-        m_globalPosition = associatedSurface().localToGlobal(localParameters());
+    if (not m_globalPosition) {
+        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
-    return (*m_globalPosition);
+    return *m_globalPosition;
 }
 
 inline unsigned int CompetingSCT_ClustersOnTrack::numberOfContainedROTs() const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_DataBase_H
@@ -18,18 +18,9 @@ class SCT_DataBase
   
 public:
 
-  // Get pointer to singleton instance.
-  static SCT_DataBase * instance();
+  SCT_DataBase(const SCT_GeoModelAthenaComps* athenaComps);
 
-  // Delete instance
-  static void reinit();
-  
-  // Access to athena components
-  static void setAthenaComps(const SCT_GeoModelAthenaComps * athenaComps);
-  const SCT_GeoModelAthenaComps * athenaComps() const;
-
-
-  //const IRDBRecord* atls() const;  
+  const SCT_GeoModelAthenaComps* athenaComps() const;
 
   IRDBRecordset_ptr weightTable() const;
   IRDBRecordset_ptr scalingTable() const;
@@ -103,15 +94,12 @@ public:
 
 private:
   
-  // Singleton - Constructor is private
-  SCT_DataBase();
   SCT_DataBase(const SCT_DataBase &);
   SCT_DataBase& operator= (const SCT_DataBase &);
 
 private:
 
-  static SCT_DataBase * s_instance;
-  static const SCT_GeoModelAthenaComps * s_athenaComps;
+  const SCT_GeoModelAthenaComps* m_athenaComps;
 
   std::string m_sctVersionTag;
 

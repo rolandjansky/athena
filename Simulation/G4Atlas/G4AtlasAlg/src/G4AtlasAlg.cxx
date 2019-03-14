@@ -36,6 +36,7 @@
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IThreadInitTool.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 // call_once mutexes
 #include <mutex>
@@ -312,7 +313,7 @@ StatusCode G4AtlasAlg::execute()
   }
   ATH_MSG_DEBUG("Recorded output GenEvent collection " << outputTruthCollection.name() << " in store " << outputTruthCollection.store());
   G4Event *inputEvent{};
-  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*outputTruthCollection, inputEvent, false) );
+  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*outputTruthCollection, inputEvent, HepMcParticleLink::find_enumFromKey(outputTruthCollection.name())) );
 
   bool abort = false;
   // Worker run manager

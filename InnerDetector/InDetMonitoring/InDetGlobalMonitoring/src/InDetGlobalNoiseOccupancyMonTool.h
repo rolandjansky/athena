@@ -144,7 +144,7 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
   TH2F_LW * m_PIX_TRT_NO;
   
   ///PIX noise occupancy vs event number   
-  TH2F_LW * m_PIX_SCT_TRT_NO;
+  //TH2F_LW * m_PIX_SCT_TRT_NO;
   
   
   

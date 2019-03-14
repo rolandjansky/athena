@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CoolingBlock.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 
-SCT_CoolingBlock::SCT_CoolingBlock(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_CoolingBlock::SCT_CoolingBlock(const std::string & name,
+                                   InDetDD::SCT_DetectorManager* detectorManager,
+                                   const SCT_GeometryManager* geometryManager,
+                                   SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +29,7 @@ SCT_CoolingBlock::SCT_CoolingBlock(const std::string & name)
 void
 SCT_CoolingBlock::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
 
   m_materialName  = parameters->coolingBlockMaterial();
   m_thickness = parameters->coolingBlockThickness();
@@ -42,10 +45,8 @@ SCT_CoolingBlock::build()
   // Width is in phi-direction.
   // Length is in z-direction. 
 
-  SCT_MaterialManager materials;
-
   const GeoBox * coolingBlockShape = new GeoBox(0.5*m_thickness, 0.5*m_width, 0.5*m_length);
-  m_material = materials.getMaterialForVolume(m_materialName, coolingBlockShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, coolingBlockShape->volume());
   const GeoLogVol *coolingBlockLog = 
     new GeoLogVol(getName(), coolingBlockShape, m_material);
   GeoPhysVol * coolingBlock = new GeoPhysVol(coolingBlockLog);

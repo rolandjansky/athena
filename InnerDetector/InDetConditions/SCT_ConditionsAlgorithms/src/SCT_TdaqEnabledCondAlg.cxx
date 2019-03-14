@@ -5,7 +5,6 @@
 #include "SCT_TdaqEnabledCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/SCT_OnlineId.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
@@ -14,6 +13,7 @@
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
+  , m_onlineId{}
 {
 }
 
@@ -94,7 +94,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute(const EventContext& ctx) const
       unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
-      if (SCT_OnlineId::rodIdInRange(rodNumber)) {
+      if (m_onlineId.rodIdInRange(rodNumber)) {
         if ((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
           ATH_MSG_WARNING("Set insertion failed for rod "<<rodNumber);
         }

@@ -11,21 +11,31 @@
 
 namespace Overlay
 {
+  // Specialize mergeChannelData() for the Pixel
+  template <>
+  void mergeChannelData(PixelRDORawData &/* baseDatum */,
+                        const PixelRDORawData &/* additionalDatum */,
+                        IDC_OverlayBase *algorithm)
+  {
+    algorithm->msg(MSG::WARNING) << "Overlay::mergeChannelData<PixelRDORawData>(): "
+      << "Merging of data on the same channel is not implemented for PixelRDORawData" << endmsg;
+  }
+
   // Specialize copyCollection() for the Pixel
   template<>
-  void copyCollection(const InDetRawDataCollection<PixelRDORawData> *input_coll,
-                      InDetRawDataCollection<PixelRDORawData> *copy_coll)
+  std::unique_ptr<PixelRDO_Collection> copyCollection(const IdentifierHash &hashId,
+                                                      const PixelRDO_Collection *collection)
   {
-    copy_coll->setIdentifier(input_coll->identify());
-    InDetRawDataCollection<PixelRDORawData>::const_iterator firstData = input_coll->begin();
-    InDetRawDataCollection<PixelRDORawData>::const_iterator lastData = input_coll->end();	
-    for ( ; firstData != lastData; ++firstData)
-    {	
-      const Identifier ident = (*firstData)->identify();
-      const unsigned int word = (*firstData)->getWord();
-      Pixel1RawData *newData = new Pixel1RawData(ident, word);
-      copy_coll->push_back(newData);
+    auto outputCollection = std::make_unique<PixelRDO_Collection>(hashId);
+    outputCollection->setIdentifier(collection->identify());
+
+    for (const PixelRDORawData *existingDatum : *collection) {
+      // Owned by the collection
+      auto *datumCopy = new Pixel1RawData(existingDatum->identify(), existingDatum->getWord());
+      outputCollection->push_back(datumCopy);
     }
+
+    return outputCollection;
   }
 } // namespace Overlay
 
@@ -86,13 +96,14 @@ StatusCode PixelOverlay::execute()
   // Creating output RDO container
   SG::WriteHandle<PixelRDO_Container> outputContainer(m_outputKey);
   ATH_CHECK(outputContainer.record(std::make_unique<PixelRDO_Container>(signalContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output Pixel RDO container " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG("Recorded output Pixel RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  if (outputContainer.isValid()) {
-    overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
-
-    ATH_MSG_DEBUG("Pixel Result   = " << Overlay::debugPrint(outputContainer.ptr()));
-  }
+  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
+  ATH_MSG_DEBUG("Pixel Result   = " << Overlay::debugPrint(outputContainer.ptr()));
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;

@@ -14,7 +14,6 @@
 #include "LArRecConditions/LArBadChanBitPacking.h"
 
 #include "LArBadChannelTool/LArBadChannelMasker.h"
-#include "LArBadChannelTool/LArBadChanLegacyTool.h"
 
 std::pair<bool,LArBadChannelEnum::ProblemType> dummy1;
 std::pair<HWIdentifier,LArBadFeb> dummy2;

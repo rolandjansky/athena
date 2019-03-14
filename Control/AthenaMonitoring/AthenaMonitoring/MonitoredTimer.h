@@ -30,9 +30,9 @@ namespace Monitored {
     Timer(Timer const&) = delete;
 
     void start();      //<! (re)starts the timer
-    void stop() const; //<! stops the timer
+    void stop();       //<! stops the timer
 
-    operator double() const; //!< duration between start and stop in microseconds
+    operator double() const; //!< duration between start and stop (or current time) in microseconds
 
     const std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
 
@@ -41,7 +41,7 @@ namespace Monitored {
 
     typedef std::chrono::high_resolution_clock clock_type;
     clock_type::time_point m_startTime;
-    mutable clock_type::time_point m_stopTime;
+    clock_type::time_point m_stopTime;
 
     Timer& operator=(Timer const&) = delete;
   };

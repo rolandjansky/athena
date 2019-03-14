@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *  SCT_OnlineId.cxx
@@ -90,7 +90,7 @@ bool SCT_OnlineId::fibreInRange(std::uint32_t f) const{
 }
 
 //
-bool SCT_OnlineId::rodIdInRange(std::uint32_t r) {
+bool SCT_OnlineId::rodIdInRange(std::uint32_t r) const {
   const std::uint32_t lowestRodId(0x210000);
   const std::uint32_t highestRodId=0x24010F;
   return ((r >=lowestRodId) and (r<=highestRodId)) ;

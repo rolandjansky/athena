@@ -645,7 +645,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
               }
               if ((it2 != collection->end()) and !(it2->second.flag() & 0xDE)) {
                 SiHelper::ClusterUsed(it2->second, false);
-                SiHelper::SetStripNum(it2->second, size - cluscounter);
+                SiHelper::SetStripNum(it2->second, size - cluscounter, &msg());
               }
               // groupSize=tmp;
               size_rdo = tmp & 0xFFFF;
@@ -707,7 +707,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
               }
               if (diode and !(diode->flag() & 0xDE)) {
                 SiHelper::ClusterUsed(*diode, false);
-                SiHelper::SetStripNum(*diode, size - cluscounter);
+                SiHelper::SetStripNum(*diode, size - cluscounter, &msg());
               }
               groupSize = tmp;
               break;

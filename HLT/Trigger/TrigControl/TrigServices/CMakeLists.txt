@@ -32,6 +32,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq COMPONENTS omniORB4 omnithread ipc is owl )
 find_package( tdaq-common COMPONENTS CTPfragment eformat eformat_write hltinterface )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigServicesLib

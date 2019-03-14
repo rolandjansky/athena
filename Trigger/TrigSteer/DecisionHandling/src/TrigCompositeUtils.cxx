@@ -10,10 +10,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-
-
-static const SG::AuxElement::Accessor< std::vector< int > >   readWriteAccessor( "decisions" );
-static const SG::AuxElement::ConstAccessor< std::vector<int> > readOnlyAccessor( "decisions" );
+static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
+static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
 
 namespace TrigCompositeUtils {  
 
@@ -36,7 +34,6 @@ namespace TrigCompositeUtils {
   Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name, const EventContext& ctx ) {
     Decision * x = new Decision;
     dc->push_back( x );
-    readWriteAccessor( *x ).size(); // fake operation just to make the decisions decoration
     size_t index = dc->size() - 1;
     // make self link, useful to copy for seed link in a successor, but requires that DecisionContainer is already recorded in SG.
     ElementLink<DecisionContainer> el(*dc, index, ctx);
@@ -51,68 +48,63 @@ namespace TrigCompositeUtils {
   }
 
   Decision* newDecisionIn ( DecisionContainer* dc, const Decision* dOld, const std::string& name, const EventContext& ctx ) {
-    Decision* dNew =  newDecisionIn( dc, name, ctx);
-   if ( dOld->hasObjectLink("roi" ) ){
-     dNew->copyLinkFrom(dOld,"roi");
-   }
-   else if ( dOld->hasObjectLink("initialRoI") ){
-     dNew->copyLinkFrom(dOld,"initialRoI","roi");
-   }
-   if ( dOld->hasObjectLink("view" ) ){
-     dNew->copyLinkFrom(dOld,"view");
-   }
-   if ( dOld->hasObjectLink("feature" ) ){
-     dNew->copyLinkFrom(dOld,"feature");
-   }
-   if ( dOld->hasObjectLink("self" ) ){
-     dNew->copyLinkFrom(dOld,"self","seed"); // make use of self-link 
-   }
-   return dNew;
+    Decision* dNew =  newDecisionIn( dc, name, ctx); // Sets up 'self' link of dNew
+    linkToPrevious(dNew, dOld); // Sets up link to 'seed' collection, points to 'self' link of dOld
+    return dNew;
   }
 
   void addDecisionID( DecisionID id,  Decision* d ) {   
-    std::vector<int>& decisions = readWriteAccessor( *d );
-    if ( decisions.size() == 0 or decisions.back() != static_cast<int>(id) ) 
+    std::vector<DecisionID>& decisions = readWriteAccessor( *d );
+    if ( decisions.size() == 0 or decisions.back() != id) 
       decisions.push_back( id );
   }
   
   void decisionIDs( const Decision* d, DecisionIDContainer& destination ) {    
-    const std::vector<int>& decisions = readOnlyAccessor( *d );    
+    const std::vector<DecisionID>& decisions = readOnlyAccessor( *d );    
     destination.insert( decisions.begin(), decisions.end() );
   }
 
-  const std::vector<int>& decisionIDs( const Decision* d ) {    
+  const std::vector<DecisionID>& decisionIDs( const Decision* d ) {    
     return readOnlyAccessor( *d );    
   }
 
-  std::vector<int>& decisionIDs( Decision* d ) {
+  std::vector<DecisionID>& decisionIDs( Decision* d ) {
     return readWriteAccessor( *d );
   }
 
-  void insertDecisionIDs( const Decision* src, Decision* dest ){
-    DecisionIDContainer ids;
-    decisionIDs( src, ids );
-    decisionIDs( dest, ids );
-    decisionIDs( dest ).clear(); 
-    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  void insertDecisionIDs(const Decision* src, Decision* dest ){
+    DecisionIDContainer srcIds;
+    decisionIDs( src, srcIds ); // Now stored in a set
+    insertDecisionIDs( srcIds, dest);
   }
 
-  void uniqueDecisionIDs( Decision* dest){
-    DecisionIDContainer ids;
-    decisionIDs( dest, ids );
-    decisionIDs( dest ).clear(); 
-    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  void insertDecisionIDs( const DecisionIDContainer& src, Decision* dest ) {
+    DecisionIDContainer collateIDs;
+    // Decision are xAOD objects backed by a std::vector
+    // Here we use a std::set to de-duplicate IDs from src and dest before setting dest
+    decisionIDs( dest, collateIDs ); // Set operation 1. Get from dest
+    collateIDs.insert( src.begin(), src.end() ); // Set operation 2. Get from src
+    decisionIDs( dest ).clear(); // Clear target
+    // Copy from set to (ordered) vector
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), src.begin(), src.end() );
+  }
+
+  void uniqueDecisionIDs(Decision* dest) {
+    // Re-use above insertDecisionIDs method.
+    // This implicitly performs de-duplication
+    return insertDecisionIDs(dest, dest);
   }
 
   bool allFailed( const Decision* d ) {
-    const std::vector<int>& decisions = readOnlyAccessor( *d );    
+    const std::vector<DecisionID>& decisions = readOnlyAccessor( *d );    
     return decisions.empty();
   }
 
   bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required ) {
-    for ( auto id : readOnlyAccessor( *d ) ) {
-      if ( required.count( id ) > 0 )
-	return true;
+    for ( DecisionID id : readOnlyAccessor( *d ) ) {
+      if ( required.count( id ) > 0 ) {
+        return true;
+      }
     }
     return false;
   }    
@@ -122,29 +114,29 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
-    ElementLinkVector<DecisionContainer> seeds;
-    ElementLink<DecisionContainer> new_seed= ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
-    // do we need this link to self link?
-    if ( (*new_seed)->hasObjectLink("self" ) )
-      seeds.push_back( (*new_seed)->objectLink<DecisionContainer>("self")); // make use of self-link 
-    else
-      seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
-    
-    if (hasLinkToPrevious(d) ){
-      ElementLinkVector<DecisionContainer> oldseeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
-      seeds.reserve( seeds.size() + oldseeds.size() );
-      std::move( oldseeds.begin(), oldseeds.end(), std::back_inserter( seeds ) );
+    ElementLink<DecisionContainer> seed = ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
+    if (!seed.isValid()) {
+      throw GaudiException("Invalid Decision Link key or index provided", "TrigCompositeUtils::linkToPrevious", StatusCode::FAILURE);
+    } else {
+      d->addObjectCollectionLink("seed", seed);
     }
+  }
 
-    d->addObjectCollectionLinks("seed", seeds);
-    
+  void linkToPrevious( Decision* d, const Decision* dOld) {
+    if ( dOld && dOld->hasObjectLink("self") ) {
+      // Internally de-dupes the "seed" collection of links
+      d->addObjectCollectionLink("seed", dOld->objectLink<DecisionContainer>("self"));  
+    } else {
+      throw GaudiException("Using linkToPrevious with a previous decision requires that decision to have its 'self' link set",
+        "TrigCompositeUtils::linkToPrevious", StatusCode::FAILURE);
+    }    
   }
 
   bool hasLinkToPrevious( const Decision* d ) {
-    return d->hasObjectLink( "seed" );
+    return d->hasObjectCollectionLinks( "seed" );
   }
 
-  ElementLinkVector <DecisionContainer> getLinkToPrevious( const Decision* d ) {
+  const ElementLinkVector<DecisionContainer> getLinkToPrevious( const Decision* d ) {
     return d->objectCollectionLinks<DecisionContainer>( "seed" );
   }
 
@@ -155,23 +147,35 @@ namespace TrigCompositeUtils {
 
  
   
-  const xAOD::TrigComposite* find( const xAOD::TrigComposite* start, const std::function<bool( const xAOD::TrigComposite* )>& filter ) {
+  const Decision* find( const Decision* start, const std::function<bool( const Decision* )>& filter ) {
     if ( filter( start ) ) return start;
 
-    if ( start->hasObjectLink( "seed" ) ) {
-      return find( start->object<xAOD::TrigComposite>( "seed" ), filter );
+    if ( hasLinkToPrevious(start) ) {
+      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+        const Decision* result = find( *seedEL, filter );
+        if (result) return result;
+      }
     }
-    else return nullptr;
+    
+    return nullptr;
   }
 
-  bool HasObject::operator()( const xAOD::TrigComposite* composite ) const {
+  bool HasObject::operator()( const Decision* composite ) const {
     return composite->hasObjectLink( m_name );
   }
 
-  bool recursiveGetObjectLinks( const xAOD::TrigComposite* start, ElementLinkVector<xAOD::TrigCompositeContainer>& linkVector ){
+  bool HasObjectCollection::operator()( const Decision* composite ) const {
+    return composite->hasObjectCollectionLinks( m_name );
+  }
+
+  bool recursiveGetObjectLinks( const Decision* start, ElementLinkVector<DecisionContainer>& linkVector ){
     //recursively find in the seeds
-    if ( start->hasObjectLink( "seed" ) ) {
-      return recursiveGetObjectLinks( start->object<xAOD::TrigComposite>( "seed" ), linkVector );
+    if ( hasLinkToPrevious(start) ) {
+      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+        recursiveGetObjectLinks( *seedEL, linkVector );
+      }
     }
 
     int isComposite=0;
@@ -183,7 +187,7 @@ namespace TrigCompositeUtils {
 
     // ElementLink<xAOD::TrigComposite> test;
     // test = start->objectLink( "childProxies" );
-    ElementLinkVector<xAOD::TrigCompositeContainer> links = start->objectCollectionLinks<xAOD::TrigCompositeContainer>( "childProxies" );
+    ElementLinkVector<DecisionContainer> links = start->objectCollectionLinks<DecisionContainer>( "childProxies" );
 
     linkVector.reserve( linkVector.size() + links.size() );
     std::move( links.begin(), links.end(), std::back_inserter( linkVector ) );
@@ -191,13 +195,13 @@ namespace TrigCompositeUtils {
     return true;
   }
 
-  std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc ) {
+  std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );
-    if ( tc->hasObjectLink("seed") ) {
-      const xAOD::TrigComposite* seedTc = tc->object<xAOD::TrigComposite>( "seed" );
-      if ( seedTc ) {
-	ret += " -> " + dump( seedTc, printerFnc );
+    if ( hasLinkToPrevious(tc) ) {
+      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+        ret += " -> " + dump( *seedEL, printerFnc );
       }
     }
     return ret;

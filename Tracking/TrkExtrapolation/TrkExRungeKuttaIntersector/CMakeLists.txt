@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
+                          Control/CxxUtils
                           AtlasTest/TestTools
                           Tracking/TrkDetDescr/TrkDetDescrUtils
                           Tracking/TrkDetDescr/TrkGeometry
@@ -23,6 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT )
+
 
 # Component(s) in the package:
 atlas_add_component( TrkExRungeKuttaIntersector
@@ -38,7 +41,8 @@ atlas_install_headers( TrkExRungeKuttaIntersector )
 
 atlas_add_test( RungeKuttaIntersector_test
                 SOURCES test/RungeKuttaIntersector_test.cxx
-                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES}
                 EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

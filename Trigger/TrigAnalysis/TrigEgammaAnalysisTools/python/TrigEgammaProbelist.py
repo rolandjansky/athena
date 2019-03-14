@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # this file contains the useful lists of triggers for quick configuration
 # and a default monitoring configuration
@@ -513,7 +513,6 @@ monitoringTP_electron_extra =[
   'HLT_e28_lhtight_nod0_ringer_iloose',
   'HLT_e28_lhtight_nod0_ringer_ivarloose',
 ]
-
 
 
 ### Make supproting trigger list for the emulation e/g tool

@@ -1,12 +1,8 @@
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
-
-
-
-
 
 #include "TestTools/expect.h"
 #include "TestTools/initGaudi.h"
@@ -20,7 +16,6 @@
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
-//#include "AthContainers/AuxTypeRegistry.h"
 
 #include "../src/TriggerEDMSerialiserTool.h"
 #include "../src/TriggerEDMDeserialiserAlg.h"
@@ -29,16 +24,13 @@
 void testTrigEMContiner(  const EventContext &ctx );
 void testTrigCompositeContiner(  const EventContext &ctx );
 
-void testTrigEMContinerInsert();
-void testTrigCompositeContinerInsert();
+void testTrigEMContinerInsert(StoreGateSvc*);
+void testTrigCompositeContinerInsert(StoreGateSvc*);
+
+void testTrigEMContinerReadAndCheck(StoreGateSvc*);
+void testTrigCompositeContinerReadAndCheck(StoreGateSvc*);
 
 
-void testTrigEMContinerReadAndCheck();
-void testTrigCompositeContinerReadAndCheck();
-
-
-
-StoreGateSvc* pStore = nullptr;
 int main() {
   using namespace std;
   ISvcLocator* pSvcLoc;
@@ -49,7 +41,7 @@ int main() {
   assert(pSvcLoc);
   MsgStream log(Athena::getMessageSvc(), "serial_deserial_test");
   
-
+  StoreGateSvc* pStore = nullptr;
   VALUE( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) EXPECTED ( true );
 
   IToolSvc * toolSvc = nullptr;
@@ -84,8 +76,8 @@ int main() {
   
 
   for ( int rep = 0; rep < 50 ; ++ rep ) {
-    testTrigEMContinerInsert();
-    testTrigCompositeContinerInsert();
+    testTrigEMContinerInsert(pStore);
+    testTrigCompositeContinerInsert(pStore);
 
     auto hltres = new HLT::HLTResultMT();
     VALUE( ser->fill( *hltres ) ) EXPECTED ( StatusCode::SUCCESS );  
@@ -97,8 +89,8 @@ int main() {
     VALUE( runAlg( deser ) ) EXPECTED ( StatusCode::SUCCESS );
     VALUE( runAlg( deser2 ) ) EXPECTED ( StatusCode::SUCCESS );
     
-    testTrigEMContinerReadAndCheck();
-    testTrigCompositeContinerReadAndCheck();
+    testTrigEMContinerReadAndCheck(pStore);
+    testTrigCompositeContinerReadAndCheck(pStore);
     
     // see if we do nto have owneship issues
     pStore->clearStore();  
@@ -110,7 +102,7 @@ int main() {
 }
 
 
-void testTrigEMContinerInsert() {
+void testTrigEMContinerInsert(StoreGateSvc* pStore) {
   
   // place test data
   auto em = new xAOD::TrigEMClusterContainer();
@@ -160,10 +152,9 @@ void testTrigEMContinerInsert() {
   
   VALUE( pStore->record( em, "EMClusters" ) ) EXPECTED ( StatusCode::SUCCESS );
   VALUE( pStore->record( emAux, "EMClustersAux." ) ) EXPECTED ( StatusCode::SUCCESS );
-  
 }
 
-void testTrigEMContinerReadAndCheck() {
+void testTrigEMContinerReadAndCheck(StoreGateSvc* pStore) {
 
   const xAOD::TrigEMClusterContainer *emback = nullptr;
   VALUE( pStore->retrieve( emback, "DESERIALISED_EMClusters") ) EXPECTED ( StatusCode::SUCCESS );
@@ -195,7 +186,7 @@ void testTrigEMContinerReadAndCheck() {
   std::cout << std::endl;
 }
 
-void testTrigCompositeContinerInsert() {
+void testTrigCompositeContinerInsert(StoreGateSvc* pStore) {
 
   auto m = new xAOD::TrigCompositeContainer();
   auto mAux = new xAOD::TrigCompositeAuxContainer();
@@ -211,12 +202,9 @@ void testTrigCompositeContinerInsert() {
   
   VALUE( pStore->record( m, "EMClustersDecisions" ) ) EXPECTED ( StatusCode::SUCCESS );
   VALUE( pStore->record( mAux, "EMClustersDecisionsAux." ) ) EXPECTED ( StatusCode::SUCCESS );
-
-  
-  
 }
 
-void testTrigCompositeContinerReadAndCheck() {
+void testTrigCompositeContinerReadAndCheck(StoreGateSvc* pStore) {
 
   const xAOD::TrigCompositeContainer *decisions = nullptr;
   VALUE( pStore->retrieve( decisions, "DESERIALISED_EMClustersDecisions") ) EXPECTED ( StatusCode::SUCCESS );
@@ -228,9 +216,4 @@ void testTrigCompositeContinerReadAndCheck() {
   VALUE( decisions->at(1)->getDetail<float>("detail1") ) EXPECTED( 1.7 );
   VALUE( decisions->at(0)->getDetail<int>("detail2") ) EXPECTED( 5 );
   VALUE( decisions->at(1)->getDetail<int>("detail2") ) EXPECTED( 7 );
-
-
-
-  
-  
 }

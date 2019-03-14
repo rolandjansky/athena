@@ -28,9 +28,6 @@
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 
-#define N_FIXED_PHASES 100
-#define PHASE_STEP 0.5
-
 class IIOVRegistrationSvc;
 
 class TileOFC2DBAlg: public AthAlgorithm {
@@ -63,8 +60,10 @@ class TileOFC2DBAlg: public AthAlgorithm {
 
     //=== non-property members
     IIOVRegistrationSvc* m_regSvc;
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+      "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc{this,
+      "TileCondToolOfc", "TileCondToolOfc", "Tile OFC tool"};
 
     //=== store all folders to be registered
     std::set<std::string> m_folders;

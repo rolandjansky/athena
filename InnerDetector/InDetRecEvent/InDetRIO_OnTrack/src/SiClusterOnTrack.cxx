@@ -6,13 +6,14 @@
 // SiClusterOnTrack.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "GaudiKernel/MsgStream.h"
+#include <memory>
+#include <new>
 #include <ostream>
 #include <typeinfo>
 
@@ -25,7 +26,7 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const Trk::LocalParameters& locpars,
                                            bool isbroad) : 
   RIO_OnTrack(locpars, locerr, id), //call base class constructor
   m_idDE(idDE),
-  m_globalPosition(0),
+  m_globalPosition{},
   m_isbroad(isbroad)
 {}
 
@@ -39,7 +40,7 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const Trk::LocalParameters& locpars,
     : 
     RIO_OnTrack(locpars, locerr, id), //call base class constructor
     m_idDE(idDE),
-    m_globalPosition( new Amg::Vector3D(globalPosition) ),
+    m_globalPosition(std::make_unique<Amg::Vector3D>(globalPosition)),
     m_isbroad(isbroad)
 {}
 
@@ -47,14 +48,13 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const Trk::LocalParameters& locpars,
 // Destructor:
 InDet::SiClusterOnTrack::~SiClusterOnTrack()
 { 
-  delete m_globalPosition;
 }
 
 // Default constructor:
 InDet::SiClusterOnTrack::SiClusterOnTrack():
     Trk::RIO_OnTrack(),
     m_idDE(),
-    m_globalPosition(),
+    m_globalPosition{},
     m_isbroad(false)
 {}
 
@@ -63,17 +63,23 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const SiClusterOnTrack& rot)
     :
     RIO_OnTrack(rot),
     m_idDE(rot.m_idDE),
-    m_globalPosition(rot.m_globalPosition ? new  Amg::Vector3D(*rot.m_globalPosition) : 0),
+    m_globalPosition{},
     m_isbroad(rot.m_isbroad)
-{}
+{
+  if (rot.m_globalPosition) {
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+  }
+}
 
 // assignment operator:
 InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTrack& rot){
     if ( &rot != this) {
-       delete m_globalPosition;
-         Trk::RIO_OnTrack::operator=(rot);
+       delete m_globalPosition.release().get();
+       Trk::RIO_OnTrack::operator=(rot);
        m_idDE           = rot.m_idDE;
-       m_globalPosition = rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0;
+       if (rot.m_globalPosition) {
+         m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+       }
        m_isbroad        = rot.m_isbroad;
     }
     return *this;
@@ -84,8 +90,10 @@ InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTr
 
 const Amg::Vector3D& InDet::SiClusterOnTrack::globalPosition() const
 { 
-   if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
-   return (*m_globalPosition);
+  if (not m_globalPosition) {
+    m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
+  }
+  return (*m_globalPosition);
 }
 
 MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
@@ -96,7 +104,7 @@ MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
 
     sl << "Global position (x,y,z) = (";
     this->globalPosition();
-    if ( m_globalPosition !=0 )
+    if (m_globalPosition)
     {
        sl  <<this->globalPosition().x()<<", "
                <<this->globalPosition().y()<<", "
@@ -116,7 +124,7 @@ std::ostream& InDet::SiClusterOnTrack::dump( std::ostream& sl ) const
 
     sl << "Global position (x,y,z) = (";
     this->globalPosition();
-    if ( m_globalPosition !=0 )
+    if (m_globalPosition)
     {
         sl  <<this->globalPosition().x()<<", "
             <<this->globalPosition().y()<<", "

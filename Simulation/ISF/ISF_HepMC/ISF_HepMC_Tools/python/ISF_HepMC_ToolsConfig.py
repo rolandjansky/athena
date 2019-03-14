@@ -91,9 +91,9 @@ def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **k
     from G4AtlasApps.SimFlags import simFlags
     simdict = simFlags.specialConfiguration.get_Value()
     if simdict is not None and "InteractingPDGCodes" in simdict:
-        kwargs.setdefault('AdditionalInteractingParticleTypes', simdict["InteractingPDGCodes"])
+        kwargs.setdefault('AdditionalInteractingParticleTypes', eval(simdict["InteractingPDGCodes"]))
     if simdict is not None and "NonInteractingPDGCodes" in simdict:
-        kwargs.setdefault('AdditionalNonInteractingParticleTypes', simdict["InteractingNonPDGCodes"])
+        kwargs.setdefault('AdditionalNonInteractingParticleTypes', eval(simdict["InteractingNonPDGCodes"]))
     return CfgMgr.ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):

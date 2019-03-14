@@ -106,7 +106,8 @@ class TestTestBeam(unittest.TestCase):
     def test___ParticleGun_is_before_CopyEventWeight_in_AthAlgSeq(self):
         ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
         actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[1] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "PyAthena::Alg/ParticleGun"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
@@ -116,7 +117,8 @@ class TestTestBeam(unittest.TestCase):
     def test___CopyEventWeight_is_before_BeamEffectsAlg_in_AthAlgSeq(self):
         ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
         actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[2] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "CopyEventWeight/CopyEventWeight"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
@@ -126,7 +128,8 @@ class TestTestBeam(unittest.TestCase):
     def test___BeamEffectsAlg_is_before_G4AtlasAlg_in_AthAlgSeq(self):
         ath_alg_sequence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
-        ath_alg_sequence_list = eval(ath_alg_sequence_as_str)
+        ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
+        ath_alg_sequence_list = [ alg for alg in eval(ath_alg_sequence_as_str) if alg not in ignore_Algs ]
         actual_last_ath_alg_sequence_entry = ath_alg_sequence_list[3] # xAODMaker::EventInfoCnvAlg/xAODMaker::EventInfoCnvAlg is in position 0 in master now
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,

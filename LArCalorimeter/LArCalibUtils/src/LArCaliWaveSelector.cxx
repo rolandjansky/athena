@@ -9,7 +9,6 @@
 
 #include "AthenaKernel/errorcheck.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -47,11 +46,7 @@ StatusCode LArCaliWaveSelector::initialize()
   if (!m_keyList.size()) { m_keyList.push_back("LArCaliWave"); }
   parseSelection();
 
-  // retrieve CaloMgr
-  const CaloIdManager* caloMgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(caloMgr) );
-
-  m_cellID = caloMgr->getCaloCell_ID();
+  ATH_CHECK( detStore()->retrieve (m_cellID, "CaloCell_ID") );
   if (!m_cellID) {
     ATH_MSG_ERROR ( "Could not access CaloCell_ID helper" );
     return StatusCode::FAILURE;
