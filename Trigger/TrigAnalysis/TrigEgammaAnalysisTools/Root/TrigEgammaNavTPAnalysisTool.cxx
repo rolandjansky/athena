@@ -43,7 +43,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     //Set the base directory from the plot()
     m_dir=plot()->getBasePath();
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    //TrigEgammaAnalysisBaseTool::write_trigger_list(chains);
 
     for(const auto trigName:m_trigInputList){ 
         if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){ 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMAPHYSVALBASE_H
@@ -270,50 +270,6 @@ class TrigEgammaPhysValBase
     bool                m_mc_hasZMother{};
     bool                m_mc_hasWMother{};
 
-    /* 
-     
-    uint8_t             m_el_nblayerhits;
-    uint8_t             m_el_nblayerolhits;
-    uint8_t             m_el_npixhits;
-    uint8_t             m_el_npixolhits;
-    uint8_t             m_el_nscthits;
-    uint8_t             m_el_nsctolhits;
-    uint8_t             m_el_ntrthightreshits;
-    uint8_t             m_el_ntrthits;
-    uint8_t             m_el_ntrthighthresolhits;
-    uint8_t             m_el_ntrtolhits;
-    uint8_t             m_el_ntrtxenonhits;
-    uint8_t             m_el_expectblayerhit;
-    uint8_t             m_el_nsihits         ;
-    uint8_t             m_el_nsideadsensors  ;
-    uint8_t             m_el_npixdeadsensors ;
-    uint8_t             m_el_nsctdeadsensors ;
-    uint8_t             m_el_expectNextToInnerMostLayer;
-    uint8_t             m_el_nNextToInnerMostLayerHits;
-    uint8_t             m_el_nNextToInnerMostLayerOutliers;
-    
-    std::vector<float>               *m_trig_EF_el_charge;
-    std::vector<uint8_t>             *m_trig_EF_el_nblayerhits;
-    std::vector<uint8_t>             *m_trig_EF_el_nblayerolhits;
-    std::vector<uint8_t>             *m_trig_EF_el_npixhits;
-    std::vector<uint8_t>             *m_trig_EF_el_npixolhits;
-    std::vector<uint8_t>             *m_trig_EF_el_nscthits;
-    std::vector<uint8_t>             *m_trig_EF_el_nsctolhits;
-    std::vector<uint8_t>             *m_trig_EF_el_ntrthightreshits;
-    std::vector<uint8_t>             *m_trig_EF_el_ntrthits;
-    std::vector<uint8_t>             *m_trig_EF_el_ntrthighthresolhits;
-    std::vector<uint8_t>             *m_trig_EF_el_ntrtolhits;
-    std::vector<uint8_t>             *m_trig_EF_el_ntrtxenonhits;
-    std::vector<uint8_t>             *m_trig_EF_el_expectblayerhit;
-    std::vector<uint8_t>             *m_trig_EF_el_transformed_expectblayerhit;
-    std::vector<uint8_t>             *m_trig_EF_el_nsihits         ;
-    std::vector<uint8_t>             *m_trig_EF_el_nsideadsensors  ;
-    std::vector<uint8_t>             *m_trig_EF_el_npixdeadsensors ;
-    std::vector<uint8_t>             *m_trig_EF_el_nsctdeadsensors ;
-    std::vector<uint8_t>             *m_trig_EF_el_expectNextToInnerMostLayer;
-    std::vector<uint8_t>             *m_trig_EF_el_nNextToInnerMostLayerHits;
-    std::vector<uint8_t>             *m_trig_EF_el_nNextToInnerMostLayerOutliers;
-    */
 };
 
 

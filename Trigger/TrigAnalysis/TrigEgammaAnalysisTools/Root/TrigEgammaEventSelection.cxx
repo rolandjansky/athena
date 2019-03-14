@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /**********************************************************************
  * AsgTool: TrigEgammaEventSelection
@@ -184,9 +184,6 @@ StatusCode TrigEgammaEventSelection::childBook(){
     m_doCaloRings=true;
   }
 
-  // This will needed to emulate objects without all features attached
-  //if(emulation())
-  //  emulation()->ExperimentalAndExpertMethods();
 
   ///Alloc pointers
   alloc_space();
@@ -214,9 +211,6 @@ StatusCode TrigEgammaEventSelection::childExecute(){
   if(m_selectionFakes)
     EventSelectionFakes();
 
-  //if(m_selectionMC)
-  //  EventSelectionMC();
-  
 
   return StatusCode::SUCCESS;
 }
@@ -324,19 +318,12 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
 
   const HLT::TriggerElement* feat=nullptr;
 
-  //bool doAccept=false;
-  //if(trigItem.empty()){
-  // Use the support match method from the emulation tool
   if(getEmulation())
     emulation()->match( el,  feat );
   else{
     ATH_MSG_ERROR("Emulation tool was not configurated. Impossible to match! Please, see your python config.");
     return false;
   }
-  //}else{
-  //  match()->match(el, trigItem, feat);
-  //  doAccept=true;
-  //}
 
   if(feat){
     clear();
@@ -441,8 +428,6 @@ bool TrigEgammaEventSelection::fillTDT(const xAOD::Electron *el , const HLT::Tri
       m_trig_tdt_L2_el_accept->push_back( -1 );
       m_trig_tdt_EF_calo_accept->push_back( -1 );
       m_trig_tdt_EF_el_accept->push_back( -1 );
-      //ATH_MSG_DEBUG("Trigger bitmask was converted to " << int(GetByteFromBools(mask)));
-      //m_trig_tdt_decision_mask->push_back(GetByteFromBools(mask));
     }
 
     if(te && getEmulation()){
@@ -470,8 +455,6 @@ bool TrigEgammaEventSelection::fillTDT(const xAOD::Electron *el , const HLT::Tri
       m_trig_tdt_emu_L2_el_accept->push_back( -1 );
       m_trig_tdt_emu_EF_calo_accept->push_back( -1 );
       m_trig_tdt_emu_EF_el_accept->push_back( -1 );
-      //ATH_MSG_DEBUG("Trigger bitmask was converted to " << int(GetByteFromBools(mask)));
-      //m_trig_tdt_decision_mask->push_back(GetByteFromBools(mask));
     }
 
 
@@ -570,8 +553,6 @@ bool TrigEgammaEventSelection::ApplyFireTriggers( const xAOD::Electron *el){
 
 
 StatusCode TrigEgammaEventSelection::childFinalize(){
-  //release_space();
-  //ATH_MSG_DEBUG( "Number of probes collected is: " <<tree("probes"  , m_dir+"/Egamma")->GetEntries());
   
   for(auto& trigItem : m_trigList){
     ATH_MSG_DEBUG("From TDT tool:");
@@ -603,9 +584,6 @@ bool TrigEgammaEventSelection::fillEmTauRoI( const xAOD::EmTauRoI *emTauRoI ){
   m_trig_L1_emIsol  = emTauRoI->emIsol();
   m_trig_L1_hadIsol = emTauRoI->hadIsol();
   m_trig_L1_hadCore = emTauRoI->hadCore();
-  //for(unsigned i=0; i < emTauRoI->thrNames().size();++i){
-  //  m_trig_L1_thrNames->push_back(emTauRoI->thrNames().at(i));
-  //}
   return true;
 } 
 
@@ -1102,31 +1080,6 @@ bool TrigEgammaEventSelection::fillHLTElectron( const xAOD::Electron *el ){
   m_trig_EF_el_ptCone->push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone40);
   m_trig_EF_el_ptCone->push_back(val);
-
- 
-  
-    
-  /*
-  m_trig_EF_el_nblayerhits                  ->push_back( nblayerhits ); 
-  m_trig_EF_el_nblayerolhits                ->push_back( nblayerolhits ); 
-  m_trig_EF_el_npixhits                     ->push_back( npixhits ); 
-  m_trig_EF_el_npixolhits                   ->push_back( npixolhits ); 
-  m_trig_EF_el_npixdeadsensors              ->push_back( npixdeadsensors ); 
-  m_trig_EF_el_nscthits                     ->push_back( nscthits ); 
-  m_trig_EF_el_nsctolhits                   ->push_back( nsctolhits ); 
-  m_trig_EF_el_nsctdeadsensors              ->push_back( nsctdeadsensors ); 
-  m_trig_EF_el_ntrthits                     ->push_back( ntrthits ); 
-  m_trig_EF_el_ntrtolhits                   ->push_back( ntrtolhits ); 
-  m_trig_EF_el_ntrthightreshits             ->push_back( ntrthighthreshits ); 
-  m_trig_EF_el_ntrthighthresolhits          ->push_back( ntrthighthresolhits ); 
-  m_trig_EF_el_ntrtxenonhits                ->push_back( ntrtxenonhits ); 
-  m_trig_EF_el_expectblayerhit              ->push_back( expectblayerhit ); 
-  m_trig_EF_el_expectNextToInnerMostLayer   ->push_back( expectNextToInnerMostLayer); 
-  m_trig_EF_el_nNextToInnerMostLayerHits    ->push_back( nNextToInnerMostLayerHits ); 
-  m_trig_EF_el_nNextToInnerMostLayerOutliers->push_back( nNextToInnerMostLayerOutliers );
-  */
-
-
 
 
   return true;

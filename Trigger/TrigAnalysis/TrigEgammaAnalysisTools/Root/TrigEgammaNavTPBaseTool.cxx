@@ -587,7 +587,6 @@ float TrigEgammaNavTPBaseTool::getWTransverseMass( const xAOD::Electron *el ){
 bool TrigEgammaNavTPBaseTool::passesEventCleaning()
 {
   ATH_MSG_DEBUG("Appling Event Cleaning...");
-  //if(m_ismc) return true;
   bool failsLAr  = (m_eventInfo->errorState(xAOD::EventInfo::LAr)  == xAOD::EventInfo::Error );
   bool failsTile = (m_eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error );
   bool failsSCT  = (m_eventInfo->errorState(xAOD::EventInfo::SCT)  == xAOD::EventInfo::Error );

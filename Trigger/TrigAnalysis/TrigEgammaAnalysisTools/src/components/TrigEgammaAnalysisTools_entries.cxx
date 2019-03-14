@@ -1,6 +1,3 @@
-
-
-
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "../TrigEgammaMonTool.h"
 #include "../TrigEgammaPhysValMonTool.h"

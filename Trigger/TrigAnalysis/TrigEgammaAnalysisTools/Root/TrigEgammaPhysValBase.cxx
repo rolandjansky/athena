@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -44,7 +44,6 @@ void TrigEgammaPhysValBase::InitBranch(TTree* fChain, std::string branch_name, T
      bname = std::string(fChain->GetAlias(bname.c_str()));
 
   if (!fChain->FindBranch(bname.c_str()) && message) {
-    std::cout << "[WARNING] unknown branch " << bname << std::endl;
     return;  
   }
   fChain->SetBranchStatus(bname.c_str(), 1.);
@@ -62,7 +61,6 @@ void TrigEgammaPhysValBase::bookEventBranches(TTree *t){
 void TrigEgammaPhysValBase::bookTriggerBranches(TTree *t){
 
   // Level L1 cluster
-  //t->Branch( "trig_isPrescaled",        &m_trig_isPrescaled);
   t->Branch( "trig_L1_eta",             &m_trig_L1_eta);
   t->Branch( "trig_L1_phi",             &m_trig_L1_phi);
   t->Branch( "trig_L1_emClus",          &m_trig_L1_emClus);
@@ -178,25 +176,6 @@ void TrigEgammaPhysValBase::bookTriggerBranches(TTree *t){
   BRANCH( trig_EF_el_lhvloose                     );
 
   
-/*
-  BRANCH( trig_EF_el_nblayerhits                  );  
-  BRANCH( trig_EF_el_nblayerolhits                ); 
-  BRANCH( trig_EF_el_npixhits                     );  
-  BRANCH( trig_EF_el_npixolhits                   );  
-  BRANCH( trig_EF_el_nscthits                     );  
-  BRANCH( trig_EF_el_nsctolhits                   );  
-  BRANCH( trig_EF_el_ntrthightreshits             );  
-  BRANCH( trig_EF_el_ntrthits                     );  
-  BRANCH( trig_EF_el_ntrthighthresolhits          );   
-  BRANCH( trig_EF_el_ntrtolhits                   );   
-  BRANCH( trig_EF_el_ntrtxenonhits                ); 
-  BRANCH( trig_EF_el_expectblayerhit              ); 
-  BRANCH( trig_EF_el_npixdeadsensors              ); 
-  BRANCH( trig_EF_el_nsctdeadsensors              ); 
-  BRANCH( trig_EF_el_expectNextToInnerMostLayer   ); 
-  BRANCH( trig_EF_el_nNextToInnerMostLayerHits    ); 
-  BRANCH( trig_EF_el_nNextToInnerMostLayerOutliers);  
-  */
 
 #undef BRANCH
 
@@ -309,8 +288,6 @@ void TrigEgammaPhysValBase::bookTDTBranches(TTree *t){
 }
 
 
-/*void TrigEgammaPhysValBase::bookPhotonBranches(TTree *t){
-} */ 
   
 void TrigEgammaPhysValBase::bookMonteCarloBranches(TTree *t){
   // Monte Carlo
@@ -429,31 +406,9 @@ void TrigEgammaPhysValBase::linkElectronBranches( TTree *t ){
   InitBranch( t, "el_lhmedium",              &m_el_lhMedium ); 
   InitBranch( t, "el_lhtight",               &m_el_lhTight ); 
   InitBranch( t, "el_multiLepton",           &m_el_multiLepton);
-   /*
-    InitBranch( t, "el_nblayerhits",           &m_el_nblayerhits);
-    InitBranch( t, "el_nblayerolhits",         &m_el_nblayerolhits);
-    InitBranch( t, "el_npixhits",              &m_el_npixhits);
-    InitBranch( t, "el_npixolhits",            &m_el_npixolhits);
-    InitBranch( t, "el_npixdeadsensors",       &m_el_npixdeadsensors  );
-    InitBranch( t, "el_nscthits",              &m_el_nscthits);
-    InitBranch( t, "el_nsctolhits",            &m_el_nsctolhits);
-    InitBranch( t, "el_nsctdeadsensors",       &m_el_nsctdeadsensors  );
-    InitBranch( t, "el_ntrthits",              &m_el_ntrthits);
-    InitBranch( t, "el_ntrtolhits",            &m_el_ntrtolhits);
-    InitBranch( t, "el_ntrthighthreshits",     &m_el_ntrthighthreshits);
-    InitBranch( t, "el_ntrthighthresolhits",   &m_el_ntrthighthresolhits);
-    InitBranch( t, "el_ntrtxenonhits",         &m_el_ntrtxenonhits);
-    InitBranch( t, "el_expectblayerhit",       &m_el_expectblayerhit); 
-  */
-
-
-
-
 }
 
 
-/*void TrigEgammaPhysValBase::linkPhotonBranches( TTree *t ){
-}*/
 
 void TrigEgammaPhysValBase::linkTriggerBranches( TTree *t ){
 
@@ -573,27 +528,6 @@ void TrigEgammaPhysValBase::linkTriggerBranches( TTree *t ){
   INIT( trig_EF_el_lhmedium                     );
   INIT( trig_EF_el_lhloose                      );
   INIT( trig_EF_el_lhvloose                     );
-
-  /*
-  INIT( trig_EF_el_nblayerhits                  );  
-  INIT( trig_EF_el_nblayerolhits                ); 
-  INIT( trig_EF_el_npixhits                     );  
-  INIT( trig_EF_el_npixolhits                   );  
-  INIT( trig_EF_el_nscthits                     );  
-  INIT( trig_EF_el_nsctolhits                   );  
-  INIT( trig_EF_el_ntrthightreshits             );  
-  INIT( trig_EF_el_ntrthits                     );  
-  INIT( trig_EF_el_ntrthighthresolhits          );   
-  INIT( trig_EF_el_ntrtolhits                   );   
-  INIT( trig_EF_el_ntrtxenonhits                ); 
-  INIT( trig_EF_el_expectblayerhit              ); 
-  INIT( trig_EF_el_npixdeadsensors              ); 
-  INIT( trig_EF_el_nsctdeadsensors              ); 
-  INIT( trig_EF_el_expectNextToInnerMostLayer   ); 
-  INIT( trig_EF_el_nNextToInnerMostLayerHits    ); 
-  INIT( trig_EF_el_nNextToInnerMostLayerOutliers);  
-  */
-
 
 
 
@@ -998,27 +932,6 @@ void TrigEgammaPhysValBase::alloc_space(){
 
 
 
-  /*
-  m_trig_EF_el_nblayerhits                    = new std::vector<uint8_t>();     
-  m_trig_EF_el_nblayerolhits                  = new std::vector<uint8_t>();   
-  m_trig_EF_el_npixhits                       = new std::vector<uint8_t>();     
-  m_trig_EF_el_npixolhits                     = new std::vector<uint8_t>();     
-  m_trig_EF_el_nscthits                       = new std::vector<uint8_t>();     
-  m_trig_EF_el_nsctolhits                     = new std::vector<uint8_t>();     
-  m_trig_EF_el_ntrthightreshits               = new std::vector<uint8_t>();     
-  m_trig_EF_el_ntrthits                       = new std::vector<uint8_t>();     
-  m_trig_EF_el_ntrthighthresolhits            = new std::vector<uint8_t>();      
-  m_trig_EF_el_ntrtolhits                     = new std::vector<uint8_t>();      
-  m_trig_EF_el_ntrtxenonhits                  = new std::vector<uint8_t>(); 
-  m_trig_EF_el_expectblayerhit                = new std::vector<uint8_t>();
-  m_trig_EF_el_npixdeadsensors                = new std::vector<uint8_t>(); 
-  m_trig_EF_el_nsctdeadsensors                = new std::vector<uint8_t>(); 
-  m_trig_EF_el_expectNextToInnerMostLayer     = new std::vector<uint8_t>(); 
-  m_trig_EF_el_nNextToInnerMostLayerHits      = new std::vector<uint8_t>(); 
-  m_trig_EF_el_nNextToInnerMostLayerOutliers  = new std::vector<uint8_t>();
-  */
-
- 
 }
 
 void TrigEgammaPhysValBase::release_space(){
@@ -1030,7 +943,6 @@ void TrigEgammaPhysValBase::release_space(){
 
 
   
-  //delete m_trig_L1_thrNames       ;
   delete m_trig_L2_calo_energySample;
   delete m_trig_L2_calo_rings     ;
   delete m_trig_L2_calo_rnnOutput ;
@@ -1099,25 +1011,6 @@ void TrigEgammaPhysValBase::release_space(){
   delete m_trig_EF_el_trk_deltaPOverP                ;     
   delete m_trig_EF_el_trk_summaryValues              ;     
   
-  /*
-  delete m_trig_EF_el_nblayerhits                    ;     
-  delete m_trig_EF_el_nblayerolhits                  ;   
-  delete m_trig_EF_el_npixhits                       ;     
-  delete m_trig_EF_el_npixolhits                     ;     
-  delete m_trig_EF_el_nscthits                       ;     
-  delete m_trig_EF_el_nsctolhits                     ;     
-  delete m_trig_EF_el_ntrthightreshits               ;     
-  delete m_trig_EF_el_ntrthits                       ;     
-  delete m_trig_EF_el_ntrthighthresolhits            ;      
-  delete m_trig_EF_el_ntrtolhits                     ;      
-  delete m_trig_EF_el_ntrtxenonhits                  ; 
-  delete m_trig_EF_el_expectblayerhit                ;
-  delete m_trig_EF_el_npixdeadsensors                ; 
-  delete m_trig_EF_el_nsctdeadsensors                ; 
-  delete m_trig_EF_el_expectNextToInnerMostLayer     ; 
-  delete m_trig_EF_el_nNextToInnerMostLayerHits      ; 
-  delete m_trig_EF_el_nNextToInnerMostLayerOutliers  ;
-  */
   delete m_trig_EF_calo_tight                        ;
   delete m_trig_EF_calo_medium                       ;
   delete m_trig_EF_calo_loose                        ;

@@ -150,15 +150,6 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 fillL2Calo(dir+"L2Calo",obj); // Fill HLT shower shapes
             }
 
-            /*
-            const auto vec_l2ringer = fc.get<xAOD::TrigRingerRings>("",TrigDefs::alsoDeactivateTEs);
-            for(const auto feat : vec_l2ringer){
-                if(feat.te()==nullptr) continue;
-                const auto* obj = getFeature<xAOD::TrigRingerRings>(feat.te());
-                // Only consider passing objects
-                if(!obj) continue;
-                fillRingerShapes(dir+"L2Calo",obj);// Fill HLT ringer shapes
-            }*/
 
             const auto vec_l2rnn = fc.get<xAOD::TrigRNNOutput>("",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_l2rnn){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
 #define TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
@@ -78,17 +78,6 @@ class TrigEgammaEventSelection : public TrigEgammaNavTPBaseTool, public TrigEgam
 
 
 
-    // [*,*,HLT,EFCalo,L2,L2Calo,L1Calo,isGoodMatch]
-    //uint8_t GetByteFromBools(const bool eightBools[8])
-    int GetByteFromBools(const bool eightBools[8])
-    {
-      int ret = 0;
-      //uint8_t ret = 0;
-      for (int i=0; i<8; i++) if (eightBools[i] == true) ret |= (1<<i);
-      return ret;
-    }
-
-    //ToolHandleArray<ITrigEgammaEmulationTool>   m_emulationTools;
 
     ToolHandleArray<IAsgElectronIsEMSelector>   m_EFCaloElectronIsEMSelectors;
     ToolHandleArray<IAsgElectronIsEMSelector>   m_HLTElectronIsEMSelectors;
