@@ -47,61 +47,6 @@
 
 namespace EL
 {
-  namespace
-  {
-    struct MyWriter : public SH::DiskWriter
-    {
-      /// description: this is a custom writer for the old-school
-      ///   drivers that don't use an actual writer
-
-    public:
-      std::unique_ptr<TFile> m_file;
-
-      explicit MyWriter (std::unique_ptr<TFile> val_file)
-	: m_file (std::move (val_file))
-      {}
-
-      ~MyWriter ()
-      {
-	if (m_file != 0)
-	  close();
-      }
-
-      std::string getPath () const
-      {
-	return "";
-      }
-
-      TFile *getFile ()
-      {
-	RCU_REQUIRE2_SOFT (m_file != 0, "file already closed");
-	return m_file.get();
-      }
-
-      void doClose ()
-      {
-	RCU_REQUIRE2_SOFT (m_file != 0, "file already closed");
-	m_file->Write ();
-	m_file->Close ();
-	m_file = 0;
-      }
-    };
-
-    /// Helper class for managing the current ROOT directory during operations
-    class DirectoryReset {
-    public:
-       /// Constructor, capturing which directory we need to return to
-       DirectoryReset() : m_dir( *gDirectory ) {}
-       /// Destructor, returning to the original directory
-       ~DirectoryReset() { m_dir.cd(); }
-    private:
-       /// The directory we need to return to
-       TDirectory& m_dir;
-    };
-  }
-
-
-
   void Worker ::
   testInvariant () const
   {
@@ -133,10 +78,6 @@ namespace EL
 
     RCU::SetDirectory (output_swallow, 0);
     ModuleData::addOutput (std::move (output));
-
-    TH1 *hist = dynamic_cast<TH1*> (output_swallow);
-    if (hist)
-      m_histOutput->m_outputHistMap[hist->GetName()] = hist;
   }
 
 
@@ -163,11 +104,9 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    auto iter = m_histOutput->m_outputHistMap.find (name);
-    if (iter == m_histOutput->m_outputHistMap.end())
-      RCU_THROW_MSG ("unknown output histogram: " + name);
-    RCU_ASSERT (iter->second != 0);
-    return iter->second;
+    TH1 *result = m_histOutput->getOutputHist (name);
+    if (result == nullptr) RCU_THROW_MSG ("unknown output histogram: " + name);
+    return result;
   }
 
 
@@ -191,7 +130,7 @@ namespace EL
     auto iter = m_outputs.find (label);
     if (iter == m_outputs.end())
       return 0;
-    return iter->second.m_writer->file();
+    return iter->second.file();
   }
 
 
@@ -202,10 +141,6 @@ namespace EL
     using namespace msgEventLoop;
     RCU_READ_INVARIANT( this );
 
-    // Do not change the user's "current directory" during any of the
-    // following...
-    DirectoryReset dirReset;
-
     auto outputIter = m_outputs.find (stream);
     if (outputIter == m_outputs.end())
     {
@@ -214,25 +149,7 @@ namespace EL
       return ::StatusCode::FAILURE;
     }
 
-    // Make a clone of the tree, and make the output file own it from
-    // here on out.
-    TFile *file {nullptr};
-    if (outputIter->second.m_writer)
-      file = outputIter->second.m_writer->file();
-    else
-      file = outputIter->second.m_file.get();
-    file->cd();
-
-    TTree* clone = dynamic_cast< TTree* >( tree.Clone() );
-    if( ! clone )
-    {
-      ANA_MSG_ERROR ( "Unexpected error while cloning TTree" );
-      return ::StatusCode::FAILURE;
-    }
-    clone->SetDirectory( file );
-
-    // Hold on to the pointer of the tree in our internal cache.
-    outputIter->second.m_outputTreeMap[ std::string (clone->GetName()) ] = clone;
+    outputIter->second.addClone (tree);
 
     // Return gracefully:
     return ::StatusCode::SUCCESS;
@@ -253,13 +170,12 @@ namespace EL
                       + "\" found" );
     }
 
-    auto itr = outputIter->second.m_outputTreeMap.find( name );
-    if( itr == outputIter->second.m_outputTreeMap.end() ) {
+    TTree *result = outputIter->second.getOutputTree( name );
+    if( result == nullptr ) {
       RCU_THROW_MSG ( "No tree with name \"" + name + "\" in stream \"" +
                       stream + "\"" );
     }
-    RCU_ASSERT( itr->second != nullptr );
-    return itr->second;
+    return result;
   }
 
 
@@ -459,12 +375,12 @@ namespace EL
 
     if (m_outputs.find (Job::histogramStreamName) == m_outputs.end())
     {
-      Detail::OutputStreamData data;
-      data.m_file.reset (TFile::Open ((m_outputTarget + "/hist-" + m_segmentName + ".root").c_str(), "RECREATE"));
+      Detail::OutputStreamData data {
+        m_outputTarget + "/hist-" + m_segmentName + ".root", "RECREATE"};
       ANA_CHECK (addOutputStream (Job::histogramStreamName, std::move (data)));
     }
     RCU_ASSERT (m_outputs.find (Job::histogramStreamName) != m_outputs.end());
-    m_histOutput = &m_outputs[Job::histogramStreamName];
+    m_histOutput = &m_outputs.at(Job::histogramStreamName);
 
     m_jobStats = std::make_unique<TTree>
       ("EventLoop_JobStats", "EventLoop job statistics");
@@ -497,8 +413,9 @@ namespace EL
     {
       if (output.first != Job::histogramStreamName)
       {
-        output.second.m_writer->close ();
-        std::string path = output.second.m_writer->path ();
+        output.second.saveOutput ();
+        output.second.close ();
+        std::string path = output.second.finalFileName ();
         if (!path.empty())
           addOutputList ("EventLoop_OutputStream_" + output.first, new TObjString (path.c_str()));
       }
@@ -517,6 +434,8 @@ namespace EL
     m_histOutput->saveOutput ();
     for (auto& module : m_modules)
       ANA_CHECK (module->onWorkerEnd (*this));
+    m_histOutput->saveOutput ();
+    m_histOutput->close ();
     ANA_MSG_INFO ("worker finished successfully");
     return ::StatusCode::SUCCESS;
   }
@@ -661,15 +580,12 @@ namespace EL
   {
     using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (data.m_writer != nullptr || data.m_file != nullptr);
 
     if (m_outputs.find (label) != m_outputs.end())
     {
       ANA_MSG_ERROR ("output file already defined for label: " + label);
       return ::StatusCode::FAILURE;
     }
-    if (data.m_file) 
-      data.m_writer = std::make_unique<MyWriter> (std::move (data.m_file));
     m_outputs.insert (std::make_pair (label, std::move (data)));
     return ::StatusCode::SUCCESS;
   }
