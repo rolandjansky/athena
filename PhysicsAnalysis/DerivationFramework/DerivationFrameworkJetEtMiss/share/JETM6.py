@@ -218,6 +218,12 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(jetm6Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
+#=======================================
+# BTAGGING INFO FOR PFLOW JET
+#=======================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm6Seq)
+
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
@@ -281,12 +287,13 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "PrimaryVertices",
                                         #
                                         "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-					"BTagging_AntiKt2Track"
+					"BTagging_AntiKt2Track",
+                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMPFlow"
                                         ]
 JETM6SlimmingHelper.AllVariables = [
     "TruthParticles",  "TruthEvents", "TruthVertices",
@@ -296,8 +303,7 @@ JETM6SlimmingHelper.AllVariables = [
     ]
 
 JETM6SlimmingHelper.ExtraVariables = [
-    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', 'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
-    NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0],NewTrigVars["Photons"][0]]
+    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0],NewTrigVars["Photons"][0]]
 
 JETM6SlimmingHelper.AppendToDictionary = {
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
@@ -343,7 +349,6 @@ addJetOutputs(JETM6SlimmingHelper,[
 topoJetVars = 'ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.Charge.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.HadronConeExclTruthLabelID.HighestJVFVtx.InputType.IsoDelta2SumPt.IsoDelta3SumPt.JVF.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetOriginConstitScaleMomentum_eta.JetOriginConstitScaleMomentum_m.JetOriginConstitScaleMomentum_phi.JetOriginConstitScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.Jvt.JvtJvfcorr.JvtRpt.LArBadHVEnergyFrac.LArBadHVNCell.LArQuality.LeadingClusterCenterLambda.LeadingClusterSecondLambda.LeadingClusterSecondR.Mu12.N90Constituents.NegativeE.NumTrkPt1000.NumTrkPt500.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex.PartonTruthLabelID.PileupCorrected.SizeParameter.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500.Width.btaggingLink.eta.pt.phi.m.GhostMuonSegmentCount.CentroidR.Timing'
 
 JETM6SlimmingHelper.ExtraVariables += [
-    'AntiKt4LCTopoJets.'+topoJetVars ,
     'AntiKt4EMTopoJets.'+topoJetVars ,
     'AntiKt4TruthJets.AlgorithmType.Angularity.Aplanarity.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.ConstituentScale.HadronConeExclTruthLabelID.InputType.IsoDelta2SumPt.IsoDelta3SumPt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.Mu12.PartonTruthLabelID.SizeParameter.Width.eta.pt.phi.m',
     "AntiKt2PV0TrackJets.AlgorithmType.ConstituentScale.Width.eta.pt.phi.m.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.OriginVertex.SizeParameter",
@@ -355,7 +360,7 @@ JETM6SlimmingHelper.ExtraVariables += [
     ]
 
 # Add the MET containers to the stream
-addMETOutputs(JETM6SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
+addMETOutputs(JETM6SlimmingHelper,["Diagnostic","AntiKt4EMPFlow","Track"])
 
 JETM6SlimmingHelper.AppendContentToStream(JETM6Stream)
 #JETM6Stream.RemoveItem("xAOD::TrigNavigation#*")
