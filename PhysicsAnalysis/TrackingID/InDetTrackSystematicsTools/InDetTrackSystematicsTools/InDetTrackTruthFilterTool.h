@@ -52,7 +52,7 @@ namespace InDet {
 
     // right now this returns a bool; if we want to implement the ASG selection tool interface then this will need to change to a TAccept
 
-     //"standard" accept method - relies on truth information to determine if a track is a fake and should be considered for dropping to give the systematic variation on fakes
+     //"standard" accept method - if appropriate systematic is activated, will call mu-dependent version (below) using mu value from EventInfo, otherwise will use truth info
     virtual bool accept(const xAOD::TrackParticle* track) const override;
 
      //This is a version of the accept method that takes a value of mu (i.e. mean interactions per crossing) in order to calculate a probability that a givent track at that mu is a fake, and so should be considered for being dropped for the fake systematic variation - this version does not rely on truth information
@@ -71,6 +71,8 @@ namespace InDet {
 
     StatusCode initTrkEffSystHistogram(float scale, TH2 *&histogram, std::string rootFileName, std::string histogramName) const;
     float getFractionDropped(float fDefault, TH2 *histogram, float pt, float eta) const;
+    float pseudoFakeProbability(const xAOD::TrackParticle* track, float mu) const;
+    bool dropPseudoFake(float prob) const;
 
     int m_seed = 0;
     std::unique_ptr<TRandom3> m_rnd; //!
