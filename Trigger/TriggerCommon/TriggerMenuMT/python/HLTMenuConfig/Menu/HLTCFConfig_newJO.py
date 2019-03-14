@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from collections import defaultdict
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
 from AthenaCommon.CFElements import parOR, seqAND
@@ -8,23 +10,6 @@ from AthenaCommon.Constants import VERBOSE
 
 log = logging.getLogger('HLTCFConfig_newJO')
 log.setLevel( VERBOSE )
-
-
-def connectStepToFilter(chainStep, filterNode):
-    filter_output = filterNode.getOutputList()
-    if len(filter_output) == 0:
-        raise ValueError('ERROR: no filter outputs are set')
-
-    if len(filter_output) != len(chainStep.sequences):
-        msg = 'ERROR: found {} filter outputs and {} MenuSequences in step {}'.format(len(filter_output),
-            len(chainStep.sequences), chainStep.name)
-        raise ValueError(msg)
-
-    for nseq, sequence in enumerate(chainStep.sequences):
-        output = filter_output[nseq]
-        log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", output,
-                  sequence.name, filterNode.Alg.name(), sequence.seed)
-        sequence.connectToFilter(output)
 
 
 def printStepsMatrix(matrix):
@@ -38,9 +23,6 @@ def printStepsMatrix(matrix):
 
 
 def generateDecisionTree(chains):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from collections import defaultdict
-
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     acc.addSequence( seqAND(mainSequenceName) )
@@ -98,12 +80,15 @@ def generateDecisionTree(chains):
             stepsAcc = ComponentAccumulator()
 
             for chain in chainsInCell:
-                connectStepToFilter(chain.steps[nstep], sfilter)
-                for seq in chain.steps[nstep].sequences:
+                step = chain.steps[nstep]
+                CFSequence(step, sfilter)
+                for seq in step.sequences:
                     if seq.ca is None:
                         raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
                     stepsAcc.merge( seq.ca )
                     recoAcc.addEventAlgo( seq.hypo.Alg, sequenceName = stepView.getName() )
+                if step.isCombo:
+                    recoAcc.addEventAlgo( step.combo.Alg, sequenceName = stepView.getName() )
                 sfilter.setChains(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = stepReco.getName())
