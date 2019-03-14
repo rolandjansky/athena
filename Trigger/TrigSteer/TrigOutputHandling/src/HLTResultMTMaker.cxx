@@ -131,8 +131,12 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   // Fill the object using the result maker tools
   auto time =  Monitored::Timer("TIME_build" );
+  StatusCode finalStatus = StatusCode::SUCCESS;
   for (auto& maker: m_makerTools) {
-    ATH_CHECK(maker->fill(*hltResult));
+    if (StatusCode sc = maker->fill(*hltResult); sc.isFailure()) {
+      ATH_MSG_ERROR(maker->name() << " failed");
+      finalStatus = sc;
+    }
   }
   time.stop();
 
@@ -151,7 +155,7 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   Monitored::Group(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
 
-  return StatusCode::SUCCESS;
+  return finalStatus;
 }
 
 // =============================================================================

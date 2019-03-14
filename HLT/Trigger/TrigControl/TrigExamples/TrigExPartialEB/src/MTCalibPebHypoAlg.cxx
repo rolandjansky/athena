@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MTCalibPebHypoAlg.h"
 #include "DecisionHandling/HLTIdentifier.h"
+#include "AthenaKernel/AthStatusCode.h"
 
 // TrigCompositeUtils types used here
 using TrigCompositeUtils::Decision;
@@ -64,7 +65,12 @@ StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
   // Call the hypo tools
   for (const auto& tool: m_hypoTools) {
     ATH_MSG_DEBUG("Calling " << tool);
-    ATH_CHECK(tool->decide(toolInput));
+    StatusCode sc = tool->decide(toolInput);
+    if (sc == Athena::Status::TIMEOUT) {
+      ATH_MSG_ERROR("Timeout reached in hypo tool " << tool->name());
+      return sc;
+    }
+    else ATH_CHECK(sc);
   }
 
   ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
