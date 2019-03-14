@@ -59,11 +59,6 @@
 - Tracking/TrkTools/TrkSegmentConverter
 - Trigger/TrigAlgorithms/TrigEFLongLivedParticles
 
-# obsolete JPsi monitoring packages that may be removed in the future 
-- Trigger/TrigTools/TrigJPsiTools
-- Trigger/TrigMonitoring/TrigIDJpsiMonitoring
-- Trigger/TrigAnalysis/TrigEffJpsiTools
-
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
 - PhysicsAnalysis/D3PDMaker/CaloSysD3PDMaker
