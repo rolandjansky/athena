@@ -6,9 +6,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 
 from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
 from TrigUpgradeTest.electronMenuDefs import electronMenuSequence, inDetSetup

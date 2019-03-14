@@ -1,19 +1,16 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # SliceDef file for Muon chains
 ###########################################################################
-__author__  = 'C. Bernius'
-__doc__="Definition of muon chains for AthenaMT" 
 
 from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateChainConfigs' )
 logging.getLogger().info("Importing %s",__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import *
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 
 
 def generateChainDefs(chainDict):
@@ -21,27 +18,24 @@ def generateChainDefs(chainDict):
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs=[]
 
-    #define the list of keywords from Signature dicts to base the grouping on
-    groupCategories = []
-
-    for chainDict in listOfChainDicts:
-        chainName = chainDict['chainName']
-        chainL1Item = chainDict['L1item']
-        chainPart = chainDict['chainParts']
-        chainPartL1Item = self.chainPart['L1item']
-        chainthreshhold = chainPart['threshold']
+    for subChainDict in listOfChainDicts:
         
-        nsteps = 2
-        allChainSteps=[]
-        for step in nsteps:
-            stepname="Step"+str(step)+"_"+chainName
-            
-            cstep=ChainStep(stepname, [SequenceHypoTool(muStep(str(step), chainL1Item), stepHypoTool(step, chainthreshold))])
-            allChainSteps.append(cstep)
+        Muon = MuonChainConfiguration(subChainDict).assembleChain() 
 
-        MuonChainDef = Chain(chainName,chainL1Item,ChainSteps=allChainSteps)
+        listOfChainDefs += [Muon]
+        log.debug('length of chaindefs %s', len(listOfChainDefs) )
+        
 
-        listOfChainDefs += MuonChainDef
+    if len(listOfChainDefs)>1:
+        log.warning("Implement case for multi-electron chain!!") 
+        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+    else:
+        theChainDef = listOfChainDefs[0]
+
+    log.debug("theChainDef.name: %s" , theChainDef.name)
+    log.debug("theChainDef.seed: %s" , theChainDef.seed)
+    log.debug("theChainDef.ChainSteps: %s" , theChainDef.steps)
+
+    return theChainDef
 
 
-    return listOfChainDefs

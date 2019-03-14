@@ -18,7 +18,8 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
         n = len(prescales)
         hltchain = None
         for ch in triggerPythonConfig.allChains[item]:
-            if ch.level == 'HLT': hltchain = ch
+            if ch.level == 'HLT': 
+                hltchain = ch
             if n > 3  and hltchain:
                 if hltchain.prescale != "0":
                     log.warning("chain "+ hltchain.chain_name + " in rerun mode with special strema tag does not have the correct HLT PS [=0] ")
@@ -45,7 +46,8 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
         n = len(prescales)
         hltchain = None
         for ch in triggerPythonConfig.allChains[item]:
-            if ch.level == 'HLT': hltchain = ch
+            if ch.level == 'HLT': 
+                hltchain = ch
         if n > 0  and hltchain:
             hltchain.prescale = str(prescales[0])
         if n > 1  and hltchain:
@@ -104,12 +106,8 @@ def checkTriggerGroupAssignment(triggerPythonConfig):
             for group in GroupItems:
                 if group in chain.groups:
                     GroupAssigned=True
-            if not GroupAssigned and CheckGroups:
+            if GroupAssigned is False and CheckGroups is True:
                 log.warning( "IN CHAIN: GROUP (primary, supporting, ... etc) undefined for chain: " + str(chain.chain_name) + ".")
-                #log.warning( "IN CHAIN: GROUP undefined for chain: " + str(chain.chain_name) + ". The chain will be excluded from the menu!")
-                #This part will become active soon
-                #if chain in triggerPythonConfig.theL2HLTChains : triggerPythonConfig.theL2HLTChains.remove(chain)
-                #if chain in triggerPythonConfig.theEFHLTChains: triggerPythonConfig.theEFHLTChains.remove(chain)
 
 #def checkStreamConsistency(triggerPythonConfig,streamConfig):
 def checkStreamConsistency(triggerPythonConfig):
@@ -118,52 +116,10 @@ def checkStreamConsistency(triggerPythonConfig):
     """
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
-    CheckGroups=False
 
     from TriggerMenu.menu.StreamInfo       import getAllStreams
 
     allStreams = getAllStreams()
-#    allStreams=['UPC',
-#                'TRTMonitoring',
-#                'WarmStart',      
-#                'ZeroBias',       
-#                'CosmicCalo',     
-#                'ZeroBiasOverlay',
-#                'CosmicMuons',
-#                'CosmicCalo',
-#                'IDCosmic',
-#                'IDMonitoring',
-#                'IDTracks',
-#                'Muon_Calibration',
-#                'Standby',   
-#                'Background',
-#                'MinBias',
-#                'MinBiasOverlay',
-#                'ALFA',
-#                'Bphysics',
-#                'physics',
-#                'express',
-#                'Tile',
-#                'L1Muon',
-#                'L1MinBias',
-#                'EnhancedBias',
-#                'LArCells',
-#                'LArCellsEmpty',
-#                'DISCARD',
-#                'EFCostMonitoring',
-#                'HLTPassthrough',
-#                'beamspot',
-#                'PixelBeam',
-#                'PixelNoise',
-#                'VdM',
-#                'L2CostMonitoring',
-#                'SCTNoise',
-#                'ALFACalib',
-#                'L1Calo',     
-#                'L1CaloCalib',     
-#                ]
-
-    #allStreams.extend(streamConfig)
 
     ##Check that all the streams associated to the chains exists
     ##Chech that there is no duplication of ROB_ID for the ds streams used in a specific menu
@@ -225,7 +181,8 @@ def allSignatures():
         TriggerFlags.CombinedSlice,
         )
     for a in slices:
-        if a.signatures.statusOn: sigs += a.signatures()
+        if a.signatures.statusOn: 
+            sigs += a.signatures()
     return sigs
 
 
@@ -234,11 +191,11 @@ def findL1TT(chain, triggerPythonConfig):
     if chain.level == 'EF':
         l2_chain_name = chain.lower_chain_name
         l2_chain = triggerPythonConfig.getHLTChain(l2_chain_name)
-    if l2_chain == None:
+    if l2_chain is None:
         return -2
     l1_item_name = l2_chain.lower_chain_name
     l1_item = triggerPythonConfig.getLvl1Item(l1_item_name)
-    if l1_item==None:
+    if l1_item is None:
         return -1
     return l1_item.trigger_type
 

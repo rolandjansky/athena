@@ -4,8 +4,6 @@
 
 __doc__="Addition of coherent prescales to the list of chains"
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -35,7 +33,7 @@ def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
                     for g in c.groups:
                         if g.find('CPS') == 5:
                             cpsFound = g
-                    if cpsFound == None:
+                    if cpsFound is None:
                         log.info('CPS group %s added to %s', cpsGroup, chain_name)
                         c.addGroup(cpsGroup)
                     elif cpsFound == cpsGroup:
