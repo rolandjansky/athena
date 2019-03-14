@@ -13,22 +13,22 @@
 #ifndef SCTERRMONTOOL_H
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include <string>
-#include <vector>
-#include <map>
-#include <utility>
 
-//for CondDB
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "InDetRawData/SCT_RDO_Container.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+
+#include <string>
+#include <vector>
+#include <map>
+#include <utility>
 
 /** Forward declarations*/
 class IInterface;
@@ -58,12 +58,12 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
 
  public:
-  SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
+  SCTErrMonTool(const std::string& type,const std::string& name,const IInterface* parent);
   virtual ~SCTErrMonTool();
   //
   /**    @name Methods reimplemented from baseclass */
   //@{
-  //initialize 11.09.2016
+  //initialize
   virtual StatusCode initialize() final;
   //book
   virtual StatusCode bookHistograms() final;
@@ -71,7 +71,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   virtual StatusCode fillHistograms() final;
   //post processing
   virtual StatusCode procHistograms() final;
-  //Recurrent 11.09.2016
+  //Recurrent
   virtual StatusCode bookHistogramsRecurrent() final;
   //book
   virtual StatusCode copyHistograms() final;
@@ -80,7 +80,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
  private:
   static const int NREGIONS_INC_GENERAL=SCT_Monitoring::N_REGIONS+1;
-  typedef TProfile2D_LW * Prof2_t;
+  typedef TProfile2D_LW* Prof2_t;
   typedef std::vector<Prof2_t> VecProf2_t;
   StatusCode checkRateHists();
   StatusCode fillByteStreamErrors();
@@ -92,8 +92,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@name Histograms related members
   //@{
   // Pointers to hit error histograms
-  TH1F_LW * m_firstHit[NREGIONS_INC_GENERAL];
-  TH1F_LW * m_secondHit[NREGIONS_INC_GENERAL];
+  TH1F_LW* m_firstHit[NREGIONS_INC_GENERAL];
+  TH1F_LW* m_secondHit[NREGIONS_INC_GENERAL];
   //@}
 
   enum CategoryErrors { MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
@@ -125,13 +125,13 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL];
   TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
 
-  TH1I *m_nErrors;
-  TH1I *m_nLinksWithErrors;
-  int *m_nErrors_buf;
-  int *m_nLinksWithErrors_buf;
+  TH1I* m_nErrors;
+  TH1I* m_nLinksWithErrors;
+  int* m_nErrors_buf;
+  int* m_nLinksWithErrors_buf;
   int m_nErrors_pos;
 
-  TH1I *m_MaskedAllLinks; // maskedLinks||maskedRODs
+  TH1I* m_MaskedAllLinks; // maskedLinks||maskedRODs
 
   //Count number of events
   int m_numberOfEventsLumi;
@@ -147,14 +147,13 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2], bool lumi2DHist, int err_type);
   void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc);
-  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D_LW* &tprof, TH2F_LW* &th, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap, TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel=true);
 
-  StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D_LW* &tprof, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TProfile2D_LW*& tprof, const int layer, const bool barrel=true);
 
-  std::vector<TH2F_LW *> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
+  std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
 
   /// "Magic numbers" for an SCT module
-  //unsigned int m_nplanes; //to be determined from SCT Helper
   enum { Confbins = 6, ConfbinsDetailed = 5 };
   // NOTE: The following is not the usual index order, which goes C, Barrel, A
   enum {iECm=0, iBARREL=1, iECp=2, iGEN=3 }; //iECp==EA, iECm==EC
@@ -207,28 +206,28 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode resetConfigurationDetails();
 
   /// Pointer to 1D histogram of Number of SCT Clusters per LBs
-  TProfile_LW * m_Conf[NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ConfRN[NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ConfNew[NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ConfOutModules[NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ConfOnline[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_Conf[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ConfRN[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ConfNew[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ConfOutModules[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ConfOnline[NREGIONS_INC_GENERAL];
 
-  TProfile_LW * m_ByteStreamVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ByteStreamWithSctFlagVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
-  TProfile_LW * m_ByteStreamCategorisedVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  TProfile_LW * m_LinksWithCategorisedErrorsVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  TProfile_LW * m_LinksWithCategorisedErrorsVsLBLayer[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL][SCT_Monitoring::N_DISKSx2];
+  TProfile_LW* m_ByteStreamVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ByteStreamWithSctFlagVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
+  TProfile_LW* m_ByteStreamCategorisedVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
+  TProfile_LW* m_LinksWithCategorisedErrorsVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
+  TProfile_LW* m_LinksWithCategorisedErrorsVsLBLayer[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL][SCT_Monitoring::N_DISKSx2];
 
-  TProfile_LW * m_LinksWithRODErrorsVsLB_check[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_LinksWithRODErrorsVsLB_check[NREGIONS_INC_GENERAL];
 
-  TH1F_LW * m_NumberOfSCTFlagErrorsVsLB;
-  TH1F_LW * m_NumberOfEventsVsLB;
-  TProfile_LW * m_FractionOfSCTFlagErrorsPerLB;
+  TH1F_LW* m_NumberOfSCTFlagErrorsVsLB;
+  TH1F_LW* m_NumberOfEventsVsLB;
+  TProfile_LW* m_FractionOfSCTFlagErrorsPerLB;
 
-  TProfile * m_ConfEffOnline;
-  TProfile_LW * m_ConfNoiseOnline;
-  TProfile_LW * m_ConfNoiseOnlineRecent;
-  TProfile_LW * m_DetailedConfiguration;
+  TProfile* m_ConfEffOnline;
+  TProfile_LW* m_ConfNoiseOnline;
+  TProfile_LW* m_ConfNoiseOnlineRecent;
+  TProfile_LW* m_DetailedConfiguration;
 
   /** a handle on the Hist/TTree registration service */
   ServiceHandle<ITHistSvc> m_thistSvc;
@@ -254,7 +253,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@}
 
   Prof2_t
-    prof2Factory(const std::string & name, const std::string & title, const unsigned int&, VecProf2_t & storageVector);
+    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, VecProf2_t& storageVector);
 
   bool syncDisabledSCT();
   bool syncErrorSCT();
@@ -263,7 +262,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool eventVsWafer();
 
   void fillWafer( moduleGeo_t module,  TH2F* histo );
-  double calculateDetectorCoverage(const TH2F * histo );
+  double calculateDetectorCoverage(const TH2F* histo );
 
   enum ProblemForCoverage {
     all, //All SCT module for counting good module
@@ -278,15 +277,15 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   std::vector<moduleGeo_t> m_geo;
   std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
-  TH2F * m_mapSCT[numberOfProblemForCoverage];
+  TH2F* m_mapSCT[numberOfProblemForCoverage];
 
   const unsigned int m_nBinsEta;
   const double m_rangeEta;
   const unsigned int m_nBinsPhi;
   const double m_WafersThreshold;
 
-  TProfile * m_detectorCoverageVsLbs[numberOfProblemForCoverage];
-  TProfile * m_PSTripModulesVsLbs;
+  TProfile* m_detectorCoverageVsLbs[numberOfProblemForCoverage];
+  TProfile* m_PSTripModulesVsLbs;
 
   float m_PSTripModules;
 

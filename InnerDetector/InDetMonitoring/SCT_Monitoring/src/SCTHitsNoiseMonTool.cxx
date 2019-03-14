@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTHitsNoiseMonTool.cxx
@@ -11,17 +11,34 @@
  *    'The end of all of our exploring...' (Shaun, March 2008)
  */
 
+#include "SCT_Monitoring/SCTHitsNoiseMonTool.h"
+
+#include "cArrayUtilities.h"
 #include "SCT_NameFormatter.h"
 
-#include <sstream> // ?
-#include <iostream>
-#include <fstream> // for writing an xml summary (debugging)
-#include <algorithm>
-
+#include "AthContainers/DataVector.h"
+#include "InDetRawData/SCT3_RawData.h"
+#include "InDetRawData/InDetRawDataContainer.h" // ?
+#include "InDetRawData/InDetRawDataCLASS_DEF.h" // ?
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "StoreGate/ReadHandle.h"
+#include "TrkEventUtils/RoT_Extractor.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkSpacePoint/SpacePoint.h"
+#include "TrkSpacePoint/SpacePointCollection.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
+#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "SCT_Monitoring/SCTHitsNoiseMonTool.h"
-#include "SCT_Monitoring/SCT_ClusterStruct.h"
 
 #include "TMath.h"
 #include "TH1F.h"
@@ -29,36 +46,10 @@
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TProfile_LW.h"
-#include "LWHists/TProfile2D_LW.h"
 
-#include "InDetRawData/SCT3_RawData.h"
-#include "InDetRawData/SCT_TB03_RawData.h" // ?
-#include "InDetRawData/InDetRawDataContainer.h" // ?
-#include "InDetRawData/InDetRawDataCLASS_DEF.h" // ?
-#include "AthContainers/DataVector.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-
-#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
-
-#include "PathResolver/PathResolver.h" // ?
-#include "InDetPrepRawData/SCT_ClusterContainer.h" // ?
-#include "TrkSpacePoint/SpacePoint.h"
-#include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointOverlapCollection.h"
-#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
-
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkEventUtils/RoT_Extractor.h"
-#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h" // ?
-#include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // ?
-#include "cArrayUtilities.h"
-
-#include "StoreGate/ReadHandle.h"
+#include <iostream>
+#include <fstream> // for writing an xml summary (debugging)
+#include <algorithm>
 
 typedef Trk::SpacePoint SpacePoint;
 using namespace std;
@@ -70,7 +61,7 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
   // is a variable in the specified range?
   template <typename T>
   bool
-  inRange(const T &variable, const T &lo, const T &hi) {
+  inRange(const T& variable, const T& lo, const T& hi) {
     return not ((variable < lo)or(variable > hi)); // assumes both less_than and greater_than exist for this type
   }
 
@@ -139,9 +130,9 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
  *  numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
-                                         const std::string &name,
-                                         const IInterface *parent) :
+SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent) :
   SCTMotherTrigMonTool(type, name, parent),
   m_nSP(nullptr),
   m_nSP_buf(nullptr),
@@ -298,12 +289,12 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_eventInfoKey(std::string("EventInfo")),
   m_clusContainerKey("SCT_Clusters") {
     /** sroe 3 Sept 2015:
-	histoPathBase is declared as a property in the base class, assigned to m_path
-	with default as empty string.
-	Declaring it here as well gives rise to compilation warning
-	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+        histoPathBase is declared as a property in the base class, assigned to m_path
+        with default as empty string.
+        Declaring it here as well gives rise to compilation warning
+        WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
 
-	declareProperty("histoPathBase", m_stream = "/stat"); **/
+        declareProperty("histoPathBase", m_stream = "/stat"); **/
     m_stream = "/stat";
     declareProperty("localSummary", m_localSummary = 0);
     declareProperty("doHitmapHistos", m_boolhitmaps = true);
@@ -634,11 +625,11 @@ SCTHitsNoiseMonTool::fillHistograms() {
         }
         m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
         m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
-	  m_eventsTrigger_lb;
+          m_eventsTrigger_lb;
         m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
-	  m_eventsTrigger_lb;
+          m_eventsTrigger_lb;
         m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
-	  m_eventsTrigger_lb;
+          m_eventsTrigger_lb;
         if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
           m_noisyMWithHOTrigger100[m_current_lb]++;
         }
@@ -825,16 +816,16 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   std::vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
   std::vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
   //
-  std::vector<H2_t> *hitHistogramVectors[3] = {
+  std::vector<H2_t>* hitHistogramVectors[3] = {
     &m_phitsHistoVectorECm, &m_phitsHistoVector, &m_phitsHistoVectorECp
   };
-  std::vector<H2_t> *hitHistogramVectorsRecent[3] = {
+  std::vector<H2_t>* hitHistogramVectorsRecent[3] = {
     &m_phitsHistoVectorRecentECm, &m_phitsHistoVectorRecent, &m_phitsHistoVectorRecentECp
   };
   H1_t hitPerLumiBlockHists[3] = {
     m_numHitsPerLumiBlockECm, m_numBarrelHitsPerLumiBlock, m_numHitsPerLumiBlockECp
   };
-  std::vector<int> *hitsInLayer[3] = {
+  std::vector<int>* hitsInLayer[3] = {
     &ECm_local_nhitslayer, &barrel_local_nhitslayer, &ECp_local_nhitslayer
   };
   const bool doThisSubsystem[3] = {
@@ -846,7 +837,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   SpacePointContainer::const_iterator spContainerIteratorEnd = sctContainer->end();
   // Outer Loop on RDO Collection
   for (; col_it != lastCol; ++col_it) {
-    const InDetRawDataCollection<SCTRawDataType> *SCT_Collection(*col_it);
+    const InDetRawDataCollection<SCTRawDataType>* SCT_Collection(*col_it);
     if (!SCT_Collection) {
       continue;  // select only SCT RDOs
     }
@@ -871,11 +862,11 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         DataVector<Trk::SpacePoint>::const_iterator nextSpacePoint = (*spContainerIterator)->begin();
         DataVector<Trk::SpacePoint>::const_iterator nextSpacePointEnd = (*spContainerIterator)->end();
         for (; nextSpacePoint != nextSpacePointEnd; ++nextSpacePoint) {
-          const Trk::SpacePoint &sp = **nextSpacePoint;
+          const Trk::SpacePoint& sp = **nextSpacePoint;
           // the following is nasty; the 'normal' sides (where the sp is defined) swap from layer to layer. To be safe,
           // we get both sides
-          const VecId_t &rdoList0 = sp.clusterList().first->rdoList();
-          const VecId_t &rdoList1 = sp.clusterList().second->rdoList();
+          const VecId_t& rdoList0 = sp.clusterList().first->rdoList();
+          const VecId_t& rdoList1 = sp.clusterList().second->rdoList();
           // copy to mySetOfSPIds. Use inserter(set, iterator_hint) for a set, or back_inserter(vec) for vector...
           copy(rdoList0.begin(), rdoList0.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
           copy(rdoList1.begin(), rdoList1.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
@@ -889,7 +880,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin();
     DataVector<SCTRawDataType>::const_iterator end_rdo = SCT_Collection->end();
     for (; p_rdo != end_rdo; ++p_rdo) {
-      const SCT3_RawData *rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
+      const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*p_rdo);
       int tbin;// = (*p_rdo)->getTimeBin();
       if (rdo3 != 0) {
         tbin = (rdo3)->getTimeBin();
@@ -1230,7 +1221,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     }
   }
 
-  // if(m_environment!=AthenaMonManager::online){ // Uncomment this line to turn off cluster hists in online
+  // if (m_environment!=AthenaMonManager::online){ // Uncomment this line to turn off cluster hists in online
   // Fill Cluster size histogram
   SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer(m_clusContainerKey);
   if (not p_clucontainer.isValid()) {
@@ -1239,7 +1230,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   InDet::SCT_ClusterContainer::const_iterator clucol_it = p_clucontainer->begin();
   InDet::SCT_ClusterContainer::const_iterator lastcluCol = p_clucontainer->end();
   for (; clucol_it != lastcluCol; ++clucol_it) {
-    const InDet::SCT_ClusterCollection *SCT_Collection(*clucol_it);
+    const InDet::SCT_ClusterCollection* SCT_Collection(*clucol_it);
     if (!SCT_Collection) {
       continue; // select only SCT RDOs
     }
@@ -1248,7 +1239,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     DataVector<InDet::SCT_Cluster>::const_iterator clus_end = SCT_Collection->end();
     for (; p_clu != clus_end; ++p_clu) {
       Identifier cluId = (*p_clu)->identify();
-      const InDet::SCT_Cluster &cluster = **p_clu;
+      const InDet::SCT_Cluster& cluster = **p_clu;
       int GroupSize = cluster.rdoList().size();
       // Fill  Cluster Size histogram
       int elementIndex = 2 * m_pSCTHelper->layer_disk(cluId) + m_pSCTHelper->side(cluId);
@@ -1394,13 +1385,13 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
     }
   }
   if (newRunFlag()) {
-    VecH2_t *hitsArray[] = {
+    VecH2_t* hitsArray[] = {
       &m_phitsHistoVectorECm, &m_phitsHistoVector, &m_phitsHistoVectorECp
     };
-    VecH2_t *hitsArrayRecent[] = {
+    VecH2_t* hitsArrayRecent[] = {
       &m_phitsHistoVectorRecentECm, &m_phitsHistoVectorRecent, &m_phitsHistoVectorRecentECp
     };
-    VecH1_t *nClustersArray[] = {
+    VecH1_t* nClustersArray[] = {
       &m_ncluHistoVectorECm, &m_ncluHistoVector, &m_ncluHistoVectorECp
     };
     (hitsArray[systemIndex])->clear();
@@ -1414,7 +1405,7 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
       string streamhits = "hits" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitle = "SCT Hitmap for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecent = "SCT Hitmap from recent events for " + names[systemIndex] + ": " +
-	layerSide.title();
+        layerSide.title();
       h2Factory(streamhitmap, histotitle, bec, hitHists, *(hitsArray[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
         h2Factory(streamhitmaprecent, histotitlerecent, bec, hitHists, *(hitsArrayRecent[systemIndex]));
@@ -1498,10 +1489,10 @@ SCTHitsNoiseMonTool::bookClusterSize() {
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
   const SCT_Monitoring::Bec bec(index2Bec(systemIndex));
-  VecH1_t *clusterSizeArray[] = {
+  VecH1_t* clusterSizeArray[] = {
     &m_clusizeHistoVectorECm, &m_clusizeHistoVector, &m_clusizeHistoVectorECp
   };
-  VecH1_t *clusterSizeArrayRecent[] = {
+  VecH1_t* clusterSizeArrayRecent[] = {
     &m_clusizeHistoVectorRecentECm, &m_clusizeHistoVectorRecent, &m_clusizeHistoVectorRecentECp
   };
 
@@ -1519,8 +1510,8 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
-  VecH1_t &clusterSizeVector = *(clusterSizeArray[systemIndex]);
-  VecH1_t &clusterSizeVectorRecent = *(clusterSizeArrayRecent[systemIndex]);
+  VecH1_t& clusterSizeVector = *(clusterSizeArray[systemIndex]);
+  VecH1_t& clusterSizeVectorRecent = *(clusterSizeArrayRecent[systemIndex]);
   if (newRunFlag()) {
     clusterSizeVector.clear();
     clusterSizeVectorRecent.clear();
@@ -1536,7 +1527,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
       if (m_environment == AthenaMonManager::online) {
         const string streamclusizerecent = "clusize_recent" + abbreviations[systemIndex] + "_" + layerSide.name();
         std::string histotitlerecent = "SCT " + names[systemIndex] + " Cluster size from recent events: " +
-	  layerSide.title();
+          layerSide.title();
         h1Factory(streamclusizerecent, histotitlerecent, clusterSize, clusterSizeVectorRecent, 0., 200., 200);
         // clusterSizeVectorRecent[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
         // clusterSizeVectorRecent[systemIndex]->GetYaxis()->SetTitle("Num of Events");
@@ -1561,14 +1552,14 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
     const unsigned int limits[] = {
       N_DISKSx2, N_BARRELSx2, N_DISKSx2
     };
-    VecProf2_t *storageVectors[] = {
+    VecProf2_t* storageVectors[] = {
       &m_pnoiseoccupancymapHistoVectorECm, &m_pnoiseoccupancymapHistoVector, &m_pnoiseoccupancymapHistoVectorECp
     };
-    VecProf2_t *storageVectorsTrigger[] = {
+    VecProf2_t* storageVectorsTrigger[] = {
       &m_pnoiseoccupancymapHistoVectorECmTrigger, &m_pnoiseoccupancymapHistoVectorTrigger,
       &m_pnoiseoccupancymapHistoVectorECpTrigger
     };
-    VecProf2_t *storageVectorsRecent[] = {
+    VecProf2_t* storageVectorsRecent[] = {
       &m_pnoiseoccupancymapHistoVectorECmRecent, &m_pnoiseoccupancymapHistoVectorRecent,
       &m_pnoiseoccupancymapHistoVectorECpRecent
     };
@@ -1582,13 +1573,13 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmap = "noiseoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name();
       const string streamhitmaptrigger = "noiseoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
-	layerSide.name();
+        layerSide.name();
       const string streamhitmaprecent = "noiseoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitle = "SCT Noise Occupancy map for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitletrigger = "SCT Noise Occupancy map for " + m_NOTrigger + " Trigger and " +
-	names[systemIndex] + ": " + layerSide.title();
+        names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecent = "SCT Noise Occupancy map in recent events for " + names[systemIndex] + ": " +
-	layerSide.title();
+        layerSide.title();
       prof2Factory(streamhitmap, histotitle, bec, noiseOccMaps, *(storageVectors[systemIndex]));
       prof2Factory(streamhitmaptrigger, histotitletrigger, bec, noiseOccMaps, *(storageVectorsTrigger[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
@@ -1751,14 +1742,14 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
     const unsigned int limits[] = {
       N_DISKSx2, N_BARRELSx2, N_DISKSx2
     };
-    VecProf2_t *storageVectorsHO[] = {
+    VecProf2_t* storageVectorsHO[] = {
       &m_phitoccupancymapHistoVectorECm, &m_phitoccupancymapHistoVector, &m_phitoccupancymapHistoVectorECp
     };
-    VecProf2_t *storageVectorsTriggerHO[] = {
+    VecProf2_t* storageVectorsTriggerHO[] = {
       &m_phitoccupancymapHistoVectorECmTrigger, &m_phitoccupancymapHistoVectorTrigger,
       &m_phitoccupancymapHistoVectorECpTrigger
     };
-    VecProf2_t *storageVectorsRecentHO[] = {
+    VecProf2_t* storageVectorsRecentHO[] = {
       &m_phitoccupancymapHistoVectorECmRecent, &m_phitoccupancymapHistoVectorRecent,
       &m_phitoccupancymapHistoVectorECpRecent
     };
@@ -1774,13 +1765,13 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmapR = "hitoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name();
       const string streamhitmaptriggerR = "hitoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
-	layerSide.name();
+        layerSide.name();
       const string streamhitmaprecentR = "hitoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitleR = "SCT Hit Occupancy map for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitletriggerR = "SCT Hit Occupancy map for " + m_NOTrigger + " Trigger and " +
-	names[systemIndex] + ": " + layerSide.title();
+        names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecentR = "SCT Hit Occupancy map in recent events for " + names[systemIndex] + ": " +
-	layerSide.title();
+        layerSide.title();
       prof2Factory(streamhitmapR, histotitleR, bec, hitOccMaps, *(storageVectorsHO[systemIndex]));
       prof2Factory(streamhitmaptriggerR, histotitletriggerR, bec, hitOccMaps, *(storageVectorsTriggerHO[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
@@ -2099,141 +2090,141 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
 
-      if(m_current_lb<=SCT_Monitoring::NBINS_LBs) {
-	m_noisyM100[m_current_lb] = 0;
-	m_noisyM1000[m_current_lb] = 0;
-	m_noisyM10000[m_current_lb] = 0;
-	m_occ_lb[m_current_lb] = 0;
-	m_occBAR_lb[m_current_lb] = 0;
-	m_occECp_lb[m_current_lb] = 0;
-	m_occECm_lb[m_current_lb] = 0;
-	m_noisyMTrigger100[m_current_lb] = 0;
-	m_noisyMTrigger1000[m_current_lb] = 0;
-	m_noisyMTrigger10000[m_current_lb] = 0;
-	m_occTrigger_lb[m_current_lb] = 0;
-	m_occTriggerBAR_lb[m_current_lb] = 0;
-	m_occTriggerECp_lb[m_current_lb] = 0;
-	m_occTriggerECm_lb[m_current_lb] = 0;
-	m_noisyMWithHO100[m_current_lb] = 0;
-	m_noisyMWithHO1000[m_current_lb] = 0;
-	m_noisyMWithHO10000[m_current_lb] = 0;
-	m_hitocc_lb[m_current_lb] = 0;
-	m_hitoccBAR_lb[m_current_lb] = 0;
-	m_hitoccECp_lb[m_current_lb] = 0;
-	m_hitoccECm_lb[m_current_lb] = 0;
-	m_noisyMWithHOTrigger100[m_current_lb] = 0;
-	m_noisyMWithHOTrigger1000[m_current_lb] = 0;
-	m_noisyMWithHOTrigger10000[m_current_lb] = 0;
-	m_hitoccTrigger_lb[m_current_lb] = 0;
-	m_hitoccTriggerBAR_lb[m_current_lb] = 0;
-	m_hitoccTriggerECp_lb[m_current_lb] = 0;
-	m_hitoccTriggerECm_lb[m_current_lb] = 0;
+      if (m_current_lb<=SCT_Monitoring::NBINS_LBs) {
+        m_noisyM100[m_current_lb] = 0;
+        m_noisyM1000[m_current_lb] = 0;
+        m_noisyM10000[m_current_lb] = 0;
+        m_occ_lb[m_current_lb] = 0;
+        m_occBAR_lb[m_current_lb] = 0;
+        m_occECp_lb[m_current_lb] = 0;
+        m_occECm_lb[m_current_lb] = 0;
+        m_noisyMTrigger100[m_current_lb] = 0;
+        m_noisyMTrigger1000[m_current_lb] = 0;
+        m_noisyMTrigger10000[m_current_lb] = 0;
+        m_occTrigger_lb[m_current_lb] = 0;
+        m_occTriggerBAR_lb[m_current_lb] = 0;
+        m_occTriggerECp_lb[m_current_lb] = 0;
+        m_occTriggerECm_lb[m_current_lb] = 0;
+        m_noisyMWithHO100[m_current_lb] = 0;
+        m_noisyMWithHO1000[m_current_lb] = 0;
+        m_noisyMWithHO10000[m_current_lb] = 0;
+        m_hitocc_lb[m_current_lb] = 0;
+        m_hitoccBAR_lb[m_current_lb] = 0;
+        m_hitoccECp_lb[m_current_lb] = 0;
+        m_hitoccECm_lb[m_current_lb] = 0;
+        m_noisyMWithHOTrigger100[m_current_lb] = 0;
+        m_noisyMWithHOTrigger1000[m_current_lb] = 0;
+        m_noisyMWithHOTrigger10000[m_current_lb] = 0;
+        m_hitoccTrigger_lb[m_current_lb] = 0;
+        m_hitoccTriggerBAR_lb[m_current_lb] = 0;
+        m_hitoccTriggerECp_lb[m_current_lb] = 0;
+        m_hitoccTriggerECm_lb[m_current_lb] = 0;
 
-	int nlinks = 0;
-	int nlinksBAR = 0;
-	int nlinksECp = 0;
-	int nlinksECm = 0;
-	SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
-	SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
-	for (; planeIterator not_eq planeEnd; ++planeIterator) {
-	  Identifier planeId(*planeIterator);
-	  const int bec(m_pSCTHelper->barrel_ec(planeId));
-	  // Don't initialize a value for disabled  modules
-	  if (!m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
-	    continue;
-	  }
-	  if (m_events_lb > 0) {
-	    m_occ_lb[m_current_lb] += (1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb;
-	    m_occBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
-	    m_occECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
-	    m_occECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
-	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
-	      m_noisyM100[m_current_lb]++;
-	    }
-	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
-	      m_noisyM1000[m_current_lb]++;
-	    }
-	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
-	      m_noisyM10000[m_current_lb]++;
-	    }
-	    m_hitocc_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb;
-	    m_hitoccBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
-	    m_hitoccECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
-	    m_hitoccECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
-	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
-	      m_noisyMWithHO100[m_current_lb]++;
-	    }
-	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
-	      m_noisyMWithHO1000[m_current_lb]++;
-	    }
-	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
-	      m_noisyMWithHO10000[m_current_lb]++;
-	    }
-	  }
-	  if (m_eventsTrigger_lb > 0) {
-	    m_occTrigger_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
-	    m_occTriggerBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerBAR_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    m_occTriggerECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECp_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    m_occTriggerECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECm_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
-	      m_noisyMTrigger100[m_current_lb]++;
-	    }
-	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
-	      m_noisyMTrigger1000[m_current_lb]++;
-	    }
-	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
-	      m_noisyMTrigger10000[m_current_lb]++;
-	    }
-	    m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
-	      m_eventsTrigger_lb;
-	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
-	      m_noisyMWithHOTrigger100[m_current_lb]++;
-	    }
-	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
-	      m_noisyMWithHOTrigger1000[m_current_lb]++;
-	    }
-	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
-	      m_noisyMWithHOTrigger10000[m_current_lb]++;
-	    }
-	  }
-	  if (bec == BARREL)  nlinksBAR++; 
-	  if (bec == ENDCAP_A)nlinksECp++;
-	  if (bec == ENDCAP_C)nlinksECm++;
-	  nlinks++;
-	}
-	if (nlinks >0){
-	  m_occ_lb[m_current_lb] /= nlinks;
-	  m_occTrigger_lb[m_current_lb] /= nlinks;
-	  m_hitocc_lb[m_current_lb] /= nlinks;
-	  m_hitoccTrigger_lb[m_current_lb] /= nlinks;
-	}
-	if (nlinksBAR >0){
-	  m_occBAR_lb[m_current_lb] /= nlinksBAR;
-	  m_occTriggerBAR_lb[m_current_lb] /= nlinksBAR;
-	  m_hitoccBAR_lb[m_current_lb] /= nlinksBAR;
-	  m_hitoccTriggerBAR_lb[m_current_lb] /= nlinksBAR;
-	}
-	if (nlinksECp >0){
-	  m_occECp_lb[m_current_lb] /= nlinksECp;
-	  m_occTriggerECp_lb[m_current_lb] /= nlinksECp;
-	  m_hitoccECp_lb[m_current_lb] /= nlinksECp;
-	  m_hitoccTriggerECp_lb[m_current_lb] /= nlinksECp;
-	}
-	if (nlinksECm >0){
-	  m_occECm_lb[m_current_lb] /= nlinksECm;
-	  m_occTriggerECm_lb[m_current_lb] /= nlinksECm;
-	  m_hitoccECm_lb[m_current_lb] /= nlinksECm;
-	  m_hitoccTriggerECm_lb[m_current_lb] /= nlinksECm;
-	}
+        int nlinks = 0;
+        int nlinksBAR = 0;
+        int nlinksECp = 0;
+        int nlinksECm = 0;
+        SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
+        SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
+        for (; planeIterator not_eq planeEnd; ++planeIterator) {
+          Identifier planeId(*planeIterator);
+          const int bec(m_pSCTHelper->barrel_ec(planeId));
+          // Don't initialize a value for disabled  modules
+          if (!m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
+            continue;
+          }
+          if (m_events_lb > 0) {
+            m_occ_lb[m_current_lb] += (1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb;
+            m_occBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
+            m_occECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
+            m_occECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
+            if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
+              m_noisyM100[m_current_lb]++;
+            }
+            if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
+              m_noisyM1000[m_current_lb]++;
+            }
+            if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
+              m_noisyM10000[m_current_lb]++;
+            }
+            m_hitocc_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb;
+            m_hitoccBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
+            m_hitoccECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
+            m_hitoccECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
+            if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
+              m_noisyMWithHO100[m_current_lb]++;
+            }
+            if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
+              m_noisyMWithHO1000[m_current_lb]++;
+            }
+            if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
+              m_noisyMWithHO10000[m_current_lb]++;
+            }
+          }
+          if (m_eventsTrigger_lb > 0) {
+            m_occTrigger_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
+            m_occTriggerBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerBAR_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            m_occTriggerECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECp_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            m_occTriggerECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECm_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
+              m_noisyMTrigger100[m_current_lb]++;
+            }
+            if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
+              m_noisyMTrigger1000[m_current_lb]++;
+            }
+            if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
+              m_noisyMTrigger10000[m_current_lb]++;
+            }
+            m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
+              m_eventsTrigger_lb;
+            if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
+              m_noisyMWithHOTrigger100[m_current_lb]++;
+            }
+            if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
+              m_noisyMWithHOTrigger1000[m_current_lb]++;
+            }
+            if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
+              m_noisyMWithHOTrigger10000[m_current_lb]++;
+            }
+          }
+          if (bec == BARREL)  nlinksBAR++; 
+          if (bec == ENDCAP_A)nlinksECp++;
+          if (bec == ENDCAP_C)nlinksECm++;
+          nlinks++;
+        }
+        if (nlinks >0){
+          m_occ_lb[m_current_lb] /= nlinks;
+          m_occTrigger_lb[m_current_lb] /= nlinks;
+          m_hitocc_lb[m_current_lb] /= nlinks;
+          m_hitoccTrigger_lb[m_current_lb] /= nlinks;
+        }
+        if (nlinksBAR >0){
+          m_occBAR_lb[m_current_lb] /= nlinksBAR;
+          m_occTriggerBAR_lb[m_current_lb] /= nlinksBAR;
+          m_hitoccBAR_lb[m_current_lb] /= nlinksBAR;
+          m_hitoccTriggerBAR_lb[m_current_lb] /= nlinksBAR;
+        }
+        if (nlinksECp >0){
+          m_occECp_lb[m_current_lb] /= nlinksECp;
+          m_occTriggerECp_lb[m_current_lb] /= nlinksECp;
+          m_hitoccECp_lb[m_current_lb] /= nlinksECp;
+          m_hitoccTriggerECp_lb[m_current_lb] /= nlinksECp;
+        }
+        if (nlinksECm >0){
+          m_occECm_lb[m_current_lb] /= nlinksECm;
+          m_occTriggerECm_lb[m_current_lb] /= nlinksECm;
+          m_hitoccECm_lb[m_current_lb] /= nlinksECm;
+          m_hitoccTriggerECm_lb[m_current_lb] /= nlinksECm;
+        }
       }
 
       m_BARNO_vsLB->Reset();
@@ -2266,92 +2257,92 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       m_NoisyModulesWithHOTrigger10000_vsLB->Reset();
       //
       for (int bin = 1; bin <= SCT_Monitoring::NBINS_LBs; bin++) {
-	if (m_occBAR_lb[bin] != 0) {
-	  m_BARNO_vsLB->Fill(bin, m_occBAR_lb[bin]);
-	}
-	if (m_occECm_lb[bin] != 0) {
-	  m_ECmNO_vsLB->Fill(bin, m_occECm_lb[bin]);
-	}
-	if (m_occECp_lb[bin] != 0) {
-	  m_ECpNO_vsLB->Fill(bin, m_occECp_lb[bin]);
-	}
-	if (m_occ_lb[bin] != 0) {
-	  m_SCTNO_vsLB->Fill(bin, m_occ_lb[bin]);
-	}
-	if (m_noisyM100[bin] != 0) {
-	  m_NoisyModules100_vsLB->Fill(bin, m_noisyM100[bin]);
-	}
-	if (m_noisyM1000[bin] != 0) {
-	  m_NoisyModules1000_vsLB->Fill(bin, m_noisyM1000[bin]);
-	}
-	if (m_noisyM10000[bin] != 0) {
-	  m_NoisyModules10000_vsLB->Fill(bin, m_noisyM10000[bin]);
-	}
-	if (m_occTriggerBAR_lb[bin] != 0) {
-	  m_BARNOTrigger_vsLB->Fill(bin, m_occTriggerBAR_lb[bin]);
-	}
-	if (m_occTriggerECm_lb[bin] != 0) {
-	  m_ECmNOTrigger_vsLB->Fill(bin, m_occTriggerECm_lb[bin]);
-	}
-	if (m_occTriggerECp_lb[bin] != 0) {
-	  m_ECpNOTrigger_vsLB->Fill(bin, m_occTriggerECp_lb[bin]);
-	}
-	if (m_occTrigger_lb[bin] != 0) {
-	  m_SCTNOTrigger_vsLB->Fill(bin, m_occTrigger_lb[bin]);
-	}
-	if (m_noisyMTrigger100[bin] != 0) {
-	  m_NoisyModulesTrigger100_vsLB->Fill(bin, m_noisyMTrigger100[bin]);
-	}
-	if (m_noisyMTrigger1000[bin] != 0) {
-	  m_NoisyModulesTrigger1000_vsLB->Fill(bin, m_noisyMTrigger1000[bin]);
-	}
-	if (m_noisyMTrigger10000[bin] != 0) {
-	  m_NoisyModulesTrigger10000_vsLB->Fill(bin, m_noisyMTrigger10000[bin]);
-	}
+        if (m_occBAR_lb[bin] != 0) {
+          m_BARNO_vsLB->Fill(bin, m_occBAR_lb[bin]);
+        }
+        if (m_occECm_lb[bin] != 0) {
+          m_ECmNO_vsLB->Fill(bin, m_occECm_lb[bin]);
+        }
+        if (m_occECp_lb[bin] != 0) {
+          m_ECpNO_vsLB->Fill(bin, m_occECp_lb[bin]);
+        }
+        if (m_occ_lb[bin] != 0) {
+          m_SCTNO_vsLB->Fill(bin, m_occ_lb[bin]);
+        }
+        if (m_noisyM100[bin] != 0) {
+          m_NoisyModules100_vsLB->Fill(bin, m_noisyM100[bin]);
+        }
+        if (m_noisyM1000[bin] != 0) {
+          m_NoisyModules1000_vsLB->Fill(bin, m_noisyM1000[bin]);
+        }
+        if (m_noisyM10000[bin] != 0) {
+          m_NoisyModules10000_vsLB->Fill(bin, m_noisyM10000[bin]);
+        }
+        if (m_occTriggerBAR_lb[bin] != 0) {
+          m_BARNOTrigger_vsLB->Fill(bin, m_occTriggerBAR_lb[bin]);
+        }
+        if (m_occTriggerECm_lb[bin] != 0) {
+          m_ECmNOTrigger_vsLB->Fill(bin, m_occTriggerECm_lb[bin]);
+        }
+        if (m_occTriggerECp_lb[bin] != 0) {
+          m_ECpNOTrigger_vsLB->Fill(bin, m_occTriggerECp_lb[bin]);
+        }
+        if (m_occTrigger_lb[bin] != 0) {
+          m_SCTNOTrigger_vsLB->Fill(bin, m_occTrigger_lb[bin]);
+        }
+        if (m_noisyMTrigger100[bin] != 0) {
+          m_NoisyModulesTrigger100_vsLB->Fill(bin, m_noisyMTrigger100[bin]);
+        }
+        if (m_noisyMTrigger1000[bin] != 0) {
+          m_NoisyModulesTrigger1000_vsLB->Fill(bin, m_noisyMTrigger1000[bin]);
+        }
+        if (m_noisyMTrigger10000[bin] != 0) {
+          m_NoisyModulesTrigger10000_vsLB->Fill(bin, m_noisyMTrigger10000[bin]);
+        }
       }
       for (int bin = 1; bin <= SCT_Monitoring::NBINS_LBs; bin++) {
-	if (m_hitoccBAR_lb[bin] != 0) {
-	  m_BARHO_vsLB->Fill(bin, m_hitoccBAR_lb[bin]);
-	}
-	if (m_hitoccECm_lb[bin] != 0) {
-	  m_ECmHO_vsLB->Fill(bin, m_hitoccECm_lb[bin]);
-	}
-	if (m_hitoccECp_lb[bin] != 0) {
-	  m_ECpHO_vsLB->Fill(bin, m_hitoccECp_lb[bin]);
-	}
-	if (m_hitocc_lb[bin] != 0) {
-	  m_SCTHO_vsLB->Fill(bin, m_hitocc_lb[bin]);
-	}
-	if (m_noisyMWithHO100[bin] != 0) {
-	  m_NoisyModulesWithHO100_vsLB->Fill(bin, m_noisyMWithHO100[bin]);
-	}
-	if (m_noisyMWithHO1000[bin] != 0) {
-	  m_NoisyModulesWithHO1000_vsLB->Fill(bin, m_noisyMWithHO1000[bin]);
-	}
-	if (m_noisyMWithHO10000[bin] != 0) {
-	  m_NoisyModulesWithHO10000_vsLB->Fill(bin, m_noisyMWithHO10000[bin]);
-	}
-	if (m_hitoccTriggerBAR_lb[bin] != 0) {
-	  m_BARHOTrigger_vsLB->Fill(bin, m_hitoccTriggerBAR_lb[bin]);
-	}
-	if (m_hitoccTriggerECm_lb[bin] != 0) {
-	  m_ECmHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECm_lb[bin]);
-	}
-	if (m_hitoccTriggerECp_lb[bin] != 0) {
-	  m_ECpHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECp_lb[bin]);
-	}
-	if (m_hitoccTrigger_lb[bin] != 0) {
-	  m_SCTHOTrigger_vsLB->Fill(bin, m_hitoccTrigger_lb[bin]);
-	}
-	if (m_noisyMWithHOTrigger100[bin] != 0) {
-	  m_NoisyModulesWithHOTrigger100_vsLB->Fill(bin, m_noisyMWithHOTrigger100[bin]);
-	}
-	if (m_noisyMWithHOTrigger1000[bin] != 0) {
-	  m_NoisyModulesWithHOTrigger1000_vsLB->Fill(bin, m_noisyMWithHOTrigger1000[bin]);
-	}
-	if (m_noisyMWithHOTrigger10000[bin] != 0) {
-	  m_NoisyModulesWithHOTrigger10000_vsLB->Fill(bin, m_noisyMWithHOTrigger10000[bin]);
-	}
+        if (m_hitoccBAR_lb[bin] != 0) {
+          m_BARHO_vsLB->Fill(bin, m_hitoccBAR_lb[bin]);
+        }
+        if (m_hitoccECm_lb[bin] != 0) {
+          m_ECmHO_vsLB->Fill(bin, m_hitoccECm_lb[bin]);
+        }
+        if (m_hitoccECp_lb[bin] != 0) {
+          m_ECpHO_vsLB->Fill(bin, m_hitoccECp_lb[bin]);
+        }
+        if (m_hitocc_lb[bin] != 0) {
+          m_SCTHO_vsLB->Fill(bin, m_hitocc_lb[bin]);
+        }
+        if (m_noisyMWithHO100[bin] != 0) {
+          m_NoisyModulesWithHO100_vsLB->Fill(bin, m_noisyMWithHO100[bin]);
+        }
+        if (m_noisyMWithHO1000[bin] != 0) {
+          m_NoisyModulesWithHO1000_vsLB->Fill(bin, m_noisyMWithHO1000[bin]);
+        }
+        if (m_noisyMWithHO10000[bin] != 0) {
+          m_NoisyModulesWithHO10000_vsLB->Fill(bin, m_noisyMWithHO10000[bin]);
+        }
+        if (m_hitoccTriggerBAR_lb[bin] != 0) {
+          m_BARHOTrigger_vsLB->Fill(bin, m_hitoccTriggerBAR_lb[bin]);
+        }
+        if (m_hitoccTriggerECm_lb[bin] != 0) {
+          m_ECmHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECm_lb[bin]);
+        }
+        if (m_hitoccTriggerECp_lb[bin] != 0) {
+          m_ECpHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECp_lb[bin]);
+        }
+        if (m_hitoccTrigger_lb[bin] != 0) {
+          m_SCTHOTrigger_vsLB->Fill(bin, m_hitoccTrigger_lb[bin]);
+        }
+        if (m_noisyMWithHOTrigger100[bin] != 0) {
+          m_NoisyModulesWithHOTrigger100_vsLB->Fill(bin, m_noisyMWithHOTrigger100[bin]);
+        }
+        if (m_noisyMWithHOTrigger1000[bin] != 0) {
+          m_NoisyModulesWithHOTrigger1000_vsLB->Fill(bin, m_noisyMWithHOTrigger1000[bin]);
+        }
+        if (m_noisyMWithHOTrigger10000[bin] != 0) {
+          m_NoisyModulesWithHOTrigger10000_vsLB->Fill(bin, m_noisyMWithHOTrigger10000[bin]);
+        }
       }
     }
   }
@@ -2622,9 +2613,7 @@ SCTHitsNoiseMonTool::resetVecH1(VecH1_t hists) {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::bookNoiseDistributions() {
-  // SCTHitsNoiseMonTool::bookNoiseDistributions(bool isNewRun){
 
-  //  if(isNewRun){
   if (newRunFlag()) {
     MonGroup NoiseDistributions(this, "SCT/GENERAL/noise", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     const Int_t bins = 8000;
@@ -2967,7 +2956,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nSP->GetYaxis()->SetTitle("Num of Spacepoints");
     size_t nSP_buf_size;
     nSP_buf_size = m_evtsbins * sizeof(int);
-    m_nSP_buf = (int *) malloc(nSP_buf_size);
+    m_nSP_buf = (int*) malloc(nSP_buf_size);
     m_nSP_pos = 0;
 
     m_nHits = th1Factory("sct_av_hits_vs_en", "Number of Average Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
@@ -2976,7 +2965,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nHits->GetYaxis()->SetTitle("Num of Average Hits");
     size_t nHits_buf_size;
     nHits_buf_size = m_evtsbins * sizeof(int);
-    m_nHits_buf = (int *) malloc(nHits_buf_size);
+    m_nHits_buf = (int*) malloc(nHits_buf_size);
     m_nHits_pos = 0;
 
     m_nmaxHits = th1Factory("sct_max_hits_vs_en", "Max Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
@@ -2985,10 +2974,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nmaxHits->GetYaxis()->SetTitle("Num of Max Hits");
     size_t nmaxHits_buf_size;
     nmaxHits_buf_size = m_evtsbins * sizeof(int);
-    m_nmaxHits_buf = (int *) malloc(nmaxHits_buf_size);
+    m_nmaxHits_buf = (int*) malloc(nmaxHits_buf_size);
     size_t nmaxModule_buf_size;
     nmaxModule_buf_size = m_evtsbins * sizeof(Identifier);
-    m_nmaxModule_buf = (Identifier *) malloc(nmaxModule_buf_size);
+    m_nmaxModule_buf = (Identifier*) malloc(nmaxModule_buf_size);
 
     m_nminHits = th1Factory("sct_min_hits_vs_en", "Min Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
@@ -2996,10 +2985,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nminHits->GetYaxis()->SetTitle("Num of Min Hits");
     size_t nminHits_buf_size;
     nminHits_buf_size = m_evtsbins * sizeof(int);
-    m_nminHits_buf = (int *) malloc(nminHits_buf_size);
+    m_nminHits_buf = (int*) malloc(nminHits_buf_size);
     size_t nminModule_buf_size;
     nminModule_buf_size = m_evtsbins * sizeof(Identifier);
-    m_nminModule_buf = (Identifier *) malloc(nminModule_buf_size);
+    m_nminModule_buf = (Identifier*) malloc(nminModule_buf_size);
   }
   return StatusCode::SUCCESS;
 }
@@ -3022,7 +3011,7 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   SpacePointContainer::const_iterator it = SCT_spcontainer->begin();
   SpacePointContainer::const_iterator endit = SCT_spcontainer->end();
   for (; it != endit; ++it) {
-    const SpacePointCollection *colNext = &(**it);
+    const SpacePointCollection* colNext = &(**it);
     if (!colNext) {
       continue;
     }
@@ -3077,7 +3066,7 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
 }
 
 std::string
-SCTHitsNoiseMonTool::positionString(const Identifier &plane) const {
+SCTHitsNoiseMonTool::positionString(const Identifier& plane) const {
   ostringstream position_txt;
 
   position_txt << m_pSCTHelper->barrel_ec(plane) << "_" << m_pSCTHelper->layer_disk(plane) << "_" <<
@@ -3110,31 +3099,31 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
   }
   // assemble list of rdo ids associated with tracks
   for (int i = 0; i < (int) tracks->size(); i++) {
-    const Trk::Track *track = (*tracks)[i];
+    const Trk::Track* track = (*tracks)[i];
     if (track == 0) {
       ATH_MSG_WARNING("no pointer to track!!!");
       break;
     }
     // Get pointer to track state on surfaces
-    const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
     if (trackStates == 0) {
       ATH_MSG_WARNING("for current track is TrackStateOnSurfaces == Null, no data will be written for this track");
     }else {// Loop over all track states on surfaces
       for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
            it != trackStates->end(); it++) {
         // Get pointer to RIO of right type
-        const InDet::SiClusterOnTrack *clus =
-          dynamic_cast<const InDet::SiClusterOnTrack *>((*it)->measurementOnTrack());
+        const InDet::SiClusterOnTrack* clus =
+          dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack());
         if (clus) {
           // Get Pointer to prepRawDataObject
-          const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
+          const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
           if (RawDataClus == 0) {
             ATH_MSG_WARNING("SiCluster WITHOUT prepRawData!!!!");
             break;
           }
           // if Cluster is in SCT ...
           if (RawDataClus->detectorElement()->isSCT()) {
-            const std::vector<Identifier> &rdoList = RawDataClus->rdoList();
+            const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             m_RDOsOnTracks.insert(m_RDOsOnTracks.end(), rdoList.begin(), rdoList.end());
           }
         }
@@ -3160,10 +3149,10 @@ SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
   const unsigned int limits[] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
-  VecH2_t *histoVec[] = {
+  VecH2_t* histoVec[] = {
     &m_ptrackhitsHistoVectorECm, &m_ptrackhitsHistoVector, &m_ptrackhitsHistoVectorECp
   };
-  VecH2_t *histoVecRecent[] = {
+  VecH2_t* histoVecRecent[] = {
     &m_ptrackhitsHistoVectorRecentECm, &m_ptrackhitsHistoVectorRecent, &m_ptrackhitsHistoVectorRecentECp
   };
   string stem = m_stream + "/" + paths[systemIndex] + "mapsOfHitsOnTracks";
@@ -3175,13 +3164,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
     for (unsigned int i(0); i != limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmap = "mapsOfHitsOnTracks" + abbreviations[systemIndex] + streamDelimiter +
-	"trackhitsmap_" + layerSide.name();
+        "trackhitsmap_" + layerSide.name();
       const string streamhitmaprecent = "mapsOfHitsOnTracksRecent" + abbreviations[systemIndex] + streamDelimiter +
-	"trackhitsmap_" + layerSide.name();
+        "trackhitsmap_" + layerSide.name();
       std::string histoName = stem + streamhitmap;
       std::string histotitle = "SCT hits on tracks for " + names[systemIndex] + " " + layerSide.title();
       std::string histotitlerecent = "SCT hits on tracks from recent events for " + names[systemIndex] + " " +
-	layerSide.title();
+        layerSide.title();
       h2Factory(streamhitmap, histotitle, bec, tracksMon, *(histoVec[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
         h2Factory(streamhitmaprecent, histotitlerecent, bec, tracksMon, *(histoVecRecent[systemIndex]));
@@ -3200,15 +3189,15 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     const unsigned int limits[N_REGIONS] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
-    std::vector<H1_t> *tbinHistoVectorArray[] = {
+    std::vector<H1_t>* tbinHistoVectorArray[] = {
       &m_tbinHistoVectorECm, &m_tbinHistoVector, &m_tbinHistoVectorECp
     };
-    std::vector<H1_t> *tbinHistoVectorArrayRecent[] = {
+    std::vector<H1_t>* tbinHistoVectorArrayRecent[] = {
       &m_tbinHistoVectorRecentECm, &m_tbinHistoVectorRecent, &m_tbinHistoVectorRecentECp
     };
     //
-    std::vector<H1_t> &tbinHistoVector = *(tbinHistoVectorArray[systemIndex]);
-    std::vector<H1_t> &tbinHistoVectorRecent = *(tbinHistoVectorArrayRecent[systemIndex]);
+    std::vector<H1_t>& tbinHistoVector = *(tbinHistoVectorArray[systemIndex]);
+    std::vector<H1_t>& tbinHistoVectorRecent = *(tbinHistoVectorArrayRecent[systemIndex]);
     tbinHistoVector.clear();
     tbinHistoVectorRecent.clear();
     MonGroup timeGroup(this, path[systemIndex], run, ATTRIB_UNMANAGED);
@@ -3308,7 +3297,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       const string streamlayer(std::to_string(i));
       const string streamhitmap = "TrackTimeBin" + abbreviations[systemIndex] + streamDelimiter + streamlayer;
       const string streamhitmaprecent = "TrackTimeBinRecent" + abbreviations[systemIndex] + streamDelimiter +
-	streamlayer;
+        streamlayer;
       histoName = stem + streamhitmap;
       histoNameRecent = stem + streamhitmaprecent;
       histoTitle = "RDO Track TimeBin: layer " + streamlayer;
@@ -3336,8 +3325,8 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
 }
 
 SCTHitsNoiseMonTool::H2_t
-SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title, const SCT_Monitoring::Bec bec,
-                               MonGroup &registry, VecH2_t &storageVector) {
+SCTHitsNoiseMonTool::h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec,
+                               MonGroup& registry, VecH2_t& storageVector) {
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS),
     nPhi(N_PHI_BINS);
 
@@ -3350,7 +3339,7 @@ SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title
     nPhi = N_PHI_BINS_EC;
   }
   H2_t tmp = TH2F_LW::create(TString(name), TString(
-					     title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
+                                             title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
@@ -3358,11 +3347,11 @@ SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::H2I_t
-SCTHitsNoiseMonTool::h2IFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbinx,
+SCTHitsNoiseMonTool::h2IFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx,
                                 float xlo, float xhi, int nbiny, float ylo, float yhi) {
   H2I_t tmp = TH2I_LW::create(TString(name), TString(title), nbinx, xlo, xhi, nbiny, ylo, yhi);
 
@@ -3372,11 +3361,11 @@ SCTHitsNoiseMonTool::h2IFactory(const std::string &name, const std::string &titl
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::Prof2_t
-SCTHitsNoiseMonTool::prof2DFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbinx,
+SCTHitsNoiseMonTool::prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx,
                                    float xlo, float xhi, int nbiny, float ylo, float yhi) {
   Prof2_t tmp = new TProfile2D(TString(name), TString(title), nbinx, xlo - 0.5, xhi + 0.5, nbiny, ylo - 0.5, yhi + 0.5);
 
@@ -3386,11 +3375,11 @@ SCTHitsNoiseMonTool::prof2DFactory(const std::string &name, const std::string &t
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::Prof_t
-SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbin,
+SCTHitsNoiseMonTool::profFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbin,
                                  float lo, float hi) {
   Prof_t tmp = TProfile_LW::create(TString(name), TString(title), nbin, lo, hi);
 
@@ -3400,11 +3389,11 @@ SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &tit
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::Prof_t
-SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &title, MonGroup &registry) {
+SCTHitsNoiseMonTool::profFactory(const std::string& name, const std::string& title, MonGroup& registry) {
   Prof_t tmp = TProfile_LW::create(TString(name), TString(title), 3, 0, 3);
 
   tmp->SetYTitle("Fraction of 01X");
@@ -3415,12 +3404,12 @@ SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &tit
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::Prof2_t
-SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &title, const SCT_Monitoring::Bec bec,
-                                  MonGroup &registry, VecProf2_t &storageVector) {
+SCTHitsNoiseMonTool::prof2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec,
+                                  MonGroup& registry, VecProf2_t& storageVector) {
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS),
     nPhi(N_PHI_BINS);
 
@@ -3433,7 +3422,7 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &ti
     nPhi = N_PHI_BINS_EC;
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(
-							     title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
+                                                             title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
@@ -3441,11 +3430,11 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &ti
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::H1_t
-SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
+SCTHitsNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo,
                                const float hi, const unsigned int nbins) {
   H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
@@ -3453,12 +3442,12 @@ SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTHitsNoiseMonTool::H1_t
-SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry,
-                               VecH1_t &storageVector, const float lo, const float hi, const unsigned int nbins) {
+SCTHitsNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                               VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) {
   H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
@@ -3466,24 +3455,24 @@ SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 TH1F*
-SCTHitsNoiseMonTool::th1Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
-				const float hi, const unsigned int nbins) {
+SCTHitsNoiseMonTool::th1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo,
+                                const float hi, const unsigned int nbins) {
   TH1F* tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 TH1F*
-SCTHitsNoiseMonTool::th1Factory(const std::string &name, const std::string &title, MonGroup &registry,
-                               std::vector<TH1F*> &storageVector, const float lo, const float hi, const unsigned int nbins) {
+SCTHitsNoiseMonTool::th1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                               std::vector<TH1F*>& storageVector, const float lo, const float hi, const unsigned int nbins) {
   TH1F* tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
@@ -3491,5 +3480,5 @@ SCTHitsNoiseMonTool::th1Factory(const std::string &name, const std::string &titl
     ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
