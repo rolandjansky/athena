@@ -202,7 +202,7 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':0.,
 				     'j0_ftk_jvt015et45':20.,
 				     'j0_ftk_4jvt015et15':0.,
-				     'j0_ftk_4jvt015et45':20.,
+				     'j0_ftk_4jvt015et45':20.}
     
   hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
                                      'j0_perf_ftk_L1RD0FILLED': 2.5,
@@ -240,7 +240,7 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':3.2,
 				     'j0_ftk_jvt015et45':3.2,
 				     'j0_ftk_4jvt015et15':3.2,
-				     'j0_ftk_4jvt015et45':3.2,
+				     'j0_ftk_4jvt015et45':3.2}
 
   
   hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
@@ -358,8 +358,7 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':'a4tcemsubjesISFSftk',
 				     'j0_ftk_jvt015et45':'a4tcemsubjesISFSftk',
 				     'j0_ftk_4jvt015et15':'a4tcemsubjesISFSftk',
-				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk',
-                                     }
+				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk'}
                 
 # Offline 
   hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
