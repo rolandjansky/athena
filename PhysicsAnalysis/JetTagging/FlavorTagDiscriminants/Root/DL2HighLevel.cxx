@@ -94,6 +94,11 @@ namespace FlavorTagDiscriminants {
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
+    // We have a number of special naming conventions to sort and
+    // filter tracks. The track nodes should be named according to
+    //
+    // tracks_<selection>_<sort-order>
+    //
     SortRegexes trk_sort_regexes {
       {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
       {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
