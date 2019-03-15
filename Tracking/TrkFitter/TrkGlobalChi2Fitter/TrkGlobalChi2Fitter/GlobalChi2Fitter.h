@@ -111,6 +111,19 @@ namespace Trk {
 
     };
 
+    enum FitterStatusType {
+      S_FITS,
+      S_SUCCESSFUL_FITS,
+      S_MAT_INV_FAIL,
+      S_NOT_ENOUGH_MEAS,
+      S_PROPAGATION_FAIL,
+      S_INVALID_ANGLES,
+      S_NOT_CONVERGENT,
+      S_HIGH_CHI2,
+      S_LOW_MOMENTUM,
+      __S_MAX_VALUE
+    };
+
   public:
     GlobalChi2Fitter(
       const std::string &,
@@ -419,9 +432,7 @@ namespace Trk {
     MagneticFieldProperties *m_fieldpropfullfield;
     ParticleMasses m_particleMasses;
 
-    mutable std::atomic<int> m_nfits, m_nsuccessfits, m_matrixinvfailed,
-      m_notenoughmeas, m_propfailed, m_invalidangles, m_notconverge,
-      m_highchi2, m_lowmomentum, m_energybalance;
+    mutable std::array<std::atomic<unsigned int>, __S_MAX_VALUE> m_fit_status = {};
   };
 }
 #endif

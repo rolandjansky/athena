@@ -264,17 +264,6 @@ namespace Trk {
     msg(MSG::INFO) << "fixed momentum: " << m_p << endmsg;
     m_inputPreparator = new TrackFitInputPreparator;
 
-    m_nfits = 0;
-    m_nsuccessfits = 0;
-    m_matrixinvfailed = 0;
-    m_notenoughmeas = 0;
-    m_propfailed = 0;
-    m_invalidangles = 0;
-    m_notconverge = 0;
-    m_highchi2 = 0;
-    m_lowmomentum = 0;
-    m_energybalance = 0;
-    
     return StatusCode::SUCCESS;
   }
 
@@ -282,17 +271,16 @@ namespace Trk {
     delete m_inputPreparator;
 
     msg(MSG::INFO) << "finalize()" << endmsg;
-    msg(MSG::INFO) << m_nfits << " attempted track fits" << endmsg;
-    msg(MSG::INFO) << m_nsuccessfits << " successful track fits" << endmsg;
-    msg(MSG::INFO) << m_matrixinvfailed << " track fits failed because of a matrix inversion failure" << endmsg;
-    msg(MSG::INFO) << m_notenoughmeas << " tracks were rejected by the outlier logic" << endmsg;
-    msg(MSG::INFO) << m_propfailed << " track fits failed because of a propagation failure" << endmsg;
-    msg(MSG::INFO) << m_invalidangles << " track fits failed because of an invalid angle (theta/phi)" << endmsg;
-    msg(MSG::INFO) << m_notconverge << " track fits failed because the fit did not converge" << endmsg;
-    msg(MSG::INFO) << m_highchi2 << " tracks did not pass the chi^2 cut" << endmsg;
-    msg(MSG::INFO) << m_lowmomentum << " tracks were killed by the energy loss update" << endmsg;
-    msg(MSG::INFO) << m_energybalance << " tracks failed the energy balance cut" << endmsg;
-
+    msg(MSG::INFO) << m_fit_status[S_FITS] << " attempted track fits" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_SUCCESSFUL_FITS] << " successful track fits" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_MAT_INV_FAIL] << " track fits failed because of a matrix inversion failure" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_NOT_ENOUGH_MEAS] << " tracks were rejected by the outlier logic" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_PROPAGATION_FAIL] << " track fits failed because of a propagation failure" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_INVALID_ANGLES] << " track fits failed because of an invalid angle (theta/phi)" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_NOT_CONVERGENT] << " track fits failed because the fit did not converge" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_HIGH_CHI2] << " tracks did not pass the chi^2 cut" << endmsg;
+    msg(MSG::INFO) << m_fit_status[S_LOW_MOMENTUM] << " tracks were killed by the energy loss update" << endmsg; 
+    
     return StatusCode::SUCCESS;
   }
 
@@ -515,7 +503,7 @@ namespace Trk {
       delete parforcalo;
     }
 
-    int nfits = m_nfits;
+    int nfits = m_fit_status[S_FITS];
     bool firstfitwasattempted = false;
 
     if (!cache.m_caloEntrance) {
@@ -543,7 +531,7 @@ namespace Trk {
     ) {
       track = mainCombinationStrategy(cache, intrk1, intrk2, trajectory, calomeots);
       
-      if (m_nfits == nfits + 1) {
+      if (m_fit_status[S_FITS] == (unsigned int) (nfits + 1)) {
         firstfitwasattempted = true;
       }
       
@@ -635,12 +623,12 @@ namespace Trk {
       }
     }
 
-    m_nfits = nfits + 1;
+    m_fit_status[S_FITS] = nfits + 1;
     
     if (track) {
       track->info().addPatternReco(intrk1.info());
       track->info().addPatternReco(intrk2.info());
-      m_nsuccessfits++;
+      m_fit_status[S_SUCCESSFUL_FITS]++;
     }
     
     cache.m_calomat = tmp;
@@ -2465,7 +2453,7 @@ namespace Trk {
     cache.m_fiteloss = tmpfiteloss;
 
     if (track) {
-      m_nsuccessfits++;
+      m_fit_status[S_SUCCESSFUL_FITS]++;
       const TrackInfo old_info = inputTrack.info();
       track->info().addPatternReco(old_info);
     }
@@ -2643,13 +2631,13 @@ namespace Trk {
         ATH_MSG_DEBUG("Extension rejected");
 
         delete track;
-        m_highchi2++;
+        m_fit_status[S_HIGH_CHI2]++;
         track = 0;
       }
     }
 
     if (track) {
-      m_nsuccessfits++;
+      m_fit_status[S_SUCCESSFUL_FITS]++;
     }
     
     return track;
@@ -2921,7 +2909,7 @@ namespace Trk {
     }
     
     if (track) {
-      m_nsuccessfits++;
+      m_fit_status[S_SUCCESSFUL_FITS]++;
     }
     
     cache.m_matfilled = false;
@@ -4361,7 +4349,7 @@ namespace Trk {
                                                 *trajectory.m_fieldprop,
                                                 nonInteracting);
             if (!layerpar) {
-              m_propfailed++;
+              m_fit_status[S_PROPAGATION_FAIL]++;
               return;
             }
 
@@ -4418,7 +4406,7 @@ namespace Trk {
               delete prevtrackpars;
             }
             if (!layerpar) {
-              m_propfailed++;
+              m_fit_status[S_PROPAGATION_FAIL]++;
               return;
             }
             GXFMaterialEffects *meff =
@@ -4898,7 +4886,7 @@ namespace Trk {
     Amg::SymMatrixX lu;
 
     if (trajectory.numberOfPerigeeParameters() == -1) {
-      m_nfits++;
+      m_fit_status[S_FITS]++;
       if (trajectory.m_straightline) {
         trajectory.setNumberOfPerigeeParameters(4);
       } else {
@@ -4936,7 +4924,7 @@ namespace Trk {
 
     if (!cache.m_acceleration && !per) {
       cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-      m_propfailed++;
+      m_fit_status[S_PROPAGATION_FAIL]++;
       ATH_MSG_DEBUG("Propagation to perigee failed 1");
       return 0;
     }
@@ -5095,7 +5083,7 @@ namespace Trk {
             }
             
             cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-            m_propfailed++;
+            m_fit_status[S_PROPAGATION_FAIL]++;
 
             ATH_MSG_DEBUG("Propagation to perigee failed 2");
 
@@ -5164,7 +5152,7 @@ namespace Trk {
       
       if (!per) {
         cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-        m_propfailed++;
+        m_fit_status[S_PROPAGATION_FAIL]++;
         ATH_MSG_DEBUG("Propagation to perigee failed 3");
 
         return 0;
@@ -5188,7 +5176,7 @@ namespace Trk {
     
     if (!per && !trajectory.referenceParameters()) {
       cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-      m_propfailed++;
+      m_fit_status[S_PROPAGATION_FAIL]++;
       ATH_MSG_DEBUG("Propagation to perigee failed 4");
 
       return 0;
@@ -5248,7 +5236,7 @@ namespace Trk {
       if (it >= m_maxit - 1) {
         ATH_MSG_DEBUG("Fit did not converge");
         cache.m_fittercode = FitterStatusCode::NoConvergence;
-        m_notconverge++;
+        m_fit_status[S_NOT_CONVERGENT]++;
         gErrorIgnoreLevel = originalErrorLevel;
         cache.m_miniter = tmpminiter;
         return 0;
@@ -5258,11 +5246,11 @@ namespace Trk {
         cache.m_fittercode = runIteration(cache, trajectory, it, a, b, lu, doderiv);
         if (cache.m_fittercode != FitterStatusCode::Success) {
           if (cache.m_fittercode == FitterStatusCode::ExtrapolationFailure) {
-            m_propfailed++;
+            m_fit_status[S_PROPAGATION_FAIL]++;
           } else if (cache.m_fittercode == FitterStatusCode::InvalidAngles) {
-            m_invalidangles++;
+            m_fit_status[S_INVALID_ANGLES]++;
           } else if (cache.m_fittercode == FitterStatusCode::ExtrapolationFailureDueToSmallMomentum) {
-            m_lowmomentum++;
+            m_fit_status[S_LOW_MOMENTUM]++;
           }
           
           gErrorIgnoreLevel = originalErrorLevel;
@@ -5302,7 +5290,7 @@ namespace Trk {
           cache.m_fittercode = updateFitParameters(trajectory, b, lu);
           if (cache.m_fittercode != FitterStatusCode::Success) {
             if (cache.m_fittercode == FitterStatusCode::InvalidAngles) {
-              m_invalidangles++;
+              m_fit_status[S_INVALID_ANGLES]++;
             }
             cache.m_miniter = tmpminiter;
             return 0;
@@ -5329,7 +5317,7 @@ namespace Trk {
         a_inv = lltOfW.solve(weightInvAMG);
       } else {
         ATH_MSG_DEBUG("matrix inversion failed!");
-        m_matrixinvfailed++;
+        m_fit_status[S_MAT_INV_FAIL]++;
         cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
         gErrorIgnoreLevel = originalErrorLevel;
         return 0;
@@ -5412,7 +5400,7 @@ namespace Trk {
     if (finaltrajectory->numberOfOutliers() <= m_maxoutliers || !runOutlier) {
       track = makeTrack(cache, *finaltrajectory, matEffects);
     } else {
-      m_notenoughmeas++;
+      m_fit_status[S_NOT_ENOUGH_MEAS]++;
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
     }
     
@@ -5427,7 +5415,7 @@ namespace Trk {
     ) {
       delete track;
       track = 0;
-      m_highchi2++;
+      m_fit_status[S_HIGH_CHI2]++;
     }
     
     if (!track) {
@@ -6542,7 +6530,7 @@ namespace Trk {
     
     if (trajectory.nDOF() < 0) {
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
-      m_notenoughmeas++;
+      m_fit_status[S_NOT_ENOUGH_MEAS]++;
     }
     
     if (outlierremoved || hitrecalibrated) {
@@ -6930,7 +6918,7 @@ namespace Trk {
         bool doderiv = m_redoderivs;
         cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, lu_m);
         if (cache.m_fittercode != FitterStatusCode::Success) {
-          m_notenoughmeas++;
+          m_fit_status[S_NOT_ENOUGH_MEAS]++;
           return 0;
         }
 
@@ -6938,7 +6926,7 @@ namespace Trk {
           if (it == m_maxit - 1) {
             ATH_MSG_DEBUG("Fit did not converge");
             cache.m_fittercode = FitterStatusCode::NoConvergence;
-            m_notconverge++;
+            m_fit_status[S_NOT_CONVERGENT]++;
             return 0;
           }
           
@@ -6946,14 +6934,14 @@ namespace Trk {
             cache.m_fittercode = runIteration(cache, *newtrajectory, it, *newap, *newbp, lu_m, doderiv);
 
             if (cache.m_fittercode != FitterStatusCode::Success) {
-              m_notenoughmeas++;
+              m_fit_status[S_NOT_ENOUGH_MEAS]++;
               return 0;
             }
             
             if (!newtrajectory->converged()) {
               cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, lu_m);
               if (cache.m_fittercode != FitterStatusCode::Success) {
-                m_notenoughmeas++;
+                m_fit_status[S_NOT_ENOUGH_MEAS]++;
 
                 return 0;
               }
@@ -6976,7 +6964,7 @@ namespace Trk {
               
               if (oldchi2 > m_chi2cut) {
                 cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
-                m_notenoughmeas++;
+                m_fit_status[S_NOT_ENOUGH_MEAS]++;
                 return 0;
               }
               
@@ -7002,7 +6990,7 @@ namespace Trk {
               fullcov = lltOfW.solve(weightInvAMG);
             } else {
               ATH_MSG_DEBUG("matrix inversion failed!");
-              m_matrixinvfailed++;
+              m_fit_status[S_MAT_INV_FAIL]++;
               cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
               return 0;
             }
@@ -7022,7 +7010,7 @@ namespace Trk {
       runoutlier
     ) {
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
-      m_notenoughmeas++;
+      m_fit_status[S_NOT_ENOUGH_MEAS]++;
       return 0;
     }
     
@@ -7356,7 +7344,7 @@ namespace Trk {
         
         cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
 
-        m_propfailed++;
+        m_fit_status[S_PROPAGATION_FAIL]++;
         return 0;
       }
     } else if (cache.m_acceleration && firstmeasstate->trackParameters()) {
