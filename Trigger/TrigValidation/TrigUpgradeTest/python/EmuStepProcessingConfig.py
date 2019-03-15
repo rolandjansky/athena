@@ -5,7 +5,6 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.CFElements import parOR
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import getChainStepName
 
 def generateL1DecoderAndChains():
     AlgScheduler.ShowControlFlow( True )

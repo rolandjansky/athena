@@ -10,16 +10,13 @@ from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
 from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
-from TriggerJobOpts.TriggerConfig import triggerSummaryCfg, triggerMonitoringCfg, collectDecisionObjects, \
-    triggerAddMissingEDMCfg, triggerOutputStreamCfg, setupL1DecoderFromMenu, collectHypos, collectFilters
+from TriggerJobOpts.TriggerConfig import triggerSummaryCfg, triggerMonitoringCfg, \
+    setupL1DecoderFromMenu, collectHypos, collectFilters
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains, generateDecisionTreeOld
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import HypoAlgNode, MenuSequence
-from AthenaCommon.CFElements import seqOR, seqAND, findAlgorithm
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
 
