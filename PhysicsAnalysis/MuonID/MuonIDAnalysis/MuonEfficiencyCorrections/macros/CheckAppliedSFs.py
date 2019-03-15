@@ -267,7 +267,7 @@ if __name__ == "__main__":
         if i > 0 and i % 2500 == 0: 
             print "INFO: %d/%d events processed"%(i, tree.GetEntries())
             
-        if  math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3 : continue        
+        if  math.fabs(tree.Muon_eta) > 2.5  or math.fabs(tree.Muon_eta) < 0.1 or tree.Muon_pt < 15.e3 : continue        
         for H in Histos: 
             H.fill()
         

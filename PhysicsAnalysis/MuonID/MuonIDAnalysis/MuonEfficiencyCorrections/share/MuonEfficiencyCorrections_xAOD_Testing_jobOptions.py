@@ -50,7 +50,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, #Release="190220_Winter_r21", 
-                                                  CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_symmetry/")]
+                                                  CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_coarsePtBinning/")]
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
   
 theJob += alg

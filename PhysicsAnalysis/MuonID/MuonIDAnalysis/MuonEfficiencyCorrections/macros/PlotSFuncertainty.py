@@ -153,8 +153,8 @@ if __name__ == "__main__":
         dn.SetTitle("-1#sigma %s"%("systematic" if H.get_sys() == "SYS" else "statistics"))
        
         nom.GetYaxis().SetTitle("Ratio to nominal")
-        pu.drawStyling(nom, min([up.GetMinimum(0.8), dn.GetMinimum(0.8)])*0.8, 
-                            max([up.GetMaximum(), dn.GetMaximum()])*1.1, TopPad = False)
+        pu.drawStyling(nom, 0.98, 
+                            1.02, TopPad = False)
         
         up.Draw("SAMEHIST")
         dn.Draw("HISTSAME")
