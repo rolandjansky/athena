@@ -2193,6 +2193,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
     }
   }
+  if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
+    if ( m_elecEfficiencySFTool_trigEff_singleLep->isAffectedBySystematic(sys) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Electron;
+      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
+    }
+  }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     if ( m_trigGlobalEffCorrTool_diLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
