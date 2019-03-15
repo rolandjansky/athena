@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,8 +21,6 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 // constructor
 Trk::TrackInformationNtupleTool::TrackInformationNtupleTool(
@@ -57,7 +55,7 @@ Trk::TrackInformationNtupleTool::~TrackInformationNtupleTool() {}
 ///////////////////////////////////////
 StatusCode Trk::TrackInformationNtupleTool::initialize() {
 
-  ATH_MSG_DEBUG ("nothing specific initialized in " << name()); 
+  ATH_CHECK( m_evt.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -103,25 +101,24 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
   // ---------------------------------------
   // detect new event, reset Track counter if new event
-  const EventInfo* eventInfo;
-  if ((evtStore()->retrieve(eventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
     msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
     m_runNumber   = (int)s_errorEntry;
     m_eventNumber = (int)s_errorEntry;
   } else {
-    const EventID* myEventID=eventInfo->event_ID();
-    if (m_lastEventNumber!=myEventID->event_number()) {
+    if (m_lastEventNumber!=evt->eventNumber()) {
       // we have a new event, reset TrackID:
       m_TrackIDcounter = 0;
-      m_lastEventNumber = myEventID->event_number();
+      m_lastEventNumber = evt->eventNumber();
     }
     // ---------------------------------------------
     // track id (increase if a new iteration was started = iterationIndex==0)
     if (iterationIndex == 0) m_TrackIDcounter++;
     m_TrackID = m_TrackIDcounter;
     m_iterIndex = iterationIndex;
-    m_eventNumber = myEventID->event_number();
-    m_runNumber   = myEventID->run_number();
+    m_eventNumber = evt->eventNumber();
+    m_runNumber   = evt->runNumber();
   }
   ATH_MSG_VERBOSE ("Event: " << m_eventNumber << ", Run: "
                    << m_runNumber  << " TrackID: " << m_TrackID 
@@ -178,22 +175,21 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackParticleData
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
   // ---------------------------------------
   // detect new event, reset Track counter if new event
-  const EventInfo* eventInfo;
-  if ((evtStore()->retrieve(eventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
     msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
     m_runNumber   = (int)s_errorEntry;
     m_eventNumber = (int)s_errorEntry;
   } else {
-    const EventID* myEventID=eventInfo->event_ID();
-    if (m_lastEventNumber!=myEventID->event_number()) {
+    if (m_lastEventNumber!=evt->eventNumber()) {
       // we have a new event, reset TrackID:
       m_TrackIDcounter = 0;
-      m_lastEventNumber = myEventID->event_number();
+      m_lastEventNumber = evt->eventNumber();
     }
     // ---------------------------------------------
     m_TrackID = m_TrackIDcounter++;
-    m_eventNumber = myEventID->event_number();
-    m_runNumber   = myEventID->run_number();
+    m_eventNumber = evt->eventNumber();
+    m_runNumber   = evt->runNumber();
   }
   ATH_MSG_VERBOSE ("Event: " << m_eventNumber << ", Run: "
                    << m_runNumber  << " TrackID: " << m_TrackID);
@@ -238,17 +234,17 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
    //const Trk::FitterStatusCode fitStatCode) const
 {
   ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
-  const EventInfo* eventInfo;
-  if ((evtStore()->retrieve(eventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
     msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
+    return StatusCode::FAILURE;
   }
-  const EventID* myEventID=eventInfo->event_ID();
   
-  if (m_lastEventNumber!=myEventID->event_number()) {
+  if (m_lastEventNumber!=evt->eventNumber()) {
     // we have a new event!
     // reset TrackID:
     m_TrackIDcounter = 0;
-    m_lastEventNumber = myEventID->event_number();
+    m_lastEventNumber = evt->eventNumber();
   }
   // ---------------------------------------------
   // track id (increase if a new iteration was started = iterationIndex==0)
@@ -257,8 +253,8 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
   }
   m_TrackID = m_TrackIDcounter;
   m_iterIndex = iterationIndex;
-  m_eventNumber = myEventID->event_number();
-  m_runNumber   = myEventID->run_number();
+  m_eventNumber = evt->eventNumber();
+  m_runNumber   = evt->runNumber();
 
   ATH_MSG_VERBOSE ("Event: " << m_eventNumber << MSG::VERBOSE << " TrackID: " << m_TrackID << " iteration index: " << m_iterIndex);
   m_fitStatusCode = fitStatCode;
