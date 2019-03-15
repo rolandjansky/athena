@@ -125,7 +125,7 @@ AllVarContent=["AntiKt4HITrackJets"]
 AllVarContent+=largeRcollections
 AllVarContent+=HIGlobalVars
 
-extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets"]
+extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets","AntiKt2HIJets_Seed1"]
 if HIDerivationFlags.isSimulation() : extra_jets+=["AntiKt8TruthJets","AntiKt10TruthJets"]
 for item in extra_jets:
     if not SlimmingHelper.AppendToDictionary.has_key(item):
@@ -150,9 +150,13 @@ ExtraVars=[]
 if not HIDerivationFlags.isSimulation(): ExtraVars+=makeHITriggerJetBasicBranchList(HIDerivationFlags.isPP,DerivationName)
 
 #Only basic kinematics for small jets
-for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets"] :  
-    for j in HIJetBasicBranches: 
-        ExtraVars.append(collection+'.'+j)
+for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets","AntiKt2HIJets_Seed1"] :  
+    if "Seed" not in collection:    
+        for j in HIJetBasicBranches: 
+            ExtraVars.append(collection+'.'+j)
+    else:
+        for j in HISeedBranches: 
+            ExtraVars.append(collection+'.'+j)    
 
 
 ExtraVars.append("InDetTrackParticles.truthMatchProbability")
