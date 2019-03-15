@@ -23,6 +23,7 @@ if DerivationFrameworkIsMonteCarlo:
 
     # Redo ghost association
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot6Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=exot6Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # SET UP STREAM   
@@ -130,6 +131,10 @@ exot6Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel",
 #=======================================
 # JETS
 #=======================================
+
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = exot6Seq)
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets

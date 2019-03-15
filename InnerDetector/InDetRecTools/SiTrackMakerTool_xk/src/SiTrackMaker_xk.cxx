@@ -253,7 +253,10 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)
+    return dumpevent(out);
+  else
+    return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -484,7 +487,7 @@ void InDet::SiTrackMaker_xk::endEvent()
  
   // Print event information 
   //
-  if (outputLevel()<=0) {
+  if (msgLevel()<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
 }

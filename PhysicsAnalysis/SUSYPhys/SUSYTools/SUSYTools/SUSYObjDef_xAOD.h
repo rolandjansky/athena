@@ -566,6 +566,8 @@ namespace ST {
     std::string m_photonTriggerName;
     std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
+    std::string m_muIsoHighPt_WP;
+    double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
@@ -727,6 +729,7 @@ namespace ST {
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyBMHighPtSFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonTTVAEfficiencySFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonIsolationSFTool;
+    asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonHighPtIsolationSFTool;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool;
     ToolHandleArray<CP::IMuonTriggerScaleFactors> m_muonTrigSFTools;
     //
@@ -841,7 +844,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
-  const static SG::AuxElement::Decorator<char> dec_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
+  const static SG::AuxElement::Decorator<char> dec_isolHighPt("isolHighPt"); // use different WPs for low-pt and high-pt
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
@@ -850,7 +853,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::ConstAccessor<char> acc_signal("signal");
   const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
-  const static SG::AuxElement::ConstAccessor<char> acc_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
+  const static SG::AuxElement::ConstAccessor<char> acc_isolHighPt("isolHighPt"); // use different WPs for low-pt and high-pt
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");

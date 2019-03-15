@@ -49,7 +49,7 @@ Trk::KalmanUpdator::~KalmanUpdator()
 StatusCode Trk::KalmanUpdator::initialize()
 {
     // pass individual outputlevel to message stream
-    m_log.setLevel(outputLevel());
+    m_log.setLevel(msgLevel());
     m_outputlevel = m_log.level()-MSG::DEBUG;
 
     if (m_cov0.size() < 5) {

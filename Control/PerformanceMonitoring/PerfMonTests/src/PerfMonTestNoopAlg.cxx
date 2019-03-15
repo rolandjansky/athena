@@ -48,9 +48,6 @@ NoopAlg::~NoopAlg()
 ////////////////////////////
 StatusCode NoopAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
 
   // Get pointer to StoreGateSvc and cache it :

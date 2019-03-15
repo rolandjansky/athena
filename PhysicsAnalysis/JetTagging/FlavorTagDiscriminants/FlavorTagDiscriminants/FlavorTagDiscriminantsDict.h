@@ -9,5 +9,7 @@
 // dictionaries for.
 
 #include "FlavorTagDiscriminants/DL2Tool.h"
+#include "FlavorTagDiscriminants/BTagAugmenterTool.h"
+#include "FlavorTagDiscriminants/BTagMuonAugmenterTool.h"
 
 #endif

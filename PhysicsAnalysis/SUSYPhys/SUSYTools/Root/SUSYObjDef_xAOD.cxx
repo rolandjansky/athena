@@ -31,9 +31,10 @@
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -47,8 +48,6 @@
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -157,6 +156,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_photonTriggerName(""),
     m_muBaselineIso_WP(""),
     m_muIso_WP(""),
+    m_muIsoHighPt_WP(""),
+    m_muIsoHighPtThresh(-99.),
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagSystStrategy(""),
@@ -283,6 +284,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muonEfficiencyBMHighPtSFTool(""),
     m_muonTTVAEfficiencySFTool(""),
     m_muonIsolationSFTool(""),
+    m_muonHighPtIsolationSFTool(""),
     m_muonTriggerSFTool(""),
     //
     m_elecEfficiencySFTool_reco(""),
@@ -482,6 +484,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonBaselineId", m_muIdBaseline);
   declareProperty( "MuonId", m_muId);
   declareProperty( "MuonIso", m_muIso_WP);
+  declareProperty( "MuonIsoHighPt", m_muIsoHighPt_WP);
+  declareProperty( "MuonIsoHighPtThresh", m_muIsoHighPtThresh);
   declareProperty( "MuonD0sig", m_mud0sig);
   declareProperty( "MuonZ0", m_muz0);
   declareProperty( "MuonBaselineD0sig", m_mubaselined0sig);
@@ -569,6 +573,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
+  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
   m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
@@ -681,9 +686,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_mu_iso_fallback = {
-    { "FCTightTrackOnly"        , "FCTightTrackOnly" },
-    { "FCLoose"                 , "FCLoose"     },
-    { "FCTight"                 , "FCTight"     }
+    { "FCTightTrackOnly" , "FCTightTrackOnly" },
+    { "FCLoose"          , "FCLoose"          },
+    { "FCTight"          , "FCTight"          }
   };
 
   // load tau trigger support
@@ -1201,6 +1206,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
   configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "FCLoose");
+  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "FCLoose");
+  configFromFile(m_muIsoHighPtThresh, "Muon.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
   configFromFile(m_mubaselined0sig, "MuonBaseline.d0sig", rEnv, -99.);
@@ -1346,7 +1353,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, false);
   //
   configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
-  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20181111/purw.actualMu.root");
+  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20190219/purw.actualMu.root");
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool

@@ -22,6 +22,7 @@ namespace FlavorTagDiscriminants {
   public:
     DL2HighLevel(const std::string& nn_file_name,
                  EDMSchema = EDMSchema::WINTER_2018);
+    DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;
   private:

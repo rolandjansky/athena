@@ -18,7 +18,7 @@ namespace {
       }
     }
     throw std::logic_error(
-      "no regex match found for input variable " + var_name);
+      "no regex match found for input variable '" + var_name + "'");
   }
 }
 
@@ -43,7 +43,8 @@ namespace FlavorTagDiscriminants {
     } else if (graph_config.inputs.size() == 1){
       m_input_node_name = graph_config.inputs.at(0).name;
       m_variable_cleaner.reset(new lwt::NanReplacer(
-                                 graph_config.inputs.at(0).defaults));
+                                 graph_config.inputs.at(0).defaults,
+                                 lwt::rep::all));
     }
     for (const auto& input: inputs) {
       auto filler = get_filler(input.name, input.type, input.default_flag);
@@ -57,7 +58,8 @@ namespace FlavorTagDiscriminants {
                                        schema);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        track_getter.sequence_getters.push_back(get_seq_getter(input_cfg));
+        track_getter.sequence_getters.push_back(
+          get_seq_getter(input_cfg, schema));
       }
       m_track_getters.push_back(track_getter);
     }
@@ -196,15 +198,31 @@ namespace FlavorTagDiscriminants {
     //
     Getter get_filler(std::string name, EDMType type,
                       std::string default_flag) {
-      switch (type) {
-      case EDMType::INT: return BVarGetter<int>(name, default_flag);
-      case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
-      case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
-      case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
-      default: {
-        throw std::logic_error("Unknown EDM type");
+      if(default_flag.size() == 0 || name==default_flag)
+      {
+        switch (type) {
+        case EDMType::INT: return BVarGetterNoDefault<int>(name);
+        case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
+        case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
+        case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
+        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+        default: {
+          throw std::logic_error("Unknown EDM type");
+        }
       }
       }
+      else{
+        switch (type) {
+        case EDMType::INT: return BVarGetter<int>(name, default_flag);
+        case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
+        case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
+        case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
+        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+        default: {
+          throw std::logic_error("Unknown EDM type");
+      }
+      }
+    }
     }
     TrackSortVar get_track_sort(SortOrder order, EDMSchema schema) {
       typedef xAOD::TrackParticle Tp;
@@ -269,11 +287,11 @@ namespace FlavorTagDiscriminants {
       }
     }
 
-    SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg) {
+    SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg, EDMSchema s) {
       switch (cfg.type) {
       case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
       case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-      case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
+      case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name, s);
       default: {
         throw std::logic_error("Unknown EDM type");
       }

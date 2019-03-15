@@ -5,6 +5,8 @@
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
@@ -29,7 +31,11 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     // get the graph
-    std::ifstream input_stream(nn_file_name);
+    std::string nn_path = PathResolverFindCalibFile(nn_file_name);
+    if (nn_path.size() == 0) {
+      throw std::runtime_error("no file found at '" + nn_file_name + "'");
+    }
+    std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
 
     // __________________________________________________________________
@@ -37,17 +43,23 @@ namespace FlavorTagDiscriminants {
     //
 
     // type and default value-finding regexes are hardcoded for now
+    // TODO: these will have to be updated with the new schema.
     TypeRegexes type_regexes{
-      {"(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)"_r, EDMType::DOUBLE},
-      {"(JetFitter_|SV1_)[Nn].*"_r, EDMType::INT},
-      {"(JetFitter_|SV1_).*"_r, EDMType::FLOAT},
-      {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER}};
+      {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
+      {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
+      {"secondaryVtx_[mEa].*|(min_|max_|avg_)trk_.*"_r, EDMType::DOUBLE},
+      {"(JetFitter_|secondaryVtx_|SV1_)[Nn].*"_r, EDMType::INT},
+      {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
+      {".*_isDefaults"_r, EDMType::UCHAR},
+      {"(JetFitter_|SV1_).*|secondaryVtx_L.*"_r, EDMType::FLOAT},
+      };
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
       {"IP3D_.*"_r, "IP3D_isDefaults"},
       {"SV1_.*"_r, "SV1_isDefaults"},
       {"JetFitter_.*"_r, "JetFitter_isDefaults"},
       {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
+      {".*_trk_flightDirRelEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
@@ -98,6 +110,7 @@ namespace FlavorTagDiscriminants {
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
+  DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
   void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);

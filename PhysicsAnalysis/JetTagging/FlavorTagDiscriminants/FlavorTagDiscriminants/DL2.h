@@ -128,6 +128,26 @@ namespace FlavorTagDiscriminants {
       }
     };
 
+    template <typename T>
+    class BVarGetterNoDefault
+    {
+    private:
+      typedef SG::AuxElement AE;
+      AE::ConstAccessor<T> m_getter;
+      std::string m_name;
+    public:
+      BVarGetterNoDefault(const std::string& name):
+        m_getter(name),
+        m_name(name)
+        {
+        }
+      NamedVar operator()(const xAOD::Jet& jet) const {
+        const xAOD::BTagging* btag = jet.btagging();
+        if (!btag) throw std::runtime_error("can't find btagging object");
+        return {m_name, m_getter(*btag)};
+      }
+    };
+
     // The track getter is responsible for getting the tracks from the
     // jet applying a selection, and then sorting the tracks.
     class TrackGetter
@@ -197,7 +217,7 @@ namespace FlavorTagDiscriminants {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
     TrackSortVar get_track_sort(SortOrder, EDMSchema);
     TrackSelect get_track_select(TrackSelection, EDMSchema);
-    SeqGetter get_seq_getter(const DL2TrackInputConfig&);
+    SeqGetter get_seq_getter(const DL2TrackInputConfig&, EDMSchema);
   }
 }
 #endif
