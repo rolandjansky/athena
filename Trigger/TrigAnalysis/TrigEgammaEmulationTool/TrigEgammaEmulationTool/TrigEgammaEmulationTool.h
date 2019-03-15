@@ -123,17 +123,17 @@ class TrigEgammaEmulationTool
   template<class T>
   const T*
   TrigEgammaEmulationTool::getFeature(const HLT::TriggerElement* te,const std::string key){
-      if ( te == NULL ) return NULL;
-      if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
-          return NULL;
+      if ( te == nullptr ) return nullptr;
+      if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
+          return nullptr;
       return ( (m_trigdec->ancestor<T>(te)).cptr() );
   }
 
   template<class T>
   bool
   TrigEgammaEmulationTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
-      if ( te == NULL ) return false;
-      if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
+      if ( te == nullptr ) return false;
+      if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
           return false;
       return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
   }
