@@ -171,7 +171,10 @@ public:
 
   // Function used by the HW to compare similar combinations
   unsigned int getNCommonHits(const FTKTrack &, const float*) const;
-  int HWChoice(const FTKTrack&,const float*,const unsigned int,int,bool=false);
+  unsigned int getNCommonHitsFirstStage(const FTKTrack &, const float*) const;
+
+  int HWChoice(const FTKTrack&,const float*,const unsigned int,int);
+  int HWChoiceFirstStage(const FTKTrack&,const float*,const unsigned int,int);
 
   virtual void Print(Option_t * opts="") const;
 

@@ -966,7 +966,7 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
 
     // reference to an old track
     FTKTrack &track_old = *itrack;
-    if (track_old.getHWRejected()/100 !=0) //We still want to compare to duplicate tracks
+    if (track_old.getHWRejected()/100 !=0 || ( (!isfirst) && track_old.getHWRejected()%10 !=0) ) //We still want to compare to duplicate tracks
     //if (track_old.getHWRejected()%10 !=0 || track_old.getHWRejected()/100!=0)
       // skip HW rejected tracks and tracks with bad chi2,
       // tracks in removed roads are used, but if a match is found
@@ -975,7 +975,7 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
       continue;
 
     //Slightly different logic on first stage (AUX) vs. 2nd stage (SSB)
-    int HWres = track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior, isfirst);
+    int HWres = isfirst ? track_toadd.HWChoiceFirstStage(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior) : track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior);
 
     if (HWres==-1) {
       accepted = -1;

@@ -243,7 +243,7 @@ void  FTKTrack::setParameter(int ipar, float val, bool useraw)
 }
 
 /** return the number of the common hits */
-unsigned int FTKTrack::getNCommonHits(const FTKTrack &track, const float *HWdev) const
+unsigned int FTKTrack::getNCommonHitsFirstStage(const FTKTrack &track, const float *HWdev) const
 {
   unsigned int ncommon_hits(0);
 
@@ -276,12 +276,86 @@ unsigned int FTKTrack::getNCommonHits(const FTKTrack &track, const float *HWdev)
   return ncommon_hits;
 }
 
+/** return the number of the common hits */
+unsigned int FTKTrack::getNCommonHits(const FTKTrack &track, const float *HWdev) const
+{
+  unsigned int ncommon_hits(0);
+
+  // match over the hits list
+  for (int ix=0;ix!=m_ncoords;++ix) {
+    if ( !((m_bitmask & track.m_bitmask) & (1<<ix)) ) {
+      // majority hits are always common
+      ncommon_hits += 1;
+      continue;
+    }
+
+    double dist = TMath::Abs(getCoord(ix)-track.getCoord(ix));
+    if ( dist < HWdev[ix] ) {
+      ++ncommon_hits; // a common hit
+    }
+  } // end loop over hits
+
+  return ncommon_hits;
+}
+
+int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
+               const unsigned int HW_ndiff, int HW_level)
+{
+  int accepted(0);
+
+  // Choose hitwarrior severity level: 1=in-road, 2=global
+  if(HW_level<2) {
+    if(getBankID()!=other.getBankID()) return accepted;
+    if(getRoadID()!=other.getRoadID()) return accepted;
+  }
+
+  unsigned int ncommon_hits = getNCommonHits(other,HW_dev);
+
+  // FlagAK - simplistic hitwarrior. Makes no distinction between 1D and 2D
+  // If this doesn't work, we'll need to come up with something smarter
+  // check the criteria for considering two tracks the same
+  if ( m_ncoords-ncommon_hits<=HW_ndiff) { 
+    // the track matches
+    if ( ( getHWRejected() && !other.getHWRejected()) ||
+     (!getHWRejected() &&  other.getHWRejected()) ) {
+        
+      // keep the track in the accepted road
+      if (getHWRejected()) {
+    accepted = -1;
+      }
+      else {
+    accepted = 1;
+      }
+        
+    }
+    else if (other.getNMissing()==getNMissing()) {
+      // keep the track with the best chi2
+      if (other.getChi2() > getChi2()) {
+    accepted = 1;
+      }
+      else {
+    accepted = -1;
+      }
+    }
+    else if (other.getNMissing() < getNMissing()) {
+      // keep the track using more real points
+      accepted = -1;
+    }
+    else if (other.getNMissing() > getNMissing()) {
+      accepted = 1;
+    }
+  }
+
+  return accepted;
+}
+
+
 /** this function compare this track with a different tracks and returns:
      0 if according HW setup the two tracks are different
      1 are similar and the other has a worse quality parameter
      -1 are similar and the other has a better quality parameter */
-int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
-		       const unsigned int HW_ndiff, int HW_level, bool FirstStage)
+int FTKTrack::HWChoiceFirstStage(const FTKTrack &other, const float *HW_dev,
+		       const unsigned int HW_ndiff, int HW_level)
 {
   int accepted(0);
 
@@ -292,7 +366,7 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
     if(getRoadID()!=other.getRoadID()) return accepted;
   }
 
-  unsigned int ncommon_hits = getNCommonHits(other,HW_dev);
+  unsigned int ncommon_hits = getNCommonHitsFirstStage(other,HW_dev);
   // FlagAK - simplistic hitwarrior. Makes no distinction between 1D and 2D
   // If this doesn't work, we'll need to come up with something smarter
   // check the criteria for considering two tracks the same
@@ -317,7 +391,7 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
     */
 
     //We should never have more than 1 missing hit in the AUX HW. Necessary because NMissing double-counts pixel hits
-    if ( FirstStage ? ((other.getNMissing()==0 && getNMissing()==0) || (other.getNMissing()>0 && getNMissing()>0)) : (other.getNMissing()==getNMissing())) {
+    if ((other.getNMissing()==0 && getNMissing()==0) || (other.getNMissing()>0 && getNMissing()>0)) {
       // keep the track with the best chi2
       if (other.getChi2() > getChi2()) {
 	accepted = 1;
@@ -326,12 +400,12 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
 	accepted = -1;
       }
     }
-    //If first stage, then the track with 0 with fewer missing hits must have 0 missing
-    else if (FirstStage ? (other.getNMissing() == 0) : (other.getNMissing() < getNMissing())) {
+    //If first stage, then the track with fewer missing hits must have 0 missing
+    else if (other.getNMissing() == 0) {
       // keep the track using more real points
       accepted = -1;
     }
-    else if (FirstStage ? (getNMissing()==0) : (other.getNMissing() > getNMissing())) {
+    else if (getNMissing()==0) {
       accepted = 1;
     }
   }
