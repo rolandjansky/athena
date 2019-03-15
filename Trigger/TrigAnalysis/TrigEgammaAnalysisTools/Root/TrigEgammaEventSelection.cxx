@@ -279,7 +279,7 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
       el1.SetPtEtaPhiE(elTag->pt(), elTag->trackParticle()->eta(), elTag->trackParticle()->phi(), elTag->e());
       el2.SetPtEtaPhiE(elProbe->pt(), elProbe->trackParticle()->eta(), elProbe->trackParticle()->phi(), elProbe->e());
       float tpPairMass = (el1 + el2).M();
-      if( !((tpPairMass > m_ZeeMassMin*1.e3) && (tpPairMass < m_ZeeMassMax*1.e3))){
+      if( !((tpPairMass > m_ZeeMassMin*Gaudi::Units::GeV) && (tpPairMass < m_ZeeMassMax*Gaudi::Units::GeV))){
           ATH_MSG_DEBUG("tag and probe pair not in Z mass window");
           continue;
       }else{
