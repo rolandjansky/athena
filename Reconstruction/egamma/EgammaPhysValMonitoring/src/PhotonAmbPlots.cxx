@@ -21,8 +21,8 @@ void PhotonAmbPlots::initializePlots(){
 
 
 
-  void PhotonAmbPlots::fill(const xAOD::Photon& photon, bool isPrompt){
-  if(!isPrompt) ;//return;
+  void PhotonAmbPlots::fill(const xAOD::Photon& photon, bool /*isPrompt*/){
+  // if(!isPrompt) ;//return;
   
   m_oKinAllPlots.fill(photon);
   m_oShowerShapesAllPlots.fill(photon);

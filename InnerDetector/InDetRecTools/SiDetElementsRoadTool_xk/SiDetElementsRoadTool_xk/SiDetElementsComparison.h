@@ -49,7 +49,7 @@ namespace InDet{
 	if(fabs(r1-r2)>.1) return(r1<r2);
 	double f1 = atan2(p1.y(),p1.x());
 	double f2 = atan2(p2.y(),p2.x());
-	if(fabs(f1-f2)>.04) return(f1<f2); return(p1.z()<p2.z());
+	return (fabs(f1-f2)>.04) ? (f1<f2) : (p1.z()<p2.z());
       }
   };
   

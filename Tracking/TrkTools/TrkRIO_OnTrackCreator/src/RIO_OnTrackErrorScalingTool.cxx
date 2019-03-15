@@ -303,7 +303,8 @@ const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString
   }
 
   int n = nformat-s1.size();
-  for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
+  for(int i=0; i<n; ++i) s1.append(" ");
+  s1.append("|");
   return s1;
 }
 

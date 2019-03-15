@@ -320,11 +320,6 @@ namespace CP {
     return;
   }
 
-  StatusCode JetQGTaggerBDT::finalize(){
-      /* Delete or clear anything */
-      return StatusCode::SUCCESS;
-  }
-
 } /* namespace CP */
 
 // the end

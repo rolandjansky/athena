@@ -56,8 +56,6 @@ namespace CP {
       // Update the jet substructure variables for each jet to use in BDT
       void getJetProperties(const xAOD::Jet& jet) const;
 
-      virtual StatusCode finalize();
-
     private:
 
       // naming of tool

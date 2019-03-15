@@ -393,7 +393,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP)
 MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -583,7 +586,9 @@ void InDet::TRT_SeededSpacePointFinder_ATL::fillLists()
   std::list<Trk::SpacePoint*>::iterator r;
   
   for(int i=0; i!= r_size;  ++i) {
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!r_map[i]) continue;
+
+    r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
 

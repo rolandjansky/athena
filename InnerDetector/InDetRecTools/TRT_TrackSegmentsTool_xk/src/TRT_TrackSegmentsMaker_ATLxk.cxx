@@ -436,7 +436,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find()
 
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
 {
-  if(m_segiterator!=m_segments.end()) return (*m_segiterator++); return 0;
+  return (m_segiterator!=m_segments.end()) ? (*m_segiterator++) : 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -446,7 +446,10 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
 MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////

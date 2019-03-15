@@ -1022,7 +1022,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator_xk::update
     update = updateNoMeasuredWithAnyDim(m,mv,p,pv,k);
     if(update && X && !Q)  Q = new Trk::FitQualityOnSurface(0.,n); 
   }
-  if(update) return updatorToTrackParameters(T,p,pv); return 0;
+  return (update) ? updatorToTrackParameters(T,p,pv) : 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1879,7 +1879,8 @@ bool Trk::KalmanUpdator_xk::invert(int n,double* a,double* b) const
   if(n==2) return invert2(a,b);
   if(n==3) return invert3(a,b);
   if(n==4) return invert4(a,b);
-  if(n==5) return invert5(a,b); return false;
+  if(n==5) return invert5(a,b);
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1968,7 +1969,8 @@ bool Trk::KalmanUpdator_xk::invert4(double* a,double* b) const
   double c3  = a[1]*d11-a[2]*d09+a[4]*d08;
   double det = a[0]*c0-a[1]*c1+a[3]*c2-a[6]*c3;
   
-  if (det <= 0.) return false; det = 1./det;
+  if (det <= 0.) return false;
+  det = 1./det;
    
   b[2] =  (a[0]*d13-a[3]*d10+a[6]*d09)*det;
   b[4] = -(a[0]*d12-a[1]*d10+a[6]*d08)*det;
@@ -2090,7 +2092,8 @@ double Trk::KalmanUpdator_xk::Xi2(int N,double* R,double* W) const
   if(N==2) return Xi2for2(R,W);
   if(N==3) return Xi2for3(R,W);
   if(N==4) return Xi2for4(R,W);
-  if(N==5) return Xi2for5(R,W); return 0.;
+  if(N==5) return Xi2for5(R,W);
+  return 0.;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -2178,12 +2181,14 @@ int Trk::KalmanUpdator_xk::differenceParLoc
   if(K &  4) {
     R[i]=L[i]-T[2]; 
     if     (R[i] > pi) R[i] = fmod(R[i]+pi,pi2)-pi;
-    else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi; ++i;
+    else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi;
+    ++i;
   }
   if(K &  8) {
     R[i]=L[i]-T[3]; 
     if     (R[i] > pi) R[i] = fmod(R[i]+pi,pi2)-pi;
-    else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi; ++i;
+    else if(R[i] <-pi) R[i] = fmod(R[i]-pi,pi2)+pi;
+    ++i;
   }
   if(K & 16) {R[i]=L[i]-T[4]; ++i;}  
   return i;
