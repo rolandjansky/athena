@@ -32,7 +32,7 @@ struct GaudiKernelFixtureBase{
     //
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
     if (not gaudiIsInitialised){
-      gaudiIsInitialised=Athena_test::initGaudi(searchPath+"IOVDbSvc_BoostTest.txt", svcLoc);
+      gaudiIsInitialised=Athena_test::initGaudi("IOVDbSvc/IOVDbSvc_BoostTest.txt", svcLoc);
     }
   }
 };

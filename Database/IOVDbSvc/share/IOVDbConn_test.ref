@@ -1,0 +1,22 @@
+Running 2 test cases...
+
+
+Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.OutputLevel = 5
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO # (3,1): IOVDbSvc.Folders = ["/key1"]
+JobOptionsSvc        INFO # (4,1): EventPersistencySvc.CnvServices += ["AthenaPoolCnvSvc"]
+JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 5
+JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Mon Mar  4 16:55:46 2019
+====================================================================================================================================
+ApplicationMgr Ready
+IOVDbConn_Boost...   INFO Opening COOL connection for sqlite://;schema=IOVDbConnTest.db;dbname=OFLP200
+IOVDbConn_Boost...   INFO *** COOL  exception caught: Connection on "sqlite_file:IOVDbConnTest.db" cannot be established ( CORAL : "ConnectionPool::getSessionFromNewConnection" from "CORAL/Services/ConnectionService" )
+IOVDbConn_Boost...   INFO Create a new conditions database: sqlite://;schema=IOVDbConnTest.db;dbname=OFLP200
+
+*** No errors detected
