@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -70,7 +70,7 @@ void CellCounter::report()
 {
   int towerSum = 0;
   for(int regI=0; regI<N_REG; ++regI){
-    printf ("Region %2d: %6d\n", regI, m_counts[regI]);
+    printf ("Region %2d: %6u\n", regI, m_counts[regI]);
     towerSum+=m_counts[regI];
   }
   printf ("Total: %6d\n", towerSum);

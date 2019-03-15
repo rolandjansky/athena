@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/Calorimeter/CaloIdentifier/test/test_cell_id.cxx,v 1.19 2006-03-20 20:32:50 ssnyder Exp $ 
@@ -568,11 +568,7 @@ check_cell_neighbours(IdDictMgr& idd)
 	std::cout << "return code of get_neighbours not ok for iCell = " << iCell << "cellId = " << calo_id->show_to_string(cellId) << std::endl;
       }
       else {
-	std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-	std::vector<IdentifierHash>::iterator last=neighbourList.end();
-	for (;last!=first; first++){
-	  
-	  IdentifierHash neighbourHash=(*first);
+        for (IdentifierHash neighbourHash : neighbourList) {
 	  if(neighbourHash < hash_min || neighbourHash > hash_max) {
 	    std::cout << " neighbour index " << neighbourHash << " outside of det boundaries for iCell " << iCell << std::endl;
 	    error = true;
