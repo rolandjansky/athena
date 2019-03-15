@@ -10,9 +10,9 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloSimEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
+                          Event/EventInfo
                           Event/xAOD/xAODJet
                           GaudiKernel
                           Generators/GeneratorObjects
@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( MCTruthSimAlgs
                      src/*.cxx
                      src/components/MCTruthSimAlgs_entries.cxx
-                     LINK_LIBRARIES CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent RecEvent )
+                     LINK_LIBRARIES CaloSimEvent AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent RecEvent EventInfo)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

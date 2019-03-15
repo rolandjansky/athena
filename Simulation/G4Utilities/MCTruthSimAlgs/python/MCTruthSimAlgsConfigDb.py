@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
 
@@ -21,10 +21,18 @@ addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeRecoTimingObjTool"         , "
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeHijingParsTool"            , "MergeHijingParsTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMcEventCollTool"           , "MergeMcEventCollTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getNewMergeMcEventCollTool_Signal"        , "NewMergeMcEventCollTool_Signal")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getNewMergeMcEventCollTool_MinBias"        , "NewMergeMcEventCollTool_MinBias")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getNewMergeMcEventCollTool_HighPtMinBias"        , "NewMergeMcEventCollTool_HighPtMinBias")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getNewMergeMcEventCollTool_Cavern"        , "NewMergeMcEventCollTool_Cavern")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getNewMergeMcEventCollTool_HaloGas"        , "NewMergeMcEventCollTool_HaloGas")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.NewMergeMcEventCollTool"        , "InTimeOnlyNewMergeMcEventCollTool_MinBias")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.NewMergeMcEventCollTool"        , "InTimeOnlyNewMergeMcEventCollTool_HighPtMinBias")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.NewMergeMcEventCollTool"        , "InTimeOnlyNewMergeMcEventCollTool_Cavern")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.NewMergeMcEventCollTool"        , "InTimeOnlyNewMergeMcEventCollTool_HaloGas")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.SignalOnlyMcEventCollTool"      , "SignalOnlyMcEventCollTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.InTimeOnlyMcEventCollTool"      , "InTimeOnlyMcEventCollTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeGenericMuonSimHitCollTool" , "MergeGenericMuonSimHitCollTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMicromegasSimHitCollTool"  , "MergeMicromegasSimHitCollTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeSTGCSimHitCollTool"        , "MergeSTGCSimHitCollTool")
-
