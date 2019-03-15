@@ -1987,5 +1987,29 @@ namespace VKalVrtAthena {
     return StatusCode::SUCCESS;
   }
   
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::getSVImpactParameters(const xAOD::TrackParticle* trk, Amg::Vector3D vertex,
+                                              std::vector<double>& impactParameters,
+                                              std::vector<double>& impactParErrors){
+
+    if( m_jp.trkExtrapolator==1 ){
+      m_fitSvc->VKalGetImpact(trk, vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
+    }
+    else if( m_jp.trkExtrapolator==2 ){
+      const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, vertex );
+      if( !sv_perigee ) return false;
+      impactParameters[0] = sv_perigee->parameters() [Trk::d0];
+      impactParameters[1] = sv_perigee->parameters() [Trk::z0];
+      impactParErrors[0]  = (*sv_perigee->covariance())( Trk::d0, Trk::d0 );
+      impactParErrors[1]  = (*sv_perigee->covariance())( Trk::z0, Trk::z0 );
+    }
+    else{
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": Unknown track extrapolator " << m_jp.trkExtrapolator   );
+      return false;
+    }
+
+    return true;
+
+  } // getSVImpactParameters
 
 } // end of namespace VKalVrtAthena

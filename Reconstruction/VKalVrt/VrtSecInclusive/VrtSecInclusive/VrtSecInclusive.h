@@ -165,6 +165,9 @@ namespace VKalVrtAthena {
       int  CutTRTHits; // Kazuki
       int  CutTightSCTHits;
       int  CutTightTRTHits;
+     
+      /* track extrpolator; 1==VKalGetImpact, 2==m_trackToVertexTool*/
+      int trkExtrapolator;
       
       // Vertex reconstruction
       bool   doPVcompatibilityCut;
@@ -198,7 +201,7 @@ namespace VKalVrtAthena {
       double mergeByShufflingAllowance;
       
       double improveChi2ProbThreshold;
-      
+
       // vertexing using muons (test implementation)
       bool doSelectTracksFromMuons;
       bool doSelectTracksFromElectrons;
@@ -384,6 +387,9 @@ namespace VKalVrtAthena {
     
     /** finalization of the vertex and store to xAOD::VertexContainer */
     StatusCode refitAndSelectGoodQualityVertices( std::vector<WrkVrt>* );
+
+    /** get secondary vertex impact parameters **/
+    bool getSVImpactParameters(const xAOD::TrackParticle* trk, Amg::Vector3D vertex, std::vector<double>& impactParameters, std::vector<double>& impactParErrors); 
     
     using vertexingAlg = StatusCode (VrtSecInclusive::*)( std::vector<WrkVrt>* );
     std::vector< std::pair<std::string, vertexingAlg> > m_vertexingAlgorithms;
