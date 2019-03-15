@@ -36,7 +36,8 @@
 #include "DerivationFrameworkMCTruth/DecayGraphHelper.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 class IThinningSvc;
 
 namespace DerivationFramework {
@@ -59,8 +60,8 @@ namespace DerivationFramework {
     // handle to the thinning service
     ServiceHandle<IThinningSvc> m_thinningSvc;
 
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
     // TruthParticle container names
-    std::string m_eventInfoName;
     std::string m_truthParticleName;
     std::string m_truthVertexName;
     std::string m_hardParticleName;

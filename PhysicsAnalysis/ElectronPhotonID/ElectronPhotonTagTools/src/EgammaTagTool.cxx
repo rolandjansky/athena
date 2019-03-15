@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -52,6 +52,7 @@ EgammaTagTool::EgammaTagTool (const std::string& type, const std::string& name,
 StatusCode  EgammaTagTool::initialize() 
 {
   ATH_MSG_DEBUG("in initialize()");
+  ATH_CHECK( m_evt.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -81,8 +82,11 @@ StatusCode EgammaTagTool::execute(TagFragmentCollection& egammaTagCol, const int
   const xAOD::MissingETContainer* metTopo = nullptr;
   ATH_CHECK( evtStore()->retrieve(metTopo, m_missingEtObject) );
 
-  const DataHandle<EventInfo> eventInfo;
-  ATH_CHECK( evtStore()->retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve EventInfo");
+    return StatusCode::FAILURE;
+  }
 
   /** Flags for Z and W events */ 
   m_flagZeeEvent  = false;
@@ -91,12 +95,12 @@ StatusCode EgammaTagTool::execute(TagFragmentCollection& egammaTagCol, const int
   //===================================================
   // Zee event reconstruction
   //===================================================
-  m_flagZeeEvent = ZeeSelection (eleColl, eventInfo);
+  m_flagZeeEvent = ZeeSelection (eleColl, evt);
 
   //===================================================
   // Wenu event reconstruction
   //===================================================
-  m_flagWenuEvent = WenuSelection (eleColl, metTopo, eventInfo);
+  m_flagWenuEvent = WenuSelection (eleColl, metTopo, evt);
 
   
   //===================================================
@@ -121,7 +125,7 @@ StatusCode  EgammaTagTool::finalize() {
 
 
 bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
-                                  const DataHandle<EventInfo>& eventInfo)
+                                  SG::ReadHandle<xAOD::EventInfo> eventInfo)
 {
 
   ATH_MSG_DEBUG("in ZeeSelection()");
@@ -173,7 +177,7 @@ bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
 	if ( (m_massZLow < invMass) && (invMass < m_massZHigh) ) m_flagZeeEvent = true;
 	
 	/** Print the details of Zee Candidate if outputLevel=DEBUG */      
-	if (m_flagZeeEvent) { 
+	if (m_flagZeeEvent && msgLvl(MSG::DEBUG)) {
           ATH_MSG_DEBUG("***** First electron candidate of Zee  *****" );
           dumpEventDetails(electrons_positive[i], eventInfo);
           ATH_MSG_DEBUG("***** Second electron candidate of Zee  *****" );
@@ -190,7 +194,7 @@ bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
 
 bool EgammaTagTool::WenuSelection (const xAOD::ElectronContainer* eleColl,
                                    const xAOD::MissingETContainer* metTopo,
-                                   const DataHandle<EventInfo>& eventInfo)
+                                   SG::ReadHandle<xAOD::EventInfo> eventInfo)
 {
   ATH_MSG_DEBUG("in WenuSelection()");
   
@@ -212,7 +216,7 @@ bool EgammaTagTool::WenuSelection (const xAOD::ElectronContainer* eleColl,
  
     if (select) m_flagWenuEvent = true;
 
-    if (m_flagWenuEvent) {
+    if (m_flagWenuEvent && msgLvl(MSG::DEBUG)) {
        ATH_MSG_DEBUG("***** Electron Candidate in Wenu *****" );
        dumpEventDetails(*eleItr, eventInfo);
     } 
@@ -223,30 +227,20 @@ bool EgammaTagTool::WenuSelection (const xAOD::ElectronContainer* eleColl,
 }
 
 void EgammaTagTool::dumpEventDetails(const xAOD::Electron* eleItr,
-                                     const DataHandle<EventInfo>& eventInfo)
+                                     SG::ReadHandle<xAOD::EventInfo> eventInfo)
 {
-
   ATH_MSG_DEBUG("Event info : "
-             << " runNumber = " << eventInfo->event_ID()->run_number() 
-             << " lumiBlock = " << eventInfo->event_ID()->lumi_block()
-             << " eventNumber = " << eventInfo->event_ID()->event_number()
-               );
+		<< " runNumber = " << eventInfo->runNumber()
+		<< " lumiBlock = " << eventInfo->lumiBlock()
+		<< " eventNumber = " << eventInfo->eventNumber()
+		);
 
   ATH_MSG_DEBUG("Electrons : "
-             <<" pt = "  << eleItr->pt()
-             <<" eta = " << eleItr->eta()
-             <<" phi = " << eleItr->phi() 
-             <<" charge = " << eleItr->charge() 
-		//             <<" loosePP = " << eleItr->passID(egammaPID::ElectronIDLoosePP)
-		// <<" mediumPP = " << eleItr->passID(egammaPID::ElectronIDMediumPP)
-		//          <<" tightPP = " << eleItr->passID(egammaPID::ElectronIDTightPP)
-              );       
-
-  ATH_MSG_DEBUG("Event MET_topo : " 
-		// <<" pt = "  << metTopo->et() 
-		// <<" phi = " << metTopo->phi() 
-               );
+		<<" pt = "  << eleItr->pt()
+		<<" eta = " << eleItr->eta()
+		<<" phi = " << eleItr->phi()
+		<<" charge = " << eleItr->charge()
+		);
 
   ATH_MSG_DEBUG("Invariant mass  = " << m_invMass );
-
 }
