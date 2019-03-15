@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,29 +18,27 @@
 #include <memory>
 
 
-std::string idDictType = "LArCalorimeter";
-std::string idDictXmlFile = "IdDictLArCalorimeter_DC3-05-Comm-01.xml";
+const std::string idDictType = "LArCalorimeter";
+const std::string idDictXmlFile = "IdDictLArCalorimeter_DC3-05-Comm-01.xml";
 
-IdDictMgr& getDictMgr()
+std::unique_ptr<IdDictParser> make_parser(const std::string& type = idDictType,
+                                          const std::string& xmlFile = idDictXmlFile)
 {
-  static IdDictMgr* mgr = nullptr;
-  if (!mgr) {
-    static IdDictParser parser;
-    parser.register_external_entity (idDictType,
-                                     idDictXmlFile);
-    mgr = &parser.parse ("IdDictParser/ATLAS_IDS.xml");
-  }
-  return *mgr;
+  auto parser = std::make_unique<IdDictParser>();
+  parser->register_external_entity (type, xmlFile);
+  parser->parse ("IdDictParser/ATLAS_IDS.xml");
+  return parser;
 }
 
 
 template <class T>
-std::unique_ptr<T> make_helper (bool do_neighbours = false,
+std::unique_ptr<T> make_helper (const IdDictParser& parser,
+                                bool do_neighbours = false,
                                 bool do_checks = true)
 {
   auto idhelper = CxxUtils::make_unique<T>();
   idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (getDictMgr()) == 0);
+  assert (idhelper->initialize_from_dictionary (parser.m_idd) == 0);
 
   assert (!idhelper->do_checks());
   if (do_checks) {

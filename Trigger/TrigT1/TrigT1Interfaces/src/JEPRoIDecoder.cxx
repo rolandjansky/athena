@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          JEPRoIDecoder.cxx  -  description
@@ -320,7 +320,7 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
       }
     } //endfor
 
-    return m_sumEtThreshPassedVec;
+    return m_mEtSigThreshPassedVec;
   }
 
   /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5 it

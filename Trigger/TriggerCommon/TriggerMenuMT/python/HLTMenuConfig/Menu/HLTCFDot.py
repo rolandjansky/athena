@@ -1,16 +1,18 @@
 ###### Here some graphical methods to produce dot files from Decision Handling
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
-from ViewAlgsTest.connectAlgorithmsIO import connectAlgorithmsIO, graph_generator
 from AthenaCommon.AlgSequence import AthSequencer
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
 import itertools
 
 def algColor(alg):
     """ Set given color to Alg type"""
-    if isHypoBase(alg):       return "darkorchid1"
-    if isInputMakerBase(alg): return "cyan3"
-    if isFilterAlg(alg):      return "chartreuse3"
+    if isHypoBase(alg):      
+        return "darkorchid1"
+    if isInputMakerBase(alg): 
+        return "cyan3"
+    if isFilterAlg(alg):      
+        return "chartreuse3"
     return "cadetblue1"
 
 def stepCF_ControlFlow_to_dot(stepCF):
@@ -40,8 +42,11 @@ def stepCF_ControlFlow_to_dot(stepCF):
         return False
 
     def _seqColor(seq):
-        if _parOR(seq): return "red"
-        if _seqAND(seq): return "blue"
+        if _parOR(seq): 
+            return "red"
+        if _seqAND(seq): 
+            return "blue"
+
         return "black"
 
    
@@ -105,7 +110,7 @@ def all_DataFlow_to_dot(name, step_list):
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs.append(menuseq.maker)
                     cfseq_algs.append(menuseq.sequence )
-                    if menuseq.reuse==False:
+                    if menuseq.reuse is False:
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                         menuseq.reuse=True
@@ -166,7 +171,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             for menuseq in cfseq.step.sequences:
                 cfseq_algs.append(menuseq.maker)
                 cfseq_algs.append(menuseq.sequence )
-                if menuseq.reuse==False:
+                if menuseq.reuse is False:
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                     menuseq.reuse=True
@@ -236,12 +241,12 @@ def getValuesProperties(node):
     
     for alg in algs:        
         for k, cval in alg.getValuedProperties().items():
-            if type(cval) == type(list()):  
+            if type(cval) is list:  
                 for val in cval:
-                    if type(val) == type(''):
+                    if val is '': # CAT type(val) is None ??
                         if val not in Excluded:
                             values.append(val)            
-            elif type(cval) == type(''):
+            elif cval is '': # CAT type(val) is None ??
                 if cval not in Excluded:
                     values.append(cval)
             else:

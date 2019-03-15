@@ -172,7 +172,8 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
   if (!p) {
     if (0 == barcode()) {
 #if 0
-      mlog() << MSG::DEBUG
+      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+      log << MSG::DEBUG
              << "cptr: no truth particle associated with this hit (barcode==0)."
              << " Probably this is a noise hit" << endmsg;
 #endif
@@ -186,7 +187,16 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
         pEvt = pEvtColl->at(0);
       }
       else if (position != ExtendedBarCode::UNDEFINED) {
-        pEvt = pEvtColl->at (position);
+        if (position < pEvtColl->size()) {
+          pEvt = pEvtColl->at (position);
+        }
+        else {
+#if 0
+          MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+          log << MSG::WARNING << "cptr: position = " << position << ", McEventCollection size = "<< pEvtColl->size() << endmsg;
+#endif
+          return nullptr;
+        }
       }
       else {
         pEvt = pEvtColl->find (index);

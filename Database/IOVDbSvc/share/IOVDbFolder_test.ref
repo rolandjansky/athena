@@ -1,0 +1,21 @@
+Running 2 test cases...
+
+
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/jobOptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/jobOptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.OutputLevel = 5
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO # (3,1): IOVDbSvc.Folders = ["/key1"]
+JobOptionsSvc        INFO # (4,1): EventPersistencySvc.CnvServices += ["AthenaPoolCnvSvc"]
+JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 5
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/jobOptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on lxplus089.cern.ch on Thu Mar 14 17:14:44 2019
+====================================================================================================================================
+ApplicationMgr Ready
+IOVDbFolder_test     INFO Opening COOL connection for sqlite://;schema=IOVDbFolderTest.db;dbname=OFLP200
+
+[1;32;49m*** No errors detected
+[0;39;49m

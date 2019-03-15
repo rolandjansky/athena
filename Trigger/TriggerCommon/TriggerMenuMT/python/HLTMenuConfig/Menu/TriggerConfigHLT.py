@@ -39,7 +39,7 @@ class TriggerConfigHLT:
 
     def registerHLTChain(self, chainName, chainConfig):
         """ Adds chain to the set of self.allChains which are registered for further use """
-        if logical_name in self.allChains:
+        if chainName in self.allChains:
             self.allChains[chainName].append( chainConfig )
         else:
             self.allChains[chainName] = [ chainConfig ]
@@ -89,7 +89,7 @@ def getConfFromChainName(chainName, allChainDicts = None):
                     chainPartNames.append('HLT_'+cPName)
                     
     if len(chainPartNames) == 0:
-        log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s",name)
+        log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s", chainName)
         sys.exit("ERROR, in getConfFromChainName: Wrong chain configuration") 
         return [chainName]
     else:

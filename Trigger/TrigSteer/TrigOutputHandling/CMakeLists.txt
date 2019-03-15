@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigMonitoring/TrigCostMonitorMT
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
 			  Trigger/TrigDataAccess/TrigSerializeTP
-			  Control/AthContainersRoot/AthContainersRoot
+			  Control/AthContainersRoot
                           )
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )

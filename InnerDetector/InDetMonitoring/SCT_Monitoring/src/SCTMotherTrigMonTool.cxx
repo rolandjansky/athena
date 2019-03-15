@@ -10,16 +10,17 @@
 // Local
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 // Framework
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/ReadHandle.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
+
+#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/StatusCode.h"
 
 const std::string SCTMotherTrigMonTool::m_triggerNames[] = {
   "RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"
 };
 
-SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string &type, const std::string &name, const IInterface *parent)
+SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
   m_doTrigger(true),
   m_isStream(false),
@@ -65,14 +66,14 @@ SCTMotherTrigMonTool::hasTriggerFired(const unsigned int trigger) const {
 }
 
 bool
-SCTMotherTrigMonTool::isCalibrationNoise(const std::string &L1_Item) {
+SCTMotherTrigMonTool::isCalibrationNoise(const std::string& L1_Item) {
   ATH_MSG_DEBUG("Trigger " << L1_Item << " = " << m_trigDecTool->isPassed(L1_Item));
 
   return m_trigDecTool->isPassed(L1_Item);
 }
 
 bool
-SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
+SCTMotherTrigMonTool::isStream(const std::string& StreamName) {
   SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
   if (evtInfo.isValid()) {
     m_isStream = false;

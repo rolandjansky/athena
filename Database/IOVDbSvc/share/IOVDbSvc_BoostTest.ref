@@ -1,0 +1,5 @@
+ApplicationMgr.OutputLevel = 5;
+ApplicationMgr.CreateSvc += { "StoreGateSvc/DetectorStore" };
+IOVDbSvc.Folders = { "/key1"};
+EventPersistencySvc.CnvServices += { "AthenaPoolCnvSvc" };
+MessageSvc.OutputLevel = 5;

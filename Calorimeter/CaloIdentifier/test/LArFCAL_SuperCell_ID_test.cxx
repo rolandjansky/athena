@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -48,7 +48,8 @@ void test_basic (const LArFCAL_SuperCell_ID& idhelper)
 
 int main()
 {
-  std::unique_ptr<LArFCAL_SuperCell_ID> idhelper = make_helper<LArFCAL_SuperCell_ID_Test>();
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<LArFCAL_SuperCell_ID> idhelper = make_helper<LArFCAL_SuperCell_ID_Test>(*parser);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);
