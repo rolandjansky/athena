@@ -15,7 +15,7 @@
  **********************************************************************/
 
 #include "TrigEgammaAnalysisTools/TrigEgammaEventSelection.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 using namespace std;
 
 TrigEgammaEventSelection::TrigEgammaEventSelection( const std::string& myname ): 
@@ -238,7 +238,6 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
 
   
   ATH_MSG_INFO("In EventSelectonFakes...");
-  double GeV = 1000.;
 
   for(const auto& elTag : *m_offElectrons){ 
 
@@ -250,7 +249,7 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
     if(!elTag->trackParticle()) continue;
 
     // Default is 4 GeV
-    if( !(elTag->e()/cosh(elTag->trackParticle()->eta())  > m_probeMinEt*GeV) ) continue;
+    if( !(elTag->e()/cosh(elTag->trackParticle()->eta())  > m_probeMinEt*Gaudi::Units::GeV) ) continue;
     
     //fiducial detector acceptance region
     float absEta = fabs(elTag->caloCluster()->etaBE(2));
@@ -270,7 +269,7 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
       if(!elProbe->trackParticle()) continue;
       
       // Must be higher than 4 GeV
-      if( (getEt(elProbe)) < 4*GeV)  continue;
+      if( (getEt(elProbe)) < 4*Gaudi::Units::GeV)  continue;
 
       if(!TrigEgammaNavTPBaseTool::ApplyElectronPid(elProbe,"LHMedium")) continue;
 
@@ -504,38 +503,37 @@ bool TrigEgammaEventSelection::fillTrigCaloRings( const HLT::TriggerElement *fea
 
 bool TrigEgammaEventSelection::ApplyFireTriggers( const xAOD::Electron *el){
 
-  float GeV = 1000.0;
   float et = getEt(el);
 
   std::string trigger="";
   
-  if(et < 5*GeV){
+  if(et < 5*Gaudi::Units::GeV){
     return false;
-  }else if(et >= 5*GeV && et < 10*GeV){
+  }else if(et >= 5*Gaudi::Units::GeV && et < 10*Gaudi::Units::GeV){
     trigger = "HLT_e5_etcut";
-  }else if(et >= 10*GeV && et < 15*GeV){
+  }else if(et >= 10*Gaudi::Units::GeV && et < 15*Gaudi::Units::GeV){
     trigger = "HLT_e10_etcut_L1EM7";
-  }else if(et >= 15*GeV && et < 20*GeV){
+  }else if(et >= 15*Gaudi::Units::GeV && et < 20*Gaudi::Units::GeV){
     trigger = "HLT_e15_etcut_L1EM7";
-  }else if(et >= 20*GeV && et < 25*GeV){
+  }else if(et >= 20*Gaudi::Units::GeV && et < 25*Gaudi::Units::GeV){
     trigger = "HLT_e20_etcut_L1EM12";
-  }else if(et >= 25*GeV && et < 30*GeV){
+  }else if(et >= 25*Gaudi::Units::GeV && et < 30*Gaudi::Units::GeV){
     trigger = "HLT_e25_etcut_L1EM15";
-  }else if(et >= 30*GeV && et < 40*GeV){
+  }else if(et >= 30*Gaudi::Units::GeV && et < 40*Gaudi::Units::GeV){
     trigger = "HLT_e30_etcut_L1EM15";
-  }else if(et >= 40*GeV && et < 50*GeV){
+  }else if(et >= 40*Gaudi::Units::GeV && et < 50*Gaudi::Units::GeV){
     trigger = "HLT_e40_etcut_L1EM15";
-  }else if(et >= 50*GeV && et < 60*GeV){
+  }else if(et >= 50*Gaudi::Units::GeV && et < 60*Gaudi::Units::GeV){
     trigger = "HLT_e50_etcut_L1EM15";
-  }else if(et >= 50*GeV && et < 60*GeV){
+  }else if(et >= 50*Gaudi::Units::GeV && et < 60*Gaudi::Units::GeV){
     trigger = "HLT_e60_etcut";
-  }else if(et >= 60*GeV && et < 70*GeV){
+  }else if(et >= 60*Gaudi::Units::GeV && et < 70*Gaudi::Units::GeV){
     trigger = "HLT_e70_etcut";
-  }else if(et >= 70*GeV && et < 80*GeV){
+  }else if(et >= 70*Gaudi::Units::GeV && et < 80*Gaudi::Units::GeV){
     trigger = "HLT_e80_etcut";
-  }else if(et >= 80*GeV && et < 100*GeV){
+  }else if(et >= 80*Gaudi::Units::GeV && et < 100*Gaudi::Units::GeV){
     trigger = "HLT_e100_etcut";
-  }else if(et >= 100*GeV && et < 120*GeV){
+  }else if(et >= 100*Gaudi::Units::GeV && et < 120*Gaudi::Units::GeV){
     trigger = "HLT_e120_etcut";
   }else{
     return true;

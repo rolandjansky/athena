@@ -16,7 +16,7 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "PATCore/AcceptData.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 #include "string"
 #include <algorithm>
 #include "boost/algorithm/string.hpp"
@@ -274,7 +274,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
           ATH_MSG_DEBUG("No caloCluster");
           continue;
       } 
-      if( !(getCluster_et(eg) > (etthr-5.)*1.e3)) continue; //Take 2GeV above threshold
+      if( !(getCluster_et(eg) > (etthr-5.)*Gaudi::Units::GeV)) continue; //Take 2GeV above threshold
       if(!eg->passSelection(m_photonPid)) continue;
       if(m_doUnconverted){
           if (eg->vertex()){

@@ -151,17 +151,6 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             }
 
 
-            const auto vec_l2rnn = fc.get<xAOD::TrigRNNOutput>("",TrigDefs::alsoDeactivateTEs);
-            for(const auto feat : vec_l2rnn){
-                if(feat.te()==nullptr) continue;
-                const auto* obj = getFeature<xAOD::TrigRNNOutput>(feat.te());
-                // Only consider passing objects
-                if(!obj) continue;   
-                //cd(dir+"HLT");
-                //if(ancestorPassed<xAOD::TrigRNNOutput>(feat.te()))
-                //  hist1("rejection")->Fill("L2Calo",1);
-                fillRnnDistribution(dir+"L2Calo",obj);// Fill HLT Rnn distribution output
-            }
 
             const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_clus){
@@ -331,45 +320,6 @@ void TrigEgammaDistTool::fillRingerShapes(const std::string dir, const xAOD::Tri
       ATH_MSG_DEBUG("L2 Calo distributions.");
     }
 }
-
-void TrigEgammaDistTool::fillRnnDistribution(const std::string dir, const xAOD::TrigRNNOutput *rnn){
-    // ringer threshold grid for mc15c, 2016 and 2017       
-    float ringer_thres_et_bins[6]={15.,20.,30.,40.,50.,50000.};
-    float ringer_thres_eta_bins[6]={0.,0.8,1.37,1.54,2.37,2.5};
-
-    if(!rnn)  ATH_MSG_DEBUG("Online pointer fails");
-    else{
-      if(rnn->rnnDecision().empty() || rnn->rnnDecision().size()!=3){
-        ATH_MSG_DEBUG("Invalid RNN Decision. skip object...");
-        return;
-      }
-
-      auto emCluster=rnn->ringer()->emCluster();
-      float eta=std::abs(emCluster->eta());
-      float et=emCluster->et()*1e-3;
-      float output=rnn->rnnDecision()[2];
-      float avgmu=rnn->rnnDecision()[0];
-
-      cd(dir);
-      hist1("discriminant")->Fill(output);
-      hist2("discriminantVsMu")->Fill(output,avgmu);
-      cd(dir+"/discriminant_binned");
-      for (unsigned etBinIdx=0; etBinIdx<6-1; ++etBinIdx){
-        for (unsigned etaBinIdx=0; etaBinIdx<6-1; ++etaBinIdx){
-          if( ( et < ringer_thres_et_bins[etBinIdx]  && ringer_thres_et_bins[etBinIdx+1] >= et)
-           && ( eta < ringer_thres_eta_bins[etaBinIdx]  && ringer_thres_eta_bins[etaBinIdx+1] >= eta)){
-            std::stringstream ss1,ss2;
-            ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
-            ss2 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
-            hist1(ss1.str())->Fill(output);
-            hist2(ss2.str())->Fill(output,avgmu);
-           }
-        }
-      }
-      ATH_MSG_DEBUG("L2 Calo distributions.");
-    }
-}
-
 
 
 void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){

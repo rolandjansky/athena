@@ -22,6 +22,7 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "PATCore/AcceptData.h"
 #include "string"
 #include <algorithm>
@@ -328,7 +329,6 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     // Require offline tight electron
     // Match to e24_tight1_L1EM20V
     ATH_MSG_DEBUG("Selecting Tag Electron");
-    double GeV = 1000.;
 
     //Check constituents
     const xAOD::TrackParticle *trk = el->trackParticle();
@@ -351,7 +351,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     hist1(m_anatype+"_TagCutCounter")->Fill("GoodPid",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
-    if( !(el->e()/cosh(el->trackParticle()->eta())  > m_tagMinEt*GeV) ){
+    if( !(el->e()/cosh(el->trackParticle()->eta())  > m_tagMinEt*Gaudi::Units::GeV) ){
         return false;
     }
     hist1(m_anatype+"_TagCutCounter")->Fill("Et",1);
@@ -464,7 +464,6 @@ bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const s
 
 bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
 
-    double GeV = 1000.;
     //Check constituents
     if(!el->trackParticle()){
         ATH_MSG_DEBUG("No track Particle");
@@ -484,7 +483,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         }
     }
     hist1(m_anatype+"_ProbeCutCounter")->Fill("Eta",1);
-    /*if( !(el->e()/cosh(el->trackParticle()->eta())  > (etthr-5.0)*GeV) ){
+    /*if( !(el->e()/cosh(el->trackParticle()->eta())  > (etthr-5.0)*Gaudi::Units::GeV) ){
         return false;
     }
     hist1("ProbeCutCounter")->Fill("Et",1);*/
@@ -501,7 +500,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         for(const auto &i_jet : *m_jets){
             TLorentzVector jet;
             jet.SetPtEtaPhiE(i_jet->pt(), i_jet->eta(), i_jet->phi(), i_jet->e());
-            if( (jet.Et() > 20*GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;
+            if( (jet.Et() > 20*Gaudi::Units::GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;
         }
         //reject if more than 1 jet close to the probe electron
         if ( jetsAroundProbeElectron >= 2 ) {
