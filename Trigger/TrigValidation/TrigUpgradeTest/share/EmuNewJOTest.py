@@ -23,16 +23,6 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
 
-flags.Detector.GeometryPixel = True
-flags.Detector.GeometrySCT   = True
-flags.Detector.GeometryTRT   = True
-flags.Detector.GeometryLAr   = True
-flags.Detector.GeometryTile  = True
-flags.Detector.GeometryMDT   = True
-flags.Detector.GeometryTGC   = True
-flags.Detector.GeometryCSC   = True
-flags.Detector.GeometryRPC   = True
-
 flags.needFlagsCategory("Trigger")
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
