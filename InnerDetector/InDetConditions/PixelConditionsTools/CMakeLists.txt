@@ -51,9 +51,11 @@ atlas_add_component( PixelConditionsTools
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelConditionsData PixelCoralClientUtils InDetIdentifier GeoModelUtilities InDetReadoutGeometry PathResolver ${extra_lib} )
 
-atlas_add_test( PixelConditionsConfig_test
-                SCRIPT test/PixelConditionsConfig_test.py
-                PROPERTIES TIMEOUT 30 )
+if( NOT SIMULATIONBASE )
+  atlas_add_test( PixelConditionsConfig_test
+                  SCRIPT test/PixelConditionsConfig_test.py
+                  PROPERTIES TIMEOUT 30 )
+endif()
 
 # Install files from the package:
 atlas_install_headers( PixelConditionsTools )
