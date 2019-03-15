@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools, setEFTauTopoMonTools
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
@@ -83,7 +83,7 @@ class EFTauTopoHypoBase (EFTauTopoHypo):
     __slots__ = []
     def __init__(self, name):
         super(EFTauTopoHypoBase, self).__init__(name)
-        setL2TauTopoMonTools(self)
+        setEFTauTopoMonTools(self)
 
 class EFTauTopoHypo (EFTauTopoHypoBase):
     __slots__ = []
