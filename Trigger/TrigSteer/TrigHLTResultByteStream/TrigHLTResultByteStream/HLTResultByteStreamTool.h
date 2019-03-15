@@ -21,11 +21,6 @@
 #include <stdint.h>
 #include "AthenaBaseComps/AthAlgTool.h"
 
-/* Needed to extract the evnum */
-//#include "EventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
-//#include "StoreGate/StoreGateSvc.h"
-
 /* To be able to use OFFLINE_FRAGMENTS_NAMESPACE */
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
