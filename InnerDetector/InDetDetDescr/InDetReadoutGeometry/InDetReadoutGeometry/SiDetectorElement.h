@@ -734,18 +734,21 @@ namespace InDetDD {
     
     inline double SiDetectorElement::hitDepthDirection() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return (m_depthDirection) ? 1. : -1.;
     }
     
     inline double SiDetectorElement::hitPhiDirection() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return (m_phiDirection) ? 1. : -1.;
     }
     
     inline double SiDetectorElement::hitEtaDirection() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return (m_etaDirection) ? 1. : -1.;
     }
@@ -767,6 +770,7 @@ namespace InDetDD {
     
     inline void SiDetectorElement::updateAllCaches() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       if (not m_surface) surface();
     }
@@ -774,36 +778,42 @@ namespace InDetDD {
     
     inline double SiDetectorElement::rMin() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_minR;
     }
     
     inline double SiDetectorElement::rMax() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_maxR;
     }
     
     inline double SiDetectorElement::zMin() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_minZ;
     }
     
     inline double SiDetectorElement::zMax() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_maxZ;
     }
     
     inline double SiDetectorElement::phiMin() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_minPhi;
     }
     
     inline double SiDetectorElement::phiMax() const 
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
       return m_maxPhi;
     }
@@ -905,6 +915,7 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (m_firstTime) updateCache(); // In order to set m_phiDirection
       // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
       return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
@@ -913,6 +924,7 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapEtaReadoutDirection() const
     {
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
       if (m_firstTime) updateCache(); // In order to set m_etaDirection
       // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
       return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
