@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -83,9 +83,6 @@ namespace TrigConf {
     L1PSNumber::L1PSNumber(const float ps) {
         int64_t i64 = decodeFloat(ps);
         setInt64(i64);
-    }
-
-    L1PSNumber::~L1PSNumber() {
     }
 
     /**

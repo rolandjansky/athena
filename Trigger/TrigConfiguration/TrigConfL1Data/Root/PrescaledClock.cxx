@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/PrescaledClock.h"
@@ -11,9 +11,6 @@ TrigConf::PrescaledClock::PrescaledClock() :
    L1DataBaseclass(),
    m_clock1(0),
    m_clock2(0)
-{}
-
-TrigConf::PrescaledClock::~PrescaledClock()
 {}
 
 void TrigConf::PrescaledClock::print(const std::string& indent, unsigned int detail) const {

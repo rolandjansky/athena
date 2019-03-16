@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/BunchGroupSet.h"
@@ -21,9 +21,6 @@ BunchGroupSet::BunchGroupSet(const std::vector<BunchGroup>& bgv) :
       fillPattern(bg.internalNumber(), bg);
 }
   
-BunchGroupSet::~BunchGroupSet() {}
-
-
 void
 BunchGroupSet::addBunchGroup(const BunchGroup& bg) {
    fillPattern(bg.internalNumber(), bg);
