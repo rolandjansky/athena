@@ -115,8 +115,8 @@ addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-addVRJets(FTAG2Seq)
-addVRJets(FTAG2Seq, do_ghost=True)
+#addVRJets(FTAG2Seq)
+addVRJets(FTAG2Seq, do_ghost=True, doFlipTagger=True)
 
 # Also add Hbb Tagger
 addHbbTagger(FTAG2Seq, ToolSvc)

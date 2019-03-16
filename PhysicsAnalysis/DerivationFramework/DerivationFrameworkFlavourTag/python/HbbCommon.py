@@ -201,7 +201,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_opts, **opts):
     from AthenaCommon import Logging
 
     if logger is None:
@@ -214,10 +214,10 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
 
-    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger)
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger)
     linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
 
-def buildVRJets(sequence, do_ghost, logger):
+def buildVRJets(sequence, do_ghost, logger, doFlipTagger):
     from JetRec.JetRecStandard import jtm
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
@@ -258,7 +258,8 @@ def buildVRJets(sequence, do_ghost, logger):
                  "BTagSVName"   : "SecVtx",
         },
         SetupScheme = "",
-        TaggerList = BTaggingFlags.StandardTaggers,
+#	TaggerList = BTaggingFlags.StandardTaggers,
+	TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 
